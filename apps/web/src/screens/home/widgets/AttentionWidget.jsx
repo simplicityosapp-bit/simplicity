@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Wallet, Calendar, Target, AlertCircle, Clock, Bell, ChevronLeft, ChevronDown, CalendarClock, FileDown, BellOff } from 'lucide-react'
-import { attentionItems, attentionRowAction } from '../../../lib/homeData'
+import { attentionItems, attentionRowAction, ATTENTION_PRIORITY } from '../../../lib/homeData'
 import { ROUTES } from '../../../lib/routes'
 import { pushUndo } from '../../../lib/undo'
 import { useWhatsAppMessage } from '../../../hooks/useWhatsAppMessage'
@@ -12,84 +12,67 @@ import PendingSection from '../../finance/PendingSection'
 import MeetingConfirmList from './MeetingConfirmList'
 import { useTransactions } from '../../../hooks/useTransactions'
 import { useScheduledMeetings } from '../../../hooks/useScheduledMeetings'
-import { useScheduledMeetingsGeneration } from '../../../hooks/useScheduledMeetingsGeneration'
-import { useRecurringGeneration } from '../../../hooks/useRecurringGeneration'
 import { useClients } from '../../../hooks/useClients'
 import { useGroups } from '../../../hooks/useGroups'
 import { useGroupMembers } from '../../../hooks/useGroupMembers'
-import { useTasks } from '../../../hooks/useTasks'
 import { useGoals } from '../../../hooks/useGoals'
 import { useGoalCategories } from '../../../hooks/useGoalCategories'
 import { useCategories } from '../../../hooks/useCategories'
 import { useProjects } from '../../../hooks/useProjects'
-import { useRecurring } from '../../../hooks/useRecurring'
 import { useSessions } from '../../../hooks/useSessions'
 import { useLeads } from '../../../hooks/useLeads'
 import { useCalendarEvents } from '../../../hooks/useCalendarEvents'
 import { useCalendarDuplicates } from '../../../hooks/useCalendarDuplicates'
 import CalendarDuplicateModal from '../../../modals/CalendarDuplicateModal'
 import { useBookings } from '../../../hooks/useBookings'
-import { useBookingsGeneration } from '../../../hooks/useBookingsGeneration'
 import BookingConfirmList from './BookingConfirmList'
 import { useInvoiceImports } from '../../../hooks/useInvoiceImports'
 import InvoiceImports from '../../finance/InvoiceImports'
 import { useT } from '../../../i18n/useT'
 import { Box, Txt, Btn } from '../../../components/ui'
 
-const ICONS = { Wallet, Calendar, Target, AlertCircle, Clock, Bell }
+const ICONS = { Wallet, Calendar, Target, AlertCircle, Clock, Bell, FileDown, CalendarClock }
 
 /* "דרושה תשומת לב" — composed rows from pending tx, pending meetings,
-   balances, goal gap, urgent tasks, 45-day client/lead rules. The actionable
-   rows (pending transactions / pending meetings) open an approve-skip-delete
-   popup; the rest navigate to their screen. Also hosts the generation hooks
-   that materialise pending meetings + linked expenses on home (moved here from
-   the now-removed meeting-confirm widget). */
+   balances, goal gap and the 45-day client/lead rules. The actionable rows
+   (pending transactions / pending meetings) open an approve-skip-delete
+   popup; the rest navigate to their screen.
+
+   NOT here: your own tasks. That row duplicated the tasks widget sitting
+   beside it on the same screen — which can actually tick them off.
+
+   The materialisation engines used to live here on the assumption that this
+   widget always mounts on home — it doesn't, it can be switched off in
+   Settings. They now sit in <HomeGenerators/>, mounted by HomeScreen itself. */
 export default function AttentionWidget() {
   const { t, lang } = useT('home')
   const navigate = useNavigate()
   const waMsg = useWhatsAppMessage()
-  const { transactions, setStatus: setTxStatus, removeTransaction, addTransaction, loading: transactionsLoading } = useTransactions()
-  const { meetings, addMeeting, updateMeeting, loading: meetingsLoading } = useScheduledMeetings()
+  const { transactions, setStatus: setTxStatus, removeTransaction } = useTransactions()
+  const { meetings, updateMeeting } = useScheduledMeetings()
   const { clients, updateClient } = useClients()
   const { groups } = useGroups()
   const { members } = useGroupMembers()
-  const { tasks } = useTasks()
   const { goals } = useGoals()
   const { categories: goalCategories } = useGoalCategories()
   const { categories: financeCategories } = useCategories()
   const { projects } = useProjects()
-  const { templates } = useRecurring()
   const { sessions } = useSessions()
   const { leads } = useLeads()
   const { events: calendarEvents, dismissEvent } = useCalendarEvents()
-  const { bookings, materialize, loading: bookingsLoading } = useBookings()
+  const { bookings } = useBookings()
   /* Route-B invoice imports staged by the provider webhook (a receipt issued
      in SUMIT/Green Invoice) — surface them here so a new receipt raises an
      attention row, not just a section on the finance screen. */
   const { imports: invoiceImports } = useInvoiceImports()
 
-  /* Materialise pending scheduled-meeting rows + their linked on_meeting
-     expenses so the attention count + popups are populated on home visit.
-     Idempotent — gated on the loading flags so it doesn't race the fetch. */
-  useScheduledMeetingsGeneration({ clients, groups, meetings, meetingsLoading, addMeeting })
-  useRecurringGeneration({
-    templates,
-    transactions,
-    addTransaction,
-    scheduledMeetings: meetings,
-    transactionsLoading,
-    scheduledMeetingsLoading: meetingsLoading,
-  })
-  /* Backfill lead + calendar event for auto-confirmed bookings. */
-  useBookingsGeneration({ bookings, loading: bookingsLoading, materialize })
-
   const items = useMemo(
-    () => attentionItems(new Date(), { transactions, scheduled_meetings: meetings, clients, tasks, goals, categories: goalCategories, sessions, leads, members, groups }),
+    () => attentionItems(new Date(), { transactions, scheduled_meetings: meetings, clients, goals, categories: goalCategories, sessions, leads, members, groups }),
     /* `lang` is a dep so row labels recompute when the UI language switches —
        attentionItems() reads the active language internally via i18n.t, so the
        linter can't see the use. */
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [transactions, meetings, clients, tasks, goals, goalCategories, sessions, leads, members, groups, lang],
+    [transactions, meetings, clients, goals, goalCategories, sessions, leads, members, groups, lang],
   )
 
   /* Calendar duplicates (app recurring meeting ⇄ synced Google event) surface
@@ -118,27 +101,55 @@ export default function AttentionWidget() {
     [transactions],
   )
 
-  const dupText = duplicates.length > 0
-    ? t('widgets.attention.dup', { count: duplicates.length })
-    : null
-
   const pendingBookings = useMemo(
     () => (bookings || []).filter((b) => b.status === 'pending'),
     [bookings],
   )
-  const bookingsText = pendingBookings.length > 0
-    ? t('widgets.attention.bookings', { count: pendingBookings.length })
-    : null
 
-  const invoicesText = (invoiceImports?.length || 0) > 0
-    ? t('widgets.attention.invoices', { count: invoiceImports.length })
-    : null
+  /* Three rows that can't come from attentionItems() — they need hooks this
+     widget owns (bookings, invoice imports, the calendar-duplicate resolver).
+     They're shaped like every other row and ranked from the SAME priority map,
+     so they sort in among the rule-derived ones instead of being pinned to the
+     top by render order. */
+  const widgetRows = useMemo(() => {
+    const out = []
+    if (pendingBookings.length) {
+      out.push({ rowId: 'bookings', priority: ATTENTION_PRIORITY.bookings, icon: 'Calendar',
+        text: t('widgets.attention.bookings', { count: pendingBookings.length }), kind: 'popup', popup: 'bookings' })
+    }
+    if (invoiceImports?.length) {
+      out.push({ rowId: 'invoices', priority: ATTENTION_PRIORITY.invoices, icon: 'FileDown',
+        text: t('widgets.attention.invoices', { count: invoiceImports.length }), kind: 'popup', popup: 'invoices' })
+    }
+    if (duplicates.length) {
+      out.push({ rowId: 'duplicates', priority: ATTENTION_PRIORITY.duplicates, icon: 'CalendarClock',
+        text: t('widgets.attention.dup', { count: duplicates.length }), kind: 'popup', popup: 'duplicates' })
+    }
+    return out
+    /* `lang` — same reason as `items` above: t() is read at compute time. */
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pendingBookings, invoiceImports, duplicates, lang])
 
-  const totalCount = items.length + (dupText ? 1 : 0) + (bookingsText ? 1 : 0) + (invoicesText ? 1 : 0)
-  const summaryParts = [invoicesText, bookingsText, dupText, ...items.map((it) => it.text)].filter(Boolean)
-  const summary = totalCount === 0
-    ? t('widgets.attention.allClear')
-    : summaryParts.slice(0, 2).join(' · ') + (summaryParts.length > 2 ? ` · ${t('widgets.attention.more', { count: summaryParts.length - 2 })}` : '')
+  /* ONE list, most urgent first. Both the rows and the summary read from it,
+     so the sentence on the closed card always names the same things the open
+     card shows at the top. */
+  const rows = useMemo(
+    () => [...widgetRows, ...items].sort((a, b) => a.priority - b.priority),
+    [widgetRows, items],
+  )
+
+  const totalCount = rows.length
+  /* Only the all-clear state is a sentence now — the rest of the time the
+     card shows the actual rows rather than describing them. */
+  const summary = t('widgets.attention.allClear')
+
+  /* Shows its first few rows straight away and expands to the rest. Closed
+     used to mean a title and a summary line, so nothing on the home screen
+     told you WHICH thing needed attention without a click. No toggle is
+     offered when everything already fits. */
+  const PREVIEW = 3
+  const visible = open ? rows : rows.slice(0, PREVIEW)
+  const expandable = totalCount > PREVIEW
 
   /* What a row does is decided by attentionRowAction (in homeData, tested
      against the real item shapes) so the handler and the data can't drift —
@@ -175,9 +186,15 @@ export default function AttentionWidget() {
 
   return (
     <>
+      {/* The card keeps a pointer-only onClick as a convenience shortcut. It
+          deliberately carries NO role="button": that role makes its children
+          presentational, which would hide the rows and the info "?" inside it
+          from assistive tech. The chevron below is the real, focusable
+          disclosure control, so keyboard and screen-reader users get a proper
+          one instead of an unreachable div. */}
       <Box
-        className={`h-card is-expandable${open ? ' is-open' : ''}`}
-        onClick={() => setOpen((v) => !v)}
+        className={`h-card${expandable ? ' is-expandable' : ''}${open ? ' is-open' : ''}`}
+        onClick={expandable ? () => setOpen((v) => !v) : undefined}
       >
         <Box className="h-card-head">
           <Txt className="h-card-title">
@@ -187,46 +204,43 @@ export default function AttentionWidget() {
               text={t('widgets.attention.infoText')}
             />
           </Txt>
-          <Txt className="h-card-count">{t('widgets.attention.count', { count: totalCount })}</Txt>
-          <ChevronDown size={16} strokeWidth={1.7} className="h-card-chevron" aria-hidden="true" />
+          {/* No count badge. It counted ROWS, not things — "3 פריטים" over a
+              list that turned out to hold twenty. The rows themselves are on
+              screen now, which says it better than any number did. */}
+          {expandable && (
+            <Btn
+              type="button"
+              className="h-card-toggle"
+              aria-expanded={open}
+              aria-controls="h-attn-list"
+              aria-label={open ? t('widgets.card.showLess') : t('widgets.card.showAll', { count: totalCount - PREVIEW })}
+              onClick={(e) => { e.stopPropagation(); setOpen((v) => !v) }}
+            >
+              <ChevronDown size={16} strokeWidth={1.7} className="h-card-chevron" aria-hidden="true" />
+            </Btn>
+          )}
         </Box>
-        {open ? (
-          <Box className="h-card-list">
-            {(invoiceImports?.length || 0) > 0 && (
-              <Btn type="button" className="h-attn-row" onClick={(e) => { e.stopPropagation(); setPopup('invoices') }}>
-                <FileDown size={16} strokeWidth={1.6} className="h-attn-icon" aria-hidden="true" />
-                <Txt className="h-attn-text">{invoicesText}</Txt>
-                <ChevronLeft size={16} strokeWidth={1.6} className="h-row-chevron" aria-hidden="true" />
-              </Btn>
+        {/* One loop over one sorted list. The three widget-owned rows used to
+            be hard-coded above the map, which pinned them to the top however
+            urgent they were. */}
+        {totalCount ? (
+          <Box className="h-card-list" id="h-attn-list">
+            {visible.map((it) => {
+              const Icon = ICONS[it.icon] || Bell
+              return (
+                <Btn key={it.rowId} type="button" className="h-attn-row" onClick={(e) => { e.stopPropagation(); onRow(it) }}>
+                  <Icon size={16} strokeWidth={1.6} className="h-attn-icon" aria-hidden="true" />
+                  <Txt className="h-attn-text">{it.text}</Txt>
+                  <ChevronLeft size={16} strokeWidth={1.6} className="h-row-chevron" aria-hidden="true" />
+                </Btn>
+              )
+            })}
+            {/* What the chevron will reveal, said in words. */}
+            {expandable && !open && (
+              <Txt as="p" className="h-card-more">
+                {t('widgets.card.showAll', { count: totalCount - PREVIEW })}
+              </Txt>
             )}
-            {pendingBookings.length > 0 && (
-              <Btn type="button" className="h-attn-row" onClick={(e) => { e.stopPropagation(); setPopup('bookings') }}>
-                <Calendar size={16} strokeWidth={1.6} className="h-attn-icon" aria-hidden="true" />
-                <Txt className="h-attn-text">{bookingsText}</Txt>
-                <ChevronLeft size={16} strokeWidth={1.6} className="h-row-chevron" aria-hidden="true" />
-              </Btn>
-            )}
-            {duplicates.length > 0 && (
-              <Btn type="button" className="h-attn-row" onClick={(e) => { e.stopPropagation(); setPopup('duplicates') }}>
-                <CalendarClock size={16} strokeWidth={1.6} className="h-attn-icon" aria-hidden="true" />
-                <Txt className="h-attn-text">{dupText}</Txt>
-                <ChevronLeft size={16} strokeWidth={1.6} className="h-row-chevron" aria-hidden="true" />
-              </Btn>
-            )}
-            {items.length ? (
-              items.map((it) => {
-                const Icon = ICONS[it.icon] || Bell
-                return (
-                  <Btn key={it.icon + it.text} type="button" className="h-attn-row" onClick={(e) => { e.stopPropagation(); onRow(it) }}>
-                    <Icon size={16} strokeWidth={1.6} className="h-attn-icon" aria-hidden="true" />
-                    <Txt className="h-attn-text">{it.text}</Txt>
-                    <ChevronLeft size={16} strokeWidth={1.6} className="h-row-chevron" aria-hidden="true" />
-                  </Btn>
-                )
-              })
-            ) : (duplicates.length === 0 && pendingBookings.length === 0 && (invoiceImports?.length || 0) === 0) ? (
-              <Txt as="p" className="h-card-empty">{t('widgets.attention.empty')}</Txt>
-            ) : null}
           </Box>
         ) : (
           <Txt as="p" className="h-card-summary">{summary}</Txt>

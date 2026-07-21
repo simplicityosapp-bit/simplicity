@@ -41,19 +41,15 @@
       },
       "quick-row": {
         "title": "Añadir rápido",
-        "body": "Añadir rápido es un atajo a todos los botones de añadir (tareas, ingresos, prospectos…). «Actualizar objetivo» te permite actualizar rápidamente los objetivos que requieren entrada manual."
+        "body": "Un atajo a todos los botones de añadir — tareas, ingresos, oportunidades y más."
       },
       "attention": {
         "title": "Necesita atención",
         "body": "Confirmar citas que tuvieron lugar, pagos que deberían llegar, duplicados en el calendario — y otras cosas que no quieres que se te escapen."
       },
-      "reminders": {
-        "title": "Recordatorios",
-        "body": "Tareas recurrentes, o cualquier cosa de la que quieras acordarte cada cierto tiempo."
-      },
       "next-tasks": {
-        "title": "Tareas",
-        "body": "Tus tareas urgentes aparecen aquí."
+        "title": "Tareas y recordatorios",
+        "body": "Todo lo pendiente en un solo lugar — tareas y recordatorios juntos, lo más urgente primero: atrasado, luego lo de hoy."
       },
       "chips": {
         "title": "Tarjetas de estado",

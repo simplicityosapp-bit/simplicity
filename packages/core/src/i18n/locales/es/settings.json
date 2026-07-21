@@ -56,8 +56,7 @@
       "insights": "¿Cómo estás hoy?",
       "quick-row": "Acción rápida / actualización",
       "attention": "Avisos (citas, pagos)",
-      "reminders": "Recordatorios próximos",
-      "next-tasks": "Próximas tareas",
+      "next-tasks": "Tareas y recordatorios",
       "chips": "Tarjetas de estado (clientes/neto/tareas)"
     },
     "cardStyle": "Estilo de las tarjetas",

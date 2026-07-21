@@ -56,8 +56,7 @@
       "insights": "How are you today",
       "quick-row": "Quick action / update",
       "attention": "Alerts (meetings, payments)",
-      "reminders": "Upcoming reminders",
-      "next-tasks": "Next tasks",
+      "next-tasks": "Tasks and reminders",
       "chips": "Status cards (clients/net/tasks)"
     },
     "cardStyle": "Card style",

@@ -13,8 +13,6 @@
       "title": "Necesita atención",
       "infoLabel": "Acerca de «Necesita atención»",
       "infoText": "Elementos que requieren acción: transacciones pendientes de aprobación, citas aún sin marcar, clientes activos o en pausa sin ninguna sesión registrada en los últimos 45 días y objetivos por debajo del ritmo.",
-      "count_one": "{{count}} elemento",
-      "count_other": "{{count}} elementos",
       "dup_one": "Conflicto de calendario con Google",
       "dup_other": "{{count}} conflictos de calendario con Google",
       "more": "y {{count}} más",
@@ -43,8 +41,6 @@
         "balance_other": "{{count}} clientes con saldo",
         "goalGap_one": "Faltan {{amount}} para el objetivo — 1 día",
         "goalGap_other": "Faltan {{amount}} para el objetivo — {{days}} días",
-        "urgentTasks_one": "1 tarea urgente",
-        "urgentTasks_other": "{{count}} tareas urgentes",
         "staleClients_one": "1 cliente — hace tiempo que no hablan",
         "staleClients_other": "{{count}} clientes — hace tiempo que no hablan",
         "pendingLeads_one": "1 prospecto pendiente de aprobación",
@@ -103,10 +99,12 @@
       "infoLabel": "Acerca de Vistazo",
       "infoText": "La puntuación ponderada de todos tus objetivos de este mes, según el ritmo — cuánto del objetivo diario previsto has cubierto hasta ahora. 100% = justo en el ritmo.",
       "expandedEmpty": "Aún no hay objetivos activos con datos este mes.",
-      "fullDetail": "Detalle completo"
+      "fullDetail": "Detalle completo",
+      "logEntry": "Registrar avance",
+      "logEntryAria": "Registrar avance de {{name}}"
     },
     "nextTasks": {
-      "title": "Próximas tareas",
+      "title": "Tareas y recordatorios",
       "link_one": "{{count}} tarea",
       "link_other": "{{count}} tareas",
       "noOpen": "No hay tareas abiertas",
@@ -118,35 +116,32 @@
       "openSummary_other": "{{count}} tareas abiertas",
       "allDone": "Todas las tareas hechas. {{add}} una tarea cuando surja.",
       "addWord": "Añade",
-      "markDone": "Marcar como hecha"
+      "markDone": "Marcar como hecha",
+      "overdue_one": "1 atrasada",
+      "overdue_other": "{{count}} atrasadas",
+      "overdueOf_one": "{{overdueText}} de {{count}} abierta",
+      "overdueOf_other": "{{overdueText}} de {{count}} abiertas",
+      "addAria": "Añadir tarea o recordatorio",
+      "addTitle": "¿Qué quieres añadir?",
+      "addTask": "Tarea",
+      "addReminder": "Recordatorio",
+      "dueToday_one": "1 para hoy",
+      "dueToday_other": "{{count}} para hoy",
+      "todayOf_one": "{{todayText}} de {{count}} abierta",
+      "todayOf_other": "{{todayText}} de {{count}} abiertas"
     },
     "quick": {
-      "quickAdd": "Añadir rápido",
-      "goalUpdate": "Actualizar objetivo"
+      "quickAdd": "Añadir rápido"
     },
     "quote": {
       "sourceAria": "Elegir fuente de las citas",
       "fallback": "Hoy es un nuevo día. Todo es posible."
-    },
-    "reminders": {
-      "title": "Próximos recordatorios",
-      "link_one": "{{count}} recordatorio",
-      "link_other": "{{count}} recordatorios",
-      "none": "No hay recordatorios próximos",
-      "todaySummary_one": "{{today}} hoy · {{count}} próximo",
-      "todaySummary_other": "{{today}} hoy · {{count}} próximos",
-      "soonSummary_one": "{{count}} recordatorio próximo",
-      "soonSummary_other": "{{count}} recordatorios próximos",
-      "empty": "No hay recordatorios próximos — todo en calma.",
-      "markDone": "Hecho",
-      "markDoneAria": "Marcar como hecho"
     },
     "meetingConfirm": {
       "subjectClient": "Cliente",
       "subjectGroup": "Grupo",
       "meetingHappened": "La cita tuvo lugar",
       "meetingSkipped": "No tuvo lugar",
-      "meetingDelete": "Eliminar cita",
       "linkedExpense": "Gasto de la cita",
       "txPaid": "Pagado",
       "txNotPaid": "No pagado",
@@ -157,6 +152,11 @@
       "empty": "No hay reservas pendientes de aprobación.",
       "approve": "Aprobar",
       "reject": "Rechazar"
+    },
+    "card": {
+      "showLess": "Ver menos",
+      "showAll_one": "1 más",
+      "showAll_other": "{{count}} más"
     }
   }
 }

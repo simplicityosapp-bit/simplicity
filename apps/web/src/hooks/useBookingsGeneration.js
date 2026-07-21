@@ -3,8 +3,9 @@ import { useEffect, useRef } from 'react'
 /* Materialise auto-confirmed bookings: a page with auto_confirm=true produces
    bookings that arrive already 'confirmed' but with no lead / calendar_event
    (the public edge function only inserts the booking row). This hook — mounted
-   where it always runs (home) — backfills the lead + owned event for each such
-   row exactly once. Manual approvals go through confirm() instead and never
+   by <HomeGenerators/>, which HomeScreen renders unconditionally (NOT from a
+   widget, which the user can switch off) — backfills the lead + owned event for
+   each such row exactly once. Manual approvals go through confirm() and never
    reach here. Idempotent: an in-flight ref + the lead/event guard in
    materializeBooking prevent double-creation under StrictMode. */
 export function useBookingsGeneration({ bookings, loading, materialize }) {

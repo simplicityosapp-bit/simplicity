@@ -10,7 +10,7 @@ export default function FeedbackCard({ onOpenFeedback }) {
   return (
     <Btn type="button" className="feedback-card" onClick={() => onOpenFeedback?.()}>
       <Txt className="feedback-card-icon" aria-hidden="true">
-        <MessageSquarePlus size={20} strokeWidth={1.6} />
+        <MessageSquarePlus size={17} strokeWidth={1.7} />
       </Txt>
       <Txt className="feedback-card-text">
         <Txt className="feedback-card-title">{t('feedback.title')}</Txt>

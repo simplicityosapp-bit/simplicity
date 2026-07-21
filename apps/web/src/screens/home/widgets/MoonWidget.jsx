@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ArrowLeft } from 'lucide-react'
+import { ArrowLeft, Plus } from 'lucide-react'
 import { ROUTES } from '../../../lib/routes'
 import { moonGetData, moonReflection } from '@simplicity/core'
 import { upsertMoonSnapshot } from '../../../lib/api/moonSnapshots'
+import AddGoalEntryModal from '../../../modals/AddGoalEntryModal'
 import { useGoals } from '../../../hooks/useGoals'
 import { useGoalCategories } from '../../../hooks/useGoalCategories'
 import { useGoalEntries } from '../../../hooks/useGoalEntries'
@@ -37,7 +38,7 @@ export default function MoonWidget() {
   const navigate = useNavigate()
   const { goals } = useGoals()
   const { categories } = useGoalCategories()
-  const { entries } = useGoalEntries()
+  const { entries, addEntry } = useGoalEntries()
   const { transactions } = useTransactions()
   const { clients } = useClients()
   const { leads } = useLeads()
@@ -46,6 +47,14 @@ export default function MoonWidget() {
   const { groups } = useGroups()
   const { members } = useGroupMembers()
   const [expanded, setExpanded] = useState(false)
+  /* "עדכון יעד" moved here from the home quick-row (owner decision). There it
+     was a top-level button of equal weight to "הוספה מהירה", and because it had
+     no goal context it opened a category PICKER first — three taps to log one
+     number. Here each row already IS a goal, so the picker step disappears and
+     the modal opens straight on that goal's category, matching how the goals
+     screen has always done it. Manual categories only: an 'auto' goal is
+     computed from transactions/sessions and has nothing to type in. */
+  const [entryCategory, setEntryCategory] = useState(null)
 
   const data = useMemo(
     () => ({ goals, categories, entries, transactions, sessions, clients, leads, answers, members, groups }),
@@ -145,6 +154,17 @@ export default function MoonWidget() {
                   <Box className="moon-expanded-cat-head">
                     <Txt className="moon-expanded-cat-dot" style={{ background: s.cat.color || 'var(--sage)' }} />
                     <Txt className="moon-expanded-cat-name">{s.goal.label || s.cat.name}</Txt>
+                    {s.cat.measurement_type === 'manual' && (
+                      <Btn
+                        type="button"
+                        className="moon-expanded-cat-add"
+                        aria-label={t('widgets.moon.logEntryAria', { name: s.goal.label || s.cat.name })}
+                        title={t('widgets.moon.logEntry')}
+                        onClick={(e) => { e.stopPropagation(); setEntryCategory(s.cat) }}
+                      >
+                        <Plus size={14} strokeWidth={2} aria-hidden="true" />
+                      </Btn>
+                    )}
                   </Box>
                   {/* Per-goal: pace + goal-% side by side (was a lone pace bar). */}
                   <MoonDualBars pace={Math.min(100, s.paced)} goal={s.pure} />
@@ -157,6 +177,13 @@ export default function MoonWidget() {
           </Btn>
         </Box>
       )}
+
+      <AddGoalEntryModal
+        open={!!entryCategory}
+        onClose={() => setEntryCategory(null)}
+        category={entryCategory}
+        onSave={addEntry}
+      />
     </Box>
   )
 }

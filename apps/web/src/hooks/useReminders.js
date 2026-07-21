@@ -4,7 +4,7 @@ import { listReminders, insertReminder, updateReminder, removeReminder as apiRem
 import { isRecurring, nextScheduledAt } from '@simplicity/core'
 import { pushUndo } from '../lib/undo'
 
-/* React-Query-backed: home mounts this in BOTH QuickRow and RemindersWidget —
+/* React-Query-backed: home mounts this in BOTH QuickRow and the tasks-and-reminders widget —
    one shared cache instead of a fetch per consumer. Public API unchanged. */
 const KEY = ['reminders']
 const bySchedule = (a, b) => new Date(a.scheduled_at) - new Date(b.scheduled_at)

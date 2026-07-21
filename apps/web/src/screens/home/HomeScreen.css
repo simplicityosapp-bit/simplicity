@@ -21,26 +21,59 @@
   .home-stack > .feedback-card { order: 2; }
 }
 
-/* ── Desktop layout (≥768px) ────────────────────────────────────
-   The stack becomes a 3-column grid. Most widgets span the full
-   row; the three list widgets (attention / reminders / next-tasks)
-   each take one column and sit side-by-side. */
+/* ── Desktop layout (≥768px) — ONE GRID ─────────────────────────
+   Four columns, and every widget is a real cell in it. Previously most
+   widgets spanned the full width and only two shared a row, so the screen
+   read as a stack of full-width bands with one exception — not a grid.
+
+   The quick-add button is the reason for four rather than three: it takes
+   the last column beside the daily question, which is what puts it "next to
+   the widgets" instead of on a full-width bar of its own.
+
+   `.home-row-top` becomes display:contents so the quote and the moon chip
+   stop being a nested flex row and become grid cells directly. On mobile it
+   stays a flex row — the round chip beside the quote is compact there. */
 @media (min-width: 768px) {
   .home-stack {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 14px;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
     align-items: start;
   }
-  .home-stack > .home-widget,
-  .home-stack > .home-row-top {
-    grid-column: 1 / -1;        /* span all 3 columns by default */
+  /* Two specificity notes, both learned the hard way by measuring:
+
+     1. `.home-stack > .home-row-top` — not the bare class. The unscoped
+        `.home-row-top { display: flex }` below sits LATER in this file at
+        equal specificity, so it would win and display:contents would never
+        take effect.
+
+     2. Descendant, not child, selectors for the widgets. display:contents
+        removes the row's BOX, not the DOM node — quote and moon are still
+        children of .home-row-top, so `.home-stack > .home-widget` does not
+        match them and their spans were silently ignored. */
+  .home-stack > .home-row-top { display: contents; }
+  .home-stack .home-widget { grid-column: 1 / -1; }
+
+  /* The quote fills its row rather than sitting at the top of it. With
+     align-items:start it hugged the top of a row whose height was set by the
+     taller moon chip, so it read as having slipped upward away from the ring
+     beside it. Stretching the cell AND the card inside it makes the two read
+     as one row; the text centres itself in the taller box. */
+  .home-stack .home-widget[data-widget-id="quote"] {
+    grid-column: span 3;
+    align-self: stretch;
   }
-  .home-stack > .home-widget[data-widget-id="attention"],
-  .home-stack > .home-widget[data-widget-id="reminders"],
-  .home-stack > .home-widget[data-widget-id="next-tasks"] {
-    grid-column: span 1;        /* sit side-by-side in one row */
-  }
+  .home-stack .home-widget[data-widget-id="quote"] .h-quote { height: 100%; }
+  .home-stack .home-widget[data-widget-id="moon"]       { grid-column: span 1; }
+  .home-stack .home-widget[data-widget-id="insights"]   { grid-column: span 3; }
+  .home-stack .home-widget[data-widget-id="quick-row"]  { grid-column: span 1; align-self: stretch; }
+  .home-stack .home-widget[data-widget-id="attention"]  { grid-column: span 2; }
+  .home-stack .home-widget[data-widget-id="next-tasks"] { grid-column: span 2; }
+
+  /* The quick-add cell is a tile, so the button fills it rather than
+     floating at a fixed width inside an empty column. */
+  .home-stack .home-widget[data-widget-id="quick-row"] .h-quick-row,
+  .home-stack .home-widget[data-widget-id="quick-row"] .h-quick-btn { height: 100%; }
 }
 
 /* Top row — moon-chip pinned to the start side (right in RTL),
@@ -78,7 +111,6 @@
 }
 .home-screen[data-text-strength="bold"] .h-attn-text,
 .home-screen[data-text-strength="bold"] .h-task-text,
-.home-screen[data-text-strength="bold"] .h-rem-text,
 .home-screen[data-text-strength="bold"] .h-stat-lbl {
   font-weight: 600;
 }
@@ -115,65 +147,99 @@
 [data-theme="dark"] .home-widget[data-accent="amber"]      { --widget-accent: #BE9266; }
 [data-theme="dark"] .home-widget[data-accent="clay"]       { --widget-accent: #9A5E50; }
 
-/* Per-widget accent — soft tinted ring + ambient glow on the card.
-   No hard stripe. The first child of .home-widget is the actual card
-   element (.h-quote / .h-card / .ins-widget / .h-stat).
-   Selector is bumped to .home-stack .home-widget > * so it wins the
-   cascade tie-break against the .h-quote/.h-card/... block below. */
-/* :not() exclusions keep modal portals (rendered as siblings of the
-   widget body — e.g. the TileDrillModal opened from ChipsWidget)
-   from inheriting position:relative. They have to stay
-   position:fixed so they can overlay the entire app frame; without
-   the exclusion this rule wins specificity (0,2,1 vs 0,1,0) and
-   the modal flows in the document instead of floating centered. */
+/* No accent ring or glow in the flattened grid. Eight cards each haloed in
+   their own colour is the opposite of one uniform grid, and a coloured ring
+   sitting on top of a thin dark hairline reads as two borders. The accent
+   variables above are still resolved — small accents inside the cards can
+   use them — but the card outline itself is uniform now.
+
+   `position: relative` stays: other rules anchor to it. The :not() exclusions
+   keep modal portals (rendered as siblings of the widget body — e.g. the
+   TileDrillModal opened from ChipsWidget) from inheriting it; they must stay
+   position:fixed to overlay the whole app frame, and without the exclusion
+   this rule wins on specificity (0,2,1 vs 0,1,0) and drops them into flow. */
 .home-stack .home-widget > *:not(.m-overlay):not(.m-sheet) {
   position: relative;
-  box-shadow:
-    0 0 0 1px color-mix(in srgb, var(--widget-accent, transparent) 28%, transparent),
-    0 0 22px color-mix(in srgb, var(--widget-accent, transparent) 14%, transparent),
-    var(--mg-card-shadow);
-}
-/* The per-widget brand accent (ring + glow) is LIGHT-MODE ONLY. In dark it
-   read as a harsh bright square hugging every widget; drop it back to the
-   plain card shadow so the widgets stay clean at night. */
-[data-theme="dark"] .home-stack .home-widget > *:not(.m-overlay):not(.m-sheet) {
-  box-shadow: var(--mg-card-shadow);
-}
-/* Same treatment for the flat "blank" (ריק) background: with no photo behind
-   the cards the 1px accent ring reads as a hard frame (beta 13/07/2026) — drop
-   it to the plain card shadow, mirroring the dark-mode rule above. */
-html[data-bg="blank"] .home-stack .home-widget > *:not(.m-overlay):not(.m-sheet) {
-  box-shadow: var(--mg-card-shadow);
-}
-/* The moon widget's root is a LAYOUT block wrapping a ROUND chip — the
-   generic ring above would draw a SQUARE around the circle. Move the ring
-   onto the chip itself so it hugs the actual (round) widget. */
-.home-stack .home-widget > .moon-block { box-shadow: none; }
-.home-stack .home-widget[data-widget-id="moon"] .moon-chip {
-  box-shadow:
-    0 0 0 1px color-mix(in srgb, var(--widget-accent, transparent) 28%, transparent),
-    0 0 22px color-mix(in srgb, var(--widget-accent, transparent) 14%, transparent),
-    var(--mg-card-shadow);
-}
-[data-theme="dark"] .home-stack .home-widget[data-widget-id="moon"] .moon-chip {
-  box-shadow: var(--mg-card-shadow);
-}
-html[data-bg="blank"] .home-stack .home-widget[data-widget-id="moon"] .moon-chip {
-  box-shadow: var(--mg-card-shadow);
+  /* Follows the surface rather than being hard-coded off: frosted keeps the
+     app's card shadow (it is part of that material), flat sets the variable
+     to none. Hard-coding `none` here quietly stripped the depth from the
+     DEFAULT look too, which the revert was meant to bring back. */
+  box-shadow: var(--home-card-shadow);
 }
 
-/* Card-style is now global: PrefsApplier sets <html data-card-style> and
-   tokens.css overrides the --mg-card-* tokens accordingly. Home cards just
-   read those tokens through this indirection, so the choice (frosted /
-   flat) reaches Home like every other screen — no home-local style blocks. */
+/* Card-style is global: PrefsApplier sets <html data-card-style> and
+   tokens.css overrides the --mg-card-* tokens accordingly. Home reads them
+   through this indirection.
+
+   ── SURFACE: unchanged from the rest of the app ──────────────────
+   The cards keep the cream glass exactly as the global tokens define it. A
+   flattened, sand-tinted surface was tried here and reverted — the STRUCTURAL
+   work of that experiment stayed (the four-column grid, the tighter radius
+   and padding below, one uniform outline with no per-widget accent ring), but
+   the material did not. Home looks like every other screen again; what
+   changed is the proportion and the arrangement.
+
+   Only two things are overridden, and both are proportion rather than colour:
+   a tighter corner and less padding than the app default, so the grid reads
+   as tiles rather than as a stack of wide bands. */
 .home-screen {
   --home-card-bg:     var(--mg-card-bg);
   --home-card-border: var(--mg-card-border);
   --home-card-shadow: var(--mg-card-shadow);
   --home-card-blur:   var(--mg-card-blur);
+  /* Opaque counterpart, for the one surface that COVERS content rather than
+     sitting on the background: the moon popover. A semi-transparent panel
+     over the widgets beneath it is unreadable. */
+  --home-card-solid:  var(--cream);
+  --mg-card-radius:   14px;
+  --mg-card-pad:      16px 18px;
+}
+[data-theme="dark"] .home-screen {
+  --home-card-solid: #1A1F26;
 }
 
-/* Shared glass card surface. */
+/* ── "שטוח" (Settings → ווידג׳טים → סגנון כרטיס) ─────────────────
+   The flattened sand surface lives HERE rather than as the default. It was
+   built as an experiment, and this is the switch the app already had for
+   exactly this axis — so instead of picking one look for everyone, frosted
+   stays the default and flat becomes the deeper, flatter one.
+
+   The global token for flat is a solid #F5EFE2 with no blur; home takes it
+   further: --bone carried toward --amber-warn for a sandy cream, then a few
+   percent of --espresso for depth (≈#E0D4C7), semi-transparent so the
+   background still reads through, a thin dark hairline instead of a white
+   one, and no shadow. Text measures ~10.4:1 on it.
+
+   Everything structural — the four-column grid, the tighter corner and
+   padding, the previewed rows, one uniform outline — sits OUTSIDE this block
+   and holds in both styles. Only the material changes. */
+html[data-card-style="flat"] .home-screen {
+  --home-card-tint:   color-mix(in srgb, var(--bone) 80%, var(--amber-warn) 20%);
+  --home-card-solid:  color-mix(in srgb, var(--home-card-tint) 92%, var(--espresso) 8%);
+  --home-card-bg:     color-mix(in srgb, var(--home-card-solid) 80%, transparent);
+  --home-card-border: 1px solid rgba(42, 37, 32, 0.18);
+  --home-card-shadow: none;
+  --home-card-blur:   blur(10px);
+}
+/* Dark: the app surface is a cool blue-grey; warmed toward --sidebar-dark so
+   the cards read as lit rather than switched off. */
+html[data-theme="dark"][data-card-style="flat"] .home-screen {
+  --home-card-tint:   color-mix(in srgb, #1A1F26 72%, var(--sidebar-dark) 28%);
+  --home-card-solid:  var(--home-card-tint);
+  --home-card-bg:     color-mix(in srgb, var(--home-card-solid) 82%, transparent);
+  --home-card-border: 1px solid rgba(0, 0, 0, 0.45);
+}
+/* With the "ריק" background there is no photo to read through, so the tint
+   goes solid and the blur — which would be blurring nothing — comes off. */
+html[data-bg="blank"][data-card-style="flat"] .home-screen {
+  --home-card-bg:   var(--home-card-solid);
+  --home-card-blur: none;
+}
+
+/* Shared card surface. The moon widget is deliberately NOT on this list: its
+   surface belongs to the ROUND chip, not to the grid cell around it. Making
+   the cell a tile (an earlier attempt) boxed the ring inside a square and
+   lost the one shape on the screen that isn't a rectangle. */
 .h-quote,
 .ins-widget,
 .h-card,
@@ -189,6 +255,11 @@ html[data-bg="blank"] .home-stack .home-widget[data-widget-id="moon"] .moon-chip
 .h-quote {
   padding: var(--mg-card-pad);
   text-align: center;
+  /* Centres the text when the card is stretched to a taller row (desktop). */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 /* The quote card is a button since beta 03/06/2026 — tap opens the
    source picker (system pool / personal quotes). */
@@ -219,15 +290,19 @@ html[data-bg="blank"] .home-stack .home-widget[data-widget-id="moon"] .moon-chip
    confidence pace, percentage centered, tiny label below. The
    widget's accent halo (from .home-stack .home-widget > *) wraps
    the chip like a soft outer ring. */
+/* ONLY the circle is filled in — the grid cell it sits in stays transparent,
+   so the ring reads as a disc on the background rather than a disc inside a
+   box. It takes the same home surface variables as the tiles (sand, thin
+   hairline, light blur) so it belongs to the set without being a tile. */
 .moon-chip {
   position: relative;
   width: 132px;
   height: 132px;
   margin: 4px auto;
   border-radius: 50%;
-  background: var(--mg-card-bg);
-  border: var(--mg-card-border);
-  backdrop-filter: var(--mg-card-blur);
+  background: var(--home-card-bg);
+  border: var(--home-card-border);
+  backdrop-filter: var(--home-card-blur);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -298,7 +373,10 @@ html[data-bg="blank"] .home-stack .home-widget[data-widget-id="moon"] .moon-chip
 
 /* Block that wraps chip + expanded panel. When expanded we let the
    block grow taller; the chip stays its compact shape on top. */
+/* The cell is a positioning context only — no padding, no surface. The
+   expanded panel below anchors to it. */
 .moon-block {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: stretch;
@@ -307,13 +385,39 @@ html[data-bg="blank"] .home-stack .home-widget[data-widget-id="moon"] .moon-chip
 .moon-block .moon-chip {
   position: relative;
 }
+/* A POPOVER, not an accordion. Expanding used to push everything below it
+   down the page, so opening a glance re-flowed the whole screen; it now
+   floats over what is beneath, like the sidebar's "עוד" panel.
+
+   Out of flow, anchored to .moon-block, and wider than the 132px chip so the
+   per-goal bars have room — it stretches from the chip toward the middle of
+   the screen rather than being trapped in a one-column cell. Opaque rather
+   than semi-transparent: content shows through the cards, but not through a
+   panel that is covering other content. */
 .moon-expanded {
+  position: absolute;
+  top: calc(100% + 6px);
+  inset-inline-start: 0;
+  z-index: 20;
+  width: max(100%, 250px);
+  /* .screen clips on the x-axis (overflow-x: hidden), so an over-wide panel
+     is CUT, not scrolled to. The panel hangs from the chip's start edge —
+     one page-padding in from the screen edge — so the room it has is
+     100vw minus that padding. Measured slack at 280px was only 6px, which a
+     padding change or a wider page-pad would eat. This binds below ~282px
+     and is inert at every real device width. */
+  max-width: calc(100vw - 32px);
+  max-height: min(340px, 60vh);
+  overflow-y: auto;
+  overscroll-behavior: contain;
   padding: 12px 14px;
   border-radius: var(--mg-card-radius);
-  border: var(--mg-card-border);
-  background: var(--mg-card-bg);
-  box-shadow: var(--mg-card-shadow);
-  backdrop-filter: var(--mg-card-blur);
+  border: var(--home-card-border);
+  background: var(--home-card-solid);
+  box-shadow: 0 10px 28px rgba(42, 37, 32, 0.18);
+}
+[data-theme="dark"] .moon-expanded {
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45);
 }
 .moon-expanded-reflection {
   margin: 0 0 10px;
@@ -358,6 +462,38 @@ html[data-bg="blank"] .home-stack .home-widget[data-widget-id="moon"] .moon-chip
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+/* Log a value for THIS goal — the home entry point for "עדכון יעד", which
+   used to be a full-width button in the quick row with a category picker in
+   front of it. Manual-measurement goals only. */
+.moon-expanded-cat-add {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid var(--divider);
+  background: none;
+  color: var(--stone);
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+.moon-expanded-cat-add:hover {
+  border-color: var(--sage);
+  color: var(--sage);
+}
+/* Grown pointer target (see the .h-check note) — the goal rows are stacked,
+   so it fills the row's height and grows outward, never into its neighbour. */
+.moon-expanded-cat-add::after {
+  content: '';
+  position: absolute;
+  inset-block: -5px;
+  inset-inline-end: -8px;
+  inset-inline-start: -5px;
 }
 .moon-expanded-cat-pct {
   font-family: var(--mg-font-num);
@@ -430,13 +566,25 @@ html[data-bg="blank"] .home-stack .home-widget[data-widget-id="moon"] .moon-chip
   display: inline-flex;
   align-items: center;
   gap: 3px;
-  padding: 2px 8px;
+  /* Taller pill (was 2px) so the control itself clears the 24px minimum
+     instead of relying only on the grown target below. */
+  padding: 6px 10px;
   border-radius: 999px;
   border: none;
   background: transparent;
   font: 500 calc(11px * var(--text-scale)) / 1 var(--mg-font);
   color: var(--stone);
   cursor: pointer;
+}
+/* Grown upward/outward into the card's own padding, where there is nothing
+   to hit — expanding downward would overlap the question text, which is
+   itself a link to the insights screen. */
+.ins-skip-btn::after {
+  content: '';
+  position: absolute;
+  inset-block-start: -8px;
+  inset-block-end: -2px;
+  inset-inline: -6px;
 }
 .ins-skip-btn:hover { background: rgba(42, 37, 32, 0.04); }
 [data-theme="dark"] .ins-skip-btn:hover { background: rgba(240, 235, 224, 0.06); }
@@ -722,11 +870,40 @@ html[data-bg="blank"] .home-stack .home-widget[data-widget-id="moon"] .moon-chip
   color: var(--stone);
   margin-inline-start: auto;        /* push count + chevron to the end as a group */
 }
-/* Expand/collapse affordance for the expandable attention card. */
+/* Expand/collapse control on the three expandable cards (attention /
+   reminders / next-tasks). A REAL <button>, not just a glyph: the card div
+   carries a pointer-only onClick, and role="button" on it would make its
+   children presentational — hiding the rows and the "?" from assistive tech.
+   This is the focusable, announced disclosure control instead. */
+.h-card-toggle {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  padding: 0;
+  margin-inline-start: 6px;
+  border: none;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+}
+/* Pointer target grown to ~44px around the 16px glyph WITHOUT changing
+   layout — the card head keeps its exact height and spacing. Grown mostly
+   UPWARD, into the card's own top padding where there is nothing to hit:
+   the toggle and the rows' ✓ buttons sit on the SAME side of the card, so an
+   evenly grown box would end up a few px above the first ✓ and swallow taps
+   meant for it — and ✓ is the consequential one (it completes an item). */
+.h-card-toggle::after {
+  content: '';
+  position: absolute;
+  inset-block-start: -18px;
+  inset-block-end: -8px;
+  inset-inline: -14px;
+}
 .h-card-chevron {
   color: var(--stone);
   flex-shrink: 0;
-  margin-inline-start: 6px;
   transition: transform 0.2s ease;
 }
 .h-card.is-open .h-card-chevron { transform: rotate(180deg); }
@@ -734,6 +911,9 @@ html[data-bg="blank"] .home-stack .home-widget[data-widget-id="moon"] .moon-chip
   display: inline-flex;
   align-items: center;
   gap: 2px;
+  /* Pushes the link + toggle to the end as one group, so the head reads
+     title … link ⌄ rather than spreading the three apart. */
+  margin-inline-start: auto;
   background: none;
   border: none;
   cursor: pointer;
@@ -755,8 +935,7 @@ html[data-bg="blank"] .home-stack .home-widget[data-widget-id="moon"] .moon-chip
 
 /* Generic clickable row. */
 .h-attn-row,
-.h-task-row,
-.h-rem-row {
+.h-task-row {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -777,8 +956,7 @@ html[data-bg="blank"] .home-stack .home-widget[data-widget-id="moon"] .moon-chip
   flex-shrink: 0;
 }
 .h-attn-text,
-.h-task-text,
-.h-rem-text {
+.h-task-text {
   flex: 1;
   min-width: 0;
   font-size: calc(15px * var(--text-scale));
@@ -800,6 +978,19 @@ html[data-bg="blank"] .home-stack .home-widget[data-widget-id="moon"] .moon-chip
   flex: 1;
   min-width: 0;
 }
+/* The due date the list is ordered by. It was never shown before, so the
+   ordering had no visible cause; a passed deadline reads in clay. */
+.h-task-due {
+  font-family: var(--mg-font);
+  font-size: calc(12px * var(--text-scale));
+  color: var(--stone);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.h-task-due.is-overdue {
+  color: var(--clay);
+  font-weight: 500;
+}
 .h-task-dot {
   width: 8px;
   height: 8px;
@@ -812,33 +1003,52 @@ html[data-bg="blank"] .home-stack .home-widget[data-widget-id="moon"] .moon-chip
 .h-task-dot.regular {
   background: var(--amber-warn);
 }
-.h-rem-when {
-  font-family: var(--mg-font);
-  font-size: calc(12px * var(--text-scale));
-  color: var(--stone);
-  white-space: nowrap;
-  flex-shrink: 0;
-}
+/* Quieter than it was: 20px instead of 26, and no fill. It used to carry the
+   glass background, which on the deeper card surface read as a bright white
+   disc pulling the eye down the row — louder than the task it belongs to.
+   Only the outline remains; it fills in on hover/focus.
+
+   The VISUAL shrinking costs nothing in reach: the pointer target below is a
+   pseudo-element and stays the size it was. That separation is the whole
+   reason the two were split in the first place. */
 .h-check {
-  width: 22px;
-  height: 22px;
+  position: relative;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
-  border: 1.5px solid var(--divider);
-  /* Frosted glass instead of an opaque circle — matches the tasks-screen
-     check button (.tc-chk) and the app's two-layer standard. */
-  background: var(--mg-card-bg);
-  backdrop-filter: var(--mg-card-blur);
+  border: 1px solid color-mix(in srgb, var(--stone) 28%, transparent);
+  background: transparent;
   flex-shrink: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   color: transparent;
   cursor: pointer;
-  transition: border-color 0.15s, color 0.15s;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
 }
-.h-check:hover {
+/* Grown pointer target, deliberately ASYMMETRIC. ✓ marks a task/reminder
+   done — a consequential, one-tap action sitting at the end of a row that is
+   itself tappable (it navigates). Expanding evenly would steal from the row
+   and make mis-taps MORE likely on the destructive side, so it grows to fill
+   the row's height (free — nothing above or below) and outward toward the
+   card edge, while staying tight on the side facing the text.
+
+   The insets are RELATIVE to the button, so shrinking the visual from 26px to
+   20px quietly shrank the target with it (42x38 → 36x32). Widened to hold the
+   original ~42x38: the circle got quieter, the thing a finger aims at did
+   not. */
+.h-check::after {
+  content: '';
+  position: absolute;
+  inset-block: -9px;
+  inset-inline-end: -13px;
+  inset-inline-start: -9px;
+}
+.h-check:hover,
+.h-check:focus-visible {
   border-color: var(--sage);
   color: var(--sage);
+  background: color-mix(in srgb, var(--sage) 12%, transparent);
 }
 
 /* ── Collapsible list card (attention / reminders / next-tasks) ─────
@@ -985,12 +1195,19 @@ html[data-bg="blank"] .home-stack .home-widget[data-widget-id="moon"] .moon-chip
 .mtg-confirm-actions {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  /* Wider than the old 6px so the three 40px buttons stay clearly separate
+     targets rather than one continuous strip. */
+  gap: 8px;
   flex-shrink: 0;
 }
+/* ✓ / ✕ / 🗑 on a pending meeting — real size, not an invisible grown target.
+   Three of them sit side by side, so pseudo-element expansion would make the
+   hit areas overlap and fire the wrong one; and these are the most
+   consequential taps on home (✓ materialises a billable session), so the
+   button a finger aims at should genuinely be that big. */
 .mtg-confirm-btn {
-  width: 30px;
-  height: 30px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   display: inline-flex;
   align-items: center;
@@ -1098,4 +1315,93 @@ html[data-bg="blank"] .home-stack .home-widget[data-widget-id="moon"] .moon-chip
 @media (max-width: 420px) {
   .h-people-snooze { padding: 0 10px; }
   .h-people-snooze-label { display: none; }
+}
+
+/* Add control in a card header — the card that owns the thing being added
+   also offers the button for it, instead of a separate full-width CTA lower
+   down the screen. Sits between the title and the "see all" link.
+
+   DESKTOP ONLY. A four-child header (title · + · "12 משימות ‹" · ⌄) wraps to
+   two lines at 320px — measured, not guessed. On mobile the quick-add bar is
+   still full width a few rows down, so adding is covered there; the
+   alternative was stripping the link back to a bare chevron, and an
+   unlabelled glyph is exactly what the accessibility pass removed. */
+.h-card-add { display: none; }
+@media (min-width: 768px) {
+  .h-card-add { display: inline-flex; }
+}
+.h-card-add {
+  position: relative;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  flex-shrink: 0;
+  margin-inline-start: auto;
+  padding: 0;
+  border-radius: 50%;
+  border: 1.5px solid var(--divider);
+  background: transparent;
+  color: var(--stone);
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+.h-card-add:hover { border-color: var(--terracotta); color: var(--terracotta); }
+/* Grown pointer target, up and outward into the card padding — the header
+   has nothing above it, and the "see all" link sits inline-after. */
+.h-card-add::after {
+  content: '';
+  position: absolute;
+  inset-block: -9px;
+  inset-inline: -7px;
+}
+/* With a VISIBLE add button the link no longer needs the auto margin — the
+   button carries it, so the two stay grouped at the end. Scoped to the same
+   breakpoint: the button is still in the DOM on mobile (just display:none),
+   so an unscoped sibling selector would steal the link's auto margin there
+   and strand it next to the title. */
+@media (min-width: 768px) {
+  .h-card-add ~ .h-card-link { margin-inline-start: 8px; }
+}
+
+/* Task / reminder chooser inside the add modal. */
+.h-add-pick {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.h-add-pick-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 18px 12px;
+  border-radius: var(--mg-card-radius);
+  border: var(--mg-card-border);
+  background: var(--mg-card-bg);
+  color: var(--espresso);
+  font-family: var(--mg-font);
+  font-size: calc(13.5px * var(--text-scale));
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 0.15s, transform 0.12s;
+}
+.h-add-pick-btn:hover { border-color: var(--terracotta); }
+.h-add-pick-btn:active { transform: scale(0.98); }
+.h-add-pick-btn svg { color: var(--stone); }
+
+/* The quick-add widget is a full-width bar on mobile, where it is the main
+   way in. On desktop it becomes a tile in the last grid column beside the
+   daily question — see the grid block at the top of this file, which also
+   stretches it to the row height. */
+
+/* "ועוד N" under a previewed list — says in words what the chevron will
+   reveal, so the control is not the only thing announcing there is more. */
+.h-card-more {
+  margin: 6px 2px 0;
+  font-family: var(--mg-font);
+  font-size: calc(12.5px * var(--text-scale));
+  font-weight: 500;
+  color: var(--stone);
 }

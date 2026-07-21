@@ -13,8 +13,6 @@
       "title": "Needs attention",
       "infoLabel": "About \"Needs attention\"",
       "infoText": "Items that need action: transactions awaiting approval, meetings not yet marked, active or on-break clients with no session recorded in the last 45 days, and goals behind pace.",
-      "count_one": "{{count}} item",
-      "count_other": "{{count}} items",
       "dup_one": "Calendar conflict with Google",
       "dup_other": "{{count}} calendar conflicts with Google",
       "more": "and {{count}} more",
@@ -43,8 +41,6 @@
         "balance_other": "{{count}} clients with a balance",
         "goalGap_one": "{{amount}} short of goal — 1 day left",
         "goalGap_other": "{{amount}} short of goal — {{days}} days left",
-        "urgentTasks_one": "1 urgent task",
-        "urgentTasks_other": "{{count}} urgent tasks",
         "staleClients_one": "1 client — it's been a while since you talked",
         "staleClients_other": "{{count}} clients — it's been a while since you talked",
         "pendingLeads_one": "1 lead awaiting approval",
@@ -103,10 +99,12 @@
       "infoLabel": "About Glance",
       "infoText": "The weighted score of all your goals this month, pace-aware — how much of the expected daily target you've covered so far. 100% = right on pace.",
       "expandedEmpty": "No active goals with data this month yet.",
-      "fullDetail": "Full detail"
+      "fullDetail": "Full detail",
+      "logEntry": "Log progress",
+      "logEntryAria": "Log progress for {{name}}"
     },
     "nextTasks": {
-      "title": "Next tasks",
+      "title": "Tasks and reminders",
       "link_one": "{{count}} task",
       "link_other": "{{count}} tasks",
       "noOpen": "No open tasks",
@@ -118,35 +116,32 @@
       "openSummary_other": "{{count}} open tasks",
       "allDone": "All tasks done. {{add}} a task when one comes up.",
       "addWord": "Add",
-      "markDone": "Mark as done"
+      "markDone": "Mark as done",
+      "overdue_one": "1 overdue",
+      "overdue_other": "{{count}} overdue",
+      "overdueOf_one": "{{overdueText}} of {{count}} open",
+      "overdueOf_other": "{{overdueText}} of {{count}} open",
+      "addAria": "Add a task or reminder",
+      "addTitle": "What would you like to add?",
+      "addTask": "Task",
+      "addReminder": "Reminder",
+      "dueToday_one": "1 due today",
+      "dueToday_other": "{{count}} due today",
+      "todayOf_one": "{{todayText}} of {{count}} open",
+      "todayOf_other": "{{todayText}} of {{count}} open"
     },
     "quick": {
-      "quickAdd": "Quick add",
-      "goalUpdate": "Update goal"
+      "quickAdd": "Quick add"
     },
     "quote": {
       "sourceAria": "Choose quote source",
       "fallback": "Today is a new day. Anything is possible."
-    },
-    "reminders": {
-      "title": "Upcoming reminders",
-      "link_one": "{{count}} reminder",
-      "link_other": "{{count}} reminders",
-      "none": "No upcoming reminders",
-      "todaySummary_one": "{{today}} today · {{count}} upcoming",
-      "todaySummary_other": "{{today}} today · {{count}} upcoming",
-      "soonSummary_one": "{{count}} upcoming reminder",
-      "soonSummary_other": "{{count}} upcoming reminders",
-      "empty": "No upcoming reminders — all calm.",
-      "markDone": "Done",
-      "markDoneAria": "Mark as done"
     },
     "meetingConfirm": {
       "subjectClient": "Client",
       "subjectGroup": "Group",
       "meetingHappened": "The meeting took place",
       "meetingSkipped": "Didn't take place",
-      "meetingDelete": "Delete meeting",
       "linkedExpense": "Meeting expense",
       "txPaid": "Paid",
       "txNotPaid": "Not paid",
@@ -157,6 +152,11 @@
       "empty": "No bookings awaiting approval.",
       "approve": "Approve",
       "reject": "Reject"
+    },
+    "card": {
+      "showLess": "Show less",
+      "showAll_one": "1 more",
+      "showAll_other": "{{count}} more"
     }
   }
 }

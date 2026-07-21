@@ -11,7 +11,6 @@ import { useLeadStatuses } from '../../../hooks/useLeadStatuses'
 import { useTasks } from '../../../hooks/useTasks'
 import { useGoals } from '../../../hooks/useGoals'
 import { useGoalCategories } from '../../../hooks/useGoalCategories'
-import { useGoalEntries } from '../../../hooks/useGoalEntries'
 import { useReminders } from '../../../hooks/useReminders'
 import { useScheduledMeetings } from '../../../hooks/useScheduledMeetings'
 import { useUserQuestions } from '../../../hooks/useUserQuestions'
@@ -25,14 +24,17 @@ import AddTaskModal from '../../../modals/AddTaskModal'
 import AddGoalModal from '../../../modals/AddGoalModal'
 import AddReminderModal from '../../../modals/AddReminderModal'
 import ScheduleMeetingModal from '../../../modals/ScheduleMeetingModal'
-import AddGoalEntryModal from '../../../modals/AddGoalEntryModal'
-import QuickGoalUpdatePicker from '../../../modals/QuickGoalUpdatePicker'
 import { useT } from '../../../i18n/useT'
 import { Box, Txt, Btn } from '../../../components/ui'
 
-/* Two quick-add CTAs on home:
-   • תנועה מהירה  → QuickActionsModal (launcher for *every* Add* in the app).
-   • עדכון זריז  → goal-category picker → AddGoalEntryModal. */
+/* ONE quick-add CTA on home: "הוספה מהירה" → QuickActionsModal, the launcher
+   for *every* Add* in the app.
+
+   It used to share the row 50/50 with "עדכון יעד", which read as an equal
+   sibling — same width, same "+" — while actually being a narrow action that
+   cost three taps (category picker → modal → save) because it had no goal to
+   anchor to. It now lives per-goal inside the moon widget, where the goal is
+   already on screen and the picker step is unnecessary. */
 export default function QuickRow() {
   const { t } = useT('home')
   const { addTransaction } = useTransactions()
@@ -44,18 +46,13 @@ export default function QuickRow() {
   const { statuses: leadStatuses } = useLeadStatuses()
   const { addTask } = useTasks()
   const { categories } = useGoalCategories()
-  const { goals, addGoal } = useGoals()
-  const { addEntry } = useGoalEntries()
+  const { addGoal } = useGoals()
   const { addReminder } = useReminders()
   const { addMeeting } = useScheduledMeetings()
   const { questions, addQuestion } = useUserQuestions()
 
   const [showLauncher, setShowLauncher] = useState(false)
   const [active, setActive] = useState(null)  // 'transaction' | 'client' | ...
-
-  // עדכון זריז flow (manual goal entry).
-  const [showPicker, setShowPicker] = useState(false)
-  const [entryCategory, setEntryCategory] = useState(null)
 
   const close = () => setActive(null)
 
@@ -68,14 +65,6 @@ export default function QuickRow() {
       >
         <Plus size={18} strokeWidth={2} aria-hidden="true" />
         <Txt>{t('widgets.quick.quickAdd')}</Txt>
-      </Btn>
-      <Btn
-        type="button"
-        className="h-quick-btn h-quick-secondary"
-        onClick={() => setShowPicker(true)}
-      >
-        <Plus size={18} strokeWidth={2} aria-hidden="true" />
-        <Txt>{t('widgets.quick.goalUpdate')}</Txt>
       </Btn>
 
       <QuickActionsModal
@@ -139,21 +128,6 @@ export default function QuickRow() {
         onClose={close}
         clients={clients}
         onSave={addMeeting}
-      />
-
-      {/* עדכון זריז flow — orthogonal to the launcher above. */}
-      <QuickGoalUpdatePicker
-        open={showPicker}
-        onClose={() => setShowPicker(false)}
-        categories={categories}
-        goals={goals}
-        onPick={(cat) => setEntryCategory(cat)}
-      />
-      <AddGoalEntryModal
-        open={!!entryCategory}
-        onClose={() => setEntryCategory(null)}
-        category={entryCategory}
-        onSave={addEntry}
       />
     </Box>
   )

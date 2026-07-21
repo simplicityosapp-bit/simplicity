@@ -347,12 +347,9 @@
 [data-theme="dark"] .h-quick-primary {
   color: var(--ink-on-accent);
 }
-.h-quick-secondary {
-  background: var(--mg-card-bg);
-  border: var(--mg-card-border);
-  color: var(--espresso);
-  backdrop-filter: var(--mg-card-blur);
-}
+/* .h-quick-secondary was the second, equal-width CTA in the home quick row
+   ("עדכון יעד"). That action moved per-goal into the moon widget, leaving one
+   primary button here and in project-detail — no second style is used. */
 
 /* ── Desktop content-width cap ─────────────────────────────────────
    On desktop .screen fills the whole viewport, so cards/lists over-

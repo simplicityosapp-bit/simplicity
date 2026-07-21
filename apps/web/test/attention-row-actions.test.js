@@ -58,9 +58,10 @@ describe('attentionItems — every emitted row is actionable end to end', () => 
   const daysAgo = (n) => new Date(now.getTime() - n * 86400000).toISOString()
 
   /* A fixture that lights up one row of each action type: a pending
-     transaction (popup), a high-priority task (navigate), a lead awaiting
-     approval (navigate), and a stale client (people). Kept deliberately
-     free of prices / goals so no balance or goal-gap row muddies the set. */
+     transaction (popup), a lead awaiting approval (navigate), and a stale
+     client (people). Kept deliberately free of prices / goals so no balance
+     or goal-gap row muddies the set. The high-priority task is here on
+     purpose and must NOT produce a row — the tasks widget owns those. */
   const data = {
     transactions: [{ id: 't1', status: 'pending', type: 'income', amount: 100 }],
     tasks: [{ id: 'k1', status: 'open', priority: 'high' }],
@@ -70,8 +71,8 @@ describe('attentionItems — every emitted row is actionable end to end', () => 
 
   const items = attentionItems(now, data)
 
-  it('produces the four expected rows and NOTHING resolves to a dead click', () => {
-    expect(items.length).toBe(4)
+  it('produces the three expected rows and NOTHING resolves to a dead click', () => {
+    expect(items.length).toBe(3)
     for (const it of items) {
       expect(attentionRowAction(it), `row "${it.text}" (kind=${it.kind}) is a dead click`).not.toBeNull()
     }
@@ -82,7 +83,9 @@ describe('attentionItems — every emitted row is actionable end to end', () => 
     expect(action((i) => i.kind === 'pendingTx')).toEqual({ type: 'popup', popup: 'tx' })
     expect(action((i) => i.rowId === 'staleClients')).toEqual({ type: 'people' })
     expect(action((i) => i.kind === 'pendingLeads')).toEqual({ type: 'navigate', to: ROUTES.LEADS })
-    // urgent-tasks row carries only `to`
-    expect(action((i) => !i.kind && i.to === ROUTES.TASKS)).toEqual({ type: 'navigate', to: ROUTES.TASKS })
+  })
+
+  it('raises no row for the high-priority task in the fixture', () => {
+    expect(items.some((i) => i.to === ROUTES.TASKS)).toBe(false)
   })
 })

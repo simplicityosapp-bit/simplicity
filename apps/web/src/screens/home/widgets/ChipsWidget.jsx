@@ -3,6 +3,7 @@ import { CalendarClock, Wallet, Users } from 'lucide-react'
 import { homeChips, getTileFilters, todayItems } from '../../../lib/homeData'
 import { useClients } from '../../../hooks/useClients'
 import { useGroups } from '../../../hooks/useGroups'
+import { useGroupMembers } from '../../../hooks/useGroupMembers'
 import { useProjects } from '../../../hooks/useProjects'
 import { useTransactions } from '../../../hooks/useTransactions'
 import { useCategories } from '../../../hooks/useCategories'
@@ -20,14 +21,15 @@ import { useT } from '../../../i18n/useT'
 import { Box, Txt } from '../../../components/ui'
 
 /* Bottom data chips — RTL order: פגישות היום · נטו · לקוחות. Tap opens
-   a drill-down modal where the user picks filters (status, time
-   range, priorities, etc.). The number above the label updates live
-   from the filters. "פתיחה במלא ←" inside the modal still routes
-   to the corresponding screen for full management. */
+   a drill-down modal where the user picks filters (which kinds of agenda
+   item, status, time range, project/category…). The number above the label
+   updates live from the filters. "פתיחה במלא ←" inside the modal still
+   routes to the corresponding screen for full management. */
 export default function ChipsWidget() {
   const { t } = useT('home')
   const { clients, loading: clientsLoading } = useClients()
   const { groups } = useGroups()
+  const { members } = useGroupMembers()
   const { projects } = useProjects()
   const { transactions, loading: txLoading } = useTransactions()
   const { categories } = useCategories()
@@ -41,9 +43,11 @@ export default function ChipsWidget() {
   const [openTile, setOpenTile] = useState(null)
 
   const filters = useMemo(() => getTileFilters(prefs), [prefs])
+  /* `members` + `groups` feed effectiveClientMeta so the לקוחות count matches
+     the clients screen for group-driven clients (it read the raw status before). */
   const summary = useMemo(
-    () => homeChips(new Date(), { clients, transactions }, filters),
-    [clients, transactions, filters],
+    () => homeChips(new Date(), { clients, transactions, members, groups }, filters),
+    [clients, transactions, members, groups, filters],
   )
   /* Today's agenda count drives the bottom chip; the same list feeds the
      drill panel. Sources + which-kinds-count are controlled by filters.today. */
@@ -110,6 +114,7 @@ export default function ChipsWidget() {
         updatePrefs={updatePrefs}
         clients={clients}
         groups={groups}
+        members={members}
         projects={projects}
         categories={categories}
         transactions={transactions}

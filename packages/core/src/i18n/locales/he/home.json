@@ -21,8 +21,6 @@
       "title": "דרושה תשומת לב",
       "infoLabel": "הסבר דרושה תשומת לב",
       "infoText": "פריטים שדורשים פעולה: תנועות ממתינות לאישור, פגישות שעדיין לא סומנו, לקוחות פעילים או בהפסקה שלא נרשמה להם פגישה ב-45 הימים האחרונים, ויעדים מתחת לקצב.",
-      "count_one": "{{count}} פריט",
-      "count_other": "{{count}} פריטים",
       "dup_one": "כפילות ביומן מול גוגל",
       "dup_other": "{{count}} כפילויות ביומן מול גוגל",
       "more": "ועוד {{count}}",
@@ -41,8 +39,6 @@
       "invoices_two": "{{count}} מסמכים חדשים לייבוא",
       "invoices_many": "{{count}} מסמכים חדשים לייבוא",
       "invoicesModalTitle": "מסמכים לייבוא",
-      "count_two": "{{count}} פריטים",
-      "count_many": "{{count}} פריטים",
       "dup_two": "{{count}} כפילויות ביומן מול גוגל",
       "dup_many": "{{count}} כפילויות ביומן מול גוגל",
       "reachOut": "פנייה מהירה",
@@ -67,10 +63,6 @@
         "goalGap_two": "חסר {{amount}} ליעד — {{days}} ימים",
         "goalGap_many": "חסר {{amount}} ליעד — {{days}} ימים",
         "goalGap_other": "חסר {{amount}} ליעד — {{days}} ימים",
-        "urgentTasks_one": "משימה דחופה אחת",
-        "urgentTasks_two": "{{count}} משימות דחופות",
-        "urgentTasks_many": "{{count}} משימות דחופות",
-        "urgentTasks_other": "{{count}} משימות דחופות",
         "staleClients_one": "לקוח אחד — עבר זמן מאז שדיברתם",
         "staleClients_two": "{{count}} לקוחות — עבר זמן מאז שדיברתם",
         "staleClients_many": "{{count}} לקוחות — עבר זמן מאז שדיברתם",
@@ -151,10 +143,12 @@
       "infoLabel": "הסבר מבט על",
       "infoText": "הציון המשוקלל של כל היעדים החודש, מודע-לקצב — כמה מהיעד היומי הצפוי כיסית עד עכשיו. 100% = בדיוק בקצב.",
       "expandedEmpty": "אין עדיין יעדים פעילים עם נתונים החודש.",
-      "fullDetail": "פירוט מלא"
+      "fullDetail": "פירוט מלא",
+      "logEntry": "עדכון היעד",
+      "logEntryAria": "עדכון היעד {{name}}"
     },
     "nextTasks": {
-      "title": "המשימות הבאות",
+      "title": "משימות ותזכורות",
       "link_one": "{{count}} משימה",
       "link_other": "{{count}} משימות",
       "noOpen": "אין משימות פתוחות",
@@ -176,41 +170,40 @@
       "urgent_two": "{{count}} דחופות",
       "urgent_many": "{{count}} דחופות",
       "openSummary_two": "{{count}} משימות פתוחות",
-      "openSummary_many": "{{count}} משימות פתוחות"
+      "openSummary_many": "{{count}} משימות פתוחות",
+      "overdue_one": "משימה אחת באיחור",
+      "overdue_two": "{{count}} משימות באיחור",
+      "overdue_many": "{{count}} משימות באיחור",
+      "overdue_other": "{{count}} משימות באיחור",
+      "overdueOf_one": "{{overdueText}} מתוך {{count}} פתוחה",
+      "overdueOf_two": "{{overdueText}} מתוך {{count}} פתוחות",
+      "overdueOf_many": "{{overdueText}} מתוך {{count}} פתוחות",
+      "overdueOf_other": "{{overdueText}} מתוך {{count}} פתוחות",
+      "addAria": "הוספת משימה או תזכורת",
+      "addTitle": "מה להוסיף?",
+      "addTask": "משימה",
+      "addReminder": "תזכורת",
+      "dueToday_one": "אחת להיום",
+      "dueToday_two": "{{count}} להיום",
+      "dueToday_many": "{{count}} להיום",
+      "dueToday_other": "{{count}} להיום",
+      "todayOf_one": "{{todayText}} מתוך {{count}} פתוח",
+      "todayOf_two": "{{todayText}} מתוך {{count}} פתוחים",
+      "todayOf_many": "{{todayText}} מתוך {{count}} פתוחים",
+      "todayOf_other": "{{todayText}} מתוך {{count}} פתוחים"
     },
     "quick": {
-      "quickAdd": "הוספה מהירה",
-      "goalUpdate": "עדכון יעד"
+      "quickAdd": "הוספה מהירה"
     },
     "quote": {
       "sourceAria": "בחירת מקור הציטוטים",
       "fallback": "היום יום חדש. הכל אפשרי."
-    },
-    "reminders": {
-      "title": "תזכורות קרובות",
-      "link_one": "{{count}} תזכורת",
-      "link_other": "{{count}} תזכורות",
-      "none": "אין תזכורות קרובות",
-      "todaySummary_one": "{{today}} להיום · {{count}} קרובה",
-      "todaySummary_other": "{{today}} להיום · {{count}} קרובות",
-      "soonSummary_one": "{{count}} תזכורת קרובה",
-      "soonSummary_other": "{{count}} תזכורות קרובות",
-      "empty": "אין תזכורות קרובות — הכל רגוע.",
-      "markDone": "בוצעה",
-      "markDoneAria": "סמן כבוצעה",
-      "link_two": "{{count}} תזכורות",
-      "link_many": "{{count}} תזכורות",
-      "todaySummary_two": "{{today}} להיום · {{count}} קרובות",
-      "todaySummary_many": "{{today}} להיום · {{count}} קרובות",
-      "soonSummary_two": "{{count}} תזכורות קרובות",
-      "soonSummary_many": "{{count}} תזכורות קרובות"
     },
     "meetingConfirm": {
       "subjectClient": "לקוח/ה",
       "subjectGroup": "קבוצה",
       "meetingHappened": "הפגישה התקיימה",
       "meetingSkipped": "לא התקיימה",
-      "meetingDelete": "מחק פגישה",
       "linkedExpense": "הוצאה מהפגישה",
       "txPaid": "שולם",
       "txNotPaid": "לא שולם",
@@ -221,6 +214,13 @@
       "empty": "אין תורים ממתינים לאישור.",
       "approve": "אישור",
       "reject": "דחייה"
+    },
+    "card": {
+      "showLess": "הצג פחות",
+      "showAll_one": "ועוד אחד",
+      "showAll_two": "ועוד {{count}}",
+      "showAll_many": "ועוד {{count}}",
+      "showAll_other": "ועוד {{count}}"
     }
   }
 }

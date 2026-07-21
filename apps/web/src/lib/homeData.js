@@ -9,7 +9,7 @@
 
 import i18n from '@simplicity/core/i18n'
 import { ROUTES } from './routes'
-import { financeQuery, currentMonthRange, clientBalance, effectiveClientMeta } from '@simplicity/core'
+import { financeQuery, currentMonthRange, clientBalance, effectiveClientMeta, getClientMemberships } from '@simplicity/core'
 
 const DAY = 86400000
 const live = (a) => (a || []).filter((r) => !r.deleted_at)
@@ -81,6 +81,18 @@ export function getTileFilters(prefs) {
     net:     { ...DEFAULT_TILE_FILTERS.net,     ...(fromPrefs.net     || {}) },
     today:   { ...DEFAULT_TILE_FILTERS.today,   ...(fromPrefs.today   || {}) },
   }
+}
+
+/* Is this client in one of the selected groups?
+   Membership is a `group_members` row. `clients.group_id` is a LEGACY mirror
+   written only by the client form + lead conversion — anyone assigned through
+   the group roster (assignToGroup) never gets one — so matching that column
+   alone silently dropped most of a group's members from the filter. Both are
+   checked so neither write path is missed. */
+export function clientInGroups(c, groupIds, membersData = []) {
+  if (!groupIds?.length) return true
+  if (c.group_id && groupIds.includes(c.group_id)) return true
+  return getClientMemberships(c.id, membersData).some((m) => groupIds.includes(m.group_id))
 }
 
 /* ── Today's agenda (home "פגישות היום" chip + drill panel) ─────────
@@ -171,18 +183,23 @@ function rangeFromKey(key, now) {
    Each tile reads its slice from the resolved filters; missing
    filters fall back to sensible defaults (see DEFAULT_TILE_FILTERS). */
 export function homeChips(now = new Date(), data, filters = DEFAULT_TILE_FILTERS) {
-  const { clients = [], transactions } = data || {}
+  const { clients = [], transactions, members = [], groups = [] } = data || {}
   const f = {
     clients: { ...DEFAULT_TILE_FILTERS.clients, ...(filters.clients || {}) },
     net:     { ...DEFAULT_TILE_FILTERS.net,     ...(filters.net     || {}) },
   }
 
-  /* Clients tile — count by status_meta + optional project/group. */
+  /* Clients tile — count by EFFECTIVE status + optional project/group.
+     Status MUST come from effectiveClientMeta, never the raw `status_meta` /
+     `status` columns: a client whose status is driven by their group carries a
+     stale own-status, so reading it directly made this chip disagree with the
+     clients screen (and with the attention widget, which was already fixed).
+     Same rule as clientsNeedingAttention above. */
   const activeClients = live(clients).filter((c) => {
-    const meta = c.status_meta || c.status
+    const meta = effectiveClientMeta(c, members, groups)
     if (f.clients.statuses?.length && !f.clients.statuses.includes(meta)) return false
     if (f.clients.projectIds?.length && !f.clients.projectIds.includes(c.project_id)) return false
-    if (f.clients.groupIds?.length && !f.clients.groupIds.includes(c.group_id)) return false
+    if (!clientInGroups(c, f.clients.groupIds, members)) return false
     return true
   }).length
 
@@ -208,13 +225,48 @@ export function homeChips(now = new Date(), data, filters = DEFAULT_TILE_FILTERS
   return { activeClients, net, _income: inc, _expense: exp, _txCount: filteredTx.length }
 }
 
-/* ── Attention rows ────────────────────────────────────────────── */
+/* ── Attention rows ─────────────────────────────────────────────
+   Urgency order for the "דרושה תשומת לב" list. The rows used to render in
+   whatever order the rules happened to run, so "5 תנועות ממתינות לאישור"
+   (money, blocks the books) sat at the same weight as "2 לקוחות — עבר זמן
+   מאז שדיברתם" (a soft nudge). Owner decision: order by urgency, no group
+   headings.
+
+   The ranking, most urgent first:
+     someone is waiting on you  — a booking request, a lead who filled a form
+     time-boxed to today        — follow-ups due
+     blocks your books          — meetings to confirm, transactions, documents
+     money owed to you          — client balances
+     drifting relationships     — stale clients, stale leads
+     housekeeping / FYI         — calendar duplicates, goal gap
+
+   Your own tasks are NOT here — the tasks widget on the same screen owns
+   them, and owns the ✓ that clears them. Rank 50 is left open where the
+   urgent-tasks row used to sit.
+
+   Gaps of 5-10 leave room to slot a new rule in without renumbering. The
+   widget-level rows (bookings / invoices / duplicates) are built in
+   AttentionWidget but ranked from this same map, so the list and the
+   one-line summary can't disagree about what matters most. */
+export const ATTENTION_PRIORITY = {
+  bookings:        10,
+  pendingLeads:    15,
+  dueFollowups:    20,
+  pendingMeetings: 30,
+  pendingTx:       35,
+  invoices:        40,
+  balance:         60,
+  staleClients:    70,
+  staleLeads:      75,
+  duplicates:      80,
+  goalGap:         90,
+}
+
 export function attentionItems(now = new Date(), data) {
   const {
     transactions = [],
     scheduled_meetings = [],
     clients = [],
-    tasks = [],
     goals = [],
     categories = [],
     sessions = [],
@@ -222,44 +274,51 @@ export function attentionItems(now = new Date(), data) {
     members = [],
     groups = [],
   } = data || {}
+  /* Every row carries a stable `rowId` — one per rule, unique within a run.
+     It is the widget's React key (the key used to be `icon + text`, which
+     collides the moment two rules share an icon AND render the same string,
+     and churns on every language switch or count change). The people rows
+     additionally use it to re-resolve themselves while their modal is open. */
   /* Row labels are localized at compute time via the active i18n language.
      The widget re-runs this memo on language change so the rows re-render. */
   const T = (key, opts) => i18n.t(`home:widgets.attention.rows.${key}`, opts)
   const items = []
   const pending = (transactions || []).filter((t) => !t.deleted_at && t.status === 'pending')
-  if (pending.length) items.push({ icon: 'Wallet', text: T('pendingTx', { count: pending.length }), to: ROUTES.FINANCE, kind: 'pendingTx' })
+  if (pending.length) items.push({ rowId: 'pendingTx', priority: ATTENTION_PRIORITY.pendingTx, icon: 'Wallet', text: T('pendingTx', { count: pending.length }), to: ROUTES.FINANCE, kind: 'pendingTx' })
 
   const pastMeetings = (scheduled_meetings || []).filter(
     (m) => m.status === 'pending' && new Date(m.scheduled_at).getTime() <= now.getTime(),
   )
   if (pastMeetings.length) {
-    items.push({ icon: 'Calendar', text: T('pendingMeetings', { count: pastMeetings.length }), to: ROUTES.CALENDAR, kind: 'pendingMeetings' })
+    items.push({ rowId: 'pendingMeetings', priority: ATTENTION_PRIORITY.pendingMeetings, icon: 'Calendar', text: T('pendingMeetings', { count: pastMeetings.length }), to: ROUTES.CALENDAR, kind: 'pendingMeetings' })
   }
 
   const withBalance = live(clients).filter((c) => effectiveClientMeta(c, members, groups) !== 'past' && clientBalance(c, transactions, sessions, members, groups).balance > 0)
-  if (withBalance.length) items.push({ icon: 'Wallet', text: T('balance', { count: withBalance.length }), to: ROUTES.CLIENTS })
+  if (withBalance.length) items.push({ rowId: 'balance', priority: ATTENTION_PRIORITY.balance, icon: 'Wallet', text: T('balance', { count: withBalance.length }), to: ROUTES.CLIENTS })
 
   const goal = monthlyIncomeGoal({ goals, categories })
   const { inc } = monthNet(now, { transactions })
   if (goal > 0 && inc < goal) {
     const daysLeft = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate() - now.getDate()
-    items.push({ icon: 'Target', text: T('goalGap', { amount: ils(goal - inc), days: daysLeft, count: daysLeft }), to: ROUTES.GOALS })
+    items.push({ rowId: 'goalGap', priority: ATTENTION_PRIORITY.goalGap, icon: 'Target', text: T('goalGap', { amount: ils(goal - inc), days: daysLeft, count: daysLeft }), to: ROUTES.GOALS })
   }
 
-  const urgent = live(tasks).filter((t) => t.status !== 'done' && t.priority === 'high').length
-  if (urgent) items.push({ icon: 'AlertCircle', text: T('urgentTasks', { count: urgent }), to: ROUTES.TASKS })
+  /* No urgent-tasks row. It said "N משימות דחופות" and navigated to the tasks
+     screen — while the tasks widget sits right beside it on the same screen,
+     listing those very tasks with a ✓ on each. One of the two had to go, and
+     the widget is the one that can actually do something about them. */
 
   const staleClients = clientsNeedingAttention(45, now, { clients, sessions, members, groups })
-  if (staleClients.length) items.push({ icon: 'Clock', text: T('staleClients', { count: staleClients.length }), to: ROUTES.CLIENTS, kind: 'people', rowId: 'staleClients', entity: 'client', waKey: 'client', people: staleClients.map((c) => ({ id: c.id, name: c.name, phone: c.phone || '' })) })
+  if (staleClients.length) items.push({ icon: 'Clock', text: T('staleClients', { count: staleClients.length }), to: ROUTES.CLIENTS, kind: 'people', rowId: 'staleClients', priority: ATTENTION_PRIORITY.staleClients, entity: 'client', waKey: 'client', people: staleClients.map((c) => ({ id: c.id, name: c.name, phone: c.phone || '' })) })
 
   /* Leads from public lead-pages awaiting manual approval. Kept orthogonal:
      pending leads are excluded from the stale / follow-up rules below. */
   const officialLeads = live(leads).filter((l) => !l.pending_review)
   const pendingLeads = live(leads).filter((l) => l.pending_review)
-  if (pendingLeads.length) items.push({ icon: 'Bell', text: T('pendingLeads', { count: pendingLeads.length }), to: ROUTES.LEADS, kind: 'pendingLeads' })
+  if (pendingLeads.length) items.push({ rowId: 'pendingLeads', priority: ATTENTION_PRIORITY.pendingLeads, icon: 'Bell', text: T('pendingLeads', { count: pendingLeads.length }), to: ROUTES.LEADS, kind: 'pendingLeads' })
 
   const staleLeads = leadsNeedingAttention(45, now, officialLeads)
-  if (staleLeads.length) items.push({ icon: 'Clock', text: T('staleLeads', { count: staleLeads.length }), to: ROUTES.LEADS, kind: 'people', rowId: 'staleLeads', entity: 'lead', waKey: 'lead', people: staleLeads.map((l) => ({ id: l.id, name: l.name, phone: l.phone || '' })) })
+  if (staleLeads.length) items.push({ icon: 'Clock', text: T('staleLeads', { count: staleLeads.length }), to: ROUTES.LEADS, kind: 'people', rowId: 'staleLeads', priority: ATTENTION_PRIORITY.staleLeads, entity: 'lead', waKey: 'lead', people: staleLeads.map((l) => ({ id: l.id, name: l.name, phone: l.phone || '' })) })
 
   /* Lead follow-ups due — date ≤ today AND still in_process (closed metas
      suppress, the follow-up is moot). follow_up_date is a 'YYYY-MM-DD' string
@@ -268,9 +327,12 @@ export function attentionItems(now = new Date(), data) {
   const dueFollowups = officialLeads.filter(
     (l) => l.status_meta === 'in_process' && l.follow_up_date && String(l.follow_up_date).slice(0, 10) <= todayYmd,
   )
-  if (dueFollowups.length) items.push({ icon: 'Bell', text: T('dueFollowups', { count: dueFollowups.length }), to: ROUTES.LEADS, kind: 'people', rowId: 'dueFollowups', entity: 'lead', waKey: 'lead', people: dueFollowups.map((l) => ({ id: l.id, name: l.name, phone: l.phone || '' })) })
+  if (dueFollowups.length) items.push({ icon: 'Bell', text: T('dueFollowups', { count: dueFollowups.length }), to: ROUTES.LEADS, kind: 'people', rowId: 'dueFollowups', priority: ATTENTION_PRIORITY.dueFollowups, entity: 'lead', waKey: 'lead', people: dueFollowups.map((l) => ({ id: l.id, name: l.name, phone: l.phone || '' })) })
 
-  return items
+  /* Most urgent first — see ATTENTION_PRIORITY. Insertion order used to leak
+     through as display order, which is how a soft 45-day nudge ended up
+     sitting above money waiting for approval. */
+  return items.sort((a, b) => a.priority - b.priority)
 }
 
 /* Semantic target keys → web routes. Web's attentionItems() emits `to` (a
@@ -303,6 +365,11 @@ export function attentionRowAction(it) {
   if (!it) return null
   if (it.kind === 'pendingTx') return { type: 'popup', popup: 'tx' }
   if (it.kind === 'pendingMeetings') return { type: 'popup', popup: 'meetings' }
+  /* Generic popup row — carries its own target. The widget builds three of
+     these (bookings / invoices / calendar duplicates) so they can be ranked
+     and rendered in the same list as the rule-derived rows instead of being
+     hard-coded above them. */
+  if (it.kind === 'popup' && it.popup) return { type: 'popup', popup: it.popup }
   if (it.kind === 'people') return { type: 'people' }
   const to = it.to || (it.target ? TARGET_ROUTE[it.target] : null)
   return to ? { type: 'navigate', to } : null
@@ -377,15 +444,78 @@ export function remindersUpcoming(now = new Date(), remindersData = [], daysAhea
   return limit ? out.slice(0, limit) : out
 }
 
-/* ── Next tasks (open, by priority) ────────────────────────────── */
+/* Priority order for the final tie-break in tasksAndReminders. */
 const PORDER = { high: 0, medium: 1, low: 2 }
-export function nextTasks(limit = 5, tasks = []) {
-  return live(tasks)
+
+/* ── Tasks + reminders, one list ────────────────────────────────
+   The home "משימות ותזכורות" widget. Reminders used to have a card of their
+   own sitting right next to the tasks card, which split one question — what
+   do I still owe? — across two boxes with two different summaries.
+
+   Ordered by PRESSURE, over both kinds: overdue → today → flagged urgent →
+   the rest, soonest first, undated last. Home used to sort tasks by priority
+   alone and render no date at all, even though `tasks.due_at` exists and the
+   tasks screen buckets by it — so a task due this morning sat below one
+   merely flagged urgent with no deadline.
+
+   ONE asymmetry, deliberate: a reminder is never ranked overdue. Reminders
+   are action items, not history — remindersUpcoming() refuses to look back
+   past today for exactly that reason (owner decision, see its comment), and
+   a reminder set for 09:00 that you read at 14:00 is still today's, not a
+   failure. Only a task can be late.
+
+   Each item carries `bucket` so the widget can count for its summary without
+   re-deriving any of this, and the raw row so it can act on it. */
+export function tasksAndReminders(limit = 0, data = {}, now = new Date()) {
+  const { tasks = [], reminders = [] } = data
+  const dayEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0, 0)
+  const items = []
+
+  live(tasks)
     .filter((t) => t.status !== 'done')
-    .slice()
-    .sort((a, b) => (PORDER[a.priority] ?? 1) - (PORDER[b.priority] ?? 1))
-    .slice(0, limit)
-}
-export function openTasksCount(tasks = []) {
-  return live(tasks).filter((t) => t.status !== 'done').length
+    .forEach((t) => items.push({
+      id: `task-${t.id}`, kind: 'task', title: t.title || '',
+      when: t.due_at || null, priority: t.priority, task: t,
+    }))
+
+  remindersUpcoming(now, reminders, 60, 0).forEach((r) => items.push({
+    id: `rem-${r.id}`, kind: 'reminder', title: r.title || '',
+    when: r.when, reminderId: r.id,
+  }))
+
+  const ts = (it) => {
+    if (!it.when) return null
+    const d = new Date(it.when)
+    return Number.isNaN(+d) ? null : +d
+  }
+  items.forEach((it) => {
+    const w = ts(it)
+    if (w === null) it.bucket = 'undated'
+    else if (it.kind === 'task' && w < +now) it.bucket = 'overdue'
+    else if (w < +dayEnd) it.bucket = 'today'
+    else it.bucket = 'upcoming'
+  })
+
+  const BUCKET_RANK = { overdue: 0, today: 1, upcoming: 3, undated: 3 }
+  const rank = (it) => {
+    const base = BUCKET_RANK[it.bucket]
+    /* A task flagged urgent jumps ahead of undated/later work, but never
+       ahead of something with a deadline that has passed or lands today. */
+    if (base === 3 && it.kind === 'task' && it.priority === 'high') return 2
+    return base
+  }
+
+  items.sort((a, b) => {
+    const ra = rank(a), rb = rank(b)
+    if (ra !== rb) return ra - rb
+    const da = ts(a) ?? Infinity
+    const db = ts(b) ?? Infinity
+    if (da !== db) return da - db
+    /* Same moment: a task (which you act on) before a reminder (which only
+       tells you something), then by priority. */
+    if (a.kind !== b.kind) return a.kind === 'task' ? -1 : 1
+    return (PORDER[a.priority] ?? 1) - (PORDER[b.priority] ?? 1)
+  })
+
+  return limit ? items.slice(0, limit) : items
 }

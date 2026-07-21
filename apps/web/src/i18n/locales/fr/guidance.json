@@ -41,19 +41,15 @@
       },
       "quick-row": {
         "title": "Ajout rapide",
-        "body": "L'ajout rapide est un raccourci vers tous les boutons d'ajout (tâches, revenus, prospects…). « Mettre à jour un objectif » vous permet de mettre à jour rapidement les objectifs qui demandent une saisie manuelle."
+        "body": "Un raccourci vers tous les boutons d'ajout — tâches, revenus, prospects et plus."
       },
       "attention": {
         "title": "Demande attention",
         "body": "Confirmer les rendez-vous qui ont eu lieu, les paiements qui devraient arriver, les doublons du calendrier — et d'autres choses que vous ne voulez pas laisser passer entre les mailles du filet."
       },
-      "reminders": {
-        "title": "Rappels",
-        "body": "Tâches récurrentes, ou tout ce que vous voulez vous rappeler de temps en temps."
-      },
       "next-tasks": {
-        "title": "Tâches",
-        "body": "Vos tâches urgentes apparaissent ici."
+        "title": "Tâches et rappels",
+        "body": "Tout ce qui reste, au même endroit — tâches et rappels ensemble, du plus urgent : en retard, puis pour aujourd'hui."
       },
       "chips": {
         "title": "Cartes d'état",

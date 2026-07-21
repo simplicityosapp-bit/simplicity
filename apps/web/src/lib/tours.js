@@ -43,7 +43,6 @@ const HOME_TOUR = [
   { target: '[data-widget-id="insights"]',  title: 'guidance:tour.home.insights.title',  body: 'guidance:tour.home.insights.body' },
   { target: '[data-widget-id="quick-row"]', title: 'guidance:tour.home.quick-row.title', body: 'guidance:tour.home.quick-row.body' },
   { target: '[data-widget-id="attention"]', title: 'guidance:tour.home.attention.title', body: 'guidance:tour.home.attention.body' },
-  { target: '[data-widget-id="reminders"]', title: 'guidance:tour.home.reminders.title', body: 'guidance:tour.home.reminders.body' },
   { target: '[data-widget-id="next-tasks"]',title: 'guidance:tour.home.next-tasks.title',body: 'guidance:tour.home.next-tasks.body' },
   { target: '[data-widget-id="chips"]',     title: 'guidance:tour.home.chips.title',     body: 'guidance:tour.home.chips.body' },
 ]

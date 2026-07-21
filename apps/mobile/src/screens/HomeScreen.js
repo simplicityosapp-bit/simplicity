@@ -59,7 +59,7 @@ export default function HomeScreen() {
     () => ({ transactions, scheduled_meetings: meetings, clients, tasks, goals, categories, sessions, leads, members, groups }),
     [transactions, meetings, clients, tasks, goals, categories, sessions, leads, members, groups],
   )
-  const chips = useMemo(() => homeChips(new Date(), { clients, tasks, transactions }, filters), [clients, tasks, transactions, filters])
+  const chips = useMemo(() => homeChips(new Date(), { clients, transactions }, filters), [clients, transactions, filters])
   const today = useMemo(
     () => todayItems(new Date(), { meetings, calendarEvents, leads, clients, groups }, filters.today),
     [meetings, calendarEvents, leads, clients, groups, filters.today],

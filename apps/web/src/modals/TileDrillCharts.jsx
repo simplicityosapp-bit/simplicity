@@ -3,7 +3,6 @@
    language as the finance moonlight chart (cream stroke, accent dot,
    subtle area). Pure presentational; data shaping happens in the
    parent component so the charts can stay dumb. */
-import { useT } from '../i18n/useT'
 
 const W = 300
 const H = 70
@@ -87,54 +86,6 @@ export function NetBars({ incomes, expenses, incomeColor = 'var(--sage)', expens
                 rx="1"
               />
             )}
-          </g>
-        )
-      })}
-    </svg>
-  )
-}
-
-/* 7-day single-color bar chart with day-of-week labels. */
-export function TasksBars({ values, daysOfWeek, accent = 'var(--amber-warn)' }) {
-  const { t } = useT('modalsSystem')
-  const dayLabels = t('tileDrill.dayLabels', { returnObjects: true })
-  if (!values?.length) return null
-  const n = values.length
-  const mx = Math.max(...values, 1)
-  const slot = (W - PAD_X * 2) / n
-  const barW = Math.max(8, slot * 0.55)
-  const yScale = (v) => PAD_TOP + (1 - v / (mx || 1)) * (H - PAD_TOP - PAD_BOTTOM)
-  const baseY = H - PAD_BOTTOM
-
-  return (
-    <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" className="td-mini-chart" style={{ width: '100%', height: H }} aria-hidden="true">
-      <line x1={PAD_X} y1={baseY} x2={W - PAD_X} y2={baseY} stroke="var(--divider)" strokeWidth="0.5" />
-      {values.map((v, i) => {
-        const cx = PAD_X + i * slot + slot / 2
-        const y = yScale(v)
-        const isToday = i === n - 1
-        return (
-          <g key={i}>
-            <rect
-              x={(cx - barW / 2).toFixed(1)}
-              y={y.toFixed(1)}
-              width={barW.toFixed(1)}
-              height={(baseY - y).toFixed(1)}
-              fill={accent}
-              opacity={isToday ? 1 : 0.7}
-              rx="1.5"
-            />
-            <text
-              x={cx.toFixed(1)}
-              y={(H - 2).toFixed(1)}
-              textAnchor="middle"
-              fontSize="9"
-              fill="var(--stone)"
-              opacity="0.7"
-              fontFamily="var(--mg-font-num)"
-            >
-              {(Array.isArray(dayLabels) ? dayLabels[daysOfWeek[i]] : '') || ''}
-            </text>
           </g>
         )
       })}

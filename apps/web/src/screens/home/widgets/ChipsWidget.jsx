@@ -4,7 +4,6 @@ import { homeChips, getTileFilters, todayItems } from '../../../lib/homeData'
 import { useClients } from '../../../hooks/useClients'
 import { useGroups } from '../../../hooks/useGroups'
 import { useProjects } from '../../../hooks/useProjects'
-import { useTasks } from '../../../hooks/useTasks'
 import { useTransactions } from '../../../hooks/useTransactions'
 import { useCategories } from '../../../hooks/useCategories'
 import { useScheduledMeetings } from '../../../hooks/useScheduledMeetings'
@@ -20,7 +19,7 @@ import { isr } from '@simplicity/core'
 import { useT } from '../../../i18n/useT'
 import { Box, Txt } from '../../../components/ui'
 
-/* Bottom data chips — RTL order: משימות · נטו · לקוחות. Tap opens
+/* Bottom data chips — RTL order: פגישות היום · נטו · לקוחות. Tap opens
    a drill-down modal where the user picks filters (status, time
    range, priorities, etc.). The number above the label updates live
    from the filters. "פתיחה במלא ←" inside the modal still routes
@@ -30,7 +29,6 @@ export default function ChipsWidget() {
   const { clients, loading: clientsLoading } = useClients()
   const { groups } = useGroups()
   const { projects } = useProjects()
-  const { tasks } = useTasks()
   const { transactions, loading: txLoading } = useTransactions()
   const { categories } = useCategories()
   const { meetings, updateMeeting } = useScheduledMeetings()
@@ -44,8 +42,8 @@ export default function ChipsWidget() {
 
   const filters = useMemo(() => getTileFilters(prefs), [prefs])
   const summary = useMemo(
-    () => homeChips(new Date(), { clients, tasks, transactions }, filters),
-    [clients, tasks, transactions, filters],
+    () => homeChips(new Date(), { clients, transactions }, filters),
+    [clients, transactions, filters],
   )
   /* Today's agenda count drives the bottom chip; the same list feeds the
      drill panel. Sources + which-kinds-count are controlled by filters.today. */
@@ -114,7 +112,6 @@ export default function ChipsWidget() {
         groups={groups}
         projects={projects}
         categories={categories}
-        tasks={tasks}
         transactions={transactions}
         netSummary={summary}
         meetings={meetings}

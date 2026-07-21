@@ -132,19 +132,9 @@
   "tileDrill": {
     "close": "Cerrar",
     "openFull": "Abrir en pantalla completa",
-    "dayLabels": [
-      "D",
-      "L",
-      "M",
-      "X",
-      "J",
-      "V",
-      "S"
-    ],
     "titles": {
       "clients": "Clientes",
       "net": "Neto",
-      "tasks": "Tareas",
       "today": "Agenda"
     },
     "status": {
@@ -162,20 +152,6 @@
       "both": "Neto (ingresos − gastos)",
       "income": "Solo ingresos",
       "expense": "Solo gastos"
-    },
-    "taskStatus": {
-      "open": "Abiertas",
-      "done": "Hechas",
-      "both": "Todas"
-    },
-    "priorities": {
-      "high": "Alta",
-      "medium": "Media",
-      "low": "Baja"
-    },
-    "taskClientScope": {
-      "all": "Todas",
-      "linked": "Vinculadas a un cliente"
     },
     "all": "Todos",
     "none": "Ninguno",
@@ -207,18 +183,6 @@
       "miniTx": "Transacciones",
       "noProjects": "Aún no hay proyectos",
       "noCategories": "Aún no hay categorías"
-    },
-    "tasks": {
-      "matchingNum": "tareas coincidentes",
-      "trendLbl": "Tareas completadas · 7 días",
-      "statusLbl": "Estado",
-      "priorityLbl": "Prioridad",
-      "projectLbl": "Proyecto",
-      "clientScopeLbl": "Vínculo con cliente",
-      "upcomingSection": "Próximas tareas",
-      "emptyFilter": "Ninguna tarea coincide con el filtro.",
-      "moreCount": "+{{count}} más",
-      "noProjects": "Aún no hay proyectos"
     },
     "today": {
       "matchingNum": "elementos hoy",

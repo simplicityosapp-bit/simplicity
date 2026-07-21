@@ -132,19 +132,9 @@
   "tileDrill": {
     "close": "Close",
     "openFull": "Open in full",
-    "dayLabels": [
-      "S",
-      "M",
-      "T",
-      "W",
-      "T",
-      "F",
-      "S"
-    ],
     "titles": {
       "clients": "Clients",
       "net": "Net",
-      "tasks": "Tasks",
       "today": "Agenda"
     },
     "status": {
@@ -162,20 +152,6 @@
       "both": "Net (income − expenses)",
       "income": "Income only",
       "expense": "Expenses only"
-    },
-    "taskStatus": {
-      "open": "Open",
-      "done": "Done",
-      "both": "All"
-    },
-    "priorities": {
-      "high": "High",
-      "medium": "Medium",
-      "low": "Low"
-    },
-    "taskClientScope": {
-      "all": "All",
-      "linked": "Linked to a client"
     },
     "all": "All",
     "none": "None",
@@ -207,18 +183,6 @@
       "miniTx": "Transactions",
       "noProjects": "No projects yet",
       "noCategories": "No categories yet"
-    },
-    "tasks": {
-      "matchingNum": "matching tasks",
-      "trendLbl": "Tasks completed · 7 days",
-      "statusLbl": "Status",
-      "priorityLbl": "Priority",
-      "projectLbl": "Project",
-      "clientScopeLbl": "Client link",
-      "upcomingSection": "Upcoming tasks",
-      "emptyFilter": "No tasks match the filter.",
-      "moreCount": "+{{count}} more",
-      "noProjects": "No projects yet"
     },
     "today": {
       "matchingNum": "items today",

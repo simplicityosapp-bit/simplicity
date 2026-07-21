@@ -213,12 +213,6 @@
     "customName": "מדד משלי",
     "customHint": "שם, אייקון וצבע"
   },
-  "quickUpdate": {
-    "title": "עדכון יעד",
-    "empty": "אין יעדים ידניים פעילים לעדכון.",
-    "logProgress": "להזין התקדמות",
-    "close": "סגירה"
-  },
   "addProject": {
     "title": "פרויקט חדש",
     "projectName": "שם הפרויקט",

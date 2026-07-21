@@ -359,6 +359,38 @@ html[data-bg="blank"] .home-stack .home-widget[data-widget-id="moon"] .moon-chip
   overflow: hidden;
   text-overflow: ellipsis;
 }
+/* Log a value for THIS goal — the home entry point for "עדכון יעד", which
+   used to be a full-width button in the quick row with a category picker in
+   front of it. Manual-measurement goals only. */
+.moon-expanded-cat-add {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid var(--divider);
+  background: none;
+  color: var(--stone);
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+.moon-expanded-cat-add:hover {
+  border-color: var(--sage);
+  color: var(--sage);
+}
+/* Grown pointer target (see the .h-check note) — the goal rows are stacked,
+   so it fills the row's height and grows outward, never into its neighbour. */
+.moon-expanded-cat-add::after {
+  content: '';
+  position: absolute;
+  inset-block: -5px;
+  inset-inline-end: -8px;
+  inset-inline-start: -5px;
+}
 .moon-expanded-cat-pct {
   font-family: var(--mg-font-num);
   font-size: calc(11px * var(--text-scale));

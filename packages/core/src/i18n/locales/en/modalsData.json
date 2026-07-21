@@ -193,12 +193,6 @@
     "customName": "My own metric",
     "customHint": "Name, icon and color"
   },
-  "quickUpdate": {
-    "title": "Update a goal",
-    "empty": "No active manual goals to update.",
-    "logProgress": "Log progress",
-    "close": "Close"
-  },
   "addProject": {
     "title": "New project",
     "projectName": "Project name",

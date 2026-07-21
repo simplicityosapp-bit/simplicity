@@ -13,8 +13,6 @@
       "title": "Nécessite votre attention",
       "infoLabel": "À propos de « Nécessite votre attention »",
       "infoText": "Éléments qui nécessitent une action : transactions en attente d'approbation, rendez-vous pas encore marqués, clients actifs ou en pause sans aucune séance enregistrée depuis 45 jours et objectifs en retard sur le rythme.",
-      "count_one": "{{count}} élément",
-      "count_other": "{{count}} éléments",
       "dup_one": "Conflit de calendrier avec Google",
       "dup_other": "{{count}} conflits de calendrier avec Google",
       "more": "et {{count}} de plus",
@@ -103,7 +101,9 @@
       "infoLabel": "À propos du coup d'œil",
       "infoText": "Le score pondéré de tous vos objectifs ce mois-ci, tenant compte du rythme — quelle part de l'objectif quotidien attendu vous avez couverte jusqu'à présent. 100 % = pile dans le rythme.",
       "expandedEmpty": "Aucun objectif actif avec des données ce mois-ci pour l'instant.",
-      "fullDetail": "Détail complet"
+      "fullDetail": "Détail complet",
+      "logEntry": "Enregistrer un progrès",
+      "logEntryAria": "Enregistrer un progrès pour {{name}}"
     },
     "nextTasks": {
       "title": "Prochaines tâches",
@@ -121,8 +121,7 @@
       "markDone": "Marquer comme terminée"
     },
     "quick": {
-      "quickAdd": "Ajout rapide",
-      "goalUpdate": "Mettre à jour l'objectif"
+      "quickAdd": "Ajout rapide"
     },
     "quote": {
       "sourceAria": "Choisir la source des citations",

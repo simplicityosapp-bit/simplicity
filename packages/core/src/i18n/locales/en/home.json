@@ -13,8 +13,6 @@
       "title": "Needs attention",
       "infoLabel": "About \"Needs attention\"",
       "infoText": "Items that need action: transactions awaiting approval, meetings not yet marked, active or on-break clients with no session recorded in the last 45 days, and goals behind pace.",
-      "count_one": "{{count}} item",
-      "count_other": "{{count}} items",
       "dup_one": "Calendar conflict with Google",
       "dup_other": "{{count}} calendar conflicts with Google",
       "more": "and {{count}} more",
@@ -103,7 +101,9 @@
       "infoLabel": "About Glance",
       "infoText": "The weighted score of all your goals this month, pace-aware — how much of the expected daily target you've covered so far. 100% = right on pace.",
       "expandedEmpty": "No active goals with data this month yet.",
-      "fullDetail": "Full detail"
+      "fullDetail": "Full detail",
+      "logEntry": "Log progress",
+      "logEntryAria": "Log progress for {{name}}"
     },
     "nextTasks": {
       "title": "Next tasks",
@@ -121,8 +121,7 @@
       "markDone": "Mark as done"
     },
     "quick": {
-      "quickAdd": "Quick add",
-      "goalUpdate": "Update goal"
+      "quickAdd": "Quick add"
     },
     "quote": {
       "sourceAria": "Choose quote source",

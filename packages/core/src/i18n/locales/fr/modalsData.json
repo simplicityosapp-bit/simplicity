@@ -193,12 +193,6 @@
     "customName": "Ma propre mesure",
     "customHint": "Nom, icône et couleur"
   },
-  "quickUpdate": {
-    "title": "Mettre à jour un objectif",
-    "empty": "Aucun objectif manuel actif à mettre à jour.",
-    "logProgress": "Enregistrer la progression",
-    "close": "Fermer"
-  },
   "addProject": {
     "title": "Nouveau projet",
     "projectName": "Nom du projet",

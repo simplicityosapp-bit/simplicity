@@ -175,7 +175,11 @@ export default function AttentionWidget() {
               text={t('widgets.attention.infoText')}
             />
           </Txt>
-          <Txt className="h-card-count">{t('widgets.attention.count', { count: totalCount })}</Txt>
+          {/* No count badge. It counted ROWS, not things — "3 פריטים" over a
+              list that turned out to hold twenty. The summary line below already
+              says what is waiting, in words, so the number added nothing but a
+              promise the card then broke. `totalCount` still drives the
+              all-clear/summary split. */}
           <Btn
             type="button"
             className="h-card-toggle"

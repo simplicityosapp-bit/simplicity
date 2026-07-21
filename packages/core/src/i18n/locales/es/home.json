@@ -13,8 +13,6 @@
       "title": "Necesita atención",
       "infoLabel": "Acerca de «Necesita atención»",
       "infoText": "Elementos que requieren acción: transacciones pendientes de aprobación, citas aún sin marcar, clientes activos o en pausa sin ninguna sesión registrada en los últimos 45 días y objetivos por debajo del ritmo.",
-      "count_one": "{{count}} elemento",
-      "count_other": "{{count}} elementos",
       "dup_one": "Conflicto de calendario con Google",
       "dup_other": "{{count}} conflictos de calendario con Google",
       "more": "y {{count}} más",
@@ -103,7 +101,9 @@
       "infoLabel": "Acerca de Vistazo",
       "infoText": "La puntuación ponderada de todos tus objetivos de este mes, según el ritmo — cuánto del objetivo diario previsto has cubierto hasta ahora. 100% = justo en el ritmo.",
       "expandedEmpty": "Aún no hay objetivos activos con datos este mes.",
-      "fullDetail": "Detalle completo"
+      "fullDetail": "Detalle completo",
+      "logEntry": "Registrar avance",
+      "logEntryAria": "Registrar avance de {{name}}"
     },
     "nextTasks": {
       "title": "Próximas tareas",
@@ -121,8 +121,7 @@
       "markDone": "Marcar como hecha"
     },
     "quick": {
-      "quickAdd": "Añadir rápido",
-      "goalUpdate": "Actualizar objetivo"
+      "quickAdd": "Añadir rápido"
     },
     "quote": {
       "sourceAria": "Elegir fuente de las citas",

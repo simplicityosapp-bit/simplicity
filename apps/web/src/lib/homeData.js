@@ -71,7 +71,6 @@ export function leadsNeedingAttention(days = 45, now = new Date(), leads = []) {
 const DEFAULT_TILE_FILTERS = {
   clients: { statuses: ['active', 'wandering'], projectIds: [], groupIds: [] },
   net:     { timeRange: 'thisMonth', type: 'both', projectIds: [], groupIds: [], categoryIds: [] },
-  tasks:   { status: 'open', priorities: [], projectIds: [], clientScope: 'all' },
   today:   { kinds: ['meeting', 'calendar', 'followup', 'reminder'] },
 }
 
@@ -80,7 +79,6 @@ export function getTileFilters(prefs) {
   return {
     clients: { ...DEFAULT_TILE_FILTERS.clients, ...(fromPrefs.clients || {}) },
     net:     { ...DEFAULT_TILE_FILTERS.net,     ...(fromPrefs.net     || {}) },
-    tasks:   { ...DEFAULT_TILE_FILTERS.tasks,   ...(fromPrefs.tasks   || {}) },
     today:   { ...DEFAULT_TILE_FILTERS.today,   ...(fromPrefs.today   || {}) },
   }
 }
@@ -169,15 +167,14 @@ function rangeFromKey(key, now) {
   return currentMonthRange(now)
 }
 
-/* Filter-aware computation of the three home tiles.
+/* Filter-aware computation of the home tiles that show a number.
    Each tile reads its slice from the resolved filters; missing
    filters fall back to sensible defaults (see DEFAULT_TILE_FILTERS). */
 export function homeChips(now = new Date(), data, filters = DEFAULT_TILE_FILTERS) {
-  const { clients = [], tasks = [], transactions } = data || {}
+  const { clients = [], transactions } = data || {}
   const f = {
     clients: { ...DEFAULT_TILE_FILTERS.clients, ...(filters.clients || {}) },
     net:     { ...DEFAULT_TILE_FILTERS.net,     ...(filters.net     || {}) },
-    tasks:   { ...DEFAULT_TILE_FILTERS.tasks,   ...(filters.tasks   || {}) },
   }
 
   /* Clients tile — count by status_meta + optional project/group. */
@@ -186,19 +183,6 @@ export function homeChips(now = new Date(), data, filters = DEFAULT_TILE_FILTERS
     if (f.clients.statuses?.length && !f.clients.statuses.includes(meta)) return false
     if (f.clients.projectIds?.length && !f.clients.projectIds.includes(c.project_id)) return false
     if (f.clients.groupIds?.length && !f.clients.groupIds.includes(c.group_id)) return false
-    return true
-  }).length
-
-  /* Tasks tile — open/done/both + priorities + project + client-scope.
-     clientScope 'linked' keeps only tasks attached to some client; 'all'
-     (default) applies no client filter (beta 07/06/2026 — replaced the
-     per-client pill list with one general "משויכות ללקוח" toggle). */
-  const openTasks = live(tasks).filter((t) => {
-    if (f.tasks.status === 'open' && t.status === 'done') return false
-    if (f.tasks.status === 'done' && t.status !== 'done') return false
-    if (f.tasks.priorities?.length && !f.tasks.priorities.includes(t.priority)) return false
-    if (f.tasks.projectIds?.length && !f.tasks.projectIds.includes(t.project_id)) return false
-    if (f.tasks.clientScope === 'linked' && !t.client_id) return false
     return true
   }).length
 
@@ -221,7 +205,7 @@ export function homeChips(now = new Date(), data, filters = DEFAULT_TILE_FILTERS
   else if (f.net.type === 'expense') net = -exp
   else net = inc - exp
 
-  return { activeClients, openTasks, net, _income: inc, _expense: exp, _txCount: filteredTx.length }
+  return { activeClients, net, _income: inc, _expense: exp, _txCount: filteredTx.length }
 }
 
 /* ── Attention rows ────────────────────────────────────────────── */

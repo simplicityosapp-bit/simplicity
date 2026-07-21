@@ -9,7 +9,7 @@ import { getTileFilters, todayItems } from '../lib/homeData'
 import { confirmScheduledMeeting, billPerSessionMeeting } from '../lib/scheduledMeetings'
 import WhatsAppButton from '../components/WhatsAppButton'
 import { useT } from '../i18n/useT'
-import { ClientsTrend, NetBars, TasksBars } from './TileDrillCharts'
+import { ClientsTrend, NetBars } from './TileDrillCharts'
 import { Box, Txt, Btn } from '../components/ui'
 
 /* Option keys only — labels are resolved via t() at render so the pills
@@ -17,11 +17,6 @@ import { Box, Txt, Btn } from '../components/ui'
 const STATUS_OPTIONS = ['active', 'wandering', 'past', 'no_status']
 const NET_RANGES = ['thisWeek', 'thisMonth', 'last30days']
 const NET_TYPES = ['both', 'income', 'expense']
-const TASK_STATUS = ['open', 'done', 'both']
-const TASK_PRIORITIES = ['high', 'medium', 'low']
-/* One general client toggle instead of a pill-per-client list (beta
-   07/06/2026): 'all' = no filter, 'linked' = only tasks tied to a client. */
-const TASK_CLIENT_SCOPE = ['all', 'linked']
 const TODAY_KINDS = ['meeting', 'calendar', 'followup', 'reminder']
 
 function toggleInList(list, value) {
@@ -143,25 +138,6 @@ function netTrendValues(transactions, days = 30) {
   return { incomes, expenses }
 }
 
-function tasksDoneTrend(tasks, days = 7) {
-  const values = new Array(days).fill(0)
-  const dows = new Array(days).fill(0)
-  const today = new Date()
-  for (let i = 0; i < days; i += 1) {
-    const d = new Date(today.getTime() - (days - 1 - i) * DAY_MS)
-    dows[i] = d.getDay()
-    const k = dayKey(d)
-    values[i] = tasks.filter((t) => {
-      if (t.deleted_at) return false
-      if (t.status !== 'done') return false
-      const completedAt = t.updated_at || t.completed_at
-      if (!completedAt) return false
-      return dayKey(completedAt) === k
-    }).length
-  }
-  return { values, dows }
-}
-
 function ClientsPanel({ filters, setFilter, clients, projects, groups, t }) {
   const liveClients = clients.filter((c) => !c.deleted_at)
   const filtered = useMemo(() => {
@@ -273,73 +249,6 @@ function NetPanel({ filters, setFilter, transactions, projects, categories, summ
   )
 }
 
-function TasksPanel({ filters, setFilter, tasks, projects, t }) {
-  const liveTasks = (tasks || []).filter((tk) => !tk.deleted_at)
-  const filtered = useMemo(() => {
-    return liveTasks.filter((tk) => {
-      if (filters.status === 'open' && tk.status === 'done') return false
-      if (filters.status === 'done' && tk.status !== 'done') return false
-      if (filters.priorities?.length && !filters.priorities.includes(tk.priority)) return false
-      if (filters.projectIds?.length && !filters.projectIds.includes(tk.project_id)) return false
-      if (filters.clientScope === 'linked' && !tk.client_id) return false
-      return true
-    }).sort((a, b) => {
-      const order = { high: 0, medium: 1, low: 2 }
-      return (order[a.priority] ?? 9) - (order[b.priority] ?? 9)
-    })
-  }, [liveTasks, filters])
-  const trend = useMemo(() => tasksDoneTrend(liveTasks, 7), [liveTasks])
-
-  return (
-    <>
-      <Txt as="p" className="td-num mono">{filtered.length}</Txt>
-      <Txt as="p" className="td-num-lbl">{t('tileDrill.tasks.matchingNum')}</Txt>
-
-      <Box className="td-chart-block">
-        <Txt as="p" className="td-chart-lbl">{t('tileDrill.tasks.trendLbl')}</Txt>
-        <TasksBars values={trend.values} daysOfWeek={trend.dows} />
-      </Box>
-
-      <Txt as="p" className="td-field-lbl">{t('tileDrill.tasks.statusLbl')}</Txt>
-      <Pills options={TASK_STATUS} value={filters.status}
-             label={(k) => t(`tileDrill.taskStatus.${k}`)}
-             onChange={(v) => setFilter('status', v)} />
-
-      <Txt as="p" className="td-field-lbl">{t('tileDrill.tasks.priorityLbl')}</Txt>
-      <Pills options={TASK_PRIORITIES} value={filters.priorities} multi
-             label={(k) => t(`tileDrill.priorities.${k}`)}
-             onChange={(v) => setFilter('priorities', v)} />
-
-      <Txt as="p" className="td-field-lbl">{t('tileDrill.tasks.projectLbl')}</Txt>
-      <MultiPills items={projects} selected={filters.projectIds} onChange={(v) => setFilter('projectIds', v)} allLabel={t('tileDrill.all')} emptyLabel={t('tileDrill.tasks.noProjects')} />
-
-      <Txt as="p" className="td-field-lbl">{t('tileDrill.tasks.clientScopeLbl')}</Txt>
-      <Pills options={TASK_CLIENT_SCOPE} value={filters.clientScope || 'all'}
-             label={(k) => t(`tileDrill.taskClientScope.${k}`)}
-             onChange={(v) => setFilter('clientScope', v)} />
-
-      <Txt as="p" className="td-section-lbl">{t('tileDrill.tasks.upcomingSection')}</Txt>
-      <Box className="td-list">
-        {filtered.length === 0 ? (
-          <Txt as="p" className="td-empty">{t('tileDrill.tasks.emptyFilter')}</Txt>
-        ) : (
-          filtered.slice(0, 8).map((tk) => (
-            <Box key={tk.id} className="td-list-row">
-              <Txt className="td-list-name">{tk.title}</Txt>
-              <Txt className={`td-list-meta priority-${tk.priority || 'low'}`}>
-                {['high', 'medium', 'low'].includes(tk.priority) ? t(`tileDrill.priorities.${tk.priority}`) : ''}
-              </Txt>
-            </Box>
-          ))
-        )}
-        {filtered.length > 8 && (
-          <Txt as="p" className="td-list-more">{t('tileDrill.tasks.moreCount', { count: filtered.length - 8 })}</Txt>
-        )}
-      </Box>
-    </>
-  )
-}
-
 /* Today's agenda panel — the "פגישות היום" tile. Filters control which
    kinds are counted/shown (meeting / Google event / lead follow-up), and
    each row carries kind-aware actions: WhatsApp reminder, open the
@@ -416,7 +325,7 @@ export default function TileDrillModal({
   open, onClose, tile,
   prefs, updatePrefs,
   clients = [], groups = [], projects = [], categories = [],
-  tasks = [], transactions = [],
+  transactions = [],
   netSummary = {},
   meetings = [], calendarEvents = [], leads = [], reminders = [], sessions = [], addSession, updateMeeting, waMsg,
 }) {
@@ -464,7 +373,6 @@ export default function TileDrillModal({
   const routes = {
     clients: ROUTES.CLIENTS,
     net: ROUTES.FINANCE,
-    tasks: ROUTES.TASKS,
     today: ROUTES.CALENDAR,
   }
 
@@ -490,15 +398,6 @@ export default function TileDrillModal({
             projects={projects}
             categories={categories}
             summary={netSummary}
-            t={t}
-          />
-        )}
-        {tile === 'tasks' && (
-          <TasksPanel
-            filters={filters}
-            setFilter={setFilter}
-            tasks={tasks}
-            projects={projects}
             t={t}
           />
         )}

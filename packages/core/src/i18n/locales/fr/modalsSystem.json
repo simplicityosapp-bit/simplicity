@@ -132,19 +132,9 @@
   "tileDrill": {
     "close": "Fermer",
     "openFull": "Ouvrir en plein écran",
-    "dayLabels": [
-      "D",
-      "L",
-      "M",
-      "M",
-      "J",
-      "V",
-      "S"
-    ],
     "titles": {
       "clients": "Clients",
       "net": "Net",
-      "tasks": "Tâches",
       "today": "Agenda"
     },
     "status": {
@@ -162,20 +152,6 @@
       "both": "Net (revenus − dépenses)",
       "income": "Revenus uniquement",
       "expense": "Dépenses uniquement"
-    },
-    "taskStatus": {
-      "open": "Ouvertes",
-      "done": "Terminées",
-      "both": "Toutes"
-    },
-    "priorities": {
-      "high": "Élevée",
-      "medium": "Moyenne",
-      "low": "Faible"
-    },
-    "taskClientScope": {
-      "all": "Toutes",
-      "linked": "Liées à un client"
     },
     "all": "Toutes",
     "none": "Aucun",
@@ -207,18 +183,6 @@
       "miniTx": "Transactions",
       "noProjects": "Aucun projet pour l'instant",
       "noCategories": "Aucune catégorie pour l'instant"
-    },
-    "tasks": {
-      "matchingNum": "tâches correspondantes",
-      "trendLbl": "Tâches terminées · 7 jours",
-      "statusLbl": "Statut",
-      "priorityLbl": "Priorité",
-      "projectLbl": "Projet",
-      "clientScopeLbl": "Lien avec un client",
-      "upcomingSection": "Tâches à venir",
-      "emptyFilter": "Aucune tâche ne correspond au filtre.",
-      "moreCount": "+{{count}} de plus",
-      "noProjects": "Aucun projet pour l'instant"
     },
     "today": {
       "matchingNum": "éléments aujourd’hui",

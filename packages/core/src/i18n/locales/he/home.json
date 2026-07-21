@@ -216,8 +216,11 @@
       "reject": "דחייה"
     },
     "card": {
-      "expand": "פתיחת הרשימה",
-      "collapse": "כיווץ הרשימה"
+      "showLess": "הצג פחות",
+      "showAll_one": "ועוד אחד",
+      "showAll_two": "ועוד {{count}}",
+      "showAll_many": "ועוד {{count}}",
+      "showAll_other": "ועוד {{count}}"
     }
   }
 }

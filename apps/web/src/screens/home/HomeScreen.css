@@ -173,26 +173,36 @@
    Blur is reduced, not removed. The screen sits on a busy forest photo; at
    0 blur and this opacity the text competes with leaves. 10px is enough to
    settle the background without reading as frosted. */
+/* The surface is a warm SAND, not near-white. --cream (#FFFCF7) is white for
+   all practical purposes; laid over a bright forest at 60% it read as washed
+   out. Built from tokens rather than a new hex: --bone carried toward the
+   brand --blush for warmth, then a few percent of --espresso mixed in for
+   depth, so the card reads as a surface rather than a sheet of paper.
+   Resolves to roughly #E4DDD7 — espresso on it measures ~11:1, so the extra
+   depth costs nothing in legibility. */
 .home-screen {
-  --home-card-bg:     rgba(255, 252, 247, 0.62);
-  --home-card-border: 1px solid rgba(42, 37, 32, 0.16);
+  --home-card-tint:  color-mix(in srgb, var(--bone) 78%, var(--blush) 22%);
+  --home-card-solid: color-mix(in srgb, var(--home-card-tint) 91%, var(--espresso) 9%);
+  --home-card-bg:     color-mix(in srgb, var(--home-card-solid) 80%, transparent);
+  --home-card-border: 1px solid rgba(42, 37, 32, 0.18);
   --home-card-shadow: none;
   --home-card-blur:   blur(10px);
   --mg-card-radius:   14px;
   --mg-card-pad:      16px 18px;
 }
+/* Dark: the app surface is a cool blue-grey. Warmed toward --sidebar-dark so
+   the cards feel lit rather than switched off. */
 [data-theme="dark"] .home-screen {
-  --home-card-bg:     rgba(22, 26, 32, 0.72);
+  --home-card-tint:  color-mix(in srgb, #1A1F26 72%, var(--sidebar-dark) 28%);
+  --home-card-solid: var(--home-card-tint);
+  --home-card-bg:     color-mix(in srgb, var(--home-card-solid) 82%, transparent);
   --home-card-border: 1px solid rgba(0, 0, 0, 0.45);
 }
-/* The flat background has no photo to sit on, so the cards can be fully
-   opaque there and drop the blur entirely. */
+/* The flat background has no photo to sit on, so the cards take the solid
+   tint at full strength and drop the blur entirely. */
 html[data-bg="blank"] .home-screen {
-  --home-card-bg:   #F6F1E7;
+  --home-card-bg:   var(--home-card-solid);
   --home-card-blur: none;
-}
-html[data-bg="blank"][data-theme="dark"] .home-screen {
-  --home-card-bg: #1B1F26;
 }
 
 /* Shared glass card surface. */
@@ -921,40 +931,52 @@ html[data-bg="blank"][data-theme="dark"] .home-screen {
 .h-task-dot.regular {
   background: var(--amber-warn);
 }
+/* Quieter than it was: 20px instead of 26, and no fill. It used to carry the
+   glass background, which on the deeper card surface read as a bright white
+   disc pulling the eye down the row — louder than the task it belongs to.
+   Only the outline remains; it fills in on hover/focus.
+
+   The VISUAL shrinking costs nothing in reach: the pointer target below is a
+   pseudo-element and stays the size it was. That separation is the whole
+   reason the two were split in the first place. */
 .h-check {
   position: relative;
-  width: 26px;
-  height: 26px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
-  border: 1.5px solid var(--divider);
-  /* Frosted glass instead of an opaque circle — matches the tasks-screen
-     check button (.tc-chk) and the app's two-layer standard. */
-  background: var(--mg-card-bg);
-  backdrop-filter: var(--mg-card-blur);
+  border: 1px solid color-mix(in srgb, var(--stone) 28%, transparent);
+  background: transparent;
   flex-shrink: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   color: transparent;
   cursor: pointer;
-  transition: border-color 0.15s, color 0.15s;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
 }
 /* Grown pointer target, deliberately ASYMMETRIC. ✓ marks a task/reminder
    done — a consequential, one-tap action sitting at the end of a row that is
    itself tappable (it navigates). Expanding evenly would steal from the row
    and make mis-taps MORE likely on the destructive side, so it grows to fill
    the row's height (free — nothing above or below) and outward toward the
-   card edge, while staying tight on the side facing the text. */
+   card edge, while staying tight on the side facing the text.
+
+   The insets are RELATIVE to the button, so shrinking the visual from 26px to
+   20px quietly shrank the target with it (42x38 → 36x32). Widened to hold the
+   original ~42x38: the circle got quieter, the thing a finger aims at did
+   not. */
 .h-check::after {
   content: '';
   position: absolute;
-  inset-block: -6px;
-  inset-inline-end: -10px;
-  inset-inline-start: -6px;
+  inset-block: -9px;
+  inset-inline-end: -13px;
+  inset-inline-start: -9px;
 }
-.h-check:hover {
+.h-check:hover,
+.h-check:focus-visible {
   border-color: var(--sage);
   color: var(--sage);
+  background: color-mix(in srgb, var(--sage) 12%, transparent);
 }
 
 /* ── Collapsible list card (attention / reminders / next-tasks) ─────
@@ -1301,3 +1323,13 @@ html[data-bg="blank"][data-theme="dark"] .home-screen {
    way in. On desktop it becomes a tile in the last grid column beside the
    daily question — see the grid block at the top of this file, which also
    stretches it to the row height. */
+
+/* "ועוד N" under a previewed list — says in words what the chevron will
+   reveal, so the control is not the only thing announcing there is more. */
+.h-card-more {
+  margin: 6px 2px 0;
+  font-family: var(--mg-font);
+  font-size: calc(12.5px * var(--text-scale));
+  font-weight: 500;
+  color: var(--stone);
+}

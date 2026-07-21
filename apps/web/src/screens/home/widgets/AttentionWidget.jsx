@@ -139,9 +139,17 @@ export default function AttentionWidget() {
   )
 
   const totalCount = rows.length
-  const summary = totalCount === 0
-    ? t('widgets.attention.allClear')
-    : rows.slice(0, 2).map((r) => r.text).join(' · ') + (totalCount > 2 ? ` · ${t('widgets.attention.more', { count: totalCount - 2 })}` : '')
+  /* Only the all-clear state is a sentence now — the rest of the time the
+     card shows the actual rows rather than describing them. */
+  const summary = t('widgets.attention.allClear')
+
+  /* Shows its first few rows straight away and expands to the rest. Closed
+     used to mean a title and a summary line, so nothing on the home screen
+     told you WHICH thing needed attention without a click. No toggle is
+     offered when everything already fits. */
+  const PREVIEW = 3
+  const visible = open ? rows : rows.slice(0, PREVIEW)
+  const expandable = totalCount > PREVIEW
 
   /* What a row does is decided by attentionRowAction (in homeData, tested
      against the real item shapes) so the handler and the data can't drift —
@@ -185,8 +193,8 @@ export default function AttentionWidget() {
           disclosure control, so keyboard and screen-reader users get a proper
           one instead of an unreachable div. */}
       <Box
-        className={`h-card is-expandable${open ? ' is-open' : ''}`}
-        onClick={() => setOpen((v) => !v)}
+        className={`h-card${expandable ? ' is-expandable' : ''}${open ? ' is-open' : ''}`}
+        onClick={expandable ? () => setOpen((v) => !v) : undefined}
       >
         <Box className="h-card-head">
           <Txt className="h-card-title">
@@ -197,40 +205,41 @@ export default function AttentionWidget() {
             />
           </Txt>
           {/* No count badge. It counted ROWS, not things — "3 פריטים" over a
-              list that turned out to hold twenty. The summary line below already
-              says what is waiting, in words, so the number added nothing but a
-              promise the card then broke. `totalCount` still drives the
-              all-clear/summary split. */}
-          <Btn
-            type="button"
-            className="h-card-toggle"
-            aria-expanded={open}
-            aria-controls="h-attn-list"
-            aria-label={open ? t('widgets.card.collapse') : t('widgets.card.expand')}
-            onClick={(e) => { e.stopPropagation(); setOpen((v) => !v) }}
-          >
-            <ChevronDown size={16} strokeWidth={1.7} className="h-card-chevron" aria-hidden="true" />
-          </Btn>
+              list that turned out to hold twenty. The rows themselves are on
+              screen now, which says it better than any number did. */}
+          {expandable && (
+            <Btn
+              type="button"
+              className="h-card-toggle"
+              aria-expanded={open}
+              aria-controls="h-attn-list"
+              aria-label={open ? t('widgets.card.showLess') : t('widgets.card.showAll', { count: totalCount - PREVIEW })}
+              onClick={(e) => { e.stopPropagation(); setOpen((v) => !v) }}
+            >
+              <ChevronDown size={16} strokeWidth={1.7} className="h-card-chevron" aria-hidden="true" />
+            </Btn>
+          )}
         </Box>
-        {/* Open: one loop over one sorted list. The three widget-owned rows
-            used to be hard-coded above the map, which pinned them to the top
-            regardless of how urgent they were. Closed: the same list, first
-            two entries, as a sentence. */}
-        {open ? (
+        {/* One loop over one sorted list. The three widget-owned rows used to
+            be hard-coded above the map, which pinned them to the top however
+            urgent they were. */}
+        {totalCount ? (
           <Box className="h-card-list" id="h-attn-list">
-            {rows.length ? (
-              rows.map((it) => {
-                const Icon = ICONS[it.icon] || Bell
-                return (
-                  <Btn key={it.rowId} type="button" className="h-attn-row" onClick={(e) => { e.stopPropagation(); onRow(it) }}>
-                    <Icon size={16} strokeWidth={1.6} className="h-attn-icon" aria-hidden="true" />
-                    <Txt className="h-attn-text">{it.text}</Txt>
-                    <ChevronLeft size={16} strokeWidth={1.6} className="h-row-chevron" aria-hidden="true" />
-                  </Btn>
-                )
-              })
-            ) : (
-              <Txt as="p" className="h-card-empty">{t('widgets.attention.empty')}</Txt>
+            {visible.map((it) => {
+              const Icon = ICONS[it.icon] || Bell
+              return (
+                <Btn key={it.rowId} type="button" className="h-attn-row" onClick={(e) => { e.stopPropagation(); onRow(it) }}>
+                  <Icon size={16} strokeWidth={1.6} className="h-attn-icon" aria-hidden="true" />
+                  <Txt className="h-attn-text">{it.text}</Txt>
+                  <ChevronLeft size={16} strokeWidth={1.6} className="h-row-chevron" aria-hidden="true" />
+                </Btn>
+              )
+            })}
+            {/* What the chevron will reveal, said in words. */}
+            {expandable && !open && (
+              <Txt as="p" className="h-card-more">
+                {t('widgets.card.showAll', { count: totalCount - PREVIEW })}
+              </Txt>
             )}
           </Box>
         ) : (

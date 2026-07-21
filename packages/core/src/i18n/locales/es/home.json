@@ -154,8 +154,9 @@
       "reject": "Rechazar"
     },
     "card": {
-      "expand": "Desplegar la lista",
-      "collapse": "Contraer la lista"
+      "showLess": "Ver menos",
+      "showAll_one": "1 más",
+      "showAll_other": "{{count}} más"
     }
   }
 }

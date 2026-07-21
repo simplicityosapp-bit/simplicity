@@ -34,8 +34,15 @@ export default function NextTasksWidget() {
   const overdue = useMemo(() => items.filter((i) => i.bucket === 'overdue').length, [items])
   const today = useMemo(() => items.filter((i) => i.bucket === 'today').length, [items])
 
-  /* Closed = title + summary; click opens the full list. */
+  /* The card is never fully shut: it shows the first few rows straight away
+     and expands to the rest. A closed card used to be a title plus a sentence
+     about what was inside — you had to open it to see a single actual item.
+     With ≤PREVIEW rows there is nothing to expand, so no toggle is offered
+     rather than leaving a chevron that does nothing. */
+  const PREVIEW = 3
   const [open, setOpen] = useState(false)
+  const visible = open ? items : items.slice(0, PREVIEW)
+  const expandable = items.length > PREVIEW
   /* The header "+" offers the two things this card holds. */
   const [adding, setAdding] = useState(null) /* 'task' | 'reminder' | null */
 
@@ -57,8 +64,8 @@ export default function NextTasksWidget() {
   return (
     <>
       <Box
-        className={`h-card is-expandable${open ? ' is-open' : ''}`}
-        onClick={() => setOpen((v) => !v)}
+        className={`h-card${expandable ? ' is-expandable' : ''}${open ? ' is-open' : ''}`}
+        onClick={expandable ? () => setOpen((v) => !v) : undefined}
       >
         <Box className="h-card-head">
           <Txt className="h-card-title">
@@ -79,21 +86,22 @@ export default function NextTasksWidget() {
             {t('widgets.nextTasks.link', { count: total })}
             <ChevronLeft size={16} strokeWidth={1.6} aria-hidden="true" />
           </Btn>
-          <Btn
-            type="button"
-            className="h-card-toggle"
-            aria-expanded={open}
-            aria-controls="h-tasks-list"
-            aria-label={open ? t('widgets.card.collapse') : t('widgets.card.expand')}
-            onClick={(e) => { e.stopPropagation(); setOpen((v) => !v) }}
-          >
-            <ChevronDown size={16} strokeWidth={1.7} className="h-card-chevron" aria-hidden="true" />
-          </Btn>
+          {expandable && (
+            <Btn
+              type="button"
+              className="h-card-toggle"
+              aria-expanded={open}
+              aria-controls="h-tasks-list"
+              aria-label={open ? t('widgets.card.showLess') : t('widgets.card.showAll', { count: items.length - PREVIEW })}
+              onClick={(e) => { e.stopPropagation(); setOpen((v) => !v) }}
+            >
+              <ChevronDown size={16} strokeWidth={1.7} className="h-card-chevron" aria-hidden="true" />
+            </Btn>
+          )}
         </Box>
-        {open ? (
+        {items.length ? (
           <Box className="h-card-list" id="h-tasks-list">
-            {items.length ? (
-              items.map((it) => (
+            {visible.map((it) => (
                 <Box
                   key={it.id}
                   className="h-task-row"
@@ -127,9 +135,12 @@ export default function NextTasksWidget() {
                     <Check size={13} strokeWidth={2} aria-hidden="true" />
                   </Btn>
                 </Box>
-              ))
-            ) : (
-              <Txt as="p" className="h-card-empty">{t('widgets.nextTasks.allDone', { add: t('widgets.nextTasks.addWord') })}</Txt>
+            ))}
+            {/* What the chevron will reveal, said in words. */}
+            {expandable && !open && (
+              <Txt as="p" className="h-card-more">
+                {t('widgets.card.showAll', { count: items.length - PREVIEW })}
+              </Txt>
             )}
           </Box>
         ) : (

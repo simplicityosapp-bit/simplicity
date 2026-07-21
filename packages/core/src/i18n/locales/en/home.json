@@ -156,6 +156,10 @@
       "empty": "No bookings awaiting approval.",
       "approve": "Approve",
       "reject": "Reject"
+    },
+    "card": {
+      "expand": "Expand the list",
+      "collapse": "Collapse the list"
     }
   }
 }

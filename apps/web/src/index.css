@@ -292,6 +292,7 @@ textarea:focus-visible,
   vertical-align: middle;
 }
 .info-pop-btn {
+  position: relative;
   width: 18px;
   height: 18px;
   padding: 0;
@@ -304,6 +305,18 @@ textarea:focus-visible,
   cursor: help;
   opacity: 0.7;
   transition: opacity 0.15s, color 0.15s;
+}
+/* Pointer target grown to 28px around the 18px glyph, with no layout shift.
+   Deliberately NOT the full 44px: these "?" triggers sit INSIDE other tap
+   targets (the home chips are tiles you tap to drill in, the card titles sit
+   on cards you tap to expand), so a 44px halo would swallow taps meant for
+   the parent and open a tooltip instead. 28px clears the WCAG 2.2 AA 24px
+   minimum without hijacking its surroundings. The popover anchors to .info-pop
+   (see InfoPopover.jsx), not to this box, so its position is unaffected. */
+.info-pop-btn::after {
+  content: '';
+  position: absolute;
+  inset: -5px;
 }
 .info-pop-btn:hover,
 .info-pop-btn[aria-expanded="true"] {

@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ClipboardList, ChevronLeft, Check } from 'lucide-react'
+import { ClipboardList, ChevronLeft, ChevronDown, Check } from 'lucide-react'
 import { ROUTES } from '../../../lib/routes'
 import { nextTasks, openTasksCount } from '../../../lib/homeData'
 import { useTasks } from '../../../hooks/useTasks'
@@ -40,9 +40,20 @@ export default function NextTasksWidget() {
           {t('widgets.nextTasks.link', { count: total })}
           <ChevronLeft size={16} strokeWidth={1.6} aria-hidden="true" />
         </Btn>
+        {/* Real disclosure control — see the note in AttentionWidget. */}
+        <Btn
+          type="button"
+          className="h-card-toggle"
+          aria-expanded={open}
+          aria-controls="h-tasks-list"
+          aria-label={open ? t('widgets.card.collapse') : t('widgets.card.expand')}
+          onClick={(e) => { e.stopPropagation(); setOpen((v) => !v) }}
+        >
+          <ChevronDown size={16} strokeWidth={1.7} className="h-card-chevron" aria-hidden="true" />
+        </Btn>
       </Box>
       {open ? (
-        <Box className="h-card-list">
+        <Box className="h-card-list" id="h-tasks-list">
           {items.length ? (
             items.map((task) => (
               <Box

@@ -156,6 +156,10 @@
       "empty": "Aucune réservation en attente d'approbation.",
       "approve": "Approuver",
       "reject": "Refuser"
+    },
+    "card": {
+      "expand": "Afficher la liste",
+      "collapse": "Masquer la liste"
     }
   }
 }

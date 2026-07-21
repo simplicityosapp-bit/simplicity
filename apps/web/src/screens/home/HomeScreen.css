@@ -430,13 +430,25 @@ html[data-bg="blank"] .home-stack .home-widget[data-widget-id="moon"] .moon-chip
   display: inline-flex;
   align-items: center;
   gap: 3px;
-  padding: 2px 8px;
+  /* Taller pill (was 2px) so the control itself clears the 24px minimum
+     instead of relying only on the grown target below. */
+  padding: 6px 10px;
   border-radius: 999px;
   border: none;
   background: transparent;
   font: 500 calc(11px * var(--text-scale)) / 1 var(--mg-font);
   color: var(--stone);
   cursor: pointer;
+}
+/* Grown upward/outward into the card's own padding, where there is nothing
+   to hit — expanding downward would overlap the question text, which is
+   itself a link to the insights screen. */
+.ins-skip-btn::after {
+  content: '';
+  position: absolute;
+  inset-block-start: -8px;
+  inset-block-end: -2px;
+  inset-inline: -6px;
 }
 .ins-skip-btn:hover { background: rgba(42, 37, 32, 0.04); }
 [data-theme="dark"] .ins-skip-btn:hover { background: rgba(240, 235, 224, 0.06); }
@@ -722,11 +734,40 @@ html[data-bg="blank"] .home-stack .home-widget[data-widget-id="moon"] .moon-chip
   color: var(--stone);
   margin-inline-start: auto;        /* push count + chevron to the end as a group */
 }
-/* Expand/collapse affordance for the expandable attention card. */
+/* Expand/collapse control on the three expandable cards (attention /
+   reminders / next-tasks). A REAL <button>, not just a glyph: the card div
+   carries a pointer-only onClick, and role="button" on it would make its
+   children presentational — hiding the rows and the "?" from assistive tech.
+   This is the focusable, announced disclosure control instead. */
+.h-card-toggle {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  padding: 0;
+  margin-inline-start: 6px;
+  border: none;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+}
+/* Pointer target grown to ~44px around the 16px glyph WITHOUT changing
+   layout — the card head keeps its exact height and spacing. Grown mostly
+   UPWARD, into the card's own top padding where there is nothing to hit:
+   the toggle and the rows' ✓ buttons sit on the SAME side of the card, so an
+   evenly grown box would end up a few px above the first ✓ and swallow taps
+   meant for it — and ✓ is the consequential one (it completes an item). */
+.h-card-toggle::after {
+  content: '';
+  position: absolute;
+  inset-block-start: -18px;
+  inset-block-end: -8px;
+  inset-inline: -14px;
+}
 .h-card-chevron {
   color: var(--stone);
   flex-shrink: 0;
-  margin-inline-start: 6px;
   transition: transform 0.2s ease;
 }
 .h-card.is-open .h-card-chevron { transform: rotate(180deg); }
@@ -734,6 +775,9 @@ html[data-bg="blank"] .home-stack .home-widget[data-widget-id="moon"] .moon-chip
   display: inline-flex;
   align-items: center;
   gap: 2px;
+  /* Pushes the link + toggle to the end as one group, so the head reads
+     title … link ⌄ rather than spreading the three apart. */
+  margin-inline-start: auto;
   background: none;
   border: none;
   cursor: pointer;
@@ -820,8 +864,9 @@ html[data-bg="blank"] .home-stack .home-widget[data-widget-id="moon"] .moon-chip
   flex-shrink: 0;
 }
 .h-check {
-  width: 22px;
-  height: 22px;
+  position: relative;
+  width: 26px;
+  height: 26px;
   border-radius: 50%;
   border: 1.5px solid var(--divider);
   /* Frosted glass instead of an opaque circle — matches the tasks-screen
@@ -835,6 +880,19 @@ html[data-bg="blank"] .home-stack .home-widget[data-widget-id="moon"] .moon-chip
   color: transparent;
   cursor: pointer;
   transition: border-color 0.15s, color 0.15s;
+}
+/* Grown pointer target, deliberately ASYMMETRIC. ✓ marks a task/reminder
+   done — a consequential, one-tap action sitting at the end of a row that is
+   itself tappable (it navigates). Expanding evenly would steal from the row
+   and make mis-taps MORE likely on the destructive side, so it grows to fill
+   the row's height (free — nothing above or below) and outward toward the
+   card edge, while staying tight on the side facing the text. */
+.h-check::after {
+  content: '';
+  position: absolute;
+  inset-block: -6px;
+  inset-inline-end: -10px;
+  inset-inline-start: -6px;
 }
 .h-check:hover {
   border-color: var(--sage);
@@ -985,12 +1043,19 @@ html[data-bg="blank"] .home-stack .home-widget[data-widget-id="moon"] .moon-chip
 .mtg-confirm-actions {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  /* Wider than the old 6px so the three 40px buttons stay clearly separate
+     targets rather than one continuous strip. */
+  gap: 8px;
   flex-shrink: 0;
 }
+/* ✓ / ✕ / 🗑 on a pending meeting — real size, not an invisible grown target.
+   Three of them sit side by side, so pseudo-element expansion would make the
+   hit areas overlap and fire the wrong one; and these are the most
+   consequential taps on home (✓ materialises a billable session), so the
+   button a finger aims at should genuinely be that big. */
 .mtg-confirm-btn {
-  width: 30px;
-  height: 30px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   display: inline-flex;
   align-items: center;

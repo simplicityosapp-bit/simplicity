@@ -157,6 +157,12 @@ export default function AttentionWidget() {
 
   return (
     <>
+      {/* The card keeps a pointer-only onClick as a convenience shortcut. It
+          deliberately carries NO role="button": that role makes its children
+          presentational, which would hide the rows and the info "?" inside it
+          from assistive tech. The chevron below is the real, focusable
+          disclosure control, so keyboard and screen-reader users get a proper
+          one instead of an unreachable div. */}
       <Box
         className={`h-card is-expandable${open ? ' is-open' : ''}`}
         onClick={() => setOpen((v) => !v)}
@@ -170,10 +176,19 @@ export default function AttentionWidget() {
             />
           </Txt>
           <Txt className="h-card-count">{t('widgets.attention.count', { count: totalCount })}</Txt>
-          <ChevronDown size={16} strokeWidth={1.7} className="h-card-chevron" aria-hidden="true" />
+          <Btn
+            type="button"
+            className="h-card-toggle"
+            aria-expanded={open}
+            aria-controls="h-attn-list"
+            aria-label={open ? t('widgets.card.collapse') : t('widgets.card.expand')}
+            onClick={(e) => { e.stopPropagation(); setOpen((v) => !v) }}
+          >
+            <ChevronDown size={16} strokeWidth={1.7} className="h-card-chevron" aria-hidden="true" />
+          </Btn>
         </Box>
         {open ? (
-          <Box className="h-card-list">
+          <Box className="h-card-list" id="h-attn-list">
             {(invoiceImports?.length || 0) > 0 && (
               <Btn type="button" className="h-attn-row" onClick={(e) => { e.stopPropagation(); setPopup('invoices') }}>
                 <FileDown size={16} strokeWidth={1.6} className="h-attn-icon" aria-hidden="true" />

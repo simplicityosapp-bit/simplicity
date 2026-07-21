@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Clock, ChevronLeft, Check } from 'lucide-react'
+import { Clock, ChevronLeft, ChevronDown, Check } from 'lucide-react'
 import { ROUTES } from '../../../lib/routes'
 import { remindersUpcoming } from '../../../lib/homeData'
 import { formatWhen } from '@simplicity/core'
@@ -30,6 +30,10 @@ export default function RemindersWidget() {
       : t('widgets.reminders.soonSummary', { count: items.length })
 
   return (
+    /* Pointer-only onClick on the card, real disclosure button on the chevron —
+       see the note in AttentionWidget for why the card carries no role. The
+       chevron also fixes an affordance gap: this card looked like it only had
+       a "go to calendar" link, with nothing signalling that it expands. */
     <Box
       className={`h-card is-expandable${open ? ' is-open' : ''}`}
       onClick={() => setOpen((v) => !v)}
@@ -42,9 +46,19 @@ export default function RemindersWidget() {
           {t('widgets.reminders.link', { count: items.length })}
           <ChevronLeft size={16} strokeWidth={1.6} aria-hidden="true" />
         </Btn>
+        <Btn
+          type="button"
+          className="h-card-toggle"
+          aria-expanded={open}
+          aria-controls="h-rem-list"
+          aria-label={open ? t('widgets.card.collapse') : t('widgets.card.expand')}
+          onClick={(e) => { e.stopPropagation(); setOpen((v) => !v) }}
+        >
+          <ChevronDown size={16} strokeWidth={1.7} className="h-card-chevron" aria-hidden="true" />
+        </Btn>
       </Box>
       {open ? (
-        <Box className="h-card-list">
+        <Box className="h-card-list" id="h-rem-list">
           {items.length ? (
             items.map((r) => (
               <Box

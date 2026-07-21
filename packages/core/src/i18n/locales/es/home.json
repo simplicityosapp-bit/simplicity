@@ -156,6 +156,10 @@
       "empty": "No hay reservas pendientes de aprobación.",
       "approve": "Aprobar",
       "reject": "Rechazar"
+    },
+    "card": {
+      "expand": "Desplegar la lista",
+      "collapse": "Contraer la lista"
     }
   }
 }

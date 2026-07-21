@@ -54,7 +54,16 @@
   .home-stack > .home-row-top { display: contents; }
   .home-stack .home-widget { grid-column: 1 / -1; }
 
-  .home-stack .home-widget[data-widget-id="quote"]      { grid-column: span 3; }
+  /* The quote fills its row rather than sitting at the top of it. With
+     align-items:start it hugged the top of a row whose height was set by the
+     taller moon chip, so it read as having slipped upward away from the ring
+     beside it. Stretching the cell AND the card inside it makes the two read
+     as one row; the text centres itself in the taller box. */
+  .home-stack .home-widget[data-widget-id="quote"] {
+    grid-column: span 3;
+    align-self: stretch;
+  }
+  .home-stack .home-widget[data-widget-id="quote"] .h-quote { height: 100%; }
   .home-stack .home-widget[data-widget-id="moon"]       { grid-column: span 1; }
   .home-stack .home-widget[data-widget-id="insights"]   { grid-column: span 3; }
   .home-stack .home-widget[data-widget-id="quick-row"]  { grid-column: span 1; align-self: stretch; }
@@ -205,16 +214,13 @@ html[data-bg="blank"] .home-screen {
   --home-card-blur: none;
 }
 
-/* Shared card surface. `.moon-block` and the empty-state chip are on this
-   list now: the moon widget used to carry the surface on its ROUND chip, so
-   in the flattened grid it was the one cell that wasn't a tile — a circle
-   floating in a rectangle, still frosted while everything around it had gone
-   flat. The cell is the card now and the ring lives inside it. */
+/* Shared card surface. The moon widget is deliberately NOT on this list: its
+   surface belongs to the ROUND chip, not to the grid cell around it. Making
+   the cell a tile (an earlier attempt) boxed the ring inside a square and
+   lost the one shape on the screen that isn't a rectangle. */
 .h-quote,
 .ins-widget,
 .h-card,
-.moon-block,
-.moon-chip-empty,
 .h-stat {
   border-radius: var(--mg-card-radius);
   border: var(--home-card-border);
@@ -227,6 +233,11 @@ html[data-bg="blank"] .home-screen {
 .h-quote {
   padding: var(--mg-card-pad);
   text-align: center;
+  /* Centres the text when the card is stretched to a taller row (desktop). */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 /* The quote card is a button since beta 03/06/2026 — tap opens the
    source picker (system pool / personal quotes). */
@@ -257,32 +268,25 @@ html[data-bg="blank"] .home-screen {
    confidence pace, percentage centered, tiny label below. The
    widget's accent halo (from .home-stack .home-widget > *) wraps
    the chip like a soft outer ring. */
-/* The ring itself carries no surface any more — the cell around it does (see
-   the shared card list above). What is left is the arc, the number and the
-   label, sitting inside a tile like every other widget. */
+/* ONLY the circle is filled in — the grid cell it sits in stays transparent,
+   so the ring reads as a disc on the background rather than a disc inside a
+   box. It takes the same home surface variables as the tiles (sand, thin
+   hairline, light blur) so it belongs to the set without being a tile. */
 .moon-chip {
   position: relative;
-  width: 118px;
-  height: 118px;
-  margin: 0 auto;
+  width: 132px;
+  height: 132px;
+  margin: 4px auto;
   border-radius: 50%;
-  background: none;
-  border: none;
+  background: var(--home-card-bg);
+  border: var(--home-card-border);
+  backdrop-filter: var(--home-card-blur);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   transition: transform 0.18s;
-}
-/* The empty state has no .moon-block wrapper — the chip IS the widget root
-   there, so it keeps the card padding and a tile shape rather than a circle. */
-.moon-chip-empty {
-  width: auto;
-  height: auto;
-  min-height: 118px;
-  border-radius: var(--mg-card-radius);
-  padding: var(--mg-card-pad);
 }
 .moon-chip:active { transform: scale(0.97); }
 .moon-svg {
@@ -347,23 +351,44 @@ html[data-bg="blank"] .home-screen {
 
 /* Block that wraps chip + expanded panel. When expanded we let the
    block grow taller; the chip stays its compact shape on top. */
+/* The cell is a positioning context only — no padding, no surface. The
+   expanded panel below anchors to it. */
 .moon-block {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: stretch;
   gap: 10px;
-  padding: var(--mg-card-pad);
 }
 .moon-block .moon-chip {
   position: relative;
 }
+/* A POPOVER, not an accordion. Expanding used to push everything below it
+   down the page, so opening a glance re-flowed the whole screen; it now
+   floats over what is beneath, like the sidebar's "עוד" panel.
+
+   Out of flow, anchored to .moon-block, and wider than the 132px chip so the
+   per-goal bars have room — it stretches from the chip toward the middle of
+   the screen rather than being trapped in a one-column cell. Opaque rather
+   than semi-transparent: content shows through the cards, but not through a
+   panel that is covering other content. */
 .moon-expanded {
+  position: absolute;
+  top: calc(100% + 6px);
+  inset-inline-start: 0;
+  z-index: 20;
+  width: max(100%, 250px);
+  max-height: min(340px, 60vh);
+  overflow-y: auto;
+  overscroll-behavior: contain;
   padding: 12px 14px;
   border-radius: var(--mg-card-radius);
-  border: var(--mg-card-border);
-  background: var(--mg-card-bg);
-  box-shadow: var(--mg-card-shadow);
-  backdrop-filter: var(--mg-card-blur);
+  border: var(--home-card-border);
+  background: var(--home-card-solid);
+  box-shadow: 0 10px 28px rgba(42, 37, 32, 0.18);
+}
+[data-theme="dark"] .moon-expanded {
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.45);
 }
 .moon-expanded-reflection {
   margin: 0 0 10px;

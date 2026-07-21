@@ -181,8 +181,8 @@
    Resolves to roughly #E4DDD7 — espresso on it measures ~11:1, so the extra
    depth costs nothing in legibility. */
 .home-screen {
-  --home-card-tint:  color-mix(in srgb, var(--bone) 78%, var(--blush) 22%);
-  --home-card-solid: color-mix(in srgb, var(--home-card-tint) 91%, var(--espresso) 9%);
+  --home-card-tint:  color-mix(in srgb, var(--bone) 80%, var(--amber-warn) 20%);
+  --home-card-solid: color-mix(in srgb, var(--home-card-tint) 92%, var(--espresso) 8%);
   --home-card-bg:     color-mix(in srgb, var(--home-card-solid) 80%, transparent);
   --home-card-border: 1px solid rgba(42, 37, 32, 0.18);
   --home-card-shadow: none;
@@ -205,10 +205,16 @@ html[data-bg="blank"] .home-screen {
   --home-card-blur: none;
 }
 
-/* Shared glass card surface. */
+/* Shared card surface. `.moon-block` and the empty-state chip are on this
+   list now: the moon widget used to carry the surface on its ROUND chip, so
+   in the flattened grid it was the one cell that wasn't a tile — a circle
+   floating in a rectangle, still frosted while everything around it had gone
+   flat. The cell is the card now and the ring lives inside it. */
 .h-quote,
 .ins-widget,
 .h-card,
+.moon-block,
+.moon-chip-empty,
 .h-stat {
   border-radius: var(--mg-card-radius);
   border: var(--home-card-border);
@@ -251,21 +257,32 @@ html[data-bg="blank"] .home-screen {
    confidence pace, percentage centered, tiny label below. The
    widget's accent halo (from .home-stack .home-widget > *) wraps
    the chip like a soft outer ring. */
+/* The ring itself carries no surface any more — the cell around it does (see
+   the shared card list above). What is left is the arc, the number and the
+   label, sitting inside a tile like every other widget. */
 .moon-chip {
   position: relative;
-  width: 132px;
-  height: 132px;
-  margin: 4px auto;
+  width: 118px;
+  height: 118px;
+  margin: 0 auto;
   border-radius: 50%;
-  background: var(--mg-card-bg);
-  border: var(--mg-card-border);
-  backdrop-filter: var(--mg-card-blur);
+  background: none;
+  border: none;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   transition: transform 0.18s;
+}
+/* The empty state has no .moon-block wrapper — the chip IS the widget root
+   there, so it keeps the card padding and a tile shape rather than a circle. */
+.moon-chip-empty {
+  width: auto;
+  height: auto;
+  min-height: 118px;
+  border-radius: var(--mg-card-radius);
+  padding: var(--mg-card-pad);
 }
 .moon-chip:active { transform: scale(0.97); }
 .moon-svg {
@@ -335,6 +352,7 @@ html[data-bg="blank"] .home-screen {
   flex-direction: column;
   align-items: stretch;
   gap: 10px;
+  padding: var(--mg-card-pad);
 }
 .moon-block .moon-chip {
   position: relative;

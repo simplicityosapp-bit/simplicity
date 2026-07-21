@@ -1,34 +1,40 @@
 /* FeedbackCard — subtle glass card at the bottom of the home feed. */
 
+/* Reads the HOME surface variables with a fallback, so it matches the cards
+   it sits under instead of staying frosted while they went flat. It used the
+   global --mg-card-* tokens directly, which is why it drifted. The fallback
+   keeps it correct if it is ever rendered outside the home screen. */
 .feedback-card {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   width: 100%;
   margin-top: 4px;
-  padding: 14px 16px;
+  padding: 12px 14px;
   text-align: start;
   font-family: var(--mg-font);
-  background: var(--mg-card-bg);
-  backdrop-filter: var(--mg-card-blur);
-  border: var(--mg-card-border);
+  background: var(--home-card-bg, var(--mg-card-bg));
+  backdrop-filter: var(--home-card-blur, var(--mg-card-blur));
+  border: var(--home-card-border, var(--mg-card-border));
   border-radius: var(--mg-card-radius);
   cursor: pointer;
-  transition: transform 0.12s ease, box-shadow 0.15s ease;
+  transition: transform 0.12s ease, border-color 0.15s ease;
 }
 
-.feedback-card:hover { box-shadow: var(--mg-card-shadow); }
+.feedback-card:hover { border-color: var(--terracotta); }
 .feedback-card:active { transform: scale(0.99); }
 
+/* Quieter than it was: this is the least important thing on the screen, and a
+   40px filled blush square was competing with the widgets above it. */
 .feedback-card-icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 40px;
-  height: 40px;
+  width: 30px;
+  height: 30px;
   flex-shrink: 0;
-  border-radius: 12px;
-  background: var(--blush);
+  border-radius: 9px;
+  background: color-mix(in srgb, var(--terracotta) 12%, transparent);
   color: var(--terracotta);
 }
 
@@ -40,7 +46,7 @@
 }
 
 .feedback-card-title {
-  font-size: calc(14px * var(--text-scale));
+  font-size: calc(13.5px * var(--text-scale));
   font-weight: 600;
   color: var(--espresso);
 }

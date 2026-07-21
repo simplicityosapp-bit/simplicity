@@ -39,8 +39,16 @@ describe('attentionItems — ranked by urgency', () => {
     expect(ids).toContain('pendingLeads')
     expect(ids).toContain('dueFollowups')
     expect(ids).toContain('pendingTx')
-    expect(ids).toContain('urgentTasks')
     expect(ids).toContain('staleClients')
+  })
+
+  it('does NOT emit a row for urgent tasks', () => {
+    /* The fixture has a high-priority open task on purpose. Attention used to
+       raise "N משימות דחופות" and navigate to the tasks screen — while the
+       tasks widget sits beside it on the same screen listing those very tasks
+       with a ✓ on each. The widget owns them now; this guards the duplicate
+       from creeping back. */
+    expect(ids).not.toContain('urgentTasks')
   })
 
   it('returns them in ascending priority order', () => {
@@ -48,12 +56,11 @@ describe('attentionItems — ranked by urgency', () => {
     expect(priorities).toEqual([...priorities].sort((a, b) => a - b))
   })
 
-  it('puts what someone is waiting on above the coach\'s own follow-through', () => {
-    /* A person who filled the form / a follow-up due today outrank an urgent
-       task, which outranks a client who has simply gone quiet. */
-    expect(ids.indexOf('pendingLeads')).toBeLessThan(ids.indexOf('urgentTasks'))
-    expect(ids.indexOf('dueFollowups')).toBeLessThan(ids.indexOf('urgentTasks'))
-    expect(ids.indexOf('urgentTasks')).toBeLessThan(ids.indexOf('staleClients'))
+  it('puts what someone is waiting on above a client who has gone quiet', () => {
+    /* A person who filled the form, or a follow-up due today, outranks a
+       relationship that has merely drifted. */
+    expect(ids.indexOf('pendingLeads')).toBeLessThan(ids.indexOf('staleClients'))
+    expect(ids.indexOf('dueFollowups')).toBeLessThan(ids.indexOf('staleClients'))
   })
 
   it('THE regression: money waiting for approval outranks a 45-day nudge', () => {
@@ -105,14 +112,17 @@ describe('attentionRowAction — the generic popup kind the widget rows use', ()
 describe('ATTENTION_PRIORITY — the ranking itself', () => {
   it('ranks the tiers in the intended order', () => {
     const p = ATTENTION_PRIORITY
-    /* someone waiting → due today → blocks the books → own work → owed money
-       → drifting relationships → housekeeping */
+    /* someone waiting → due today → blocks the books → owed money →
+       drifting relationships → housekeeping */
     expect(p.bookings).toBeLessThan(p.dueFollowups)
     expect(p.dueFollowups).toBeLessThan(p.pendingMeetings)
-    expect(p.pendingTx).toBeLessThan(p.urgentTasks)
-    expect(p.urgentTasks).toBeLessThan(p.balance)
+    expect(p.pendingTx).toBeLessThan(p.balance)
     expect(p.balance).toBeLessThan(p.staleClients)
     expect(p.staleClients).toBeLessThan(p.goalGap)
+  })
+
+  it('carries no rank for your own tasks — they are not this widget\'s job', () => {
+    expect(ATTENTION_PRIORITY).not.toHaveProperty('urgentTasks')
   })
 
   it('has no duplicate ranks — ties would order arbitrarily', () => {

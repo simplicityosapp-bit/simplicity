@@ -63,10 +63,6 @@
         "goalGap_two": "חסר {{amount}} ליעד — {{days}} ימים",
         "goalGap_many": "חסר {{amount}} ליעד — {{days}} ימים",
         "goalGap_other": "חסר {{amount}} ליעד — {{days}} ימים",
-        "urgentTasks_one": "משימה דחופה אחת",
-        "urgentTasks_two": "{{count}} משימות דחופות",
-        "urgentTasks_many": "{{count}} משימות דחופות",
-        "urgentTasks_other": "{{count}} משימות דחופות",
         "staleClients_one": "לקוח אחד — עבר זמן מאז שדיברתם",
         "staleClients_two": "{{count}} לקוחות — עבר זמן מאז שדיברתם",
         "staleClients_many": "{{count}} לקוחות — עבר זמן מאז שדיברתם",
@@ -152,7 +148,7 @@
       "logEntryAria": "עדכון היעד {{name}}"
     },
     "nextTasks": {
-      "title": "המשימות הבאות",
+      "title": "משימות ותזכורות",
       "link_one": "{{count}} משימה",
       "link_other": "{{count}} משימות",
       "noOpen": "אין משימות פתוחות",
@@ -182,7 +178,19 @@
       "overdueOf_one": "{{overdueText}} מתוך {{count}} פתוחה",
       "overdueOf_two": "{{overdueText}} מתוך {{count}} פתוחות",
       "overdueOf_many": "{{overdueText}} מתוך {{count}} פתוחות",
-      "overdueOf_other": "{{overdueText}} מתוך {{count}} פתוחות"
+      "overdueOf_other": "{{overdueText}} מתוך {{count}} פתוחות",
+      "addAria": "הוספת משימה או תזכורת",
+      "addTitle": "מה להוסיף?",
+      "addTask": "משימה",
+      "addReminder": "תזכורת",
+      "dueToday_one": "אחת להיום",
+      "dueToday_two": "{{count}} להיום",
+      "dueToday_many": "{{count}} להיום",
+      "dueToday_other": "{{count}} להיום",
+      "todayOf_one": "{{todayText}} מתוך {{count}} פתוח",
+      "todayOf_two": "{{todayText}} מתוך {{count}} פתוחים",
+      "todayOf_many": "{{todayText}} מתוך {{count}} פתוחים",
+      "todayOf_other": "{{todayText}} מתוך {{count}} פתוחים"
     },
     "quick": {
       "quickAdd": "הוספה מהירה"
@@ -190,25 +198,6 @@
     "quote": {
       "sourceAria": "בחירת מקור הציטוטים",
       "fallback": "היום יום חדש. הכל אפשרי."
-    },
-    "reminders": {
-      "title": "תזכורות קרובות",
-      "link_one": "{{count}} תזכורת",
-      "link_other": "{{count}} תזכורות",
-      "none": "אין תזכורות קרובות",
-      "todaySummary_one": "{{today}} להיום · {{count}} קרובה",
-      "todaySummary_other": "{{today}} להיום · {{count}} קרובות",
-      "soonSummary_one": "{{count}} תזכורת קרובה",
-      "soonSummary_other": "{{count}} תזכורות קרובות",
-      "empty": "אין תזכורות קרובות — הכל רגוע.",
-      "markDone": "בוצעה",
-      "markDoneAria": "סמן כבוצעה",
-      "link_two": "{{count}} תזכורות",
-      "link_many": "{{count}} תזכורות",
-      "todaySummary_two": "{{today}} להיום · {{count}} קרובות",
-      "todaySummary_many": "{{today}} להיום · {{count}} קרובות",
-      "soonSummary_two": "{{count}} תזכורות קרובות",
-      "soonSummary_many": "{{count}} תזכורות קרובות"
     },
     "meetingConfirm": {
       "subjectClient": "לקוח/ה",

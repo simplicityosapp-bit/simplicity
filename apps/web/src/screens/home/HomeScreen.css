@@ -23,8 +23,8 @@
 
 /* ── Desktop layout (≥768px) ────────────────────────────────────
    The stack becomes a 3-column grid. Most widgets span the full
-   row; the three list widgets (attention / reminders / next-tasks)
-   each take one column and sit side-by-side. */
+   row; the two list widgets (attention / tasks-and-reminders) each
+   take one column and sit side-by-side. */
 @media (min-width: 768px) {
   .home-stack {
     display: grid;
@@ -37,7 +37,6 @@
     grid-column: 1 / -1;        /* span all 3 columns by default */
   }
   .home-stack > .home-widget[data-widget-id="attention"],
-  .home-stack > .home-widget[data-widget-id="reminders"],
   .home-stack > .home-widget[data-widget-id="next-tasks"] {
     grid-column: span 1;        /* sit side-by-side in one row */
   }
@@ -78,7 +77,6 @@
 }
 .home-screen[data-text-strength="bold"] .h-attn-text,
 .home-screen[data-text-strength="bold"] .h-task-text,
-.home-screen[data-text-strength="bold"] .h-rem-text,
 .home-screen[data-text-strength="bold"] .h-stat-lbl {
   font-weight: 600;
 }
@@ -831,8 +829,7 @@ html[data-bg="blank"] .home-stack .home-widget[data-widget-id="moon"] .moon-chip
 
 /* Generic clickable row. */
 .h-attn-row,
-.h-task-row,
-.h-rem-row {
+.h-task-row {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -853,8 +850,7 @@ html[data-bg="blank"] .home-stack .home-widget[data-widget-id="moon"] .moon-chip
   flex-shrink: 0;
 }
 .h-attn-text,
-.h-task-text,
-.h-rem-text {
+.h-task-text {
   flex: 1;
   min-width: 0;
   font-size: calc(15px * var(--text-scale));
@@ -900,13 +896,6 @@ html[data-bg="blank"] .home-stack .home-widget[data-widget-id="moon"] .moon-chip
 }
 .h-task-dot.regular {
   background: var(--amber-warn);
-}
-.h-rem-when {
-  font-family: var(--mg-font);
-  font-size: calc(12px * var(--text-scale));
-  color: var(--stone);
-  white-space: nowrap;
-  flex-shrink: 0;
 }
 .h-check {
   position: relative;
@@ -1208,4 +1197,87 @@ html[data-bg="blank"] .home-stack .home-widget[data-widget-id="moon"] .moon-chip
 @media (max-width: 420px) {
   .h-people-snooze { padding: 0 10px; }
   .h-people-snooze-label { display: none; }
+}
+
+/* Add control in a card header — the card that owns the thing being added
+   also offers the button for it, instead of a separate full-width CTA lower
+   down the screen. Sits between the title and the "see all" link.
+
+   DESKTOP ONLY. A four-child header (title · + · "12 משימות ‹" · ⌄) wraps to
+   two lines at 320px — measured, not guessed. On mobile the quick-add bar is
+   still full width a few rows down, so adding is covered there; the
+   alternative was stripping the link back to a bare chevron, and an
+   unlabelled glyph is exactly what the accessibility pass removed. */
+.h-card-add { display: none; }
+@media (min-width: 768px) {
+  .h-card-add { display: inline-flex; }
+}
+.h-card-add {
+  position: relative;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  flex-shrink: 0;
+  margin-inline-start: auto;
+  padding: 0;
+  border-radius: 50%;
+  border: 1.5px solid var(--divider);
+  background: transparent;
+  color: var(--stone);
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+.h-card-add:hover { border-color: var(--terracotta); color: var(--terracotta); }
+/* Grown pointer target, up and outward into the card padding — the header
+   has nothing above it, and the "see all" link sits inline-after. */
+.h-card-add::after {
+  content: '';
+  position: absolute;
+  inset-block: -9px;
+  inset-inline: -7px;
+}
+/* With a VISIBLE add button the link no longer needs the auto margin — the
+   button carries it, so the two stay grouped at the end. Scoped to the same
+   breakpoint: the button is still in the DOM on mobile (just display:none),
+   so an unscoped sibling selector would steal the link's auto margin there
+   and strand it next to the title. */
+@media (min-width: 768px) {
+  .h-card-add ~ .h-card-link { margin-inline-start: 8px; }
+}
+
+/* Task / reminder chooser inside the add modal. */
+.h-add-pick {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.h-add-pick-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 18px 12px;
+  border-radius: var(--mg-card-radius);
+  border: var(--mg-card-border);
+  background: var(--mg-card-bg);
+  color: var(--espresso);
+  font-family: var(--mg-font);
+  font-size: calc(13.5px * var(--text-scale));
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 0.15s, transform 0.12s;
+}
+.h-add-pick-btn:hover { border-color: var(--terracotta); }
+.h-add-pick-btn:active { transform: scale(0.98); }
+.h-add-pick-btn svg { color: var(--stone); }
+
+/* The quick-add widget is a full-width bar on mobile, where it is the main
+   way in. On desktop the per-card "+" buttons cover adding, so it shrinks to
+   a normal-sized button aligned to the start instead of stretching across
+   the whole grid row. */
+@media (min-width: 768px) {
+  .h-quick-row { justify-content: flex-start; }
+  .h-quick-row .h-quick-btn { flex: 0 0 auto; min-width: 190px; }
 }

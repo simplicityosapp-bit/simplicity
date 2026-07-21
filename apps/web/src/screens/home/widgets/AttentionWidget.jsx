@@ -15,7 +15,6 @@ import { useScheduledMeetings } from '../../../hooks/useScheduledMeetings'
 import { useClients } from '../../../hooks/useClients'
 import { useGroups } from '../../../hooks/useGroups'
 import { useGroupMembers } from '../../../hooks/useGroupMembers'
-import { useTasks } from '../../../hooks/useTasks'
 import { useGoals } from '../../../hooks/useGoals'
 import { useGoalCategories } from '../../../hooks/useGoalCategories'
 import { useCategories } from '../../../hooks/useCategories'
@@ -35,9 +34,12 @@ import { Box, Txt, Btn } from '../../../components/ui'
 const ICONS = { Wallet, Calendar, Target, AlertCircle, Clock, Bell, FileDown, CalendarClock }
 
 /* "דרושה תשומת לב" — composed rows from pending tx, pending meetings,
-   balances, goal gap, urgent tasks, 45-day client/lead rules. The actionable
-   rows (pending transactions / pending meetings) open an approve-skip-delete
+   balances, goal gap and the 45-day client/lead rules. The actionable rows
+   (pending transactions / pending meetings) open an approve-skip-delete
    popup; the rest navigate to their screen.
+
+   NOT here: your own tasks. That row duplicated the tasks widget sitting
+   beside it on the same screen — which can actually tick them off.
 
    The materialisation engines used to live here on the assumption that this
    widget always mounts on home — it doesn't, it can be switched off in
@@ -51,7 +53,6 @@ export default function AttentionWidget() {
   const { clients, updateClient } = useClients()
   const { groups } = useGroups()
   const { members } = useGroupMembers()
-  const { tasks } = useTasks()
   const { goals } = useGoals()
   const { categories: goalCategories } = useGoalCategories()
   const { categories: financeCategories } = useCategories()
@@ -66,12 +67,12 @@ export default function AttentionWidget() {
   const { imports: invoiceImports } = useInvoiceImports()
 
   const items = useMemo(
-    () => attentionItems(new Date(), { transactions, scheduled_meetings: meetings, clients, tasks, goals, categories: goalCategories, sessions, leads, members, groups }),
+    () => attentionItems(new Date(), { transactions, scheduled_meetings: meetings, clients, goals, categories: goalCategories, sessions, leads, members, groups }),
     /* `lang` is a dep so row labels recompute when the UI language switches —
        attentionItems() reads the active language internally via i18n.t, so the
        linter can't see the use. */
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [transactions, meetings, clients, tasks, goals, goalCategories, sessions, leads, members, groups, lang],
+    [transactions, meetings, clients, goals, goalCategories, sessions, leads, members, groups, lang],
   )
 
   /* Calendar duplicates (app recurring meeting ⇄ synced Google event) surface

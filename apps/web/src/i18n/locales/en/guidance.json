@@ -41,19 +41,15 @@
       },
       "quick-row": {
         "title": "Quick add",
-        "body": "Quick add is a shortcut to all the add buttons (tasks, income, leads…). \"Update goal\" lets you quickly update goals that need manual input."
+        "body": "A shortcut to every add button in the app — tasks, income, leads and more."
       },
       "attention": {
         "title": "Needs attention",
         "body": "Confirming meetings that took place, payments that should arrive, calendar duplicates — and other things you don't want to slip through the cracks."
       },
-      "reminders": {
-        "title": "Reminders",
-        "body": "Recurring tasks, or anything you want to remind yourself of every so often."
-      },
       "next-tasks": {
-        "title": "Tasks",
-        "body": "Your urgent tasks show up here."
+        "title": "Tasks and reminders",
+        "body": "Everything still open, in one place — tasks and reminders together, most pressing first: overdue, then due today."
       },
       "chips": {
         "title": "Status cards",

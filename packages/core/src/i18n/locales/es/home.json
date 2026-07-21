@@ -41,8 +41,6 @@
         "balance_other": "{{count}} clientes con saldo",
         "goalGap_one": "Faltan {{amount}} para el objetivo — 1 día",
         "goalGap_other": "Faltan {{amount}} para el objetivo — {{days}} días",
-        "urgentTasks_one": "1 tarea urgente",
-        "urgentTasks_other": "{{count}} tareas urgentes",
         "staleClients_one": "1 cliente — hace tiempo que no hablan",
         "staleClients_other": "{{count}} clientes — hace tiempo que no hablan",
         "pendingLeads_one": "1 prospecto pendiente de aprobación",
@@ -106,7 +104,7 @@
       "logEntryAria": "Registrar avance de {{name}}"
     },
     "nextTasks": {
-      "title": "Próximas tareas",
+      "title": "Tareas y recordatorios",
       "link_one": "{{count}} tarea",
       "link_other": "{{count}} tareas",
       "noOpen": "No hay tareas abiertas",
@@ -122,7 +120,15 @@
       "overdue_one": "1 atrasada",
       "overdue_other": "{{count}} atrasadas",
       "overdueOf_one": "{{overdueText}} de {{count}} abierta",
-      "overdueOf_other": "{{overdueText}} de {{count}} abiertas"
+      "overdueOf_other": "{{overdueText}} de {{count}} abiertas",
+      "addAria": "Añadir tarea o recordatorio",
+      "addTitle": "¿Qué quieres añadir?",
+      "addTask": "Tarea",
+      "addReminder": "Recordatorio",
+      "dueToday_one": "1 para hoy",
+      "dueToday_other": "{{count}} para hoy",
+      "todayOf_one": "{{todayText}} de {{count}} abierta",
+      "todayOf_other": "{{todayText}} de {{count}} abiertas"
     },
     "quick": {
       "quickAdd": "Añadir rápido"
@@ -130,19 +136,6 @@
     "quote": {
       "sourceAria": "Elegir fuente de las citas",
       "fallback": "Hoy es un nuevo día. Todo es posible."
-    },
-    "reminders": {
-      "title": "Próximos recordatorios",
-      "link_one": "{{count}} recordatorio",
-      "link_other": "{{count}} recordatorios",
-      "none": "No hay recordatorios próximos",
-      "todaySummary_one": "{{today}} hoy · {{count}} próximo",
-      "todaySummary_other": "{{today}} hoy · {{count}} próximos",
-      "soonSummary_one": "{{count}} recordatorio próximo",
-      "soonSummary_other": "{{count}} recordatorios próximos",
-      "empty": "No hay recordatorios próximos — todo en calma.",
-      "markDone": "Hecho",
-      "markDoneAria": "Marcar como hecho"
     },
     "meetingConfirm": {
       "subjectClient": "Cliente",

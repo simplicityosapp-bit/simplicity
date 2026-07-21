@@ -236,10 +236,13 @@ export function homeChips(now = new Date(), data, filters = DEFAULT_TILE_FILTERS
      someone is waiting on you  — a booking request, a lead who filled a form
      time-boxed to today        — follow-ups due
      blocks your books          — meetings to confirm, transactions, documents
-     your own work              — urgent tasks
      money owed to you          — client balances
      drifting relationships     — stale clients, stale leads
      housekeeping / FYI         — calendar duplicates, goal gap
+
+   Your own tasks are NOT here — the tasks widget on the same screen owns
+   them, and owns the ✓ that clears them. Rank 50 is left open where the
+   urgent-tasks row used to sit.
 
    Gaps of 5-10 leave room to slot a new rule in without renumbering. The
    widget-level rows (bookings / invoices / duplicates) are built in
@@ -252,7 +255,6 @@ export const ATTENTION_PRIORITY = {
   pendingMeetings: 30,
   pendingTx:       35,
   invoices:        40,
-  urgentTasks:     50,
   balance:         60,
   staleClients:    70,
   staleLeads:      75,
@@ -265,7 +267,6 @@ export function attentionItems(now = new Date(), data) {
     transactions = [],
     scheduled_meetings = [],
     clients = [],
-    tasks = [],
     goals = [],
     categories = [],
     sessions = [],
@@ -302,8 +303,10 @@ export function attentionItems(now = new Date(), data) {
     items.push({ rowId: 'goalGap', priority: ATTENTION_PRIORITY.goalGap, icon: 'Target', text: T('goalGap', { amount: ils(goal - inc), days: daysLeft, count: daysLeft }), to: ROUTES.GOALS })
   }
 
-  const urgent = live(tasks).filter((t) => t.status !== 'done' && t.priority === 'high').length
-  if (urgent) items.push({ rowId: 'urgentTasks', priority: ATTENTION_PRIORITY.urgentTasks, icon: 'AlertCircle', text: T('urgentTasks', { count: urgent }), to: ROUTES.TASKS })
+  /* No urgent-tasks row. It said "N משימות דחופות" and navigated to the tasks
+     screen — while the tasks widget sits right beside it on the same screen,
+     listing those very tasks with a ✓ on each. One of the two had to go, and
+     the widget is the one that can actually do something about them. */
 
   const staleClients = clientsNeedingAttention(45, now, { clients, sessions, members, groups })
   if (staleClients.length) items.push({ icon: 'Clock', text: T('staleClients', { count: staleClients.length }), to: ROUTES.CLIENTS, kind: 'people', rowId: 'staleClients', priority: ATTENTION_PRIORITY.staleClients, entity: 'client', waKey: 'client', people: staleClients.map((c) => ({ id: c.id, name: c.name, phone: c.phone || '' })) })
@@ -441,60 +444,78 @@ export function remindersUpcoming(now = new Date(), remindersData = [], daysAhea
   return limit ? out.slice(0, limit) : out
 }
 
-/* ── Next tasks (open, most pressing first) ─────────────────────
-   Ordered by PRESSURE, not by priority alone. `tasks.due_at` has existed
-   since the column was added and the tasks screen buckets by it
-   (overdue / today / this week / later) — but home sorted on priority only
-   and never even displayed a date, so a task due this morning sat below one
-   flagged urgent with no deadline at all.
-
-   Rank, then due date, then priority:
-     0  overdue        — the deadline has passed
-     1  due today
-     2  flagged urgent — no deadline, or one further out
-     3  everything else
-
-   `now` is a parameter so the ranking is testable without faking the clock. */
+/* Priority order for the final tie-break in tasksAndReminders. */
 const PORDER = { high: 0, medium: 1, low: 2 }
-const dueTs = (t) => {
-  if (!t.due_at) return null
-  const d = new Date(t.due_at)
-  return Number.isNaN(+d) ? null : +d
-}
-function taskRank(t, now, dayEnd) {
-  const due = dueTs(t)
-  if (due !== null) {
-    if (due < +now) return 0
-    if (due < +dayEnd) return 1
-  }
-  return t.priority === 'high' ? 2 : 3
-}
-export function nextTasks(limit = 5, tasks = [], now = new Date()) {
+
+/* ── Tasks + reminders, one list ────────────────────────────────
+   The home "משימות ותזכורות" widget. Reminders used to have a card of their
+   own sitting right next to the tasks card, which split one question — what
+   do I still owe? — across two boxes with two different summaries.
+
+   Ordered by PRESSURE, over both kinds: overdue → today → flagged urgent →
+   the rest, soonest first, undated last. Home used to sort tasks by priority
+   alone and render no date at all, even though `tasks.due_at` exists and the
+   tasks screen buckets by it — so a task due this morning sat below one
+   merely flagged urgent with no deadline.
+
+   ONE asymmetry, deliberate: a reminder is never ranked overdue. Reminders
+   are action items, not history — remindersUpcoming() refuses to look back
+   past today for exactly that reason (owner decision, see its comment), and
+   a reminder set for 09:00 that you read at 14:00 is still today's, not a
+   failure. Only a task can be late.
+
+   Each item carries `bucket` so the widget can count for its summary without
+   re-deriving any of this, and the raw row so it can act on it. */
+export function tasksAndReminders(limit = 0, data = {}, now = new Date()) {
+  const { tasks = [], reminders = [] } = data
   const dayEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0, 0)
-  return live(tasks)
+  const items = []
+
+  live(tasks)
     .filter((t) => t.status !== 'done')
-    .slice()
-    .sort((a, b) => {
-      const ra = taskRank(a, now, dayEnd)
-      const rb = taskRank(b, now, dayEnd)
-      if (ra !== rb) return ra - rb
-      /* Within a rank, a deadline beats no deadline, soonest first. */
-      const da = dueTs(a) ?? Infinity
-      const db = dueTs(b) ?? Infinity
-      if (da !== db) return da - db
-      return (PORDER[a.priority] ?? 1) - (PORDER[b.priority] ?? 1)
-    })
-    .slice(0, limit)
-}
-export function openTasksCount(tasks = []) {
-  return live(tasks).filter((t) => t.status !== 'done').length
-}
-/* Open tasks whose deadline has already passed — the one number worth
-   raising on the closed card, since it's the only genuinely late thing. */
-export function overdueTasksCount(tasks = [], now = new Date()) {
-  return live(tasks).filter((t) => {
-    if (t.status === 'done') return false
-    const due = dueTs(t)
-    return due !== null && due < +now
-  }).length
+    .forEach((t) => items.push({
+      id: `task-${t.id}`, kind: 'task', title: t.title || '',
+      when: t.due_at || null, priority: t.priority, task: t,
+    }))
+
+  remindersUpcoming(now, reminders, 60, 0).forEach((r) => items.push({
+    id: `rem-${r.id}`, kind: 'reminder', title: r.title || '',
+    when: r.when, reminderId: r.id,
+  }))
+
+  const ts = (it) => {
+    if (!it.when) return null
+    const d = new Date(it.when)
+    return Number.isNaN(+d) ? null : +d
+  }
+  items.forEach((it) => {
+    const w = ts(it)
+    if (w === null) it.bucket = 'undated'
+    else if (it.kind === 'task' && w < +now) it.bucket = 'overdue'
+    else if (w < +dayEnd) it.bucket = 'today'
+    else it.bucket = 'upcoming'
+  })
+
+  const BUCKET_RANK = { overdue: 0, today: 1, upcoming: 3, undated: 3 }
+  const rank = (it) => {
+    const base = BUCKET_RANK[it.bucket]
+    /* A task flagged urgent jumps ahead of undated/later work, but never
+       ahead of something with a deadline that has passed or lands today. */
+    if (base === 3 && it.kind === 'task' && it.priority === 'high') return 2
+    return base
+  }
+
+  items.sort((a, b) => {
+    const ra = rank(a), rb = rank(b)
+    if (ra !== rb) return ra - rb
+    const da = ts(a) ?? Infinity
+    const db = ts(b) ?? Infinity
+    if (da !== db) return da - db
+    /* Same moment: a task (which you act on) before a reminder (which only
+       tells you something), then by priority. */
+    if (a.kind !== b.kind) return a.kind === 'task' ? -1 : 1
+    return (PORDER[a.priority] ?? 1) - (PORDER[b.priority] ?? 1)
+  })
+
+  return limit ? items.slice(0, limit) : items
 }

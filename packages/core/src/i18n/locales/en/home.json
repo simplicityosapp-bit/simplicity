@@ -41,8 +41,6 @@
         "balance_other": "{{count}} clients with a balance",
         "goalGap_one": "{{amount}} short of goal — 1 day left",
         "goalGap_other": "{{amount}} short of goal — {{days}} days left",
-        "urgentTasks_one": "1 urgent task",
-        "urgentTasks_other": "{{count}} urgent tasks",
         "staleClients_one": "1 client — it's been a while since you talked",
         "staleClients_other": "{{count}} clients — it's been a while since you talked",
         "pendingLeads_one": "1 lead awaiting approval",
@@ -106,7 +104,7 @@
       "logEntryAria": "Log progress for {{name}}"
     },
     "nextTasks": {
-      "title": "Next tasks",
+      "title": "Tasks and reminders",
       "link_one": "{{count}} task",
       "link_other": "{{count}} tasks",
       "noOpen": "No open tasks",
@@ -122,7 +120,15 @@
       "overdue_one": "1 overdue",
       "overdue_other": "{{count}} overdue",
       "overdueOf_one": "{{overdueText}} of {{count}} open",
-      "overdueOf_other": "{{overdueText}} of {{count}} open"
+      "overdueOf_other": "{{overdueText}} of {{count}} open",
+      "addAria": "Add a task or reminder",
+      "addTitle": "What would you like to add?",
+      "addTask": "Task",
+      "addReminder": "Reminder",
+      "dueToday_one": "1 due today",
+      "dueToday_other": "{{count}} due today",
+      "todayOf_one": "{{todayText}} of {{count}} open",
+      "todayOf_other": "{{todayText}} of {{count}} open"
     },
     "quick": {
       "quickAdd": "Quick add"
@@ -130,19 +136,6 @@
     "quote": {
       "sourceAria": "Choose quote source",
       "fallback": "Today is a new day. Anything is possible."
-    },
-    "reminders": {
-      "title": "Upcoming reminders",
-      "link_one": "{{count}} reminder",
-      "link_other": "{{count}} reminders",
-      "none": "No upcoming reminders",
-      "todaySummary_one": "{{today}} today · {{count}} upcoming",
-      "todaySummary_other": "{{today}} today · {{count}} upcoming",
-      "soonSummary_one": "{{count}} upcoming reminder",
-      "soonSummary_other": "{{count}} upcoming reminders",
-      "empty": "No upcoming reminders — all calm.",
-      "markDone": "Done",
-      "markDoneAria": "Mark as done"
     },
     "meetingConfirm": {
       "subjectClient": "Client",

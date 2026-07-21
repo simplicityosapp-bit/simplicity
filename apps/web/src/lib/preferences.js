@@ -18,7 +18,6 @@ export const WIDGET_REGISTRY = [
   { id: 'insights',        defaultAccent: 'sage',       supportsCompact: false },
   { id: 'quick-row',       defaultAccent: 'terracotta', supportsCompact: false },
   { id: 'attention',       defaultAccent: 'amber',      supportsCompact: true },
-  { id: 'reminders',       defaultAccent: 'amber',      supportsCompact: true },
   { id: 'next-tasks',      defaultAccent: 'terracotta', supportsCompact: false },
   { id: 'chips',           defaultAccent: 'sage',       supportsCompact: false },
 ]

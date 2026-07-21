@@ -7,6 +7,7 @@ import {
 } from 'lucide-react'
 import { DRAWER_NAV } from '../lib/nav'
 import { ROUTES } from '../lib/routes'
+import { COMMUNITY_ENABLED } from '../lib/community'
 import { isAdminUser } from '../lib/admin'
 import { roleLabel } from '../lib/preferences'
 import { useAuth } from '../auth/AuthContext'
@@ -27,8 +28,10 @@ const RING_C = 2 * Math.PI * RING_R
    from a slide-up panel anchored over the "עוד" button. */
 const EXTRAS = [
   { key: 'sitePages', labelKey: 'extras.sitePages', icon: LayoutTemplate, to: ROUTES.SITE_PAGES },
-  /* → the room, not the profile gate: the gate redirects itself when needed. */
-  { key: 'community', labelKey: 'extras.community', icon: MessagesSquare, to: ROUTES.COMMUNITY_CHAT, beta: true },
+  /* → the room, not the profile gate: the gate redirects itself when needed.
+     Hidden while COMMUNITY_ENABLED is false — the row is filtered out below,
+     the route itself stays open. */
+  { key: 'community', labelKey: 'extras.community', icon: MessagesSquare, to: ROUTES.COMMUNITY_CHAT, beta: true, enabled: COMMUNITY_ENABLED },
   /* The user's own Simplicity plan — promoted out of Settings into its own screen. */
   { key: 'subscription', labelKey: 'extras.subscription', icon: Gem, to: ROUTES.SUBSCRIPTION },
   { key: 'reports',  labelKey: 'extras.reports',  icon: BarChart3,  to: ROUTES.REPORTS },
@@ -155,7 +158,9 @@ export default function Sidebar({ screen, isDark, onToggleTheme, onOpenFeedback 
           </Btn>
         </Box>
         <Box className="mg-sidebar-extras-list">
-          {EXTRAS.map((item) => {
+          {/* enabled:false hides a row behind a feature switch; rows without
+              the key are always shown. */}
+          {EXTRAS.filter((item) => item.enabled !== false).map((item) => {
             const Icon = item.icon
             const active = item.key === screen
             return (

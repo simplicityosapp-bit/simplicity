@@ -197,8 +197,13 @@
   /* ── Slide-up extras panel ───────────────────────────────────
      Anchored to the bottom of the sidebar, above the foot row.
      Closed: slides down off-screen + invisible. Open: floats in
-     place, blurring the icons beneath. Transparency is intentional
-     so the user keeps spatial context. */
+     place, blurring the icons beneath. Still translucent on purpose
+     (the rail's chips glow through, so the user keeps spatial
+     context) — but the fill was bumped from .45 to .82 because at
+     .45 the rail's LABELS stayed legible right under the panel's
+     own rows, and two columns of text fighting each other is what
+     the blur was meant to prevent. Same fix, same reason, as the
+     --modal-bg bump in tokens.css. */
   .mg-sidebar-extras {
     position: absolute;
     inset-inline: 8px;
@@ -215,8 +220,8 @@
     padding: 8px;
     border-radius: 16px;
     border: 1px solid rgba(240, 235, 224, 0.12);
-    background: rgba(34, 28, 24, 0.45);
-    backdrop-filter: blur(28px) saturate(160%);
+    background: rgba(34, 28, 24, 0.82);
+    backdrop-filter: blur(36px) saturate(160%);
     box-shadow: 0 -12px 30px rgba(0, 0, 0, 0.32);
     transform: translateY(20px);
     opacity: 0;
@@ -228,7 +233,7 @@
       visibility 0s linear 0.26s;
   }
   [data-theme="dark"] .mg-sidebar-extras {
-    background: rgba(8, 10, 14, 0.6);
+    background: rgba(8, 10, 14, 0.86);
   }
   .mg-sidebar-extras.open {
     transform: translateY(0);

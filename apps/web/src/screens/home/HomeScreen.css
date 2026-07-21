@@ -160,56 +160,78 @@
    this rule wins on specificity (0,2,1 vs 0,1,0) and drops them into flow. */
 .home-stack .home-widget > *:not(.m-overlay):not(.m-sheet) {
   position: relative;
-  box-shadow: none;
+  /* Follows the surface rather than being hard-coded off: frosted keeps the
+     app's card shadow (it is part of that material), flat sets the variable
+     to none. Hard-coding `none` here quietly stripped the depth from the
+     DEFAULT look too, which the revert was meant to bring back. */
+  box-shadow: var(--home-card-shadow);
 }
 
 /* Card-style is global: PrefsApplier sets <html data-card-style> and
    tokens.css overrides the --mg-card-* tokens accordingly. Home reads them
    through this indirection.
 
-   ── FLATTENED GRID (design experiment) ──────────────────────────
-   Home overrides the four card variables rather than the global tokens, so
-   the change is contained to this screen and every other screen keeps the
-   cream-glass look untouched.
+   ── SURFACE: unchanged from the rest of the app ──────────────────
+   The cards keep the cream glass exactly as the global tokens define it. A
+   flattened, sand-tinted surface was tried here and reverted — the STRUCTURAL
+   work of that experiment stayed (the four-column grid, the tighter radius
+   and padding below, one uniform outline with no per-widget accent ring), but
+   the material did not. Home looks like every other screen again; what
+   changed is the proportion and the arrangement.
 
-   What changes: the cards stop being deep frosted panes and become flat
-   tiles — a thin dark hairline instead of a white one, more of the surface
-   filled in so text sits on something solid, no drop shadow, a tighter
-   corner and less padding. The point is that eight differently-weighted
-   panes become one grid reading at one depth, with hierarchy carried by
-   size and position instead of by glassiness.
-
-   Blur is reduced, not removed. The screen sits on a busy forest photo; at
-   0 blur and this opacity the text competes with leaves. 10px is enough to
-   settle the background without reading as frosted. */
-/* The surface is a warm SAND, not near-white. --cream (#FFFCF7) is white for
-   all practical purposes; laid over a bright forest at 60% it read as washed
-   out. Built from tokens rather than a new hex: --bone carried toward the
-   brand --blush for warmth, then a few percent of --espresso mixed in for
-   depth, so the card reads as a surface rather than a sheet of paper.
-   Resolves to roughly #E4DDD7 — espresso on it measures ~11:1, so the extra
-   depth costs nothing in legibility. */
+   Only two things are overridden, and both are proportion rather than colour:
+   a tighter corner and less padding than the app default, so the grid reads
+   as tiles rather than as a stack of wide bands. */
 .home-screen {
-  --home-card-tint:  color-mix(in srgb, var(--bone) 80%, var(--amber-warn) 20%);
-  --home-card-solid: color-mix(in srgb, var(--home-card-tint) 92%, var(--espresso) 8%);
+  --home-card-bg:     var(--mg-card-bg);
+  --home-card-border: var(--mg-card-border);
+  --home-card-shadow: var(--mg-card-shadow);
+  --home-card-blur:   var(--mg-card-blur);
+  /* Opaque counterpart, for the one surface that COVERS content rather than
+     sitting on the background: the moon popover. A semi-transparent panel
+     over the widgets beneath it is unreadable. */
+  --home-card-solid:  var(--cream);
+  --mg-card-radius:   14px;
+  --mg-card-pad:      16px 18px;
+}
+[data-theme="dark"] .home-screen {
+  --home-card-solid: #1A1F26;
+}
+
+/* ── "שטוח" (Settings → ווידג׳טים → סגנון כרטיס) ─────────────────
+   The flattened sand surface lives HERE rather than as the default. It was
+   built as an experiment, and this is the switch the app already had for
+   exactly this axis — so instead of picking one look for everyone, frosted
+   stays the default and flat becomes the deeper, flatter one.
+
+   The global token for flat is a solid #F5EFE2 with no blur; home takes it
+   further: --bone carried toward --amber-warn for a sandy cream, then a few
+   percent of --espresso for depth (≈#E0D4C7), semi-transparent so the
+   background still reads through, a thin dark hairline instead of a white
+   one, and no shadow. Text measures ~10.4:1 on it.
+
+   Everything structural — the four-column grid, the tighter corner and
+   padding, the previewed rows, one uniform outline — sits OUTSIDE this block
+   and holds in both styles. Only the material changes. */
+html[data-card-style="flat"] .home-screen {
+  --home-card-tint:   color-mix(in srgb, var(--bone) 80%, var(--amber-warn) 20%);
+  --home-card-solid:  color-mix(in srgb, var(--home-card-tint) 92%, var(--espresso) 8%);
   --home-card-bg:     color-mix(in srgb, var(--home-card-solid) 80%, transparent);
   --home-card-border: 1px solid rgba(42, 37, 32, 0.18);
   --home-card-shadow: none;
   --home-card-blur:   blur(10px);
-  --mg-card-radius:   14px;
-  --mg-card-pad:      16px 18px;
 }
-/* Dark: the app surface is a cool blue-grey. Warmed toward --sidebar-dark so
-   the cards feel lit rather than switched off. */
-[data-theme="dark"] .home-screen {
-  --home-card-tint:  color-mix(in srgb, #1A1F26 72%, var(--sidebar-dark) 28%);
-  --home-card-solid: var(--home-card-tint);
+/* Dark: the app surface is a cool blue-grey; warmed toward --sidebar-dark so
+   the cards read as lit rather than switched off. */
+html[data-theme="dark"][data-card-style="flat"] .home-screen {
+  --home-card-tint:   color-mix(in srgb, #1A1F26 72%, var(--sidebar-dark) 28%);
+  --home-card-solid:  var(--home-card-tint);
   --home-card-bg:     color-mix(in srgb, var(--home-card-solid) 82%, transparent);
   --home-card-border: 1px solid rgba(0, 0, 0, 0.45);
 }
-/* The flat background has no photo to sit on, so the cards take the solid
-   tint at full strength and drop the blur entirely. */
-html[data-bg="blank"] .home-screen {
+/* With the "ריק" background there is no photo to read through, so the tint
+   goes solid and the blur — which would be blurring nothing — comes off. */
+html[data-bg="blank"][data-card-style="flat"] .home-screen {
   --home-card-bg:   var(--home-card-solid);
   --home-card-blur: none;
 }

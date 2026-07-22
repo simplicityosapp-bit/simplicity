@@ -21,7 +21,7 @@
 //  required-field validation + length caps are enforced here; a per-IP rate
 //  limit blunts floods; a honeypot field silently drops bots.
 //
-//  Field mapping MIRRORS src/lib/leadPageSchema.js BUILTIN_COLUMN.
+//  Field mapping MIRRORS apps/web/src/lib/leadPageSchema.js BUILTIN_COLUMN.
 // ════════════════════════════════════════════════════════════════
 import { createClient } from 'jsr:@supabase/supabase-js@2'
 

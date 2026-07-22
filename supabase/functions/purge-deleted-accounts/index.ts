@@ -4,7 +4,7 @@
 // ════════════════════════════════════════════════════════════════
 //  The browser only RECORDS a deletion request in
 //  user_preferences.preferences->accountDeletion = { requested_at,
-//  scheduled_for } (see src/lib/api/account.js). This function — run
+//  scheduled_for } (see apps/web/src/lib/api/account.js). This function — run
 //  on a daily schedule — finds every account whose scheduled_for is
 //  in the past and calls admin.deleteUser(). Because every table has
 //  `user_id ... ON DELETE CASCADE` on auth.users, that single call

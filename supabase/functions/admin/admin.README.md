@@ -42,5 +42,5 @@ row; the app ignores that key, so the flagged user's experience is unchanged.
 ## Note when changing onboarding
 
 `ONBOARDING_STEPS` / `STEP_LABELS` are duplicated here from
-`src/lib/preferences.js`. If a step is added/removed there, mirror it
+`apps/web/src/lib/preferences.js`. If a step is added/removed there, mirror it
 here so the funnel + stage labels stay correct.

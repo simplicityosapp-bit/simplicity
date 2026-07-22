@@ -2,7 +2,7 @@
    MOCK SUPABASE CLIENT — dev/preview only (react-native-web).
    ════════════════════════════════════════════════════════════════
    A drop-in stand-in for the real client so the preview renders the
-   logged-in app with the src/data/mock.js fixtures — no auth, no
+   logged-in app with the apps/web/src/data/mock.js fixtures — no auth, no
    network. Enabled only in DEV when localStorage PREVIEW_MOCK==='1'
    (see lib/supabase.js). Lets us verify + polish the POPULATED UI when
    an interactive login isn't available. Adapted from apps/web/src/lib/

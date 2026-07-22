@@ -64,7 +64,7 @@ function json(body: unknown, status = 200) {
 const DAY = 86_400_000
 const dayKey = (d: Date) => d.toISOString().slice(0, 10) // YYYY-MM-DD
 
-/* The 9-step onboarding flow (mirrors src/lib/preferences.js). Kept in
+/* The 9-step onboarding flow (mirrors apps/web/src/lib/preferences.js). Kept in
    sync by hand — if a step is added there, add it here too. */
 const ONBOARDING_STEPS = [
   'profile', 'data_import', 'projects', 'clients', 'daily_questions',

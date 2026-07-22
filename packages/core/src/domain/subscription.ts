@@ -1,7 +1,7 @@
 /* ════════════════════════════════════════════════════════════════
    subscription — tiers, prices, limits, and capability gates.
    ════════════════════════════════════════════════════════════════
-   Pure client-side helpers (mirror src/lib/admin.js). The source of
+   Pure client-side helpers (mirror apps/web/src/lib/admin.js). The source of
    truth is the user_subscriptions row, read via useSubscription().
    These helpers just turn a tier into "what can this user do".
 

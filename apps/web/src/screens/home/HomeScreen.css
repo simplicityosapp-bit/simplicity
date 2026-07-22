@@ -116,11 +116,6 @@
 }
 
 /* Per-widget compact mode — tighter padding. */
-.home-widget.compact .h-card,
-.home-widget.compact .h-quote,
-.home-widget.compact .ins-widget {
-  padding: 10px 14px;
-}
 
 /* Per-widget density override (compact/spacious/comfortable). */
 .home-widget[data-density="compact"] .h-card,
@@ -495,26 +490,6 @@ html[data-bg="blank"][data-card-style="flat"] .home-screen {
   inset-inline-end: -8px;
   inset-inline-start: -5px;
 }
-.moon-expanded-cat-pct {
-  font-family: var(--mg-font-num);
-  font-size: calc(11px * var(--text-scale));
-  color: var(--stone);
-  font-variant-numeric: tabular-nums;
-}
-.moon-expanded-cat-bar {
-  height: 3px;
-  border-radius: 3px;
-  background: rgba(42, 37, 32, 0.06);
-  overflow: hidden;
-}
-[data-theme="dark"] .moon-expanded-cat-bar {
-  background: rgba(240, 235, 224, 0.05);
-}
-.moon-expanded-cat-fill {
-  height: 100%;
-  border-radius: 3px;
-  transition: width 0.6s ease;
-}
 .moon-expanded-link {
   display: inline-flex;
   align-items: center;
@@ -862,13 +837,6 @@ html[data-bg="blank"][data-card-style="flat"] .home-screen {
 .h-card-title svg {
   color: var(--stone);
   flex-shrink: 0;
-}
-.h-card-count {
-  font-family: var(--mg-font);
-  font-size: calc(13px * var(--text-scale));
-  font-weight: 500;
-  color: var(--stone);
-  margin-inline-start: auto;        /* push count + chevron to the end as a group */
 }
 /* Expand/collapse control on the three expandable cards (attention /
    reminders / next-tasks). A REAL <button>, not just a glyph: the card div
@@ -1445,6 +1413,16 @@ html[data-bg="blank"][data-card-style="flat"] .home-screen {
   position: relative;
   touch-action: none;          /* the drag owns the gesture, not the scroller */
   cursor: grab;
+}
+/* Pinned widgets (the quote + moon row) can be hidden but not moved — they
+   render in a fixed row whatever the list order is. No grab cursor, and a
+   fainter outline, so edit mode does not promise a drag that does nothing. */
+.home-widget.is-pinned {
+  cursor: default;
+  touch-action: auto;
+}
+.home-widget.is-pinned > *:first-child {
+  outline-color: color-mix(in srgb, var(--stone) 30%, transparent);
 }
 .home-widget.is-editing > *:first-child {
   outline: 1.5px dashed color-mix(in srgb, var(--terracotta) 55%, transparent);

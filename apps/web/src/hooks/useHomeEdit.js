@@ -17,6 +17,18 @@ import { moveWidgetBefore, setWidgetVisible } from '../lib/preferences'
    four-column grid on desktop — a y-only comparison would be wrong the moment
    two widgets share a row.
 
+   TWO THINGS THIS HOOK IS CAREFUL ABOUT:
+
+   1. A drag reorders a LOCAL draft and persists once, on release.
+      `updatePrefs` writes to the database on every call, so persisting each
+      pointermove would queue dozens of writes for a single drag.
+
+   2. Pinned widgets are not drop targets and cannot be picked up. The quote
+      and the moon chip render in a fixed top row whatever the list says, so
+      dragging them — or onto them — would reorder the data and change nothing
+      on screen, which reads as the drag being broken. They can still be
+      hidden with ✕.
+
    All list maths lives in lib/preferences as pure functions; this hook only
    turns gestures into calls.
    ════════════════════════════════════════════════════════════════ */
@@ -25,9 +37,11 @@ const LONG_PRESS_MS = 450
 /* Past this much movement it is a scroll or a drag, not a press-and-hold. */
 const MOVE_TOLERANCE = 10
 
-export function useHomeEdit({ list, onChange, stackRef }) {
+export function useHomeEdit({ list, onChange, stackRef, pinnedIds = [] }) {
   const [editing, setEditing] = useState(false)
   const [draggingId, setDraggingId] = useState(null)
+  /* The order being shown mid-drag, before it is written anywhere. */
+  const [draft, setDraft] = useState(null)
 
   const timerRef = useRef(null)
   const originRef = useRef(null)
@@ -36,9 +50,17 @@ export function useHomeEdit({ list, onChange, stackRef }) {
      whatever was under the finger. */
   const swallowClickRef = useRef(false)
 
+  const effective = draft ?? list
+
+  const isPinned = useCallback((id) => pinnedIds.includes(id), [pinnedIds])
   const clearTimer = () => { if (timerRef.current) { clearTimeout(timerRef.current); timerRef.current = null } }
 
-  const exit = useCallback(() => { setEditing(false); setDraggingId(null); clearTimer() }, [])
+  const exit = useCallback(() => {
+    setEditing(false)
+    setDraggingId(null)
+    setDraft(null)
+    clearTimer()
+  }, [])
 
   /* Escape leaves edit mode — the same way every other transient mode in the
      app closes. */
@@ -51,14 +73,15 @@ export function useHomeEdit({ list, onChange, stackRef }) {
 
   useEffect(() => () => clearTimer(), [])
 
-  /* Which widget is under this point. Nearest centre, so it works in both the
-     stack and the grid. */
+  /* Which reorderable widget is under this point. Nearest centre, so it works
+     in both the stack and the grid. Pinned ones are excluded via the
+     attribute HomeScreen stamps on them. */
   const widgetAt = useCallback((x, y) => {
     const root = stackRef.current
     if (!root) return null
     let best = null
     let bestDist = Infinity
-    root.querySelectorAll('[data-widget-id]').forEach((el) => {
+    root.querySelectorAll('[data-widget-id]:not([data-pinned])').forEach((el) => {
       const r = el.getBoundingClientRect()
       if (!r.width || !r.height) return
       const d = Math.hypot(x - (r.left + r.width / 2), y - (r.top + r.height / 2))
@@ -68,12 +91,12 @@ export function useHomeEdit({ list, onChange, stackRef }) {
   }, [stackRef])
 
   const onPointerDown = useCallback((e, id) => {
-    /* Secondary buttons and anything already being dragged are not our
-       business. */
+    /* Secondary buttons are not our business. */
     if (e.button != null && e.button !== 0) return
     originRef.current = { x: e.clientX, y: e.clientY, id }
 
     if (editing) {
+      if (isPinned(id)) return
       setDraggingId(id)
       try { e.currentTarget.setPointerCapture?.(e.pointerId) } catch { /* not fatal */ }
       return
@@ -85,7 +108,7 @@ export function useHomeEdit({ list, onChange, stackRef }) {
       setEditing(true)
       setDraggingId(null)
     }, LONG_PRESS_MS)
-  }, [editing])
+  }, [editing, isPinned])
 
   const onPointerMove = useCallback((e) => {
     const origin = originRef.current
@@ -100,14 +123,20 @@ export function useHomeEdit({ list, onChange, stackRef }) {
 
     if (!editing || !draggingId) return
     const over = widgetAt(e.clientX, e.clientY)
-    if (over && over !== draggingId) onChange(moveWidgetBefore(list, draggingId, over))
-  }, [editing, draggingId, list, onChange, widgetAt])
+    if (!over || over === draggingId) return
+    /* Local only — the write happens once, on release. Functional form so the
+       running order comes from state rather than a closure or a ref read
+       during render. */
+    setDraft((cur) => moveWidgetBefore(cur ?? list, draggingId, over))
+  }, [editing, draggingId, widgetAt, list])
 
   const onPointerUp = useCallback(() => {
     clearTimer()
     originRef.current = null
+    if (draggingId && draft) onChange(draft)
+    setDraft(null)
     setDraggingId(null)
-  }, [])
+  }, [draggingId, draft, onChange])
 
   /* Attached in capture so it runs before the widget's own handlers. */
   const onClickCapture = useCallback((e) => {
@@ -122,6 +151,9 @@ export function useHomeEdit({ list, onChange, stackRef }) {
 
   return {
     editing, draggingId,
+    /* What to render: the draft while dragging, the saved order otherwise. */
+    list: effective,
+    isPinned,
     enter: () => setEditing(true),
     exit,
     hide, show,

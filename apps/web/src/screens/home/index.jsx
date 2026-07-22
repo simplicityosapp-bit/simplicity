@@ -20,6 +20,13 @@ import { useT } from '../../i18n/useT'
 import './HomeScreen.css'
 import { Box, Txt, Btn } from '../../components/ui'
 
+/* The quote and the moon chip always render in the fixed top row, whatever
+   order the list is in — so they are not reorderable. Letting them be dragged
+   (or dragged onto) would rewrite the list and change nothing on screen, which
+   reads as the drag being broken. ✕ still hides them.
+   Module scope, so the array identity is stable across renders. */
+const PINNED_WIDGETS = ['quote', 'moon']
+
 const WIDGET_COMPONENTS = {
   'quote':            QuoteWidget,
   'moon':             MoonWidget,
@@ -30,10 +37,10 @@ const WIDGET_COMPONENTS = {
   'chips':            ChipsWidget,
 }
 
-/* Home dashboard — glance, not content. The moon-chip is pinned to
-   the right; if the quote widget is also enabled it sits to its
-   left, shrinking to fit the remaining width. The rest of the
-   widgets follow the user's order in a vertical stack.
+/* Home dashboard. The moon chip and the quote share a fixed top row — the
+   chip at the start side, the quote filling the rest. Everything else follows
+   the user's order: a vertical stack on mobile, a four-column grid on desktop
+   (see HomeScreen.css).
 
    Arranging happens HERE, on the screen being arranged: press and hold any
    widget to enter edit mode, drag to reorder, ✕ to hide. It used to mean a
@@ -55,12 +62,15 @@ export default function HomeScreen({ onOpenFeedback }) {
   const edit = useHomeEdit({
     list,
     stackRef,
+    pinnedIds: PINNED_WIDGETS,
     onChange: (next) => updatePrefs({ widgets: { list: next } }),
   })
 
   const showWelcome = !clientsLoading && (clients?.length || 0) === 0 && !prefs?.homeWelcomeDismissed
-  const shown  = visibleWidgets(list)
-  const hidden = hiddenWidgets(list)
+  /* Read through the hook: mid-drag this is the local draft, so the order
+     follows the finger without a database write per pointermove. */
+  const shown  = visibleWidgets(edit.list)
+  const hidden = hiddenWidgets(edit.list)
   const quoteCfg = shown.find((w) => w.id === 'quote')
   const moonCfg  = shown.find((w) => w.id === 'moon')
   const restList = shown.filter((w) => w.id !== 'quote' && w.id !== 'moon')
@@ -75,18 +85,21 @@ export default function HomeScreen({ onOpenFeedback }) {
     if (!Comp) return null
     const density = w.density || globalDensity
     const dragging = edit.draggingId === w.id
+    const pinned = edit.isPinned(w.id)
     /* --widget-accent is resolved in CSS from data-accent (HomeScreen.css), so
        it can remap per theme — a light-mode hex no longer leaks into dark. */
     return (
       <Box
         key={w.id}
-        className={`home-widget${w.compact ? ' compact' : ''}${edit.editing ? ' is-editing' : ''}${dragging ? ' is-dragging' : ''}`}
+        className={`home-widget${edit.editing ? ' is-editing' : ''}${dragging ? ' is-dragging' : ''}${edit.editing && pinned ? ' is-pinned' : ''}`}
         data-widget-id={w.id}
+        /* Read by useHomeEdit to exclude these from drop targeting. */
+        data-pinned={pinned ? '' : undefined}
         data-density={density}
         data-accent={w.accent}
         {...edit.widgetProps(w.id)}
       >
-        <Comp compact={w.compact} />
+        <Comp />
         {edit.editing && (
           <>
             <Box className="home-widget-shield" aria-hidden="true" />

@@ -26,7 +26,7 @@ export default function MeetingConfirmList() {
   const { clients } = useClients()
   const { groups } = useGroups()
   const { meetings, updateMeeting } = useScheduledMeetings()
-  const { sessions, addSession, removeSession } = useSessions()
+  const { sessions, addSession, removeSession, putBackSession } = useSessions()
   const { transactions, setStatus: setTxStatus, removeTransaction } = useTransactions()
   const { templates } = useRecurring()
   const { categories } = useCategories()
@@ -63,15 +63,18 @@ export default function MeetingConfirmList() {
      we offer the one-off charge, mirroring the calendar's billSession step. */
   const confirmMeeting = async (m) => {
     const c = m.subject_type === 'client' ? (clients || []).find((x) => x.id === m.subject_id) : null
-    await confirmScheduledMeeting({ meeting: m, sessions, addSession, updateMeeting, clients })
+    await confirmScheduledMeeting({ meeting: m, sessions, addSession, updateMeeting, removeSession, putBackSession, clients })
     if (c?.billing_mode === 'per_session') setBillPrompt({ meeting: m, client: c })
   }
   const skipMeeting = (m) => {
-    /* Didn't happen: its linked expense shouldn't post, and any session we
-       materialised for it is dropped by skipScheduledMeeting. */
-    const linked = linkedTxsForMeeting(m)
-    skipScheduledMeeting({ meeting: m, updateMeeting, removeSession })
-    for (const tx of linked) setTxStatus(tx.id, 'skipped')
+    /* Didn't happen: the linked expense shouldn't post either, and any session
+       materialised for it is dropped. The helper does all three and registers
+       ONE undo covering them — the tx loop used to live here, after the call,
+       which put it outside whatever undo the helper registered. */
+    skipScheduledMeeting({
+      meeting: m, updateMeeting, removeSession, putBackSession,
+      linkedTxs: linkedTxsForMeeting(m), setTxStatus,
+    })
   }
   const confirmTx = (tx) => setTxStatus(tx.id, 'confirmed')
   const skipTx = (tx) => setTxStatus(tx.id, 'skipped')

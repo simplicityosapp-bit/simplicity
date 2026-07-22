@@ -37,7 +37,7 @@ export default function ChipsWidget() {
   const { events: calendarEvents } = useCalendarEvents()
   const { reminders } = useReminders()
   const { leads } = useLeads()
-  const { sessions, addSession } = useSessions()
+  const { sessions, addSession, removeSession, putBackSession } = useSessions()
   const waMsg = useWhatsAppMessage()
   const { prefs, update: updatePrefs } = useUserPreferences()
   const [openTile, setOpenTile] = useState(null)
@@ -125,6 +125,8 @@ export default function ChipsWidget() {
         reminders={reminders}
         sessions={sessions}
         addSession={addSession}
+        removeSession={removeSession}
+        putBackSession={putBackSession}
         updateMeeting={updateMeeting}
         waMsg={waMsg}
       />

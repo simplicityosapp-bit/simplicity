@@ -24,14 +24,28 @@ export function useSessions() {
     return row
   }, [qc])
 
-  const removeSession = useCallback(async (id) => {
+  /* `silent` suppresses the stand-alone "session deleted" undo. Use it when the
+     caller is registering an undo of its own that covers this delete AND
+     whatever else it changed — skipping a meeting removes its session but also
+     flips the meeting's status, and pushUndo is single-level, so leaving both
+     registered means the last one wins and the other change is stranded. */
+  const removeSession = useCallback(async (id, { silent = false } = {}) => {
     const row = (qc.getQueryData(KEY) ?? []).find((s) => s.id === id)
     qc.setQueryData(KEY, (prev) => (prev ?? []).filter((s) => s.id !== id))
     try {
       await apiRemove(id)
-      registerDeleteUndo({ qc, key: KEY, row, label: i18n.t('components:undo.deleted.session'), restoreFn: restoreSession, deleteFn: apiRemove })
+      if (!silent) {
+        registerDeleteUndo({ qc, key: KEY, row, label: i18n.t('components:undo.deleted.session'), restoreFn: restoreSession, deleteFn: apiRemove })
+      }
     } catch { qc.invalidateQueries({ queryKey: KEY }) }
+    return row
   }, [qc])
 
-  return { sessions, loading: isLoading, error: error?.message ?? null, addSession, updateSession, removeSession, refetch }
+  /* Put a soft-deleted session back. Needed by callers that own a composite
+     undo (see removeSession's `silent`). */
+  const putBackSession = useCallback(async (id) => {
+    try { await restoreSession(id) } finally { qc.invalidateQueries({ queryKey: KEY }) }
+  }, [qc])
+
+  return { sessions, loading: isLoading, error: error?.message ?? null, addSession, updateSession, removeSession, putBackSession, refetch }
 }

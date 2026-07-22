@@ -51,7 +51,7 @@ export default function CalendarScreen() {
   const { t } = useT('calendar')
   const { reminders, addReminder, completeReminder, removeReminder } = useReminders()
   const { meetings, loading: meetingsLoading, addMeeting, updateMeeting } = useScheduledMeetings()
-  const { sessions, addSession, removeSession } = useSessions()
+  const { sessions, addSession, removeSession, putBackSession } = useSessions()
   const { events: calendarEvents, loading: calendarEventsLoading, refetch: refetchCalendarEvents, dismissEvent, updateEvent, deleteEvent, restoreEvent } = useCalendarEvents()
   /* Auto-sync Google Calendar on entry + every 10 min while this screen is
      open (client-side only; reloads the cached events after each pull). */
@@ -261,9 +261,9 @@ export default function CalendarScreen() {
     const m = ev.raw
     const c = m?.subject_type === 'client' ? clients.find((x) => x.id === m.subject_id) : null
     if (c?.billing_mode === 'per_session') return updateMeeting(m.id, { status: 'confirmed' }).then(() => showToast(t('toast.meetingConfirmed'))).catch(() => showError(t('toast.actionFailed')))
-    return confirmScheduledMeeting({ meeting: m, sessions, addSession, updateMeeting })
+    return confirmScheduledMeeting({ meeting: m, sessions, addSession, updateMeeting, removeSession, putBackSession })
   }
-  const skipMeeting = (ev) => skipScheduledMeeting({ meeting: ev.raw, updateMeeting, removeSession })
+  const skipMeeting = (ev) => skipScheduledMeeting({ meeting: ev.raw, updateMeeting, removeSession, putBackSession })
 
   /* "Did the meeting happen?" for a per-session client → offer a one-off charge.
      Billing a per-session client = logging the meeting as a held session

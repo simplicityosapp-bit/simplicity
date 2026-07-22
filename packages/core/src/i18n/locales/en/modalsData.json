@@ -58,9 +58,15 @@
     "needDate": "Pick a date.",
     "status": "Status",
     "statusConfirmed": "Confirmed",
-    "statusPending": "Pending",
-    "statusSkipped": "Skipped",
-    "delete": "Delete"
+    "statusPending": "Awaiting approval",
+    "statusSkipped": "Didn't happen",
+    "delete": "Delete",
+    "deleteConfirm": {
+      "title": "Delete transaction",
+      "message": "Delete \"{{desc}}\" for {{amount}}?",
+      "noDesc": "No description",
+      "confirm": "Delete"
+    }
   },
   "recurring": {
     "titleNew": "New recurring template",
@@ -201,5 +207,11 @@
   "editProject": {
     "title": "Edit project",
     "projectName": "Project name"
+  },
+  "discard": {
+    "title": "Leave without saving?",
+    "message": "What you've entered will be lost.",
+    "confirm": "Leave without saving",
+    "cancel": "Keep editing"
   }
 }

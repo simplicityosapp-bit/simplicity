@@ -1,4 +1,7 @@
+import { useCallback, useState } from 'react'
+import { isr } from '@simplicity/core'
 import TransactionCard from './TransactionCard'
+import ConfirmModal from '../../modals/ConfirmModal'
 import { useT } from '../../i18n/useT'
 import { Box, Txt } from '../../components/ui'
 
@@ -8,6 +11,13 @@ const GROUP_KEYS = ['confirmed', 'skipped']
 
 export default function TransactionList({ transactions, clients, projects, categories, showSkipped = true, onApprove, onSkip, onUnskip, onEdit, onDelete }) {
   const { t } = useT('finance')
+  /* Deleting money is a two-step now, like deleting a category or a recurring
+     template. The dialog lives here rather than in the card so a list of 80
+     transactions still mounts exactly one of them — and so the memoised card
+     keeps a stable onDelete identity. */
+  const [pendingDelete, setPendingDelete] = useState(null)
+  const requestDelete = useCallback((tx) => setPendingDelete(tx), [])
+
   const visible = transactions.filter((tx) => tx.status !== 'pending' && (showSkipped || tx.status !== 'skipped'))
   if (!visible.length) {
     return (
@@ -38,12 +48,27 @@ export default function TransactionList({ transactions, clients, projects, categ
                 onSkip={onSkip}
                 onUnskip={onUnskip}
                 onEdit={onEdit}
-                onDelete={onDelete}
+                onDelete={onDelete ? requestDelete : undefined}
               />
             ))}
           </Box>
         )
       })}
+
+      <ConfirmModal
+        open={!!pendingDelete}
+        onClose={() => setPendingDelete(null)}
+        title={t('deleteTx.title')}
+        message={pendingDelete
+          ? t('deleteTx.message', {
+              desc: pendingDelete.desc || t('tx.noDesc'),
+              amount: isr(pendingDelete.amount),
+            })
+          : ''}
+        confirmLabel={t('deleteTx.confirm')}
+        danger
+        onConfirm={() => { if (pendingDelete) return onDelete(pendingDelete.id) }}
+      />
     </Box>
   )
 }

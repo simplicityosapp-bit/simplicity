@@ -10,9 +10,7 @@
   "newTx": "+ Nueva transacción",
   "loading": "Cargando transacciones…",
   "loadError": "No se pudieron cargar las transacciones: {{error}}",
-  "hideSkipped": "Ocultar omitidas",
-  "showSkipped_one": "Mostrar {{count}} omitida",
-  "showSkipped_other": "Mostrar {{count}} omitidas",
+  "hideSkipped": "Ocultar lo que no ocurrió",
   "deleteRecurring": {
     "title": "Eliminar plantilla recurrente",
     "message": "¿Eliminar «{{name}}»? Las transacciones ya creadas a partir de ella se mantendrán.",
@@ -31,29 +29,35 @@
   },
   "tx": {
     "noDesc": "Sin descripción",
-    "skipped": "Omitida",
-    "credited": "Cancelada",
-    "approveTitle": "Confirmar — ocurrió",
-    "skipTitle": "Omitir — no ocurrió",
-    "restore": "Volver a pendiente",
+    "skipped": "No ocurrió",
+    "credited": "Anulada por nota de crédito",
+    "approveTitle": "Sí, esto ocurrió",
+    "skipTitle": "No, esto no ocurrió",
+    "restore": "Volver a esperando aprobación",
     "delete": "Eliminar transacción"
   },
   "list": {
     "empty": "No hay transacciones este mes.",
     "confirmed": "Confirmadas",
-    "skipped": "Omitidas"
+    "skipped": "No ocurrieron"
   },
   "pending": {
-    "count_one": "{{count}} transacción pendiente",
-    "count_other": "{{count}} transacciones pendientes",
     "income": "Ingresos {{amount}}",
     "expenses": "Gastos {{amount}}",
     "approving": "Confirmando…",
-    "approveAll": "Confirmar todas",
+    "approveAll": "Aprobar todas",
     "noDesc": "Sin descripción",
-    "approve": "Confirmar",
-    "skip": "Omitir",
-    "delete": "Eliminar"
+    "approve": "Sí, ocurrió",
+    "skip": "No, no ocurrió",
+    "delete": "Eliminar",
+    "approveAllConfirm": {
+      "title": "Aprobar todas las transacciones",
+      "message_one": "¿Aprobar {{count}} transacción? {{totals}}",
+      "message_other": "¿Aprobar {{count}} transacciones? {{totals}}",
+      "confirm": "Aprobar todas"
+    },
+    "count_one": "{{count}} transacción esperando aprobación",
+    "count_other": "{{count}} transacciones esperando aprobación"
   },
   "recurring": {
     "title": "Plantillas recurrentes",
@@ -102,10 +106,10 @@
     "typeReceipt": "Recibo",
     "typeInvoice": "Factura fiscal",
     "typeDoc": "Documento",
-    "heading": "Importación pendiente",
+    "heading": "Facturas que emitiste en tu servicio de facturación",
     "countAria_one": "{{count}} factura por aprobar",
     "countAria_other": "{{count}} facturas por aprobar",
-    "sub": "Facturas emitidas en el servicio externo — ¿importar como ingreso?",
+    "sub": "¿Registrarlas como ingreso?",
     "docNumber": "n.º",
     "noName": "Sin nombre",
     "view": "Ver",
@@ -113,8 +117,6 @@
     "importedToast": "Factura importada como ingreso.",
     "dismissedToast": "Factura descartada.",
     "importingAria": "Importando…",
-    "confirmAria": "Confirmar la importación de {{amount}} como ingreso",
-    "sure": "¿Seguro?",
     "importAria": "Importar como ingreso",
     "importTitle": "Importar como ingreso",
     "dismiss": "Descartar",
@@ -122,7 +124,10 @@
     "dupMessage": "Ya tienes una transacción de ingreso por {{amount}}{{forName}}. ¿Importarla de todos modos como ingreso adicional?",
     "dupForName": " a {{name}}",
     "dupConfirm": "Sí, importar",
-    "cancel": "Cancelar"
+    "cancel": "Cancelar",
+    "confirmTitle": "Importar como ingreso",
+    "confirmMessage": "¿Registrar {{amount}}{{forName}} como nuevo ingreso?",
+    "confirmBtn": "Sí, importar"
   },
   "docTypes": {
     "invoice_receipt": "Factura/recibo",
@@ -135,5 +140,12 @@
     "credit_card": "Tarjeta de crédito",
     "app": "App (Bit/Paybox)",
     "other": "Otro"
-  }
+  },
+  "deleteTx": {
+    "title": "Eliminar transacción",
+    "message": "¿Eliminar \"{{desc}}\" por {{amount}}?",
+    "confirm": "Eliminar"
+  },
+  "showSkipped_one": "Mostrar {{count}} que no ocurrió",
+  "showSkipped_other": "Mostrar {{count}} que no ocurrieron"
 }

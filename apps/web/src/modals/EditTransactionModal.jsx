@@ -1,10 +1,12 @@
 import { useMemo, useState } from 'react'
 import { Trash2, UserPlus } from 'lucide-react'
 import DateField from '../components/DateField'
+import SelectMenu from '../components/SelectMenu'
 import Modal from './Modal'
+import ConfirmModal from './ConfirmModal'
 import InvoiceActions from '../components/InvoiceActions'
 import GrowPayButton from '../components/GrowPayButton'
-import { PAY_METHODS, payMethodLabel, toLocalDate } from '@simplicity/core'
+import { PAY_METHODS, payMethodLabel, toLocalDate, isr } from '@simplicity/core'
 import { useT } from '../i18n/useT'
 import { Box, Txt, Btn, Input } from '../components/ui'
 
@@ -43,6 +45,13 @@ export default function EditTransactionModal({ open, onClose, onSave, onIssued, 
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
   const [savingClient, setSavingClient] = useState(false)
+  /* Deleting money asks first — the undo toast is a safety net, not a prompt. */
+  const [confirmDelete, setConfirmDelete] = useState(false)
+  /* Escape / the overlay / the X used to throw away a half-finished edit
+     without a word. They route through here instead; an untouched form still
+     closes immediately, so the guard only appears when there is something to
+     lose. Saving and deleting call onClose directly and bypass it. */
+  const [confirmDiscard, setConfirmDiscard] = useState(false)
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }))
   /* Ad-hoc recipient = a receipt was (or will be) issued to a non-client whose
      details live on the tx. Offer to promote them to a real client. */
@@ -81,6 +90,21 @@ export default function EditTransactionModal({ open, onClose, onSave, onIssued, 
       || form.payment_method !== orig.payment_method
   }, [form, tx])
 
+  /* The single exit used by Escape, the overlay and the X. */
+  const requestClose = () => { if (formDirty) setConfirmDiscard(true); else onClose() }
+
+  /* Same option shapes AddTransactionModal builds, so the two forms present
+     the identical picker instead of a styled menu here and an OS-native list
+     there. The client list stays searchable — a roster of 80 in a bare
+     <select> was unusable. */
+  const payOptions = [
+    { value: '', label: t('tx.paymentMethodNone') },
+    ...PAY_METHODS.map((m) => ({ value: m.key, label: payMethodLabel(m.key) })),
+  ]
+  const clientOptions = [{ value: '', label: t('common.none') }, ...clients.map((c) => ({ value: c.id, label: c.name }))]
+  const projectOptions = [{ value: '', label: t('common.none') }, ...projects.map((p) => ({ value: p.id, label: p.name }))]
+  const categoryOptions = [{ value: '', label: t('common.noCategory') }, ...categories.map((c) => ({ value: c.id, label: c.name }))]
+
   if (!tx) return <Modal open={open} onClose={onClose} title={t('editTx.title')} />
 
   const submit = async () => {
@@ -109,7 +133,7 @@ export default function EditTransactionModal({ open, onClose, onSave, onIssued, 
   }
 
   return (
-    <Modal open={open} onClose={onClose} title={t('editTx.title')}>
+    <Modal open={open} onClose={requestClose} title={t('editTx.title')}>
       <Box className="m-field">
         <Box className="m-pills">
           <Btn type="button" className={`m-pill${form.type === 'income' ? ' on income' : ''}`} onClick={() => set('type', 'income')}>{t('common.income')}</Btn>
@@ -138,10 +162,7 @@ export default function EditTransactionModal({ open, onClose, onSave, onIssued, 
       </Box>
       <Box className="m-field">
         <Box as="label" className="m-label">{t('tx.paymentMethod')}</Box>
-        <select className="m-select" value={form.payment_method} onChange={(e) => set('payment_method', e.target.value)}>
-          <option value="">{t('tx.paymentMethodNone')}</option>
-          {PAY_METHODS.map((m) => <option key={m.key} value={m.key}>{payMethodLabel(m.key)}</option>)}
-        </select>
+        <SelectMenu value={form.payment_method} onChange={(v) => set('payment_method', v)} options={payOptions} placeholder={t('tx.paymentMethodNone')} ariaLabel={t('tx.paymentMethod')} />
       </Box>
       <Box className="m-field">
         <Box as="label" className="m-label">{t('editTx.status')}</Box>
@@ -154,17 +175,19 @@ export default function EditTransactionModal({ open, onClose, onSave, onIssued, 
       <Box className="m-row2">
         <Box className="m-field">
           <Box as="label" className="m-label">{t('common.client')}</Box>
-          <select className="m-select" value={form.client_id} onChange={(e) => set('client_id', e.target.value)}>
-            <option value="">{t('common.none')}</option>
-            {clients.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
-          </select>
+          <SelectMenu
+            value={form.client_id}
+            onChange={(v) => set('client_id', v)}
+            options={clientOptions}
+            placeholder={t('common.none')}
+            ariaLabel={t('common.client')}
+            searchable
+            searchPlaceholder={t('common.client')}
+          />
         </Box>
         <Box className="m-field">
           <Box as="label" className="m-label">{t('common.project')}</Box>
-          <select className="m-select" value={form.project_id} onChange={(e) => set('project_id', e.target.value)}>
-            <option value="">{t('common.none')}</option>
-            {projects.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
-          </select>
+          <SelectMenu value={form.project_id} onChange={(v) => set('project_id', v)} options={projectOptions} placeholder={t('common.none')} ariaLabel={t('common.project')} />
         </Box>
       </Box>
 
@@ -186,10 +209,7 @@ export default function EditTransactionModal({ open, onClose, onSave, onIssued, 
       {form.type === 'expense' && (
         <Box className="m-field">
           <Box as="label" className="m-label">{t('common.category')}</Box>
-          <select className="m-select" value={form.category_id} onChange={(e) => set('category_id', e.target.value)}>
-            <option value="">{t('common.noCategory')}</option>
-            {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
-          </select>
+          <SelectMenu value={form.category_id} onChange={(v) => set('category_id', v)} options={categoryOptions} placeholder={t('common.noCategory')} ariaLabel={t('common.category')} />
         </Box>
       )}
 
@@ -218,13 +238,39 @@ export default function EditTransactionModal({ open, onClose, onSave, onIssued, 
 
       <Box className="m-actions">
         {onDelete && tx?.id && (
-          <Btn type="button" className="m-btn-delete-inline" onClick={() => { onDelete(tx.id); onClose() }}>
+          <Btn type="button" className="m-btn-delete-inline" onClick={() => setConfirmDelete(true)}>
             <Trash2 size={15} strokeWidth={1.8} aria-hidden="true" /> {t('editTx.delete')}
           </Btn>
         )}
-        <Btn type="button" className="m-btn-cancel" onClick={onClose}>{t('common.cancel')}</Btn>
+        <Btn type="button" className="m-btn-cancel" onClick={requestClose}>{t('common.cancel')}</Btn>
         <Btn type="button" className="m-btn-save" onClick={submit} disabled={busy}>{busy ? t('common.saving') : t('common.save')}</Btn>
       </Box>
+
+      {/* Names what is about to go, and only closes the editor once the delete
+          is actually confirmed — cancelling leaves the form exactly as it was. */}
+      <ConfirmModal
+        open={confirmDelete}
+        onClose={() => setConfirmDelete(false)}
+        title={t('editTx.deleteConfirm.title')}
+        message={t('editTx.deleteConfirm.message', {
+          desc: tx.desc || t('editTx.deleteConfirm.noDesc'),
+          amount: isr(tx.amount),
+        })}
+        confirmLabel={t('editTx.deleteConfirm.confirm')}
+        danger
+        onConfirm={async () => { await onDelete(tx.id); onClose() }}
+      />
+
+      <ConfirmModal
+        open={confirmDiscard}
+        onClose={() => setConfirmDiscard(false)}
+        title={t('discard.title')}
+        message={t('discard.message')}
+        confirmLabel={t('discard.confirm')}
+        cancelLabel={t('discard.cancel')}
+        danger
+        onConfirm={() => { setConfirmDiscard(false); onClose() }}
+      />
     </Modal>
   )
 }

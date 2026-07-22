@@ -20,8 +20,12 @@ export default function InvoiceImports() {
   const { imports, loading, approve, dismiss } = useInvoiceImports()
   const { transactions } = useTransactions()
   const [busy, setBusy] = useState(null)
-  const [confirmId, setConfirmId] = useState(null) // approve = real income → two-step confirm
-  const [dupConfirm, setDupConfirm] = useState(null) // an import flagged as a possible duplicate, awaiting a soft confirm
+  /* Approve creates a real income transaction, so it asks first. It used to
+     arm the button in place ("בטוח/ה?") and disarm itself after 4 seconds —
+     a control that changes meaning and then silently changes back is the
+     kind of thing that loses people. A plain dialog says what will happen
+     and waits. `dup` marks the extra "you may already have this" warning. */
+  const [confirmImport, setConfirmImport] = useState(null) // { imp, dup }
   const [liveMsg, setLiveMsg] = useState('')
 
   /* Possible duplicate: an existing income for the SAME client + amount (e.g. you
@@ -30,10 +34,9 @@ export default function InvoiceImports() {
   const possibleDuplicate = (imp) => !!imp.client_id && (transactions || []).some((tx) =>
     tx.type === 'income' && !tx.deleted_at && tx.client_id === imp.client_id && Number(tx.amount) === Number(imp.amount)
   )
-  const confirmTimer = useRef(0)
   const liveTimer = useRef(0)
 
-  useEffect(() => () => { window.clearTimeout(confirmTimer.current); window.clearTimeout(liveTimer.current) }, [])
+  useEffect(() => () => window.clearTimeout(liveTimer.current), [])
 
   /* Politely announce the result for screen readers; the row itself just
      vanishes (and the whole section unmounts when the last one is handled). */
@@ -48,32 +51,14 @@ export default function InvoiceImports() {
     try { await fn(id); announce(msg) } catch { /* error surfaced by toast */ } finally { setBusy(null) }
   }
 
-  /* Approve creates a real income transaction → arm on first tap, run on the
-     second (auto-disarms after 4s). Dismiss is reversible, so it stays one-tap. */
+  /* Both paths — plain and possible-duplicate — open the same dialog; only
+     the wording differs. Dismiss is reversible, so it stays one-tap. */
   const onApprove = (id) => () => {
     const imp = imports.find((x) => x.id === id)
-    // Possible duplicate → soft warning dialog (approve / cancel) instead of the
-    // inline two-step.
-    if (imp && possibleDuplicate(imp)) {
-      window.clearTimeout(confirmTimer.current); setConfirmId(null)
-      setDupConfirm(imp)
-      return
-    }
-    if (confirmId !== id) {
-      setConfirmId(id)
-      window.clearTimeout(confirmTimer.current)
-      confirmTimer.current = window.setTimeout(() => setConfirmId(null), 4000)
-      return
-    }
-    window.clearTimeout(confirmTimer.current)
-    setConfirmId(null)
-    act(approve, id, t('imports.importedToast'))()
+    if (imp) setConfirmImport({ imp, dup: possibleDuplicate(imp) })
   }
 
-  const onDismiss = (id) => () => {
-    if (confirmId === id) { window.clearTimeout(confirmTimer.current); setConfirmId(null) }
-    act(dismiss, id, t('imports.dismissedToast'))()
-  }
+  const onDismiss = (id) => () => act(dismiss, id, t('imports.dismissedToast'))()
 
   if (loading || (imports.length === 0 && !liveMsg)) return null
   /* Queue cleared but a result still needs announcing — keep the live region. */
@@ -104,10 +89,6 @@ export default function InvoiceImports() {
                 <Btn type="button" className="inv-import-btn approve" disabled aria-busy="true" aria-label={t('imports.importingAria')}>
                   <Loader2 size={15} strokeWidth={2} className="inv-import-spin" aria-hidden="true" />
                 </Btn>
-              ) : confirmId === imp.id ? (
-                <Btn type="button" className="inv-import-btn approve confirm" onClick={onApprove(imp.id)} aria-label={t('imports.confirmAria', { amount: isr(imp.amount || 0) })}>
-                  <Check size={15} strokeWidth={2} aria-hidden="true" /> {t('imports.sure')}
-                </Btn>
               ) : (
                 <Btn type="button" className="inv-import-btn approve" onClick={onApprove(imp.id)} title={t('imports.importTitle')} aria-label={t('imports.importAria')}>
                   <Check size={15} strokeWidth={2} aria-hidden="true" />
@@ -122,16 +103,22 @@ export default function InvoiceImports() {
       </Box>
       <Txt className="sr-only" role="status" aria-live="polite">{liveMsg}</Txt>
       <ConfirmModal
-        open={!!dupConfirm}
-        onClose={() => setDupConfirm(null)}
-        title={t('imports.dupTitle')}
-        message={dupConfirm ? t('imports.dupMessage', {
-          amount: isr(dupConfirm.amount || 0),
-          forName: dupConfirm.customer_name ? t('imports.dupForName', { name: dupConfirm.customer_name }) : '',
-        }) : ''}
-        confirmLabel={t('imports.dupConfirm')}
+        open={!!confirmImport}
+        onClose={() => setConfirmImport(null)}
+        title={confirmImport?.dup ? t('imports.dupTitle') : t('imports.confirmTitle')}
+        message={confirmImport ? (confirmImport.dup
+          ? t('imports.dupMessage', {
+              amount: isr(confirmImport.imp.amount || 0),
+              forName: confirmImport.imp.customer_name ? t('imports.dupForName', { name: confirmImport.imp.customer_name }) : '',
+            })
+          : t('imports.confirmMessage', {
+              amount: isr(confirmImport.imp.amount || 0),
+              forName: confirmImport.imp.customer_name ? t('imports.dupForName', { name: confirmImport.imp.customer_name }) : '',
+            })
+        ) : ''}
+        confirmLabel={confirmImport?.dup ? t('imports.dupConfirm') : t('imports.confirmBtn')}
         cancelLabel={t('imports.cancel')}
-        onConfirm={() => dupConfirm && act(approve, dupConfirm.id, t('imports.importedToast'))()}
+        onConfirm={() => confirmImport && act(approve, confirmImport.imp.id, t('imports.importedToast'))()}
       />
     </Box>
   )

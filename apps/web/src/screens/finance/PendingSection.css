@@ -146,6 +146,51 @@
   flex-shrink: 0;
 }
 
+/* The decide-buttons carry their label. Everywhere else on the screen a bare
+   ✓/✕ is fine — you can see from context what the row already is — but this
+   is the one place the user is being ASKED something, and on a phone there is
+   no hover tooltip to explain an icon. Pills, not circles, so the text fits;
+   the sage/stone identity matches .f-tx-btn.approve/.skip. */
+.f-pending-act {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  flex-shrink: 0;
+  cursor: pointer;
+  border: 0.5px solid transparent;
+  background: var(--val-chip-bg);
+  backdrop-filter: var(--mg-card-blur);
+  font-family: var(--mg-font);
+  font-size: calc(12px * var(--text-scale));
+  font-weight: 500;
+  transition: background 0.15s, transform 0.12s;
+}
+.f-pending-act:active { transform: scale(0.94); }
+.f-pending-act.yes {
+  color: var(--sage);
+  border-color: rgba(139, 168, 136, 0.32);
+}
+.f-pending-act.yes:hover { background: color-mix(in srgb, var(--sage) 16%, var(--val-chip-bg)); }
+/* Stone, never clay — "לא קרה" is a normal answer, not a deletion. */
+.f-pending-act.no {
+  color: var(--stone);
+  border-color: color-mix(in srgb, var(--stone) 28%, transparent);
+}
+.f-pending-act.no:hover { background: color-mix(in srgb, var(--stone) 12%, var(--val-chip-bg)); }
+.f-pending-act-lbl { white-space: nowrap; }
+
+/* Narrow phones: the description, the amount and two labelled pills don't fit
+   on one line. The pills WRAP to their own row rather than dropping their
+   labels — the label is the whole point of this control, and a phone has no
+   hover tooltip to fall back on. They split the width so both are easy to hit. */
+@media (max-width: 460px) {
+  .f-pending-row { flex-wrap: wrap; }
+  .f-pending-actions { flex-basis: 100%; gap: 8px; }
+  .f-pending-act { flex: 1; justify-content: center; padding: 8px 10px; }
+}
+
 /* Round action buttons — shared with TransactionCard on the finance screen. */
 .f-tx-btn {
   width: 30px;

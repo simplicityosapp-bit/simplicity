@@ -101,7 +101,7 @@
         },
         {
           "title": "Alerts widget (needs attention)",
-          "body": "A card that collects everything waiting for you in one place: transactions to confirm, sessions you haven't marked yet, clients with an outstanding balance, a gap from the monthly goal, urgent tasks, clients you haven't spoken to in 45 days, leads with no activity, follow-ups due today, and duplicates against Google Calendar. Transactions and sessions open a confirmation window (confirm / skip / delete); everything else takes you to the relevant screen."
+          "body": "A card that collects everything waiting for you in one place: transactions to confirm, sessions you haven't marked yet, clients with an outstanding balance, a gap from the monthly goal, urgent tasks, clients you haven't spoken to in 45 days, leads with no activity, follow-ups due today, and duplicates against Google Calendar. Transactions open a window where each row has \"Yes, it happened\", \"No, it didn't\" and delete; sessions open a confirmation window (confirm / skip / delete); everything else takes you to the relevant screen."
         },
         {
           "title": "Confirming sessions from Home",
@@ -151,7 +151,7 @@
         },
         {
           "q": "Why doesn't the \"Net\" number on the status cards match what I entered?",
-          "a": "The card counts only confirmed transactions (not pending or skipped ones) and shows net for the time range you selected in the filter window (default: this month). Pending transactions appear separately under \"Needs attention\"."
+          "a": "The card counts only confirmed transactions (not ones awaiting approval, and not ones you marked as \"Didn't happen\") and shows net for the time range you selected in the filter window (default: this month). Transactions awaiting approval appear separately under \"Needs attention\"."
         },
         {
           "q": "I marked a recurring reminder as done — did it disappear?",
@@ -359,8 +359,8 @@
           "body": "The \"+ New Transaction\" button opens a window where you choose \"+ Income\" or \"− Expense\" and fill in the amount, date, description, and client/project. For expenses, you can select a category (or create a new one on the spot). The transaction is saved to the month of the date you chose."
         },
         {
-          "title": "Future Date Saves as Pending",
-          "body": "A transaction with a future date is automatically saved as \"Pending\" until that day arrives, and sits in the pending-approval card. A transaction dated today or in the past is saved as \"Approved\" and goes straight into the summary."
+          "title": "Future Date Saves as \"Awaiting Approval\"",
+          "body": "A transaction with a future date is automatically saved as \"Awaiting approval\" until that day arrives, and sits in the card of transactions awaiting approval. A transaction dated today or in the past is saved as \"Confirmed\" and goes straight into the summary."
         },
         {
           "title": "Issue a Receipt on Save",
@@ -368,27 +368,27 @@
         },
         {
           "title": "Monthly Summary and Month Navigation",
-          "body": "At the top of the screen you'll see \"Net This Month\", \"Income\", and \"Expenses\" for the selected month, with arrows to go to the previous or next month. Each number also shows the percentage change from the previous month. The summary counts only approved transactions — pending, skipped, or credit-note-cancelled transactions are not included."
+          "body": "At the top of the screen you'll see \"Net This Month\", \"Income\", and \"Expenses\" for the selected month, with arrows to go to the previous or next month. Each number also shows the percentage change from the previous month. The summary counts only confirmed transactions — ones awaiting approval, ones marked \"Didn't happen\", or ones cancelled by a credit note are not included."
         },
         {
           "title": "Cumulative Income Chart",
           "body": "A chart showing how approved income accumulated day by day over the selected month, with a dot on the current day. If you've set a monthly income goal in the Goals screen, a dashed target line and achievement percentage are shown. If not, a link to set a monthly income goal appears instead."
         },
         {
-          "title": "Pending Transactions and Bulk Approval",
-          "body": "All pending transactions for the month sit in a separate card, showing the total pending income and expenses. Each row has \"Approve\" (the transaction happened) and \"Skip\" (it didn't). Clicking a row opens editing, and above a list of more than one there's an \"Approve All\" button."
+          "title": "Transactions Awaiting Approval and Bulk Approval",
+          "body": "All of the month's transactions awaiting approval sit in a separate card, showing the total income and expenses waiting. Each row has \"Yes, it happened\" and \"No, it didn't\". Clicking a row opens editing, and above a list of more than one there's an \"Approve all\" button — it first opens a confirmation dialog stating how many transactions are involved and the income and expense totals."
         },
         {
-          "title": "Transaction List: Approved and Skipped",
-          "body": "Below the pending card, transactions are grouped into \"Approved\" and \"Skipped\". A skipped transaction shows a \"Skipped\" tag with a strikethrough amount, and you can return it to pending. When there are skipped transactions, a button appears to show or hide them (\"Show N skipped\" / \"Hide skipped\")."
+          "title": "Transaction List: Confirmed and Didn't Happen",
+          "body": "Below the awaiting-approval card, transactions are grouped into \"Confirmed\" and \"Didn't happen\". A transaction you marked as not having happened gets a \"Didn't happen\" tag with a strikethrough amount, and you can move it back to awaiting approval. When there are such transactions, a button appears to show or hide them (\"Show N that didn't happen\" / \"Hide what didn't happen\")."
         },
         {
           "title": "Deleting a Transaction from the List or Edit View",
-          "body": "Every approved or skipped transaction has a delete button in the list, and the edit window also has a \"Delete\" button. Right after deletion, an undo notification pops up so you can restore the transaction."
+          "body": "Every transaction — confirmed, or marked \"Didn't happen\" — has a delete button in the list, and the edit window also has a \"Delete\" button. Both open a confirmation dialog naming the transaction's description and amount first, and the delete only happens once you confirm. Right after deletion, an undo notification pops up so you can restore the transaction."
         },
         {
           "title": "Recurring Templates (Standing Orders)",
-          "body": "In the \"Recurring Templates\" section you set up transactions that repeat automatically: \"By schedule\" (monthly on a specific day, or weekly on a specific day of the week, with an optional end date) or \"After a session\" (creates a pending transaction for every session with the client you choose, and closes automatically if the session is skipped). The system generates pending transactions from these that you need to approve."
+          "body": "In the \"Recurring Templates\" section you set up transactions that repeat automatically: \"By schedule\" (monthly on a specific day, or weekly on a specific day of the week, with an optional end date) or \"After a session\" (creates a transaction awaiting approval for every session with the client you choose, and closes automatically if the session is skipped). The system generates transactions from these that wait for your approval."
         },
         {
           "title": "Pausing, Editing, and Deleting a Template",
@@ -403,12 +403,12 @@
           "body": "Two cards show a column breakdown: \"Income by Project\" splits approved income across projects (income with no project goes into \"No Project\"), and \"Expenses by Category\" splits approved expenses by category (\"No Category\" for anything untagged)."
         },
         {
-          "title": "Pending Import from Invoices",
-          "body": "If you've connected Green Invoice or SUMIT, invoices you've issued in the external service appear in the \"Pending Import\" section. Each invoice has a \"View\" link to the document, and you can import it as income (with a two-step confirmation) or dismiss it. If there's already an income entry for the same client and amount, a \"Possible duplicate\" warning appears with an extra confirmation before importing."
+          "title": "Invoices You Issued in Your Invoicing Service",
+          "body": "If you've connected Green Invoice or SUMIT, invoices you've issued in the external service appear in the \"Invoices you issued in your invoicing service\" section. Each invoice has a \"View\" link to the document, and you can import it as income or dismiss it. Importing opens a confirmation dialog showing the amount and the client name before anything is recorded. If there's already an income entry for the same client and amount, a \"Possibly a duplicate\" label appears and that same dialog is worded as a stronger warning."
         },
         {
           "title": "Issuing an Invoice and Credit Note from the Edit View",
-          "body": "Clicking on an income entry opens editing, and there — if you've connected an invoicing service — \"Issue Invoice\" appears: choose a document type, a product from the provider's catalog or free text, and a payment method (for receipt-type documents). After issuing, you'll see the document number and a view link, and a \"Credit / Cancel\" button that issues a credit note — this cancels the document and removes the income from summaries (the transaction is marked \"Cancelled\")."
+          "body": "Clicking on an income entry opens editing, and there — if you've connected an invoicing service — \"Issue Invoice\" appears: choose a document type, a product from the provider's catalog or free text, and a payment method (for receipt-type documents). After issuing, you'll see the document number and a view link, and a \"Credit / Cancel\" button that issues a credit note — this cancels the document and removes the income from summaries (the transaction is marked \"Cancelled by credit note\")."
         },
         {
           "title": "CSV Export",
@@ -417,23 +417,23 @@
       ],
       "tips": [
         "All numbers on the screen — the summary, chart, and breakdowns — are for the month shown at the top. If a transaction seems missing, check that you're on the right month based on its date.",
-        "Only \"Approved\" transactions count toward the summary and chart. Pending transactions appear separately until you approve them, and skipped or cancelled transactions are excluded from the totals.",
+        "Only \"Confirmed\" transactions count toward the summary and chart. Transactions awaiting approval appear separately until you approve them, and ones marked \"Didn't happen\" or cancelled by a credit note are excluded from the totals.",
         "For fixed expenses like rent, subscriptions, or supplies — set up a recurring template so the transaction is created automatically each month and you never forget to log it.",
         "You can create a new expense category directly from the transaction window (\"+ New category...\") without leaving it.",
-        "Deleted a transaction? You can restore it immediately via the undo notification that appears right after deletion."
+        "Deleting a transaction opens a confirmation dialog with its description and amount first; once it's gone, the undo notification lets you restore it right away."
       ],
       "faq": [
         {
           "q": "I logged a transaction but it doesn't show in the list or summary?",
-          "a": "First check that you're on the right month (based on the transaction's date). A transaction with a future date is saved as \"Pending\" and sits in the pending card separately until you approve it — only an approved transaction counts toward the summary."
+          "a": "First check that you're on the right month (based on the transaction's date). A transaction with a future date is saved as \"Awaiting approval\" and sits separately in the awaiting-approval card until you approve it — only a confirmed transaction counts toward the summary."
         },
         {
           "q": "Why doesn't the summary at the top match what I expect?",
-          "a": "The summary counts only \"Approved\" transactions. Pending transactions, ones you've skipped, or those cancelled by a credit note — none of them are counted in the net, income, or expenses totals."
+          "a": "The summary counts only \"Confirmed\" transactions. Transactions awaiting approval, ones you marked \"Didn't happen\", or ones cancelled by a credit note — none of them are counted in the net, income, or expenses totals."
         },
         {
           "q": "How do I set up a standing order?",
-          "a": "In the \"Recurring Templates\" section, click \"+ New Template\", choose \"By schedule\" (monthly or weekly) or \"After a session\", and set the amount, day, and end date. The system will generate pending transactions based on your settings, which you then approve."
+          "a": "In the \"Recurring Templates\" section, click \"+ New Template\", choose \"By schedule\" (monthly or weekly) or \"After a session\", and set the amount, day, and end date. The system will generate transactions awaiting approval based on your settings, which you then approve."
         },
         {
           "q": "I deleted a recurring template — what happens to transactions already generated from it?",
@@ -445,7 +445,7 @@
         },
         {
           "q": "I deleted a transaction by mistake — can I get it back?",
-          "a": "Yes. Right after deletion, an undo notification pops up so you can restore the transaction. You can also undo a \"skipped\" mark on a transaction and return it to pending."
+          "a": "Yes. Deleting opens a confirmation dialog naming the description and amount first, and right after the deletion an undo notification pops up so you can restore the transaction. You can also undo a \"Didn't happen\" mark and move the transaction back to awaiting approval."
         }
       ]
     },
@@ -949,7 +949,7 @@
         },
         {
           "q": "The score isn't changing — why?",
-          "a": "The score updates when the data feeding your goals changes: confirmed income transactions (not pending or skipped), daily check-in answers, number of active clients, leads and lead conversions, group member counts, and manual entries you've logged in goals. Update those and the score will move."
+          "a": "The score updates when the data feeding your goals changes: confirmed income transactions (not ones awaiting approval or marked \"Didn't happen\"), daily check-in answers, number of active clients, leads and lead conversions, group member counts, and manual entries you've logged in goals. Update those and the score will move."
         }
       ]
     },
@@ -1082,8 +1082,8 @@
           "body": "When invoicing is connected, you can turn on the \"Auto-import revenue?\" checkbox. When it's on, the system detects invoices you've issued in your invoicing software and asks whether to record them as revenue here too. It won't record anything without your confirmation."
         },
         {
-          "title": "Pending Imports",
-          "body": "Below the invoicing card there's a \"Pending imports\" list — invoices you've issued in the external service that are waiting for your approval. Each row shows the document type and number, amount, client name, a \"View\" link to the document (if available), and a confirmation button (\"Import as revenue\", requires two clicks) or a reject button. If it looks like a duplicate of an existing transaction, a soft warning appears before you confirm."
+          "title": "Invoices You Issued in Your Invoicing Service",
+          "body": "Below the invoicing card there's an \"Invoices you issued in your invoicing service\" list — invoices you've issued in the external service that are waiting for your approval. Each row shows the document type and number, amount, client name, a \"View\" link to the document (if available), and an import button (\"Import as income\") or a reject button. Importing opens a confirmation dialog showing exactly what will be recorded. If it looks like a duplicate of an existing transaction, that same dialog is worded as a stronger warning."
         }
       ],
       "tips": [
@@ -1091,7 +1091,7 @@
         "Events the system didn't recognize (\"Unidentified\") are worth associating manually — with a client, project, lead, or group. The association is saved and won't be overwritten by future syncs.",
         "Not sure if your invoicing credentials are still valid? Click \"Test connection\" on the Invoicing page. It checks with the service without disconnecting anything.",
         "The Secret for Green Invoice is only shown once, when you create the key. Copy it right away, before you close the window.",
-        "If you've already recorded revenue manually and it also appears in \"Pending imports\" with a \"Possible duplicate\" label — reject the import so it doesn't get recorded twice.",
+        "If you've already recorded revenue manually and it also appears under \"Invoices you issued in your invoicing service\" with a \"Possibly a duplicate\" label — reject the import so it doesn't get recorded twice.",
         "For SUMIT you need the private API key, not the public one. Otherwise the connection will fail."
       ],
       "faq": [
@@ -1113,7 +1113,7 @@
         },
         {
           "q": "The \"Auto-import revenue?\" checkbox — does it record revenue without asking me?",
-          "a": "No. When it's on, it detects invoices you've issued in your invoicing software and adds them to \"Pending imports\". But they're only recorded as revenue after you confirm each one yourself."
+          "a": "No. When it's on, it detects invoices you've issued in your invoicing software and adds them to the \"Invoices you issued in your invoicing service\" list. But they're only recorded as revenue after you confirm each one yourself."
         },
         {
           "q": "Where are the credentials I entered stored?",

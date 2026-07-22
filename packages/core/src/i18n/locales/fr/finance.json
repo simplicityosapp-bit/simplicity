@@ -10,9 +10,7 @@
   "newTx": "+ Nouvelle transaction",
   "loading": "Chargement des transactions…",
   "loadError": "Impossible de charger les transactions : {{error}}",
-  "hideSkipped": "Masquer les ignorées",
-  "showSkipped_one": "Afficher {{count}} ignorée",
-  "showSkipped_other": "Afficher {{count}} ignorées",
+  "hideSkipped": "Masquer ce qui n'a pas eu lieu",
   "deleteRecurring": {
     "title": "Supprimer le modèle récurrent",
     "message": "Supprimer « {{name}} » ? Les transactions déjà créées à partir de ce modèle seront conservées.",
@@ -31,29 +29,35 @@
   },
   "tx": {
     "noDesc": "Aucune description",
-    "skipped": "Ignorée",
-    "credited": "Annulée",
-    "approveTitle": "Confirmer — elle a eu lieu",
-    "skipTitle": "Ignorer — n'a pas eu lieu",
-    "restore": "Remettre en attente",
+    "skipped": "N'a pas eu lieu",
+    "credited": "Annulée par avoir",
+    "approveTitle": "Oui, cela a eu lieu",
+    "skipTitle": "Non, cela n'a pas eu lieu",
+    "restore": "Remettre en attente d'approbation",
     "delete": "Supprimer la transaction"
   },
   "list": {
     "empty": "Aucune transaction ce mois-ci.",
     "confirmed": "Confirmées",
-    "skipped": "Ignorées"
+    "skipped": "N'ont pas eu lieu"
   },
   "pending": {
-    "count_one": "{{count}} transaction en attente",
-    "count_other": "{{count}} transactions en attente",
     "income": "Revenus {{amount}}",
     "expenses": "Dépenses {{amount}}",
     "approving": "Confirmation…",
-    "approveAll": "Tout confirmer",
+    "approveAll": "Tout approuver",
     "noDesc": "Aucune description",
-    "approve": "Confirmer",
-    "skip": "Ignorer",
-    "delete": "Supprimer"
+    "approve": "Oui, cela a eu lieu",
+    "skip": "Non, cela n'a pas eu lieu",
+    "delete": "Supprimer",
+    "approveAllConfirm": {
+      "title": "Approuver toutes les transactions",
+      "message_one": "Approuver {{count}} transaction ? {{totals}}",
+      "message_other": "Approuver {{count}} transactions ? {{totals}}",
+      "confirm": "Tout approuver"
+    },
+    "count_one": "{{count}} transaction en attente d'approbation",
+    "count_other": "{{count}} transactions en attente d'approbation"
   },
   "recurring": {
     "title": "Modèles récurrents",
@@ -102,10 +106,10 @@
     "typeReceipt": "Reçu",
     "typeInvoice": "Facture fiscale",
     "typeDoc": "Document",
-    "heading": "Importation en attente",
+    "heading": "Factures émises dans votre service de facturation",
     "countAria_one": "{{count}} facture à approuver",
     "countAria_other": "{{count}} factures à approuver",
-    "sub": "Factures émises dans le service externe — les importer comme revenu ?",
+    "sub": "Les enregistrer comme revenu ?",
     "docNumber": "n°",
     "noName": "Sans nom",
     "view": "Voir",
@@ -113,8 +117,6 @@
     "importedToast": "Facture importée comme revenu.",
     "dismissedToast": "Facture rejetée.",
     "importingAria": "Importation…",
-    "confirmAria": "Confirmer l'importation de {{amount}} comme revenu",
-    "sure": "Sûr ?",
     "importAria": "Importer comme revenu",
     "importTitle": "Importer comme revenu",
     "dismiss": "Rejeter",
@@ -122,7 +124,10 @@
     "dupMessage": "Vous avez déjà une transaction de revenu pour {{amount}}{{forName}}. L'importer quand même comme revenu supplémentaire ?",
     "dupForName": " à {{name}}",
     "dupConfirm": "Oui, importer",
-    "cancel": "Annuler"
+    "cancel": "Annuler",
+    "confirmTitle": "Importer comme revenu",
+    "confirmMessage": "Enregistrer {{amount}}{{forName}} comme nouveau revenu ?",
+    "confirmBtn": "Oui, importer"
   },
   "docTypes": {
     "invoice_receipt": "Facture/reçu",
@@ -135,5 +140,12 @@
     "credit_card": "Carte de crédit",
     "app": "Appli (Bit/Paybox)",
     "other": "Autre"
-  }
+  },
+  "deleteTx": {
+    "title": "Supprimer la transaction",
+    "message": "Supprimer « {{desc}} » de {{amount}} ?",
+    "confirm": "Supprimer"
+  },
+  "showSkipped_one": "Afficher {{count}} qui n'a pas eu lieu",
+  "showSkipped_other": "Afficher {{count}} qui n'ont pas eu lieu"
 }

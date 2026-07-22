@@ -60,9 +60,15 @@
     "needDate": "יש לבחור תאריך.",
     "status": "סטטוס",
     "statusConfirmed": "אושרה",
-    "statusPending": "ממתינה",
-    "statusSkipped": "דולגה",
-    "delete": "מחק"
+    "statusPending": "מחכה לאישור",
+    "statusSkipped": "לא קרה",
+    "delete": "מחק",
+    "deleteConfirm": {
+      "title": "מחיקת תנועה",
+      "message": "למחוק את \"{{desc}}\" על סך {{amount}}?",
+      "noDesc": "ללא תיאור",
+      "confirm": "מחק"
+    }
   },
   "recurring": {
     "titleNew": "תבנית חוזרת חדשה",
@@ -221,5 +227,11 @@
   "editProject": {
     "title": "עריכת פרויקט",
     "projectName": "שם הפרויקט"
+  },
+  "discard": {
+    "title": "לצאת בלי לשמור?",
+    "message": "מה שמילאת יימחק ולא יישמר.",
+    "confirm": "יציאה בלי לשמור",
+    "cancel": "חזרה לעריכה"
   }
 }

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import Modal from './Modal'
 import DateField from '../components/DateField'
+import SelectMenu from '../components/SelectMenu'
 import { useT } from '../i18n/useT'
 import { Box, Txt, Btn, Input } from '../components/ui'
 
@@ -107,6 +108,13 @@ export default function RecurringModal({ open, onClose, onSave, template, client
 
   const amountInvalid = !!err && !(parseFloat(form.amount) > 0)
 
+  /* Same pickers as the add/edit transaction forms — a template names the same
+     client, project and category, so it should ask for them the same way. */
+  const dayOptions = DAY_NAMES.map((name, i) => ({ value: i, label: name }))
+  const clientOptions = [{ value: '', label: t('common.none') }, ...clients.map((c) => ({ value: c.id, label: c.name }))]
+  const projectOptions = [{ value: '', label: t('common.none') }, ...projects.map((p) => ({ value: p.id, label: p.name }))]
+  const categoryOptions = [{ value: '', label: t('common.noCategory') }, ...categories.map((c) => ({ value: c.id, label: c.name }))]
+
   return (
     <Modal open={open} onClose={close} title={isEdit ? t('recurring.titleEdit') : t('recurring.titleNew')}>
       <Box className="m-field">
@@ -176,13 +184,12 @@ export default function RecurringModal({ open, onClose, onSave, template, client
             ) : (
               <Box className="m-field">
                 <Box as="label" className="m-label">{t('recurring.dayOfWeek')}</Box>
-                <select
-                  className="m-select"
+                <SelectMenu
                   value={form.day_of_week}
-                  onChange={(e) => set('day_of_week', parseInt(e.target.value, 10))}
-                >
-                  {DAY_NAMES.map((name, i) => <option key={i} value={i}>{name}</option>)}
-                </select>
+                  onChange={(v) => set('day_of_week', parseInt(v, 10))}
+                  options={dayOptions}
+                  ariaLabel={t('recurring.dayOfWeek')}
+                />
               </Box>
             )}
             <Box className="m-field">
@@ -199,27 +206,26 @@ export default function RecurringModal({ open, onClose, onSave, template, client
       <Box className="m-row2">
         <Box className="m-field">
           <Box as="label" className="m-label">{form.trigger_type === 'on_meeting' ? t('recurring.clientRequired') : t('recurring.clientOptional')}</Box>
-          <select className="m-select" value={form.client_id} onChange={(e) => set('client_id', e.target.value)}>
-            <option value="">{t('common.none')}</option>
-            {clients.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
-          </select>
+          <SelectMenu
+            value={form.client_id}
+            onChange={(v) => set('client_id', v)}
+            options={clientOptions}
+            placeholder={t('common.none')}
+            ariaLabel={t('common.client')}
+            searchable
+            searchPlaceholder={t('common.client')}
+          />
         </Box>
         <Box className="m-field">
           <Box as="label" className="m-label">{t('recurring.projectOptional')}</Box>
-          <select className="m-select" value={form.project_id} onChange={(e) => set('project_id', e.target.value)}>
-            <option value="">{t('common.none')}</option>
-            {projects.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
-          </select>
+          <SelectMenu value={form.project_id} onChange={(v) => set('project_id', v)} options={projectOptions} placeholder={t('common.none')} ariaLabel={t('common.project')} />
         </Box>
       </Box>
 
       {form.type === 'expense' && (
         <Box className="m-field">
           <Box as="label" className="m-label">{t('common.category')}</Box>
-          <select className="m-select" value={form.category_id} onChange={(e) => set('category_id', e.target.value)}>
-            <option value="">{t('common.noCategory')}</option>
-            {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
-          </select>
+          <SelectMenu value={form.category_id} onChange={(v) => set('category_id', v)} options={categoryOptions} placeholder={t('common.noCategory')} ariaLabel={t('common.category')} />
         </Box>
       )}
 

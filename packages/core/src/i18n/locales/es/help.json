@@ -101,7 +101,7 @@
         },
         {
           "title": "Widget de alertas (necesita atención)",
-          "body": "Una tarjeta que reúne en un solo lugar todo lo que te espera: transacciones por confirmar, sesiones que aún no has marcado, clientes con saldo pendiente, una diferencia respecto al objetivo mensual, tareas urgentes, clientes con los que no has hablado en 45 días, prospectos sin actividad, seguimientos para hoy y duplicados con Google Calendar. Las transacciones y sesiones abren una ventana de confirmación (confirmar / saltar / eliminar); todo lo demás te lleva a la pantalla correspondiente."
+          "body": "Una tarjeta que reúne en un solo lugar todo lo que te espera: transacciones por confirmar, sesiones que aún no has marcado, clientes con saldo pendiente, una diferencia respecto al objetivo mensual, tareas urgentes, clientes con los que no has hablado en 45 días, prospectos sin actividad, seguimientos para hoy y duplicados con Google Calendar. Las transacciones abren una ventana donde cada fila tiene «Sí, ocurrió», «No, no ocurrió» y eliminar; las sesiones abren una ventana de confirmación (confirmar / saltar / eliminar); todo lo demás te lleva a la pantalla correspondiente."
         },
         {
           "title": "Confirmar sesiones desde Inicio",
@@ -151,7 +151,7 @@
         },
         {
           "q": "¿Por qué el número «Neto» de las tarjetas de estado no coincide con lo que introduje?",
-          "a": "La tarjeta cuenta solo transacciones confirmadas (no las pendientes ni las saltadas) y muestra el neto del rango de tiempo que seleccionaste en la ventana de filtro (por defecto: este mes). Las transacciones pendientes aparecen aparte en «Necesita atención»."
+          "a": "La tarjeta cuenta solo transacciones confirmadas (ni las que esperan aprobación ni las marcadas como «No ocurrió») y muestra el neto del rango de tiempo que seleccionaste en la ventana de filtro (por defecto: este mes). Las transacciones que esperan aprobación aparecen aparte en «Necesita atención»."
         },
         {
           "q": "Marqué un recordatorio recurrente como hecho, ¿desapareció?",
@@ -359,8 +359,8 @@
           "body": "El botón «+ Nueva transacción» abre una ventana donde eliges «+ Ingreso» o «− Gasto» y rellenas el importe, la fecha, la descripción y el cliente/proyecto. Para los gastos, puedes seleccionar una categoría (o crear una nueva al instante). La transacción se guarda en el mes de la fecha que elegiste."
         },
         {
-          "title": "Una fecha futura se guarda como pendiente",
-          "body": "Una transacción con fecha futura se guarda automáticamente como «Pendiente» hasta que llega ese día, y se sitúa en la tarjeta de pendientes de aprobación. Una transacción con fecha de hoy o del pasado se guarda como «Aprobada» y entra directamente en el resumen."
+          "title": "Una fecha futura se guarda como «Esperando aprobación»",
+          "body": "Una transacción con fecha futura se guarda automáticamente como «Esperando aprobación» hasta que llega ese día, y se sitúa en la tarjeta de transacciones que esperan aprobación. Una transacción con fecha de hoy o del pasado se guarda como «Confirmada» y entra directamente en el resumen."
         },
         {
           "title": "Emitir un recibo al guardar",
@@ -368,27 +368,27 @@
         },
         {
           "title": "Resumen mensual y navegación entre meses",
-          "body": "En la parte superior de la pantalla verás «Neto este mes», «Ingresos» y «Gastos» del mes seleccionado, con flechas para ir al mes anterior o siguiente. Cada número también muestra el cambio porcentual respecto al mes anterior. El resumen cuenta solo transacciones aprobadas: las pendientes, saltadas o canceladas por una nota de crédito no se incluyen."
+          "body": "En la parte superior de la pantalla verás «Neto este mes», «Ingresos» y «Gastos» del mes seleccionado, con flechas para ir al mes anterior o siguiente. Cada número también muestra el cambio porcentual respecto al mes anterior. El resumen cuenta solo transacciones confirmadas: las que esperan aprobación, las marcadas como «No ocurrió» o las anuladas por una nota de crédito no se incluyen."
         },
         {
           "title": "Gráfico de ingresos acumulados",
           "body": "Un gráfico que muestra cómo se acumularon los ingresos aprobados día a día a lo largo del mes seleccionado, con un punto en el día actual. Si has fijado un objetivo de ingresos mensual en la pantalla de Objetivos, se muestran una línea de objetivo discontinua y el porcentaje de logro. Si no, aparece en su lugar un enlace para fijar un objetivo de ingresos mensual."
         },
         {
-          "title": "Transacciones pendientes y aprobación en lote",
-          "body": "Todas las transacciones pendientes del mes se sitúan en una tarjeta aparte, mostrando el total de ingresos y gastos pendientes. Cada fila tiene «Aprobar» (la transacción ocurrió) y «Saltar» (no ocurrió). Al hacer clic en una fila se abre la edición, y sobre una lista de más de una hay un botón «Aprobar todas»."
+          "title": "Transacciones que esperan aprobación y aprobación en lote",
+          "body": "Todas las transacciones del mes que esperan aprobación se sitúan en una tarjeta aparte, mostrando el total de ingresos y gastos en espera. Cada fila tiene «Sí, ocurrió» y «No, no ocurrió». Al hacer clic en una fila se abre la edición, y sobre una lista de más de una hay un botón «Aprobar todas», que primero abre una ventana de confirmación indicando cuántas transacciones son y los totales de ingresos y gastos."
         },
         {
-          "title": "Lista de transacciones: aprobadas y saltadas",
-          "body": "Debajo de la tarjeta de pendientes, las transacciones se agrupan en «Aprobadas» y «Saltadas». Una transacción saltada muestra una etiqueta «Saltada» con el importe tachado, y puedes devolverla a pendiente. Cuando hay transacciones saltadas, aparece un botón para mostrarlas u ocultarlas («Mostrar N saltadas» / «Ocultar saltadas»)."
+          "title": "Lista de transacciones: confirmadas y las que no ocurrieron",
+          "body": "Debajo de la tarjeta de las que esperan aprobación, las transacciones se agrupan en «Confirmadas» y «No ocurrieron». Una transacción que marcaste así lleva una etiqueta «No ocurrió» con el importe tachado, y puedes devolverla a la espera de aprobación. Cuando hay transacciones de este tipo, aparece un botón para mostrarlas u ocultarlas («Mostrar N que no ocurrieron» / «Ocultar lo que no ocurrió»)."
         },
         {
           "title": "Eliminar una transacción desde la lista o la edición",
-          "body": "Cada transacción aprobada o saltada tiene un botón de eliminar en la lista, y la ventana de edición también tiene un botón «Eliminar». Justo después de eliminarla, aparece una notificación de deshacer para que puedas restaurar la transacción."
+          "body": "Cada transacción, confirmada o marcada como «No ocurrió», tiene un botón de eliminar en la lista, y la ventana de edición también tiene un botón «Eliminar». En ambos casos se abre primero una ventana de confirmación con la descripción y el importe de la transacción, y solo se elimina cuando confirmas. Justo después, aparece una notificación de deshacer para que puedas restaurarla."
         },
         {
           "title": "Plantillas recurrentes (órdenes permanentes)",
-          "body": "En la sección «Plantillas recurrentes» configuras transacciones que se repiten automáticamente: «Por calendario» (mensual en un día concreto, o semanal en un día de la semana concreto, con una fecha de fin opcional) o «Tras una sesión» (crea una transacción pendiente por cada sesión con el cliente que elijas, y se cierra automáticamente si la sesión se salta). El sistema genera transacciones pendientes a partir de estas que tienes que aprobar."
+          "body": "En la sección «Plantillas recurrentes» configuras transacciones que se repiten automáticamente: «Por calendario» (mensual en un día concreto, o semanal en un día de la semana concreto, con una fecha de fin opcional) o «Tras una sesión» (crea una transacción que espera aprobación por cada sesión con el cliente que elijas, y se cierra automáticamente si la sesión se salta). A partir de estas plantillas el sistema genera transacciones que esperan tu aprobación."
         },
         {
           "title": "Pausar, editar y eliminar una plantilla",
@@ -403,12 +403,12 @@
           "body": "Dos tarjetas muestran un desglose en columnas: «Ingresos por proyecto» reparte los ingresos aprobados entre los proyectos (los ingresos sin proyecto van a «Sin proyecto»), y «Gastos por categoría» reparte los gastos aprobados por categoría («Sin categoría» para lo que no esté etiquetado)."
         },
         {
-          "title": "Importación pendiente desde facturas",
-          "body": "Si has conectado Green Invoice o SUMIT, las facturas que has emitido en el servicio externo aparecen en la sección «Importación pendiente». Cada factura tiene un enlace «Ver» al documento, y puedes importarla como ingreso (con una confirmación en dos pasos) o descartarla. Si ya hay un ingreso para el mismo cliente e importe, aparece una advertencia «Posible duplicado» con una confirmación adicional antes de importar."
+          "title": "Facturas que emitiste en tu servicio de facturación",
+          "body": "Si has conectado Green Invoice o SUMIT, las facturas que has emitido en el servicio externo aparecen en la sección «Facturas que emitiste en tu servicio de facturación». Cada factura tiene un enlace «Ver» al documento, y puedes importarla como ingreso o descartarla. Al importar se abre una ventana de confirmación con el importe y el nombre del cliente antes de registrar nada. Si ya hay un ingreso para el mismo cliente e importe, aparece la etiqueta «Posible duplicado» y esa misma ventana se formula como una advertencia más fuerte."
         },
         {
           "title": "Emitir una factura y una nota de crédito desde la edición",
-          "body": "Al hacer clic en un ingreso se abre la edición, y ahí —si has conectado un servicio de facturación— aparece «Emitir factura»: elige un tipo de documento, un producto del catálogo del proveedor o texto libre, y un método de pago (para los documentos de tipo recibo). Tras emitir, verás el número del documento y un enlace para verlo, y un botón «Abonar / Cancelar» que emite una nota de crédito: esto cancela el documento y elimina el ingreso de los resúmenes (la transacción se marca como «Cancelada»)."
+          "body": "Al hacer clic en un ingreso se abre la edición, y ahí —si has conectado un servicio de facturación— aparece «Emitir factura»: elige un tipo de documento, un producto del catálogo del proveedor o texto libre, y un método de pago (para los documentos de tipo recibo). Tras emitir, verás el número del documento y un enlace para verlo, y un botón «Abonar / Cancelar» que emite una nota de crédito: esto cancela el documento y elimina el ingreso de los resúmenes (la transacción se marca como «Anulada por nota de crédito»)."
         },
         {
           "title": "Exportar a CSV",
@@ -417,23 +417,23 @@
       ],
       "tips": [
         "Todos los números de la pantalla —el resumen, el gráfico y los desgloses— son del mes mostrado arriba. Si parece que falta una transacción, comprueba que estás en el mes correcto según su fecha.",
-        "Solo las transacciones «Aprobadas» cuentan para el resumen y el gráfico. Las pendientes aparecen aparte hasta que las apruebas, y las saltadas o canceladas quedan excluidas de los totales.",
+        "Solo las transacciones «Confirmadas» cuentan para el resumen y el gráfico. Las que esperan aprobación aparecen aparte hasta que las apruebas, y las marcadas como «No ocurrió» o anuladas por una nota de crédito quedan excluidas de los totales.",
         "Para gastos fijos como el alquiler, las suscripciones o los suministros, configura una plantilla recurrente para que la transacción se cree automáticamente cada mes y nunca olvides registrarla.",
         "Puedes crear una nueva categoría de gastos directamente desde la ventana de transacción («+ Nueva categoría...») sin salir de ella.",
-        "¿Eliminaste una transacción? Puedes restaurarla de inmediato con la notificación de deshacer que aparece justo después de eliminarla."
+        "Al eliminar una transacción se abre primero una ventana de confirmación con su descripción e importe; una vez eliminada, la notificación de deshacer te permite restaurarla de inmediato."
       ],
       "faq": [
         {
           "q": "Registré una transacción pero no aparece en la lista ni en el resumen, ¿por qué?",
-          "a": "Primero comprueba que estás en el mes correcto (según la fecha de la transacción). Una transacción con fecha futura se guarda como «Pendiente» y se sitúa aparte en la tarjeta de pendientes hasta que la apruebas: solo una transacción aprobada cuenta para el resumen."
+          "a": "Primero comprueba que estás en el mes correcto (según la fecha de la transacción). Una transacción con fecha futura se guarda como «Esperando aprobación» y se sitúa aparte, en la tarjeta de las que esperan aprobación, hasta que la apruebas: solo una transacción confirmada cuenta para el resumen."
         },
         {
           "q": "¿Por qué el resumen de arriba no coincide con lo que espero?",
-          "a": "El resumen cuenta solo transacciones «Aprobadas». Las pendientes, las que has saltado o las canceladas por una nota de crédito no se cuentan en los totales de neto, ingresos o gastos."
+          "a": "El resumen cuenta solo transacciones «Confirmadas». Las que esperan aprobación, las que marcaste como «No ocurrió» o las anuladas por una nota de crédito no se cuentan en los totales de neto, ingresos o gastos."
         },
         {
           "q": "¿Cómo configuro una orden permanente?",
-          "a": "En la sección «Plantillas recurrentes», haz clic en «+ Nueva plantilla», elige «Por calendario» (mensual o semanal) o «Tras una sesión», y fija el importe, el día y la fecha de fin. El sistema generará transacciones pendientes según tu configuración, que luego apruebas."
+          "a": "En la sección «Plantillas recurrentes», haz clic en «+ Nueva plantilla», elige «Por calendario» (mensual o semanal) o «Tras una sesión», y fija el importe, el día y la fecha de fin. El sistema generará transacciones que esperan aprobación según tu configuración, que luego apruebas."
         },
         {
           "q": "Eliminé una plantilla recurrente, ¿qué pasa con las transacciones ya generadas a partir de ella?",
@@ -445,7 +445,7 @@
         },
         {
           "q": "Eliminé una transacción por error, ¿puedo recuperarla?",
-          "a": "Sí. Justo después de eliminarla, aparece una notificación de deshacer para que puedas restaurar la transacción. También puedes deshacer la marca de «saltada» de una transacción y devolverla a pendiente."
+          "a": "Sí. Antes de eliminar se abre una ventana de confirmación con la descripción y el importe, y justo después aparece una notificación de deshacer para que puedas restaurar la transacción. También puedes deshacer la marca «No ocurrió» y devolver la transacción a la espera de aprobación."
         }
       ]
     },
@@ -949,7 +949,7 @@
         },
         {
           "q": "La puntuación no cambia, ¿por qué?",
-          "a": "La puntuación se actualiza cuando cambian los datos que alimentan tus objetivos: transacciones de ingreso confirmadas (no pendientes ni saltadas), respuestas del registro diario, número de clientes activos, prospectos y conversiones de prospectos, recuentos de miembros de grupo, y entradas manuales que has registrado en los objetivos. Actualiza esos datos y la puntuación se moverá."
+          "a": "La puntuación se actualiza cuando cambian los datos que alimentan tus objetivos: transacciones de ingreso confirmadas (ni las que esperan aprobación ni las marcadas como «No ocurrió»), respuestas del registro diario, número de clientes activos, prospectos y conversiones de prospectos, recuentos de miembros de grupo, y entradas manuales que has registrado en los objetivos. Actualiza esos datos y la puntuación se moverá."
         }
       ]
     },
@@ -1082,8 +1082,8 @@
           "body": "Cuando la facturación está conectada, puedes activar la casilla «¿Importar ingresos automáticamente?». Cuando está activada, el sistema detecta las facturas que has emitido en tu software de facturación y pregunta si registrarlas también aquí como ingresos. No registrará nada sin tu confirmación."
         },
         {
-          "title": "Importaciones pendientes",
-          "body": "Debajo de la tarjeta de facturación hay una lista «Importaciones pendientes»: facturas que has emitido en el servicio externo y que esperan tu aprobación. Cada fila muestra el tipo y número de documento, el importe, el nombre del cliente, un enlace «Ver» al documento (si está disponible), y un botón de confirmación («Importar como ingreso», requiere dos clics) o un botón de rechazo. Si parece un duplicado de una transacción existente, aparece una advertencia suave antes de que confirmes."
+          "title": "Facturas que emitiste en tu servicio de facturación",
+          "body": "Debajo de la tarjeta de facturación hay una lista «Facturas que emitiste en tu servicio de facturación»: facturas que has emitido en el servicio externo y que esperan tu aprobación. Cada fila muestra el tipo y número de documento, el importe, el nombre del cliente, un enlace «Ver» al documento (si está disponible), y un botón de importación («Importar como ingreso») o uno de rechazo. Al importar se abre una ventana de confirmación con exactamente lo que se va a registrar. Si parece un duplicado de una transacción existente, esa misma ventana se formula como una advertencia más fuerte."
         }
       ],
       "tips": [
@@ -1091,7 +1091,7 @@
         "Vale la pena asociar manualmente los eventos que el sistema no reconoció («Sin identificar»), con un cliente, proyecto, prospecto o grupo. La asociación se guarda y no será sobrescrita por futuras sincronizaciones.",
         "¿No estás seguro de si tus credenciales de facturación siguen siendo válidas? Haz clic en «Probar conexión» en la página de Facturación. Comprueba con el servicio sin desconectar nada.",
         "El Secret de Green Invoice solo se muestra una vez, cuando creas la clave. Cópialo de inmediato, antes de cerrar la ventana.",
-        "Si ya registraste un ingreso manualmente y también aparece en «Importaciones pendientes» con una etiqueta «Posible duplicado», rechaza la importación para que no se registre dos veces.",
+        "Si ya registraste un ingreso manualmente y también aparece en «Facturas que emitiste en tu servicio de facturación» con una etiqueta «Posible duplicado», rechaza la importación para que no se registre dos veces.",
         "Para SUMIT necesitas la API key privada, no la pública. De lo contrario la conexión fallará."
       ],
       "faq": [
@@ -1113,7 +1113,7 @@
         },
         {
           "q": "La casilla «¿Importar ingresos automáticamente?», ¿registra ingresos sin preguntarme?",
-          "a": "No. Cuando está activada, detecta las facturas que has emitido en tu software de facturación y las añade a «Importaciones pendientes». Pero solo se registran como ingresos después de que confirmes cada una tú mismo."
+          "a": "No. Cuando está activada, detecta las facturas que has emitido en tu software de facturación y las añade a la lista «Facturas que emitiste en tu servicio de facturación». Pero solo se registran como ingresos después de que confirmes cada una tú mismo."
         },
         {
           "q": "¿Dónde se almacenan las credenciales que introduje?",

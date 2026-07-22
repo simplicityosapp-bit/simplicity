@@ -58,9 +58,15 @@
     "needDate": "Elige una fecha.",
     "status": "Estado",
     "statusConfirmed": "Confirmada",
-    "statusPending": "Pendiente",
-    "statusSkipped": "Omitida",
-    "delete": "Eliminar"
+    "statusPending": "Esperando aprobación",
+    "statusSkipped": "No ocurrió",
+    "delete": "Eliminar",
+    "deleteConfirm": {
+      "title": "Eliminar transacción",
+      "message": "¿Eliminar \"{{desc}}\" por {{amount}}?",
+      "noDesc": "Sin descripción",
+      "confirm": "Eliminar"
+    }
   },
   "recurring": {
     "titleNew": "Nueva plantilla recurrente",
@@ -201,5 +207,11 @@
   "editProject": {
     "title": "Editar proyecto",
     "projectName": "Nombre del proyecto"
+  },
+  "discard": {
+    "title": "¿Salir sin guardar?",
+    "message": "Lo que has escrito se perderá.",
+    "confirm": "Salir sin guardar",
+    "cancel": "Seguir editando"
   }
 }

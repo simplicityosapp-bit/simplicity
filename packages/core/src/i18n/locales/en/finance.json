@@ -10,8 +10,7 @@
   "newTx": "+ New transaction",
   "loading": "Loading transactions…",
   "loadError": "Couldn't load transactions: {{error}}",
-  "hideSkipped": "Hide skipped",
-  "showSkipped": "Show {{count}} skipped",
+  "hideSkipped": "Hide what didn't happen",
   "deleteRecurring": {
     "title": "Delete recurring template",
     "message": "Delete \"{{name}}\"? Transactions already created from it will stay.",
@@ -30,29 +29,35 @@
   },
   "tx": {
     "noDesc": "No description",
-    "skipped": "Skipped",
-    "credited": "Cancelled",
-    "approveTitle": "Confirm — it happened",
-    "skipTitle": "Skip — didn't happen",
-    "restore": "Move back to pending",
+    "skipped": "Didn't happen",
+    "credited": "Cancelled by credit note",
+    "approveTitle": "Yes, this happened",
+    "skipTitle": "No, this didn't happen",
+    "restore": "Move back to awaiting approval",
     "delete": "Delete transaction"
   },
   "list": {
     "empty": "No transactions this month.",
     "confirmed": "Confirmed",
-    "skipped": "Skipped"
+    "skipped": "Didn't happen"
   },
   "pending": {
-    "count_one": "{{count}} pending transaction",
-    "count_other": "{{count}} pending transactions",
     "income": "Income {{amount}}",
     "expenses": "Expenses {{amount}}",
     "approving": "Confirming…",
-    "approveAll": "Confirm all",
+    "approveAll": "Approve all",
     "noDesc": "No description",
-    "approve": "Confirm",
-    "skip": "Skip",
-    "delete": "Delete"
+    "approve": "Yes, it happened",
+    "skip": "No, it didn't",
+    "delete": "Delete",
+    "approveAllConfirm": {
+      "title": "Approve all transactions",
+      "message_one": "Approve {{count}} transaction? {{totals}}",
+      "message_other": "Approve {{count}} transactions? {{totals}}",
+      "confirm": "Approve all"
+    },
+    "count_one": "{{count}} transaction awaiting approval",
+    "count_other": "{{count}} transactions awaiting approval"
   },
   "recurring": {
     "title": "Recurring templates",
@@ -101,10 +106,10 @@
     "typeReceipt": "Receipt",
     "typeInvoice": "Tax invoice",
     "typeDoc": "Document",
-    "heading": "Pending import",
+    "heading": "Invoices you issued in your invoicing service",
     "countAria_one": "{{count}} invoice to approve",
     "countAria_other": "{{count}} invoices to approve",
-    "sub": "Invoices issued in the external service — import as income?",
+    "sub": "Record them as income?",
     "docNumber": "no.",
     "noName": "No name",
     "view": "View",
@@ -112,8 +117,6 @@
     "importedToast": "Invoice imported as income.",
     "dismissedToast": "Invoice dismissed.",
     "importingAria": "Importing…",
-    "confirmAria": "Confirm importing {{amount}} as income",
-    "sure": "Sure?",
     "importAria": "Import as income",
     "importTitle": "Import as income",
     "dismiss": "Dismiss",
@@ -121,7 +124,10 @@
     "dupMessage": "You already have an income transaction for {{amount}}{{forName}}. Import it anyway as additional income?",
     "dupForName": " to {{name}}",
     "dupConfirm": "Yes, import",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "confirmTitle": "Import as income",
+    "confirmMessage": "Record {{amount}}{{forName}} as new income?",
+    "confirmBtn": "Yes, import"
   },
   "docTypes": {
     "invoice_receipt": "Tax invoice/receipt",
@@ -134,5 +140,12 @@
     "credit_card": "Credit card",
     "app": "App (Bit/Paybox)",
     "other": "Other"
-  }
+  },
+  "deleteTx": {
+    "title": "Delete transaction",
+    "message": "Delete \"{{desc}}\" for {{amount}}?",
+    "confirm": "Delete"
+  },
+  "showSkipped_one": "Show {{count}} that didn't happen",
+  "showSkipped_other": "Show {{count}} that didn't happen"
 }

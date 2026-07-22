@@ -102,9 +102,6 @@
 }
 .inv-import-btn.approve { color: var(--sage); }
 .inv-import-btn.approve:hover { background: color-mix(in srgb, var(--sage) 14%, transparent); }
-/* Armed two-step confirm — filled sage so the irreversible step reads clearly. */
-.inv-import-btn.approve.confirm { background: var(--sage); color: var(--on-accent); border-color: transparent; }
-[data-theme="dark"] .inv-import-btn.approve.confirm { color: var(--ink-on-accent); }
 .inv-import-btn.dismiss { color: var(--stone); }
 .inv-import-btn.dismiss:hover { background: color-mix(in srgb, var(--clay) 12%, transparent); color: var(--clay); }
 .inv-import-btn:disabled { opacity: 0.5; cursor: default; }

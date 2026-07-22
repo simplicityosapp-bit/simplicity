@@ -71,6 +71,18 @@ export function useHomeEdit({ list, onChange, stackRef, pinnedIds = [] }) {
     return () => window.removeEventListener('keydown', onKey)
   }, [editing, exit])
 
+  /* Flag the mode on <html>, the way PrefsApplier flags theme and density.
+     Chrome that lives OUTSIDE the screen — the help FAB is a sibling of the
+     router in App.jsx — cannot be reached from here by class, and it sits
+     exactly where the edit bar appears. Cleaned up on exit AND on unmount, so
+     navigating away mid-edit cannot strand the attribute. */
+  useEffect(() => {
+    const root = document.documentElement
+    if (editing) root.setAttribute('data-home-editing', '')
+    else root.removeAttribute('data-home-editing')
+    return () => root.removeAttribute('data-home-editing')
+  }, [editing])
+
   useEffect(() => () => clearTimer(), [])
 
   /* Which reorderable widget is under this point. Nearest centre, so it works

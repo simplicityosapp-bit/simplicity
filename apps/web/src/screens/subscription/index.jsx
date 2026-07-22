@@ -1,6 +1,9 @@
+import { Navigate } from 'react-router-dom'
 import { Check, Gem, ExternalLink } from 'lucide-react'
 import { useT } from '../../i18n/useT'
 import { TIERS, PRICES, CHECKOUT_URL } from '@simplicity/core'
+import { ROUTES } from '../../lib/routes'
+import { SUBSCRIPTION_NAV_ENABLED } from '../../lib/subscriptionNav'
 import { Box, Txt, Lnk } from '../../components/ui'
 import './SubscriptionScreen.css'
 
@@ -25,6 +28,12 @@ const BASIC_BENEFITS = ['unlimited', 'invoicing', 'pages']
    ════════════════════════════════════════════════════════════════ */
 export default function SubscriptionScreen() {
   const { t } = useT('subscription')
+
+  /* Held back while the billing model is being settled: the purchase CTA below
+     opens a real Grow payment page, so the screen is closed outright rather
+     than merely dropped from the menu. Nothing here is deleted — flipping
+     SUBSCRIPTION_NAV_ENABLED back on restores the screen as-is. */
+  if (!SUBSCRIPTION_NAV_ENABLED) return <Navigate to={ROUTES.HOME} replace />
 
   return (
     <Box className="screen">

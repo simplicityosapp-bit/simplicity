@@ -8,6 +8,7 @@ import {
 import { DRAWER_NAV } from '../lib/nav'
 import { ROUTES } from '../lib/routes'
 import { COMMUNITY_ENABLED } from '../lib/community'
+import { SUBSCRIPTION_NAV_ENABLED } from '../lib/subscriptionNav'
 import { isAdminUser } from '../lib/admin'
 import { roleLabel } from '../lib/preferences'
 import { useUserPreferences } from '../hooks/useUserPreferences'
@@ -146,14 +147,18 @@ export default function MenuDrawer({ open, onClose, screen, isDark, onToggleThem
           </Btn>
         )}
 
-        {/* המנוי של המשתמש — מסלול Simplicity שלו (הועבר מ"הגדרות"). */}
-        <Btn className="drawer-link" onClick={() => goTo(ROUTES.SUBSCRIPTION)}>
-          <Txt className="drawer-link-icon"><Gem size={18} strokeWidth={1.5} /></Txt>
-          <Txt className="drawer-link-text">
-            {t('extras.subscription')}
-            <Txt className="drawer-link-text-sub">{t('items.subscriptionSub')}</Txt>
-          </Txt>
-        </Btn>
+        {/* המנוי של המשתמש — מסלול Simplicity שלו (הועבר מ"הגדרות").
+            מוסתר כל עוד SUBSCRIPTION_NAV_ENABLED כבוי — במסך יש כפתור רכישה
+            אמיתי, ולכן גם המסלול עצמו מפנה הביתה ולא רק מוסתר מהתפריט. */}
+        {SUBSCRIPTION_NAV_ENABLED && (
+          <Btn className="drawer-link" onClick={() => goTo(ROUTES.SUBSCRIPTION)}>
+            <Txt className="drawer-link-icon"><Gem size={18} strokeWidth={1.5} /></Txt>
+            <Txt className="drawer-link-text">
+              {t('extras.subscription')}
+              <Txt className="drawer-link-text-sub">{t('items.subscriptionSub')}</Txt>
+            </Txt>
+          </Btn>
+        )}
 
         <Btn className="drawer-link tint-purple" onClick={() => goTo(ROUTES.INSIGHTS)}>
           <Txt className="drawer-link-icon"><Activity size={18} strokeWidth={1.5} /></Txt>

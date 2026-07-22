@@ -1,15 +1,18 @@
 /* ════════════════════════════════════════════════════════════════
    FIELD CRYPTO — the api-layer choke point for field encryption.
    ════════════════════════════════════════════════════════════════
-   ENCRYPTED_FIELDS lists which columns are encrypted per table. The api
-   modules call encryptRow() before writing and decryptRow()/decryptRows()
-   after reading, so ciphertext exists ONLY in the database — every caller
-   (hooks, CSV import, CSV/XLSX export) sees plaintext transparently.
+   ENCRYPTION IS OFF. ENCRYPTED_FIELDS is empty (see below), so encryptRow()
+   is a no-op and every field reaches Supabase as PLAINTEXT. The api modules
+   still call encryptRow() before writing and decryptRow()/decryptRows() after
+   reading, but only the decrypt side does anything: it turns leftover legacy
+   "ENC:" values back into text, so every caller (hooks, CSV import, CSV/XLSX
+   export) sees plaintext transparently.
 
    The active key is published here by CryptoContext on login (setActiveKey)
    and cleared on logout. It is the SAME CryptoKey held in React context,
    mirrored to this plain-JS module so the api layer can reach it. Still
-   memory-only; never persisted. See docs/ENCRYPTION_PLAN.md.
+   memory-only; never persisted — and now needed ONLY to read legacy
+   ciphertext. See docs/security-review-2026-06.md.
    ════════════════════════════════════════════════════════════════ */
 import { encryptField, decryptField } from './crypto'
 

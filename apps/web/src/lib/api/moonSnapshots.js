@@ -7,9 +7,13 @@
    Table has UNIQUE(user_id, date) — upsert by (user_id, date) to
    overwrite today's row when the score recalculates within a day.
 
-   `reflection` (the user's free-text daily note) is encrypted at rest
-   (see lib/fieldCrypto.js): encrypted on write, decrypted on read. The
-   score/paced/breakdown stay plaintext (they're the "usage" trend data).
+   `reflection` (the user's free-text daily note) is stored as PLAINTEXT at
+   rest, as are score/paced/breakdown — field encryption was removed 2026-06
+   (see docs/security-review-2026-06.md). encryptRow() below is a no-op
+   (ENCRYPTED_FIELDS is empty); decryptRow()/decryptRows() are retained only to
+   transparently read legacy "ENC:" ciphertext via LEGACY_DECRYPT_FIELDS until
+   the one-time backfill rewrites it. Nothing is encrypted on write. At rest
+   these rows are protected by RLS alone (plus HTTPS/TLS in transit).
    ════════════════════════════════════════════════════════════════ */
 
 import { supabase } from '../supabase'

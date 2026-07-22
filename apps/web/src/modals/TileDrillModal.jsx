@@ -332,7 +332,7 @@ export default function TileDrillModal({
   clients = [], groups = [], members = [], projects = [], categories = [],
   transactions = [],
   netSummary = {},
-  meetings = [], calendarEvents = [], leads = [], reminders = [], sessions = [], addSession, updateMeeting, waMsg,
+  meetings = [], calendarEvents = [], leads = [], reminders = [], sessions = [], addSession, removeSession, putBackSession, updateMeeting, waMsg,
 }) {
   const { t } = useT('modalsSystem')
   const { t: tb } = useT('modalsTask') // reuse the calendar's one-off charge strings
@@ -361,7 +361,7 @@ export default function TileDrillModal({
   const confirmToday = async (it) => {
     if (it.meeting && addSession && updateMeeting) {
       const c = it.meeting.subject_type === 'client' ? (clients || []).find((x) => x.id === it.meeting.subject_id) : null
-      await confirmScheduledMeeting({ meeting: it.meeting, sessions, addSession, updateMeeting, clients })
+      await confirmScheduledMeeting({ meeting: it.meeting, sessions, addSession, updateMeeting, removeSession, putBackSession, clients })
       if (c?.billing_mode === 'per_session') setBillPrompt({ meeting: it.meeting, client: c })
     }
   }

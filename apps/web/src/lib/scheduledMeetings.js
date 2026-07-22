@@ -12,7 +12,11 @@
    ════════════════════════════════════════════════════════════════ */
 
 import i18n from '@simplicity/core/i18n'
-import { showToast, showError } from './toast'
+/* No showToast here any more: confirm and skip both register an undo, and the
+   undo toast carries the same wording plus a way back. Two toasts firing for
+   one action just stacked on top of each other. */
+import { showError } from './toast'
+import { pushUndo } from './undo'
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000
 const DEFAULT_WEEKS_AHEAD = 4
@@ -170,8 +174,12 @@ function nextSessionNum(sessions, m) {
    fails, still mark confirmed so the row doesn't get stuck. Shared by the home
    review widget and the calendar event-details flow so both surfaces update
    the card identically. */
-export async function confirmScheduledMeeting({ meeting, sessions, addSession, updateMeeting, clients = [] }) {
+export async function confirmScheduledMeeting({ meeting, sessions, addSession, updateMeeting, removeSession, putBackSession, clients = [] }) {
   try {
+    /* Captured BEFORE anything changes, so undo restores what was actually
+       there rather than assuming 'pending' / null. */
+    const prevStatus = meeting.status
+    const prevSessionId = meeting.session_id ?? null
     /* Per-session clients bill each meeting through the explicit one-off charge
        prompt (the calendar's billSession), so auto-materialising a session here
        too would double-count. The calendar screen guarded this inline; centralise
@@ -182,6 +190,10 @@ export async function confirmScheduledMeeting({ meeting, sessions, addSession, u
       ? (clients || []).find((c) => c.id === meeting.subject_id)
       : null
     const perSession = subjectClient?.billing_mode === 'per_session'
+    /* Which session, if any, this confirmation brought into existence. Kept
+       mutable: undo soft-deletes it, redo restores THAT SAME row rather than
+       inserting a new one, so ids stay stable across repeated undo/redo. */
+    let madeSessionId = null
     if (meeting.session_id || perSession) {
       await updateMeeting(meeting.id, { status: 'confirmed' })
     } else {
@@ -202,9 +214,28 @@ export async function confirmScheduledMeeting({ meeting, sessions, addSession, u
           num: nextSessionNum(sessions, meeting),
         })
       } catch { /* session insert failed — fall through to mark confirmed */ }
+      madeSessionId = session?.id ?? null
       await updateMeeting(meeting.id, session ? { status: 'confirmed', session_id: session.id } : { status: 'confirmed' })
     }
-    showToast(i18n.t('calendar:toast.meetingConfirmed'))
+
+    /* Confirming is the most consequential one-tap action on the home screen:
+       it materialises a real session, which feeds the client's session count
+       and their balance. It had no way back — no confirm step, no undo — while
+       merely snoozing a client did offer one. It offers one now.
+
+       The undo toast REPLACES the plain confirmation toast rather than
+       stacking with it; it carries the same wording plus the way out. */
+    pushUndo({
+      label: i18n.t('calendar:toast.meetingConfirmed'),
+      undo: async () => {
+        if (madeSessionId && removeSession) await removeSession(madeSessionId, { silent: true })
+        await updateMeeting(meeting.id, { status: prevStatus, session_id: prevSessionId })
+      },
+      redo: async () => {
+        if (madeSessionId && putBackSession) await putBackSession(madeSessionId)
+        await updateMeeting(meeting.id, { status: 'confirmed', session_id: madeSessionId ?? prevSessionId })
+      },
+    })
   } catch {
     showError(i18n.t('calendar:toast.actionFailed'))
   }
@@ -232,11 +263,42 @@ export async function billPerSessionMeeting({ meeting, sessions, addSession }) {
 
 /* Didn't happen: mark skipped and drop any session we materialised for it
    (clearing the link). Linked-expense handling stays with the caller. */
-export async function skipScheduledMeeting({ meeting, updateMeeting, removeSession }) {
+/* "It didn't happen" — flips the meeting to skipped, drops any session that
+   was materialised for it, and skips the expenses that were only owed because
+   the meeting was going to take place (an `on_meeting` recurring template).
+   `linkedTxs` is passed in rather than derived here so this stays a meetings
+   helper; the caller that knows about recurring templates finds them.
+
+   All of it is reversed by ONE undo. removeSession is called with silent:true
+   because it would otherwise register an undo of its own — and pushUndo is
+   single-level, so the last registration wins and everything else would be
+   stranded half-applied. */
+export async function skipScheduledMeeting({ meeting, updateMeeting, removeSession, putBackSession, linkedTxs = [], setTxStatus }) {
   try {
+    const prevStatus = meeting.status
+    const prevSessionId = meeting.session_id ?? null
+    const droppedSessionId = meeting.session_id || null
+    /* Each linked expense's status BEFORE we touch it — restoring to a
+       hard-coded 'pending' would resurrect one the user had already skipped. */
+    const prevTx = (linkedTxs || []).map((t) => ({ id: t.id, status: t.status }))
+
     await updateMeeting(meeting.id, { status: 'skipped', session_id: null })
-    if (meeting.session_id) removeSession(meeting.session_id)
-    showToast(i18n.t('calendar:toast.meetingSkipped'))
+    if (droppedSessionId && removeSession) await removeSession(droppedSessionId, { silent: true })
+    if (setTxStatus) for (const t of prevTx) await setTxStatus(t.id, 'skipped')
+
+    pushUndo({
+      label: i18n.t('calendar:toast.meetingSkipped'),
+      undo: async () => {
+        if (droppedSessionId && putBackSession) await putBackSession(droppedSessionId)
+        await updateMeeting(meeting.id, { status: prevStatus, session_id: prevSessionId })
+        if (setTxStatus) for (const t of prevTx) await setTxStatus(t.id, t.status)
+      },
+      redo: async () => {
+        await updateMeeting(meeting.id, { status: 'skipped', session_id: null })
+        if (droppedSessionId && removeSession) await removeSession(droppedSessionId, { silent: true })
+        if (setTxStatus) for (const t of prevTx) await setTxStatus(t.id, 'skipped')
+      },
+    })
   } catch {
     showError(i18n.t('calendar:toast.actionFailed'))
   }

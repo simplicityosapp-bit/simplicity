@@ -381,3 +381,10 @@
   color: var(--terracotta);
 }
 .help-foot-link:hover { text-decoration: underline; }
+
+/* Hidden while the home screen is being rearranged. On home the button sits
+   at bottom-left above the bottom bar — exactly where the edit bar appears —
+   and it is not an action that belongs to arranging widgets. useHomeEdit sets
+   the attribute on <html>, because this button renders as a sibling of the
+   router in App.jsx and cannot be reached from the screen by class. */
+html[data-home-editing] .help-fab { display: none; }

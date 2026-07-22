@@ -11,6 +11,7 @@ import { useScheduledMeetings } from '../../hooks/useScheduledMeetings'
 import { useUserPreferences } from '../../hooks/useUserPreferences'
 import { exportTransactionsCSV } from '../../lib/export'
 import { CATEGORY_COLORS } from '../../lib/api/categories'
+import { toLocalDate } from '@simplicity/core'
 import MonthSummary from './MonthSummary'
 import FinanceChart from './FinanceChart'
 import PendingSection from './PendingSection'
@@ -30,6 +31,14 @@ import './FinanceScreen.css'
 import { Box, Txt, Btn } from '../../components/ui'
 
 const startOfMonth = (d) => new Date(d.getFullYear(), d.getMonth(), 1)
+/* transactions.date is a DATE column ('YYYY-MM-DD'). toLocalDate reads it as a
+   calendar day in the local zone — `new Date()` would parse it as UTC midnight
+   and the local getters below would then file the 1st of the month under the
+   previous month for anyone west of Greenwich. */
+const sameMonth = (dateStr, month) => {
+  const d = toLocalDate(dateStr)
+  return d.getFullYear() === month.getFullYear() && d.getMonth() === month.getMonth()
+}
 
 export default function FinanceScreen() {
   const { t } = useT('finance')
@@ -66,11 +75,7 @@ export default function FinanceScreen() {
 
   const monthTxs = useMemo(
     () =>
-      transactions.filter((t) => {
-        if (t.deleted_at) return false
-        const d = new Date(t.date)
-        return d.getFullYear() === month.getFullYear() && d.getMonth() === month.getMonth()
-      }),
+      transactions.filter((t) => !t.deleted_at && sameMonth(t.date, month)),
     [transactions, month],
   )
 
@@ -78,18 +83,14 @@ export default function FinanceScreen() {
      Sorted ascending by date so the oldest "you owe me a decision" rows
      are at the top — matches the prototype's f-pending-section. */
   const pendingTxs = useMemo(
-    () => monthTxs.filter((t) => t.status === 'pending').sort((a, b) => new Date(a.date) - new Date(b.date)),
+    () => monthTxs.filter((t) => t.status === 'pending').sort((a, b) => toLocalDate(a.date) - toLocalDate(b.date)),
     [monthTxs],
   )
   const skippedCount = useMemo(() => monthTxs.filter((t) => t.status === 'skipped').length, [monthTxs])
 
   const prevMonthTxs = useMemo(() => {
     const prev = new Date(month.getFullYear(), month.getMonth() - 1, 1)
-    return transactions.filter((t) => {
-      if (t.deleted_at) return false
-      const d = new Date(t.date)
-      return d.getFullYear() === prev.getFullYear() && d.getMonth() === prev.getMonth()
-    })
+    return transactions.filter((t) => !t.deleted_at && sameMonth(t.date, prev))
   }, [transactions, month])
 
   const sumConfirmed = (rows) => {
@@ -225,7 +226,7 @@ export default function FinanceScreen() {
         onCreateCategory={(name) => addCategory({ name, color: CATEGORY_COLORS[categories.length % CATEGORY_COLORS.length] })}
         onSave={async (tx) => {
           const row = await addTransaction(tx)
-          setMonth(startOfMonth(new Date(row.date)))
+          setMonth(startOfMonth(toLocalDate(row.date)))
           return row // let the modal issue a document for the new income when asked
         }}
       />

@@ -778,10 +778,36 @@
 }
 
 /* ── Actions ───────────────────────────────────────────────────── */
+/* Pinned to the bottom of the scrolling .m-body. The sheet is capped at
+   82vh and .m-body hides its scrollbar, so on a long form (a new
+   transaction with an invoice to issue) "שמור" used to sit below the fold
+   with nothing on screen hinting there was more — people could not find
+   the save button. Sticky keeps it in view at every scroll position.
+   A sticky element is constrained to its containing block, so the body's own
+   bottom padding would leave a strip of scrolling content showing underneath
+   the buttons — the footer takes that padding over instead (hence the
+   :has() rule below). `.m-actions` is only ever rendered inside a Modal, so
+   this is safe app-wide. */
+.m-body:has(.m-actions) {
+  padding-bottom: 0;
+}
 .m-actions {
   display: flex;
   gap: 10px;
-  margin-top: 20px;
+  position: sticky;
+  bottom: 0;
+  z-index: 1;
+  margin: 20px -20px 0;
+  padding: 12px 20px calc(12px + env(safe-area-inset-bottom, 0px));
+  /* The sheet does not clip, so the footer rounds its own bottom corners to
+     match .m-sheet's 22px — otherwise its background squares them off. */
+  border-radius: 0 0 22px 22px;
+  /* --modal-bg over the sheet's own --modal-bg reads as near-opaque, and
+     the blur smears whatever scrolls underneath so it never looks like
+     text bleeding through the buttons. */
+  background: var(--modal-bg);
+  backdrop-filter: var(--bl);
+  border-top: 0.5px solid var(--b1);
 }
 .m-btn-cancel,
 .m-btn-save {

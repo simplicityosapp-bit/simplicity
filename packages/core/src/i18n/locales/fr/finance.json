@@ -1,5 +1,6 @@
 {
-  "countLabel": "{{count}} transactions",
+  "countLabel_one": "{{count}} transaction",
+  "countLabel_other": "{{count}} transactions",
   "snapshot": "Aperçu",
   "tagline": "Vos actions créent de bons résultats.",
   "title": "Argent",
@@ -10,7 +11,8 @@
   "loading": "Chargement des transactions…",
   "loadError": "Impossible de charger les transactions : {{error}}",
   "hideSkipped": "Masquer les ignorées",
-  "showSkipped": "Afficher {{count}} ignorées",
+  "showSkipped_one": "Afficher {{count}} ignorée",
+  "showSkipped_other": "Afficher {{count}} ignorées",
   "deleteRecurring": {
     "title": "Supprimer le modèle récurrent",
     "message": "Supprimer « {{name}} » ? Les transactions déjà créées à partir de ce modèle seront conservées.",
@@ -42,7 +44,8 @@
     "skipped": "Ignorées"
   },
   "pending": {
-    "count": "{{count}} transactions en attente",
+    "count_one": "{{count}} transaction en attente",
+    "count_other": "{{count}} transactions en attente",
     "income": "Revenus {{amount}}",
     "expenses": "Dépenses {{amount}}",
     "approving": "Confirmation…",

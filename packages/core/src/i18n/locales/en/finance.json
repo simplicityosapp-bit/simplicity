@@ -1,5 +1,6 @@
 {
-  "countLabel": "{{count}} transactions",
+  "countLabel_one": "{{count}} transaction",
+  "countLabel_other": "{{count}} transactions",
   "snapshot": "Snapshot",
   "tagline": "Your actions create good outcomes.",
   "title": "Money",
@@ -42,7 +43,8 @@
     "skipped": "Skipped"
   },
   "pending": {
-    "count": "{{count}} pending transactions",
+    "count_one": "{{count}} pending transaction",
+    "count_other": "{{count}} pending transactions",
     "income": "Income {{amount}}",
     "expenses": "Expenses {{amount}}",
     "approving": "Confirming…",

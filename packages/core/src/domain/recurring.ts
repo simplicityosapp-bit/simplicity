@@ -9,6 +9,8 @@
    state (those mean the user already dealt with that period).
    ════════════════════════════════════════════════════════════════ */
 
+import { toLocalDate } from './dates'
+
 interface RecurringTemplate {
   id?: string
   active?: boolean
@@ -56,9 +58,14 @@ interface RecurringPayload {
 }
 
 /* YYYY-MM-DD in local time. Stable string lets us compare dates
-   without timezone surprises. */
+   without timezone surprises.
+   toLocalDate, not new Date: the existing-row keys are built from the
+   date-only `date` column while the due-date keys come from real local
+   Dates. Parsing the column as UTC shifts its key back a day west of
+   Greenwich, the dedup misses, and the template regenerates a duplicate
+   pending transaction on every load. */
 export function toDateKey(d: Date | string | number): string {
-  const date = d instanceof Date ? d : new Date(d)
+  const date = toLocalDate(d)
   const y = date.getFullYear()
   const m = String(date.getMonth() + 1).padStart(2, '0')
   const dd = String(date.getDate()).padStart(2, '0')

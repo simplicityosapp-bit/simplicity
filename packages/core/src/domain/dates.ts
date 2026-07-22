@@ -17,9 +17,11 @@ const pad = (n: number): string => String(n).padStart(2, '0')
    the platform parser, unchanged — they ARE instants and already round-trip
    correctly.
    Note this is a no-op in Israel (UTC+2/+3), where UTC midnight already falls
-   on the same local day: the current user base sees no change. */
+   on the same local day: the current user base sees no change.
+   Exported because the same trap bites anyone bucketing a `date` column into
+   days or months (domain/finance, the finance screen) — not just formatters. */
 const DATE_ONLY = /^\d{4}-\d{2}-\d{2}$/
-function toDate(value: DateInput): Date {
+export function toLocalDate(value: DateInput): Date {
   if (value instanceof Date) return value
   if (typeof value === 'string' && DATE_ONLY.test(value)) {
     const [y, m, d] = value.split('-').map(Number)
@@ -57,14 +59,14 @@ function hebShortDate(d: Date): string {
 
 /* "May 2026" / "מאי 2026" */
 export function fmtMonthYear(date: DateInput): string {
-  const d = toDate(date)
+  const d = toLocalDate(date)
   const lang = i18n.language || 'he'
   const locale = lang === 'he' ? 'he-IL' : lang
   return new Intl.DateTimeFormat(locale, { month: 'long', year: 'numeric' }).format(d)
 }
 
 export function fmtTime(date: DateInput): string {
-  const d = toDate(date)
+  const d = toLocalDate(date)
   if (timeFmt === '12h') {
     const ampm = d.getHours() >= 12 ? 'PM' : 'AM'
     const h12 = d.getHours() % 12 || 12
@@ -74,7 +76,7 @@ export function fmtTime(date: DateInput): string {
 }
 
 export function fmtShortDate(date: DateInput): string {
-  const d = toDate(date)
+  const d = toLocalDate(date)
   const dd = pad(d.getDate())
   const mm = pad(d.getMonth() + 1)
   if (dateFmt === 'MM/DD/YY') return `${mm}/${dd}`
@@ -87,7 +89,7 @@ export function fmtShortDate(date: DateInput): string {
    follows the browser's UI language instead). */
 export function fmtDateInput(date: DateInput | null | undefined): string {
   if (!date) return ''
-  const d = toDate(date)
+  const d = toLocalDate(date)
   if (Number.isNaN(d.getTime())) return ''
   const dd = pad(d.getDate())
   const mm = pad(d.getMonth() + 1)
@@ -105,7 +107,7 @@ function sameDay(a: Date, b: Date): boolean {
 /* Backward-looking relative label for past moments: "now", "1 minute ago",
    "3 days ago", etc. Falls back to a short date for >30 days. */
 export function fmtTimeAgo(date: DateInput, now: Date = new Date()): string {
-  const d = toDate(date)
+  const d = toLocalDate(date)
   const diffMs = now.getTime() - d.getTime()
   if (diffMs < 0 || Math.floor(diffMs / 1000) < 60) return i18n.t('common:time.now')
   const lang = i18n.language || 'he'
@@ -122,7 +124,7 @@ export function fmtTimeAgo(date: DateInput, now: Date = new Date()): string {
 
 /* Relative-ish label: "Today 18:00", "Tomorrow 10:00", else "31/05 · 10:00". */
 export function formatWhen(date: DateInput, now: Date = new Date()): string {
-  const d = toDate(date)
+  const d = toLocalDate(date)
   const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1)
   if (sameDay(d, now)) return `${i18n.t('common:time.today')} ${fmtTime(d)}`
   if (sameDay(d, tomorrow)) return `${i18n.t('common:time.tomorrow')} ${fmtTime(d)}`
@@ -137,7 +139,7 @@ export function formatWhen(date: DateInput, now: Date = new Date()): string {
    existing full day label (weekday + day + month, from calendar.ts). No time —
    that lives per-message. */
 export function fmtRelativeDay(date: DateInput, now: Date = new Date()): string {
-  const d = toDate(date)
+  const d = toLocalDate(date)
   const yesterday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1)
   if (sameDay(d, now)) return i18n.t('common:time.today')
   if (sameDay(d, yesterday)) return i18n.t('common:time.yesterday')

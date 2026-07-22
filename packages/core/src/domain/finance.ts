@@ -7,6 +7,7 @@
    ════════════════════════════════════════════════════════════════ */
 
 import i18n from '../i18n'
+import { toLocalDate } from './dates'
 
 /** A finance transaction row (snake_case, as stored). */
 export interface Tx {
@@ -87,8 +88,8 @@ export function financeQuery(opts: FinanceQueryOpts = {}): Tx[] {
     source = [],
   } = opts
 
-  const fromTs = from ? (from instanceof Date ? from.getTime() : new Date(from).getTime()) : null
-  const toTs = to ? (to instanceof Date ? to.getTime() : new Date(to).getTime()) : null
+  const fromTs = from ? toLocalDate(from).getTime() : null
+  const toTs = to ? toLocalDate(to).getTime() : null
   const clientIdSet = clientIds && clientIds.length ? new Set(clientIds) : null
 
   return (source || []).filter((f) => {
@@ -105,7 +106,10 @@ export function financeQuery(opts: FinanceQueryOpts = {}): Tx[] {
     if (clientIdSet && !clientIdSet.has(f.client_id as string)) return false
     if (categoryId && f.category_id !== categoryId) return false
     if (fromTs !== null || toTs !== null) {
-      const ts = new Date(f.date).getTime()
+      /* toLocalDate, not new Date: the `date` column is date-only, and the
+         from/to bounds are LOCAL midnights — parsing the row as UTC drops the
+         1st of the month out of range for anyone west of Greenwich. */
+      const ts = toLocalDate(f.date).getTime()
       if (fromTs !== null && ts < fromTs) return false
       if (toTs !== null && ts > toTs) return false
     }
@@ -124,7 +128,7 @@ export function financeDailyBuckets(year: number, month: number, opts: FinanceQu
   const dailyInc: number[] = new Array(daysInMonth).fill(0)
   const dailyExp: number[] = new Array(daysInMonth).fill(0)
   tx.forEach((f) => {
-    const d = new Date(f.date).getDate() - 1
+    const d = toLocalDate(f.date).getDate() - 1
     if (d < 0 || d >= daysInMonth) return
     if (f.type === 'income') dailyInc[d] += f.amount
     else if (f.type === 'expense') dailyExp[d] += f.amount

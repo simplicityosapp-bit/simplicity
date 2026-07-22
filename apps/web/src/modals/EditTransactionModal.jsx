@@ -4,9 +4,22 @@ import DateField from '../components/DateField'
 import Modal from './Modal'
 import InvoiceActions from '../components/InvoiceActions'
 import GrowPayButton from '../components/GrowPayButton'
-import { PAY_METHODS, payMethodLabel } from '@simplicity/core'
+import { PAY_METHODS, payMethodLabel, toLocalDate } from '@simplicity/core'
 import { useT } from '../i18n/useT'
 import { Box, Txt, Btn, Input } from '../components/ui'
+
+/* The <input type=date> value for a stored transaction date. The column is
+   date-only, so the stored string is already the right shape — the old
+   `new Date(tx.date).toISOString().slice(0,10)` sent it through UTC and would
+   hand back the previous day for anyone west of Greenwich (the same trap
+   AddTransactionModal's todayStr avoids). */
+const dateInputValue = (value) => {
+  if (!value) return ''
+  if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}/.test(value)) return value.slice(0, 10)
+  const d = toLocalDate(value)
+  if (Number.isNaN(d.getTime())) return ''
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+}
 
 /* Edit a transaction — type / amount / date / desc / status / client / project / category. */
 export default function EditTransactionModal({ open, onClose, onSave, onIssued, tx, clients = [], projects = [], categories = [], onDelete, onSaveAsClient }) {
@@ -20,7 +33,7 @@ export default function EditTransactionModal({ open, onClose, onSave, onIssued, 
     type: tx?.type || 'income',
     amount: tx?.amount ?? '',
     desc: tx?.desc || '',
-    date: tx?.date ? new Date(tx.date).toISOString().slice(0, 10) : '',
+    date: dateInputValue(tx?.date),
     status: tx?.status || 'confirmed',
     client_id: tx?.client_id || '',
     project_id: tx?.project_id || '',
@@ -50,7 +63,7 @@ export default function EditTransactionModal({ open, onClose, onSave, onIssued, 
       type: tx.type || 'income',
       amount: tx.amount ?? '',
       desc: tx.desc || '',
-      date: tx.date ? new Date(tx.date).toISOString().slice(0, 10) : '',
+      date: dateInputValue(tx.date),
       status: tx.status || 'confirmed',
       client_id: tx.client_id || '',
       project_id: tx.project_id || '',

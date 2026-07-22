@@ -1,5 +1,8 @@
 {
-  "countLabel": "{{count}} תנועות",
+  "countLabel_one": "תנועה אחת",
+  "countLabel_two": "שתי תנועות",
+  "countLabel_many": "{{count}} תנועות",
+  "countLabel_other": "{{count}} תנועות",
   "snapshot": "תמונת מצב",
   "tagline": "הפעולות שלך יוצרות תוצאות טובות.",
   "title": "כסף",
@@ -10,7 +13,10 @@
   "loading": "טוען תנועות…",
   "loadError": "שגיאה בטעינת התנועות: {{error}}",
   "hideSkipped": "הסתר שדילגת",
-  "showSkipped": "הצג {{count}} שדילגת",
+  "showSkipped_one": "הצג תנועה אחת שדילגת",
+  "showSkipped_two": "הצג שתי תנועות שדילגת",
+  "showSkipped_many": "הצג {{count}} תנועות שדילגת",
+  "showSkipped_other": "הצג {{count}} תנועות שדילגת",
   "deleteRecurring": {
     "title": "מחיקת תבנית חוזרת",
     "message": "למחוק את \"{{name}}\"? תנועות שכבר נוצרו לפי התבנית יישארו.",
@@ -42,7 +48,10 @@
     "skipped": "דולגו"
   },
   "pending": {
-    "count": "{{count}} תנועות ממתינות",
+    "count_one": "תנועה אחת ממתינה",
+    "count_two": "שתי תנועות ממתינות",
+    "count_many": "{{count}} תנועות ממתינות",
+    "count_other": "{{count}} תנועות ממתינות",
     "income": "הכנסות {{amount}}",
     "expenses": "הוצאות {{amount}}",
     "approving": "מאשר…",

@@ -1,5 +1,6 @@
 {
-  "countLabel": "{{count}} transacciones",
+  "countLabel_one": "{{count}} transacción",
+  "countLabel_other": "{{count}} transacciones",
   "snapshot": "Resumen",
   "tagline": "Tus acciones generan buenos resultados.",
   "title": "Dinero",
@@ -10,7 +11,8 @@
   "loading": "Cargando transacciones…",
   "loadError": "No se pudieron cargar las transacciones: {{error}}",
   "hideSkipped": "Ocultar omitidas",
-  "showSkipped": "Mostrar {{count}} omitidas",
+  "showSkipped_one": "Mostrar {{count}} omitida",
+  "showSkipped_other": "Mostrar {{count}} omitidas",
   "deleteRecurring": {
     "title": "Eliminar plantilla recurrente",
     "message": "¿Eliminar «{{name}}»? Las transacciones ya creadas a partir de ella se mantendrán.",
@@ -42,7 +44,8 @@
     "skipped": "Omitidas"
   },
   "pending": {
-    "count": "{{count}} transacciones pendientes",
+    "count_one": "{{count}} transacción pendiente",
+    "count_other": "{{count}} transacciones pendientes",
     "income": "Ingresos {{amount}}",
     "expenses": "Gastos {{amount}}",
     "approving": "Confirmando…",

@@ -7,22 +7,64 @@
     "title": "Ajustes"
   },
   "sections": {
-    "profile": { "title": "Perfil", "sub": "Nombre, profesión y enfoque" },
-    "widgets": { "title": "Widgets y visualización", "sub": "Qué se muestra en tu pantalla de inicio" },
-    "clients": { "title": "Clientes y estados", "sub": "Tus propios subestados" },
-    "payments": { "title": "Moneda, fecha y hora", "sub": "Formatos de importe, fecha y hora, e inicio de semana" },
-    "questions": { "title": "Preguntas diarias", "sub": "Lo que se te pregunta cada día" },
-    "leads": { "title": "Ajustes de prospectos", "sub": "Fuentes y estados" },
-    "design": { "title": "Apariencia", "sub": "Modo claro/oscuro, fondo, calendario hebreo, tamaño del texto" },
-    "data": { "title": "Datos", "sub": "Exportar, importar, restablecer" },
-    "about": { "title": "Acerca de", "sub": "Versión e información" }
+    "profile": {
+      "title": "Perfil",
+      "sub": "Nombre, profesión y enfoque"
+    },
+    "widgets": {
+      "title": "Widgets y visualización",
+      "sub": "Qué se muestra en tu pantalla de inicio"
+    },
+    "clients": {
+      "title": "Clientes y estados",
+      "sub": "Tus propios subestados"
+    },
+    "payments": {
+      "title": "Moneda, fecha y hora",
+      "sub": "Formatos de importe, fecha y hora, e inicio de semana"
+    },
+    "questions": {
+      "title": "Preguntas diarias",
+      "sub": "Lo que se te pregunta cada día"
+    },
+    "leads": {
+      "title": "Ajustes de prospectos",
+      "sub": "Fuentes y estados"
+    },
+    "design": {
+      "title": "Apariencia",
+      "sub": "Modo claro/oscuro, fondo, calendario hebreo, tamaño del texto"
+    },
+    "data": {
+      "title": "Datos",
+      "sub": "Exportar, importar, restablecer"
+    },
+    "about": {
+      "title": "Acerca de",
+      "sub": "Versión e información"
+    }
   },
   "groups": {
-    "personal": { "title": "Personal", "sub": "Tu perfil y ajustes de idioma" },
-    "display": { "title": "Visualización", "sub": "Diseño de la pantalla de inicio y preferencias de fecha/hora" },
-    "workflow": { "title": "Flujo de trabajo", "sub": "Clientes, prospectos y rutinas diarias" },
-    "data": { "title": "Datos", "sub": "Exportar, importar y controles de la cuenta" },
-    "about": { "title": "Acerca de", "sub": "Información de la app y ayuda" }
+    "personal": {
+      "title": "Personal",
+      "sub": "Tu perfil y ajustes de idioma"
+    },
+    "display": {
+      "title": "Visualización",
+      "sub": "Diseño de la pantalla de inicio y preferencias de fecha/hora"
+    },
+    "workflow": {
+      "title": "Flujo de trabajo",
+      "sub": "Clientes, prospectos y rutinas diarias"
+    },
+    "data": {
+      "title": "Datos",
+      "sub": "Exportar, importar y controles de la cuenta"
+    },
+    "about": {
+      "title": "Acerca de",
+      "sub": "Información de la app y ayuda"
+    }
   },
   "common": {
     "loading": "Cargando…",
@@ -68,13 +110,7 @@
     "toggle": "{{label}} — {{state}}",
     "on": "activar",
     "off": "desactivar",
-    "compact": "Compacto",
-    "rowDensity": {
-      "global": "Global",
-      "compact": "Compacto",
-      "comfortable": "Normal",
-      "spacious": "Amplio"
-    }
+    "editOnHome": "También puedes mantener pulsado un widget en la pantalla de inicio para moverlo u ocultarlo."
   },
   "design": {
     "theme": "Modo claro / oscuro",

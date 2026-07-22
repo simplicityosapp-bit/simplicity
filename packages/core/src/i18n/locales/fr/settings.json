@@ -7,22 +7,64 @@
     "title": "Paramètres"
   },
   "sections": {
-    "profile": { "title": "Profil", "sub": "Nom, profession et spécialité" },
-    "widgets": { "title": "Widgets et affichage", "sub": "Ce qui s'affiche sur votre écran d'accueil" },
-    "clients": { "title": "Clients et statuts", "sub": "Vos propres sous-statuts" },
-    "payments": { "title": "Devise, date et heure", "sub": "Formats des montants, de la date et de l'heure, et début de semaine" },
-    "questions": { "title": "Questions quotidiennes", "sub": "Ce qui vous est demandé chaque jour" },
-    "leads": { "title": "Paramètres des prospects", "sub": "Sources et statuts" },
-    "design": { "title": "Apparence", "sub": "Mode clair/sombre, fond, calendrier hébraïque, taille du texte" },
-    "data": { "title": "Données", "sub": "Exporter, importer, réinitialiser" },
-    "about": { "title": "À propos", "sub": "Version et informations" }
+    "profile": {
+      "title": "Profil",
+      "sub": "Nom, profession et spécialité"
+    },
+    "widgets": {
+      "title": "Widgets et affichage",
+      "sub": "Ce qui s'affiche sur votre écran d'accueil"
+    },
+    "clients": {
+      "title": "Clients et statuts",
+      "sub": "Vos propres sous-statuts"
+    },
+    "payments": {
+      "title": "Devise, date et heure",
+      "sub": "Formats des montants, de la date et de l'heure, et début de semaine"
+    },
+    "questions": {
+      "title": "Questions quotidiennes",
+      "sub": "Ce qui vous est demandé chaque jour"
+    },
+    "leads": {
+      "title": "Paramètres des prospects",
+      "sub": "Sources et statuts"
+    },
+    "design": {
+      "title": "Apparence",
+      "sub": "Mode clair/sombre, fond, calendrier hébraïque, taille du texte"
+    },
+    "data": {
+      "title": "Données",
+      "sub": "Exporter, importer, réinitialiser"
+    },
+    "about": {
+      "title": "À propos",
+      "sub": "Version et informations"
+    }
   },
   "groups": {
-    "personal": { "title": "Personnel", "sub": "Votre profil et vos préférences de langue" },
-    "display": { "title": "Affichage", "sub": "Conception de l'écran d'accueil et préférences de date/heure" },
-    "workflow": { "title": "Flux de travail", "sub": "Clients, prospects et routines quotidiennes" },
-    "data": { "title": "Données", "sub": "Exportation, importation et gestion du compte" },
-    "about": { "title": "À propos", "sub": "Informations sur l'application et aide" }
+    "personal": {
+      "title": "Personnel",
+      "sub": "Votre profil et vos préférences de langue"
+    },
+    "display": {
+      "title": "Affichage",
+      "sub": "Conception de l'écran d'accueil et préférences de date/heure"
+    },
+    "workflow": {
+      "title": "Flux de travail",
+      "sub": "Clients, prospects et routines quotidiennes"
+    },
+    "data": {
+      "title": "Données",
+      "sub": "Exportation, importation et gestion du compte"
+    },
+    "about": {
+      "title": "À propos",
+      "sub": "Informations sur l'application et aide"
+    }
   },
   "common": {
     "loading": "Chargement…",
@@ -68,13 +110,7 @@
     "toggle": "{{label}} — {{state}}",
     "on": "activer",
     "off": "désactiver",
-    "compact": "Compact",
-    "rowDensity": {
-      "global": "Global",
-      "compact": "Compact",
-      "comfortable": "Normal",
-      "spacious": "Spacieux"
-    }
+    "editOnHome": "Vous pouvez aussi appuyer longuement sur un widget de l'écran d'accueil pour le déplacer ou le masquer."
   },
   "design": {
     "theme": "Mode clair / sombre",

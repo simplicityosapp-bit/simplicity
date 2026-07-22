@@ -3,7 +3,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import { useNavigate, useLocation } from 'react-router-dom'
 import {
   ChevronDown, ChevronUp, User, LayoutGrid, Users, Target, Wallet, Sparkles, Palette, Info,
-  Plus, Trash2, Leaf, GripVertical, CalendarDays, Database, Download, Upload,
+  Plus, Trash2, Leaf, CalendarDays, Database, Download, Upload,
   BookOpen, HelpCircle, Lightbulb, Eye, Layers,
 } from 'lucide-react'
 import { ROUTES } from '../../lib/routes'
@@ -32,7 +32,7 @@ import DeleteAccountModal from '../../modals/DeleteAccountModal'
 import { resetAllUserData, buildAccountDeletionRequest } from '../../lib/api/account'
 import {
   ROLE_LABELS, roleLabel, CURRENCY_OPTIONS, DATE_FORMAT_OPTIONS, TIME_FORMAT_OPTIONS, WEEK_START_OPTIONS,
-  TEXT_SIZE_OPTIONS, WIDGET_REGISTRY,
+  TEXT_SIZE_OPTIONS, WIDGET_REGISTRY, setWidgetVisible, moveWidgetTo,
   CARD_STYLE_OPTIONS, TEXT_STRENGTH_OPTIONS, DENSITY_OPTIONS,
 } from '../../lib/preferences'
 import { CATEGORY_COLORS } from '../../lib/api/categories'
@@ -195,169 +195,79 @@ function Switch({ checked, onChange, label }) {
 }
 
 /* ── Widgets body ────────────────────────────────────────────────
-   Per-widget controls: enabled, accent, compact (when supported),
-   density override. Globals + reorder live in WidgetsGlobals below. */
+   The three global appearance controls, plus a plain show/hide + order list.
+
+   Arranging the home screen now happens ON the home screen — press and hold a
+   widget, drag it, ✕ to hide (see useHomeEdit). This panel used to carry ~45
+   controls: a drag handle, two arrows, a toggle, a "compact" chip and four
+   density chips for every widget, describing a screen you could not see while
+   adjusting it. The per-widget density duplicated the global one right above
+   it, and "compact" and "צפוף" looked identical in the result.
+
+   What stays here, deliberately: an ORDERING path that works without a
+   pointer. The home gesture is press-and-drag, which a keyboard user cannot
+   perform — removing these arrows would have made rearranging mouse-only. */
 function WidgetsBody({ prefs, onUpdate }) {
   const { t } = useT('settings')
   const cfg = prefs?.widgets || {}
   const list = cfg.list || []
   const global = cfg.global || {}
-  const [draggingId, setDraggingId] = useState(null)
-  const [overId, setOverId] = useState(null)
 
-  const updateWidget = (id, patch) => {
-    const next = list.map((w) => (w.id === id ? { ...w, ...patch } : w))
-    onUpdate({ widgets: { list: next } })
-  }
-  const setGlobal = (k) => (v) => {
-    onUpdate({ widgets: { global: { [k]: v } } })
-  }
-  const reorder = (fromId, toId) => {
-    if (!fromId || fromId === toId) return
-    const fromIdx = list.findIndex((w) => w.id === fromId)
-    if (fromIdx < 0) return
-    const next = [...list]
-    const [item] = next.splice(fromIdx, 1)
-    if (toId == null) next.push(item)
-    else {
-      const toIdx = next.findIndex((w) => w.id === toId)
-      if (toIdx < 0) next.push(item)
-      else next.splice(toIdx, 0, item)
-    }
-    onUpdate({ widgets: { list: next } })
-  }
-  const handleDragStart = (e, id) => {
-    setDraggingId(id)
-    try { e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', id) } catch { /* noop */ }
-  }
-  const handleDragOver = (e, id) => {
-    e.preventDefault()
-    e.dataTransfer.dropEffect = 'move'
-    if (id !== overId) setOverId(id)
-  }
-  const handleDrop = (e, id) => {
-    e.preventDefault()
-    if (draggingId && draggingId !== id) reorder(draggingId, id)
-    setDraggingId(null)
-    setOverId(null)
-  }
-  const handleDragEnd = () => { setDraggingId(null); setOverId(null) }
-  /* Keyboard-accessible reorder (swap with neighbour) — the drag handle
-     is pointer-only, so the up/down buttons are the accessible path. */
-  const moveWidget = (id, dir) => {
+  const setGlobal = (k) => (v) => onUpdate({ widgets: { global: { [k]: v } } })
+  const setVisible = (id, visible) => onUpdate({ widgets: { list: setWidgetVisible(list, id, visible) } })
+  const move = (id, dir) => {
     const idx = list.findIndex((w) => w.id === id)
-    const swap = idx + dir
-    if (idx < 0 || swap < 0 || swap >= list.length) return
-    const next = [...list]
-    ;[next[idx], next[swap]] = [next[swap], next[idx]]
-    onUpdate({ widgets: { list: next } })
+    if (idx < 0) return
+    onUpdate({ widgets: { list: moveWidgetTo(list, id, idx + dir) } })
   }
 
   return (
     <Box className="set-w-body">
       <Txt as="p" className="set-sub-h">{t('widgets.globalView')}</Txt>
       <Segmented label={t('widgets.cardStyle')} value={(global.cardStyle === 'outlined' || !global.cardStyle) ? 'frosted' : global.cardStyle} options={CARD_STYLE_OPTIONS.map((o) => ({ ...o, l: t(`options.cardStyle.${o.v}`) }))} onChange={setGlobal('cardStyle')} />
+      <Txt as="p" className="set-sub-h">{t('widgets.textStrength')}</Txt>
       <Segmented label={t('widgets.textStrength')} value={global.textStrength || 'normal'} options={TEXT_STRENGTH_OPTIONS.map((o) => ({ ...o, l: t(`options.textStrength.${o.v}`) }))} onChange={setGlobal('textStrength')} />
       <Segmented label={t('widgets.density')} value={global.density || 'comfortable'} options={DENSITY_OPTIONS.map((o) => ({ ...o, l: t(`options.density.${o.v}`) }))} onChange={setGlobal('density')} />
 
-      <Box as="details" className="set-w-collapse">
-      <Txt as="summary" className="set-w-summary">{t('widgets.widgets')}</Txt>
+      <Txt as="p" className="set-sub-h">{t('widgets.widgets')}</Txt>
+      <Txt as="p" className="set-w-note">{t('widgets.editOnHome')}</Txt>
       <Box className="set-w-list">
         {list.map((w, i) => {
           const reg = WIDGET_REGISTRY.find((r) => r.id === w.id)
           if (!reg) return null
+          const name = t(`widgets.names.${reg.id}`)
           return (
-            <WidgetRow
-              key={w.id}
-              cfg={w}
-              reg={reg}
-              index={i}
-              total={list.length}
-              onMove={moveWidget}
-              onUpdate={(p) => updateWidget(w.id, p)}
-              dragging={draggingId === w.id}
-              over={overId === w.id}
-              onDragStart={(e) => handleDragStart(e, w.id)}
-              onDragOver={(e) => handleDragOver(e, w.id)}
-              onDrop={(e) => handleDrop(e, w.id)}
-              onDragEnd={handleDragEnd}
-            />
+            <Box key={w.id} className={`set-w-row${w.enabled === false ? ' off' : ''}`}>
+              <Txt className="set-w-move">
+                <Btn
+                  type="button"
+                  className="set-w-move-btn"
+                  aria-label={t('widgets.moveUp', { label: name })}
+                  disabled={i === 0}
+                  onClick={() => move(w.id, -1)}
+                >
+                  <ChevronUp size={14} strokeWidth={1.8} aria-hidden="true" />
+                </Btn>
+                <Btn
+                  type="button"
+                  className="set-w-move-btn"
+                  aria-label={t('widgets.moveDown', { label: name })}
+                  disabled={i === list.length - 1}
+                  onClick={() => move(w.id, 1)}
+                >
+                  <ChevronDown size={14} strokeWidth={1.8} aria-hidden="true" />
+                </Btn>
+              </Txt>
+              <Txt className="set-w-row-name">{name}</Txt>
+              <Switch
+                checked={w.enabled !== false}
+                onChange={(v) => setVisible(w.id, v)}
+                label={t('widgets.toggle', { label: name, state: w.enabled !== false ? t('widgets.off') : t('widgets.on') })}
+              />
+            </Box>
           )
         })}
       </Box>
-      </Box>
-    </Box>
-  )
-}
-
-function WidgetRow({ cfg, reg, index, total, onMove, onUpdate, dragging, over, onDragStart, onDragOver, onDrop, onDragEnd }) {
-  const { t } = useT('settings')
-  return (
-    <Box
-      className={`set-w-row${cfg.enabled ? '' : ' off'}${dragging ? ' dragging' : ''}${over ? ' over' : ''}`}
-      draggable
-      onDragStart={onDragStart}
-      onDragOver={onDragOver}
-      onDrop={onDrop}
-      onDragEnd={onDragEnd}
-    >
-      <Box className="set-w-row-head">
-        <Txt className="set-w-grip" aria-hidden="true">
-          <GripVertical size={14} strokeWidth={1.5} />
-        </Txt>
-        <Txt className="set-w-move">
-          <Btn
-            type="button"
-            className="set-w-move-btn"
-            aria-label={t('widgets.moveUp', { label: t(`widgets.names.${reg.id}`) })}
-            disabled={index === 0}
-            onClick={() => onMove(cfg.id, -1)}
-          >
-            <ChevronUp size={14} strokeWidth={1.8} aria-hidden="true" />
-          </Btn>
-          <Btn
-            type="button"
-            className="set-w-move-btn"
-            aria-label={t('widgets.moveDown', { label: t(`widgets.names.${reg.id}`) })}
-            disabled={index === total - 1}
-            onClick={() => onMove(cfg.id, 1)}
-          >
-            <ChevronDown size={14} strokeWidth={1.8} aria-hidden="true" />
-          </Btn>
-        </Txt>
-        <Txt className="set-w-row-name">{t(`widgets.names.${reg.id}`)}</Txt>
-        <Switch
-          checked={cfg.enabled}
-          onChange={(v) => onUpdate({ enabled: v })}
-          label={t('widgets.toggle', { label: t(`widgets.names.${reg.id}`), state: cfg.enabled ? t('widgets.off') : t('widgets.on') })}
-        />
-      </Box>
-      {cfg.enabled && (
-        <Box className="set-w-row-ctrls">
-          {reg.supportsCompact && (
-            <Btn
-              type="button"
-              className={`set-w-chip${cfg.compact ? ' on' : ''}`}
-              onClick={() => onUpdate({ compact: !cfg.compact })}
-            >{t('widgets.compact')}</Btn>
-          )}
-          <Box className="set-w-density">
-            {[
-              { v: null,         l: t('widgets.rowDensity.global') },
-              { v: 'compact',     l: t('widgets.rowDensity.compact') },
-              { v: 'comfortable', l: t('widgets.rowDensity.comfortable') },
-              { v: 'spacious',    l: t('widgets.rowDensity.spacious') },
-            ].map((d) => (
-              <Btn
-                key={d.v ?? 'global'}
-                type="button"
-                className={`set-w-chip${(cfg.density ?? null) === d.v ? ' on' : ''}`}
-                onClick={() => onUpdate({ density: d.v })}
-              >{d.l}</Btn>
-            ))}
-          </Box>
-        </Box>
-      )}
     </Box>
   )
 }

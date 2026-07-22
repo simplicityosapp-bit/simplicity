@@ -82,12 +82,6 @@
       }
     },
     "chips": {
-      "tasks": "משימות",
-      "tasksInfoLabel": "הסבר משימות",
-      "tasksInfoText_pre": "לחץ/י",
-      "tasksInfoText_pre_male": "לחץ",
-      "tasksInfoText_pre_female": "לחצי",
-      "tasksInfoText_post": " על הכרטיס כדי לסנן ולראות פירוט. ברירת מחדל: רק משימות פתוחות.",
       "income": "הכנסות",
       "expense": "הוצאות",
       "net": "נטו",
@@ -152,23 +146,11 @@
       "link_one": "{{count}} משימה",
       "link_other": "{{count}} משימות",
       "noOpen": "אין משימות פתוחות",
-      "urgentOf_one": "{{urgentText}} מתוך {{count}} פתוחה",
-      "urgentOf_other": "{{urgentText}} מתוך {{count}} פתוחות",
-      "urgent_one": "{{count}} דחופה",
-      "urgent_other": "{{count}} דחופות",
       "openSummary_one": "{{count}} משימה פתוחה",
       "openSummary_other": "{{count}} משימות פתוחות",
-      "allDone": "כל המשימות בוצעו. {{add}} משימה כשנהיה צורך.",
-      "addWord": "הוסף/י",
-      "addWord_male": "הוסף",
-      "addWord_female": "הוסיפי",
       "markDone": "סמן כבוצע",
       "link_two": "{{count}} משימות",
       "link_many": "{{count}} משימות",
-      "urgentOf_two": "{{urgentText}} מתוך {{count}} פתוחות",
-      "urgentOf_many": "{{urgentText}} מתוך {{count}} פתוחות",
-      "urgent_two": "{{count}} דחופות",
-      "urgent_many": "{{count}} דחופות",
       "openSummary_two": "{{count}} משימות פתוחות",
       "openSummary_many": "{{count}} משימות פתוחות",
       "overdue_one": "משימה אחת באיחור",
@@ -221,6 +203,28 @@
       "showAll_two": "ועוד {{count}}",
       "showAll_many": "ועוד {{count}}",
       "showAll_other": "ועוד {{count}}"
+    }
+  },
+  "edit": {
+    "enter": "עריכת המסך",
+    "barLabel": "עריכת מסך הבית",
+    "hint": "גררו לסידור · ✕ להסתרה",
+    "done": "סיום",
+    "hideWidget": "הסתרת {{name}}",
+    "hiddenTitle": "ווידג׳טים מוסתרים",
+    "hiddenEmpty": "לא הסתרתם כלום.",
+    "hiddenCount_one": "מוסתר · 1",
+    "hiddenCount_two": "מוסתרים · {{count}}",
+    "hiddenCount_many": "מוסתרים · {{count}}",
+    "hiddenCount_other": "מוסתרים · {{count}}",
+    "names": {
+      "quote": "ציטוט יומי",
+      "moon": "מבט על",
+      "insights": "מה איתך היום",
+      "quick-row": "הוספה מהירה",
+      "attention": "דרושה תשומת לב",
+      "next-tasks": "משימות ותזכורות",
+      "chips": "כרטיסי מצב"
     }
   }
 }

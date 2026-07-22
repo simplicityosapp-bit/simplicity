@@ -52,10 +52,6 @@
       }
     },
     "chips": {
-      "tasks": "Tâches",
-      "tasksInfoLabel": "À propos des tâches",
-      "tasksInfoText_pre": "Touchez",
-      "tasksInfoText_post": " la carte pour filtrer et voir les détails. Par défaut : uniquement les tâches ouvertes.",
       "income": "Revenus",
       "expense": "Dépenses",
       "net": "Net",
@@ -108,14 +104,8 @@
       "link_one": "{{count}} tâche",
       "link_other": "{{count}} tâches",
       "noOpen": "Aucune tâche ouverte",
-      "urgentOf_one": "{{urgentText}} sur {{count}} ouverte",
-      "urgentOf_other": "{{urgentText}} sur {{count}} ouvertes",
-      "urgent_one": "{{count}} urgente",
-      "urgent_other": "{{count}} urgentes",
       "openSummary_one": "{{count}} tâche ouverte",
       "openSummary_other": "{{count}} tâches ouvertes",
-      "allDone": "Toutes les tâches sont terminées. {{add}} une tâche dès qu'elle se présente.",
-      "addWord": "Ajoutez",
       "markDone": "Marquer comme terminée",
       "overdue_one": "1 en retard",
       "overdue_other": "{{count}} en retard",
@@ -157,6 +147,26 @@
       "showLess": "Voir moins",
       "showAll_one": "1 de plus",
       "showAll_other": "{{count}} de plus"
+    }
+  },
+  "edit": {
+    "enter": "Modifier l'écran",
+    "barLabel": "Modifier l'écran d'accueil",
+    "hint": "Glissez pour organiser · ✕ pour masquer",
+    "done": "Terminé",
+    "hideWidget": "Masquer {{name}}",
+    "hiddenTitle": "Widgets masqués",
+    "hiddenEmpty": "Vous n'avez rien masqué.",
+    "hiddenCount_one": "Masqué · 1",
+    "hiddenCount_other": "Masqués · {{count}}",
+    "names": {
+      "quote": "Citation du jour",
+      "moon": "Aperçu",
+      "insights": "Comment vas-tu",
+      "quick-row": "Ajout rapide",
+      "attention": "Nécessite attention",
+      "next-tasks": "Tâches et rappels",
+      "chips": "Cartes d'état"
     }
   }
 }

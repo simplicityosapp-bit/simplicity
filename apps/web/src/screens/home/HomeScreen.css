@@ -116,11 +116,6 @@
 }
 
 /* Per-widget compact mode — tighter padding. */
-.home-widget.compact .h-card,
-.home-widget.compact .h-quote,
-.home-widget.compact .ins-widget {
-  padding: 10px 14px;
-}
 
 /* Per-widget density override (compact/spacious/comfortable). */
 .home-widget[data-density="compact"] .h-card,
@@ -495,26 +490,6 @@ html[data-bg="blank"][data-card-style="flat"] .home-screen {
   inset-inline-end: -8px;
   inset-inline-start: -5px;
 }
-.moon-expanded-cat-pct {
-  font-family: var(--mg-font-num);
-  font-size: calc(11px * var(--text-scale));
-  color: var(--stone);
-  font-variant-numeric: tabular-nums;
-}
-.moon-expanded-cat-bar {
-  height: 3px;
-  border-radius: 3px;
-  background: rgba(42, 37, 32, 0.06);
-  overflow: hidden;
-}
-[data-theme="dark"] .moon-expanded-cat-bar {
-  background: rgba(240, 235, 224, 0.05);
-}
-.moon-expanded-cat-fill {
-  height: 100%;
-  border-radius: 3px;
-  transition: width 0.6s ease;
-}
 .moon-expanded-link {
   display: inline-flex;
   align-items: center;
@@ -862,13 +837,6 @@ html[data-bg="blank"][data-card-style="flat"] .home-screen {
 .h-card-title svg {
   color: var(--stone);
   flex-shrink: 0;
-}
-.h-card-count {
-  font-family: var(--mg-font);
-  font-size: calc(13px * var(--text-scale));
-  font-weight: 500;
-  color: var(--stone);
-  margin-inline-start: auto;        /* push count + chevron to the end as a group */
 }
 /* Expand/collapse control on the three expandable cards (attention /
    reminders / next-tasks). A REAL <button>, not just a glyph: the card div
@@ -1404,4 +1372,188 @@ html[data-bg="blank"][data-card-style="flat"] .home-screen {
   font-size: calc(12.5px * var(--text-scale));
   font-weight: 500;
   color: var(--stone);
+}
+
+/* ── Edit mode ──────────────────────────────────────────────────
+   Press and hold any widget to enter, drag to rearrange, ✕ to hide. The
+   gesture is the phone-home-screen one because it is the arrangement gesture
+   people already have; the text button at the end of the stack is the
+   discoverable path for anyone who does not think to try it. */
+.home-edit-enter {
+  align-self: center;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 2px auto 4px;
+  padding: 8px 14px;
+  border: none;
+  border-radius: 999px;
+  background: none;
+  cursor: pointer;
+  font-family: var(--mg-font);
+  font-size: calc(12.5px * var(--text-scale));
+  font-weight: 500;
+  color: var(--stone);
+  opacity: 0.75;
+  transition: opacity 0.15s, background 0.15s;
+}
+.home-edit-enter:hover {
+  opacity: 1;
+  background: color-mix(in srgb, var(--stone) 8%, transparent);
+}
+
+/* While arranging, the widgets stop being interactive and start being
+   objects: a dashed outline, a lifted look under the finger, and no text
+   selection fighting the drag. */
+.home-screen.is-editing {
+  user-select: none;
+  -webkit-user-select: none;
+}
+.home-widget.is-editing {
+  position: relative;
+  touch-action: none;          /* the drag owns the gesture, not the scroller */
+  cursor: grab;
+}
+/* Pinned widgets (the quote + moon row) can be hidden but not moved — they
+   render in a fixed row whatever the list order is. No grab cursor, and a
+   fainter outline, so edit mode does not promise a drag that does nothing. */
+.home-widget.is-pinned {
+  cursor: default;
+  touch-action: auto;
+}
+.home-widget.is-pinned > *:first-child {
+  outline-color: color-mix(in srgb, var(--stone) 30%, transparent);
+}
+.home-widget.is-editing > *:first-child {
+  outline: 1.5px dashed color-mix(in srgb, var(--terracotta) 55%, transparent);
+  outline-offset: 3px;
+  border-radius: var(--mg-card-radius);
+}
+.home-widget.is-dragging {
+  cursor: grabbing;
+  z-index: 30;
+  transform: scale(1.03);
+  opacity: 0.92;
+  transition: transform 0.12s ease;
+}
+/* Transparent layer over the widget body so its own buttons cannot fire
+   mid-rearrange — a ✓ tapped while dragging would complete a task. */
+.home-widget-shield {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  border-radius: var(--mg-card-radius);
+}
+.home-widget-hide {
+  position: absolute;
+  z-index: 3;
+  top: -7px;
+  inset-inline-start: -7px;
+  width: 24px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 1px solid color-mix(in srgb, var(--espresso) 18%, transparent);
+  background: var(--home-card-solid);
+  color: var(--espresso);
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(42, 37, 32, 0.18);
+}
+.home-widget-hide:hover {
+  background: var(--clay);
+  border-color: var(--clay);
+  color: var(--pure-white);
+}
+
+/* The bar sits above the bottom nav while arranging. */
+.home-edit-bar {
+  position: fixed;
+  z-index: 40;
+  inset-inline: 12px;
+  bottom: calc(84px + env(safe-area-inset-bottom, 0px));
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px 8px 8px;
+  border-radius: 14px;
+  border: var(--home-card-border);
+  background: var(--home-card-solid);
+  box-shadow: 0 8px 26px rgba(42, 37, 32, 0.22);
+}
+[data-theme="dark"] .home-edit-bar { box-shadow: 0 8px 26px rgba(0, 0, 0, 0.5); }
+@media (min-width: 768px) {
+  .home-edit-bar {
+    inset-inline: auto;
+    inset-inline-start: 50%;
+    transform: translateX(50%);
+    bottom: 24px;
+    min-width: 380px;
+  }
+}
+.home-edit-hint {
+  flex: 1;
+  min-width: 0;
+  font-family: var(--mg-font);
+  font-size: calc(12px * var(--text-scale));
+  color: var(--stone);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.home-edit-hidden-btn,
+.home-edit-done {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0;
+  min-height: 34px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-family: var(--mg-font);
+  font-size: calc(12.5px * var(--text-scale));
+  font-weight: 500;
+}
+.home-edit-hidden-btn {
+  border: var(--home-card-border);
+  background: transparent;
+  color: var(--stone);
+}
+.home-edit-hidden-btn:hover { color: var(--espresso); }
+.home-edit-done {
+  border: none;
+  background: var(--terracotta);
+  color: var(--on-accent);
+}
+[data-theme="dark"] .home-edit-done { color: var(--ink-on-accent); }
+
+/* Hidden-widgets list, inside the modal. */
+.home-hidden-list { display: flex; flex-direction: column; gap: 6px; }
+.home-hidden-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 12px 14px;
+  text-align: start;
+  border-radius: var(--mg-card-radius);
+  border: var(--mg-card-border);
+  background: var(--mg-card-bg);
+  cursor: pointer;
+  font-family: var(--mg-font);
+  transition: border-color 0.15s;
+}
+.home-hidden-row:hover { border-color: var(--terracotta); }
+.home-hidden-name {
+  flex: 1;
+  min-width: 0;
+  font-size: calc(14px * var(--text-scale));
+  color: var(--espresso);
+}
+.home-hidden-add {
+  display: inline-flex;
+  flex-shrink: 0;
+  color: var(--terracotta);
 }

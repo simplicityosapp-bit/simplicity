@@ -52,10 +52,6 @@
       }
     },
     "chips": {
-      "tasks": "Tareas",
-      "tasksInfoLabel": "Acerca de las tareas",
-      "tasksInfoText_pre": "Toca",
-      "tasksInfoText_post": " la tarjeta para filtrar y ver los detalles. Por defecto: solo tareas abiertas.",
       "income": "Ingresos",
       "expense": "Gastos",
       "net": "Neto",
@@ -108,14 +104,8 @@
       "link_one": "{{count}} tarea",
       "link_other": "{{count}} tareas",
       "noOpen": "No hay tareas abiertas",
-      "urgentOf_one": "{{urgentText}} de {{count}} abierta",
-      "urgentOf_other": "{{urgentText}} de {{count}} abiertas",
-      "urgent_one": "{{count}} urgente",
-      "urgent_other": "{{count}} urgentes",
       "openSummary_one": "{{count}} tarea abierta",
       "openSummary_other": "{{count}} tareas abiertas",
-      "allDone": "Todas las tareas hechas. {{add}} una tarea cuando surja.",
-      "addWord": "Añade",
       "markDone": "Marcar como hecha",
       "overdue_one": "1 atrasada",
       "overdue_other": "{{count}} atrasadas",
@@ -157,6 +147,26 @@
       "showLess": "Ver menos",
       "showAll_one": "1 más",
       "showAll_other": "{{count}} más"
+    }
+  },
+  "edit": {
+    "enter": "Editar pantalla",
+    "barLabel": "Editar la pantalla de inicio",
+    "hint": "Arrastra para ordenar · ✕ para ocultar",
+    "done": "Listo",
+    "hideWidget": "Ocultar {{name}}",
+    "hiddenTitle": "Widgets ocultos",
+    "hiddenEmpty": "No has ocultado nada.",
+    "hiddenCount_one": "Oculto · 1",
+    "hiddenCount_other": "Ocultos · {{count}}",
+    "names": {
+      "quote": "Cita diaria",
+      "moon": "Resumen",
+      "insights": "¿Cómo estás hoy?",
+      "quick-row": "Añadir rápido",
+      "attention": "Requiere atención",
+      "next-tasks": "Tareas y recordatorios",
+      "chips": "Tarjetas de estado"
     }
   }
 }

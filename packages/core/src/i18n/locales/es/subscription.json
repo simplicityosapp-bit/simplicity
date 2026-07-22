@@ -39,7 +39,9 @@
   "thisIsYourPlan": "Tu plan",
   "cta": {
     "upgrade": "Mejorar plan",
-    "choose": "Elegir plan"
+    "choose": "Elegir plan",
+    "buy": "Comprar suscripción",
+    "buyNote": "El pago se realiza en la página segura de Grow"
   },
   "banner": {
     "ending": "Tu acceso beta termina el {{date}}. Mejora para mantener el acceso completo.",

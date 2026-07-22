@@ -42,6 +42,14 @@ export const TIERS = { FREE: 'free', BASIC: 'basic', PREMIUM: 'premium' } as con
 /* Monthly price in ILS (₪), for the plan cards. */
 export const PRICES: Record<string, number> = { free: 0, basic: 42, premium: 89 }
 
+/* Hosted Grow (גרו) payment page for the paid plan — a plain external URL the
+   purchase CTA opens in a new tab. Deliberately NOT part of the Grow gateway
+   integration: it uses no API and is unaffected by GROW_ENABLED / BILLING_ENABLED.
+   One shared link for every user, no per-user parameters — so a completed payment
+   does NOT update the user's tier. Reconciliation is manual until the real
+   checkout + webhook lands (see the ACTIVATION ORDER note above). */
+export const CHECKOUT_URL = 'https://pay.grow.link/MTAzNDg4~30bab0f87400c3ddf6734b1e66983826-MzczMjYwMg'
+
 /* Free-tier ceilings. `clients` counts ALL non-deleted clients in the system
    (not just active ones). Free also gets ONE of each builder page kind
    (landing / lead / booking). Paid tiers are unlimited. */

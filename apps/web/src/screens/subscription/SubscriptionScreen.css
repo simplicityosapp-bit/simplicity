@@ -150,3 +150,33 @@
   font-size: calc(14px * var(--text-scale));
   color: var(--terracotta);
 }
+
+/* Purchase CTA — the standard terracotta primary pill (mirrors .m-btn-save),
+   rendered as a link because it leaves the app for Grow's hosted page. */
+.subs-plan-buy {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: var(--mg-btn-h);
+  border-radius: var(--mg-btn-radius);
+  border: none;
+  background: var(--terracotta);
+  color: var(--on-accent);
+  cursor: pointer;
+  text-decoration: none;
+  font-family: var(--mg-font);
+  font-size: calc(15px * var(--text-scale));
+  font-weight: 500;
+  transition: background 0.15s, transform 0.12s;
+}
+[data-theme="dark"] .subs-plan-buy { color: var(--ink-on-accent); }
+.subs-plan-buy:hover { background: var(--mg-btn-primary-bg-hover); }
+.subs-plan-buy:active { transform: scale(0.97); }
+
+.subs-plan-buy-note {
+  margin: -6px 0 0;
+  text-align: center;
+  font-size: calc(12px * var(--text-scale));
+  color: var(--stone);
+}

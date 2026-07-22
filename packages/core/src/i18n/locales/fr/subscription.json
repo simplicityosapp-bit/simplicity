@@ -39,7 +39,9 @@
   "thisIsYourPlan": "Votre formule",
   "cta": {
     "upgrade": "Changer de formule",
-    "choose": "Choisir une formule"
+    "choose": "Choisir une formule",
+    "buy": "Acheter l'abonnement",
+    "buyNote": "Le paiement s'effectue sur la page sécurisée de Grow"
   },
   "banner": {
     "ending": "Votre accès bêta se termine le {{date}}. Passez à une formule supérieure pour garder l'accès complet.",

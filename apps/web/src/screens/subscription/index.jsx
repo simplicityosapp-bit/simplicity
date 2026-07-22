@@ -1,7 +1,7 @@
-import { Check, Gem } from 'lucide-react'
+import { Check, Gem, ExternalLink } from 'lucide-react'
 import { useT } from '../../i18n/useT'
-import { TIERS, PRICES } from '@simplicity/core'
-import { Box, Txt } from '../../components/ui'
+import { TIERS, PRICES, CHECKOUT_URL } from '@simplicity/core'
+import { Box, Txt, Lnk } from '../../components/ui'
 import './SubscriptionScreen.css'
 
 /* Benefit keys for the plan (resolved via the `subscription` namespace).
@@ -73,6 +73,22 @@ export default function SubscriptionScreen() {
               ))}
             </Box>
             <Txt as="p" className="subs-plan-current">{t('thisIsYourPlan')}</Txt>
+
+            {/* Purchase CTA — shown to EVERYONE (owner's call), including the
+                beta users who hold the plan for free right now. It leaves the
+                app for Grow's hosted page; nothing is charged or unlocked
+                in-app, and the tier is reconciled by hand until the real
+                checkout + webhook exists (see CHECKOUT_URL in core). */}
+            <Lnk
+              className="subs-plan-buy"
+              href={CHECKOUT_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {t('cta.buy')}
+              <ExternalLink size={15} strokeWidth={1.8} aria-hidden="true" />
+            </Lnk>
+            <Txt as="p" className="subs-plan-buy-note">{t('cta.buyNote')}</Txt>
           </Box>
         </Box>
       </Box>

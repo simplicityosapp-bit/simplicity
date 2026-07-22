@@ -4,9 +4,12 @@
    Client-only for now (groups aren't migrated). subject_type/subject_id
    mirror client_id, consistent with scheduled_meetings.
 
-   `notes` + `summary` are encrypted at rest (see lib/fieldCrypto.js): every
-   write encrypts them before they reach Supabase, every read decrypts them,
-   so callers only ever handle plaintext.
+   `notes` + `summary` are stored as PLAINTEXT at rest — field encryption was
+   removed 2026-06 (see docs/security-review-2026-06.md). encryptRow() below is
+   a no-op (ENCRYPTED_FIELDS is empty); decryptRow()/decryptRows() are retained
+   only to transparently read legacy "ENC:" ciphertext via LEGACY_DECRYPT_FIELDS
+   until the one-time backfill rewrites it. Nothing is encrypted on write.
+   At rest these rows are protected by RLS alone (plus HTTPS/TLS in transit).
    ════════════════════════════════════════════════════════════════ */
 
 import { supabase } from '../supabase'

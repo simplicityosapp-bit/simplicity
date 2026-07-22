@@ -2,9 +2,14 @@
    CLIENTS API — Supabase data access for the clients table.
    RLS scopes every row to the signed-in user (user_id = auth.uid()).
 
-   `phone` + `notes` are encrypted at rest (see lib/fieldCrypto.js): every
-   write encrypts them, every read decrypts them. `name` stays plaintext on
-   purpose so server-side calendar matching, sort and search keep working.
+   `phone` + `notes` are stored as PLAINTEXT at rest, like `name` — field
+   encryption was removed 2026-06 (see docs/security-review-2026-06.md).
+   encryptRow() below is a no-op (ENCRYPTED_FIELDS is empty);
+   decryptRow()/decryptRows() are retained only to transparently read legacy
+   "ENC:" ciphertext via LEGACY_DECRYPT_FIELDS until the one-time backfill
+   rewrites it. Nothing is encrypted on write. At rest these rows are protected
+   by RLS alone (plus HTTPS/TLS in transit). `name` must stay plaintext
+   regardless, so server-side calendar matching, sort and search keep working.
    ════════════════════════════════════════════════════════════════ */
 
 import { supabase } from '../supabase'

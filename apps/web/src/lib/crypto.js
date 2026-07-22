@@ -1,24 +1,32 @@
 /* ════════════════════════════════════════════════════════════════
-   FIELD ENCRYPTION — client-side AES-256-GCM via the Web Crypto API.
+   FIELD ENCRYPTION (LEGACY, READ PATH ONLY) — AES-256-GCM via Web Crypto.
    ════════════════════════════════════════════════════════════════
-   Sensitive text fields are encrypted in the browser before they ever
-   reach Supabase, so the data is ciphertext at rest. The key is derived
-   per-user and lives ONLY in memory (see context/CryptoContext.jsx) —
-   never localStorage, sessionStorage, the DB, or any persistent store.
+   NOTHING IS ENCRYPTED ANYMORE. Field encryption was removed 2026-06 (see
+   docs/security-review-2026-06.md); notes / summaries / reflections / phone
+   are stored as PLAINTEXT at rest, like names and email. This module survives
+   only to DECRYPT values still written in the old format — the api read path
+   (lib/fieldCrypto.js, LEGACY_DECRYPT_FIELDS) and the one-time backfill
+   (lib/decryptMigration.js). encryptField() below is kept for symmetry and has
+   NO live callers: its only caller, encryptRow(), gates on ENCRYPTED_FIELDS,
+   which is empty. The key is still derived per-user and lives ONLY in memory
+   (see context/CryptoContext.jsx) — never localStorage, sessionStorage, the
+   DB, or any persistent store.
 
    On-disk format:  "ENC:" + base64( IV[12 bytes] ‖ ciphertext+tag )
-   Legacy fallback: any value NOT starting with "ENC:" is returned as-is,
-                    so existing plaintext (beta) data keeps working.
+   Any value NOT starting with "ENC:" is returned as-is, so plaintext — the
+   norm now — passes through untouched.
 
    No external libraries — Web Crypto only. encrypt/decrypt are async
    (the Web Crypto contract), so callers must await them.
 
-   THREAT MODEL (read before relying on this): the key is PBKDF2 over the
-   user id + a salt that ships in the bundle. It protects against someone
-   reading the database at rest (they get ciphertext, and one user's key
-   can't read another user's rows). It does NOT protect against an attacker
-   who has both the app bundle AND a target user's id. It's privacy-at-rest,
-   not end-to-end confidentiality. See docs/ENCRYPTION_PLAN.md.
+   WHY IT WAS REMOVED (finding OD-1): the key is PBKDF2 over the user id + a
+   salt that ships in the public bundle, so BOTH inputs are known to anyone
+   holding a DB dump — `user_id` sits in plaintext on the very row whose fields
+   are "encrypted". Such an attacker derives every user's key offline and reads
+   100% of the ciphertext, which is exactly the scenario the feature claimed to
+   defend. Do NOT reintroduce this scheme. At rest the data is protected by RLS
+   alone (plus HTTPS/TLS in transit). docs/ENCRYPTION_PLAN.md describes the
+   original design and is superseded.
    ════════════════════════════════════════════════════════════════ */
 
 const ENC_PREFIX = 'ENC:'

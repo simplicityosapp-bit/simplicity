@@ -1,12 +1,15 @@
 /* ════════════════════════════════════════════════════════════════
-   CRYPTO CONTEXT — derives the per-user field-encryption key on login
-   and exposes bound encrypt/decrypt helpers. The key lives ONLY here in
-   memory; it is re-derived on every login and dropped on logout.
+   CRYPTO CONTEXT — derives the per-user key on login and exposes bound
+   encrypt/decrypt helpers. The key lives ONLY here in memory; it is
+   re-derived on every login and dropped on logout.
 
-   isReady is false until the key is derived — callers must not write
-   plaintext while !isReady. `error` is set if the key can't be derived
-   (no secure context / Web Crypto failure); CryptoGate surfaces it with a
-   retry instead of an infinite splash. See docs/ENCRYPTION_PLAN.md.
+   Field encryption was removed 2026-06 (see docs/security-review-2026-06.md),
+   so the key is now needed ONLY to READ legacy "ENC:" values. Writes are
+   always plaintext, and the exposed encryptField has no callers left.
+   isReady means "the key is available to decrypt legacy rows" — it does NOT
+   gate writes. `error` is set if the key can't be derived (no secure context /
+   Web Crypto failure); CryptoGate surfaces it with a retry instead of an
+   infinite splash.
    ════════════════════════════════════════════════════════════════ */
 import { createContext, useContext, useEffect, useState, useCallback, useMemo } from 'react'
 import { deriveKey, encryptField as encWithKey, decryptField as decWithKey } from '../lib/crypto'

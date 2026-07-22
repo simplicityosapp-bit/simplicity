@@ -8,6 +8,7 @@ import {
 import { DRAWER_NAV } from '../lib/nav'
 import { ROUTES } from '../lib/routes'
 import { COMMUNITY_ENABLED } from '../lib/community'
+import { SUBSCRIPTION_NAV_ENABLED } from '../lib/subscriptionNav'
 import { isAdminUser } from '../lib/admin'
 import { roleLabel } from '../lib/preferences'
 import { useAuth } from '../auth/AuthContext'
@@ -32,8 +33,10 @@ const EXTRAS = [
      Hidden while COMMUNITY_ENABLED is false — the row is filtered out below,
      the route itself stays open. */
   { key: 'community', labelKey: 'extras.community', icon: MessagesSquare, to: ROUTES.COMMUNITY_CHAT, beta: true, enabled: COMMUNITY_ENABLED },
-  /* The user's own Simplicity plan — promoted out of Settings into its own screen. */
-  { key: 'subscription', labelKey: 'extras.subscription', icon: Gem, to: ROUTES.SUBSCRIPTION },
+  /* The user's own Simplicity plan — promoted out of Settings into its own screen.
+     Hidden while SUBSCRIPTION_NAV_ENABLED is false: the screen carries a live
+     payment CTA, so the route redirects too (unlike community's nav-only hide). */
+  { key: 'subscription', labelKey: 'extras.subscription', icon: Gem, to: ROUTES.SUBSCRIPTION, enabled: SUBSCRIPTION_NAV_ENABLED },
   { key: 'reports',  labelKey: 'extras.reports',  icon: BarChart3,  to: ROUTES.REPORTS },
   { key: 'insights', labelKey: 'extras.insights', icon: Sparkles,   to: ROUTES.INSIGHTS },
   /* connections demoted here from the main grid (owner call 2026-07-19); reuses

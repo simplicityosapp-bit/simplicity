@@ -222,5 +222,27 @@
       "showAll_many": "ועוד {{count}}",
       "showAll_other": "ועוד {{count}}"
     }
+  },
+  "edit": {
+    "enter": "עריכת המסך",
+    "barLabel": "עריכת מסך הבית",
+    "hint": "גררו לסידור · ✕ להסתרה",
+    "done": "סיום",
+    "hideWidget": "הסתרת {{name}}",
+    "hiddenTitle": "ווידג׳טים מוסתרים",
+    "hiddenEmpty": "לא הסתרתם כלום.",
+    "hiddenCount_one": "מוסתר · 1",
+    "hiddenCount_two": "מוסתרים · {{count}}",
+    "hiddenCount_many": "מוסתרים · {{count}}",
+    "hiddenCount_other": "מוסתרים · {{count}}",
+    "names": {
+      "quote": "ציטוט יומי",
+      "moon": "מבט על",
+      "insights": "מה איתך היום",
+      "quick-row": "הוספה מהירה",
+      "attention": "דרושה תשומת לב",
+      "next-tasks": "משימות ותזכורות",
+      "chips": "כרטיסי מצב"
+    }
   }
 }

@@ -158,5 +158,25 @@
       "showAll_one": "1 more",
       "showAll_other": "{{count}} more"
     }
+  },
+  "edit": {
+    "enter": "Edit screen",
+    "barLabel": "Edit the home screen",
+    "hint": "Drag to arrange · ✕ to hide",
+    "done": "Done",
+    "hideWidget": "Hide {{name}}",
+    "hiddenTitle": "Hidden widgets",
+    "hiddenEmpty": "Nothing is hidden.",
+    "hiddenCount_one": "Hidden · 1",
+    "hiddenCount_other": "Hidden · {{count}}",
+    "names": {
+      "quote": "Daily quote",
+      "moon": "Overview",
+      "insights": "How are you today",
+      "quick-row": "Quick add",
+      "attention": "Needs attention",
+      "next-tasks": "Tasks and reminders",
+      "chips": "Status cards"
+    }
   }
 }

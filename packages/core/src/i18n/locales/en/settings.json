@@ -7,22 +7,64 @@
     "title": "Settings"
   },
   "sections": {
-    "profile": { "title": "Profile", "sub": "Name, profession and focus" },
-    "widgets": { "title": "Widgets & display", "sub": "What shows on your home screen" },
-    "clients": { "title": "Clients & statuses", "sub": "Your own sub-statuses" },
-    "payments": { "title": "Currency, date & time", "sub": "Amount, date & time formats and week start" },
-    "questions": { "title": "Daily questions", "sub": "What you're asked each day" },
-    "leads": { "title": "Lead settings", "sub": "Sources and statuses" },
-    "design": { "title": "Appearance", "sub": "Light/dark mode, background, Hebrew calendar, text size" },
-    "data": { "title": "Data", "sub": "Export, import, reset" },
-    "about": { "title": "About", "sub": "Version and info" }
+    "profile": {
+      "title": "Profile",
+      "sub": "Name, profession and focus"
+    },
+    "widgets": {
+      "title": "Widgets & display",
+      "sub": "What shows on your home screen"
+    },
+    "clients": {
+      "title": "Clients & statuses",
+      "sub": "Your own sub-statuses"
+    },
+    "payments": {
+      "title": "Currency, date & time",
+      "sub": "Amount, date & time formats and week start"
+    },
+    "questions": {
+      "title": "Daily questions",
+      "sub": "What you're asked each day"
+    },
+    "leads": {
+      "title": "Lead settings",
+      "sub": "Sources and statuses"
+    },
+    "design": {
+      "title": "Appearance",
+      "sub": "Light/dark mode, background, Hebrew calendar, text size"
+    },
+    "data": {
+      "title": "Data",
+      "sub": "Export, import, reset"
+    },
+    "about": {
+      "title": "About",
+      "sub": "Version and info"
+    }
   },
   "groups": {
-    "personal": { "title": "Personal", "sub": "Your profile and language settings" },
-    "display": { "title": "Display", "sub": "Home screen design and date/time preferences" },
-    "workflow": { "title": "Workflow", "sub": "Clients, leads and daily routines" },
-    "data": { "title": "Data", "sub": "Export, import and account controls" },
-    "about": { "title": "About", "sub": "App information and help" }
+    "personal": {
+      "title": "Personal",
+      "sub": "Your profile and language settings"
+    },
+    "display": {
+      "title": "Display",
+      "sub": "Home screen design and date/time preferences"
+    },
+    "workflow": {
+      "title": "Workflow",
+      "sub": "Clients, leads and daily routines"
+    },
+    "data": {
+      "title": "Data",
+      "sub": "Export, import and account controls"
+    },
+    "about": {
+      "title": "About",
+      "sub": "App information and help"
+    }
   },
   "common": {
     "loading": "Loading…",
@@ -68,13 +110,7 @@
     "toggle": "{{label}} — {{state}}",
     "on": "turn on",
     "off": "turn off",
-    "compact": "Compact",
-    "rowDensity": {
-      "global": "Global",
-      "compact": "Compact",
-      "comfortable": "Normal",
-      "spacious": "Spacious"
-    }
+    "editOnHome": "You can also press and hold a widget on the home screen to move or hide it."
   },
   "design": {
     "theme": "Light / dark mode",

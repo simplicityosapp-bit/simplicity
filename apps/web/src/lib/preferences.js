@@ -13,13 +13,13 @@ import i18n from '@simplicity/core/i18n'
    via i18n at the call site (settings:widgets.names.<id>) so they follow
    the active language; the registry stays language-agnostic. */
 export const WIDGET_REGISTRY = [
-  { id: 'quote',           defaultAccent: 'blush',      supportsCompact: false },
-  { id: 'moon',            defaultAccent: 'sage',       supportsCompact: true },
-  { id: 'insights',        defaultAccent: 'sage',       supportsCompact: false },
-  { id: 'quick-row',       defaultAccent: 'terracotta', supportsCompact: false },
-  { id: 'attention',       defaultAccent: 'amber',      supportsCompact: true },
-  { id: 'next-tasks',      defaultAccent: 'terracotta', supportsCompact: false },
-  { id: 'chips',           defaultAccent: 'sage',       supportsCompact: false },
+  { id: 'quote',           defaultAccent: 'blush' },
+  { id: 'moon',            defaultAccent: 'sage' },
+  { id: 'insights',        defaultAccent: 'sage' },
+  { id: 'quick-row',       defaultAccent: 'terracotta' },
+  { id: 'attention',       defaultAccent: 'amber' },
+  { id: 'next-tasks',      defaultAccent: 'terracotta' },
+  { id: 'chips',           defaultAccent: 'sage' },
 ]
 
 /* 5-color brand palette (design-tokens.md §1 — Brand & States). The
@@ -239,6 +239,42 @@ export function defaultWidgetsConfig() {
     })),
   }
 }
+
+/* ── Home layout edits ──────────────────────────────────────────
+   The operations the on-screen home editor performs, kept as pure functions
+   on the widget list so the interaction layer (long-press, drag, ✕) has no
+   logic of its own to get wrong. Each returns a NEW list and never mutates.
+
+   Order is the list's own order; visibility is the `enabled` flag. Hiding a
+   widget leaves it in place rather than removing it, so restoring puts it
+   back where it was instead of at the end. */
+
+/* Move `id` so it sits at `toIndex` within the list. */
+export function moveWidgetTo(list, id, toIndex) {
+  const from = (list || []).findIndex((w) => w.id === id)
+  if (from < 0) return list || []
+  const next = [...list]
+  const [item] = next.splice(from, 1)
+  const clamped = Math.max(0, Math.min(toIndex, next.length))
+  next.splice(clamped, 0, item)
+  return next
+}
+
+/* Move `id` to wherever `beforeId` currently sits — what a drag reports,
+   since the pointer lands over another widget rather than over an index. */
+export function moveWidgetBefore(list, id, beforeId) {
+  if (!beforeId || id === beforeId) return list || []
+  const target = (list || []).findIndex((w) => w.id === beforeId)
+  if (target < 0) return list || []
+  return moveWidgetTo(list, id, target)
+}
+
+export function setWidgetVisible(list, id, visible) {
+  return (list || []).map((w) => (w.id === id ? { ...w, enabled: !!visible } : w))
+}
+
+export const visibleWidgets = (list) => (list || []).filter((w) => w.enabled !== false)
+export const hiddenWidgets  = (list) => (list || []).filter((w) => w.enabled === false)
 
 /* Migrate a partially-shaped or missing prefs blob to current shape.
    Idempotent — safe to call on any input. Drops widget list entries

@@ -377,29 +377,6 @@
 .set-w-body { display: flex; flex-direction: column; gap: 10px; }
 /* Widgets sub-toggle — collapses the per-widget list under the display
    settings so it doesn't crowd the global controls. */
-.set-w-collapse { margin-top: 8px; }
-.set-w-collapse > summary.set-w-summary {
-  list-style: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin: 0;
-  padding: 6px 0;
-  font-family: var(--mg-font);
-  font-size: calc(12px * var(--text-scale));
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  color: var(--stone);
-}
-.set-w-collapse > summary.set-w-summary::-webkit-details-marker { display: none; }
-.set-w-collapse > summary.set-w-summary::after {
-  content: '⌄';
-  margin-inline-start: auto;
-  transition: transform 0.2s ease;
-}
-.set-w-collapse[open] > summary.set-w-summary::after { transform: rotate(180deg); }
-.set-w-collapse > .set-w-list { margin-top: 8px; }
 .set-w-list { display: flex; flex-direction: column; gap: 8px; }
 .set-w-row {
   padding: 12px 12px;
@@ -421,7 +398,6 @@
   border-color: var(--moon-hi);
   background: rgba(125, 138, 172, 0.18);
 }
-.set-w-grip { color: var(--stone); opacity: 0.6; display: inline-flex; cursor: grab; }
 .set-w-move { display: inline-flex; flex-direction: column; gap: 1px; }
 .set-w-move-btn {
   display: inline-flex;
@@ -438,11 +414,6 @@
 }
 .set-w-move-btn:hover:not(:disabled) { background: var(--mg-row-hover-bg); color: var(--espresso); }
 .set-w-move-btn:disabled { opacity: 0.3; cursor: default; }
-.set-w-row-head {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
 .set-w-row-name {
   flex: 1;
   font-family: var(--mg-font);
@@ -476,38 +447,6 @@
 }
 .set-w-toggle.on .set-w-toggle-knob {
   right: calc(100% - 18px);
-}
-.set-w-row-ctrls {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 10px 8px;
-  margin-top: 10px;
-}
-.set-w-density {
-  display: inline-flex;
-  gap: 4px;
-}
-.set-w-chip {
-  padding: 4px 10px;
-  border-radius: 999px;
-  border: 1px solid var(--divider);
-  background: transparent;
-  font-family: var(--mg-font);
-  font-size: calc(11px * var(--text-scale));
-  font-weight: 500;
-  color: var(--stone);
-  cursor: pointer;
-  transition: background 120ms, color 120ms;
-}
-.set-w-chip.on {
-  background: var(--espresso);
-  color: var(--cream);
-  border-color: transparent;
-}
-[data-theme="dark"] .set-w-chip.on {
-  background: var(--cream);
-  color: var(--espresso);
 }
 
 /* About section */

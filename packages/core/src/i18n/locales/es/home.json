@@ -158,5 +158,25 @@
       "showAll_one": "1 más",
       "showAll_other": "{{count}} más"
     }
+  },
+  "edit": {
+    "enter": "Editar pantalla",
+    "barLabel": "Editar la pantalla de inicio",
+    "hint": "Arrastra para ordenar · ✕ para ocultar",
+    "done": "Listo",
+    "hideWidget": "Ocultar {{name}}",
+    "hiddenTitle": "Widgets ocultos",
+    "hiddenEmpty": "No has ocultado nada.",
+    "hiddenCount_one": "Oculto · 1",
+    "hiddenCount_other": "Ocultos · {{count}}",
+    "names": {
+      "quote": "Cita diaria",
+      "moon": "Resumen",
+      "insights": "¿Cómo estás hoy?",
+      "quick-row": "Añadir rápido",
+      "attention": "Requiere atención",
+      "next-tasks": "Tareas y recordatorios",
+      "chips": "Tarjetas de estado"
+    }
   }
 }

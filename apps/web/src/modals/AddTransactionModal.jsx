@@ -3,6 +3,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import DateField from '../components/DateField'
 import SelectMenu from '../components/SelectMenu'
 import Modal from './Modal'
+import ConfirmModal from './ConfirmModal'
 import { showToast } from '../lib/toast'
 import { useT } from '../i18n/useT'
 import { useInvoiceProvider } from '../hooks/useInvoiceProvider'
@@ -63,6 +64,10 @@ export default function AddTransactionModal({ open, onClose, onSave, clients = [
      add flow). The details are saved on the transaction (recipient_*). */
   const [recipient, setRecipient] = useState({ name: '', email: '', phone: '', tax_id: '' })
   const setRcp = (k, v) => setRecipient((r) => ({ ...r, [k]: v }))
+  /* Escape / the overlay / the X threw away a filled-in form silently. They
+     ask first now — but only when something was actually typed, so the common
+     "opened it by mistake" case still closes on one tap. */
+  const [confirmDiscard, setConfirmDiscard] = useState(false)
   const adHoc = form.type === 'income' && !lockedClientId && form.client_id === '__adhoc__'
   const set = (k, v) => {
     /* Leaving the expense type unmounts the inline category-creator block —
@@ -75,7 +80,22 @@ export default function AddTransactionModal({ open, onClose, onSave, clients = [
       return next
     })
   }
-  const close = () => { setForm(blank(initial)); setErr(''); setBusy(false); setCreatingCat(false); setNewCatName(''); setCatBusy(false); setIssueOnCreate(false); setIssueDocType('invoice_receipt'); setIssuePayment('bank_transfer'); setIssueItems([]); setIssueItemId(''); setIssueItemName(''); setIssueCatalogLoading(false); setIssueCatalogErr(''); setRecipient({ name: '', email: '', phone: '', tax_id: '' }); onClose() }
+  const close = () => { setForm(blank(initial)); setErr(''); setBusy(false); setCreatingCat(false); setNewCatName(''); setCatBusy(false); setIssueOnCreate(false); setIssueDocType('invoice_receipt'); setIssuePayment('bank_transfer'); setIssueItems([]); setIssueItemId(''); setIssueItemName(''); setIssueCatalogLoading(false); setIssueCatalogErr(''); setConfirmDiscard(false); setRecipient({ name: '', email: '', phone: '', tax_id: '' }); onClose() }
+
+  /* Has anything been entered that would be lost? Compared against the same
+     blank(initial) the form opens with, so a caller's pre-filled defaults
+     (the project QuickRow binds project_id, the drawer locks the client)
+     don't count as the user's own work. The date is skipped: blank() always
+     stamps it with today. */
+  const pristine = blank(initial)
+  const formDirty = ['type', 'amount', 'desc', 'client_id', 'project_id', 'category_id', 'payment_method']
+    .some((k) => String(form[k] ?? '') !== String(pristine[k] ?? ''))
+    || form.date !== pristine.date
+    || Object.values(recipient).some((v) => v.trim() !== '')
+    || issueOnCreate
+    || newCatName.trim() !== ''
+  /* The single exit for Escape, the overlay and the X. */
+  const requestClose = () => { if (formDirty) setConfirmDiscard(true); else close() }
 
   /* Load the provider catalog for the issue-on-create picker. Defaults the
      selection to the first item — visible and changeable (like InvoiceActions),
@@ -205,7 +225,7 @@ export default function AddTransactionModal({ open, onClose, onSave, clients = [
   ]
 
   return (
-    <Modal open={open} onClose={close} title={client ? t('tx.titlePayment') : t('tx.titleNew')}>
+    <Modal open={open} onClose={requestClose} title={client ? t('tx.titlePayment') : t('tx.titleNew')}>
       {client && (
         <Txt as="p" className="m-sub">
           <Txt className="m-sub-dot" style={{ background: 'var(--sage)' }} />
@@ -383,9 +403,20 @@ export default function AddTransactionModal({ open, onClose, onSave, clients = [
       {err && <Txt as="p" className="m-error">{err}</Txt>}
 
       <Box className="m-actions">
-        <Btn type="button" className="m-btn-cancel" onClick={close}>{t('common.cancel')}</Btn>
+        <Btn type="button" className="m-btn-cancel" onClick={requestClose}>{t('common.cancel')}</Btn>
         <Btn type="button" className="m-btn-save" onClick={submit} disabled={busy}>{busy ? t('common.saving') : t('common.save')}</Btn>
       </Box>
+
+      <ConfirmModal
+        open={confirmDiscard}
+        onClose={() => setConfirmDiscard(false)}
+        title={t('discard.title')}
+        message={t('discard.message')}
+        confirmLabel={t('discard.confirm')}
+        cancelLabel={t('discard.cancel')}
+        danger
+        onConfirm={close}
+      />
     </Modal>
   )
 }

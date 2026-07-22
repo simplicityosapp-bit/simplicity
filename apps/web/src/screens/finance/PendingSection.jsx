@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { AlertCircle, Check, X, Trash2 } from 'lucide-react'
 import { isr, fmtShortDate } from '@simplicity/core'
 import { useT } from '../../i18n/useT'
+import ConfirmModal from '../../modals/ConfirmModal'
 import './PendingSection.css'
 import { Box, Txt, Btn } from '../../components/ui'
 
@@ -13,6 +14,13 @@ import { Box, Txt, Btn } from '../../components/ui'
 export default function PendingSection({ transactions, clients = [], projects = [], categories = [], onApprove, onSkip, onEdit, onDelete, embedded = false }) {
   const { t } = useT('finance')
   const [bulkBusy, setBulkBusy] = useState(false)
+  /* "אשר הכל" confirms every row at once — income and expenses alike — and
+     there is no bulk undo, so it states what it is about to do first. */
+  const [confirmBulk, setConfirmBulk] = useState(false)
+  /* Only the home "דרושה תשומת לב" popup passes onDelete (the finance screen
+     doesn't), and it used to delete on one tap while the finance list asked
+     first — same action, two different levels of care. It asks here too. */
+  const [pendingDelete, setPendingDelete] = useState(null)
   if (!transactions.length) return null
 
   /* Sequential await so optimistic state updates in setStatus don't trample
@@ -55,7 +63,7 @@ export default function PendingSection({ transactions, clients = [], projects = 
           <Btn
             type="button"
             className="f-pending-bulk"
-            onClick={approveAll}
+            onClick={() => setConfirmBulk(true)}
             disabled={bulkBusy}
           >
             <Check size={13} strokeWidth={1.9} aria-hidden="true" /> {bulkBusy ? t('pending.approving') : t('pending.approveAll')}
@@ -97,30 +105,33 @@ export default function PendingSection({ transactions, clients = [], projects = 
               <Txt as="p" className={`f-pending-amt mono ${isExpense ? 'exp' : 'inc'}`}>
                 {isExpense ? '−' : '+'}{isr(tx.amount)}
               </Txt>
+              {/* Text, not bare icons: this is the one place the user is
+                  asked to decide, and on a phone an icon has no tooltip to
+                  fall back on. A red ✗ also reads as "delete". */}
               <Box className="f-pending-actions">
                 <Btn
                   type="button"
-                  className="f-tx-btn approve"
+                  className="f-pending-act yes"
                   onClick={(e) => { e.stopPropagation(); onApprove(tx.id) }}
-                  title={t('pending.approve')}
                   aria-label={t('pending.approve')}
                 >
                   <Check size={14} strokeWidth={2} aria-hidden="true" />
+                  <Txt className="f-pending-act-lbl">{t('pending.approve')}</Txt>
                 </Btn>
                 <Btn
                   type="button"
-                  className="f-tx-btn skip"
+                  className="f-pending-act no"
                   onClick={(e) => { e.stopPropagation(); onSkip(tx.id) }}
-                  title={t('pending.skip')}
                   aria-label={t('pending.skip')}
                 >
                   <X size={14} strokeWidth={2} aria-hidden="true" />
+                  <Txt className="f-pending-act-lbl">{t('pending.skip')}</Txt>
                 </Btn>
                 {onDelete && (
                   <Btn
                     type="button"
                     className="f-tx-btn delete"
-                    onClick={(e) => { e.stopPropagation(); onDelete(tx.id) }}
+                    onClick={(e) => { e.stopPropagation(); setPendingDelete(tx) }}
                     title={t('pending.delete')}
                     aria-label={t('pending.delete')}
                   >
@@ -132,6 +143,35 @@ export default function PendingSection({ transactions, clients = [], projects = 
           )
         })}
       </Box>
+
+      {/* Spells out the count and both totals, so "אשר הכל" can't quietly
+          confirm a month of expenses the user hadn't looked at yet. */}
+      <ConfirmModal
+        open={confirmBulk}
+        onClose={() => setConfirmBulk(false)}
+        title={t('pending.approveAllConfirm.title')}
+        message={t('pending.approveAllConfirm.message', {
+          count: transactions.length,
+          totals: [
+            totalIncome > 0 ? t('pending.income', { amount: isr(totalIncome) }) : null,
+            totalExpense > 0 ? t('pending.expenses', { amount: isr(totalExpense) }) : null,
+          ].filter(Boolean).join(' · '),
+        })}
+        confirmLabel={t('pending.approveAllConfirm.confirm')}
+        onConfirm={approveAll}
+      />
+
+      <ConfirmModal
+        open={!!pendingDelete}
+        onClose={() => setPendingDelete(null)}
+        title={t('deleteTx.title')}
+        message={pendingDelete
+          ? t('deleteTx.message', { desc: pendingDelete.desc || t('pending.noDesc'), amount: isr(pendingDelete.amount) })
+          : ''}
+        confirmLabel={t('deleteTx.confirm')}
+        danger
+        onConfirm={() => { if (pendingDelete) return onDelete(pendingDelete.id) }}
+      />
     </Box>
   )
 }

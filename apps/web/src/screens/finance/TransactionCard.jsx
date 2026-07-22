@@ -76,8 +76,10 @@ function TransactionCard({ tx, clients = [], projects = [], categories = [], onA
             {hasReceipt && (
               <WhatsAppButton phone={client?.phone || tx.recipient_phone} message={waMessage} triggerClassName="f-tx-btn wa" />
             )}
+            {/* onDelete gets the whole row, not the id — the list needs the
+                description and amount to name what is about to be deleted. */}
             {onDelete && (
-              <Btn type="button" className="f-tx-btn delete" onClick={stop(() => onDelete(tx.id))} title={t('tx.delete')} aria-label={t('tx.delete')}>
+              <Btn type="button" className="f-tx-btn delete" onClick={stop(() => onDelete(tx))} title={t('tx.delete')} aria-label={t('tx.delete')}>
                 <Trash2 size={14} strokeWidth={1.8} aria-hidden="true" />
               </Btn>
             )}

@@ -58,9 +58,15 @@
     "needDate": "Choisissez une date.",
     "status": "Statut",
     "statusConfirmed": "Confirmée",
-    "statusPending": "En attente",
-    "statusSkipped": "Ignorée",
-    "delete": "Supprimer"
+    "statusPending": "En attente d'approbation",
+    "statusSkipped": "N'a pas eu lieu",
+    "delete": "Supprimer",
+    "deleteConfirm": {
+      "title": "Supprimer la transaction",
+      "message": "Supprimer « {{desc}} » de {{amount}} ?",
+      "noDesc": "Sans description",
+      "confirm": "Supprimer"
+    }
   },
   "recurring": {
     "titleNew": "Nouveau modèle récurrent",
@@ -201,5 +207,11 @@
   "editProject": {
     "title": "Modifier le projet",
     "projectName": "Nom du projet"
+  },
+  "discard": {
+    "title": "Quitter sans enregistrer ?",
+    "message": "Ce que vous avez saisi sera perdu.",
+    "confirm": "Quitter sans enregistrer",
+    "cancel": "Continuer la modification"
   }
 }

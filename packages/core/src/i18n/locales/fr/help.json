@@ -101,7 +101,7 @@
         },
         {
           "title": "Widget Alertes (nécessite votre attention)",
-          "body": "Une carte qui rassemble en un seul endroit tout ce qui vous attend : transactions à confirmer, séances que vous n'avez pas encore marquées, clients avec un solde impayé, écart par rapport à l'objectif mensuel, tâches urgentes, clients à qui vous n'avez pas parlé depuis 45 jours, prospects sans activité, relances dues aujourd'hui et doublons avec Google Calendar. Les transactions et les séances ouvrent une fenêtre de confirmation (confirmer / passer / supprimer) ; tout le reste vous mène à l'écran concerné."
+          "body": "Une carte qui rassemble en un seul endroit tout ce qui vous attend : transactions à confirmer, séances que vous n'avez pas encore marquées, clients avec un solde impayé, écart par rapport à l'objectif mensuel, tâches urgentes, clients à qui vous n'avez pas parlé depuis 45 jours, prospects sans activité, relances dues aujourd'hui et doublons avec Google Calendar. Les transactions ouvrent une fenêtre où chaque ligne propose « Oui, cela a eu lieu », « Non, cela n'a pas eu lieu » et supprimer ; les séances ouvrent une fenêtre de confirmation (confirmer / passer / supprimer) ; tout le reste vous mène à l'écran concerné."
         },
         {
           "title": "Confirmer des séances depuis l'Accueil",
@@ -151,7 +151,7 @@
         },
         {
           "q": "Pourquoi le chiffre « Net » des cartes de statut ne correspond-il pas à ce que j'ai saisi ?",
-          "a": "La carte ne compte que les transactions confirmées (ni en attente ni passées) et affiche le net pour la période que vous avez sélectionnée dans la fenêtre de filtre (par défaut : ce mois-ci). Les transactions en attente apparaissent séparément sous « Nécessite votre attention »."
+          "a": "La carte ne compte que les transactions confirmées (ni celles en attente d'approbation, ni celles marquées « N'a pas eu lieu ») et affiche le net pour la période que vous avez sélectionnée dans la fenêtre de filtre (par défaut : ce mois-ci). Les transactions en attente d'approbation apparaissent séparément sous « Nécessite votre attention »."
         },
         {
           "q": "J'ai marqué un rappel récurrent comme terminé — a-t-il disparu ?",
@@ -359,8 +359,8 @@
           "body": "Le bouton « + Nouvelle transaction » ouvre une fenêtre où vous choisissez « + Revenu » ou « − Dépense » et renseignez le montant, la date, la description et le client/projet. Pour les dépenses, vous pouvez sélectionner une catégorie (ou en créer une nouvelle sur le moment). La transaction est enregistrée dans le mois de la date que vous avez choisie."
         },
         {
-          "title": "Une date future est enregistrée comme En attente",
-          "body": "Une transaction avec une date future est automatiquement enregistrée comme « En attente » jusqu'à ce que ce jour arrive, et se place dans la carte des éléments à approuver. Une transaction datée d'aujourd'hui ou du passé est enregistrée comme « Approuvée » et entre directement dans le résumé."
+          "title": "Une date future est enregistrée comme « En attente d'approbation »",
+          "body": "Une transaction avec une date future est automatiquement enregistrée comme « En attente d'approbation » jusqu'à ce que ce jour arrive, et se place dans la carte des transactions en attente d'approbation. Une transaction datée d'aujourd'hui ou du passé est enregistrée comme « Confirmée » et entre directement dans le résumé."
         },
         {
           "title": "Émettre un reçu à l'enregistrement",
@@ -368,27 +368,27 @@
         },
         {
           "title": "Résumé mensuel et navigation entre les mois",
-          "body": "En haut de l'écran, vous verrez « Net ce mois-ci », « Revenu » et « Dépenses » pour le mois sélectionné, avec des flèches pour passer au mois précédent ou suivant. Chaque chiffre affiche aussi le pourcentage de variation par rapport au mois précédent. Le résumé ne compte que les transactions approuvées — les transactions en attente, passées ou annulées par un avoir ne sont pas incluses."
+          "body": "En haut de l'écran, vous verrez « Net ce mois-ci », « Revenu » et « Dépenses » pour le mois sélectionné, avec des flèches pour passer au mois précédent ou suivant. Chaque chiffre affiche aussi le pourcentage de variation par rapport au mois précédent. Le résumé ne compte que les transactions confirmées — celles en attente d'approbation, celles marquées « N'a pas eu lieu » ou celles annulées par un avoir ne sont pas incluses."
         },
         {
           "title": "Graphique du revenu cumulé",
           "body": "Un graphique montrant comment le revenu approuvé s'est accumulé jour après jour sur le mois sélectionné, avec un point sur le jour actuel. Si vous avez défini un objectif de revenu mensuel dans l'écran Objectifs, une ligne cible en pointillés et un pourcentage d'atteinte sont affichés. Sinon, un lien pour définir un objectif de revenu mensuel apparaît à la place."
         },
         {
-          "title": "Transactions en attente et approbation groupée",
-          "body": "Toutes les transactions en attente du mois se trouvent dans une carte distincte, indiquant le total des revenus et des dépenses en attente. Chaque ligne dispose de « Approuver » (la transaction a eu lieu) et « Passer » (elle n'a pas eu lieu). Cliquer sur une ligne ouvre la modification, et au-dessus d'une liste de plusieurs éléments figure un bouton « Tout approuver »."
+          "title": "Transactions en attente d'approbation et approbation groupée",
+          "body": "Toutes les transactions du mois en attente d'approbation se trouvent dans une carte distincte, indiquant le total des revenus et des dépenses en attente. Chaque ligne dispose de « Oui, cela a eu lieu » et « Non, cela n'a pas eu lieu ». Cliquer sur une ligne ouvre la modification, et au-dessus d'une liste de plusieurs éléments figure un bouton « Tout approuver », qui ouvre d'abord une fenêtre de confirmation indiquant le nombre de transactions concernées ainsi que les totaux des revenus et des dépenses."
         },
         {
-          "title": "Liste des transactions : Approuvées et Passées",
-          "body": "Sous la carte des éléments en attente, les transactions sont regroupées en « Approuvées » et « Passées ». Une transaction passée affiche une étiquette « Passée » avec un montant barré, et vous pouvez la remettre en attente. Lorsqu'il y a des transactions passées, un bouton apparaît pour les afficher ou les masquer (« Afficher N passées » / « Masquer les passées »)."
+          "title": "Liste des transactions : Confirmées et N'ont pas eu lieu",
+          "body": "Sous la carte des transactions en attente d'approbation, les transactions sont regroupées en « Confirmées » et « N'ont pas eu lieu ». Une transaction que vous avez marquée ainsi affiche une étiquette « N'a pas eu lieu » avec un montant barré, et vous pouvez la remettre en attente d'approbation. Lorsqu'il y a de telles transactions, un bouton apparaît pour les afficher ou les masquer (« Afficher N qui n'ont pas eu lieu » / « Masquer ce qui n'a pas eu lieu »)."
         },
         {
           "title": "Supprimer une transaction depuis la liste ou la vue de modification",
-          "body": "Chaque transaction approuvée ou passée a un bouton de suppression dans la liste, et la fenêtre de modification comporte aussi un bouton « Supprimer ». Juste après la suppression, une notification d'annulation apparaît pour que vous puissiez restaurer la transaction."
+          "body": "Chaque transaction, confirmée ou marquée « N'a pas eu lieu », a un bouton de suppression dans la liste, et la fenêtre de modification comporte aussi un bouton « Supprimer ». Dans les deux cas, une fenêtre de confirmation indiquant la description et le montant de la transaction s'ouvre d'abord, et la suppression n'a lieu qu'une fois confirmée. Juste après, une notification d'annulation apparaît pour que vous puissiez restaurer la transaction."
         },
         {
           "title": "Modèles récurrents (ordres permanents)",
-          "body": "Dans la section « Modèles récurrents », vous configurez des transactions qui se répètent automatiquement : « Selon un calendrier » (mensuel un jour précis, ou hebdomadaire un jour de la semaine précis, avec une date de fin facultative) ou « Après une séance » (crée une transaction en attente pour chaque séance avec le client que vous choisissez, et se ferme automatiquement si la séance est passée). Le système génère à partir de ces modèles des transactions en attente que vous devez approuver."
+          "body": "Dans la section « Modèles récurrents », vous configurez des transactions qui se répètent automatiquement : « Selon un calendrier » (mensuel un jour précis, ou hebdomadaire un jour de la semaine précis, avec une date de fin facultative) ou « Après une séance » (crée une transaction en attente d'approbation pour chaque séance avec le client que vous choisissez, et se ferme automatiquement si la séance est passée). À partir de ces modèles, le système génère des transactions qui attendent votre approbation."
         },
         {
           "title": "Mettre en pause, modifier et supprimer un modèle",
@@ -403,12 +403,12 @@
           "body": "Deux cartes affichent une répartition en colonnes : « Revenus par projet » répartit le revenu approuvé entre les projets (le revenu sans projet va dans « Sans projet »), et « Dépenses par catégorie » répartit les dépenses approuvées par catégorie (« Sans catégorie » pour tout ce qui n'est pas étiqueté)."
         },
         {
-          "title": "Import en attente depuis les factures",
-          "body": "Si vous avez connecté Green Invoice ou SUMIT, les factures que vous avez émises dans le service externe apparaissent dans la section « Import en attente ». Chaque facture a un lien « Afficher » vers le document, et vous pouvez l'importer comme revenu (avec une confirmation en deux étapes) ou l'écarter. S'il existe déjà une entrée de revenu pour le même client et le même montant, un avertissement « Doublon possible » apparaît avec une confirmation supplémentaire avant l'import."
+          "title": "Factures émises dans votre service de facturation",
+          "body": "Si vous avez connecté Green Invoice ou SUMIT, les factures que vous avez émises dans le service externe apparaissent dans la section « Factures émises dans votre service de facturation ». Chaque facture a un lien « Afficher » vers le document, et vous pouvez l'importer comme revenu ou l'écarter. L'import ouvre une fenêtre de confirmation indiquant le montant et le nom du client avant que quoi que ce soit ne soit enregistré. S'il existe déjà une entrée de revenu pour le même client et le même montant, l'étiquette « Possible doublon » apparaît et cette même fenêtre est formulée comme un avertissement plus ferme."
         },
         {
           "title": "Émettre une facture et un avoir depuis la vue de modification",
-          "body": "Cliquer sur une entrée de revenu ouvre la modification, et là — si vous avez connecté un service de facturation — « Émettre une facture » apparaît : choisissez un type de document, un produit du catalogue du fournisseur ou du texte libre, et un mode de paiement (pour les documents de type reçu). Après l'émission, vous verrez le numéro du document et un lien d'affichage, ainsi qu'un bouton « Avoir / Annuler » qui émet un avoir — cela annule le document et retire le revenu des résumés (la transaction est marquée « Annulée »)."
+          "body": "Cliquer sur une entrée de revenu ouvre la modification, et là — si vous avez connecté un service de facturation — « Émettre une facture » apparaît : choisissez un type de document, un produit du catalogue du fournisseur ou du texte libre, et un mode de paiement (pour les documents de type reçu). Après l'émission, vous verrez le numéro du document et un lien d'affichage, ainsi qu'un bouton « Avoir / Annuler » qui émet un avoir — cela annule le document et retire le revenu des résumés (la transaction est marquée « Annulée par avoir »)."
         },
         {
           "title": "Export CSV",
@@ -417,23 +417,23 @@
       ],
       "tips": [
         "Tous les chiffres de l'écran — le résumé, le graphique et les répartitions — concernent le mois affiché en haut. Si une transaction semble manquante, vérifiez que vous êtes sur le bon mois d'après sa date.",
-        "Seules les transactions « Approuvées » comptent dans le résumé et le graphique. Les transactions en attente apparaissent séparément jusqu'à ce que vous les approuviez, et les transactions passées ou annulées sont exclues des totaux.",
+        "Seules les transactions « Confirmées » comptent dans le résumé et le graphique. Les transactions en attente d'approbation apparaissent séparément jusqu'à ce que vous les approuviez, et celles marquées « N'a pas eu lieu » ou annulées par un avoir sont exclues des totaux.",
         "Pour les dépenses fixes comme le loyer, les abonnements ou les fournitures — configurez un modèle récurrent afin que la transaction soit créée automatiquement chaque mois et que vous n'oubliiez jamais de la consigner.",
         "Vous pouvez créer une nouvelle catégorie de dépenses directement depuis la fenêtre de transaction (« + Nouvelle catégorie… ») sans la quitter.",
-        "Vous avez supprimé une transaction ? Vous pouvez la restaurer immédiatement via la notification d'annulation qui apparaît juste après la suppression."
+        "Supprimer une transaction ouvre d'abord une fenêtre de confirmation indiquant sa description et son montant ; une fois supprimée, la notification d'annulation vous permet de la restaurer immédiatement."
       ],
       "faq": [
         {
           "q": "J'ai consigné une transaction mais elle n'apparaît pas dans la liste ou le résumé ?",
-          "a": "Vérifiez d'abord que vous êtes sur le bon mois (d'après la date de la transaction). Une transaction avec une date future est enregistrée comme « En attente » et se place séparément dans la carte des éléments en attente jusqu'à ce que vous l'approuviez — seule une transaction approuvée compte dans le résumé."
+          "a": "Vérifiez d'abord que vous êtes sur le bon mois (d'après la date de la transaction). Une transaction avec une date future est enregistrée comme « En attente d'approbation » et se place séparément dans la carte des transactions en attente d'approbation jusqu'à ce que vous l'approuviez — seule une transaction confirmée compte dans le résumé."
         },
         {
           "q": "Pourquoi le résumé du haut ne correspond-il pas à ce que j'attends ?",
-          "a": "Le résumé ne compte que les transactions « Approuvées ». Les transactions en attente, celles que vous avez passées, ou celles annulées par un avoir — aucune n'est comptée dans les totaux du net, des revenus ou des dépenses."
+          "a": "Le résumé ne compte que les transactions « Confirmées ». Les transactions en attente d'approbation, celles que vous avez marquées « N'a pas eu lieu », ou celles annulées par un avoir — aucune n'est comptée dans les totaux du net, des revenus ou des dépenses."
         },
         {
           "q": "Comment configurer un ordre permanent ?",
-          "a": "Dans la section « Modèles récurrents », cliquez sur « + Nouveau modèle », choisissez « Selon un calendrier » (mensuel ou hebdomadaire) ou « Après une séance », et définissez le montant, le jour et la date de fin. Le système générera des transactions en attente selon vos réglages, que vous approuverez ensuite."
+          "a": "Dans la section « Modèles récurrents », cliquez sur « + Nouveau modèle », choisissez « Selon un calendrier » (mensuel ou hebdomadaire) ou « Après une séance », et définissez le montant, le jour et la date de fin. Le système générera des transactions en attente d'approbation selon vos réglages, que vous approuverez ensuite."
         },
         {
           "q": "J'ai supprimé un modèle récurrent — qu'advient-il des transactions déjà générées à partir de lui ?",
@@ -445,7 +445,7 @@
         },
         {
           "q": "J'ai supprimé une transaction par erreur — puis-je la récupérer ?",
-          "a": "Oui. Juste après la suppression, une notification d'annulation apparaît pour que vous puissiez restaurer la transaction. Vous pouvez aussi annuler une marque « passée » sur une transaction et la remettre en attente."
+          "a": "Oui. La suppression ouvre d'abord une fenêtre de confirmation indiquant la description et le montant, et juste après, une notification d'annulation apparaît pour que vous puissiez restaurer la transaction. Vous pouvez aussi annuler une marque « N'a pas eu lieu » et remettre la transaction en attente d'approbation."
         }
       ]
     },
@@ -949,7 +949,7 @@
         },
         {
           "q": "Le score ne change pas — pourquoi ?",
-          "a": "Le score se met à jour lorsque les données qui alimentent vos objectifs changent : transactions de revenu confirmées (ni en attente ni passées), réponses au point quotidien, nombre de clients actifs, prospects et conversions de prospects, décomptes de membres de groupe, et entrées manuelles que vous avez consignées dans les objectifs. Mettez-les à jour et le score bougera."
+          "a": "Le score se met à jour lorsque les données qui alimentent vos objectifs changent : transactions de revenu confirmées (ni en attente d'approbation, ni marquées « N'a pas eu lieu »), réponses au point quotidien, nombre de clients actifs, prospects et conversions de prospects, décomptes de membres de groupe, et entrées manuelles que vous avez consignées dans les objectifs. Mettez-les à jour et le score bougera."
         }
       ]
     },
@@ -1082,8 +1082,8 @@
           "body": "Lorsque la facturation est connectée, vous pouvez activer la case « Importer automatiquement les revenus ? ». Quand elle est activée, le système détecte les factures que vous avez émises dans votre logiciel de facturation et demande s'il faut les enregistrer aussi comme revenu ici. Il n'enregistrera rien sans votre confirmation."
         },
         {
-          "title": "Imports en attente",
-          "body": "Sous la carte de facturation, une liste « Imports en attente » — les factures que vous avez émises dans le service externe qui attendent votre approbation. Chaque ligne affiche le type et le numéro du document, le montant, le nom du client, un lien « Afficher » vers le document (s'il est disponible), et un bouton de confirmation (« Importer comme revenu », requiert deux clics) ou un bouton de rejet. Si cela ressemble à un doublon d'une transaction existante, un avertissement discret apparaît avant que vous ne confirmiez."
+          "title": "Factures émises dans votre service de facturation",
+          "body": "Sous la carte de facturation, une liste « Factures émises dans votre service de facturation » — les factures que vous avez émises dans le service externe qui attendent votre approbation. Chaque ligne affiche le type et le numéro du document, le montant, le nom du client, un lien « Afficher » vers le document (s'il est disponible), et un bouton d'import (« Importer comme revenu ») ou un bouton de rejet. L'import ouvre une fenêtre de confirmation indiquant exactement ce qui va être enregistré. Si cela ressemble à un doublon d'une transaction existante, cette même fenêtre est formulée comme un avertissement plus ferme."
         }
       ],
       "tips": [
@@ -1091,7 +1091,7 @@
         "Les événements que le système n'a pas reconnus (« Non identifiés ») méritent d'être associés manuellement — à un client, un projet, un prospect ou un groupe. L'association est enregistrée et ne sera pas écrasée par les synchronisations futures.",
         "Vous n'êtes pas sûr que vos identifiants de facturation soient toujours valides ? Cliquez sur « Tester la connexion » sur la page Facturation. Cela vérifie auprès du service sans rien déconnecter.",
         "Le secret de Green Invoice n'est affiché qu'une seule fois, lorsque vous créez la clé. Copiez-le tout de suite, avant de fermer la fenêtre.",
-        "Si vous avez déjà enregistré un revenu manuellement et qu'il apparaît aussi dans « Imports en attente » avec une étiquette « Doublon possible » — rejetez l'import pour qu'il ne soit pas enregistré deux fois.",
+        "Si vous avez déjà enregistré un revenu manuellement et qu'il apparaît aussi dans « Factures émises dans votre service de facturation » avec une étiquette « Possible doublon » — rejetez l'import pour qu'il ne soit pas enregistré deux fois.",
         "Pour SUMIT, vous avez besoin de la clé API privée, pas de la publique. Sinon la connexion échouera."
       ],
       "faq": [
@@ -1113,7 +1113,7 @@
         },
         {
           "q": "La case « Importer automatiquement les revenus ? » — enregistre-t-elle des revenus sans me demander ?",
-          "a": "Non. Quand elle est activée, elle détecte les factures que vous avez émises dans votre logiciel de facturation et les ajoute à « Imports en attente ». Mais elles ne sont enregistrées comme revenu qu'après que vous avez confirmé chacune vous-même."
+          "a": "Non. Quand elle est activée, elle détecte les factures que vous avez émises dans votre logiciel de facturation et les ajoute à la liste « Factures émises dans votre service de facturation ». Mais elles ne sont enregistrées comme revenu qu'après que vous avez confirmé chacune vous-même."
         },
         {
           "q": "Où sont stockés les identifiants que j'ai saisis ?",

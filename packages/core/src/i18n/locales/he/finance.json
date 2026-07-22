@@ -12,11 +12,7 @@
   "newTx": "+ תנועה חדשה",
   "loading": "טוען תנועות…",
   "loadError": "שגיאה בטעינת התנועות: {{error}}",
-  "hideSkipped": "הסתר שדילגת",
-  "showSkipped_one": "הצג תנועה אחת שדילגת",
-  "showSkipped_two": "הצג שתי תנועות שדילגת",
-  "showSkipped_many": "הצג {{count}} תנועות שדילגת",
-  "showSkipped_other": "הצג {{count}} תנועות שדילגת",
+  "hideSkipped": "הסתרת תנועות שלא קרו",
   "deleteRecurring": {
     "title": "מחיקת תבנית חוזרת",
     "message": "למחוק את \"{{name}}\"? תנועות שכבר נוצרו לפי התבנית יישארו.",
@@ -35,31 +31,39 @@
   },
   "tx": {
     "noDesc": "ללא תיאור",
-    "skipped": "דילגת",
-    "credited": "בוטלה",
-    "approveTitle": "אשר — התנועה קרתה",
-    "skipTitle": "דלג — לא קרה",
-    "restore": "החזר לממתינה",
-    "delete": "מחק תנועה"
+    "skipped": "לא קרה",
+    "credited": "בוטלה בזיכוי",
+    "approveTitle": "כן, זה קרה",
+    "skipTitle": "לא, זה לא קרה",
+    "restore": "החזרה לאישור",
+    "delete": "מחיקת תנועה"
   },
   "list": {
     "empty": "אין תנועות לחודש זה.",
     "confirmed": "אושרו",
-    "skipped": "דולגו"
+    "skipped": "לא קרו"
   },
   "pending": {
-    "count_one": "תנועה אחת ממתינה",
-    "count_two": "שתי תנועות ממתינות",
-    "count_many": "{{count}} תנועות ממתינות",
-    "count_other": "{{count}} תנועות ממתינות",
     "income": "הכנסות {{amount}}",
     "expenses": "הוצאות {{amount}}",
     "approving": "מאשר…",
-    "approveAll": "אשר הכל",
+    "approveAll": "אישור הכל",
     "noDesc": "ללא תיאור",
-    "approve": "אשר",
-    "skip": "דלג",
-    "delete": "מחק"
+    "approve": "כן, זה קרה",
+    "skip": "לא, זה לא קרה",
+    "delete": "מחיקה",
+    "approveAllConfirm": {
+      "title": "אישור כל התנועות",
+      "message_one": "לאשר תנועה אחת? {{totals}}",
+      "message_two": "לאשר שתי תנועות? {{totals}}",
+      "message_many": "לאשר {{count}} תנועות? {{totals}}",
+      "message_other": "לאשר {{count}} תנועות? {{totals}}",
+      "confirm": "אישור הכל"
+    },
+    "count_one": "תנועה אחת מחכה לאישור",
+    "count_two": "שתי תנועות מחכות לאישור",
+    "count_many": "{{count}} תנועות מחכות לאישור",
+    "count_other": "{{count}} תנועות מחכות לאישור"
   },
   "recurring": {
     "title": "תבניות חוזרות",
@@ -112,10 +116,10 @@
     "typeReceipt": "קבלה",
     "typeInvoice": "חשבונית מס",
     "typeDoc": "מסמך",
-    "heading": "ייבוא ממתין",
+    "heading": "חשבוניות שהפקת במערכת החשבוניות",
     "countAria_one": "חשבונית {{count}} לאישור",
     "countAria_other": "{{count}} חשבוניות לאישור",
-    "sub": "חשבוניות שהופקו בשירות החיצוני — לייבא כהכנסה?",
+    "sub": "לרשום אותן כהכנסה?",
     "docNumber": "מס׳",
     "noName": "ללא שם",
     "view": "צפייה",
@@ -123,10 +127,6 @@
     "importedToast": "החשבונית יובאה כהכנסה.",
     "dismissedToast": "החשבונית נדחתה.",
     "importingAria": "מייבא…",
-    "confirmAria": "אישור ייבוא {{amount}} כהכנסה",
-    "sure": "בטוח/ה?",
-    "sure_male": "בטוח?",
-    "sure_female": "בטוחה?",
     "importAria": "ייבא כהכנסה",
     "importTitle": "ייבא כהכנסה",
     "dismiss": "דחה",
@@ -138,7 +138,12 @@
     "dupConfirm_female": "כן, ייבאי",
     "cancel": "ביטול",
     "countAria_two": "{{count}} חשבוניות לאישור",
-    "countAria_many": "{{count}} חשבוניות לאישור"
+    "countAria_many": "{{count}} חשבוניות לאישור",
+    "confirmTitle": "ייבוא כהכנסה",
+    "confirmMessage": "לרשום {{amount}}{{forName}} כהכנסה חדשה?",
+    "confirmBtn": "כן, ייבא",
+    "confirmBtn_male": "כן, ייבא",
+    "confirmBtn_female": "כן, ייבאי"
   },
   "docTypes": {
     "invoice_receipt": "חשבונית מס קבלה",
@@ -151,5 +156,14 @@
     "credit_card": "כרטיס אשראי",
     "app": "אפליקציה (ביט/פייבוקס)",
     "other": "אחר"
-  }
+  },
+  "deleteTx": {
+    "title": "מחיקת תנועה",
+    "message": "למחוק את \"{{desc}}\" על סך {{amount}}?",
+    "confirm": "מחק"
+  },
+  "showSkipped_one": "הצגת תנועה אחת שלא קרתה",
+  "showSkipped_two": "הצגת שתי תנועות שלא קרו",
+  "showSkipped_many": "הצגת {{count}} תנועות שלא קרו",
+  "showSkipped_other": "הצגת {{count}} תנועות שלא קרו"
 }

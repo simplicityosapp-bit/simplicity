@@ -1,3 +1,4 @@
+import SelectMenu from '../components/SelectMenu'
 import Modal from './Modal'
 import { useT } from '../i18n/useT'
 import { Box, Txt, Btn } from '../components/ui'
@@ -22,6 +23,24 @@ export default function LeadsFilterModal({
     ? groups.filter((g) => g.project_id === filter.project && !g.deleted_at)
     : groups.filter((g) => !g.deleted_at)
 
+  /* Every picker in the sheet gets the app's styled menu. The two special rows
+     ("all" / "unassigned") stay exactly where they were — they are values, not
+     placeholders, and the board reads '' and '__none__' from them. */
+  const withSpecials = (rows) => [
+    { value: '', label: t('filter.all') },
+    { value: '__none__', label: t('filter.unassigned') },
+    ...rows,
+  ]
+  const projectOptions = withSpecials(projects.map((p) => ({ value: p.id, label: p.name })))
+  const groupOptions = withSpecials(groupOpts.map((g) => ({ value: g.id, label: g.name })))
+  const sourceOptions = withSpecials(sources.map((s) => ({ value: s.id, label: s.name })))
+  /* No "unassigned" row: a lead with no sub-status is not a meaningful filter
+     here — the column already says that. Mirrors the old markup. */
+  const statusOptions = [
+    { value: '', label: t('filter.all') },
+    ...statuses.map((s) => ({ value: s.id, label: `${s.icon ? `${s.icon} ` : ''}${s.display_name}` })),
+  ]
+
   return (
     <Modal open={open} onClose={onClose} title={t('filter.title')}>
       <Txt as="p" className="m-hint">{t('filter.hint')}</Txt>
@@ -44,43 +63,26 @@ export default function LeadsFilterModal({
 
       <Box className="m-field">
         <Box as="label" className="m-label">{t('filter.project')}</Box>
-        <select className="m-select" value={filter.project || ''} onChange={(e) => onChange?.('project', e.target.value)}>
-          <option value="">{t('filter.all')}</option>
-          <option value="__none__">{t('filter.unassigned')}</option>
-          {projects.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
-        </select>
+        <SelectMenu value={filter.project || ''} onChange={(v) => onChange?.('project', v)} options={projectOptions} ariaLabel={t('filter.project')} />
       </Box>
 
       {groupOpts.length > 0 && (
         <Box className="m-field">
           <Box as="label" className="m-label">{t('filter.group')}</Box>
-          <select className="m-select" value={filter.group || ''} onChange={(e) => onChange?.('group', e.target.value)}>
-            <option value="">{t('filter.all')}</option>
-            <option value="__none__">{t('filter.unassigned')}</option>
-            {groupOpts.map((g) => <option key={g.id} value={g.id}>{g.name}</option>)}
-          </select>
+          <SelectMenu value={filter.group || ''} onChange={(v) => onChange?.('group', v)} options={groupOptions} ariaLabel={t('filter.group')} />
         </Box>
       )}
 
       {statuses.length > 0 && (
         <Box className="m-field">
           <Box as="label" className="m-label">{t('filter.status')}</Box>
-          <select className="m-select" value={filter.status || ''} onChange={(e) => onChange?.('status', e.target.value)}>
-            <option value="">{t('filter.all')}</option>
-            {statuses.map((s) => (
-              <option key={s.id} value={s.id}>{s.icon ? `${s.icon} ` : ''}{s.display_name}</option>
-            ))}
-          </select>
+          <SelectMenu value={filter.status || ''} onChange={(v) => onChange?.('status', v)} options={statusOptions} ariaLabel={t('filter.status')} />
         </Box>
       )}
 
       <Box className="m-field">
         <Box as="label" className="m-label">{t('filter.source')}</Box>
-        <select className="m-select" value={filter.source || ''} onChange={(e) => onChange?.('source', e.target.value)}>
-          <option value="">{t('filter.all')}</option>
-          <option value="__none__">{t('filter.unassigned')}</option>
-          {sources.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
-        </select>
+        <SelectMenu value={filter.source || ''} onChange={(v) => onChange?.('source', v)} options={sourceOptions} ariaLabel={t('filter.source')} />
       </Box>
 
       <Box className="m-field">

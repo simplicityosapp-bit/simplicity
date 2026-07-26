@@ -170,5 +170,21 @@
     "sub": "כל תשלום שקיבלת וכל הוצאה שהוצאת נרשמים כאן, ומהם נבנים הסיכום החודשי והגרף.",
     "addIncome": "רישום תשלום שקיבלתי",
     "addExpense": "או רישום הוצאה"
+  },
+  "search": {
+    "placeholder": "חיפוש תנועה, לקוח או סכום",
+    "ariaLabel": "חיפוש בתנועות",
+    "clearText": "ניקוי החיפוש",
+    "typeGroupAria": "סינון לפי סוג",
+    "typeAll": "הכל",
+    "typeIncome": "הכנסות",
+    "typeExpense": "הוצאות",
+    "resultsAcrossTime_one": "תוצאה אחת מכל הזמנים",
+    "resultsAcrossTime_two": "שתי תוצאות מכל הזמנים",
+    "resultsAcrossTime_many": "{{count}} תוצאות מכל הזמנים",
+    "resultsAcrossTime_other": "{{count}} תוצאות מכל הזמנים",
+    "backToMonth": "חזרה ל{{month}}",
+    "noResults": "לא נמצאו תנועות שמתאימות ל\"{{query}}\".",
+    "noneOfType": "אין תנועות מסוג זה החודש."
   }
 }

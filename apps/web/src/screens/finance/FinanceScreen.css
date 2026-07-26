@@ -809,6 +809,99 @@
 /* Export sits in its own thin row below the header, so the header keeps the
    standard layout (title card + centred add button) and the same height as
    every other screen — which is what the docked help button aligns to. */
+/* ── Search + type chips ───────────────────────────────────────
+   Typing here leaves month scope (see searchTransactions), so the note
+   below the chips exists to say that out loud and offer the way back. */
+.f-search {
+  margin-bottom: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.f-search-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid var(--divider);
+  background: var(--mg-card-bg);
+  backdrop-filter: var(--mg-card-blur);
+}
+.f-search-ic { flex-shrink: 0; color: var(--stone); }
+.f-search-input {
+  flex: 1;
+  min-width: 0;
+  height: 40px;
+  border: none;
+  background: transparent;
+  font-family: var(--mg-font);
+  font-size: calc(14px * var(--text-scale));
+  color: var(--espresso);
+  outline: none;
+}
+.f-search-input::placeholder { color: var(--stone); }
+/* The browser's own clear affordance for type=search is inconsistent across
+   engines and unstyleable; we ship our own button instead. */
+.f-search-input::-webkit-search-cancel-button { display: none; }
+.f-search-x {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: var(--stone);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.f-search-x:hover { background: var(--mg-row-hover-bg); color: var(--espresso); }
+.f-search-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.f-search-chip {
+  padding: 5px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--divider);
+  background: transparent;
+  font-family: var(--mg-font);
+  font-size: calc(12px * var(--text-scale));
+  color: var(--stone);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.f-search-chip:hover { background: var(--mg-row-hover-bg); }
+.f-search-chip.on {
+  background: var(--terracotta);
+  border-color: transparent;
+  color: var(--on-accent);
+}
+.f-search-note {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 2px 2px 0;
+}
+.f-search-note-text {
+  margin: 0;
+  font-family: var(--mg-font);
+  font-size: calc(12px * var(--text-scale));
+  color: var(--stone);
+}
+.f-search-back {
+  padding: 2px 4px;
+  border: none;
+  background: transparent;
+  font-family: var(--mg-font);
+  font-size: calc(12px * var(--text-scale));
+  color: var(--terracotta);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
 /* Sits below the list it exports now, not above the whole screen where it
    competed with the primary CTA. */
 .f-export-row {

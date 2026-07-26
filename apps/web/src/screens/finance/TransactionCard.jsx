@@ -1,12 +1,14 @@
 import { memo } from 'react'
 import { Check, X, RotateCcw, Trash2 } from 'lucide-react'
-import { isr, fmtShortDate, payMethodLabel } from '@simplicity/core'
+import { isr, fmtShortDate, fmtDateInput, payMethodLabel } from '@simplicity/core'
 import { useT } from '../../i18n/useT'
 import WhatsAppButton from '../../components/WhatsAppButton'
 import { useWhatsAppMessage } from '../../hooks/useWhatsAppMessage'
 import { Box, Txt, Btn } from '../../components/ui'
 
-function TransactionCard({ tx, clients = [], projects = [], categories = [], onApprove, onSkip, onUnskip, onEdit, onDelete }) {
+/* `fullDate` — search results span months and years, so a bare DD/MM would be
+   ambiguous there; inside a month the short form is enough. */
+function TransactionCard({ tx, clients = [], projects = [], categories = [], fullDate = false, onApprove, onSkip, onUnskip, onEdit, onDelete }) {
   const { t } = useT('finance')
   const waMsg = useWhatsAppMessage()
   const stop = (fn) => (e) => { e.stopPropagation(); fn() }
@@ -38,7 +40,7 @@ function TransactionCard({ tx, clients = [], projects = [], categories = [], onA
       <Box className="f-tx-body">
         <Txt as="p" className="f-tx-desc">{tx.desc || t('tx.noDesc')}</Txt>
         <Box className="f-tx-meta">
-          <Txt className="f-tx-date">{fmtShortDate(tx.date)}</Txt>
+          <Txt className="f-tx-date">{fullDate ? fmtDateInput(tx.date) : fmtShortDate(tx.date)}</Txt>
           {isSkipped && <Txt className="f-tx-tag skip">{t('tx.skipped')}</Txt>}
           {isCredited && <Txt className="f-tx-tag credited">{t('tx.credited')}</Txt>}
           {meta && <Txt className="f-tx-meta-text">· {meta}</Txt>}

@@ -31,6 +31,25 @@ const FINANCE_KEYS = [
   ['imports.confirmTitle'],
   ['imports.confirmMessage', { amount: '₪300', forName: '' }],
   ['imports.confirmBtn'],
+  /* Search + the restructured screen. */
+  ['search.placeholder'],
+  ['search.ariaLabel'],
+  ['search.clearText'],
+  ['search.typeAll'],
+  ['search.typeIncome'],
+  ['search.typeExpense'],
+  ['search.resultsAcrossTime', { count: 3 }],
+  ['search.backToMonth', { month: 'יולי 2026' }],
+  ['search.noResults', { query: 'דנה' }],
+  ['search.noneOfType'],
+  ['firstRun.title'],
+  ['firstRun.sub'],
+  ['firstRun.addIncome'],
+  ['firstRun.addExpense'],
+  ['exportCsvMonth', { month: 'יולי 2026' }],
+  ['chart.title'],
+  ['chart.incomeGoalLabel'],
+  ['chart.infoText'],
 ]
 
 const MODALS_KEYS = [
@@ -42,6 +61,10 @@ const MODALS_KEYS = [
   ['discard.message'],
   ['discard.confirm'],
   ['discard.cancel'],
+  /* The folded add-form and the collapsed catalog picker. */
+  ['tx.moreDetails'],
+  ['tx.issueItemSummary', { item: 'ייעוץ אישי' }],
+  ['tx.issueItemChange'],
 ]
 
 describe('every safety dialog resolves in all four languages', () => {

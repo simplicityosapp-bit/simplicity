@@ -152,5 +152,19 @@
     "sub": "Chaque paiement que vous recevez et chaque dépense que vous réglez est enregistré ici, et le résumé mensuel et le graphique en découlent.",
     "addIncome": "Enregistrer un paiement reçu",
     "addExpense": "Ou enregistrer une dépense"
+  },
+  "search": {
+    "placeholder": "Rechercher une transaction, un client ou un montant",
+    "ariaLabel": "Rechercher dans les transactions",
+    "clearText": "Effacer la recherche",
+    "typeGroupAria": "Filtrer par type",
+    "typeAll": "Tout",
+    "typeIncome": "Revenus",
+    "typeExpense": "Dépenses",
+    "resultsAcrossTime_one": "{{count}} résultat sur tout l’historique",
+    "resultsAcrossTime_other": "{{count}} résultats sur tout l’historique",
+    "backToMonth": "Retour à {{month}}",
+    "noResults": "Aucune transaction ne correspond à « {{query}} ».",
+    "noneOfType": "Aucune transaction de ce type ce mois-ci."
   }
 }

@@ -152,5 +152,19 @@
     "sub": "Every payment you receive and every expense you pay goes here, and the monthly summary and chart are built from them.",
     "addIncome": "Record a payment I received",
     "addExpense": "Or record an expense"
+  },
+  "search": {
+    "placeholder": "Search a transaction, client or amount",
+    "ariaLabel": "Search transactions",
+    "clearText": "Clear search",
+    "typeGroupAria": "Filter by type",
+    "typeAll": "All",
+    "typeIncome": "Income",
+    "typeExpense": "Expenses",
+    "resultsAcrossTime_one": "{{count}} result across all time",
+    "resultsAcrossTime_other": "{{count}} results across all time",
+    "backToMonth": "Back to {{month}}",
+    "noResults": "No transactions match \"{{query}}\".",
+    "noneOfType": "No transactions of this type this month."
   }
 }

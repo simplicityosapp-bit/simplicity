@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
+import { ChevronDown, SlidersHorizontal } from 'lucide-react'
 import DateField from '../components/DateField'
 import SelectMenu from '../components/SelectMenu'
 import Modal from './Modal'
@@ -59,6 +60,10 @@ export default function AddTransactionModal({ open, onClose, onSave, clients = [
   const [issueItemName, setIssueItemName] = useState('')
   const [issueCatalogLoading, setIssueCatalogLoading] = useState(false)
   const [issueCatalogErr, setIssueCatalogErr] = useState('')
+  /* The catalog picker is collapsed to a sentence by default (see the render).
+     This is the user asking to see it; it only ever forces the picker open,
+     never shut — the conditions below can still override it. */
+  const [itemPickerManual, setItemPickerManual] = useState(false)
   /* Ad-hoc recipient — issue a receipt for someone who ISN'T a client. Active
      when the client select is the "__adhoc__" sentinel (income only, standalone
      add flow). The details are saved on the transaction (recipient_*). */
@@ -68,6 +73,13 @@ export default function AddTransactionModal({ open, onClose, onSave, clients = [
      ask first now — but only when something was actually typed, so the common
      "opened it by mistake" case still closes on one tap. */
   const [confirmDiscard, setConfirmDiscard] = useState(false)
+  /* The optional half of the form. Starts open only when a caller pre-filled
+     something inside it (the project QuickRow binds project_id, a caller may
+     pass desc or payment_method), because a value hidden behind a closed lid
+     is worse than no lid at all. */
+  const [detailsOpen, setDetailsOpen] = useState(
+    () => !!(initial.desc || initial.project_id || initial.payment_method),
+  )
   const adHoc = form.type === 'income' && !lockedClientId && form.client_id === '__adhoc__'
   const set = (k, v) => {
     /* Leaving the expense type unmounts the inline category-creator block —
@@ -80,7 +92,7 @@ export default function AddTransactionModal({ open, onClose, onSave, clients = [
       return next
     })
   }
-  const close = () => { setForm(blank(initial)); setErr(''); setBusy(false); setCreatingCat(false); setNewCatName(''); setCatBusy(false); setIssueOnCreate(false); setIssueDocType('invoice_receipt'); setIssuePayment('bank_transfer'); setIssueItems([]); setIssueItemId(''); setIssueItemName(''); setIssueCatalogLoading(false); setIssueCatalogErr(''); setConfirmDiscard(false); setRecipient({ name: '', email: '', phone: '', tax_id: '' }); onClose() }
+  const close = () => { setForm(blank(initial)); setErr(''); setBusy(false); setCreatingCat(false); setNewCatName(''); setCatBusy(false); setIssueOnCreate(false); setIssueDocType('invoice_receipt'); setIssuePayment('bank_transfer'); setIssueItems([]); setIssueItemId(''); setIssueItemName(''); setIssueCatalogLoading(false); setIssueCatalogErr(''); setItemPickerManual(false); setConfirmDiscard(false); setDetailsOpen(!!(initial.desc || initial.project_id || initial.payment_method)); setRecipient({ name: '', email: '', phone: '', tax_id: '' }); onClose() }
 
   /* Has anything been entered that would be lost? Compared against the same
      blank(initial) the form opens with, so a caller's pre-filled defaults
@@ -199,6 +211,22 @@ export default function AddTransactionModal({ open, onClose, onSave, clients = [
     }
   }
 
+  /* What the issued document will actually be billed on — mirrors exactly what
+     submit() sends, so the summary line can't promise one thing and file
+     another. */
+  const selectedIssueItem = issueItems.find((it) => String(it.id) === String(issueItemId))
+  const issueItemSummary = issueItemId
+    ? (selectedIssueItem?.name || '')
+    : (issueItemName.trim() || form.desc.trim())
+  /* Forced open whenever there is nothing honest to summarise: the catalog
+     failed, the account has no catalog, the user picked "אחר" (free text needs
+     a field), or the resolved name is empty. */
+  const itemPickerOpen = itemPickerManual
+    || !!issueCatalogErr
+    || issueItems.length === 0
+    || !issueItemId
+    || !issueItemSummary
+
   const amountInvalid = !!err && !(parseFloat(form.amount) > 0)
   /* Issue-on-creation is offered only for income when a usable provider is
      connected; the body explains the missing piece (client / future date). */
@@ -258,40 +286,27 @@ export default function AddTransactionModal({ open, onClose, onSave, clients = [
           )}
         </Box>
       </Box>
-      <Box className="m-field">
-        <Box as="label" className="m-label">{t('common.description')}</Box>
-        <Input className="m-input" value={form.desc} onChange={(e) => set('desc', e.target.value)} placeholder={t('tx.descPlaceholder')} />
-      </Box>
-      <Box className="m-field">
-        <Box as="label" className="m-label">{t('tx.paymentMethod')}</Box>
-        <SelectMenu value={form.payment_method} onChange={(v) => set('payment_method', v)} options={payOptions} placeholder={t('tx.paymentMethodNone')} ariaLabel={t('tx.paymentMethod')} />
-      </Box>
-      {client ? (
+      {/* The client is a primary field — who paid you is the second thing you
+          know after how much — so it sits above the fold with amount and date,
+          not below description and payment method as it used to. */}
+      {!client && (
         <Box className="m-field">
-          <Box as="label" className="m-label">{t('common.project')}</Box>
-          <SelectMenu value={form.project_id} onChange={(v) => set('project_id', v)} options={projectOptions} placeholder={t('common.none')} ariaLabel={t('common.project')} />
+          <Box as="label" className="m-label">{t('common.client')}</Box>
+          <SelectMenu
+            value={form.client_id}
+            onChange={(v) => set('client_id', v)}
+            options={clientOptions}
+            placeholder={t('common.none')}
+            ariaLabel={t('common.client')}
+            searchable
+            searchPlaceholder={t('common.client')}
+          />
         </Box>
-      ) : (
-        <>
-          <Box className="m-field">
-            <Box as="label" className="m-label">{t('common.client')}</Box>
-            <SelectMenu
-              value={form.client_id}
-              onChange={(v) => set('client_id', v)}
-              options={clientOptions}
-              placeholder={t('common.none')}
-              ariaLabel={t('common.client')}
-              searchable
-              searchPlaceholder={t('common.client')}
-            />
-          </Box>
-          <Box className="m-field">
-            <Box as="label" className="m-label">{t('common.project')}</Box>
-            <SelectMenu value={form.project_id} onChange={(v) => set('project_id', v)} options={projectOptions} placeholder={t('common.none')} ariaLabel={t('common.project')} />
-          </Box>
-        </>
       )}
 
+      {/* The ad-hoc recipient is an explicit choice made one field above, so it
+          stays in the open — burying the name field that the choice just
+          demanded would be a trap. */}
       {adHoc && (
         <Box className="m-field m-recipient">
           <Txt as="p" className="m-hint">{t('tx.recipientHint')}</Txt>
@@ -309,37 +324,70 @@ export default function AddTransactionModal({ open, onClose, onSave, clients = [
         </Box>
       )}
 
-      {form.type === 'expense' && (
-        <Box className="m-field">
-          <Box as="label" className="m-label">{t('common.category')}</Box>
-          {creatingCat ? (
-            <Box className="m-cat-create">
-              <Input
-                className="m-input"
-                value={newCatName}
-                onChange={(e) => setNewCatName(e.target.value)}
-                onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); createCat() } }}
-                placeholder={t('tx.newCatPlaceholder')}
-                autoFocus
-              />
-              <Btn type="button" className="m-cat-add" onClick={createCat} disabled={catBusy || !newCatName.trim()}>
-                {catBusy ? '…' : t('common.add')}
-              </Btn>
-              <Btn type="button" className="m-cat-cancel" onClick={() => { setCreatingCat(false); setNewCatName('') }}>
-                {t('common.cancel')}
-              </Btn>
+      {/* Everything optional folds away. "I got 300 from Dana" is four fields;
+          it used to be eight before you reached Save. Opens by itself whenever
+          something inside it is already filled — see detailsPrefilled — so a
+          value is never hidden behind a closed lid. */}
+      <Box className={`ec-acc${detailsOpen ? ' open' : ''}`}>
+        <Btn
+          type="button"
+          className="ec-acc-head"
+          onClick={() => setDetailsOpen((o) => !o)}
+          aria-expanded={detailsOpen}
+          aria-controls="tx-details"
+        >
+          <Txt className="ec-acc-ic" aria-hidden="true"><SlidersHorizontal size={16} strokeWidth={1.7} /></Txt>
+          <Txt className="ec-acc-title">{t('tx.moreDetails')}</Txt>
+          <ChevronDown size={16} strokeWidth={1.8} className="ec-acc-chev" aria-hidden="true" />
+        </Btn>
+        {detailsOpen && (
+          <Box id="tx-details" className="ec-acc-body">
+            <Box className="m-field">
+              <Box as="label" className="m-label">{t('common.description')}</Box>
+              <Input className="m-input" value={form.desc} onChange={(e) => set('desc', e.target.value)} placeholder={t('tx.descPlaceholder')} />
             </Box>
-          ) : (
-            <SelectMenu
-              value={form.category_id}
-              onChange={(v) => { if (v === '__new__') { setCreatingCat(true); return } set('category_id', v) }}
-              options={categoryOptions}
-              placeholder={t('common.noCategory')}
-              ariaLabel={t('common.category')}
-            />
-          )}
-        </Box>
-      )}
+            <Box className="m-field">
+              <Box as="label" className="m-label">{t('tx.paymentMethod')}</Box>
+              <SelectMenu value={form.payment_method} onChange={(v) => set('payment_method', v)} options={payOptions} placeholder={t('tx.paymentMethodNone')} ariaLabel={t('tx.paymentMethod')} />
+            </Box>
+            <Box className="m-field">
+              <Box as="label" className="m-label">{t('common.project')}</Box>
+              <SelectMenu value={form.project_id} onChange={(v) => set('project_id', v)} options={projectOptions} placeholder={t('common.none')} ariaLabel={t('common.project')} />
+            </Box>
+            {form.type === 'expense' && (
+              <Box className="m-field">
+                <Box as="label" className="m-label">{t('common.category')}</Box>
+                {creatingCat ? (
+                  <Box className="m-cat-create">
+                    <Input
+                      className="m-input"
+                      value={newCatName}
+                      onChange={(e) => setNewCatName(e.target.value)}
+                      onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); createCat() } }}
+                      placeholder={t('tx.newCatPlaceholder')}
+                      autoFocus
+                    />
+                    <Btn type="button" className="m-cat-add" onClick={createCat} disabled={catBusy || !newCatName.trim()}>
+                      {catBusy ? '…' : t('common.add')}
+                    </Btn>
+                    <Btn type="button" className="m-cat-cancel" onClick={() => { setCreatingCat(false); setNewCatName('') }}>
+                      {t('common.cancel')}
+                    </Btn>
+                  </Box>
+                ) : (
+                  <SelectMenu
+                    value={form.category_id}
+                    onChange={(v) => { if (v === '__new__') { setCreatingCat(true); return } set('category_id', v) }}
+                    options={categoryOptions}
+                    placeholder={t('common.noCategory')}
+                    ariaLabel={t('common.category')}
+                  />
+                )}
+              </Box>
+            )}
+          </Box>
+        )}
+      </Box>
 
       {issuable && (
         <Box className="m-field m-issue">
@@ -360,14 +408,20 @@ export default function AddTransactionModal({ open, onClose, onSave, clients = [
                       <Btn key={d.key} type="button" className={`m-pill${issueDocType === d.key ? ' on' : ''}`} onClick={() => setIssueDocType(d.key)}>{docTypeLabel(d.key)}</Btn>
                     ))}
                   </Box>
-                  {/* Product/service line ("מוצר") — links the chosen catalog item
-                      by id, exactly like the per-transaction picker. */}
+                  {/* Product/service line ("מוצר") — links the chosen catalog
+                      item by id, exactly like the per-transaction picker.
+                      Collapsed to a sentence saying what will be billed: this
+                      is the invoicing provider's vocabulary, not the coach's,
+                      and the default (first catalog item) is right almost
+                      every time. "שינוי" opens the real picker. The error and
+                      the free-text case force it open — neither can be
+                      summarised honestly. */}
                   <Box className="m-issue-item">
-                    <Box as="label" className="m-label">{tc('actions.itemFieldLabel')}</Box>
                     {issueCatalogLoading ? (
                       <Txt as="p" className="m-hint">{tc('actions.loadingItems')}</Txt>
-                    ) : (
+                    ) : itemPickerOpen ? (
                       <>
+                        <Box as="label" className="m-label">{tc('actions.itemFieldLabel')}</Box>
                         {issueItems.length > 0 && (
                           <SelectMenu
                             value={issueItemId}
@@ -381,6 +435,13 @@ export default function AddTransactionModal({ open, onClose, onSave, clients = [
                         )}
                         {issueCatalogErr && <Txt as="p" className="m-hint">{issueCatalogErr}</Txt>}
                       </>
+                    ) : (
+                      <Box className="m-issue-item-sum">
+                        <Txt as="p" className="m-hint">{t('tx.issueItemSummary', { item: issueItemSummary })}</Txt>
+                        <Btn type="button" className="m-issue-item-change" onClick={() => setItemPickerManual(true)}>
+                          {t('tx.issueItemChange')}
+                        </Btn>
+                      </Box>
                     )}
                   </Box>
                   {/* Receipt payment method: the transaction's own אמצעי תשלום

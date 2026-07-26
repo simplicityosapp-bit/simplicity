@@ -51,7 +51,10 @@
     "recipientTaxIdPlaceholder": "NIF / CIF",
     "recipientNameRequired": "Introduce un nombre de destinatario.",
     "recipientSectionLabel": "Cliente nuevo",
-    "saveAsClient": "Guardar como cliente"
+    "saveAsClient": "Guardar como cliente",
+    "moreDetails": "Más detalles",
+    "issueItemSummary": "Se emitirá por: {{item}}",
+    "issueItemChange": "Cambiar"
   },
   "editTx": {
     "title": "Editar transacción",

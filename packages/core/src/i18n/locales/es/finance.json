@@ -152,5 +152,19 @@
     "sub": "Cada pago que recibes y cada gasto que pagas se registra aquí, y con ellos se construyen el resumen mensual y el gráfico.",
     "addIncome": "Registrar un pago que recibí",
     "addExpense": "O registrar un gasto"
+  },
+  "search": {
+    "placeholder": "Buscar transacción, cliente o importe",
+    "ariaLabel": "Buscar transacciones",
+    "clearText": "Borrar la búsqueda",
+    "typeGroupAria": "Filtrar por tipo",
+    "typeAll": "Todo",
+    "typeIncome": "Ingresos",
+    "typeExpense": "Gastos",
+    "resultsAcrossTime_one": "{{count}} resultado de todo el historial",
+    "resultsAcrossTime_other": "{{count}} resultados de todo el historial",
+    "backToMonth": "Volver a {{month}}",
+    "noResults": "Ninguna transacción coincide con «{{query}}».",
+    "noneOfType": "No hay transacciones de este tipo este mes."
   }
 }

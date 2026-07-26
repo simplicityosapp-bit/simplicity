@@ -9,7 +9,11 @@ import { Box, Txt } from '../../components/ui'
    shows confirmed + (optionally) skipped. */
 const GROUP_KEYS = ['confirmed', 'skipped']
 
-export default function TransactionList({ transactions, clients, projects, categories, showSkipped = true, onApprove, onSkip, onUnskip, onEdit, onDelete }) {
+/* `flat` — search-results mode. The rows come from across the whole history
+   and from every status (a pending row in March has to be findable too, and
+   the month-scoped pending card can't show it), so they render as one list
+   ordered by date rather than grouped by status, with full dates. */
+export default function TransactionList({ transactions, clients, projects, categories, showSkipped = true, flat = false, emptyText, onApprove, onSkip, onUnskip, onEdit, onDelete }) {
   const { t } = useT('finance')
   /* Deleting money is a two-step now, like deleting a category or a recurring
      template. The dialog lives here rather than in the card so a list of 80
@@ -18,17 +22,38 @@ export default function TransactionList({ transactions, clients, projects, categ
   const [pendingDelete, setPendingDelete] = useState(null)
   const requestDelete = useCallback((tx) => setPendingDelete(tx), [])
 
-  const visible = transactions.filter((tx) => tx.status !== 'pending' && (showSkipped || tx.status !== 'skipped'))
+  const visible = flat
+    ? transactions
+    : transactions.filter((tx) => tx.status !== 'pending' && (showSkipped || tx.status !== 'skipped'))
   if (!visible.length) {
     return (
       <Box className="empty">
-        <Txt as="p" className="empty-text">{t('list.empty')}</Txt>
+        <Txt as="p" className="empty-text">{emptyText || t('list.empty')}</Txt>
       </Box>
     )
   }
   return (
     <Box className="f-tx-groups">
-      {GROUP_KEYS.map((key) => {
+      {flat && (
+        <Box className="f-tx-group">
+          {visible.map((tx) => (
+            <TransactionCard
+              key={tx.id}
+              tx={tx}
+              clients={clients}
+              projects={projects}
+              categories={categories}
+              fullDate
+              onApprove={onApprove}
+              onSkip={onSkip}
+              onUnskip={onUnskip}
+              onEdit={onEdit}
+              onDelete={onDelete ? requestDelete : undefined}
+            />
+          ))}
+        </Box>
+      )}
+      {!flat && GROUP_KEYS.map((key) => {
         if (key === 'skipped' && !showSkipped) return null
         const items = visible.filter((tx) => tx.status === key)
         if (!items.length) return null

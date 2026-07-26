@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Leaf, ArrowLeft, TrendingUp, ChevronLeft, Bell, SlidersHorizontal, Link2, Search } from 'lucide-react'
+import { Leaf, ArrowLeft, TrendingUp, ChevronLeft, Bell, SlidersHorizontal, Search } from 'lucide-react'
 import { ROUTES } from '../../lib/routes'
 import { useLeads } from '../../hooks/useLeads'
 import { useLeadPages } from '../../hooks/useLeadPages'
@@ -165,6 +165,10 @@ export default function LeadsScreen() {
     return g
   }, [officialLeads, leadsFilter, effectiveStatus, query, sources, projects])
   const stats = useMemo(() => computeStats(officialLeads), [officialLeads])
+  /* "Never had a lead" is a different situation from "the filter hides them
+     all", and only the first deserves to take over the screen. Pending
+     submissions still render above it — they ARE leads, just unapproved. */
+  const firstRun = !loading && !error && officialLeads.length === 0 && query.trim() === '' && activeFilterCount === 0
 
   /* Approve = move into the official list; reject = soft-delete (undoable). */
   const approveLead = useCallback((id) => updateLead(id, { pending_review: false }).catch(() => {}), [updateLead])
@@ -233,11 +237,16 @@ export default function LeadsScreen() {
         <Box as="header" className="screen-head">
           <Box>
             <Box className="screen-head-meta">
-              <Txt as="p" className="lbl">{t('countLabel', { count: total })}</Txt>
-              <Txt className="lbl dot">·</Txt>
-              <Txt as="p" className="lbl">{view === 'statuses' ? t('tabStatuses') : t('tabLeads')}</Txt>
+              {/* One line that earns its place: what needs doing if anything
+                  does, otherwise the board's size. The old second line was a
+                  slogan, and the old first line repeated the view toggle
+                  sitting directly beneath it. */}
+              <Txt as="p" className="lbl">
+                {dueFollowups.length > 0
+                  ? t('followups.dueCount', { count: dueFollowups.length })
+                  : t('countLabel', { count: total })}
+              </Txt>
             </Box>
-            <Txt as="p" className="lbl-sm">{t('tagline')}</Txt>
           </Box>
           <Txt as="p" className="t-screen">{t('title')}</Txt>
         </Box>
@@ -248,27 +257,32 @@ export default function LeadsScreen() {
         )}
       </Box>
 
+      {/* The toolbar used to hold four controls before any lead was visible:
+          the view toggle, "lead sources", and a "landing pages" link that
+          pointed at a retired route which only redirects to /pages — a screen
+          already in the main nav. That one is gone; sources moved in beside
+          the view toggle as a single settings affordance. */}
       <Box className="l-toolbar">
-      <Box className="l-view-toggle" role="tablist" aria-label={t('viewToggleAria')}>
-        <Btn
-          type="button"
-          className={`l-view-btn${view === 'kanban' ? ' on' : ''}`}
-          onClick={() => setView('kanban')}
-          role="tab"
-          aria-selected={view === 'kanban'}
-        >
-          {t('tabLeads')}
-        </Btn>
-        <Btn
-          type="button"
-          className={`l-view-btn${view === 'statuses' ? ' on' : ''}`}
-          onClick={() => setView('statuses')}
-          role="tab"
-          aria-selected={view === 'statuses'}
-        >
-          {t('tabStatuses')}
-        </Btn>
-      </Box>
+        <Box className="l-view-toggle" role="tablist" aria-label={t('viewToggleAria')}>
+          <Btn
+            type="button"
+            className={`l-view-btn${view === 'kanban' ? ' on' : ''}`}
+            onClick={() => setView('kanban')}
+            role="tab"
+            aria-selected={view === 'kanban'}
+          >
+            {t('tabLeads')}
+          </Btn>
+          <Btn
+            type="button"
+            className={`l-view-btn${view === 'statuses' ? ' on' : ''}`}
+            onClick={() => setView('statuses')}
+            role="tab"
+            aria-selected={view === 'statuses'}
+          >
+            {t('tabStatuses')}
+          </Btn>
+        </Box>
         <Btn
           type="button"
           className="l-sources-link"
@@ -276,14 +290,6 @@ export default function LeadsScreen() {
         >
           <Leaf size={14} strokeWidth={1.7} aria-hidden="true" />
           {t('sourcesLink')}
-        </Btn>
-        <Btn
-          type="button"
-          className="l-sources-link"
-          onClick={() => navigate(ROUTES.LEAD_PAGES)}
-        >
-          <Link2 size={14} strokeWidth={1.7} aria-hidden="true" />
-          {t('leadPagesLink')}
         </Btn>
       </Box>
 
@@ -312,6 +318,24 @@ export default function LeadsScreen() {
             onReject={rejectLead}
           />
 
+          {firstRun ? (
+            /* Three empty columns, 0/0/— and a banner saying nothing is due
+               read as a broken screen rather than a new one. Until there is a
+               single lead, the screen is one invitation. */
+            <Box className="l-firstrun">
+              <Txt as="p" className="l-firstrun-title">{t('firstRun.title')}</Txt>
+              <Txt as="p" className="l-firstrun-sub">{t('firstRun.sub')}</Txt>
+              <Btn type="button" className="l-firstrun-cta" onClick={() => setShowAdd(true)}>
+                {t('firstRun.addLead')}
+              </Btn>
+              {/* Where leads arrive on their own — the contextual home for the
+                  link that used to sit unexplained in the toolbar. */}
+              <Btn type="button" className="l-firstrun-alt" onClick={() => navigate(ROUTES.SITE_PAGES)}>
+                {t('firstRun.pagesLink')}
+              </Btn>
+            </Box>
+          ) : (
+          <>
           <Box className="l-stats">
             <Box className="l-stat">
               <Txt className="l-stat-icon"><Leaf size={16} strokeWidth={1.6} aria-hidden="true" /></Txt>
@@ -336,18 +360,21 @@ export default function LeadsScreen() {
             </Box>
           </Box>
 
-          <Btn
-            type="button"
-            className={`l-followup-banner${dueFollowups.length === 0 ? ' muted' : ''}`}
-            onClick={() => setShowFollowups(true)}
-          >
-            <Bell size={15} strokeWidth={1.8} aria-hidden="true" />
-            {dueFollowups.length > 0 && <Txt className="l-followup-count mono">{dueFollowups.length}</Txt>}
-            <Txt className="l-followup-text">
-              {dueFollowups.length === 0 ? t('followups.empty') : t('followups.due')}
-            </Txt>
-            <ChevronLeft size={15} strokeWidth={1.7} className="l-followup-chev" aria-hidden="true" />
-          </Btn>
+          {/* Only when something is actually due. A permanent 48px row saying
+              "nothing to do today" is furniture, not information — the same
+              call already made for the pending-leads section above it. */}
+          {dueFollowups.length > 0 && (
+            <Btn
+              type="button"
+              className="l-followup-banner"
+              onClick={() => setShowFollowups(true)}
+            >
+              <Bell size={15} strokeWidth={1.8} aria-hidden="true" />
+              <Txt className="l-followup-count mono">{dueFollowups.length}</Txt>
+              <Txt className="l-followup-text">{t('followups.due')}</Txt>
+              <ChevronLeft size={15} strokeWidth={1.7} className="l-followup-chev" aria-hidden="true" />
+            </Btn>
+          )}
 
           <Box className="l-filterbar">
             <Box className="l-search">
@@ -387,6 +414,8 @@ export default function LeadsScreen() {
             />
           ))}
           </Box>
+          </>
+          )}
         </>
       )}
 

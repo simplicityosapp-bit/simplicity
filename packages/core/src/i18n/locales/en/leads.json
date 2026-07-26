@@ -2,14 +2,12 @@
   "countLabel": "{{count}} leads",
   "tabLeads": "Leads",
   "tabStatuses": "Statuses",
-  "tagline": "Nurturing relationships leads to results.",
   "title": "Leads",
   "search": "Search lead…",
   "newLeadAria": "New lead",
   "newLead": "+ New lead",
   "viewToggleAria": "View",
   "sourcesLink": "Lead sources",
-  "leadPagesLink": "Lead pages",
   "meta": {
     "in_process": "In progress",
     "converted": "Converted",
@@ -45,7 +43,9 @@
   },
   "followups": {
     "empty": "No follow-ups due today",
-    "due": "Follow-ups due today"
+    "due": "Follow-ups due today",
+    "dueCount_one": "{{count}} follow-up due today",
+    "dueCount_other": "{{count}} follow-ups due today"
   },
   "filter": {
     "btn": "Filter",
@@ -216,5 +216,11 @@
     "requiredError": "Required field",
     "submitting": "Submitting…",
     "submit": "Submit"
+  },
+  "firstRun": {
+    "title": "No enquiries here yet",
+    "sub": "Every enquiry that comes in — by phone, by message or from a landing page — is recorded here and followed until it becomes a client.",
+    "addLead": "Record the first enquiry",
+    "pagesLink": "Or build a landing page that collects them for you"
   }
 }

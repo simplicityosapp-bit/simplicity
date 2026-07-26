@@ -2,14 +2,12 @@
   "countLabel": "{{count}} prospects",
   "tabLeads": "Prospects",
   "tabStatuses": "Statuts",
-  "tagline": "Cultiver les relations mène aux résultats.",
   "title": "Prospects",
   "search": "Rechercher un prospect…",
   "newLeadAria": "Nouveau prospect",
   "newLead": "+ Nouveau prospect",
   "viewToggleAria": "Affichage",
   "sourcesLink": "Sources de prospects",
-  "leadPagesLink": "Pages de prospects",
   "meta": {
     "in_process": "En cours",
     "converted": "Converti",
@@ -45,7 +43,9 @@
   },
   "followups": {
     "empty": "Aucun rappel prévu aujourd'hui",
-    "due": "Rappels prévus aujourd'hui"
+    "due": "Rappels prévus aujourd'hui",
+    "dueCount_one": "{{count}} relance pour aujourd’hui",
+    "dueCount_other": "{{count}} relances pour aujourd’hui"
   },
   "filter": {
     "btn": "Filtrer",
@@ -216,5 +216,11 @@
     "requiredError": "Champ obligatoire",
     "submitting": "Envoi…",
     "submit": "Envoyer"
+  },
+  "firstRun": {
+    "title": "Aucune demande ici pour l’instant",
+    "sub": "Chaque demande qui arrive — par téléphone, par message ou depuis une page de destination — est enregistrée ici et suivie jusqu’à ce qu’elle devienne un client.",
+    "addLead": "Enregistrer la première demande",
+    "pagesLink": "Ou créez une page qui les collecte pour vous"
   }
 }

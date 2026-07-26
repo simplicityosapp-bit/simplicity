@@ -53,7 +53,10 @@
     "recipientTaxIdPlaceholder": "ת.ז / ח.פ",
     "recipientNameRequired": "יש להזין שם נמען.",
     "recipientSectionLabel": "לקוח חדש",
-    "saveAsClient": "שמור כלקוח"
+    "saveAsClient": "שמור כלקוח",
+    "moreDetails": "פרטים נוספים",
+    "issueItemSummary": "יופק על: {{item}}",
+    "issueItemChange": "שינוי"
   },
   "editTx": {
     "title": "עריכת תנועה",

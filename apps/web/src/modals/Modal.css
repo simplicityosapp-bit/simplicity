@@ -923,6 +923,28 @@
    fallback) stacked; the wrapper itself gets the 10px opts gap from siblings. */
 .m-issue-item { display: flex; flex-direction: column; gap: 6px; }
 .m-issue-item .m-label { margin-bottom: 0; }
+/* Collapsed state: one sentence naming what will be billed, plus the way in.
+   The provider's catalog is its vocabulary, not the user's, and the default is
+   right nearly every time. */
+.m-issue-item-sum {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.m-issue-item-sum .m-hint { margin: 0; flex: 1; min-width: 0; }
+.m-issue-item-change {
+  flex-shrink: 0;
+  padding: 2px 4px;
+  border: none;
+  background: transparent;
+  font-family: var(--mg-font);
+  font-size: calc(12px * var(--text-scale));
+  color: var(--terracotta);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
 
 /* Delete action in the edit-transaction modal — pushed to the start, away from
    cancel/save. Soft-delete + undo (no confirm; the undo toast is the safety). */

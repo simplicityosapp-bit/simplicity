@@ -51,7 +51,10 @@
     "recipientTaxIdPlaceholder": "N° fiscal / SIRET",
     "recipientNameRequired": "Saisissez un nom de destinataire.",
     "recipientSectionLabel": "Nouveau client",
-    "saveAsClient": "Enregistrer comme client"
+    "saveAsClient": "Enregistrer comme client",
+    "moreDetails": "Plus de détails",
+    "issueItemSummary": "Sera émis pour : {{item}}",
+    "issueItemChange": "Modifier"
   },
   "editTx": {
     "title": "Modifier la transaction",

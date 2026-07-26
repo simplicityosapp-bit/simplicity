@@ -51,7 +51,10 @@
     "recipientTaxIdPlaceholder": "Tax ID / Company no.",
     "recipientNameRequired": "Enter a recipient name.",
     "recipientSectionLabel": "New client",
-    "saveAsClient": "Save as client"
+    "saveAsClient": "Save as client",
+    "moreDetails": "More details",
+    "issueItemSummary": "Will be issued for: {{item}}",
+    "issueItemChange": "Change"
   },
   "editTx": {
     "title": "Edit transaction",

@@ -21,6 +21,8 @@ import RecurringSection from './RecurringSection'
 import CategoriesSection from './CategoriesSection'
 import IncomeByProject from './IncomeByProject'
 import ExpensesByCategory from './ExpensesByCategory'
+import TransactionSearch from './TransactionSearch'
+import { searchTransactions } from './searchTransactions'
 import AddTransactionModal from '../../modals/AddTransactionModal'
 import EditTransactionModal from '../../modals/EditTransactionModal'
 import RecurringModal from '../../modals/RecurringModal'
@@ -69,6 +71,8 @@ export default function FinanceScreen() {
   const [addType, setAddType] = useState('income')
   const openAdd = (type = 'income') => { setAddType(type); setShowAdd(true) }
   const [editTx, setEditTx] = useState(null)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [searchType, setSearchType] = useState('all')
   const [showAddRec, setShowAddRec] = useState(false)
   const [editRec, setEditRec] = useState(null)
   const [pendingDeleteRec, setPendingDeleteRec] = useState(null)
@@ -123,6 +127,19 @@ export default function FinanceScreen() {
   const hasAnyTx = useMemo(() => transactions.some((tx) => !tx.deleted_at), [transactions])
   const firstRun = !loading && !error && !hasAnyTx
 
+  /* Typing a query leaves month scope — "what has Dana paid me" can't be
+     answered by making you guess the month first. A type chip on its own does
+     NOT: that is narrowing what you are already looking at, and jumping to
+     all-time because someone tapped "הכנסות" would be startling. */
+  const searching = searchQuery.trim().length > 0
+  const listRows = useMemo(
+    () => searchTransactions(searching ? transactions : monthTxs, {
+      query: searchQuery, type: searchType, clients, projects, categories,
+    }),
+    [searching, transactions, monthTxs, searchQuery, searchType, clients, projects, categories],
+  )
+  const clearSearch = () => { setSearchQuery(''); setSearchType('all') }
+
   return (
     <Box className="screen">
       <Box className="screen-top">
@@ -162,6 +179,13 @@ export default function FinanceScreen() {
         </Box>
       ) : (
         <>
+          {/* Everything above the list measures the SELECTED MONTH. A query
+              spans all of history, so leaving those cards on screen would put
+              July's net above results from March — the exact mismatch the
+              merged overview card exists to prevent. They come back the moment
+              the query is cleared. */}
+          {!searching && (
+          <>
           {/* One card: month nav → the numbers → the line they describe. The
               chart plots net, so it ends on the same figure printed above it. */}
           <Box className="f-overview">
@@ -231,6 +255,19 @@ export default function FinanceScreen() {
               onDelete={(c) => removeCategory(c.id)}
             />
           </CollapsibleSection>
+          </>
+          )}
+
+          <TransactionSearch
+            query={searchQuery}
+            onQuery={setSearchQuery}
+            type={searchType}
+            onType={setSearchType}
+            active={searching}
+            resultCount={listRows.length}
+            monthLabel={fmtMonthYear(month)}
+            onClear={clearSearch}
+          />
 
           <Box as="section" className="f-list">
             {loading ? (
@@ -239,7 +276,9 @@ export default function FinanceScreen() {
               <Box className="empty"><Txt as="p" className="empty-text">{t('loadError', { error })}</Txt></Box>
             ) : (
               <>
-                {skippedCount > 0 && (
+                {/* The skipped toggle is a month-list affordance; in results
+                    mode every match is shown regardless of status. */}
+                {!searching && skippedCount > 0 && (
                   <Box className="f-skipped-toggle">
                     <Btn
                       type="button"
@@ -252,11 +291,15 @@ export default function FinanceScreen() {
                   </Box>
                 )}
                 <TransactionList
-                  transactions={monthTxs}
+                  transactions={listRows}
                   clients={clients}
                   projects={projects}
                   categories={categories}
                   showSkipped={showSkipped}
+                  flat={searching}
+                  emptyText={searching
+                    ? t('search.noResults', { query: searchQuery.trim() })
+                    : (searchType !== 'all' ? t('search.noneOfType') : undefined)}
                   onApprove={(id) => setStatus(id, 'confirmed')}
                   onSkip={(id) => setStatus(id, 'skipped')}
                   onUnskip={(id) => setStatus(id, 'pending')}
@@ -269,7 +312,7 @@ export default function FinanceScreen() {
 
           {/* Rare action, and it only ever exported the visible month — which
               the old label never said. Sits after the thing it exports. */}
-          {monthTxs.length > 0 && (
+          {!searching && monthTxs.length > 0 && (
             <Box className="f-export-row">
               <Btn
                 type="button"

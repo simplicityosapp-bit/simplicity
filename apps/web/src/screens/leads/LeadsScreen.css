@@ -332,11 +332,9 @@
   transition: border-color 0.15s;
 }
 .l-followup-banner:hover { border-color: var(--terracotta); }
-/* Empty state de-emphasis lives on the CONTENT (icon + text), NOT the whole
-   element — a card-wide opacity washed out the glass/frost so the bar read as
-   flatter and more transparent than its neighbours. */
-.l-followup-banner.muted > svg,
-.l-followup-banner.muted .l-followup-text { color: var(--stone); }
+/* The empty-state variant is gone with the empty state itself: the banner now
+   renders only when a follow-up is actually due, so there is nothing left to
+   de-emphasise. */
 .l-followup-banner > svg { color: var(--amber-warn); flex-shrink: 0; }
 .l-followup-count {
   min-width: 22px;

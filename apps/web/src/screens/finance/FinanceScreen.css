@@ -920,14 +920,12 @@
   cursor: pointer;
   transition: background 0.15s;
 }
-.f-export-btn:hover:not(:disabled) {
+.f-export-btn:hover {
   background: rgba(42, 37, 32, 0.05);
 }
-.f-export-btn:disabled {
-  opacity: 0.4;
-  cursor: default;
-}
-[data-theme="dark"] .f-export-btn:hover:not(:disabled) {
+/* No disabled state: the button is rendered only when the month has rows to
+   export, rather than sitting there greyed out. */
+[data-theme="dark"] .f-export-btn:hover {
   background: rgba(240, 235, 224, 0.07);
 }
 

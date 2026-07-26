@@ -166,9 +166,14 @@ export default function LeadsScreen() {
   }, [officialLeads, leadsFilter, effectiveStatus, query, sources, projects])
   const stats = useMemo(() => computeStats(officialLeads), [officialLeads])
   /* "Never had a lead" is a different situation from "the filter hides them
-     all", and only the first deserves to take over the screen. Pending
-     submissions still render above it — they ARE leads, just unapproved. */
-  const firstRun = !loading && !error && officialLeads.length === 0 && query.trim() === '' && activeFilterCount === 0
+     all", and only the first deserves to take over the screen.
+     pendingReview counts too: a page submission awaiting approval IS an
+     enquiry, and it renders in its own card directly above — without this the
+     screen would show that card and then announce "no enquiries here yet"
+     underneath it. */
+  const firstRun = !loading && !error
+    && officialLeads.length === 0 && pendingReview.length === 0
+    && query.trim() === '' && activeFilterCount === 0
 
   /* Approve = move into the official list; reject = soft-delete (undoable). */
   const approveLead = useCallback((id) => updateLead(id, { pending_review: false }).catch(() => {}), [updateLead])

@@ -35,7 +35,7 @@
   "stats": {
     "newThisMonth": "Demandes ce mois-ci",
     "converted": "Convertis en clients",
-    "convRate": "Taux de conversion"
+    "convRate": "des demandes de ce mois-ci"
   },
   "sort": {
     "newOld": "Du plus récent",
@@ -59,7 +59,7 @@
     "period_lastMonth": "Le mois dernier",
     "project": "Projet",
     "group": "Groupe",
-    "status": "Sous-statut",
+    "status": "Étape",
     "source": "Source",
     "all": "Tous",
     "unassigned": "Non attribué",
@@ -72,7 +72,7 @@
   },
   "loading": "Chargement des prospects…",
   "loadError": "Impossible de charger les prospects : {{error}}",
-  "subFilterAria": "Filtrer par sous-statut",
+  "subFilterAria": "Filtrer par étape",
   "all": "Tous",
   "undoStatusChanged": "Statut modifié",
   "delete": {
@@ -81,8 +81,8 @@
     "confirm": "Supprimer"
   },
   "dropPicker": {
-    "title": "Vers quel sous-statut le déplacer ?",
-    "none": "Aucun sous-statut"
+    "title": "Vers quelle étape le déplacer ?",
+    "none": "Aucune étape"
   },
   "column": {
     "empty": "Aucun prospect dans cette colonne"
@@ -112,14 +112,14 @@
     "close": "Fermer"
   },
   "statusesPanel": {
-    "intro": "Gérez les sous-statuts au sein de chaque catégorie principale. Les sous-statuts apparaissent lorsque vous définissez une pastille de couleur sur une fiche de prospect, et servent au filtrage et aux graphiques.",
-    "addPlaceholder": "Sous-statut pour « {{meta}} »",
+    "intro": "Gérez les étapes au sein de chaque colonne. Une étape apparaît comme une pastille de couleur sur la fiche du prospect, et sert au filtrage et aux graphiques.",
+    "addPlaceholder": "Étape dans « {{meta}} »",
     "addAria": "Ajouter",
     "dropHere": "Déposez ici",
     "deleteChipAria": "Supprimer {{name}}",
     "deleteChipTitle": "Supprimer",
-    "deleteTitle": "Supprimer le sous-statut",
-    "deleteMessage": "Supprimer « {{name}} » ? Les prospects qui en sont marqués se retrouveront sans sous-statut. Vous pouvez le restaurer depuis la corbeille sous 30 jours.",
+    "deleteTitle": "Supprimer l’étape",
+    "deleteMessage": "Supprimer « {{name}} » ? Les prospects qui la portent n’auront plus d’étape. Restaurable depuis la corbeille sous 30 jours.",
     "deleteConfirm": "Supprimer"
   },
   "pages": {

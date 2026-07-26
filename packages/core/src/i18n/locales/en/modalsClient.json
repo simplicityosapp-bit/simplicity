@@ -36,7 +36,8 @@
     "day3": "Wednesday",
     "day4": "Thursday",
     "day5": "Friday",
-    "day6": "Saturday"
+    "day6": "Saturday",
+    "leadStageOptional": "Stage (optional)"
   },
   "addClient": {
     "titleLabel": "New client",
@@ -133,7 +134,7 @@
     "title": "Convert lead to client",
     "nameRequired": "Please give the client a name.",
     "clientName": "Client name",
-    "convertedSubStatusOptional": "\"Converted\" sub-status (optional)",
+    "convertedSubStatusOptional": "Stage in \"Converted\" (optional)",
     "convertedDefault": "Default ({{name}})",
     "footHint": "A new client will be created; the lead will be marked \"converted to client\" and stay in the \"Converted\" column with a link to the new client.",
     "converting": "Converting…",
@@ -223,7 +224,8 @@
     "unassigned": "— Unassigned —",
     "delete": "Delete",
     "deleting": "Deleting…",
-    "deleteAndMove": "Delete and move"
+    "deleteAndMove": "Delete and move",
+    "titleLead": "Delete stage \"{{name}}\""
   },
   "groupBilling": {
     "package": "Per package",

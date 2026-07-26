@@ -83,7 +83,7 @@
   },
   "leadMetas": {
     "in_process": "בתהליך",
-    "converted": "הומר",
+    "converted": "הפך ללקוח",
     "not_relevant": "לא רלוונטי"
   },
   "payments": {
@@ -166,7 +166,8 @@
     "subStatusPlaceholder": "תת-סטטוס ל\"{{meta}}\"",
     "addFailed": "ההוספה נכשלה — נסה/י שוב.",
     "addFailed_male": "ההוספה נכשלה — נסה שוב.",
-    "addFailed_female": "ההוספה נכשלה — נסי שוב."
+    "addFailed_female": "ההוספה נכשלה — נסי שוב.",
+    "leadStagePlaceholder": "שלב ב\"{{meta}}\""
   },
   "questions": {
     "loadError": "שגיאה בטעינת השאלות: {{error}}",
@@ -263,7 +264,7 @@
     "addSourceFailed": "הוספת המקור נכשלה — נסה/י שוב.",
     "addSourceFailed_male": "הוספת המקור נכשלה — נסה שוב.",
     "addSourceFailed_female": "הוספת המקור נכשלה — נסי שוב.",
-    "subStatuses": "תתי-סטטוסים"
+    "subStatuses": "שלבים"
   },
   "schedule": {
     "everyDay": "כל יום",

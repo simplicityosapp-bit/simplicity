@@ -265,11 +265,11 @@
     },
     "leads": {
       "title": "Prospects",
-      "intro": "Un tableau pour gérer toutes vos demandes. Suivez chaque prospect du moment où il est « En cours » jusqu'à ce qu'il devienne client — avec sources, sous-statuts et relances.",
+      "intro": "Un tableau pour gérer toutes vos demandes. Suivez chaque prospect du moment où il est « En cours » jusqu'à ce qu'il devienne client — avec sources, étapes et relances.",
       "features": [
         {
           "title": "Deux vues : Prospects et Statuts",
-          "body": "Deux onglets se trouvent en haut de l'écran. « Prospects » affiche le tableau kanban. « Statuts » ouvre un panneau pour gérer les sous-statuts sans quitter l'écran. Votre sélection est enregistrée, et l'écran s'ouvre dans la même vue la prochaine fois."
+          "body": "Deux onglets se trouvent en haut de l'écran. « Prospects » affiche le tableau kanban. « Statuts » ouvre un panneau pour gérer les étapes sans quitter l'écran. Votre sélection est enregistrée, et l'écran s'ouvre dans la même vue la prochaine fois."
         },
         {
           "title": "Tableau kanban à trois colonnes",
@@ -277,31 +277,31 @@
         },
         {
           "title": "Glisser entre les colonnes",
-          "body": "Vous pouvez faire glisser une carte de prospect d'une colonne à une autre, au doigt ou à la souris. Si la colonne vers laquelle vous l'avez glissée a deux sous-statuts ou plus, on vous demandera « Sous quel sous-statut le classer ? » (avec une option « Sans sous-statut »). S'il n'y en a qu'un, il est sélectionné automatiquement. Juste après le déplacement, « Annuler » apparaît pour revenir au statut précédent."
+          "body": "Vous pouvez faire glisser une carte de prospect d'une colonne à une autre, au doigt ou à la souris. Si la cible est hors de l'écran, maintenez près du bord et le tableau défile tout seul jusqu'à ce que cette colonne arrive. Si la colonne vers laquelle vous l'avez glissée a deux étapes ou plus, on vous demandera « Vers quelle étape le classer ? » (avec une option « Sans étape »). S'il n'y en a qu'une, elle est sélectionnée automatiquement. Juste après le déplacement, « Annuler » apparaît pour revenir au statut précédent."
         },
         {
           "title": "Ajouter un prospect",
-          "body": "Appuyez sur « + Nouveau prospect » pour ajouter une demande. Renseignez le nom (requis), le téléphone, la source, le projet, le groupe (affiché uniquement lorsque le projet a des groupes), le sous-statut (lorsque vous avez configuré des sous-statuts pour « En cours »), la date de la demande, la date de relance et des notes. Un nouveau prospect va toujours dans la colonne « En cours »."
+          "body": "Appuyez sur « + Nouveau prospect » pour ajouter une demande. Renseignez le nom (requis), le téléphone, la source, le projet, le groupe (affiché uniquement lorsque le projet a des groupes), le étape (lorsque vous avez configuré des étapes pour « En cours »), la date de la demande, la date de relance et des notes. Un nouveau prospect va toujours dans la colonne « En cours »."
         },
         {
           "title": "Modifier un prospect",
-          "body": "Dans la fenêtre de modification, vous pouvez mettre à jour tous les détails, et aussi déplacer le prospect entre les colonnes à l'aide des boutons de statut (En cours / Converti / Non pertinent) et choisir un sous-statut correspondant. Changer le statut réinitialise le sous-statut, et changer le projet réinitialise le groupe."
+          "body": "La fenêtre de modification met à jour tous les détails, déplace le prospect entre les colonnes via les boutons de statut et choisit une étape. Changer le statut efface l'étape, et changer le projet efface le groupe. Quitter sans enregistrer demande d'abord."
         },
         {
           "title": "Convertir en client",
-          "body": "Dans la fiche d'un prospect pas encore converti, appuyez sur « Convertir en client ». Une fenêtre « Convertir le prospect en client » s'ouvre, déjà préremplie avec le nom et le téléphone. Vous pouvez choisir un projet, un groupe et un sous-statut « Converti ». À l'enregistrement, un nouveau client actif est créé (sans séances ni prix pour l'instant), les notes lui sont transférées, et le prospect passe dans la colonne « Convertis » avec un lien vers le client. Si vous avez sélectionné un groupe, le client y est ajouté comme membre."
+          "body": "Dans la fiche d'un prospect pas encore converti, appuyez sur « Convertir en client ». Une fenêtre « Convertir le prospect en client » s'ouvre, déjà préremplie avec le nom et le téléphone. Vous pouvez choisir un projet, un groupe et une étape « Converti ». À l'enregistrement, un nouveau client actif est créé (sans séances ni prix pour l'instant), les notes lui sont transférées, et le prospect passe dans la colonne « Convertis » avec un lien vers le client. Si vous avez sélectionné un groupe, le client y est ajouté comme membre."
         },
         {
           "title": "Sources de prospects",
           "body": "Chaque prospect peut être étiqueté avec une source — recommandation, Instagram, site web, etc. Dans les fenêtres d'ajout et de modification, vous pouvez créer une nouvelle source sur le moment sans quitter : choisissez « + Nouvelle source… », saisissez un nom, et elle est enregistrée et sélectionnée immédiatement. Une carte sans source est étiquetée « Sans source »."
         },
         {
-          "title": "Sous-statuts",
-          "body": "Dans la vue « Statuts », vous pouvez ajouter, supprimer et réorganiser (par glissement) les sous-statuts sous chaque colonne. Ils apparaissent comme un point coloré sur la carte du prospect et servent au filtrage et aux graphiques. Un sous-statut par défaut ne peut pas être supprimé. Quand vous en supprimez un autre, les prospects restent sans sous-statut."
+          "title": "Étapes",
+          "body": "Dans la vue « Statuts », vous pouvez ajouter, supprimer et réorganiser (par glissement) les étapes sous chaque colonne. Ils apparaissent comme un point coloré sur la carte du prospect et servent au filtrage et aux graphiques. Un étape par défaut ne peut pas être supprimé. Quand vous en supprimez un autre, les prospects restent sans étape."
         },
         {
-          "title": "Filtrer et trier",
-          "body": "Des pastilles de filtre se trouvent au-dessus du tableau. Appuyer sur un sous-statut n'affiche que les prospects étiquetés avec lui (« Tous » efface le filtre, et appuyer de nouveau le désactive). Le bouton de tri alterne entre « Par date » → « Plus récents d'abord » → « Plus anciens d'abord », selon la date de la demande. Vos sélections sont enregistrées."
+          "title": "Rechercher, filtrer et trier",
+          "body": "Un champ de recherche et un bouton « Filtrer » se trouvent au-dessus du tableau. La recherche trouve par nom, téléphone, e-mail, notes, source ou projet, et ne tient pas compte de la casse. « Filtrer » ouvre une fenêtre avec période, projet, groupe, étape, source et tri par date — le nombre sur le bouton compte les filtres actifs (le tri n'est pas compté, car il ne masque rien). Vos sélections sont enregistrées."
         },
         {
           "title": "Relances",
@@ -309,18 +309,18 @@
         },
         {
           "title": "Statistiques de ce mois-ci",
-          "body": "Trois chiffres se trouvent en haut de l'écran : « Demandes ce mois-ci », « Convertis en clients » et « Taux de conversion ». Tous sont calculés automatiquement à partir des prospects ouverts ce mois-ci."
+          "body": "Trois chiffres se trouvent en haut de l'écran : « Demandes ce mois-ci », « Convertis en clients » et un pourcentage étiqueté « des demandes de ce mois-ci ». Tous sont calculés automatiquement à partir des prospects ouverts ce mois-ci."
         },
         {
           "title": "Supprimer un prospect",
-          "body": "Chaque carte a un bouton de suppression (X) dans le coin. Le prospect va à la Corbeille et peut être restauré sous 30 jours."
+          "body": "Chaque carte a un bouton de suppression (X) dans le coin. Une confirmation nommant le prospect s'ouvre d'abord ; ensuite seulement il va à la Corbeille, d'où il peut être restauré sous 30 jours."
         }
       ],
       "tips": [
         "Renseignez une date de « Relance » pour que le prospect apparaisse dans le bandeau des relances le jour où vous devez le recontacter. Ainsi aucune demande ne passe entre les mailles du filet.",
         "Étiquetez chaque prospect avec la bonne source. Le taux de conversion et les autres statistiques s'appuient là-dessus pour vous montrer d'où viennent vos clients les plus adaptés.",
-        "Au lieu d'ouvrir la fenêtre de modification, faites simplement glisser une carte vers une autre colonne pour faire avancer un prospect. Vous vous êtes trompé ? Appuyez sur « Annuler » qui apparaît juste après le glissement.",
-        "Configurez vos propres sous-statuts dans la vue « Statuts » (par ex. « En attente d'un rappel », « Appel de découverte planifié »), puis filtrez par eux sur le tableau pour rester concentré.",
+        "Au lieu d'ouvrir la fenêtre de modification, faites simplement glisser une carte vers une autre colonne pour faire avancer un prospect. Si la colonne voulue est hors de l'écran, maintenez près du bord et le tableau défile tout seul. Vous vous êtes trompé ? Appuyez sur « Annuler » qui apparaît juste après le glissement.",
+        "Configurez vos propres étapes dans la vue « Statuts » (par ex. « En attente d'un rappel », « Appel de découverte planifié »), puis filtrez par eux sur le tableau pour rester concentré.",
         "Lors de la conversion en client, vous pouvez déjà l'affecter à un projet et à un groupe. Les notes du prospect sont transférées automatiquement vers la nouvelle fiche client."
       ],
       "faq": [
@@ -330,23 +330,23 @@
         },
         {
           "q": "Un prospect que j'ai converti en client apparaît toujours sur le tableau — est-ce normal ?",
-          "a": "Oui. Les prospects convertis passent dans la colonne « Convertis » et y restent, étiquetés « Converti en client » avec un lien vers le client. Vous pouvez filtrer par sous-statut pour concentrer votre vue."
+          "a": "Oui. Les prospects convertis passent dans la colonne « Convertis » et y restent, étiquetés « Converti en client » avec un lien vers le client. Vous pouvez filtrer par étape pour concentrer votre vue."
         },
         {
-          "q": "J'ai glissé un prospect vers une autre colonne et on m'a demandé quel sous-statut — pourquoi ?",
-          "a": "Lorsque la colonne vers laquelle vous l'avez glissé a deux sous-statuts ou plus, l'application demande lequel attribuer (ou « Sans sous-statut »). S'il n'y en a qu'un, il est sélectionné automatiquement. S'il n'y en a aucun, le prospect est déplacé sans sous-statut."
+          "q": "J'ai glissé un prospect vers une autre colonne et on m'a demandé quelle étape — pourquoi ?",
+          "a": "Lorsque la colonne vers laquelle vous l'avez glissé a deux étapes ou plus, l'application demande lequel attribuer (ou « Sans étape »). S'il n'y en a qu'une, elle est sélectionnée automatiquement. S'il n'y en a aucun, le prospect est déplacé sans étape."
         },
         {
           "q": "J'ai supprimé un prospect par erreur — puis-je le restaurer ?",
-          "a": "Oui. Le prospect va à la Corbeille et peut être restauré sous 30 jours. Il en va de même pour un sous-statut ou une source supprimés — « Annuler » apparaît pour une restauration immédiate, et ils peuvent aussi être restaurés depuis la Corbeille."
+          "a": "Oui. Le prospect va à la Corbeille et peut être restauré sous 30 jours. Il en va de même pour une étape ou une source supprimés — « Annuler » apparaît pour une restauration immédiate, et ils peuvent aussi être restaurés depuis la Corbeille."
         },
         {
           "q": "La conversion en client fixe-t-elle un prix ou un nombre de séances ?",
           "a": "Non. La conversion crée un client actif avec uniquement le nom, le téléphone et les notes. Le nombre de séances et le prix démarrent à zéro et sont renseignés depuis la fiche client."
         },
         {
-          "q": "Pourquoi le « Taux de conversion » affiche-t-il un tiret (—) ou me semble-t-il erroné ?",
-          "a": "Le chiffre est calculé à partir des prospects ouverts ce mois-ci — combien d'entre eux sont maintenant dans la colonne « Convertis ». S'il n'y a aucune nouvelle demande ce mois-ci, « — » s'affiche. Et un prospect ramené de « Convertis » vers une autre colonne n'est plus compté comme une conversion."
+          "q": "Pourquoi le pourcentage en haut affiche-t-il un tiret (—) ou me semble-t-il erroné ?",
+          "a": "Il est calculé à partir des prospects ouverts ce mois-ci — combien d'entre eux sont maintenant dans la colonne « Convertis », d'où l'étiquette « des demandes de ce mois-ci ». S'il n'y a aucune nouvelle demande ce mois-ci, « — » s'affiche. Et un prospect ramené hors de « Convertis » n'est plus compté."
         }
       ]
     },
@@ -1166,8 +1166,8 @@
           "body": "En bas de la section Questions, sous « Rappel quotidien », vous pouvez activer un rappel et définir une heure. Si vous n'avez pas répondu avant cette heure, un petit rappel bienveillant apparaît dans le widget Point quotidien sur l'écran d'accueil. Le champ d'heure n'apparaît que lorsque le rappel est activé."
         },
         {
-          "title": "Paramètres des prospects — sources et sous-statuts",
-          "body": "Sous « Sources de prospects », vous ajoutez de nouvelles sources avec une couleur et supprimez celles qui existent. Sous « Sous-statuts », vous gérez les sous-statuts pour les colonnes du tableau des prospects (en cours, convertis, non pertinents) — également avec des couleurs, et le même flux de suppression avec réaffectation que pour les clients."
+          "title": "Paramètres des prospects — sources et étapes",
+          "body": "Sous « Sources de prospects », vous ajoutez de nouvelles sources avec une couleur et supprimez celles qui existent. Sous « Étapes », vous gérez les étapes pour les colonnes du tableau des prospects (en cours, convertis, non pertinents) — également avec des couleurs, et le même flux de suppression avec réaffectation que pour les clients."
         },
         {
           "title": "Apparence — mode clair/sombre et taille du texte",
@@ -1243,7 +1243,7 @@
         },
         {
           "title": "Les éléments sont organisés par type",
-          "body": "Les éléments supprimés sont regroupés par type, et chaque groupe affiche une icône, un nom et un nombre d'éléments. Les types comprennent : clients, projets, groupes, tâches, prospects, sources de prospects, sous-statuts de prospects, transactions, catégories de dépenses, modèles récurrents, séances, rappels, objectifs, mesures d'objectifs, entrées d'objectifs, questions quotidiennes et réponses quotidiennes."
+          "body": "Les éléments supprimés sont regroupés par type, et chaque groupe affiche une icône, un nom et un nombre d'éléments. Les types comprennent : clients, projets, groupes, tâches, prospects, sources de prospects, étapes de prospects, transactions, catégories de dépenses, modèles récurrents, séances, rappels, objectifs, mesures d'objectifs, entrées d'objectifs, questions quotidiennes et réponses quotidiennes."
         },
         {
           "title": "Restaurer un élément",

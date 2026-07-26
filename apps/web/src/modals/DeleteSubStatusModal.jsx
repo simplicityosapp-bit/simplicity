@@ -18,6 +18,9 @@ export default function DeleteSubStatusModal({
   onCount,         /* (statusId) => Promise<number> */
   onReassign,      /* (fromId, toId|null) => Promise<void> */
   onDelete,        /* (statusId) => Promise<void> */
+  /* 'client' | 'lead' — the two domains name this thing differently now
+     (leads call them stages), so the title comes from the caller's kind. */
+  kind = 'client',
 }) {
   const { t } = useT('modalsClient')
   /* Parent passes key={status?.id || 'none'} so this component
@@ -53,7 +56,7 @@ export default function DeleteSubStatusModal({
     }
   }
 
-  const title = t('deleteSubStatus.title', { name: status.display_name })
+  const title = t(kind === 'lead' ? 'deleteSubStatus.titleLead' : 'deleteSubStatus.title', { name: status.display_name })
 
   return (
     <Modal open={open} onClose={onClose} title={title}>

@@ -204,8 +204,8 @@ export default function EditLeadModal({ open, onClose, onSave, lead, statuses = 
       </Box>
       {subStatuses.length > 0 && (
         <Box className="m-field">
-          <Box as="label" className="m-label">{t('common.subStatusOptional')}</Box>
-          <SelectMenu value={form.status_id} onChange={(v) => set('status_id', v)} options={subStatusOptions} placeholder={t('common.none')} ariaLabel={t('common.subStatusOptional')} />
+          <Box as="label" className="m-label">{t('common.leadStageOptional')}</Box>
+          <SelectMenu value={form.status_id} onChange={(v) => set('status_id', v)} options={subStatusOptions} placeholder={t('common.none')} ariaLabel={t('common.leadStageOptional')} />
         </Box>
       )}
       <Box className="m-field">

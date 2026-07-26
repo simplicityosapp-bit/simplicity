@@ -265,11 +265,11 @@
     },
     "leads": {
       "title": "Prospectos",
-      "intro": "Un tablero para gestionar todas tus consultas. Sigue cada prospecto desde el momento en que está «En curso» hasta que se convierte en cliente, con fuentes, subestados y seguimientos.",
+      "intro": "Un tablero para gestionar todas tus consultas. Sigue cada prospecto desde el momento en que está «En curso» hasta que se convierte en cliente, con fuentes, etapas y seguimientos.",
       "features": [
         {
           "title": "Dos vistas: Prospectos y Estados",
-          "body": "Dos pestañas se sitúan en la parte superior de la pantalla. «Prospectos» muestra el tablero kanban. «Estados» abre un panel para gestionar subestados sin salir de la pantalla. Tu selección se guarda, y la pantalla se abre en la misma vista la próxima vez."
+          "body": "Dos pestañas se sitúan en la parte superior de la pantalla. «Prospectos» muestra el tablero kanban. «Estados» abre un panel para gestionar etapas sin salir de la pantalla. Tu selección se guarda, y la pantalla se abre en la misma vista la próxima vez."
         },
         {
           "title": "Tablero kanban con tres columnas",
@@ -277,31 +277,31 @@
         },
         {
           "title": "Arrastrar entre columnas",
-          "body": "Puedes arrastrar una tarjeta de prospecto de una columna a otra, con el dedo o con el ratón. Si la columna a la que arrastraste tiene dos o más subestados, se te preguntará «¿Bajo qué subestado va esto?» (con una opción «Sin subestado»). Si solo hay uno, se selecciona automáticamente. Justo después del movimiento aparece «Deshacer» para volver al estado anterior."
+          "body": "Puedes arrastrar una tarjeta de prospecto de una columna a otra, con el dedo o con el ratón. Si el destino está fuera de la pantalla, mantén el dedo cerca del borde y el tablero se desplaza solo hasta que llega esa columna. Si la columna a la que arrastraste tiene dos o más etapas, se te preguntará «¿A qué etapa va esto?» (con una opción «Sin etapa»). Si solo hay una, se selecciona automáticamente. Justo después del movimiento aparece «Deshacer» para volver al estado anterior."
         },
         {
           "title": "Añadir un prospecto",
-          "body": "Toca «+ Nuevo prospecto» para añadir una consulta. Rellena el nombre (obligatorio), teléfono, fuente, proyecto, grupo (solo se muestra cuando el proyecto tiene grupos), subestado (cuando has configurado subestados para «En curso»), fecha de consulta, fecha de seguimiento y notas. Un prospecto nuevo siempre va a la columna «En curso»."
+          "body": "Toca «+ Nuevo prospecto» para añadir una consulta. Rellena el nombre (obligatorio), teléfono, fuente, proyecto, grupo (solo se muestra cuando el proyecto tiene grupos), etapa (cuando has configurado etapas para «En curso»), fecha de consulta, fecha de seguimiento y notas. Un prospecto nuevo siempre va a la columna «En curso»."
         },
         {
           "title": "Editar un prospecto",
-          "body": "En la ventana de edición puedes actualizar todos los datos, y también mover el prospecto entre columnas usando los botones de estado (En curso / Convertido / No relevante) y elegir un subestado correspondiente. Cambiar el estado restablece el subestado, y cambiar el proyecto restablece el grupo."
+          "body": "La ventana de edición actualiza todos los datos, mueve el prospecto entre columnas con los botones de estado y elige una etapa. Cambiar el estado borra la etapa, y cambiar el proyecto borra el grupo. Salir sin guardar pregunta antes."
         },
         {
           "title": "Convertir en cliente",
-          "body": "En la ficha de un prospecto que aún no se ha convertido, toca «Convertir en cliente». Se abre una ventana «Convertir prospecto en cliente», ya cargada con el nombre y el teléfono. Puedes elegir un proyecto, un grupo y un subestado «Convertido». Al guardar, se crea un nuevo cliente activo (todavía sin sesiones ni precio), las notas se transfieren a él, y el prospecto se mueve a la columna «Convertido» con un enlace al cliente. Si seleccionaste un grupo, el cliente se añade a él como miembro."
+          "body": "En la ficha de un prospecto que aún no se ha convertido, toca «Convertir en cliente». Se abre una ventana «Convertir prospecto en cliente», ya cargada con el nombre y el teléfono. Puedes elegir un proyecto, un grupo y una etapa «Convertido». Al guardar, se crea un nuevo cliente activo (todavía sin sesiones ni precio), las notas se transfieren a él, y el prospecto se mueve a la columna «Convertido» con un enlace al cliente. Si seleccionaste un grupo, el cliente se añade a él como miembro."
         },
         {
           "title": "Fuentes de prospectos",
           "body": "Cada prospecto se puede etiquetar con una fuente: recomendación, Instagram, sitio web, etc. En las ventanas de añadir y editar puedes crear una nueva fuente al instante sin salir: elige «+ Nueva fuente…», escribe un nombre, y se guarda y selecciona de inmediato. Una tarjeta sin fuente se etiqueta como «Sin fuente»."
         },
         {
-          "title": "Subestados",
-          "body": "En la vista «Estados» puedes añadir, eliminar y reordenar (arrastrando) los subestados de cada columna. Aparecen como un punto de color en la tarjeta del prospecto y se usan para filtrar y para los gráficos. Un subestado por defecto no se puede eliminar. Cuando eliminas otro, los prospectos se quedan sin subestado."
+          "title": "Etapas",
+          "body": "En la vista «Estados» puedes añadir, eliminar y reordenar (arrastrando) los etapas de cada columna. Aparecen como un punto de color en la tarjeta del prospecto y se usan para filtrar y para los gráficos. Un etapa por defecto no se puede eliminar. Cuando eliminas otro, los prospectos se quedan sin etapa."
         },
         {
-          "title": "Filtrar y ordenar",
-          "body": "Las píldoras de filtro se sitúan sobre el tablero. Al tocar un subestado se muestran solo los prospectos etiquetados con él («Todos» borra el filtro, y al tocar de nuevo se desactiva). El botón de ordenar alterna entre «Por fecha» → «Más recientes primero» → «Más antiguos primero», según la fecha de consulta. Tus selecciones se guardan."
+          "title": "Buscar, filtrar y ordenar",
+          "body": "Sobre el tablero hay un buscador y un botón «Filtrar». La búsqueda encuentra por nombre, teléfono, correo, notas, fuente o proyecto, y no distingue mayúsculas. «Filtrar» abre una ventana con periodo, proyecto, grupo, etapa, fuente y orden por fecha — el número del botón cuenta los filtros activos (el orden no se cuenta, porque no oculta nada). Tus selecciones se guardan."
         },
         {
           "title": "Seguimientos",
@@ -309,18 +309,18 @@
         },
         {
           "title": "Estadísticas de este mes",
-          "body": "Tres números se sitúan en la parte superior de la pantalla: «Consultas este mes», «Convertidos en clientes» y «Tasa de conversión». Todos se calculan automáticamente a partir de los prospectos abiertos este mes."
+          "body": "Tres números se sitúan en la parte superior de la pantalla: «Consultas este mes», «Convertidos en clientes» y un porcentaje con la etiqueta «de las solicitudes de este mes». Todos se calculan automáticamente a partir de los prospectos abiertos este mes."
         },
         {
           "title": "Eliminar un prospecto",
-          "body": "Cada tarjeta tiene un botón de eliminar (X) en la esquina. El prospecto va a la Papelera y se puede restaurar dentro de 30 días."
+          "body": "Cada tarjeta tiene un botón de eliminar (X) en la esquina. Primero se abre una confirmación con el nombre del prospecto; solo entonces pasa a la Papelera, desde donde se puede restaurar en 30 días."
         }
       ],
       "tips": [
         "Rellena una fecha de «Seguimiento» para que el prospecto aparezca en la franja de seguimientos el día en que toca volver. Así no se te escapa ninguna consulta.",
         "Etiqueta cada prospecto con la fuente correcta. La tasa de conversión y otras estadísticas dependen de esto para mostrarte de dónde vienen tus clientes más afines.",
-        "En lugar de abrir la ventana de edición, simplemente arrastra una tarjeta a otra columna para hacer avanzar un prospecto. ¿Te equivocaste? Toca «Deshacer» que aparece justo después de arrastrar.",
-        "Configura tus propios subestados en la vista «Estados» (por ejemplo «Esperando que devuelvan la llamada», «Llamada de presentación agendada»), y luego filtra por ellos en el tablero para mantenerte enfocado.",
+        "En lugar de abrir la ventana de edición, simplemente arrastra una tarjeta a otra columna para hacer avanzar un prospecto. Si la columna que quieres está fuera de la pantalla, mantén el dedo cerca del borde y el tablero se desplaza solo. ¿Te equivocaste? Toca «Deshacer» que aparece justo después de arrastrar.",
+        "Configura tus propios etapas en la vista «Estados» (por ejemplo «Esperando que devuelvan la llamada», «Llamada de presentación agendada»), y luego filtra por ellos en el tablero para mantenerte enfocado.",
         "Al convertir en cliente ya puedes asignarlo a un proyecto y un grupo. Las notas del prospecto se transfieren automáticamente a la nueva ficha de cliente."
       ],
       "faq": [
@@ -330,23 +330,23 @@
         },
         {
           "q": "Un prospecto que convertí en cliente sigue apareciendo en el tablero, ¿es normal?",
-          "a": "Sí. Los prospectos convertidos se mueven a la columna «Convertido» y permanecen ahí, etiquetados como «Convertido en cliente» con un enlace al cliente. Puedes filtrar por subestado para enfocar tu vista."
+          "a": "Sí. Los prospectos convertidos se mueven a la columna «Convertido» y permanecen ahí, etiquetados como «Convertido en cliente» con un enlace al cliente. Puedes filtrar por etapa para enfocar tu vista."
         },
         {
-          "q": "Arrastré un prospecto a otra columna y me preguntó qué subestado, ¿por qué?",
-          "a": "Cuando la columna a la que arrastraste tiene dos o más subestados, la app pregunta cuál asignar (o «Sin subestado»). Si solo hay uno, se selecciona automáticamente. Si no hay ninguno, el prospecto se mueve sin subestado."
+          "q": "Arrastré un prospecto a otra columna y me preguntó qué etapa, ¿por qué?",
+          "a": "Cuando la columna a la que arrastraste tiene dos o más etapas, la app pregunta cuál asignar (o «Sin etapa»). Si solo hay una, se selecciona automáticamente. Si no hay ninguno, el prospecto se mueve sin etapa."
         },
         {
           "q": "Eliminé un prospecto sin querer, ¿puedo restaurarlo?",
-          "a": "Sí. El prospecto va a la Papelera y se puede restaurar dentro de 30 días. Lo mismo ocurre con un subestado o una fuente eliminados: aparece «Deshacer» para restaurarlos de inmediato, y también se pueden restaurar desde la Papelera."
+          "a": "Sí. El prospecto va a la Papelera y se puede restaurar dentro de 30 días. Lo mismo ocurre con una etapa o una fuente eliminados: aparece «Deshacer» para restaurarlos de inmediato, y también se pueden restaurar desde la Papelera."
         },
         {
           "q": "¿Convertir en cliente fija un precio o un número de sesiones?",
           "a": "No. La conversión crea un cliente activo solo con el nombre, el teléfono y las notas. El número de sesiones y el precio empiezan en cero y se rellenan desde la ficha del cliente."
         },
         {
-          "q": "¿Por qué la «Tasa de conversión» muestra un guion (—) o me parece extraña?",
-          "a": "El número se calcula a partir de los prospectos abiertos este mes: cuántos de ellos están ahora en la columna «Convertido». Si no hay nuevas consultas este mes, se muestra «—». Y un prospecto movido de «Convertido» de vuelta a otra columna ya no se cuenta como conversión."
+          "q": "¿Por qué el porcentaje de arriba muestra un guion (—) o me parece extraño?",
+          "a": "Se calcula a partir de los prospectos abiertos este mes: cuántos de ellos están ahora en la columna «Convertido», por eso la etiqueta dice «de las solicitudes de este mes». Si no hay nuevas consultas este mes, se muestra «—». Y un prospecto devuelto desde «Convertido» ya no se cuenta."
         }
       ]
     },
@@ -1166,8 +1166,8 @@
           "body": "En la parte inferior de la sección Preguntas, bajo «Recordatorio diario», puedes activar un recordatorio y fijar una hora. Si no has respondido para esa hora, aparece un aviso suave en el widget de Registro diario de la pantalla de Inicio. El campo de hora solo aparece cuando el recordatorio está activado."
         },
         {
-          "title": "Ajustes de prospectos — fuentes de prospectos y subestados",
-          "body": "Bajo «Fuentes de prospectos» añades nuevas fuentes con un color y eliminas las existentes. Bajo «Subestados» gestionas los subestados de las columnas del tablero de prospectos (en curso, convertido, no relevante), también con colores, y con el mismo flujo de eliminar con reasignación que para los clientes."
+          "title": "Ajustes de prospectos — fuentes de prospectos y etapas",
+          "body": "Bajo «Fuentes de prospectos» añades nuevas fuentes con un color y eliminas las existentes. Bajo «Etapas» gestionas los etapas de las columnas del tablero de prospectos (en curso, convertido, no relevante), también con colores, y con el mismo flujo de eliminar con reasignación que para los clientes."
         },
         {
           "title": "Diseño — modo claro/oscuro y tamaño del texto",
@@ -1243,7 +1243,7 @@
         },
         {
           "title": "Los elementos se organizan por tipo",
-          "body": "Los elementos eliminados se agrupan por tipo, y cada grupo muestra un icono, un nombre y un recuento de elementos. Los tipos incluyen: clientes, proyectos, grupos, tareas, prospectos, fuentes de prospectos, subestados de prospectos, transacciones, categorías de gastos, plantillas recurrentes, sesiones, recordatorios, objetivos, métricas de objetivo, entradas de objetivo, preguntas diarias y respuestas diarias."
+          "body": "Los elementos eliminados se agrupan por tipo, y cada grupo muestra un icono, un nombre y un recuento de elementos. Los tipos incluyen: clientes, proyectos, grupos, tareas, prospectos, fuentes de prospectos, etapas de prospectos, transacciones, categorías de gastos, plantillas recurrentes, sesiones, recordatorios, objetivos, métricas de objetivo, entradas de objetivo, preguntas diarias y respuestas diarias."
         },
         {
           "title": "Restaurar un elemento",

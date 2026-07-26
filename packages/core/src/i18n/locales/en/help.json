@@ -265,11 +265,11 @@
     },
     "leads": {
       "title": "Leads",
-      "intro": "A board for managing all your inquiries. Track every lead from the moment it's \"In progress\" until it becomes a client — with sources, sub-statuses, and follow-ups.",
+      "intro": "A board for managing all your inquiries. Track every lead from the moment it's \"In progress\" until it becomes a client — with sources, stages, and follow-ups.",
       "features": [
         {
           "title": "Two views: Leads and Statuses",
-          "body": "Two tabs sit at the top of the screen. \"Leads\" shows the kanban board. \"Statuses\" opens a panel for managing sub-statuses without leaving the screen. Your selection is saved, and the screen opens in the same view next time."
+          "body": "Two tabs sit at the top of the screen. \"Leads\" shows the kanban board. \"Statuses\" opens a panel for managing stages without leaving the screen. Your selection is saved, and the screen opens in the same view next time."
         },
         {
           "title": "Kanban board with three columns",
@@ -277,31 +277,31 @@
         },
         {
           "title": "Dragging between columns",
-          "body": "You can drag a lead card from one column to another, by touch or with a mouse. If the column you dragged to has two or more sub-statuses, you'll be asked \"Which sub-status should this go under?\" (with a \"No sub-status\" option). If there's only one, it's selected automatically. Right after the move, \"Undo\" appears to go back to the previous status."
+          "body": "You can drag a lead card from one column to another, by touch or with a mouse. If the target is off-screen, hold near the edge and the board scrolls by itself until that column arrives. If the column you dragged to has two or more stages, you'll be asked \"Which stage should this go under?\" (with a \"No stage\" option). If there's only one, it's selected automatically. Right after the move, \"Undo\" appears to go back to the previous status."
         },
         {
           "title": "Adding a lead",
-          "body": "Tap \"+ New Lead\" to add an inquiry. Fill in name (required), phone, source, project, group (only shown when the project has groups), sub-status (when you've set up sub-statuses for \"In progress\"), inquiry date, follow-up date, and notes. A new lead always goes into the \"In progress\" column."
+          "body": "Tap \"+ New Lead\" to add an inquiry. Fill in name (required), phone, source, project, group (only shown when the project has groups), stage (when you've set up stages for \"In progress\"), inquiry date, follow-up date, and notes. A new lead always goes into the \"In progress\" column."
         },
         {
           "title": "Editing a lead",
-          "body": "In the edit window you can update all the details, and also move the lead between columns using the status buttons (In progress / Converted / Not relevant) and choose a matching sub-status. Changing the status resets the sub-status, and changing the project resets the group."
+          "body": "The edit window updates every detail, moves the lead between columns via the status buttons, and picks a stage. Changing the status clears the stage, and changing the project clears the group. Leaving without saving asks first."
         },
         {
           "title": "Converting to a client",
-          "body": "In the card of a lead that hasn't been converted yet, tap \"Convert to client\". A \"Convert lead to client\" window opens, already loaded with the name and phone. You can choose a project, group, and \"Converted\" sub-status. On save, a new active client is created (with no sessions or price yet), the notes are transferred to them, and the lead moves to the \"Converted\" column with a link to the client. If you selected a group, the client is added to it as a member."
+          "body": "In the card of a lead that hasn't been converted yet, tap \"Convert to client\". A \"Convert lead to client\" window opens, already loaded with the name and phone. You can choose a project, group, and \"Converted\" stage. On save, a new active client is created (with no sessions or price yet), the notes are transferred to them, and the lead moves to the \"Converted\" column with a link to the client. If you selected a group, the client is added to it as a member."
         },
         {
           "title": "Lead sources",
           "body": "Every lead can be tagged with a source — referral, Instagram, website, etc. In the add and edit windows you can create a new source on the spot without leaving: choose \"+ New source…\", type a name, and it's saved and selected immediately. A card without a source is labeled \"No source\"."
         },
         {
-          "title": "Sub-statuses",
-          "body": "In the \"Statuses\" view you can add, delete, and reorder (by dragging) sub-statuses under each column. They appear as a colored dot on the lead card and are used for filtering and charts. A default sub-status can't be deleted. When you delete another one, leads remain without a sub-status."
+          "title": "Stages",
+          "body": "In the \"Statuses\" view you can add, delete, and reorder (by dragging) stages under each column. They appear as a colored dot on the lead card and are used for filtering and charts. A default stage can't be deleted. When you delete another one, leads remain without a stage."
         },
         {
-          "title": "Filtering and sorting",
-          "body": "Filter pills sit above the board. Tapping a sub-status shows only leads tagged with it (\"All\" clears the filter, and tapping again turns it off). The sort button cycles through \"By date\" → \"Newest first\" → \"Oldest first\", based on inquiry date. Your selections are saved."
+          "title": "Search, filter and sort",
+          "body": "A search box and a \"Filter\" button sit above the board. Search matches name, phone, email, notes, source or project, and is not case-sensitive. \"Filter\" opens a sheet with period, project, group, stage, source and date sorting — the number on the button counts the active filters (sorting isn't counted, since it hides nothing). Your selections are saved."
         },
         {
           "title": "Follow-ups",
@@ -309,18 +309,18 @@
         },
         {
           "title": "This month's stats",
-          "body": "Three numbers sit at the top of the screen: \"Inquiries this month\", \"Converted to clients\", and \"Conversion rate\". All are calculated automatically from the leads opened this month."
+          "body": "Three numbers sit at the top of the screen: \"Inquiries this month\", \"Converted to clients\", and a percentage labelled \"of this month's enquiries\". All are calculated automatically from the leads opened this month."
         },
         {
           "title": "Deleting a lead",
-          "body": "Every card has a delete button (X) in the corner. The lead goes to the Trash and can be restored within 30 days."
+          "body": "Every card has a delete button (X) in the corner. A confirmation naming the lead opens first; only then does it go to the Trash, where it can be restored within 30 days."
         }
       ],
       "tips": [
         "Fill in a \"Follow-up\" date so the lead shows up in the follow-ups strip on the day you need to get back to it. That way no inquiry slips through.",
         "Tag each lead with the right source. The conversion rate and other stats rely on this to show you where your best-fit clients are coming from.",
-        "Instead of opening the edit window, just drag a card to another column to advance a lead. Made a mistake? Tap \"Undo\" that appears right after the drag.",
-        "Set up your own sub-statuses in the \"Statuses\" view (e.g. \"Waiting for a callback\", \"Intro call scheduled\"), then filter by them on the board to stay focused.",
+        "Instead of opening the edit window, just drag a card to another column to advance a lead. If the column you want is off-screen, hold near the edge and the board scrolls itself. Made a mistake? Tap \"Undo\" that appears right after the drag.",
+        "Set up your own stages in the \"Statuses\" view (e.g. \"Waiting for a callback\", \"Intro call scheduled\"), then filter by them on the board to stay focused.",
         "When converting to a client you can already assign them to a project and group. Notes from the lead transfer automatically to the new client card."
       ],
       "faq": [
@@ -330,23 +330,23 @@
         },
         {
           "q": "A lead I converted to a client still shows on the board — is that normal?",
-          "a": "Yes. Converted leads move to the \"Converted\" column and stay there, labeled \"Converted to client\" with a link to the client. You can filter by sub-status to focus your view."
+          "a": "Yes. Converted leads move to the \"Converted\" column and stay there, labeled \"Converted to client\" with a link to the client. You can filter by stage to focus your view."
         },
         {
-          "q": "I dragged a lead to another column and was asked which sub-status — why?",
-          "a": "When the column you dragged to has two or more sub-statuses, the app asks which one to assign (or \"No sub-status\"). If there's only one, it's selected automatically. If there are none, the lead moves without a sub-status."
+          "q": "I dragged a lead to another column and was asked which stage — why?",
+          "a": "When the column you dragged to has two or more stages, the app asks which one to assign (or \"No stage\"). If there's only one, it's selected automatically. If there are none, the lead moves without a stage."
         },
         {
           "q": "I deleted a lead by accident — can I restore it?",
-          "a": "Yes. The lead goes to the Trash and can be restored within 30 days. The same goes for a deleted sub-status or source — \"Undo\" appears for immediate restoration, and they can also be restored from the Trash."
+          "a": "Yes. The lead goes to the Trash and can be restored within 30 days. The same goes for a deleted stage or source — \"Undo\" appears for immediate restoration, and they can also be restored from the Trash."
         },
         {
           "q": "Does converting to a client set a price or number of sessions?",
           "a": "No. The conversion creates an active client with only the name, phone, and notes. The number of sessions and price start at zero and are filled in from the client card."
         },
         {
-          "q": "Why does \"Conversion rate\" show a dash (—) or look off to me?",
-          "a": "The number is calculated from the leads opened this month — how many of them are now in the \"Converted\" column. If there are no new inquiries this month, \"—\" is shown. And a lead moved back from \"Converted\" to another column is no longer counted as a conversion."
+          "q": "Why does the percentage at the top show a dash (—) or look off to me?",
+          "a": "It is calculated from the leads opened this month — how many of them are now in the \"Converted\" column, which is why the label reads \"of this month's enquiries\". If there are no new inquiries this month, \"—\" is shown. And a lead moved back out of \"Converted\" is no longer counted."
         }
       ]
     },
@@ -1166,8 +1166,8 @@
           "body": "At the bottom of the Questions section, under \"Daily Reminder\", you can turn on a reminder and set a time. If you haven't answered by that time, a gentle nudge appears in the Daily Check-In widget on the Home screen. The time field only appears when the reminder is on."
         },
         {
-          "title": "Lead Settings — lead sources and sub-statuses",
-          "body": "Under \"Lead Sources\" you add new sources with a color and delete existing ones. Under \"Sub-Statuses\" you manage the sub-statuses for the lead board columns (in progress, converted, not relevant) — also with colors, and the same delete-with-reassign flow as for clients."
+          "title": "Lead Settings — lead sources and stages",
+          "body": "Under \"Lead Sources\" you add new sources with a color and delete existing ones. Under \"Sub-Statuses\" you manage the stages for the lead board columns (in progress, converted, not relevant) — also with colors, and the same delete-with-reassign flow as for clients."
         },
         {
           "title": "Design — light/dark mode and text size",
@@ -1243,7 +1243,7 @@
         },
         {
           "title": "Items are organized by type",
-          "body": "Deleted items are grouped by type, and each group shows an icon, name and item count. Types include: clients, projects, groups, tasks, leads, lead sources, lead sub-statuses, transactions, expense categories, recurring templates, sessions, reminders, goals, goal metrics, goal entries, daily questions and daily answers."
+          "body": "Deleted items are grouped by type, and each group shows an icon, name and item count. Types include: clients, projects, groups, tasks, leads, lead sources, lead stages, transactions, expense categories, recurring templates, sessions, reminders, goals, goal metrics, goal entries, daily questions and daily answers."
         },
         {
           "title": "Restoring an item",

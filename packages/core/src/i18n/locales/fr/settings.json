@@ -158,7 +158,8 @@
     "deleteAria": "Supprimer",
     "subStatusDeleted": "Sous-statut supprimé",
     "subStatusPlaceholder": "Sous-statut pour « {{meta}} »",
-    "addFailed": "Impossible de l'ajouter — réessayez."
+    "addFailed": "Impossible de l'ajouter — réessayez.",
+    "leadStagePlaceholder": "Étape dans « {{meta}} »"
   },
   "questions": {
     "loadError": "Impossible de charger vos questions : {{error}}",
@@ -229,7 +230,7 @@
     "deleteSourceAria": "Supprimer la source",
     "newSourcePlaceholder": "Nom de la nouvelle source",
     "addSourceFailed": "Impossible d'ajouter la source — réessayez.",
-    "subStatuses": "Sous-statuts"
+    "subStatuses": "Étapes"
   },
   "schedule": {
     "everyDay": "Chaque jour",

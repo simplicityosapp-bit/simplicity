@@ -38,7 +38,8 @@
     "day3": "רביעי",
     "day4": "חמישי",
     "day5": "שישי",
-    "day6": "שבת"
+    "day6": "שבת",
+    "leadStageOptional": "שלב (אופציונלי)"
   },
   "addClient": {
     "titleLabel": "לקוח חדש",
@@ -140,20 +141,20 @@
     "title": "עריכת ליד",
     "status": "סטטוס",
     "metaInProcess": "בתהליך",
-    "metaConverted": "הומר",
+    "metaConverted": "הפך ללקוח",
     "metaNotRelevant": "לא רלוונטי"
   },
   "convertLead": {
     "title": "המרת ליד ללקוח",
     "nameRequired": "יש לתת שם ללקוח.",
     "clientName": "שם הלקוח",
-    "convertedSubStatusOptional": "תת-סטטוס \"הומר\" (אופציונלי)",
+    "convertedSubStatusOptional": "שלב ב\"הפכו ללקוחות\" (אופציונלי)",
     "convertedDefault": "ברירת מחדל ({{name}})",
-    "footHint": "ייווצר לקוח חדש; הליד יסומן כ\"הומר ללקוח\" ויישאר בעמודה \"הומרו\" עם קישור ללקוח החדש.",
-    "converting": "ממיר…",
-    "convert": "המר ללקוח",
+    "footHint": "ייווצר לקוח חדש; הליד יסומן כ\"נוסף לרשימת הלקוחות\" ויישאר בעמודה \"הפכו ללקוחות\" עם קישור ללקוח החדש.",
+    "converting": "יוצר לקוח…",
+    "convert": "הפיכה ללקוח",
     "toastCreated": "נוצר לקוח חדש",
-    "convertFailed": "ההמרה נכשלה: {{error}}"
+    "convertFailed": "יצירת הלקוח נכשלה: {{error}}"
   },
   "addGroup": {
     "title": "קבוצה חדשה",
@@ -251,7 +252,8 @@
     "deleting": "מוחק…",
     "deleteAndMove": "מחק והעבר",
     "affected_two": "{{count}} שיוכים פעילים יושפעו מהמחיקה.",
-    "affected_many": "{{count}} שיוכים פעילים יושפעו מהמחיקה."
+    "affected_many": "{{count}} שיוכים פעילים יושפעו מהמחיקה.",
+    "titleLead": "מחיקת שלב \"{{name}}\""
   },
   "groupBilling": {
     "package": "מחיר לחבילה",

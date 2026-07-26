@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { ChevronDown, SlidersHorizontal } from 'lucide-react'
 import DateField from '../components/DateField'
 import SelectMenu from '../components/SelectMenu'
 import Modal from './Modal'
@@ -29,6 +30,9 @@ export default function AddLeadModal({ open, onClose, onSave, sources = [], stat
      word. They ask first now — but only when something was actually typed,
      so opening the form by mistake still closes on one tap. */
   const [confirmDiscard, setConfirmDiscard] = useState(false)
+  /* The optional half of the form. Closed unless something inside it is
+     already filled by a caller-supplied default. */
+  const [detailsOpen, setDetailsOpen] = useState(false)
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }))
   /* Changing the project clears the group — a group only makes sense
      inside the project it belongs to. */
@@ -36,7 +40,7 @@ export default function AddLeadModal({ open, onClose, onSave, sources = [], stat
   const close = () => {
     setForm(blank()); setErr(''); setBusy(false)
     setCreatingSource(false); setNewSourceName(''); setSourceBusy(false)
-    setConfirmDiscard(false)
+    setConfirmDiscard(false); setDetailsOpen(false)
     onClose()
   }
 
@@ -165,35 +169,57 @@ export default function AddLeadModal({ open, onClose, onSave, sources = [], stat
           />
         )}
       </Box>
-      <Box className="m-field">
-        <Box as="label" className="m-label">{t('common.projectOptional')}</Box>
-        <SelectMenu value={form.project_id} onChange={setProject} options={projectOptions} placeholder={t('common.none')} ariaLabel={t('common.projectOptional')} />
-      </Box>
-      {projectGroups.length > 0 && (
-        <Box className="m-field">
-          <Box as="label" className="m-label">{t('common.groupOptional')}</Box>
-          <SelectMenu value={form.group_id} onChange={(v) => set('group_id', v)} options={groupOptions} placeholder={t('common.none')} ariaLabel={t('common.groupOptional')} />
-        </Box>
-      )}
-      {inProcessStatuses.length > 0 && (
-        <Box className="m-field">
-          <Box as="label" className="m-label">{t('common.leadStageOptional')}</Box>
-          <SelectMenu value={form.status_id} onChange={(v) => set('status_id', v)} options={statusOptions} placeholder={t('common.none')} ariaLabel={t('common.leadStageOptional')} />
-        </Box>
-      )}
-      <Box className="m-row2">
-        <Box className="m-field">
-          <Box as="label" className="m-label">{t('common.inquiryDate')}</Box>
-          <DateField value={form.inquiry_date} onChange={(e) => set('inquiry_date', e.target.value)} />
-        </Box>
-        <Box className="m-field">
-          <Box as="label" className="m-label">{t('common.followUp')}</Box>
-          <DateField value={form.follow_up_date} onChange={(e) => set('follow_up_date', e.target.value)} />
-        </Box>
-      </Box>
-      <Box className="m-field">
-        <Box as="label" className="m-label">{t('common.notes')}</Box>
-        <Textarea className="m-textarea" value={form.notes} onChange={(e) => set('notes', e.target.value)} placeholder={t('common.leadNotesPlaceholder')} />
+      {/* "התקשרה דנה" is a name, a phone and where she came from. The other six
+          fields fold away, and open by themselves whenever the follow-up date
+          is set (the one an existing lead is most often created with) or any
+          other is already filled — a value behind a closed lid is worse than
+          no lid at all. */}
+      <Box className={`ec-acc${detailsOpen ? ' open' : ''}`}>
+        <Btn
+          type="button"
+          className="ec-acc-head"
+          onClick={() => setDetailsOpen((o) => !o)}
+          aria-expanded={detailsOpen}
+          aria-controls="lead-details"
+        >
+          <Txt className="ec-acc-ic" aria-hidden="true"><SlidersHorizontal size={16} strokeWidth={1.7} /></Txt>
+          <Txt className="ec-acc-title">{t('addLead.moreDetails')}</Txt>
+          <ChevronDown size={16} strokeWidth={1.8} className="ec-acc-chev" aria-hidden="true" />
+        </Btn>
+        {detailsOpen && (
+          <Box id="lead-details" className="ec-acc-body">
+            <Box className="m-field">
+              <Box as="label" className="m-label">{t('common.projectOptional')}</Box>
+              <SelectMenu value={form.project_id} onChange={setProject} options={projectOptions} placeholder={t('common.none')} ariaLabel={t('common.projectOptional')} />
+            </Box>
+            {projectGroups.length > 0 && (
+              <Box className="m-field">
+                <Box as="label" className="m-label">{t('common.groupOptional')}</Box>
+                <SelectMenu value={form.group_id} onChange={(v) => set('group_id', v)} options={groupOptions} placeholder={t('common.none')} ariaLabel={t('common.groupOptional')} />
+              </Box>
+            )}
+            {inProcessStatuses.length > 0 && (
+              <Box className="m-field">
+                <Box as="label" className="m-label">{t('common.leadStageOptional')}</Box>
+                <SelectMenu value={form.status_id} onChange={(v) => set('status_id', v)} options={statusOptions} placeholder={t('common.none')} ariaLabel={t('common.leadStageOptional')} />
+              </Box>
+            )}
+            <Box className="m-row2">
+              <Box className="m-field">
+                <Box as="label" className="m-label">{t('common.inquiryDate')}</Box>
+                <DateField value={form.inquiry_date} onChange={(e) => set('inquiry_date', e.target.value)} />
+              </Box>
+              <Box className="m-field">
+                <Box as="label" className="m-label">{t('common.followUp')}</Box>
+                <DateField value={form.follow_up_date} onChange={(e) => set('follow_up_date', e.target.value)} />
+              </Box>
+            </Box>
+            <Box className="m-field">
+              <Box as="label" className="m-label">{t('common.notes')}</Box>
+              <Textarea className="m-textarea" value={form.notes} onChange={(e) => set('notes', e.target.value)} placeholder={t('common.leadNotesPlaceholder')} />
+            </Box>
+          </Box>
+        )}
       </Box>
 
       {err && <Txt as="p" className="m-error">{err}</Txt>}

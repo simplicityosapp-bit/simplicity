@@ -121,7 +121,8 @@
   "addLead": {
     "title": "New lead",
     "namePlaceholder": "Inquirer's name",
-    "nameRequired": "Name is required"
+    "nameRequired": "Name is required",
+    "moreDetails": "More details"
   },
   "editLead": {
     "title": "Edit lead",

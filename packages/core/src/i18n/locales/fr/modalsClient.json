@@ -121,7 +121,8 @@
   "addLead": {
     "title": "Nouveau prospect",
     "namePlaceholder": "Nom du demandeur",
-    "nameRequired": "Le nom est obligatoire"
+    "nameRequired": "Le nom est obligatoire",
+    "moreDetails": "Plus de détails"
   },
   "editLead": {
     "title": "Modifier le prospect",

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Tag, X } from 'lucide-react'
+import { X } from 'lucide-react'
 import { CATEGORY_COLORS } from '../../lib/api/categories'
 import { useT } from '../../i18n/useT'
 import ConfirmModal from '../../modals/ConfirmModal'
@@ -8,7 +8,9 @@ import { Box, Txt, Btn, Input } from '../../components/ui'
 /* Inline categories manager — ported from the prototype's
    f-cat-list / f-cat-inp / f-cat-colors block. Chip list of
    existing categories + add form (name + colour picker). Click
-   the X on a chip to soft-delete it (parent handles the call). */
+   the X on a chip to soft-delete it (parent handles the call).
+   The title/icon/count sit on the CollapsibleSection header that wraps
+   this, so this renders the chips and the add row only. */
 export default function CategoriesSection({ categories, onAdd, onDelete }) {
   const { t } = useT('finance')
   const [name, setName] = useState('')
@@ -31,14 +33,6 @@ export default function CategoriesSection({ categories, onAdd, onDelete }) {
 
   return (
     <Box as="section" className="cat-section">
-      <Box className="cat-section-head">
-        <Txt className="cat-section-title">
-          <Tag size={15} strokeWidth={1.5} aria-hidden="true" />
-          {t('categories.title')}
-          {live.length > 0 && <Txt className="cat-section-count mono">{live.length}</Txt>}
-        </Txt>
-      </Box>
-
       {live.length === 0 ? (
         <Txt as="p" className="cat-section-empty">{t('categories.empty')}</Txt>
       ) : (

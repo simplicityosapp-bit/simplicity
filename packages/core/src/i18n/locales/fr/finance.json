@@ -1,11 +1,8 @@
 {
   "countLabel_one": "{{count}} transaction",
   "countLabel_other": "{{count}} transactions",
-  "snapshot": "Aperçu",
-  "tagline": "Vos actions créent de bons résultats.",
   "title": "Argent",
-  "exportCsv": "Exporter en CSV",
-  "exportCsvAria": "Exporter vers un fichier CSV",
+  "exportCsvAria": "Exporter les transactions du mois sélectionné vers un fichier CSV",
   "newTxAria": "Nouvelle transaction",
   "newTx": "+ Nouvelle transaction",
   "loading": "Chargement des transactions…",
@@ -95,10 +92,11 @@
     "empty": "Aucune dépense classée ce mois-ci."
   },
   "chart": {
-    "title": "Revenu cumulé",
-    "infoLabel": "Explication du graphique des revenus cumulés",
-    "infoText": "Le graphique additionne vos revenus (confirmés) jour après jour pour le mois sélectionné. La ligne en pointillés correspond à l'objectif de revenu mensuel défini sur l'écran « Objectifs » — s'il n'y a pas d'objectif, elle ne s'affiche pas. Le point marque aujourd'hui.",
-    "svgAria": "Graphique des revenus cumulés par jour du mois",
+    "title": "Net cumulé",
+    "infoLabel": "Explication du graphique du net cumulé",
+    "infoText": "La ligne additionne le net du mois jour après jour — revenus moins dépenses, à partir des transactions confirmées uniquement — elle peut donc baisser autant que monter, et elle se termine exactement sur le chiffre « Net ce mois-ci » affiché au-dessus. Le repère vert sur l’axe correspond à la hauteur de l’objectif de revenu mensuel défini sur l’écran « Objectifs », à titre de référence uniquement ; le suivi exact de l’objectif est le nombre dans le titre, et il est mesuré sur les revenus. Le point marque aujourd’hui.",
+    "svgAria": "Graphique du net cumulé par jour du mois",
+    "incomeGoalLabel": "Objectif de revenu",
     "setGoal": "Définir un objectif de revenu mensuel"
   },
   "imports": {
@@ -147,5 +145,12 @@
     "confirm": "Supprimer"
   },
   "showSkipped_one": "Afficher {{count}} qui n'a pas eu lieu",
-  "showSkipped_other": "Afficher {{count}} qui n'ont pas eu lieu"
+  "showSkipped_other": "Afficher {{count}} qui n'ont pas eu lieu",
+  "exportCsvMonth": "Exporter {{month}} vers Excel",
+  "firstRun": {
+    "title": "Rien n’est encore enregistré ici",
+    "sub": "Chaque paiement que vous recevez et chaque dépense que vous réglez est enregistré ici, et le résumé mensuel et le graphique en découlent.",
+    "addIncome": "Enregistrer un paiement reçu",
+    "addExpense": "Ou enregistrer une dépense"
+  }
 }

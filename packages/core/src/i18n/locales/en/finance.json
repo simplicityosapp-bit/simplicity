@@ -1,11 +1,8 @@
 {
   "countLabel_one": "{{count}} transaction",
   "countLabel_other": "{{count}} transactions",
-  "snapshot": "Snapshot",
-  "tagline": "Your actions create good outcomes.",
   "title": "Money",
-  "exportCsv": "Export CSV",
-  "exportCsvAria": "Export to CSV file",
+  "exportCsvAria": "Export the selected month’s transactions to a CSV file",
   "newTxAria": "New transaction",
   "newTx": "+ New transaction",
   "loading": "Loading transactions…",
@@ -95,10 +92,11 @@
     "empty": "No classified expenses this month."
   },
   "chart": {
-    "title": "Cumulative income",
-    "infoLabel": "Cumulative income chart explanation",
-    "infoText": "The chart adds up your (confirmed) income day by day for the selected month. The dashed line is the monthly income goal set on the 'Goals' screen — if there's no goal, it isn't shown. The dot marks today.",
-    "svgAria": "Cumulative income chart by day of month",
+    "title": "Cumulative net",
+    "infoLabel": "Cumulative net chart explanation",
+    "infoText": "The line adds up the month’s net day by day — income minus expenses, from confirmed transactions only — so it can fall as well as rise, and it ends on exactly the \"Net This Month\" figure above it. The green mark on the axis is the height of the monthly income goal set on the \"Goals\" screen, for reference only; the exact goal tracking is the number in the heading, and it is measured on income. The dot marks today.",
+    "svgAria": "Cumulative net chart by day of month",
+    "incomeGoalLabel": "Income goal",
     "setGoal": "Set a monthly income goal"
   },
   "imports": {
@@ -147,5 +145,12 @@
     "confirm": "Delete"
   },
   "showSkipped_one": "Show {{count}} that didn't happen",
-  "showSkipped_other": "Show {{count}} that didn't happen"
+  "showSkipped_other": "Show {{count}} that didn't happen",
+  "exportCsvMonth": "Export {{month}} to Excel",
+  "firstRun": {
+    "title": "Nothing recorded here yet",
+    "sub": "Every payment you receive and every expense you pay goes here, and the monthly summary and chart are built from them.",
+    "addIncome": "Record a payment I received",
+    "addExpense": "Or record an expense"
+  }
 }

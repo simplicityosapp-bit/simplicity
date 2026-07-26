@@ -3,16 +3,92 @@
    Shared primitives (.cta-add, .t-screen, .empty…) live in screens.css.
    ════════════════════════════════════════════════════════════════ */
 
-/* ── Month summary hero ────────────────────────────────────────── */
-.f-hero {
+/* ── Overview card (summary + chart) ───────────────────────────
+   The month's numbers and the line that draws them are one card, in
+   layers: month nav → net → income/expenses → chart. They used to be
+   two separate cards showing two different measures side by side, which
+   invited reading the chart's endpoint as the net printed above it —
+   so the chart now plots net and the two genuinely agree. */
+.f-overview {
   margin-bottom: 18px;
+  /* The card owns the padding, so the chart's plot area lines up with the
+     numbers above it. --mg-card-pad is a two-value shorthand whose horizontal
+     half changes with the density setting (18/28/34px), so the children can't
+     restate it — they'd have to hardcode one density. They carry vertical
+     spacing only. */
   padding: var(--mg-card-pad);
   border-radius: var(--mg-card-radius);
   border: var(--mg-card-border);
   background: var(--mg-card-bg);
   box-shadow: var(--mg-card-shadow);
   backdrop-filter: var(--mg-card-blur);
+  overflow: hidden;
 }
+/* Both children are now sections of the shared card, not cards of their
+   own — the chrome moved up to .f-overview. */
+.f-hero {
+  padding: 0 0 4px;
+}
+
+/* ── First run ─────────────────────────────────────────────────
+   Before there is a single transaction the screen is one invitation,
+   not six cards apologising for being empty. */
+.f-firstrun {
+  margin-bottom: 18px;
+  padding: 34px var(--mg-card-pad);
+  border-radius: var(--mg-card-radius);
+  border: var(--mg-card-border);
+  background: var(--mg-card-bg);
+  box-shadow: var(--mg-card-shadow);
+  backdrop-filter: var(--mg-card-blur);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 10px;
+}
+.f-firstrun-title {
+  margin: 0;
+  font-family: var(--mg-font);
+  font-size: calc(18px * var(--text-scale));
+  font-weight: 600;
+  color: var(--espresso);
+}
+.f-firstrun-sub {
+  margin: 0 0 6px;
+  max-width: 34ch;
+  font-family: var(--mg-font);
+  font-size: calc(13px * var(--text-scale));
+  line-height: 1.55;
+  color: var(--stone);
+}
+.f-firstrun-cta {
+  min-height: var(--mg-btn-h);
+  padding: 0 26px;
+  border-radius: var(--mg-btn-radius);
+  border: none;
+  background: var(--terracotta);
+  color: var(--on-accent);
+  font-family: var(--mg-font);
+  font-size: calc(15px * var(--text-scale));
+  font-weight: 500;
+  cursor: pointer;
+  transition: filter 0.15s, transform 0.12s;
+}
+.f-firstrun-cta:hover { filter: brightness(1.06); }
+.f-firstrun-cta:active { transform: scale(0.98); }
+.f-firstrun-alt {
+  padding: 4px 8px;
+  border: none;
+  background: transparent;
+  font-family: var(--mg-font);
+  font-size: calc(13px * var(--text-scale));
+  color: var(--stone);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.f-firstrun-alt:hover { color: var(--espresso); }
 .f-month-nav {
   display: flex;
   align-items: center;
@@ -134,18 +210,13 @@
 }
 .f-io-v::-webkit-scrollbar { display: none; }
 
-/* ── Cumulative income chart ───────────────────────────────────
-   A "moonlight" line chart of cumulative income for the selected
-   month, with a dashed goal target line. Lives between the hero
-   summary and the f-mid grid so it doesn't fight the cube layout. */
+/* ── Cumulative net chart ──────────────────────────────────────
+   A "moonlight" line of cumulative net (income − expenses) for the
+   selected month, ending on the same figure the card prints above it,
+   with the income goal marked on the Y axis for reference. The bottom
+   layer of .f-overview — no chrome of its own. */
 .f-chart {
-  margin: 12px 0 14px;
-  padding: 14px 14px 10px;
-  border-radius: var(--mg-card-radius);
-  border: var(--mg-card-border);
-  background: var(--mg-card-bg);
-  backdrop-filter: var(--mg-card-blur);
-  box-shadow: var(--mg-card-shadow);
+  padding: 14px 0 0;
 }
 .f-chart-head {
   display: flex;
@@ -181,6 +252,16 @@
   color: var(--stone);
 }
 .f-chart-pct.done { color: color-mix(in srgb, var(--sage) 80%, var(--espresso)); }
+/* Says out loud that this chip tracks INCOME — the line beside it is net,
+   and without the word the two numbers look like they should match. */
+.f-chart-pct-lbl {
+  margin-inline-end: 5px;
+  font-family: var(--mg-font);
+  font-size: calc(11px * var(--text-scale));
+  font-weight: 500;
+  color: var(--stone);
+  letter-spacing: 0.02em;
+}
 .f-chart-svg-wrap { width: 100%; }
 .f-chart-svg { overflow: visible; }
 /* Gradient stops — theme-aware so the soft fill is visible in both
@@ -196,12 +277,36 @@
   stroke-linecap: round;
   stroke-linejoin: round;
 }
-.f-chart-target {
+/* Zero baseline — only drawn when the month goes negative, so it reads as
+   "this is where you break even", not as decoration. */
+.f-chart-zero {
+  stroke: var(--stone);
+  stroke-width: 1;
+  stroke-dasharray: 3 3;
+  opacity: 0.45;
+}
+/* Income-goal reference on the Y axis: a tick at the edge, not a rule across
+   the plot. A full-width line next to a NET series would invite comparing two
+   different measures; the header chip carries the real number. */
+.f-chart-goal-tick {
+  stroke: color-mix(in srgb, var(--sage) 80%, var(--stone));
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  opacity: 0.8;
+}
+.f-chart-goal-dot {
+  fill: color-mix(in srgb, var(--sage) 80%, var(--stone));
+  opacity: 0.9;
+}
+/* Goal above the plotted range: a caret pinned to the top edge, pointing the
+   way the goal actually lies. Never a tick, which would read as a height. */
+.f-chart-goal-caret {
   fill: none;
   stroke: color-mix(in srgb, var(--sage) 80%, var(--stone));
-  stroke-width: 1.2;
-  stroke-dasharray: 5 4;
-  opacity: 0.7;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.85;
 }
 .f-chart-dot {
   fill: var(--terracotta);
@@ -415,36 +520,18 @@
 
 /* ── Recurring templates section ──────────────────────────────── */
 .rec-section {
-  margin-bottom: 22px;
-  padding: var(--mg-card-pad);
-  border-radius: var(--mg-card-radius);
-  border: var(--mg-card-border);
-  background: var(--mg-card-bg);
-  box-shadow: var(--mg-card-shadow);
-  backdrop-filter: var(--mg-card-blur);
+  /* No chrome of its own: this renders inside a CollapsibleSection, which is
+     the card. Keeping a border + background here made a card inside a card. */
+  margin: 0;
+  padding: 0;
 }
 .rec-section-head {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 8px;
+  justify-content: flex-end;
+  margin-bottom: 10px;
 }
-.rec-section-title {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-family: var(--mg-font);
-  font-size: calc(13px * var(--text-scale));
-  font-weight: 600;
-  color: var(--espresso);
-}
-.rec-section-count {
-  margin-inline-start: 6px;
-  font-family: var(--mg-font-num);
-  font-size: calc(11px * var(--text-scale));
-  color: var(--stone);
-  font-variant-numeric: tabular-nums;
-}
+
+
 .rec-section-add {
   padding: 5px 12px;
   border-radius: 999px;
@@ -567,36 +654,14 @@
 
 /* ── Categories section ──────────────────────────────────────── */
 .cat-section {
-  margin-bottom: 22px;
-  padding: var(--mg-card-pad);
-  border-radius: var(--mg-card-radius);
-  border: var(--mg-card-border);
-  background: var(--mg-card-bg);
-  box-shadow: var(--mg-card-shadow);
-  backdrop-filter: var(--mg-card-blur);
+  /* No chrome of its own: this renders inside a CollapsibleSection, which is
+     the card. Keeping a border + background here made a card inside a card. */
+  margin: 0;
+  padding: 0;
 }
-.cat-section-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 8px;
-}
-.cat-section-title {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-family: var(--mg-font);
-  font-size: calc(13px * var(--text-scale));
-  font-weight: 600;
-  color: var(--espresso);
-}
-.cat-section-count {
-  margin-inline-start: 6px;
-  font-family: var(--mg-font-num);
-  font-size: calc(11px * var(--text-scale));
-  color: var(--stone);
-  font-variant-numeric: tabular-nums;
-}
+
+
+
 .cat-section-empty {
   margin: 6px 0 12px;
   font-family: var(--mg-font);
@@ -744,10 +809,12 @@
 /* Export sits in its own thin row below the header, so the header keeps the
    standard layout (title card + centred add button) and the same height as
    every other screen — which is what the docked help button aligns to. */
+/* Sits below the list it exports now, not above the whole screen where it
+   competed with the primary CTA. */
 .f-export-row {
   display: flex;
-  justify-content: flex-start;
-  margin: -2px 2px 14px;
+  justify-content: center;
+  margin: 14px 2px 4px;
 }
 .f-export-btn {
   padding: 7px 14px;

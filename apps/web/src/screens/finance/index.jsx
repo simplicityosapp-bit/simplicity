@@ -11,7 +11,7 @@ import { useScheduledMeetings } from '../../hooks/useScheduledMeetings'
 import { useUserPreferences } from '../../hooks/useUserPreferences'
 import { exportTransactionsCSV } from '../../lib/export'
 import { CATEGORY_COLORS } from '../../lib/api/categories'
-import { toLocalDate } from '@simplicity/core'
+import { toLocalDate, fmtMonthYear } from '@simplicity/core'
 import MonthSummary from './MonthSummary'
 import FinanceChart from './FinanceChart'
 import PendingSection from './PendingSection'
@@ -26,8 +26,11 @@ import EditTransactionModal from '../../modals/EditTransactionModal'
 import RecurringModal from '../../modals/RecurringModal'
 import ConfirmModal from '../../modals/ConfirmModal'
 import Coachmark from '../../components/Coachmark'
+import CollapsibleSection from '../../components/CollapsibleSection'
+import { Repeat, Tag } from 'lucide-react'
 import { useT } from '../../i18n/useT'
 import './FinanceScreen.css'
+import '../../components/CollapsibleSection.css'
 import { Box, Txt, Btn } from '../../components/ui'
 
 const startOfMonth = (d) => new Date(d.getFullYear(), d.getMonth(), 1)
@@ -53,8 +56,18 @@ export default function FinanceScreen() {
   const { prefs, update: updatePrefs } = useUserPreferences()
   const showSkipped = prefs?.financeShowSkipped !== false
   const setShowSkipped = (v) => updatePrefs?.({ financeShowSkipped: v })
+  /* Which management sections are expanded. Both start closed — they are
+     setup, not daily reading — and the choice persists like showSkipped does,
+     so someone who works with recurring templates every day isn't made to
+     re-open the section on every visit. */
+  const openSections = prefs?.financeSections || {}
+  const toggleSection = (key) => (open) => updatePrefs?.({ financeSections: { ...openSections, [key]: open } })
   const [month, setMonth] = useState(() => startOfMonth(new Date()))
   const [showAdd, setShowAdd] = useState(false)
+  /* Which side the add-modal opens on. The first-run card offers both, and
+     "record an expense" that opens on income would just be a trap. */
+  const [addType, setAddType] = useState('income')
+  const openAdd = (type = 'income') => { setAddType(type); setShowAdd(true) }
   const [editTx, setEditTx] = useState(null)
   const [showAddRec, setShowAddRec] = useState(false)
   const [editRec, setEditRec] = useState(null)
@@ -104,119 +117,179 @@ export default function FinanceScreen() {
   const summary = useMemo(() => sumConfirmed(monthTxs), [monthTxs])
   const prevSummary = useMemo(() => sumConfirmed(prevMonthTxs), [prevMonthTxs])
 
+  /* "Never recorded anything" is a different situation from "nothing in the
+     month you happened to navigate to", and only the first one deserves to
+     take over the screen. The second is just an empty list. */
+  const hasAnyTx = useMemo(() => transactions.some((tx) => !tx.deleted_at), [transactions])
+  const firstRun = !loading && !error && !hasAnyTx
+
   return (
     <Box className="screen">
       <Box className="screen-top">
         <Box as="header" className="screen-head">
           <Box>
             <Box className="screen-head-meta">
-              <Txt as="p" className="lbl">{t('countLabel', { count: monthTxs.length })}</Txt>
-              <Txt className="lbl dot">·</Txt>
-              <Txt as="p" className="lbl">{t('snapshot')}</Txt>
+              {/* One line that earns its place: what needs doing if anything
+                  does, otherwise the month's size. The old second line was a
+                  slogan and the old "תמונת מצב" said nothing. */}
+              <Txt as="p" className="lbl">
+                {pendingTxs.length > 0
+                  ? t('pending.count', { count: pendingTxs.length })
+                  : t('countLabel', { count: monthTxs.length })}
+              </Txt>
             </Box>
-            <Txt as="p" className="lbl-sm">{t('tagline')}</Txt>
           </Box>
           <Txt as="p" className="t-screen">{t('title')}</Txt>
         </Box>
         <Coachmark id="add-transaction" radius="50%">
-          <Btn className="cta-add" type="button" aria-label={t('newTxAria')} onClick={() => setShowAdd(true)}>{t('newTx')}</Btn>
+          <Btn className="cta-add" type="button" aria-label={t('newTxAria')} onClick={() => openAdd()}>{t('newTx')}</Btn>
         </Coachmark>
       </Box>
 
-      <Box className="f-export-row">
-        <Btn
-          type="button"
-          className="f-export-btn"
-          onClick={() => exportTransactionsCSV({ transactions: monthTxs, clients, projects, categories, monthDate: month })}
-          disabled={monthTxs.length === 0}
-          aria-label={t('exportCsvAria')}
-        >
-          {t('exportCsv')}
-        </Btn>
-      </Box>
-
-      <MonthSummary
-        month={month}
-        onPrev={() => setMonth((m) => new Date(m.getFullYear(), m.getMonth() - 1, 1))}
-        onNext={() => setMonth((m) => new Date(m.getFullYear(), m.getMonth() + 1, 1))}
-        income={summary.income}
-        expenses={summary.expenses}
-        net={summary.net}
-        prevIncome={prevSummary.income}
-        prevExpenses={prevSummary.expenses}
-        prevNet={prevSummary.net}
-      />
-
-      <FinanceChart month={month} />
-
-      <Box className="f-mid">
-        <IncomeByProject monthTxs={monthTxs} clients={clients} projects={projects} />
-        <ExpensesByCategory monthTxs={monthTxs} categories={categories} />
-
-        <RecurringSection
-          templates={templates}
-          onAdd={() => setShowAddRec(true)}
-          onEdit={setEditRec}
-          onDelete={setPendingDeleteRec}
-          onToggleActive={(t) => updateRecurring(t.id, { active: !t.active })}
-        />
-
-        <CategoriesSection
-          categories={categories}
-          onAdd={addCategory}
-          onDelete={(c) => removeCategory(c.id)}
-        />
-      </Box>
-
-      <InvoiceImports />
-
-      <PendingSection
-        transactions={pendingTxs}
-        clients={clients}
-        projects={projects}
-        categories={categories}
-        onApprove={(id) => setStatus(id, 'confirmed')}
-        onSkip={(id) => setStatus(id, 'skipped')}
-        onEdit={setEditTx}
-      />
-
-      <Box as="section" className="f-list">
-        {loading ? (
-          <Box className="empty"><Txt as="p" className="empty-text">{t('loading')}</Txt></Box>
-        ) : error ? (
-          <Box className="empty"><Txt as="p" className="empty-text">{t('loadError', { error })}</Txt></Box>
-        ) : (
-          <>
-            {skippedCount > 0 && (
-              <Box className="f-skipped-toggle">
-                <Btn
-                  type="button"
-                  className={`f-skipped-btn${showSkipped ? ' on' : ''}`}
-                  onClick={() => setShowSkipped(!showSkipped)}
-                  aria-pressed={showSkipped}
-                >
-                  {showSkipped ? t('hideSkipped') : t('showSkipped', { count: skippedCount })}
-                </Btn>
-              </Box>
-            )}
-            <TransactionList
-              transactions={monthTxs}
-              clients={clients}
-              projects={projects}
-              categories={categories}
-              showSkipped={showSkipped}
-              onApprove={(id) => setStatus(id, 'confirmed')}
-              onSkip={(id) => setStatus(id, 'skipped')}
-              onUnskip={(id) => setStatus(id, 'pending')}
-              onEdit={setEditTx}
-              onDelete={removeTransaction}
+      {firstRun ? (
+        /* Six empty cards ("no classified income", "no categories yet", a flat
+           chart…) read as a broken screen rather than a new one. Until there
+           is a single transaction, the screen is one invitation. */
+        <Box className="f-firstrun">
+          <Txt as="p" className="f-firstrun-title">{t('firstRun.title')}</Txt>
+          <Txt as="p" className="f-firstrun-sub">{t('firstRun.sub')}</Txt>
+          <Btn type="button" className="f-firstrun-cta" onClick={() => openAdd('income')}>
+            {t('firstRun.addIncome')}
+          </Btn>
+          <Btn type="button" className="f-firstrun-alt" onClick={() => openAdd('expense')}>
+            {t('firstRun.addExpense')}
+          </Btn>
+        </Box>
+      ) : (
+        <>
+          {/* One card: month nav → the numbers → the line they describe. The
+              chart plots net, so it ends on the same figure printed above it. */}
+          <Box className="f-overview">
+            <MonthSummary
+              month={month}
+              onPrev={() => setMonth((m) => new Date(m.getFullYear(), m.getMonth() - 1, 1))}
+              onNext={() => setMonth((m) => new Date(m.getFullYear(), m.getMonth() + 1, 1))}
+              income={summary.income}
+              expenses={summary.expenses}
+              net={summary.net}
+              prevIncome={prevSummary.income}
+              prevExpenses={prevSummary.expenses}
+              prevNet={prevSummary.net}
             />
-          </>
-        )}
-      </Box>
+            <FinanceChart month={month} />
+          </Box>
+
+          {/* Everything that wants a decision, directly under the summary —
+              this used to sit below two management blocks, four screens down. */}
+          <PendingSection
+            transactions={pendingTxs}
+            clients={clients}
+            projects={projects}
+            categories={categories}
+            onApprove={(id) => setStatus(id, 'confirmed')}
+            onSkip={(id) => setStatus(id, 'skipped')}
+            onEdit={setEditTx}
+          />
+
+          <InvoiceImports />
+
+          <Box className="f-mid">
+            <IncomeByProject monthTxs={monthTxs} clients={clients} projects={projects} />
+            <ExpensesByCategory monthTxs={monthTxs} categories={categories} />
+          </Box>
+
+          {/* Setup, not daily reading — collapsed to a strip each so they stop
+              costing a screenful of scrolling on the way to the list. */}
+          <CollapsibleSection
+            id="recurring"
+            icon={<Repeat size={15} strokeWidth={1.5} />}
+            title={t('recurring.title')}
+            count={templates.filter((tpl) => !tpl.deleted_at).length}
+            open={!!openSections.recurring}
+            onToggle={toggleSection('recurring')}
+          >
+            <RecurringSection
+              templates={templates}
+              onAdd={() => setShowAddRec(true)}
+              onEdit={setEditRec}
+              onDelete={setPendingDeleteRec}
+              onToggleActive={(t) => updateRecurring(t.id, { active: !t.active })}
+            />
+          </CollapsibleSection>
+
+          <CollapsibleSection
+            id="categories"
+            icon={<Tag size={15} strokeWidth={1.5} />}
+            title={t('categories.title')}
+            count={categories.filter((c) => !c.deleted_at).length}
+            open={!!openSections.categories}
+            onToggle={toggleSection('categories')}
+          >
+            <CategoriesSection
+              categories={categories}
+              onAdd={addCategory}
+              onDelete={(c) => removeCategory(c.id)}
+            />
+          </CollapsibleSection>
+
+          <Box as="section" className="f-list">
+            {loading ? (
+              <Box className="empty"><Txt as="p" className="empty-text">{t('loading')}</Txt></Box>
+            ) : error ? (
+              <Box className="empty"><Txt as="p" className="empty-text">{t('loadError', { error })}</Txt></Box>
+            ) : (
+              <>
+                {skippedCount > 0 && (
+                  <Box className="f-skipped-toggle">
+                    <Btn
+                      type="button"
+                      className={`f-skipped-btn${showSkipped ? ' on' : ''}`}
+                      onClick={() => setShowSkipped(!showSkipped)}
+                      aria-pressed={showSkipped}
+                    >
+                      {showSkipped ? t('hideSkipped') : t('showSkipped', { count: skippedCount })}
+                    </Btn>
+                  </Box>
+                )}
+                <TransactionList
+                  transactions={monthTxs}
+                  clients={clients}
+                  projects={projects}
+                  categories={categories}
+                  showSkipped={showSkipped}
+                  onApprove={(id) => setStatus(id, 'confirmed')}
+                  onSkip={(id) => setStatus(id, 'skipped')}
+                  onUnskip={(id) => setStatus(id, 'pending')}
+                  onEdit={setEditTx}
+                  onDelete={removeTransaction}
+                />
+              </>
+            )}
+          </Box>
+
+          {/* Rare action, and it only ever exported the visible month — which
+              the old label never said. Sits after the thing it exports. */}
+          {monthTxs.length > 0 && (
+            <Box className="f-export-row">
+              <Btn
+                type="button"
+                className="f-export-btn"
+                onClick={() => exportTransactionsCSV({ transactions: monthTxs, clients, projects, categories, monthDate: month })}
+                aria-label={t('exportCsvAria')}
+              >
+                {t('exportCsvMonth', { month: fmtMonthYear(month) })}
+              </Btn>
+            </Box>
+          )}
+        </>
+      )}
 
       <AddTransactionModal
+        /* Remount on type change so the form's initial state actually picks up
+           defaultType — it is only read in the useState initialiser. */
+        key={addType}
         open={showAdd}
+        defaultType={addType}
         onClose={() => setShowAdd(false)}
         clients={clients}
         projects={projects}

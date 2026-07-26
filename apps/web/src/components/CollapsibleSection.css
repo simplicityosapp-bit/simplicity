@@ -1,0 +1,57 @@
+/* ════════════════════════════════════════════════════════════════
+   CollapsibleSection — card chrome + a full-width header button.
+   ════════════════════════════════════════════════════════════════ */
+.cs-section {
+  margin-bottom: 12px;
+  border-radius: var(--mg-card-radius);
+  border: var(--mg-card-border);
+  background: var(--mg-card-bg);
+  box-shadow: var(--mg-card-shadow);
+  backdrop-filter: var(--mg-card-blur);
+  overflow: hidden;
+}
+.cs-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 14px 16px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  text-align: start;
+  font-family: var(--mg-font);
+}
+.cs-head:hover { background: var(--mg-row-hover-bg); }
+.cs-head-ic {
+  display: inline-flex;
+  flex-shrink: 0;
+  color: var(--stone);
+}
+.cs-head-title {
+  font-family: var(--mg-font);
+  font-size: calc(13px * var(--text-scale));
+  font-weight: 600;
+  color: var(--espresso);
+  letter-spacing: 0.02em;
+}
+/* Plain small number, matching .rec-section-count / .f-breakdown-count —
+   the app's existing convention for a count beside a section title. */
+.cs-head-count {
+  font-family: var(--mg-font-num);
+  font-size: calc(11px * var(--text-scale));
+  color: var(--stone);
+  font-variant-numeric: tabular-nums;
+}
+/* Pushed to the far edge so the chevron always sits where the eye expects
+   it, however long the title or however wide the count. */
+.cs-head-chev {
+  margin-inline-start: auto;
+  flex-shrink: 0;
+  color: var(--stone);
+  transition: transform 0.18s ease;
+}
+.cs-section.open .cs-head-chev { transform: rotate(180deg); }
+.cs-body {
+  padding: 0 16px 16px;
+}

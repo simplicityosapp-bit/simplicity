@@ -135,7 +135,8 @@
   "addLead": {
     "title": "ליד חדש",
     "namePlaceholder": "שם הפונה",
-    "nameRequired": "חובה למלא שם"
+    "nameRequired": "חובה למלא שם",
+    "moreDetails": "פרטים נוספים"
   },
   "editLead": {
     "title": "עריכת ליד",

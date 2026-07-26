@@ -2,14 +2,12 @@
   "countLabel": "{{count}} prospectos",
   "tabLeads": "Prospectos",
   "tabStatuses": "Estados",
-  "tagline": "Cultivar relaciones lleva a resultados.",
   "title": "Prospectos",
   "search": "Buscar prospecto…",
   "newLeadAria": "Nuevo prospecto",
   "newLead": "+ Nuevo prospecto",
   "viewToggleAria": "Vista",
   "sourcesLink": "Fuentes de prospectos",
-  "leadPagesLink": "Páginas de prospectos",
   "meta": {
     "in_process": "En curso",
     "converted": "Convertido",
@@ -45,7 +43,9 @@
   },
   "followups": {
     "empty": "No hay seguimientos pendientes para hoy",
-    "due": "Seguimientos para hoy"
+    "due": "Seguimientos para hoy",
+    "dueCount_one": "{{count}} seguimiento para hoy",
+    "dueCount_other": "{{count}} seguimientos para hoy"
   },
   "filter": {
     "btn": "Filtrar",
@@ -216,5 +216,11 @@
     "requiredError": "Campo obligatorio",
     "submitting": "Enviando…",
     "submit": "Enviar"
+  },
+  "firstRun": {
+    "title": "Aún no hay solicitudes aquí",
+    "sub": "Cada solicitud que llega — por teléfono, por mensaje o desde una página de aterrizaje — se registra aquí y se sigue hasta que se convierte en cliente.",
+    "addLead": "Registrar la primera solicitud",
+    "pagesLink": "O crea una página que las recoja por ti"
   }
 }

@@ -4,6 +4,67 @@
    ════════════════════════════════════════════════════════════════ */
 
 /* ── Monthly stats strip ───────────────────────────────────────── */
+/* ── First run ─────────────────────────────────────────────────
+   Before the first lead exists the screen is one invitation, not three
+   empty columns above a row of zeroes. */
+.l-firstrun {
+  margin-bottom: 18px;
+  padding: 34px var(--mg-card-pad);
+  border-radius: var(--mg-card-radius);
+  border: var(--mg-card-border);
+  background: var(--mg-card-bg);
+  box-shadow: var(--mg-card-shadow);
+  -webkit-backdrop-filter: var(--mg-card-blur);
+  backdrop-filter: var(--mg-card-blur);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 10px;
+}
+.l-firstrun-title {
+  margin: 0;
+  font-family: var(--mg-font);
+  font-size: calc(18px * var(--text-scale));
+  font-weight: 600;
+  color: var(--espresso);
+}
+.l-firstrun-sub {
+  margin: 0 0 6px;
+  max-width: 36ch;
+  font-family: var(--mg-font);
+  font-size: calc(13px * var(--text-scale));
+  line-height: 1.55;
+  color: var(--stone);
+}
+.l-firstrun-cta {
+  min-height: var(--mg-btn-h);
+  padding: 0 26px;
+  border-radius: var(--mg-btn-radius);
+  border: none;
+  background: var(--terracotta);
+  color: var(--on-accent);
+  font-family: var(--mg-font);
+  font-size: calc(15px * var(--text-scale));
+  font-weight: 500;
+  cursor: pointer;
+  transition: filter 0.15s, transform 0.12s;
+}
+.l-firstrun-cta:hover { filter: brightness(1.06); }
+.l-firstrun-cta:active { transform: scale(0.98); }
+.l-firstrun-alt {
+  padding: 4px 8px;
+  border: none;
+  background: transparent;
+  font-family: var(--mg-font);
+  font-size: calc(13px * var(--text-scale));
+  color: var(--stone);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.l-firstrun-alt:hover { color: var(--espresso); }
+
 .l-stats {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
@@ -271,11 +332,9 @@
   transition: border-color 0.15s;
 }
 .l-followup-banner:hover { border-color: var(--terracotta); }
-/* Empty state de-emphasis lives on the CONTENT (icon + text), NOT the whole
-   element — a card-wide opacity washed out the glass/frost so the bar read as
-   flatter and more transparent than its neighbours. */
-.l-followup-banner.muted > svg,
-.l-followup-banner.muted .l-followup-text { color: var(--stone); }
+/* The empty-state variant is gone with the empty state itself: the banner now
+   renders only when a follow-up is actually due, so there is nothing left to
+   de-emphasise. */
 .l-followup-banner > svg { color: var(--amber-warn); flex-shrink: 0; }
 .l-followup-count {
   min-width: 22px;

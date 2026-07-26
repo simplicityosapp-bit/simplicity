@@ -164,9 +164,18 @@ export default function FinanceScreen() {
       </Box>
 
       {firstRun ? (
-        /* Six empty cards ("no classified income", "no categories yet", a flat
+        <>
+        {/* Staged invoices live in their own table, so someone who connected a
+            provider before recording anything has a queue waiting while
+            hasAnyTx is still false. Leaving it out of this branch would strand
+            exactly the migrating user it exists to help — and it doesn't
+            contradict "nothing recorded yet", it offers the way out of it.
+            (Renders null when the queue is empty, so the usual first-run
+            screen is unchanged.) */}
+        <InvoiceImports />
+        {/* Six empty cards ("no classified income", "no categories yet", a flat
            chart…) read as a broken screen rather than a new one. Until there
-           is a single transaction, the screen is one invitation. */
+           is a single transaction, the screen is one invitation. */}
         <Box className="f-firstrun">
           <Txt as="p" className="f-firstrun-title">{t('firstRun.title')}</Txt>
           <Txt as="p" className="f-firstrun-sub">{t('firstRun.sub')}</Txt>
@@ -177,6 +186,7 @@ export default function FinanceScreen() {
             {t('firstRun.addExpense')}
           </Btn>
         </Box>
+        </>
       ) : (
         <>
           {/* Everything above the list measures the SELECTED MONTH. A query

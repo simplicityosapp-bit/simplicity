@@ -87,7 +87,8 @@
     "noSource": "No source",
     "inquiry": "Inquiry {{date}}",
     "converted": "Converted to client",
-    "convert": "Convert to client"
+    "convert": "Convert to client",
+    "createClient": "Create client record"
   },
   "sourcesModal": {
     "title": "Lead sources",

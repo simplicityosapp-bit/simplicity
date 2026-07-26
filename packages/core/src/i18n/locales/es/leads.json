@@ -87,7 +87,8 @@
     "noSource": "Sin fuente",
     "inquiry": "Consulta {{date}}",
     "converted": "Convertido en cliente",
-    "convert": "Convertir en cliente"
+    "convert": "Convertir en cliente",
+    "createClient": "Crear ficha de cliente"
   },
   "sourcesModal": {
     "title": "Fuentes de prospectos",

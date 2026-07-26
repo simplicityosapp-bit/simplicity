@@ -1,6 +1,6 @@
 import { memo } from 'react'
 import { Clock, Check, CalendarDays, ArrowLeft, X } from 'lucide-react'
-import { statusMetaOfLead, fmtShortDate } from '@simplicity/core'
+import { statusMetaOfLead, isConvertedLead, fmtShortDate } from '@simplicity/core'
 import { useWhatsAppMessage } from '../../hooks/useWhatsAppMessage'
 import WhatsAppButton from '../../components/WhatsAppButton'
 import { useT } from '../../i18n/useT'
@@ -17,7 +17,14 @@ function LeadCard({ lead, onEdit, onConvert, onDelete, sources = [], statuses = 
   const now = new Date()
   const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
   const overdue = lead.follow_up_date && String(lead.follow_up_date).slice(0, 10) <= today && meta === 'in_process'
-  const isConverted = meta === 'converted' && lead.converted_to_client_id
+  /* The SAME test the stats use (core isConvertedLead), not a private one.
+     The card used to require converted_to_client_id, so a lead dragged into
+     the converted column showed no badge while the column header counted it —
+     the card and the numbers disagreed about the same lead.
+     A dragged lead has no client record, so the convert action stays available
+     for it; that is a real remaining step, not a contradiction of the badge. */
+  const isConverted = isConvertedLead(lead)
+  const needsClientRecord = isConverted && !lead.converted_to_client_id
 
   return (
     <Box
@@ -74,13 +81,17 @@ function LeadCard({ lead, onEdit, onConvert, onDelete, sources = [], statuses = 
             <Check size={12} strokeWidth={2} aria-hidden="true" /> {t('card.converted')}
           </Box>
         )}
-        {!isConverted && onConvert && (
+        {/* Offered while the lead is not converted, and also for a converted
+            lead that has no client record yet (the drag path marks the column
+            but cannot create a client). */}
+        {(!isConverted || needsClientRecord) && onConvert && (
           <Btn
             type="button"
             className="lead-convert-btn"
             onClick={(e) => { e.stopPropagation(); onConvert(lead) }}
           >
-            <ArrowLeft size={11} strokeWidth={1.8} aria-hidden="true" /> {t('card.convert')}
+            <ArrowLeft size={11} strokeWidth={1.8} aria-hidden="true" />
+            {needsClientRecord ? t('card.createClient') : t('card.convert')}
           </Btn>
         )}
         {/* Direct WhatsApp on EVERY lead. With no phone, wa.me opens WhatsApp's

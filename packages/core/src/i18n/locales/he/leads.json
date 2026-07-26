@@ -87,7 +87,8 @@
     "noSource": "ללא מקור",
     "inquiry": "פנייה {{date}}",
     "converted": "הומר ללקוח",
-    "convert": "המר ללקוח"
+    "convert": "המר ללקוח",
+    "createClient": "יצירת כרטיס לקוח"
   },
   "sourcesModal": {
     "title": "מקורות לידים",

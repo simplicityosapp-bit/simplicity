@@ -13,8 +13,9 @@ import { useGroupMembers } from '../../hooks/useGroupMembers'
 import { CATEGORY_COLORS } from '../../lib/api/categories'
 import { useUserPreferences } from '../../hooks/useUserPreferences'
 import { usePointerDnd } from '../../hooks/usePointerDnd'
-import { LEAD_META, metaTitle, statusMetaOfLead, metaColor, isConvertedLead, isPendingReview } from '@simplicity/core'
+import { LEAD_META, metaTitle, statusMetaOfLead, metaColor, isConvertedLead, isPendingReview, toLocalDate } from '@simplicity/core'
 import PendingLeadsSection from './PendingLeadsSection'
+import { matchLead, leadLookups } from './matchLead'
 import { pushUndo } from '../../lib/undo'
 import LeadColumn from './LeadColumn'
 import LeadStatusesPanel from './LeadStatusesPanel'
@@ -34,9 +35,14 @@ import { Box, Txt, Btn, Input } from '../../components/ui'
 const DEFAULT_LEADS_FILTER = { period: 'all', project: '', group: '', status: '', source: '', sort: '' }
 
 function computeStats(list, now = new Date()) {
+  /* toLocalDate, not new Date: leads.inquiry_date is a DATE column, so it
+     arrives as 'YYYY-MM-DD' and `new Date()` reads it as UTC midnight while
+     the getters below read local — west of Greenwich a lead from the 1st
+     lands in the previous month. converted_at is a timestamptz and is
+     unaffected either way; toLocalDate passes it through untouched. */
   const inMonth = (d) => {
     if (!d) return false
-    const x = new Date(d)
+    const x = toLocalDate(d)
     return x.getFullYear() === now.getFullYear() && x.getMonth() === now.getMonth()
   }
   const newThis = list.filter((l) => (l.inquiry_date ? inMonth(l.inquiry_date) : inMonth(l.created_at)))
@@ -86,12 +92,16 @@ export default function LeadsScreen() {
     key === 'project' ? setLeadsFilter({ project: value, group: '' }) : setLeadsFilter({ [key]: value })
   )
   const clearLeadsFilter = () => updatePrefs?.({ leadsFilter: { ...DEFAULT_LEADS_FILTER } })
+  /* Sort is deliberately NOT counted: it reorders the board, it doesn't hide
+     anything, and badging the filter button for it made the screen claim a
+     lead was being filtered out when none was. */
   const activeFilterCount = (leadsFilter.period !== 'all' ? 1 : 0)
     + (leadsFilter.project ? 1 : 0) + (leadsFilter.group ? 1 : 0)
-    + (effectiveStatus ? 1 : 0) + (leadsFilter.source ? 1 : 0) + (leadsFilter.sort ? 1 : 0)
+    + (effectiveStatus ? 1 : 0) + (leadsFilter.source ? 1 : 0)
   const [showFilter, setShowFilter] = useState(false)
-  /* Free-text name search — mirrors the clients screen; filters the board
-     across all columns (the column counts + total update with it). */
+  /* Free-text search across the board (the column counts + total update with
+     it). Matches on everything the card actually shows — name, phone, email,
+     notes, source, project — not just the name; see matchLead. */
   const [query, setQuery] = useState('')
   const [showAdd, setShowAdd] = useState(false)
   const [editLead, setEditLead] = useState(null)
@@ -124,7 +134,8 @@ export default function LeadsScreen() {
       if (!f.period || f.period === 'all') return true
       const raw = l.inquiry_date || l.created_at
       if (!raw) return false
-      const d = new Date(raw)
+      /* Same reason as computeStats: inquiry_date is date-only. */
+      const d = toLocalDate(raw)
       if (f.period === 'month') return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth()
       if (f.period === 'last30') { const c = new Date(now); c.setDate(c.getDate() - 30); return d >= c }
       if (f.period === 'lastMonth') {
@@ -135,12 +146,12 @@ export default function LeadsScreen() {
     }
     /* '' = all · '__none__' = unassigned (no id) · otherwise exact id match. */
     const matchRef = (val, sel) => (!sel ? true : sel === '__none__' ? !val : val === sel)
-    const q = query.trim()
+    const lookups = leadLookups({ sources, projects })
     const g = {}
     LEAD_META.forEach((m) => { g[m.key] = [] })
     officialLeads
       .filter((l) => inPeriod(l)
-        && (!q || (l.name || '').includes(q))
+        && matchLead(l, query, lookups)
         && matchRef(l.project_id, f.project)
         && matchRef(l.group_id, f.group)
         && matchRef(l.source_id, f.source)
@@ -152,7 +163,7 @@ export default function LeadsScreen() {
       LEAD_META.forEach((m) => { g[m.key].sort((a, b) => keyOf(a).localeCompare(keyOf(b)) * dir) })
     }
     return g
-  }, [officialLeads, leadsFilter, effectiveStatus, query])
+  }, [officialLeads, leadsFilter, effectiveStatus, query, sources, projects])
   const stats = useMemo(() => computeStats(officialLeads), [officialLeads])
 
   /* Approve = move into the official list; reject = soft-delete (undoable). */
@@ -169,13 +180,24 @@ export default function LeadsScreen() {
     const prev = lead
       ? { status_meta: lead.status_meta ?? null, status_id: lead.status_id ?? null, last_status_changed_at: lead.last_status_changed_at ?? null, converted_at: lead.converted_at ?? null, converted_to_client_id: lead.converted_to_client_id ?? null }
       : null
+    const now = new Date().toISOString()
     const next = {
       status_meta: newMeta,
       status_id: statusId ?? null,
-      last_status_changed_at: new Date().toISOString(),
+      last_status_changed_at: now,
       /* Moving OUT of "converted" clears the conversion stamp so the drag path
          matches EditLeadModal — analytics never see an orphaned converted_at. */
       ...(newMeta !== 'converted' ? { converted_at: null, converted_to_client_id: null } : {}),
+      /* Moving IN stamps it. Without this the lead sat in the "converted"
+         column while isConvertedLead() stayed false, so the stats card read 0,
+         the conversion rate was wrong, and the card still offered "convert to
+         client" on a lead already in that column. Re-entering a lead that was
+         converted before keeps its ORIGINAL stamp — the conversion happened
+         when it happened, and overwriting it would move the lead between
+         months in the stats.
+         converted_to_client_id is deliberately left alone: a drag does not
+         create a client, and only ConvertLeadModal can honestly set that. */
+      ...(newMeta === 'converted' && !lead?.converted_at ? { converted_at: now } : {}),
     }
     updateLead(leadId, next, { source: 'manual_drag' })
       .then(() => {
@@ -265,50 +287,6 @@ export default function LeadsScreen() {
         </Btn>
       </Box>
 
-      <PendingLeadsSection
-        pending={pendingReview}
-        pages={leadPages}
-        onApprove={approveLead}
-        onReject={rejectLead}
-      />
-
-      <Box className="l-stats">
-        <Box className="l-stat">
-          <Txt className="l-stat-icon"><Leaf size={16} strokeWidth={1.6} aria-hidden="true" /></Txt>
-          <Box>
-            <Txt as="p" className="l-stat-num mono">{stats.newThisMonth}</Txt>
-            <Txt as="p" className="l-stat-lbl">{t('stats.newThisMonth')}</Txt>
-          </Box>
-        </Box>
-        <Box className="l-stat">
-          <Txt className="l-stat-icon"><ArrowLeft size={16} strokeWidth={1.6} aria-hidden="true" /></Txt>
-          <Box>
-            <Txt as="p" className="l-stat-num mono">{stats.convertedThisMonth}</Txt>
-            <Txt as="p" className="l-stat-lbl">{t('stats.converted')}</Txt>
-          </Box>
-        </Box>
-        <Box className="l-stat">
-          <Txt className="l-stat-icon"><TrendingUp size={16} strokeWidth={1.6} aria-hidden="true" /></Txt>
-          <Box>
-            <Txt as="p" className="l-stat-num mono">{stats.convRate === null ? '—' : `${stats.convRate}%`}</Txt>
-            <Txt as="p" className="l-stat-lbl">{t('stats.convRate')}</Txt>
-          </Box>
-        </Box>
-      </Box>
-
-      <Btn
-        type="button"
-        className={`l-followup-banner${dueFollowups.length === 0 ? ' muted' : ''}`}
-        onClick={() => setShowFollowups(true)}
-      >
-        <Bell size={15} strokeWidth={1.8} aria-hidden="true" />
-        {dueFollowups.length > 0 && <Txt className="l-followup-count mono">{dueFollowups.length}</Txt>}
-        <Txt className="l-followup-text">
-          {dueFollowups.length === 0 ? t('followups.empty') : t('followups.due')}
-        </Txt>
-        <ChevronLeft size={15} strokeWidth={1.7} className="l-followup-chev" aria-hidden="true" />
-      </Btn>
-
       {loading ? (
         <Box className="empty"><Txt as="p" className="empty-text">{t('loading')}</Txt></Box>
       ) : error ? (
@@ -322,6 +300,55 @@ export default function LeadsScreen() {
         />
       ) : (
         <>
+          {/* Pending submissions, the month's numbers and the follow-up banner
+              all belong to the BOARD. They used to render above the view
+              switch, so the "סטטוסים" taxonomy screen also showed lead
+              statistics and a follow-up banner — a management screen wearing
+              the board's furniture. */}
+          <PendingLeadsSection
+            pending={pendingReview}
+            pages={leadPages}
+            onApprove={approveLead}
+            onReject={rejectLead}
+          />
+
+          <Box className="l-stats">
+            <Box className="l-stat">
+              <Txt className="l-stat-icon"><Leaf size={16} strokeWidth={1.6} aria-hidden="true" /></Txt>
+              <Box>
+                <Txt as="p" className="l-stat-num mono">{stats.newThisMonth}</Txt>
+                <Txt as="p" className="l-stat-lbl">{t('stats.newThisMonth')}</Txt>
+              </Box>
+            </Box>
+            <Box className="l-stat">
+              <Txt className="l-stat-icon"><ArrowLeft size={16} strokeWidth={1.6} aria-hidden="true" /></Txt>
+              <Box>
+                <Txt as="p" className="l-stat-num mono">{stats.convertedThisMonth}</Txt>
+                <Txt as="p" className="l-stat-lbl">{t('stats.converted')}</Txt>
+              </Box>
+            </Box>
+            <Box className="l-stat">
+              <Txt className="l-stat-icon"><TrendingUp size={16} strokeWidth={1.6} aria-hidden="true" /></Txt>
+              <Box>
+                <Txt as="p" className="l-stat-num mono">{stats.convRate === null ? '—' : `${stats.convRate}%`}</Txt>
+                <Txt as="p" className="l-stat-lbl">{t('stats.convRate')}</Txt>
+              </Box>
+            </Box>
+          </Box>
+
+          <Btn
+            type="button"
+            className={`l-followup-banner${dueFollowups.length === 0 ? ' muted' : ''}`}
+            onClick={() => setShowFollowups(true)}
+          >
+            <Bell size={15} strokeWidth={1.8} aria-hidden="true" />
+            {dueFollowups.length > 0 && <Txt className="l-followup-count mono">{dueFollowups.length}</Txt>}
+            <Txt className="l-followup-text">
+              {dueFollowups.length === 0 ? t('followups.empty') : t('followups.due')}
+            </Txt>
+            <ChevronLeft size={15} strokeWidth={1.7} className="l-followup-chev" aria-hidden="true" />
+          </Btn>
+
           <Box className="l-filterbar">
             <Box className="l-search">
               <Search size={16} strokeWidth={1.6} aria-hidden="true" />

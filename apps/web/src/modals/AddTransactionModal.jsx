@@ -36,6 +36,7 @@ const blank = (defaults = {}) => ({
 export default function AddTransactionModal({ open, onClose, onSave, clients = [], projects = [], categories = [], onCreateCategory, client, defaultType, defaults = {}, members = [], groups = [] }) {
   const { t } = useT('modalsData')
   const { t: tc } = useT('connections') // reuse the per-tx picker's item-field strings
+  const { t: ts } = useT('modalsSystem') // shared modal chrome (discard prompt)
   const qc = useQueryClient()
   const inv = useInvoiceProvider()
   const lockedClientId = client?.id || ''
@@ -471,10 +472,10 @@ export default function AddTransactionModal({ open, onClose, onSave, clients = [
       <ConfirmModal
         open={confirmDiscard}
         onClose={() => setConfirmDiscard(false)}
-        title={t('discard.title')}
-        message={t('discard.message')}
-        confirmLabel={t('discard.confirm')}
-        cancelLabel={t('discard.cancel')}
+        title={ts('discard.title')}
+        message={ts('discard.message')}
+        confirmLabel={ts('discard.confirm')}
+        cancelLabel={ts('discard.cancel')}
         danger
         onConfirm={close}
       />

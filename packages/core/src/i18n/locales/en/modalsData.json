@@ -210,11 +210,5 @@
   "editProject": {
     "title": "Edit project",
     "projectName": "Project name"
-  },
-  "discard": {
-    "title": "Leave without saving?",
-    "message": "What you've entered will be lost.",
-    "confirm": "Leave without saving",
-    "cancel": "Keep editing"
   }
 }

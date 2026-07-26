@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import DateField from '../components/DateField'
 import Modal from './Modal'
+import ConfirmModal from './ConfirmModal'
 import { useT } from '../i18n/useT'
 import { Box, Txt, Btn, Input, Textarea } from '../components/ui'
 
@@ -16,12 +17,17 @@ const blank = () => ({ name: '', phone: '', source_id: '', project_id: '', group
    enables inline source creation so the user never leaves the modal. */
 export default function AddLeadModal({ open, onClose, onSave, sources = [], statuses = [], projects = [], groups = [], onAddSource }) {
   const { t } = useT('modalsClient')
+  const { t: ts } = useT('modalsSystem') // shared modal chrome (discard prompt)
   const [form, setForm] = useState(blank)
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
   const [creatingSource, setCreatingSource] = useState(false)
   const [newSourceName, setNewSourceName] = useState('')
   const [sourceBusy, setSourceBusy] = useState(false)
+  /* Escape / the overlay / the X threw a filled-in enquiry away without a
+     word. They ask first now — but only when something was actually typed,
+     so opening the form by mistake still closes on one tap. */
+  const [confirmDiscard, setConfirmDiscard] = useState(false)
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }))
   /* Changing the project clears the group — a group only makes sense
      inside the project it belongs to. */
@@ -29,8 +35,20 @@ export default function AddLeadModal({ open, onClose, onSave, sources = [], stat
   const close = () => {
     setForm(blank()); setErr(''); setBusy(false)
     setCreatingSource(false); setNewSourceName(''); setSourceBusy(false)
+    setConfirmDiscard(false)
     onClose()
   }
+
+  /* Compared against the same blank() the form opens with. inquiry_date is
+     skipped: blank() always stamps it with today, so it is never the user's
+     own work. */
+  const pristine = blank()
+  const formDirty = ['name', 'phone', 'source_id', 'project_id', 'group_id', 'status_id', 'follow_up_date', 'notes']
+    .some((k) => String(form[k] ?? '') !== String(pristine[k] ?? ''))
+    || form.inquiry_date !== pristine.inquiry_date
+    || newSourceName.trim() !== ''
+  /* The single exit for Escape, the overlay and the X. */
+  const requestClose = () => { if (formDirty) setConfirmDiscard(true); else close() }
 
   /* Groups belonging to the chosen project — drives the conditional picker. */
   const projectGroups = form.project_id
@@ -87,7 +105,7 @@ export default function AddLeadModal({ open, onClose, onSave, sources = [], stat
   const nameMissing = !!err && !form.name.trim()
 
   return (
-    <Modal open={open} onClose={close} title={t('addLead.title')}>
+    <Modal open={open} onClose={requestClose} title={t('addLead.title')}>
       <Box className="m-field">
         <Box as="label" className="m-label">{t('common.name')}</Box>
         <Input
@@ -180,9 +198,20 @@ export default function AddLeadModal({ open, onClose, onSave, sources = [], stat
       {err && <Txt as="p" className="m-error">{err}</Txt>}
 
       <Box className="m-actions">
-        <Btn type="button" className="m-btn-cancel" onClick={close}>{t('common.cancel')}</Btn>
+        <Btn type="button" className="m-btn-cancel" onClick={requestClose}>{t('common.cancel')}</Btn>
         <Btn type="button" className="m-btn-save" onClick={submit} disabled={busy}>{busy ? t('common.saving') : t('common.save')}</Btn>
       </Box>
+
+      <ConfirmModal
+        open={confirmDiscard}
+        onClose={() => setConfirmDiscard(false)}
+        title={ts('discard.title')}
+        message={ts('discard.message')}
+        confirmLabel={ts('discard.confirm')}
+        cancelLabel={ts('discard.cancel')}
+        danger
+        onConfirm={close}
+      />
     </Modal>
   )
 }

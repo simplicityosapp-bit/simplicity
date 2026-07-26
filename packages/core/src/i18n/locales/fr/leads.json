@@ -24,7 +24,13 @@
     "fName": "Nom",
     "fPhone": "Téléphone",
     "fEmail": "E-mail",
-    "fNotes": "Note"
+    "fNotes": "Note",
+    "rejectConfirm": {
+      "title": "Refuser la demande",
+      "message": "Refuser la demande de « {{name}} » ? Elle ira à la corbeille et pourra être restaurée sous 30 jours.",
+      "noName": "sans nom",
+      "confirm": "Refuser"
+    }
   },
   "stats": {
     "newThisMonth": "Demandes ce mois-ci",

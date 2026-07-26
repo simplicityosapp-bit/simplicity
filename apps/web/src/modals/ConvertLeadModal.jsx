@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import SelectMenu from '../components/SelectMenu'
 import Modal from './Modal'
 import ConfirmModal from './ConfirmModal'
 import { showToast } from '../lib/toast'
@@ -55,6 +56,16 @@ export default function ConvertLeadModal({ open, onClose, lead, projects = [], g
      transition cleanly. */
   const convertedSubStatuses = statuses.filter((s) => s.meta_category === 'converted')
   const defaultConverted = convertedSubStatuses.find((s) => s.is_default)
+
+  /* Same option shapes as the other lead modals. The blank row keeps its
+     special label here: leaving it empty does not mean "no sub-status", it
+     means "use the default one" — so the row says which. */
+  const projectOptions = [{ value: '', label: t('common.none') }, ...projects.map((p) => ({ value: p.id, label: p.name }))]
+  const groupOptions = [{ value: '', label: t('common.none') }, ...projectGroups.map((g) => ({ value: g.id, label: g.name }))]
+  const convertedOptions = [
+    { value: '', label: defaultConverted ? t('convertLead.convertedDefault', { name: defaultConverted.display_name }) : t('common.none') },
+    ...convertedSubStatuses.map((s) => ({ value: s.id, label: `${s.icon ? `${s.icon} ` : ''}${s.display_name}` })),
+  ]
 
   const submit = async () => {
     if (!form.name.trim()) { setErr(t('convertLead.nameRequired')); return }
@@ -147,30 +158,21 @@ export default function ConvertLeadModal({ open, onClose, lead, projects = [], g
         </Box>
         <Box className="m-field">
           <Box as="label" className="m-label">{t('common.projectOptional')}</Box>
-          <select className="m-select" value={form.project_id} onChange={(e) => setProject(e.target.value)}>
-            <option value="">{t('common.none')}</option>
-            {projects.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
-          </select>
+          <SelectMenu value={form.project_id} onChange={setProject} options={projectOptions} placeholder={t('common.none')} ariaLabel={t('common.projectOptional')} />
         </Box>
       </Box>
 
       {projectGroups.length > 0 && (
         <Box className="m-field">
           <Box as="label" className="m-label">{t('common.groupOptional')}</Box>
-          <select className="m-select" value={form.group_id} onChange={(e) => set('group_id', e.target.value)}>
-            <option value="">{t('common.none')}</option>
-            {projectGroups.map((g) => <option key={g.id} value={g.id}>{g.name}</option>)}
-          </select>
+          <SelectMenu value={form.group_id} onChange={(v) => set('group_id', v)} options={groupOptions} placeholder={t('common.none')} ariaLabel={t('common.groupOptional')} />
         </Box>
       )}
 
       {convertedSubStatuses.length > 0 && (
         <Box className="m-field">
           <Box as="label" className="m-label">{t('convertLead.convertedSubStatusOptional')}</Box>
-          <select className="m-select" value={form.status_id} onChange={(e) => set('status_id', e.target.value)}>
-            <option value="">{defaultConverted ? t('convertLead.convertedDefault', { name: defaultConverted.display_name }) : t('common.none')}</option>
-            {convertedSubStatuses.map((s) => <option key={s.id} value={s.id}>{s.icon ? s.icon + ' ' : ''}{s.display_name}</option>)}
-          </select>
+          <SelectMenu value={form.status_id} onChange={(v) => set('status_id', v)} options={convertedOptions} ariaLabel={t('convertLead.convertedSubStatusOptional')} />
         </Box>
       )}
 

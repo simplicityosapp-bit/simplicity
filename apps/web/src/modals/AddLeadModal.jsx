@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import DateField from '../components/DateField'
+import SelectMenu from '../components/SelectMenu'
 import Modal from './Modal'
 import ConfirmModal from './ConfirmModal'
 import { useT } from '../i18n/useT'
@@ -104,6 +105,22 @@ export default function AddLeadModal({ open, onClose, onSave, sources = [], stat
 
   const nameMissing = !!err && !form.name.trim()
 
+  /* Option lists for the styled pickers — same shapes the transaction modals
+     build, so every form in the app opens the identical menu instead of a
+     styled one here and an OS-native list there. */
+  const inProcessStatuses = statuses.filter((s) => s.meta_category === 'in_process')
+  const sourceOptions = [
+    { value: '', label: t('common.none') },
+    ...sources.map((s) => ({ value: s.id, label: s.name })),
+    ...(onAddSource ? [{ value: '__new__', label: t('common.newSourceOption'), accent: true }] : []),
+  ]
+  const projectOptions = [{ value: '', label: t('common.none') }, ...projects.map((p) => ({ value: p.id, label: p.name }))]
+  const groupOptions = [{ value: '', label: t('common.none') }, ...projectGroups.map((g) => ({ value: g.id, label: g.name }))]
+  const statusOptions = [
+    { value: '', label: t('common.none') },
+    ...inProcessStatuses.map((s) => ({ value: s.id, label: `${s.icon ? `${s.icon} ` : ''}${s.display_name}` })),
+  ]
+
   return (
     <Modal open={open} onClose={requestClose} title={t('addLead.title')}>
       <Box className="m-field">
@@ -139,45 +156,29 @@ export default function AddLeadModal({ open, onClose, onSave, sources = [], stat
             </Btn>
           </Box>
         ) : (
-          <select
-            className="m-select"
+          <SelectMenu
             value={form.source_id}
-            onChange={(e) => {
-              if (e.target.value === '__new__') { setCreatingSource(true); return }
-              set('source_id', e.target.value)
-            }}
-          >
-            <option value="">{t('common.none')}</option>
-            {sources.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
-            {onAddSource && <option value="__new__">{t('common.newSourceOption')}</option>}
-          </select>
+            onChange={(v) => { if (v === '__new__') { setCreatingSource(true); return } set('source_id', v) }}
+            options={sourceOptions}
+            placeholder={t('common.none')}
+            ariaLabel={t('common.source')}
+          />
         )}
       </Box>
       <Box className="m-field">
         <Box as="label" className="m-label">{t('common.projectOptional')}</Box>
-        <select className="m-select" value={form.project_id} onChange={(e) => setProject(e.target.value)}>
-          <option value="">{t('common.none')}</option>
-          {projects.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
-        </select>
+        <SelectMenu value={form.project_id} onChange={setProject} options={projectOptions} placeholder={t('common.none')} ariaLabel={t('common.projectOptional')} />
       </Box>
       {projectGroups.length > 0 && (
         <Box className="m-field">
           <Box as="label" className="m-label">{t('common.groupOptional')}</Box>
-          <select className="m-select" value={form.group_id} onChange={(e) => set('group_id', e.target.value)}>
-            <option value="">{t('common.none')}</option>
-            {projectGroups.map((g) => <option key={g.id} value={g.id}>{g.name}</option>)}
-          </select>
+          <SelectMenu value={form.group_id} onChange={(v) => set('group_id', v)} options={groupOptions} placeholder={t('common.none')} ariaLabel={t('common.groupOptional')} />
         </Box>
       )}
-      {statuses.filter((s) => s.meta_category === 'in_process').length > 0 && (
+      {inProcessStatuses.length > 0 && (
         <Box className="m-field">
           <Box as="label" className="m-label">{t('common.subStatusOptional')}</Box>
-          <select className="m-select" value={form.status_id} onChange={(e) => set('status_id', e.target.value)}>
-            <option value="">{t('common.none')}</option>
-            {statuses.filter((s) => s.meta_category === 'in_process').map((s) => (
-              <option key={s.id} value={s.id}>{s.icon ? s.icon + ' ' : ''}{s.display_name}</option>
-            ))}
-          </select>
+          <SelectMenu value={form.status_id} onChange={(v) => set('status_id', v)} options={statusOptions} placeholder={t('common.none')} ariaLabel={t('common.subStatusOptional')} />
         </Box>
       )}
       <Box className="m-row2">

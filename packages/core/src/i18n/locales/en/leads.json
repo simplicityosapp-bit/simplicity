@@ -35,7 +35,7 @@
   "stats": {
     "newThisMonth": "Inquiries this month",
     "converted": "Converted to clients",
-    "convRate": "Conversion rate"
+    "convRate": "of this month’s enquiries"
   },
   "sort": {
     "newOld": "Newest first",
@@ -59,7 +59,7 @@
     "period_lastMonth": "Last month",
     "project": "Project",
     "group": "Group",
-    "status": "Sub-status",
+    "status": "Stage",
     "source": "Source",
     "all": "All",
     "unassigned": "Unassigned",
@@ -72,7 +72,7 @@
   },
   "loading": "Loading leads…",
   "loadError": "Couldn't load leads: {{error}}",
-  "subFilterAria": "Filter by sub-status",
+  "subFilterAria": "Filter by stage",
   "all": "All",
   "undoStatusChanged": "Status changed",
   "delete": {
@@ -81,8 +81,8 @@
     "confirm": "Delete"
   },
   "dropPicker": {
-    "title": "Which sub-status should it go to?",
-    "none": "No sub-status"
+    "title": "Which stage should it go to?",
+    "none": "No stage"
   },
   "column": {
     "empty": "No leads in this column"
@@ -112,14 +112,14 @@
     "close": "Close"
   },
   "statusesPanel": {
-    "intro": "Manage sub-statuses under each top-level category. Sub-statuses appear when you set a color dot on a lead card, and are used for filtering and charts.",
-    "addPlaceholder": "Sub-status for \"{{meta}}\"",
+    "intro": "Manage the stages inside each column. A stage shows as a colour dot on the lead card, and is used for filtering and charts.",
+    "addPlaceholder": "Stage in \"{{meta}}\"",
     "addAria": "Add",
     "dropHere": "Drop here",
     "deleteChipAria": "Delete {{name}}",
     "deleteChipTitle": "Delete",
-    "deleteTitle": "Delete sub-status",
-    "deleteMessage": "Delete \"{{name}}\"? Leads marked with it will be left without a sub-status. You can restore it from the recycle bin within 30 days.",
+    "deleteTitle": "Delete stage",
+    "deleteMessage": "Delete \"{{name}}\"? Leads marked with it keep no stage. Restorable from the recycle bin within 30 days.",
     "deleteConfirm": "Delete"
   },
   "pages": {

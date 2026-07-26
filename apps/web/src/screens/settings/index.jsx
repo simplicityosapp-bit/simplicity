@@ -605,7 +605,10 @@ function ProfileBody({ prefs, onUpdate }) {
 
 /* Render a meta-grouped sub-status list with an inline add row per meta.
    Used for both client_statuses and lead_statuses. */
-function StatusGroups({ metas, metaNs, statuses, drafts, setDraft, onAdd, onRemove, loading, error, withColor = false }) {
+/* `placeholderKey` — leads call these "stages", clients still call them
+   sub-statuses, so the shared editor takes the label from its caller rather
+   than baking in one domain's word. */
+function StatusGroups({ metas, metaNs, statuses, drafts, setDraft, onAdd, onRemove, loading, error, withColor = false, placeholderKey = 'status.subStatusPlaceholder' }) {
   const { t } = useT('settings')
   const [addError, setAddError] = useState(null)
   const [draftColors, setDraftColors] = useState({})
@@ -651,7 +654,7 @@ function StatusGroups({ metas, metaNs, statuses, drafts, setDraft, onAdd, onRemo
                 className="m-input"
                 value={draft}
                 onChange={(e) => setDraft(mk, e.target.value)}
-                placeholder={t('status.subStatusPlaceholder', { meta: metaLabel })}
+                placeholder={t(placeholderKey, { meta: metaLabel })}
                 onKeyDown={(e) => { if (e.key === 'Enter') submit() }}
               />
               <Btn type="button" className="set-q-add" onClick={submit} disabled={!draft.trim()}>
@@ -1181,6 +1184,7 @@ export default function SettingsScreen() {
             loading={leadStatusesLoading}
             error={leadStatusesError}
             withColor
+            placeholderKey="status.leadStagePlaceholder"
           />
         </Box>
       )
@@ -1265,6 +1269,7 @@ export default function SettingsScreen() {
         onClose={() => setPendingDelete(null)}
         status={pendingDelete?.status}
         peers={pendingDelete?.peers || []}
+        kind={pendingDelete?.kind === 'lead' ? 'lead' : 'client'}
         onCount={pendingDelete?.kind === 'lead' ? countLeadsByStatus : countClientsByStatus}
         onReassign={handleSubStatusReassign}
         onDelete={handleSubStatusDelete}

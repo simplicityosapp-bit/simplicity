@@ -158,7 +158,8 @@
     "deleteAria": "Delete",
     "subStatusDeleted": "Sub-status deleted",
     "subStatusPlaceholder": "Sub-status for \"{{meta}}\"",
-    "addFailed": "Couldn't add it — please try again."
+    "addFailed": "Couldn't add it — please try again.",
+    "leadStagePlaceholder": "Stage in \"{{meta}}\""
   },
   "questions": {
     "loadError": "Couldn't load your questions: {{error}}",
@@ -229,7 +230,7 @@
     "deleteSourceAria": "Delete source",
     "newSourcePlaceholder": "New source name",
     "addSourceFailed": "Couldn't add the source — please try again.",
-    "subStatuses": "Sub-statuses"
+    "subStatuses": "Stages"
   },
   "schedule": {
     "everyDay": "Every day",

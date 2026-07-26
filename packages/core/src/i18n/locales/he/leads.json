@@ -12,7 +12,7 @@
   "leadPagesLink": "דפי נחיתה",
   "meta": {
     "in_process": "בתהליך",
-    "converted": "הומרו",
+    "converted": "הפכו ללקוחות",
     "not_relevant": "לא רלוונטי"
   },
   "pending": {
@@ -35,7 +35,7 @@
   "stats": {
     "newThisMonth": "פניות החודש",
     "converted": "הומרו ללקוחות",
-    "convRate": "אחוז המרה"
+    "convRate": "מהפניות החודש"
   },
   "sort": {
     "newOld": "חדש→ישן",
@@ -59,7 +59,7 @@
     "period_lastMonth": "החודש שעבר",
     "project": "פרויקט",
     "group": "קבוצה",
-    "status": "תת-סטטוס",
+    "status": "שלב",
     "source": "מקור",
     "all": "הכל",
     "unassigned": "ללא שיוך",
@@ -72,7 +72,7 @@
   },
   "loading": "טוען לידים…",
   "loadError": "שגיאה בטעינת הלידים: {{error}}",
-  "subFilterAria": "סינון לפי תת-סטטוס",
+  "subFilterAria": "סינון לפי שלב",
   "all": "הכל",
   "undoStatusChanged": "הסטטוס שונה",
   "delete": {
@@ -81,8 +81,8 @@
     "confirm": "מחק"
   },
   "dropPicker": {
-    "title": "לאיזה תת-סטטוס לשייך?",
-    "none": "ללא תת-סטטוס"
+    "title": "לאיזה שלב לשייך?",
+    "none": "ללא שלב"
   },
   "column": {
     "empty": "אין לידים בעמודה זו"
@@ -92,8 +92,8 @@
     "deleteTitle": "מחק ליד",
     "noSource": "ללא מקור",
     "inquiry": "פנייה {{date}}",
-    "converted": "הומר ללקוח",
-    "convert": "המר ללקוח",
+    "converted": "נוסף לרשימת הלקוחות",
+    "convert": "הפיכה ללקוח",
     "createClient": "יצירת כרטיס לקוח"
   },
   "sourcesModal": {
@@ -112,14 +112,14 @@
     "close": "סגירה"
   },
   "statusesPanel": {
-    "intro": "ניהול תתי-סטטוסים תחת כל קטגוריית-על. תתי-סטטוסים מופיעים כשמסמנים נקודת צבע על כרטיס ליד, ומשמשים לסינון ולגרפים.",
-    "addPlaceholder": "תת-סטטוס ל\"{{meta}}\"",
+    "intro": "ניהול השלבים בתוך כל עמודה. שלב מסומן כנקודת צבע על כרטיס הליד, ומשמש לסינון ולגרפים.",
+    "addPlaceholder": "שלב ב\"{{meta}}\"",
     "addAria": "הוספה",
     "dropHere": "שחרר כאן",
     "deleteChipAria": "מחיקת {{name}}",
     "deleteChipTitle": "מחיקה",
-    "deleteTitle": "מחיקת תת-סטטוס",
-    "deleteMessage": "למחוק את \"{{name}}\"? לידים שמסומנים בו יישארו ללא תת-סטטוס. ניתן לשחזר מסל המיחזור תוך 30 יום.",
+    "deleteTitle": "מחיקת שלב",
+    "deleteMessage": "למחוק את \"{{name}}\"? לידים שמסומנים בו יישארו ללא שלב. ניתן לשחזר מסל המיחזור תוך 30 יום.",
     "deleteConfirm": "מחק"
   },
   "pages": {

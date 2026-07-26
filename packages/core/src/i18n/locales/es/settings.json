@@ -158,7 +158,8 @@
     "deleteAria": "Eliminar",
     "subStatusDeleted": "Subestado eliminado",
     "subStatusPlaceholder": "Subestado para «{{meta}}»",
-    "addFailed": "No se pudo añadir; inténtalo de nuevo."
+    "addFailed": "No se pudo añadir; inténtalo de nuevo.",
+    "leadStagePlaceholder": "Etapa en «{{meta}}»"
   },
   "questions": {
     "loadError": "No se pudieron cargar tus preguntas: {{error}}",
@@ -229,7 +230,7 @@
     "deleteSourceAria": "Eliminar fuente",
     "newSourcePlaceholder": "Nombre de la nueva fuente",
     "addSourceFailed": "No se pudo añadir la fuente; inténtalo de nuevo.",
-    "subStatuses": "Subestados"
+    "subStatuses": "Etapas"
   },
   "schedule": {
     "everyDay": "Cada día",

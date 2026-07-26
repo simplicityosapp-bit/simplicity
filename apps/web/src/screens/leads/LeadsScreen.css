@@ -664,7 +664,7 @@
   color: var(--sage);
 }
 
-/* "המר ללקוח" CTA — soft chip at the bottom of every non-converted
+/* "הפיכה ללקוח" CTA — soft chip at the bottom of every non-converted
    card. stopPropagation on click prevents the card's edit handler
    from also firing. */
 .lead-convert-btn {

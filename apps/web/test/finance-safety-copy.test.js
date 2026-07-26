@@ -57,17 +57,48 @@ const MODALS_KEYS = [
   ['editTx.deleteConfirm.message', { desc: 'ייעוץ', amount: '₪300' }],
   ['editTx.deleteConfirm.noDesc'],
   ['editTx.deleteConfirm.confirm'],
-  ['discard.title'],
-  ['discard.message'],
-  ['discard.confirm'],
-  ['discard.cancel'],
   /* The folded add-form and the collapsed catalog picker. */
   ['tx.moreDetails'],
   ['tx.issueItemSummary', { item: 'ייעוץ אישי' }],
   ['tx.issueItemChange'],
 ]
 
+/* Generic modal chrome shared by the transaction AND lead modals — it lives in
+   modalsSystem so the same sentence isn't maintained in two namespaces. */
+const SYSTEM_KEYS = [
+  ['discard.title'],
+  ['discard.message'],
+  ['discard.confirm'],
+  ['discard.cancel'],
+]
+
+/* The leads screen's own safety dialogs. */
+const LEADS_KEYS = [
+  ['pending.rejectConfirm.title'],
+  ['pending.rejectConfirm.message', { name: 'דנה' }],
+  ['pending.rejectConfirm.noName'],
+  ['pending.rejectConfirm.confirm'],
+  ['delete.title'],
+  ['delete.message', { name: 'דנה' }],
+  ['delete.confirm'],
+  ['card.createClient'],
+]
+
 describe('every safety dialog resolves in all four languages', () => {
+  LANGS.forEach((lng) => {
+    it(`modalsSystem — ${lng}`, () => {
+      SYSTEM_KEYS.forEach(([key, opts]) => {
+        expect(resolves(lng, 'modalsSystem', key, opts), `${lng} modalsSystem:${key}`).toBe(true)
+      })
+    })
+
+    it(`leads — ${lng}`, () => {
+      LEADS_KEYS.forEach(([key, opts]) => {
+        expect(resolves(lng, 'leads', key, opts), `${lng} leads:${key}`).toBe(true)
+      })
+    })
+  })
+
   LANGS.forEach((lng) => {
     it(`finance — ${lng}`, () => {
       FINANCE_KEYS.forEach(([key, opts]) => {
@@ -116,5 +147,16 @@ describe('the retired arm-and-fire strings are gone', () => {
   it('"בטוח/ה?" and its aria label no longer resolve', () => {
     expect(resolves('he', 'finance', 'imports.sure')).toBe(false)
     expect(resolves('he', 'finance', 'imports.confirmAria', { amount: '₪1' })).toBe(false)
+  })
+})
+
+describe('the discard prompt moved namespace cleanly', () => {
+  it('lives in modalsSystem now, not modalsData', () => {
+    /* Both the transaction and the lead modals read it from modalsSystem. A
+       copy left behind in modalsData would be the one that quietly goes stale. */
+    LANGS.forEach((lng) => {
+      expect(resolves(lng, 'modalsSystem', 'discard.title'), `${lng} system`).toBe(true)
+      expect(resolves(lng, 'modalsData', 'discard.title'), `${lng} data leftover`).toBe(false)
+    })
   })
 })

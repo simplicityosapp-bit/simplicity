@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import Modal from './Modal'
+import ConfirmModal from './ConfirmModal'
 import { showToast } from '../lib/toast'
 import { useT } from '../i18n/useT'
 import { Box, Txt, Btn, Input } from '../components/ui'
@@ -14,6 +15,7 @@ import { Box, Txt, Btn, Input } from '../components/ui'
    adapter-agnostic. */
 export default function ConvertLeadModal({ open, onClose, lead, projects = [], groups = [], statuses = [], onCreateClient, onUpdateLead, onAddGroupMember }) {
   const { t } = useT('modalsClient')
+  const { t: ts } = useT('modalsSystem') // shared modal chrome (discard prompt)
   const [form, setForm] = useState(() => ({
     name: lead?.name || '',
     phone: lead?.phone || '',
@@ -23,9 +25,23 @@ export default function ConvertLeadModal({ open, onClose, lead, projects = [], g
   }))
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
+  /* Escape / the overlay / the X threw the adjusted client details away
+     without a word. An untouched form still closes on one tap. */
+  const [confirmDiscard, setConfirmDiscard] = useState(false)
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }))
   /* Changing the project clears the group — a group only belongs to its project. */
   const setProject = (v) => setForm((f) => ({ ...f, project_id: v, group_id: '' }))
+
+  /* Seeded from the lead, so only edits the user made here count as dirty. */
+  const formDirty = !lead ? false : (
+    form.name !== (lead.name || '')
+    || form.phone !== (lead.phone || '')
+    || form.project_id !== (lead.project_id || '')
+    || form.group_id !== (lead.group_id || '')
+    || form.status_id !== ''
+  )
+  /* The single exit for Escape, the overlay and the X. */
+  const requestClose = () => { if (formDirty) setConfirmDiscard(true); else onClose() }
 
   if (!lead) return <Modal open={open} onClose={onClose} title={t('convertLead.title')} />
 
@@ -109,7 +125,7 @@ export default function ConvertLeadModal({ open, onClose, lead, projects = [], g
   }
 
   return (
-    <Modal open={open} onClose={onClose} title={t('convertLead.title')}>
+    <Modal open={open} onClose={requestClose} title={t('convertLead.title')}>
       <Txt as="p" className="m-sub">
         <Txt className="m-sub-dot" style={{ background: 'var(--sage)' }} />
         {lead.name}
@@ -163,9 +179,20 @@ export default function ConvertLeadModal({ open, onClose, lead, projects = [], g
       {err && <Txt as="p" className="m-error">{err}</Txt>}
 
       <Box className="m-actions">
-        <Btn type="button" className="m-btn-cancel" onClick={onClose} disabled={busy}>{t('common.cancel')}</Btn>
+        <Btn type="button" className="m-btn-cancel" onClick={requestClose} disabled={busy}>{t('common.cancel')}</Btn>
         <Btn type="button" className="m-btn-save" onClick={submit} disabled={busy}>{busy ? t('convertLead.converting') : t('convertLead.convert')}</Btn>
       </Box>
+
+      <ConfirmModal
+        open={confirmDiscard}
+        onClose={() => setConfirmDiscard(false)}
+        title={ts('discard.title')}
+        message={ts('discard.message')}
+        confirmLabel={ts('discard.confirm')}
+        cancelLabel={ts('discard.cancel')}
+        danger
+        onConfirm={() => { setConfirmDiscard(false); onClose() }}
+      />
     </Modal>
   )
 }

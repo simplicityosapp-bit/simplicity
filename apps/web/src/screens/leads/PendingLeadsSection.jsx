@@ -1,7 +1,8 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { Inbox, Check, X } from 'lucide-react'
 import { useWhatsAppMessage } from '../../hooks/useWhatsAppMessage'
 import WhatsAppButton from '../../components/WhatsAppButton'
+import ConfirmModal from '../../modals/ConfirmModal'
 import { useT } from '../../i18n/useT'
 import { Box, Txt, Btn } from '../../components/ui'
 
@@ -20,6 +21,11 @@ const COLUMN_VALUE = (lead, col) => {
 export default function PendingLeadsSection({ pending = [], pages = [], onApprove, onReject }) {
   const { t } = useT('leads')
   const waMsg = useWhatsAppMessage()
+  /* Rejecting soft-deletes a real person's enquiry and the row vanishes at
+     once. The undo toast is a safety net, not a prompt — so it asks first.
+     Approving stays one tap: it only adds the lead to the board, and the
+     board can move it anywhere afterwards. */
+  const [pendingReject, setPendingReject] = useState(null)
   const pageById = useMemo(() => {
     const m = {}
     ;(pages || []).forEach((p) => { m[p.id] = p })
@@ -82,7 +88,7 @@ export default function PendingLeadsSection({ pending = [], pages = [], onApprov
                 <Btn type="button" className="l-pending-approve" onClick={() => onApprove(lead.id)}>
                   <Check size={15} strokeWidth={2} aria-hidden="true" /> {t('pending.approve')}
                 </Btn>
-                <Btn type="button" className="l-pending-reject" onClick={() => onReject(lead.id)} aria-label={t('pending.reject')}>
+                <Btn type="button" className="l-pending-reject" onClick={() => setPendingReject(lead)} aria-label={t('pending.reject')}>
                   <X size={15} strokeWidth={2} aria-hidden="true" />
                 </Btn>
               </Box>
@@ -90,6 +96,18 @@ export default function PendingLeadsSection({ pending = [], pages = [], onApprov
           )
         })}
       </Box>
+
+      <ConfirmModal
+        open={!!pendingReject}
+        onClose={() => setPendingReject(null)}
+        title={t('pending.rejectConfirm.title')}
+        message={pendingReject
+          ? t('pending.rejectConfirm.message', { name: pendingReject.name || t('pending.rejectConfirm.noName') })
+          : ''}
+        confirmLabel={t('pending.rejectConfirm.confirm')}
+        danger
+        onConfirm={() => { if (pendingReject) return onReject(pendingReject.id) }}
+      />
     </Box>
   )
 }

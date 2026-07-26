@@ -24,7 +24,13 @@
     "fName": "Nombre",
     "fPhone": "Teléfono",
     "fEmail": "Correo",
-    "fNotes": "Nota"
+    "fNotes": "Nota",
+    "rejectConfirm": {
+      "title": "Rechazar la solicitud",
+      "message": "¿Rechazar la solicitud de «{{name}}»? Pasará a la papelera y se podrá restaurar en 30 días.",
+      "noName": "sin nombre",
+      "confirm": "Rechazar"
+    }
   },
   "stats": {
     "newThisMonth": "Consultas este mes",

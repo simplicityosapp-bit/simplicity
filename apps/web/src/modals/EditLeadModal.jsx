@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import DateField from '../components/DateField'
 import Modal from './Modal'
+import ConfirmModal from './ConfirmModal'
 import { useT } from '../i18n/useT'
 import { Box, Txt, Btn, Input, Textarea } from '../components/ui'
 
@@ -16,6 +17,7 @@ const METAS = [
    source creation. */
 export default function EditLeadModal({ open, onClose, onSave, lead, statuses = [], sources = [], projects = [], groups = [], onAddSource }) {
   const { t } = useT('modalsClient')
+  const { t: ts } = useT('modalsSystem') // shared modal chrome (discard prompt)
   const [form, setForm] = useState(() => ({
     name: lead?.name || '',
     phone: lead?.phone || '',
@@ -33,10 +35,31 @@ export default function EditLeadModal({ open, onClose, onSave, lead, statuses = 
   const [creatingSource, setCreatingSource] = useState(false)
   const [newSourceName, setNewSourceName] = useState('')
   const [sourceBusy, setSourceBusy] = useState(false)
+  /* Escape / the overlay / the X used to throw a half-finished edit away
+     without a word. An untouched form still closes immediately. */
+  const [confirmDiscard, setConfirmDiscard] = useState(false)
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }))
   const setMeta = (k) => setForm((f) => ({ ...f, status_meta: k, status_id: '' }))
   /* Changing the project clears the group — a group only belongs to its project. */
   const setProject = (v) => setForm((f) => ({ ...f, project_id: v, group_id: '' }))
+
+  /* Compared against the same shape the form was seeded with from the lead. */
+  const formDirty = !lead ? false : (
+    form.name !== (lead.name || '')
+    || form.phone !== (lead.phone || '')
+    || form.source_id !== (lead.source_id || '')
+    || form.project_id !== (lead.project_id || '')
+    || form.group_id !== (lead.group_id || '')
+    || form.inquiry_date !== (lead.inquiry_date || '')
+    || form.follow_up_date !== (lead.follow_up_date || '')
+    || form.notes !== (lead.notes || '')
+    || form.status_meta !== (lead.status_meta || 'in_process')
+    || form.status_id !== (lead.status_id || '')
+    || newSourceName.trim() !== ''
+  )
+  /* The single exit for Escape, the overlay and the X. Saving calls onClose
+     directly and bypasses it. */
+  const requestClose = () => { if (formDirty) setConfirmDiscard(true); else onClose() }
 
   if (!lead) return <Modal open={open} onClose={onClose} title={t('editLead.title')} />
   const subStatuses = statuses.filter((s) => s.meta_category === form.status_meta)
@@ -94,7 +117,7 @@ export default function EditLeadModal({ open, onClose, onSave, lead, statuses = 
   }
 
   return (
-    <Modal open={open} onClose={onClose} title={t('editLead.title')}>
+    <Modal open={open} onClose={requestClose} title={t('editLead.title')}>
       <Box className="m-field">
         <Box as="label" className="m-label">{t('common.name')}</Box>
         <Input
@@ -192,9 +215,20 @@ export default function EditLeadModal({ open, onClose, onSave, lead, statuses = 
       {err && <Txt as="p" className="m-error">{err}</Txt>}
 
       <Box className="m-actions">
-        <Btn type="button" className="m-btn-cancel" onClick={onClose}>{t('common.cancel')}</Btn>
+        <Btn type="button" className="m-btn-cancel" onClick={requestClose}>{t('common.cancel')}</Btn>
         <Btn type="button" className="m-btn-save" onClick={submit} disabled={busy}>{busy ? t('common.saving') : t('common.save')}</Btn>
       </Box>
+
+      <ConfirmModal
+        open={confirmDiscard}
+        onClose={() => setConfirmDiscard(false)}
+        title={ts('discard.title')}
+        message={ts('discard.message')}
+        confirmLabel={ts('discard.confirm')}
+        cancelLabel={ts('discard.cancel')}
+        danger
+        onConfirm={() => { setConfirmDiscard(false); onClose() }}
+      />
     </Modal>
   )
 }

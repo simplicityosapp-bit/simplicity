@@ -24,7 +24,13 @@
     "fName": "Name",
     "fPhone": "Phone",
     "fEmail": "Email",
-    "fNotes": "Note"
+    "fNotes": "Note",
+    "rejectConfirm": {
+      "title": "Reject enquiry",
+      "message": "Reject the enquiry from \"{{name}}\"? It moves to the recycle bin and can be restored within 30 days.",
+      "noName": "no name",
+      "confirm": "Reject"
+    }
   },
   "stats": {
     "newThisMonth": "Inquiries this month",

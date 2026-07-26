@@ -26,6 +26,7 @@ const dateInputValue = (value) => {
 /* Edit a transaction — type / amount / date / desc / status / client / project / category. */
 export default function EditTransactionModal({ open, onClose, onSave, onIssued, tx, clients = [], projects = [], categories = [], onDelete, onSaveAsClient }) {
   const { t } = useT('modalsData')
+  const { t: ts } = useT('modalsSystem') // shared modal chrome (discard prompt)
   const STATUSES = [
     { k: 'confirmed', l: t('editTx.statusConfirmed') },
     { k: 'pending', l: t('editTx.statusPending') },
@@ -264,10 +265,10 @@ export default function EditTransactionModal({ open, onClose, onSave, onIssued, 
       <ConfirmModal
         open={confirmDiscard}
         onClose={() => setConfirmDiscard(false)}
-        title={t('discard.title')}
-        message={t('discard.message')}
-        confirmLabel={t('discard.confirm')}
-        cancelLabel={t('discard.cancel')}
+        title={ts('discard.title')}
+        message={ts('discard.message')}
+        confirmLabel={ts('discard.confirm')}
+        cancelLabel={ts('discard.cancel')}
         danger
         onConfirm={() => { setConfirmDiscard(false); onClose() }}
       />

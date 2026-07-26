@@ -199,5 +199,11 @@
       "followup": "Follow-up",
       "reminder": "Reminder"
     }
+  },
+  "discard": {
+    "title": "Leave without saving?",
+    "message": "What you've entered will be lost.",
+    "confirm": "Leave without saving",
+    "cancel": "Keep editing"
   }
 }

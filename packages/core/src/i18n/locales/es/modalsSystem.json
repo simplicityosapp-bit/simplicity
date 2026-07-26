@@ -199,5 +199,11 @@
       "followup": "Seguimiento",
       "reminder": "Recordatorio"
     }
+  },
+  "discard": {
+    "title": "¿Salir sin guardar?",
+    "message": "Lo que has escrito se perderá.",
+    "confirm": "Salir sin guardar",
+    "cancel": "Seguir editando"
   }
 }

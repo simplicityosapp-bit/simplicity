@@ -199,5 +199,11 @@
       "followup": "Relance",
       "reminder": "Rappel"
     }
+  },
+  "discard": {
+    "title": "Quitter sans enregistrer ?",
+    "message": "Ce que vous avez saisi sera perdu.",
+    "confirm": "Quitter sans enregistrer",
+    "cancel": "Continuer la modification"
   }
 }

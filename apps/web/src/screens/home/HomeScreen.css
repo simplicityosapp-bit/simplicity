@@ -54,16 +54,15 @@
   .home-stack > .home-row-top { display: contents; }
   .home-stack .home-widget { grid-column: 1 / -1; }
 
-  /* The quote fills its row rather than sitting at the top of it. With
-     align-items:start it hugged the top of a row whose height was set by the
-     taller moon chip, so it read as having slipped upward away from the ring
-     beside it. Stretching the cell AND the card inside it makes the two read
-     as one row; the text centres itself in the taller box. */
+  /* The quote sizes to its own content and centres against the moon chip
+     beside it. It used to stretch to the full row height (set by the taller
+     132px chip) so the two read as one row — but a one-line quote in a 140px
+     box left ~90px of dead space inside the card. align-self:center keeps it
+     visually tied to the ring's centre line without inflating the card. */
   .home-stack .home-widget[data-widget-id="quote"] {
     grid-column: span 3;
-    align-self: stretch;
+    align-self: center;
   }
-  .home-stack .home-widget[data-widget-id="quote"] .h-quote { height: 100%; }
   .home-stack .home-widget[data-widget-id="moon"]       { grid-column: span 1; }
   .home-stack .home-widget[data-widget-id="insights"]   { grid-column: span 3; }
   .home-stack .home-widget[data-widget-id="quick-row"]  { grid-column: span 1; align-self: stretch; }

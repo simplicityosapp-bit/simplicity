@@ -282,7 +282,7 @@ export default function AdminFeedback() {
           </Box>
 
           {filtered.length > 0 && (
-            <Box className="admin-fb-bulkbar">
+            <Box className="admin-card admin-fb-bulkbar">
               <label className="admin-fb-selall">
                 <input ref={selectAllRef} type="checkbox" className="admin-fb-check" checked={allSelected} onChange={toggleAll} />
                 <Txt>{t('feedback.selectAll')}</Txt>

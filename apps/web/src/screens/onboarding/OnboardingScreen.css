@@ -195,17 +195,21 @@
    header's left panel. Each onboarding step shows a more grown
    tree, ending at the canopy on step 9. Fade-in on swap so the
    step-change feels gentle. */
+/* Bigger than it was (64/72). The artwork sits inside a lot of empty
+   canvas — the early stages occupy barely a fifth of their frame — so at
+   64px the opening tree rendered as a speck against a bright sky. The
+   heavier shadow is what separates it from the photograph behind it. */
 .ob-tree {
   display: block;
-  width: 64px;
-  height: 64px;
+  width: 88px;
+  height: 88px;
   object-fit: contain;
   user-select: none;
-  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.35));
+  filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.45)) drop-shadow(0 1px 2px rgba(0, 0, 0, 0.35));
   animation: obTreeIn 0.32s ease-out;
 }
 @media (min-width: 768px) {
-  .ob-tree { width: 72px; height: 72px; }
+  .ob-tree { width: 104px; height: 104px; }
 }
 /* Scale only. This used to fade `from { opacity: 0 }`, which made the tree
    VISIBLE only as a side effect of the animation actually running — and an
@@ -804,7 +808,20 @@
   background: transparent;
   border: none;
   box-shadow: none;
-  backdrop-filter: none;
+}
+/* Content scrolls UNDER a sticky footer, and with nothing behind the
+   buttons the closing step's paragraphs ran straight through them. A
+   blurred band, masked so it fades out upward rather than drawing a hard
+   edge across the artwork. */
+.ob-foot::before {
+  content: '';
+  position: absolute;
+  inset: -10px 0 0;
+  z-index: -1;
+  pointer-events: none;
+  backdrop-filter: blur(6px);
+  -webkit-mask-image: linear-gradient(to top, #000 50%, transparent);
+  mask-image: linear-gradient(to top, #000 50%, transparent);
 }
 .ob-foot-row {
   display: flex;

@@ -193,7 +193,14 @@ function AppShell() {
       </div>
     )
   }
-  if (!obDone) {
+  /* The flow renders WITHOUT the app chrome — no sidebar, bottom nav, menu
+     drawer or help FAB. That was already true before the gate; it has to be
+     true after it too, now that a paused flow is resumable from the home
+     card. Framing a four-step wizard in the whole application stops it
+     reading as a flow — and the global HelpFab in particular put a "?"
+     back on the one screen whose own help drawer was deliberately removed. */
+  const inOnboarding = location.pathname.startsWith(ROUTES.ONBOARDING)
+  if (!obDone || inOnboarding) {
     return (
       <div className="app" data-screen="onboarding">
         <PrefsApplier />
@@ -201,7 +208,9 @@ function AppShell() {
           <Suspense fallback={<ScreenFallback />}>
             <Routes>
               <Route path={ROUTES.ONBOARDING} element={<OnboardingScreen />} />
-              <Route path="*" element={<Navigate to={ROUTES.ONBOARDING} replace />} />
+              {/* Before the gate, every other path belongs here. After it the
+                  user is free to go anywhere, so anything else goes home. */}
+              <Route path="*" element={<Navigate to={obDone ? ROUTES.HOME : ROUTES.ONBOARDING} replace />} />
             </Routes>
           </Suspense>
         </ErrorBoundary>
@@ -222,10 +231,6 @@ function AppShell() {
         <Suspense fallback={<ScreenFallback />}>
           <Routes>
             <Route path={ROUTES.HOME} element={<HomeScreen onOpenFeedback={() => setFeedbackOpen(true)} />} />
-            {/* Reachable AFTER the gate too, so leaving the flow part-way is
-                a pause rather than a one-way door: the home setup card links
-                back here and the user resumes on the step they left. */}
-            <Route path={ROUTES.ONBOARDING} element={<OnboardingScreen />} />
             <Route path={ROUTES.CLIENTS} element={<ClientsScreen />} />
             <Route path={ROUTES.CLIENT} element={<ClientsScreen />} />
             <Route path={ROUTES.FINANCE} element={<FinanceScreen />} />

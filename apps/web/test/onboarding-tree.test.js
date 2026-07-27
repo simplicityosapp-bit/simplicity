@@ -24,9 +24,10 @@ const stagesFor = (total) => Array.from({ length: total }, (_, i) => treeStage(i
 describe('the current flow', () => {
   const stages = stagesFor(ONBOARDING_STEPS.length)
 
-  it('starts past the bare seedling', () => {
-    /* Stage 1 is reserved for a pre-flow placement. */
-    expect(stages[0]).toBe(2)
+  it('starts on a stage that can actually be seen', () => {
+    /* Stages 1–4 all carry ~6% ink across ~22% of the frame; below 4 the
+       tree renders as a speck. See treeStage.js for the measurements. */
+    expect(stages[0]).toBe(4)
   })
 
   it('ends on the full canopy', () => {
@@ -39,8 +40,11 @@ describe('the current flow', () => {
     }
   })
 
-  it('grows by an even stride, skipping middles rather than repeating', () => {
-    expect(stages).toEqual([2, 4, 6, 8, 10])
+  it('shows a visibly different tree at every step', () => {
+    /* Not just non-decreasing — no two steps may share a stage, or the
+       tree appears to stall and then jump. */
+    expect(stages).toEqual([4, 6, 7, 9, 10])
+    expect(new Set(stages).size).toBe(stages.length)
   })
 })
 
@@ -69,11 +73,11 @@ describe('any step count', () => {
 describe('out-of-range input', () => {
   it('clamps rather than pointing at a file that does not exist', () => {
     /* stepIndex comes from indexOf, which returns -1 for an unknown step. */
-    expect(treeStage(-1, 5)).toBe(2)
+    expect(treeStage(-1, 5)).toBe(4)
     expect(treeStage(99, 5)).toBe(10)
   })
 
   it('survives a single-step flow', () => {
-    expect(treeStage(0, 1)).toBe(2)
+    expect(treeStage(0, 1)).toBe(4)
   })
 })

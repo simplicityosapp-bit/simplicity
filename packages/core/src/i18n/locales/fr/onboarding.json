@@ -18,58 +18,12 @@
     "stepCounter": "Étape {{current}} sur {{total}}",
     "dayMode": "Mode clair",
     "nightMode": "Mode sombre",
-    "helpAria": "À propos de cet écran",
     "back": "Retour",
     "saving": "Enregistrement…",
     "next": "Suivant",
-    "skip": "Passer",
-    "finishing": "Finalisation…",
-    "saveFailed": "L'enregistrement a échoué. Réessayez."
-  },
-  "help": {
-    "closeAria": "Fermer l'aide",
-    "steps": {
-      "profile": {
-        "title": "Pourquoi cette question ?",
-        "paragraphs": [
-          "Votre nom et votre activité nous aident à adapter le système à vous : la langue des écrans, les catégories par défaut, la façon dont les clients et les groupes s'affichent.",
-          "Vous pouvez tout modifier plus tard dans les Réglages."
-        ]
-      },
-      "projects": {
-        "title": "Qu'est-ce qu'un projet ?",
-        "paragraphs": [
-          "Un projet, c'est le contexte large : le type de service, le type de travail, ou un groupe de travail. Par exemple « coaching individuel », « ateliers parentalité », « thérapie de couple ».",
-          "Chaque client appartient à un seul projet. Les clients d'un même projet partagent les mêmes objectifs, les mêmes calculs de revenus et les mêmes groupes."
-        ],
-        "bullets": [
-          "Projet = le grand contexte",
-          "Groupe (dans un projet) = une promotion avec une date de début et de fin",
-          "Client = une personne, rattachée à un projet"
-        ]
-      },
-      "clients": {
-        "title": "Qu'est-ce qu'un client ?",
-        "paragraphs": [
-          "Un client est une personne avec qui vous travaillez. Chacun a un statut (actif / en pause / ancien), un projet, et parfois un forfait de séances.",
-          "Depuis la fiche du client, vous pouvez consigner des séances, encaisser un paiement et fixer le prochain rendez-vous."
-        ]
-      },
-      "goals": {
-        "title": "Les objectifs relient tout",
-        "paragraphs": [
-          "Un objectif est une direction, pas une pression. Il prend un nombre (combien de clients, combien de revenus, combien de demandes), une échéance, et l'importance que vous lui donnez.",
-          "Les objectifs de revenus alimentent les graphiques financiers et « Vue d'ensemble ». Les autres apparaissent surtout dans « Vue d'ensemble » et « Rapports »."
-        ]
-      },
-      "finish": {
-        "title": "Direction l'écran d'accueil",
-        "paragraphs": [
-          "L'écran d'accueil est composé de widgets. Vous choisissez lesquels apparaissent, dans quel ordre et de quelle couleur.",
-          "Vous pouvez tout reconfigurer depuis « Réglages → Widgets et affichage »."
-        ]
-      }
-    }
+    "saveFailed": "L'enregistrement a échoué. Réessayez.",
+    "later": "Plus tard",
+    "exit": "Je continuerai plus tard"
   },
   "review": {
     "title": "Vérification avant de créer quoi que ce soit",

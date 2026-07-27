@@ -18,58 +18,12 @@
     "stepCounter": "Step {{current}} of {{total}}",
     "dayMode": "Light mode",
     "nightMode": "Dark mode",
-    "helpAria": "About this screen",
     "back": "Back",
     "saving": "Saving…",
     "next": "Next",
-    "skip": "Skip",
-    "finishing": "Finishing…",
-    "saveFailed": "Couldn't save. Try again."
-  },
-  "help": {
-    "closeAria": "Close help",
-    "steps": {
-      "profile": {
-        "title": "Why we're asking",
-        "paragraphs": [
-          "Your name and what you do help us fit the system to you — the language on screen, the default categories, how clients and groups are shown.",
-          "You can change any of it later in Settings."
-        ]
-      },
-      "projects": {
-        "title": "What is a project?",
-        "paragraphs": [
-          "A project is the wider context — the kind of service, the kind of work, or a working group. For example \"one-on-one coaching\", \"parenting workshops\", \"couples therapy\".",
-          "Every client belongs to one project. Clients in the same project share the same goals, income calculations and groups."
-        ],
-        "bullets": [
-          "Project = the big context",
-          "Group (inside a project) = a cohort with a start and end date",
-          "Client = one person, who belongs to a project"
-        ]
-      },
-      "clients": {
-        "title": "What is a client?",
-        "paragraphs": [
-          "A client is one person you work with. Each one has a status (active / on a break / former), a project, and sometimes a package of sessions.",
-          "From the client's card you can log meetings, take a payment, and book the next session."
-        ]
-      },
-      "goals": {
-        "title": "Goals tie everything together",
-        "paragraphs": [
-          "A goal is a direction, not pressure. It takes a number (how many clients, how much income, how many enquiries), a time frame, and how much it matters to you.",
-          "Income goals feed the money graphs and \"Overview\". Other goals show up mainly in \"Overview\" and \"Reports\"."
-        ]
-      },
-      "finish": {
-        "title": "On to the home screen",
-        "paragraphs": [
-          "The home screen is built from widgets. You choose which ones appear, in what order, and in what colour.",
-          "You can set it all up again from \"Settings → Widgets and display\"."
-        ]
-      }
-    }
+    "saveFailed": "Couldn't save. Try again.",
+    "later": "Later",
+    "exit": "I'll finish this later"
   },
   "review": {
     "title": "Review before we create anything",

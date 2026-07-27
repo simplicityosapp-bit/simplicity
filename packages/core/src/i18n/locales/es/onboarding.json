@@ -18,58 +18,12 @@
     "stepCounter": "Paso {{current}} de {{total}}",
     "dayMode": "Modo claro",
     "nightMode": "Modo oscuro",
-    "helpAria": "Acerca de esta pantalla",
     "back": "Atrás",
     "saving": "Guardando…",
     "next": "Siguiente",
-    "skip": "Omitir",
-    "finishing": "Finalizando…",
-    "saveFailed": "No se pudo guardar. Inténtalo de nuevo."
-  },
-  "help": {
-    "closeAria": "Cerrar la ayuda",
-    "steps": {
-      "profile": {
-        "title": "¿Por qué te lo preguntamos?",
-        "paragraphs": [
-          "Tu nombre y tu actividad nos ayudan a adaptar el sistema a ti: el lenguaje de las pantallas, las categorías por defecto, cómo se muestran los clientes y los grupos.",
-          "Puedes cambiarlo cuando quieras desde Ajustes."
-        ]
-      },
-      "projects": {
-        "title": "¿Qué es un proyecto?",
-        "paragraphs": [
-          "Un proyecto es el contexto amplio: el tipo de servicio, el tipo de trabajo o un grupo de trabajo. Por ejemplo «coaching individual», «talleres para madres y padres», «terapia de pareja».",
-          "Cada cliente pertenece a un proyecto. Los clientes de un mismo proyecto comparten objetivos, cálculos de ingresos y grupos."
-        ],
-        "bullets": [
-          "Proyecto = el contexto grande",
-          "Grupo (dentro de un proyecto) = una promoción con fecha de inicio y de fin",
-          "Cliente = una persona, que pertenece a un proyecto"
-        ]
-      },
-      "clients": {
-        "title": "¿Qué es un cliente?",
-        "paragraphs": [
-          "Un cliente es una persona con la que trabajas. Cada una tiene un estado (activo / en pausa / antiguo), un proyecto y a veces un paquete de sesiones.",
-          "Desde la ficha del cliente puedes registrar sesiones, cobrar un pago y agendar la siguiente cita."
-        ]
-      },
-      "goals": {
-        "title": "Los objetivos lo conectan todo",
-        "paragraphs": [
-          "Un objetivo es una dirección, no una presión. Lleva un número (cuántos clientes, cuántos ingresos, cuántas consultas), un plazo y la importancia que le das.",
-          "Los objetivos de ingresos afectan a los gráficos de dinero y a «Vista general». Los demás aparecen sobre todo en «Vista general» e «Informes»."
-        ]
-      },
-      "finish": {
-        "title": "Vamos a la pantalla de inicio",
-        "paragraphs": [
-          "La pantalla de inicio se compone de widgets. Tú eliges cuáles aparecen, en qué orden y de qué color.",
-          "Puedes volver a configurarlo todo desde «Ajustes → Widgets y visualización»."
-        ]
-      }
-    }
+    "saveFailed": "No se pudo guardar. Inténtalo de nuevo.",
+    "later": "Más tarde",
+    "exit": "Sigo más tarde"
   },
   "review": {
     "title": "Revisa antes de que creemos nada",

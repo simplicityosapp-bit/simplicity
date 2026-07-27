@@ -31,7 +31,16 @@ export function useSetupTasks() {
   const hasQuestion = (questions || []).some((q) => q.active !== false)
   const hasRecurring = (recurring || []).length > 0
 
+  /* Leaving the flow part-way only sets skipped_at, so the steps they
+     didn't reach are still theirs to finish. Listed FIRST while that's
+     true, and gone once completed_at lands — never shown ticked, since a
+     user who simply finished onboarding never met it as a task. */
+  const onboardingUnfinished = !prefs?.onboarding?.completed_at
+
   return [
+    ...(onboardingUnfinished
+      ? [{ key: 'setup', done: false, to: ROUTES.ONBOARDING, state: null }]
+      : []),
     { key: 'import',    done: imported,     to: ROUTES.SETTINGS, state: { openGroup: 'data', openSection: 'data' } },
     { key: 'questions', done: hasQuestion,  to: ROUTES.SETTINGS, state: { openGroup: 'workflow', openSection: 'questions' } },
     { key: 'recurring', done: hasRecurring, to: ROUTES.FINANCE,  state: null },

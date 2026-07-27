@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import { Upload, Sparkles, Repeat, Check, ChevronLeft, X } from 'lucide-react'
+import { Upload, Sparkles, Repeat, Sprout, Check, ChevronLeft, X } from 'lucide-react'
 import { useSetupTasks } from '../hooks/useSetupTasks'
 import { useT } from '../i18n/useT'
 import './HomeWelcome.css'
@@ -7,7 +7,7 @@ import { Box, Txt, Btn } from './ui'
 
 /* Icon per task key — kept beside the markup rather than in the hook, so
    the hook stays data and this file stays presentation. */
-const ICONS = { import: Upload, questions: Sparkles, recurring: Repeat }
+const ICONS = { setup: Sprout, import: Upload, questions: Sparkles, recurring: Repeat }
 
 /* ════════════════════════════════════════════════════════════════
    HomeWelcome — finish setting up, from the home screen.

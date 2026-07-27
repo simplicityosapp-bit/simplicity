@@ -88,13 +88,13 @@
     "empty": "No hay prospectos en esta columna"
   },
   "card": {
-    "deleteAria": "Eliminar prospecto {{name}}",
     "deleteTitle": "Eliminar prospecto",
     "noSource": "Sin fuente",
     "inquiry": "Consulta {{date}}",
     "converted": "Convertido en cliente",
     "convert": "Convertir en cliente",
-    "createClient": "Crear ficha de cliente"
+    "createClient": "Crear ficha de cliente",
+    "menuAria": "Acciones para {{name}}"
   },
   "sourcesModal": {
     "title": "Fuentes de prospectos",

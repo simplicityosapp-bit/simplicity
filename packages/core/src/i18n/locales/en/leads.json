@@ -88,13 +88,13 @@
     "empty": "No leads in this column"
   },
   "card": {
-    "deleteAria": "Delete lead {{name}}",
     "deleteTitle": "Delete lead",
     "noSource": "No source",
     "inquiry": "Inquiry {{date}}",
     "converted": "Converted to client",
     "convert": "Convert to client",
-    "createClient": "Create client record"
+    "createClient": "Create client record",
+    "menuAria": "Actions for {{name}}"
   },
   "sourcesModal": {
     "title": "Lead sources",

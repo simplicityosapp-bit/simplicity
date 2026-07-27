@@ -90,13 +90,13 @@
     "empty": "אין לידים בעמודה זו"
   },
   "card": {
-    "deleteAria": "מחק ליד {{name}}",
-    "deleteTitle": "מחק ליד",
+    "deleteTitle": "מחיקת ליד",
     "noSource": "ללא מקור",
     "inquiry": "פנייה {{date}}",
     "converted": "נוסף לרשימת הלקוחות",
     "convert": "הפיכה ללקוח",
-    "createClient": "יצירת כרטיס לקוח"
+    "createClient": "יצירת כרטיס לקוח",
+    "menuAria": "פעולות עבור {{name}}"
   },
   "sourcesModal": {
     "title": "מקורות לידים",

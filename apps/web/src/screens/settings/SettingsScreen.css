@@ -378,7 +378,14 @@
 /* Widgets sub-toggle — collapses the per-widget list under the display
    settings so it doesn't crowd the global controls. */
 .set-w-list { display: flex; flex-direction: column; gap: 8px; }
+/* Row = [move arrows][name, fills][switch, pinned to the end]. The children
+   already declared that layout (`flex: 1` on the name, `flex-shrink: 0` on
+   the switch); without the flex container they fell back to inline flow, so
+   the switch trailed the name and landed at a different spot in every row. */
 .set-w-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   padding: 12px 12px;
   border-radius: 12px;
   border: 1px solid var(--divider);

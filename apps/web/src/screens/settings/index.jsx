@@ -37,7 +37,7 @@ import {
 } from '../../lib/preferences'
 import { CATEGORY_COLORS } from '../../lib/api/categories'
 import { useT } from '../../i18n/useT'
-import { LANGUAGE_OPTIONS } from '@simplicity/core/i18n'
+import { LANGUAGE_OPTIONS, setLanguage as applyLanguage } from '@simplicity/core/i18n'
 import { questionText, describeSchedule } from '@simplicity/core'
 import { exportTransactionsCSV, exportClientsCSV, exportProjectsCSV, exportAllXLSX } from '../../lib/export'
 import { loadSensitiveExportData } from '../../lib/exportSensitive'
@@ -297,7 +297,8 @@ function DesignBody({ prefs, onUpdate }) {
   /* Language is special: also switch i18next live (localStorage-cached),
      not just persist the preference. */
   const activeLang = (i18n.language || 'he').split('-')[0]
-  const setLanguage = (code) => { i18n.changeLanguage(code); onUpdate({ design: { language: code } }) }
+  // applyLanguage (not i18n.changeLanguage) fetches the language chunk first.
+  const setLanguage = (code) => { applyLanguage(code); onUpdate({ design: { language: code } }) }
   return (
     <Box className="set-profile-body">
       <Segmented label={t('common:language')} value={activeLang} options={LANGUAGE_OPTIONS} onChange={setLanguage} />

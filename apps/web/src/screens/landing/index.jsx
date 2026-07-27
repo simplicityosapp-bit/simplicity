@@ -12,7 +12,7 @@ import MG from '../../components/MG'
 import { mgToReadable } from '../../lib/multiGender'
 import { trackLandingEvent } from '../../lib/api/landingEvents'
 import { useT } from '../../i18n/useT'
-import { dirFor, APP_LANGS } from '@simplicity/core/i18n'
+import { dirFor, APP_LANGS, setLanguage } from '@simplicity/core/i18n'
 import { useUserPreferences } from '../../hooks/useUserPreferences'
 import './LandingScreen.css'
 import { Box, Txt, Btn, Lnk } from '../../components/ui'
@@ -39,7 +39,7 @@ import { Box, Txt, Btn, Lnk } from '../../components/ui'
    ════════════════════════════════════════════════════════════════════ */
 
 export default function LandingScreen() {
-  const { t, lang, i18n } = useT('landing')
+  const { t, lang } = useT('landing')
   const { update } = useUserPreferences()
   /* Follow the active language's direction (Hebrew → rtl, English/es/fr → ltr).
      Mirrors DirManager's <html dir>; without this the landing forced rtl, which
@@ -148,7 +148,8 @@ export default function LandingScreen() {
   const pickLang = (code) => {
     setLangOpen(false)
     if (code === activeLang) return
-    i18n.changeLanguage(code)
+    // setLanguage, not changeLanguage — it fetches the language chunk first.
+    setLanguage(code)
     update({ design: { language: code } })
   }
 

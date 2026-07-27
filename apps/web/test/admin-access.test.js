@@ -7,8 +7,14 @@
    Run: npm test
    ════════════════════════════════════════════════════════════════ */
 import { describe, it, expect } from 'vitest'
+import { readFileSync } from 'node:fs'
+import { fileURLToPath } from 'node:url'
+import { dirname, join } from 'node:path'
 import { isAdminUser, isOwnerUser, adminPerms } from '../src/lib/admin'
 import { ADMIN_EMAIL } from '../src/lib/routes'
+
+const here = dirname(fileURLToPath(import.meta.url))
+const src = (rel) => readFileSync(join(here, '..', 'src', rel), 'utf8')
 
 const OWNER = { id: 'owner', email: ADMIN_EMAIL, app_metadata: { provider: 'google' } }
 const REGULAR = { id: 'u1', email: 'jane@example.com', app_metadata: { provider: 'email', providers: ['email'] } }
@@ -79,5 +85,40 @@ describe('adminPerms — effective permissions', () => {
   it('non-boolean perm values are not treated as granted', () => {
     const sneaky = { id: 'u5', email: 's@example.com', app_metadata: { role: 'admin', admin_perms: { delete_users: 'yes', set_subscriber: 1 } } }
     expect(adminPerms(sneaky)).toEqual({ delete_users: false, set_subscriber: false, manage_admins: false })
+  })
+})
+
+/* ════════════════════════════════════════════════════════════════
+   These read the source rather than call it — the invariants live in a
+   React effect and a hook option, and there's no DOM test setup here. They
+   are deliberately loose (does the guard appear at all) so ordinary edits
+   don't trip them, but they DO catch the specific regressions that would
+   otherwise be invisible: someone "speeding up" the console by adding it to
+   the shared prefetch list, or dropping the enabled/user-id plumbing while
+   refactoring the hook.
+   ════════════════════════════════════════════════════════════════ */
+describe('the console is never shipped or fetched for a non-admin', () => {
+  it('App.jsx only imports the admin chunk behind an isAdmin check', () => {
+    const app = src('App.jsx')
+    const lines = app.split('\n').filter((l) => l.includes("import('./screens/admin')"))
+    // The lazy route definition + the idle prefetch. Both must be guarded:
+    // the route by the gate around it, the prefetch inline.
+    expect(lines.length).toBeGreaterThan(0)
+    const prefetchLines = lines.filter((l) => !l.includes('lazyWithRetry'))
+    for (const line of prefetchLines) {
+      expect(line, `unguarded admin prefetch: ${line.trim()}`).toMatch(/isAdmin/)
+    }
+    // And the route itself still bounces non-admins before rendering it.
+    expect(app).toMatch(/isAdminUser\(user\)/)
+  })
+
+  it('useAdmin only fires its query for an admin, keyed per user', () => {
+    const hook = src('hooks/useAdmin.js')
+    // No request at all unless the viewer passes the same client gate.
+    expect(hook).toMatch(/isAdminUser/)
+    expect(hook).toMatch(/enabled:\s*allowed/)
+    // Cached payloads are scoped to the signed-in user id, so a cache that
+    // outlived a sign-out can't be read back by the next account.
+    expect(hook).toMatch(/\['admin',\s*userId/)
   })
 })

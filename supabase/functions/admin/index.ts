@@ -64,6 +64,60 @@ function json(body: unknown, status = 200) {
 const DAY = 86_400_000
 const dayKey = (d: Date) => d.toISOString().slice(0, 10) // YYYY-MM-DD
 
+/* PostgREST caps an unbounded select at db-max-rows (1000 on Supabase). Every
+   read below used to be a bare .select(), so the moment a table passes 1000
+   rows the console would silently show TRUNCATED numbers — wrong long before
+   it was slow, and app_sessions / landing_events are the fast-growing ones.
+   This is the same fix the web api layer got via selectAllRows: page through
+   in explicit ranges until a short page says we're done.
+
+   `build` must return a FRESH query each call — a PostgrestFilterBuilder can
+   only be awaited once. */
+const PAGE = 1000
+/* The row shape can't be inferred: the schema is untyped here and the column
+   list is a runtime string, so PostgREST widens the result to GenericStringError.
+   Take the builder as "something rangeable" and let the caller name T. */
+type Pageable = {
+  range: (from: number, to: number) => PromiseLike<{ data: unknown; error: { message: string } | null }>
+}
+async function selectAll<T = Record<string, unknown>>(build: () => Pageable): Promise<T[]> {
+  const out: T[] = []
+  // Same 100-page guard as fetchAllUsers — a backstop, not a real limit.
+  for (let page = 0; page < 100; page++) {
+    const from = page * PAGE
+    const { data, error } = await build().range(from, from + PAGE - 1)
+    if (error) throw new Error(error.message)
+    const batch = (data ?? []) as T[]
+    out.push(...batch)
+    if (batch.length < PAGE) break
+  }
+  return out
+}
+
+/* The stats reads below used to destructure `{ data }` and ignore `error`, so
+   a missing table (a migration not yet run) or a transient failure degraded
+   that one figure to zero and left the rest of the screen working. selectAll /
+   countRows throw instead, which would take the whole action down with a 500 —
+   so wrap them in `soft` to keep exactly the old forgiving behaviour, minus
+   the silence. feedback_list is deliberately NOT soft: it always did return a
+   500 there, and a half-empty triage board would be worse than an error. */
+function soft<T>(p: Promise<T>, fallback: T): Promise<T> {
+  return p.catch((e) => {
+    console.warn('[admin] read failed, using fallback:', String(e?.message ?? e))
+    return fallback
+  })
+}
+
+/* Row count without shipping the rows. Used for the dashboard counters, which
+   used to pull whole tables into memory just to call .length on a filter. */
+async function countRows(
+  build: () => PromiseLike<{ count: number | null; error: { message: string } | null }>,
+): Promise<number> {
+  const { count, error } = await build()
+  if (error) throw new Error(error.message)
+  return count ?? 0
+}
+
 /* The 9-step onboarding flow (mirrors apps/web/src/lib/preferences.js). Kept in
    sync by hand — if a step is added there, add it here too. */
 const ONBOARDING_STEPS = [
@@ -85,9 +139,21 @@ const STEP_LABELS: Record<string, string> = {
 type AdminPerms = { delete_users: boolean; set_subscriber: boolean; manage_admins: boolean }
 type AuthUser = { id: string; email: string | null; created_at: string; last_sign_in_at: string | null; marketing_consent: boolean; is_admin: boolean; admin_perms: AdminPerms }
 
+/* The service-role client — bypasses RLS, so every caller reaching it has
+   already been gated. Built by a named factory purely so AdminClient below is
+   the EXACT inferred type: the old `ReturnType<typeof createClient>` spelled
+   the unparameterised generic, which doesn't match what createClient() infers. */
+function serviceClient() {
+  return createClient(
+    Deno.env.get('SUPABASE_URL')!,
+    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
+  )
+}
+type AdminClient = ReturnType<typeof serviceClient>
+
 /* Page through auth.users with the admin API (max 1000/page) so no user
    is missed once the beta grows past a single page. */
-async function fetchAllUsers(admin: ReturnType<typeof createClient>): Promise<AuthUser[]> {
+async function fetchAllUsers(admin: AdminClient): Promise<AuthUser[]> {
   const out: AuthUser[] = []
   let page = 1
   // Hard stop at 100 pages (100k users) — far past beta, just a guard.
@@ -137,10 +203,7 @@ Deno.serve(async (req) => {
     const action = body?.action as string
 
     // ── Service-role client — bypasses RLS; the caller is gated below. ──
-    const admin = createClient(
-      Deno.env.get('SUPABASE_URL')!,
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
-    )
+    const admin = serviceClient()
 
     // ── Authorise the caller: EITHER the scoped feedback-CLI token, which
     //    unlocks ONLY the feedback triage actions (list/update) for the
@@ -155,6 +218,18 @@ Deno.serve(async (req) => {
       && FEEDBACK_ACTIONS.has(action)
 
     let perms = { delete_users: false, set_subscriber: false, manage_admins: false }
+    /* Declared OUT here, not inside the gate below.
+       BUG FIX (2026-07-27): `user` and `isOwner` used to be `const`s inside the
+       `if (!viaFeedbackToken)` block, but four actions read them AFTER it —
+       `users` (caller.is_owner) and the self-target guards in delete_user /
+       set_admin / revoke_admin. Being block-scoped, those reads threw
+       ReferenceError, which the outer catch turned into a blanket 500. So the
+       whole Users tab, and every admin-management action, were broken — not
+       slow, broken. They start fail-closed (no user, not owner) so the
+       feedback-token path, which never enters the gate, cannot inherit
+       ownership. */
+    let callerUser: { id: string; email: string | null } | null = null
+    let isOwner = false
     if (!viaFeedbackToken) {
       // ── Real admin gate: a CONFIRMED-email owner or promoted admin JWT. ──
       const authHeader = req.headers.get('Authorization') ?? ''
@@ -169,10 +244,11 @@ Deno.serve(async (req) => {
       if (!user.email_confirmed_at) return json({ error: 'forbidden' }, 403)
       // Admin = the hardcoded super-owner OR a user the owner promoted
       // (app_metadata.role === 'admin', set only by set_admin below).
-      const isOwner = (user.email ?? '').toLowerCase() === ADMIN_EMAIL
+      isOwner = (user.email ?? '').toLowerCase() === ADMIN_EMAIL
       const meta = (user.app_metadata ?? {}) as Record<string, unknown>
       const isPromoted = meta.role === 'admin'
       if (!isOwner && !isPromoted) return json({ error: 'forbidden' }, 403)
+      callerUser = { id: user.id, email: user.email ?? null }
       // Effective permissions. The owner implicitly has every power; a promoted
       // admin has exactly the perms stamped on their metadata (default false).
       // These gate the sensitive actions below; read actions need only admin.
@@ -328,7 +404,8 @@ Deno.serve(async (req) => {
       if (!perms.delete_users) return json({ error: 'forbidden' }, 403)
       const uid = body?.user_id as string
       if (!uid || !UUID_RE.test(uid)) return json({ error: 'bad request' }, 400)
-      if (uid === user.id) return json({ error: 'cannot delete the owner account' }, 400)
+      // Fail closed: no identified caller → refuse rather than skip the guard.
+      if (!callerUser || uid === callerUser.id) return json({ error: 'cannot delete the owner account' }, 400)
       const { error } = await admin.auth.admin.deleteUser(uid)
       if (error) return json({ error: 'delete failed', detail: error.message }, 500)
       return json({ ok: true })
@@ -346,7 +423,8 @@ Deno.serve(async (req) => {
       if (!perms.manage_admins) return json({ error: 'forbidden' }, 403)
       const uid = body?.user_id as string
       if (!uid || !UUID_RE.test(uid)) return json({ error: 'bad request' }, 400)
-      if (uid === user.id) return json({ error: 'cannot change your own admin status' }, 400)
+      // Fail closed: no identified caller → refuse rather than skip the guard.
+      if (!callerUser || uid === callerUser.id) return json({ error: 'cannot change your own admin status' }, 400)
       const { data: target, error: tErr } = await admin.auth.admin.getUserById(uid)
       if (tErr || !target?.user) return json({ error: 'user not found' }, 404)
       if ((target.user.email ?? '').toLowerCase() === ADMIN_EMAIL) {
@@ -372,7 +450,8 @@ Deno.serve(async (req) => {
       if (!perms.manage_admins) return json({ error: 'forbidden' }, 403)
       const uid = body?.user_id as string
       if (!uid || !UUID_RE.test(uid)) return json({ error: 'bad request' }, 400)
-      if (uid === user.id) return json({ error: 'cannot change your own admin status' }, 400)
+      // Fail closed: no identified caller → refuse rather than skip the guard.
+      if (!callerUser || uid === callerUser.id) return json({ error: 'cannot change your own admin status' }, 400)
       const { data: target, error: tErr } = await admin.auth.admin.getUserById(uid)
       if (tErr || !target?.user) return json({ error: 'user not found' }, 404)
       if ((target.user.email ?? '').toLowerCase() === ADMIN_EMAIL) {
@@ -386,20 +465,30 @@ Deno.serve(async (req) => {
     }
 
     if (action === 'feedback_list') {
-      const users = await fetchAllUsers(admin)
-      const emailById = new Map(users.map((u) => [u.id, u.email]))
       const FULL = 'id, user_id, message, type, status, created_at, platform, source, classification, surface, title, notes'
       const BASE = 'id, user_id, message, type, status, created_at'
-      let { data: rows, error } = await admin
-        .from('feedback').select(FULL).order('created_at', { ascending: false })
-      // Deploy-order resilience: if this edge ships before migration 0079 adds
-      // the triage columns, PostgREST errors on the unknown columns — fall back
-      // to the base select so the board still loads (triage fields just empty).
-      if (error && /column|does not exist|schema cache|find/i.test(error.message || '')) {
-        ;({ data: rows, error } = await admin
-          .from('feedback').select(BASE).order('created_at', { ascending: false }))
+      /* Both halves run CONCURRENTLY. The user list is only here to resolve
+         user_id → email, so it has no reason to block the feedback query; run
+         serially it added a whole GoTrue round-trip to the board's latency. */
+      const feedbackRows = () => {
+        const q = (cols: string) => () => admin.from('feedback').select(cols).order('created_at', { ascending: false })
+        return selectAll(q(FULL)).catch((e) => {
+          // Deploy-order resilience: if this edge ships before migration 0079
+          // adds the triage columns, PostgREST errors on the unknown columns —
+          // fall back to the base select so the board still loads (triage
+          // fields just empty). Anything else is a real failure: rethrow.
+          if (!/column|does not exist|schema cache|find/i.test(String(e?.message ?? e))) throw e
+          return selectAll(q(BASE))
+        })
       }
-      if (error) return json({ error: 'query failed', detail: error.message }, 500)
+      let users: AuthUser[]
+      let rows: Record<string, any>[]
+      try {
+        ;[users, rows] = await Promise.all([fetchAllUsers(admin), feedbackRows()])
+      } catch (e) {
+        return json({ error: 'query failed', detail: String((e as Error)?.message ?? e) }, 500)
+      }
+      const emailById = new Map(users.map((u) => [u.id, u.email]))
       const items = (rows ?? []).map((r) => ({
         id: r.id,
         email: emailById.get(r.user_id) ?? null,
@@ -419,34 +508,52 @@ Deno.serve(async (req) => {
     }
 
     if (action === 'dashboard') {
-      const users = await fetchAllUsers(admin)
       const nowMs = Date.now()
       const weekAgo = nowMs - 7 * DAY
+      const weekAgoIso = new Date(weekAgo).toISOString()
+
+      /* COUNTED IN THE DATABASE, NOT IN MEMORY. These four used to run one
+         after another, each pulling a whole table across the wire only to
+         call .length on a filtered copy — every app_sessions row ever just to
+         count one week, every user's whole preferences blob just to count
+         subscribers. Now they run concurrently and, where possible, the
+         database does the counting and returns a number. */
+      const [users, openFeedback, sessionsThisWeek, subscribers] = await Promise.all([
+        fetchAllUsers(admin),
+
+        // Open = anything not done. A null status is open too (it predates the
+        // default), and `neq` alone would drop those, hence the explicit or.
+        soft(countRows(() => admin.from('feedback')
+          .select('id', { count: 'exact', head: true })
+          .or('status.is.null,status.neq.done')), 0),
+
+        // "sessions" here = app-usage opens (app_sessions, migration 0076), NOT
+        // coaching sessions. Empty until the migration runs / sessions accrue.
+        soft(countRows(() => admin.from('app_sessions')
+          .select('id', { count: 'exact', head: true })
+          .gte('created_at', weekAgoIso)), 0),
+
+        // Manually-flagged subscribers (preferences.subscription.manual) —
+        // .paid wins for a real payment. Selects just the `subscription`
+        // sub-object instead of the whole preferences blob. Falls back to the
+        // full column if this PostgREST doesn't take the JSON path, matching
+        // the deploy-order resilience in feedback_list.
+        soft((async () => {
+          const pick = (cols: string) => () => admin.from('user_preferences').select(cols)
+          const isSub = (s: any) => s?.manual === true || s?.paid === true
+          try {
+            const rows = await selectAll<{ sub: any }>(pick('sub:preferences->subscription'))
+            return rows.filter((p) => isSub(p.sub)).length
+          } catch {
+            const rows = await selectAll<{ preferences: any }>(pick('preferences'))
+            return rows.filter((p) => isSub(p?.preferences?.subscription)).length
+          }
+        })(), 0),
+      ])
 
       const active7d = users.filter(
         (u) => u.last_sign_in_at && new Date(u.last_sign_in_at).getTime() >= weekAgo,
       ).length
-
-      const { data: fb } = await admin.from('feedback').select('status')
-      const openFeedback = (fb ?? []).filter((r) => r.status !== 'done').length
-
-      // "sessions" here = app-usage opens (app_sessions, migration 0076), NOT
-      // coaching sessions. Empty until the migration runs / sessions accrue.
-      const { data: sess } = await admin
-        .from('app_sessions')
-        .select('created_at')
-      const sessionsThisWeek = (sess ?? []).filter(
-        (s) => new Date(s.created_at).getTime() >= weekAgo,
-      ).length
-
-      // Manually-flagged subscribers (preferences.subscription.manual).
-      const { data: subPrefs } = await admin
-        .from('user_preferences')
-        .select('preferences')
-      const subscribers = (subPrefs ?? []).filter((p) => {
-        const s = p?.preferences?.subscription
-        return s?.manual === true || s?.paid === true
-      }).length
 
       // Weekly signup buckets — last 12 weeks, oldest → newest.
       const WEEKS = 12
@@ -475,16 +582,28 @@ Deno.serve(async (req) => {
     }
 
     if (action === 'users') {
-      const users = await fetchAllUsers(admin)
-
-      const [{ data: moon }, { data: sess }, { data: prefs }, { data: fb }, { data: consent }, { data: subs }] = await Promise.all([
-        admin.from('moon_snapshots').select('user_id, reflection'),
-        admin.from('app_sessions').select('user_id'),
-        admin.from('user_preferences').select('user_id, preferences'),
-        admin.from('feedback').select('user_id'),
-        admin.from('user_consent').select('user_id, kind, version, accepted, accepted_at, created_at'),
+      /* fetchAllUsers joins the same Promise.all instead of gating it — it has
+         no dependency on the table reads, and awaiting it first added a whole
+         GoTrue round-trip in front of six queries that could have been running
+         meanwhile. Each read is paged (selectAll) so none of these counts can
+         be silently capped at 1000 rows. moon_snapshots drops null/empty
+         reflections in the DB rather than shipping them to be discarded here;
+         the trim() below still runs, so whitespace-only rows count exactly as
+         they did before. */
+      const [users, moon, sess, prefs, fb, consent, subs] = await Promise.all([
+        fetchAllUsers(admin),
+        soft(selectAll<{ user_id: string; reflection: string | null }>(
+          () => admin.from('moon_snapshots').select('user_id, reflection')
+            .not('reflection', 'is', null).neq('reflection', '')), []),
+        soft(selectAll<{ user_id: string }>(() => admin.from('app_sessions').select('user_id')), []),
+        soft(selectAll<{ user_id: string; preferences: any }>(
+          () => admin.from('user_preferences').select('user_id, preferences')), []),
+        soft(selectAll<{ user_id: string }>(() => admin.from('feedback').select('user_id')), []),
+        soft(selectAll<any>(() => admin.from('user_consent')
+          .select('user_id, kind, version, accepted, accepted_at, created_at')), []),
         // New billing model: tier + beta exemption + locked terms (migration 0075).
-        admin.from('user_subscriptions').select('user_id, tier, beta_exempt_until, subscribed_at, locked_price'),
+        soft(selectAll<any>(() => admin.from('user_subscriptions')
+          .select('user_id, tier, beta_exempt_until, subscribed_at, locked_price')), []),
       ])
 
       const subById = new Map<string, { tier: string; beta_exempt_until: string | null; subscribed_at: string | null; locked_price: number | null }>()
@@ -569,29 +688,55 @@ Deno.serve(async (req) => {
       const spanDays = range === 'week' ? 7 : range === 'all' ? 365 : 30
       const startMs = nowMs - spanDays * DAY
 
-      const users = await fetchAllUsers(admin)
+      const startIso = new Date(startMs).toISOString()
+
+      /* fetchAllUsers joins the batch rather than gating it, and the three
+         time-series reads are now WINDOWED IN THE DATABASE. They used to pull
+         every app_sessions / landing_events row ever written and then throw
+         away everything outside the range in JS — for the default 30-day view
+         that is almost the whole table, and it grows with every app open and
+         every anonymous landing visit. Paged via selectAll so a busy month
+         can't be silently cut off at 1000 rows either.
+
+         The onboarding funnel is deliberately NOT windowed: it's "how far has
+         each user ever got", over all users, not a range. */
+      const [users, sess, moon, prefs, landing] = await Promise.all([
+        fetchAllUsers(admin),
+        soft(selectAll<{ user_id: string; created_at: string }>(
+          () => admin.from('app_sessions').select('user_id, created_at').gte('created_at', startIso)), []),
+        // Windowed on created_at; `date` (the snapshot's own day) is preferred
+        // below when present, so keep the row-created floor slightly generous.
+        soft(selectAll<{ reflection: string | null; date: string | null; created_at: string }>(
+          () => admin.from('moon_snapshots').select('reflection, date, created_at')
+            .not('reflection', 'is', null).neq('reflection', '')
+            .gte('created_at', startIso)), []),
+        soft(selectAll<{ user_id: string; preferences: any }>(
+          () => admin.from('user_preferences').select('user_id, preferences')), []),
+        // Anonymous landing funnel events (empty if migration 0050 hasn't run yet).
+        soft(selectAll<{ type: string; created_at: string }>(
+          () => admin.from('landing_events').select('type, created_at').gte('created_at', startIso)), []),
+      ])
       const emailById = new Map(users.map((u) => [u.id, u.email]))
 
-      const [{ data: sess }, { data: moon }, { data: prefs }, { data: landing }] = await Promise.all([
-        admin.from('app_sessions').select('user_id, created_at'),
-        admin.from('moon_snapshots').select('reflection, date, created_at'),
-        admin.from('user_preferences').select('user_id, preferences'),
-        // Anonymous landing funnel events (null if migration 0050 hasn't run yet).
-        admin.from('landing_events').select('type, created_at'),
-      ])
-
-      // Empty daily buckets across the span, oldest → newest.
-      const makeBuckets = () => {
-        const b: { date: string; count: number }[] = []
+      /* Empty daily buckets across the span, oldest → newest, plus a
+         date → bucket index so bump() is a hash lookup. It used to be
+         buckets.find() INSIDE the per-row loop, i.e. a linear scan of up to
+         365 buckets for every session and every reflection. */
+      type Bucket = { date: string; count: number }
+      const makeBuckets = (): { list: Bucket[]; byDate: Map<string, Bucket> } => {
+        const list: Bucket[] = []
+        const byDate = new Map<string, Bucket>()
         const startDay = new Date(startMs)
         startDay.setHours(0, 0, 0, 0)
         for (let t = startDay.getTime(); t <= nowMs; t += DAY) {
-          b.push({ date: dayKey(new Date(t)), count: 0 })
+          const b = { date: dayKey(new Date(t)), count: 0 }
+          list.push(b)
+          byDate.set(b.date, b)
         }
-        return b
+        return { list, byDate }
       }
-      const bump = (buckets: { date: string; count: number }[], key: string) => {
-        const hit = buckets.find((x) => x.date === key)
+      const bump = (buckets: { byDate: Map<string, Bucket> }, key: string) => {
+        const hit = buckets.byDate.get(key)
         if (hit) hit.count += 1
       }
 
@@ -658,8 +803,8 @@ Deno.serve(async (req) => {
         ok: true,
         range,
         totalUsers: users.length,
-        sessionsOverTime,
-        reflectionsOverTime,
+        sessionsOverTime: sessionsOverTime.list,
+        reflectionsOverTime: reflectionsOverTime.list,
         funnel,
         landingFunnel,
         landingEngagement,

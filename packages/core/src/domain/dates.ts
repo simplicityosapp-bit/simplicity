@@ -19,16 +19,14 @@ const pad = (n: number): string => String(n).padStart(2, '0')
    Note this is a no-op in Israel (UTC+2/+3), where UTC midnight already falls
    on the same local day: the current user base sees no change.
    Exported because the same trap bites anyone bucketing a `date` column into
-   days or months (domain/finance, the finance screen) — not just formatters. */
-const DATE_ONLY = /^\d{4}-\d{2}-\d{2}$/
-export function toLocalDate(value: DateInput): Date {
-  if (value instanceof Date) return value
-  if (typeof value === 'string' && DATE_ONLY.test(value)) {
-    const [y, m, d] = value.split('-').map(Number)
-    return new Date(y, m - 1, d)
-  }
-  return new Date(value as string | number)
-}
+   days or months (domain/finance, the finance screen) — not just formatters.
+
+   The implementation lives in ./scheduledMeetings — the one file in this
+   package that imports nothing, because the meetings engine needs it and the
+   nightly cron bundles that file into a Deno edge function. One definition,
+   re-exported here so every existing `from './dates'` keeps working. */
+export { toLocalDate } from './scheduledMeetings'
+import { toLocalDate } from './scheduledMeetings'
 
 /* Date/time format preference — set once from PrefsApplier (mirrors how
    lib/finance receives the currency). Every formatter below reads these,

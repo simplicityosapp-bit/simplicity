@@ -1,20 +1,16 @@
 /* ════════════════════════════════════════════════════════════════
-   SCHEDULED MEETINGS ENGINE — derives the `scheduled_meetings` rows
-   that should exist for every client/group with a recurring_day +
-   recurring_time, returning the inserts the caller still owes the DB.
+   SCHEDULED MEETINGS — the browser-side half: confirming, skipping and
+   reviewing the meetings the engine materialised.
 
-   Window is (now − 14 days) → (now + 4 weeks), further clamped to the
-   subject's OWN recurring_start_date / recurring_end_date when set —
-   those columns exist on both clients and groups and the add/edit
-   forms collect them, so they are the series' real first and last day.
-   The lower bound lets the home meeting-confirmation widget surface
-   meetings the user still hasn't acknowledged. New subjects don't get
-   backfilled past their created_at, so signing up doesn't conjure fake
-   prior meetings. Idempotent: rows are keyed by (subject_type,
-   subject_id, scheduled_at) — existing rows are skipped.
+   The ENGINE (which occurrences a recurring slot owes) moved to
+   @simplicity/core → domain/scheduledMeetings, because the nightly cron
+   runs it too, inside a Deno edge function. One implementation, so a rule
+   fixed in one place cannot go stale in the other. What stays here is
+   everything that only makes sense with a user watching: toasts, undo,
+   and the review-window filter.
    ════════════════════════════════════════════════════════════════ */
 
-import { effectiveClientMeta, toLocalDate } from '@simplicity/core'
+import { generateScheduledMeetings } from '@simplicity/core'
 import i18n from '@simplicity/core/i18n'
 /* No showToast here any more: confirm and skip both register an undo, and the
    undo toast carries the same wording plus a way back. Two toasts firing for
@@ -23,8 +19,14 @@ import { showError } from './toast'
 import { pushUndo } from './undo'
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000
-const DEFAULT_WEEKS_AHEAD = 4
 const PAST_LOOKBACK_DAYS = 14
+
+/* The engine itself now lives in @simplicity/core (domain/scheduledMeetings)
+   so the nightly cron edge function runs the very same rules. Re-exported
+   here because every caller — and the tests — already import it from this
+   path, and because this file keeps the surrounding confirm / skip / review
+   helpers that DO belong to the browser (toasts, undo). */
+export { generateScheduledMeetings }
 
 function parseHHMM(t) {
   if (!t) return null
@@ -34,134 +36,6 @@ function parseHHMM(t) {
   const mm = Number(m[2])
   if (hh < 0 || hh > 23 || mm < 0 || mm > 59) return null
   return [hh, mm]
-}
-
-function meetingKey(type, id, isoAt) {
-  /* Use ms-precision timestamp so different ISO formats (with/without
-     fractional seconds) hash the same. */
-  return `${type}|${id}|${new Date(isoAt).getTime()}`
-}
-
-/* Step to the first date on/after `from` whose day-of-week matches
-   `dow`, set to (hh:mm). The `from` date itself counts if it already
-   matches both day and time. */
-function firstOccurrenceOnOrAfter(from, dow, hh, mm) {
-  const d = new Date(from)
-  d.setHours(hh, mm, 0, 0)
-  /* If we set the time and that's already before `from`, we have to
-     advance — even if the day matches, today's meeting has passed
-     and "on or after from" means the next one. */
-  if (d.getDay() === dow && d >= from) return d
-  let safety = 8
-  while (safety > 0) {
-    d.setDate(d.getDate() + 1)
-    d.setHours(hh, mm, 0, 0)
-    if (d.getDay() === dow && d >= from) return d
-    safety--
-  }
-  return null
-}
-
-export function generateScheduledMeetings(
-  clients,
-  groups,
-  existingMeetings,
-  now = new Date(),
-  { weeksAhead = DEFAULT_WEEKS_AHEAD, pastLookbackDays = PAST_LOOKBACK_DAYS, members = [] } = {},
-) {
-  const out = []
-  const existingKeys = new Set(
-    (existingMeetings || []).map((m) => meetingKey(m.subject_type, m.subject_id, m.scheduled_at)),
-  )
-
-  const clientSubjects = (clients || [])
-    .filter((c) => !c.deleted_at)
-    .filter((c) => c.recurring_day != null && c.recurring_time)
-    /* Status MUST come from effectiveClientMeta, never the raw `status_meta`
-       column (same rule as homeData.js). For a group-driven client the column
-       keeps whatever it last held while the app reads them as 'past' once all
-       their groups end — so the raw read kept materialising a weekly meeting,
-       forever, for a client every other screen already shows as finished. */
-    .filter((c) => {
-      const meta = effectiveClientMeta(c, members, groups)
-      return meta !== 'past' && meta !== 'no_status'
-    })
-    .map((c) => ({
-      type: 'client',
-      id: c.id,
-      dow: Number(c.recurring_day),
-      time: c.recurring_time,
-      createdAt: c.created_at,
-      seriesStart: c.recurring_start_date,
-      seriesEnd: c.recurring_end_date,
-    }))
-
-  const groupSubjects = (groups || [])
-    .filter((g) => !g.deleted_at)
-    .filter((g) => g.recurring_day != null && g.recurring_time)
-    .filter((g) => g.status !== 'ended')
-    .map((g) => ({
-      type: 'group',
-      id: g.id,
-      dow: Number(g.recurring_day),
-      time: g.recurring_time,
-      createdAt: g.created_at,
-      seriesStart: g.recurring_start_date,
-      seriesEnd: g.recurring_end_date,
-    }))
-
-  const subjects = [...clientSubjects, ...groupSubjects]
-  const horizonEnd = new Date(now.getTime() + weeksAhead * 7 * MS_PER_DAY)
-  const horizonStart = new Date(now.getTime() - pastLookbackDays * MS_PER_DAY)
-
-  for (const s of subjects) {
-    const hhmm = parseHHMM(s.time)
-    if (!hhmm) continue
-    if (Number.isNaN(s.dow) || s.dow < 0 || s.dow > 6) continue
-    const [hh, mm] = hhmm
-
-    /* Don't backfill before the subject existed. */
-    const subjectStart = s.createdAt ? new Date(s.createdAt) : horizonStart
-    let startFrom = subjectStart > horizonStart ? subjectStart : horizonStart
-    /* …and don't start before the SERIES does. recurring_start_date is a
-       date-only column, so toLocalDate (not new Date) — parsing it as UTC
-       would land it a few hours early and let the day before slip in. */
-    if (s.seriesStart) {
-      const seriesFrom = toLocalDate(s.seriesStart)
-      if (seriesFrom > startFrom) startFrom = seriesFrom
-    }
-    /* The series' own last day ends the run, whatever the horizon says. Taken
-       to the END of that day so a meeting ON the closing date still counts. */
-    let stopAt = horizonEnd
-    if (s.seriesEnd) {
-      const seriesTo = toLocalDate(s.seriesEnd)
-      seriesTo.setHours(23, 59, 59, 999)
-      if (seriesTo < stopAt) stopAt = seriesTo
-    }
-    if (startFrom > stopAt) continue
-
-    let occ = firstOccurrenceOnOrAfter(startFrom, s.dow, hh, mm)
-    if (!occ) continue
-    while (occ <= stopAt) {
-      const isoAt = occ.toISOString()
-      const k = meetingKey(s.type, s.id, isoAt)
-      if (!existingKeys.has(k)) {
-        existingKeys.add(k)
-        out.push({
-          subject_type: s.type,
-          subject_id: s.id,
-          scheduled_at: isoAt,
-          status: 'pending',
-          session_id: null,
-        })
-      }
-      /* Step a calendar week, NOT a fixed 7×24h — setDate preserves the local
-         wall-clock time so a 10:00 meeting stays 10:00 across DST boundaries
-         (a fixed-ms step would drift it to 11:00). Matches recurring.js. */
-      occ.setDate(occ.getDate() + 7)
-    }
-  }
-  return out
 }
 
 /* Ids of FUTURE pending scheduled meetings that were generated for a subject's

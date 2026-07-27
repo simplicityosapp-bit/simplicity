@@ -1,4 +1,10 @@
 // @simplicity/core — domain (pure business logic, no DOM / React / I/O)
+/* Named rather than `export *`: scheduledMeetings also holds toLocalDate and
+   the client-status rules, which dates.ts / clients.ts already re-export —
+   a star here would collide with them. */
+export {
+  generateScheduledMeetings, zonedParts, zonedTimeToInstant, DEFAULT_TIME_ZONE,
+} from './scheduledMeetings'
 export * from './paymentPlans'
 export * from './subscription'
 export * from './recurring'

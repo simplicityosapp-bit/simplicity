@@ -582,10 +582,17 @@
   color: var(--mist); cursor: pointer; flex-shrink: 0;
 }
 .admin-fb-del:hover { background: rgba(181, 99, 78, .14); color: var(--clay); }
+/* Layout only — the surface comes from .admin-card on the element itself.
+   It used to hand-copy just --mg-card-bg and --mg-card-border and skip the
+   BLUR and the shadow, which is what actually makes the glass read as a
+   surface: a 30%-opacity cream panel with no backdrop-filter is see-through,
+   so on the nature background the whole bar dissolved into the photo and the
+   "בחר הכל" control was effectively invisible. The padding below still
+   overrides the card's (this rule comes later in the file) so the bar stays
+   slim rather than taking the full card padding. */
 .admin-fb-bulkbar {
   display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
-  margin-bottom: 12px; padding: 8px 12px;
-  border-radius: var(--mg-card-radius); border: var(--mg-card-border); background: var(--mg-card-bg);
+  margin-bottom: 12px; padding: 8px 14px;
 }
 .admin-fb-selall { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; font-size: var(--mg-caption); color: var(--espresso); }
 .admin-fb-selcount { font-size: var(--mg-caption); color: var(--stone); }

@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useUserQuestions } from '../../../hooks/useUserQuestions'
 import { QUESTION_TEMPLATES, qtext } from '@simplicity/core'
 import { useT } from '../../../i18n/useT'
+import { useStepCTA } from '../useStepCTA'
 import { Box, Txt, Btn, Input } from '../../../components/ui'
 
 /* Starter presets — derived from the SHARED QUESTION_TEMPLATES so onboarding
@@ -39,7 +40,6 @@ export default function Step5DailyQuestions({ ob, setCTA }) {
   const canAdvance = picked.length > 0 || custom.trim().length > 0
   /* No CTA hint here — selecting is self-evident; the empty footer reads cleaner. */
   const hint = null
-  useEffect(() => { setCTA({ onNext, canAdvance, busy, hint }) }, [picked, custom, customScale, customIcon, busy, canAdvance, hint]) // eslint-disable-line react-hooks/exhaustive-deps, react-hooks/immutability
 
   const onNext = async () => {
     setBusy(true); setErr('')
@@ -91,6 +91,9 @@ export default function Step5DailyQuestions({ ob, setCTA }) {
       setBusy(false)
     }
   }
+
+  /* Declared after onNext so the handler exists when it's captured. */
+  useStepCTA(setCTA, { onNext, canAdvance, busy, hint })
 
   return (
     <>

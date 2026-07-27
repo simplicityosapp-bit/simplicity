@@ -1,7 +1,14 @@
 /* Per-step help content for the onboarding flow. Kept as plain data
    so the copy can iterate without touching layout. Each entry maps
    a step key (matches preferences.ONBOARDING_STEPS) to a short
-   panel content object. */
+   panel content object.
+
+   i18n: ns='onboarding', key `help.steps.<step>`. Read it through
+   getStepHelp() — reading HELP_BY_STEP directly is what left every
+   non-Hebrew user with nine Hebrew help panels. The Hebrew below stays
+   the source of truth and the fallback, matching lib/helpContent.js. */
+
+import i18n from '@simplicity/core/i18n'
 
 export const HELP_BY_STEP = {
   profile: {
@@ -77,4 +84,13 @@ export const HELP_BY_STEP = {
       'אפשר לחזור להגדיר את הכל מהמסך "הגדרות → ווידג\'טים ותצוגה".',
     ],
   },
+}
+
+/* The active language's panel for a step, or null when the step has none.
+   Falls back to the Hebrew above if a translation is missing or malformed
+   (same guard shape as lib/helpContent.js getHelpScreen). */
+export function getStepHelp(step) {
+  const s = i18n.t(`onboarding:help.steps.${step}`, { returnObjects: true })
+  if (s && typeof s === 'object' && !Array.isArray(s) && s.title && Array.isArray(s.paragraphs)) return s
+  return HELP_BY_STEP[step] || null
 }

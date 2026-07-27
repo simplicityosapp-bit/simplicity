@@ -7,7 +7,7 @@ import { useT } from '../../i18n/useT'
 import { showError } from '../../lib/toast'
 import OnboardingTree from './OnboardingTree'
 import OnboardingHelpPanel from './OnboardingHelpPanel'
-import { HELP_BY_STEP } from './helpContent'
+import { getStepHelp } from './helpContent'
 import { Box, Txt, Btn } from '../../components/ui'
 
 /* Layout (all 9 steps share this frame; only the body changes):
@@ -50,7 +50,8 @@ export default function OnboardingShell({ ob, cta, children }) {
        shell unmounts, where this setState is a harmless no-op. */
     try { await ob.skipStep() } finally { setSkipping(false) }
   }
-  const helpContent = HELP_BY_STEP[ob.step] || null
+  /* Resolved per render (not module-load) so it follows the active language. */
+  const helpContent = getStepHelp(ob.step)
   const isFirst = ob.stepIndex === 0
   const isLast = ob.stepIndex === ONBOARDING_STEPS.length - 1
   /* Theme toggle — same plumbing as AppShell: flip the local hook

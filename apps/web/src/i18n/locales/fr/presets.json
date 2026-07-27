@@ -19,6 +19,10 @@
     "group_members": {
       "name": "Membres du groupe",
       "hint": "Comptés automatiquement à partir des membres du groupe (peut être lié à un projet)"
+    },
+    "other": {
+      "name": "Autre",
+      "hint": "Vous le mettez à jour vous-même"
     }
   }
 }

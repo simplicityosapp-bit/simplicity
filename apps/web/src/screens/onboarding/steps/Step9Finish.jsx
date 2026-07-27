@@ -1,6 +1,6 @@
-import { useEffect } from 'react'
 import { Sparkles, Folder, Users, Target, Repeat } from 'lucide-react'
 import { useT } from '../../../i18n/useT'
+import { useStepCTA } from '../useStepCTA'
 import { useProjects } from '../../../hooks/useProjects'
 import { useClients } from '../../../hooks/useClients'
 import { useGoals } from '../../../hooks/useGoals'
@@ -16,7 +16,7 @@ import { Box, Txt } from '../../../components/ui'
    write, so nothing can double-create) and the primary CTA flips
    onboarding.completed_at and lands the user on /home.
    (No skip button on this last step — see OnboardingShell.) */
-export default function Step9Finish({ onDone, setCTA }) {
+export default function Step9Finish({ ob, onDone, setCTA }) {
   const { t } = useT('onboardingSteps')
   const { projects } = useProjects()
   const { clients } = useClients()
@@ -24,18 +24,31 @@ export default function Step9Finish({ onDone, setCTA }) {
   const { questions } = useUserQuestions()
   const { templates: recurring } = useRecurring()
 
-  useEffect(() => {
-    setCTA({ onNext: onDone, canAdvance: true, busy: false, hint: null, nextLabel: t('step9.nextLabel') })
-  }, [onDone]) // eslint-disable-line react-hooks/exhaustive-deps
+  useStepCTA(setCTA, { onNext: onDone, canAdvance: true, nextLabel: t('step9.nextLabel') })
 
-  /* Live counts of what onboarding actually created — only non-empty rows
-     are shown, so a user who skipped a step doesn't see a row of zeros. */
+  /* "מה הגדרנו יחד" has to mean exactly that. These were whole-account
+     counts, which happen to match on a brand-new account and stop matching
+     the moment they don't: someone who re-ran onboarding from Settings saw
+     their entire history presented back as if it had just been set up here.
+
+     Each step records the ids it created, so count those — intersected with
+     the live rows, so anything since removed (step 4 lets you take a client
+     back out) drops off rather than being claimed. Only non-empty lines are
+     shown, so a skipped step doesn't leave a row of zeros. */
+  const answers = ob?.state?.answers || {}
+  const idSet = (v) => new Set((Array.isArray(v) ? v : []).filter(Boolean))
+  const mine = (rows, ids) => (rows || []).filter((r) => ids.has(r.id)).length
+
+  /* Questions come from two steps: the daily-questions picker, and the one a
+     goal tracked by a daily question creates for itself. */
+  const questionIds = idSet([...(answers.daily_questions?.question_ids || []), answers.goals?.question_id])
+
   const summary = [
-    { key: 'projects',  icon: Folder,   label: t('step9.projects'),  count: (projects || []).length },
-    { key: 'clients',   icon: Users,    label: t('step9.clients'),   count: (clients || []).length },
-    { key: 'goals',     icon: Target,   label: t('step9.goals'),     count: (goals || []).length },
-    { key: 'questions', icon: Sparkles, label: t('step9.questions'), count: (questions || []).filter((q) => q.active !== false).length },
-    { key: 'recurring', icon: Repeat,   label: t('step9.recurring'), count: (recurring || []).length },
+    { key: 'projects',  icon: Folder,   label: t('step9.projects'),  count: mine(projects, idSet(answers.projects?.created_ids)) },
+    { key: 'clients',   icon: Users,    label: t('step9.clients'),   count: mine(clients, idSet(answers.clients?.created_ids)) },
+    { key: 'goals',     icon: Target,   label: t('step9.goals'),     count: mine(goals, idSet(answers.goals?.created_ids)) },
+    { key: 'questions', icon: Sparkles, label: t('step9.questions'), count: mine((questions || []).filter((q) => q.active !== false), questionIds) },
+    { key: 'recurring', icon: Repeat,   label: t('step9.recurring'), count: mine(recurring, idSet(answers.recurring?.created_ids)) },
   ].filter((s) => s.count > 0)
 
   return (

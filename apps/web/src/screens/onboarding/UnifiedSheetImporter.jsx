@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { FileSpreadsheet, X, AlertTriangle, CheckCircle2, HelpCircle, ChevronUp, ChevronDown } from 'lucide-react'
 import {
-  SHEET_TYPES, SHEET_TYPE_LABELS, SHEET_TYPE_HELP, ENTITY_FIELDS,
+  SHEET_TYPES, sheetTypeLabel, sheetTypeHelp, entityFields,
   setSheetType, remapSheetColumn, projectSheet,
 } from '../../lib/sheetMapper'
 import { flattenMatrix } from '../../lib/pivotImport'
@@ -71,7 +71,7 @@ export default function UnifiedSheetImporter({ sheets, onChange }) {
     <Box className="usi">
       {live.map((sheet) => {
         const isFlat = sheet.type !== 'matrix' && sheet.type !== 'ignore'
-        const fields = ENTITY_FIELDS[sheet.type] || []
+        const fields = entityFields(sheet.type)
         const sample = (colIdx) => {
           for (const r of sheet.rows) { const v = String(r[colIdx] ?? '').trim(); if (v) return v }
           return ''
@@ -121,9 +121,9 @@ export default function UnifiedSheetImporter({ sheets, onChange }) {
               <Box as="label" className="usi-label" id={`usi-type-${sheet.id}`}>{t('sheet.whatsHere')}</Box>
               <select className="usi-select" value={sheet.type} aria-labelledby={`usi-type-${sheet.id}`}
                 onChange={(e) => changeType(sheet, e.target.value)}>
-                {SHEET_TYPES.map((st) => <option key={st} value={st}>{SHEET_TYPE_LABELS[st]}</option>)}
+                {SHEET_TYPES.map((st) => <option key={st} value={st}>{sheetTypeLabel(st)}</option>)}
               </select>
-              {SHEET_TYPE_HELP[sheet.type] && <Txt as="p" className="usi-hint">{SHEET_TYPE_HELP[sheet.type]}</Txt>}
+              {sheetTypeHelp(sheet.type) && <Txt as="p" className="usi-hint">{sheetTypeHelp(sheet.type)}</Txt>}
             </Box>
 
             {/* Flat entity → column mapping. Unmapped columns are shown

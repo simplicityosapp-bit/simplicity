@@ -1,10 +1,11 @@
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import { Upload, FileSpreadsheet, Sparkles } from 'lucide-react'
 import { ROW_CAP } from '../../../lib/csvImport'
 import { projectSheet } from '../../../lib/sheetMapper'
 import { buildSheetsFromFiles, ACCEPT } from '../../../lib/importFlow'
 import { useUserPreferences } from '../../../hooks/useUserPreferences'
 import { useT } from '../../../i18n/useT'
+import { useStepCTA } from '../useStepCTA'
 import UnifiedSheetImporter from '../UnifiedSheetImporter'
 import RecognitionWizard from '../RecognitionWizard'
 import { Box, Txt, Btn, Input } from '../../../components/ui'
@@ -128,7 +129,10 @@ export default function Step2DataImport({ ob, setCTA, onReviewFromStep }) {
   const hint = yearMissing
     ? t('step2.hintYearMissing')
     : (mode === 'A' && !fileName && !busy ? t('step2.hintPickFile') : null)
-  useEffect(() => { setCTA({ onNext, canAdvance, busy, hint }) }, [mode, fileName, busy, canAdvance, hint]) // eslint-disable-line react-hooks/exhaustive-deps
+  /* onNext reads the LIVE sheets (the zero-yield guard above depends on the
+     current column mapping), so it must never be a stale closure — the hook
+     keeps it in a ref. */
+  useStepCTA(setCTA, { onNext, canAdvance, busy, hint })
 
   return (
     <>

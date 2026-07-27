@@ -1,3 +1,4 @@
+import { useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ArrowLeft } from 'lucide-react'
 import { ROUTES } from '../../lib/routes'
@@ -19,18 +20,33 @@ export default function WelcomeGate() {
   const { update } = useUserPreferences()
   const ob = useOnboarding()
 
-  const onStart = async () => {
+  /* Both choices are two sequential writes with nothing in between to stop a
+     second tap — and neither button changed on the first one, so on a slow
+     connection a second tap looks like the only thing to do. The ref flips
+     synchronously (state wouldn't, before the re-render), and `busy` disables
+     both buttons so the tap has somewhere to land visually. Same pairing the
+     review wizard and finishAndGoHome already use. */
+  const busyRef = useRef(false)
+  const [busy, setBusy] = useState(false)
+  const once = (fn) => async () => {
+    if (busyRef.current) return
+    busyRef.current = true
+    setBusy(true)
+    try { await fn() } catch (e) { busyRef.current = false; setBusy(false); throw e }
+  }
+
+  const onStart = once(async () => {
     await update({ onboarding: { welcome_seen: true } })
     await ob.markStarted()
     /* The parent OnboardingScreen will re-render and now render the
        regular OnboardingShell at the current step (defaults to 'profile'). */
-  }
+  })
 
-  const onSkip = async () => {
+  const onSkip = once(async () => {
     await update({ onboarding: { welcome_seen: true } })
     await ob.skipAll()
     navigate(ROUTES.HOME, { replace: true })
-  }
+  })
 
   return (
     <Box className="ob-screen screen">
@@ -43,13 +59,13 @@ export default function WelcomeGate() {
         <Txt as="p" className="ob-welcome-name">Simplicity</Txt>
         <Txt as="p" className="ob-welcome-tag">{t('welcome.tagline')}</Txt>
 
-        <Btn type="button" className="ob-welcome-option primary" onClick={onStart}>
+        <Btn type="button" className="ob-welcome-option primary" onClick={onStart} disabled={busy}>
           <Txt className="ob-welcome-option-title">{t('welcome.startTitle')}</Txt>
           <Txt className="ob-welcome-option-sub">{t('welcome.startSub')}</Txt>
           <ArrowLeft size={16} strokeWidth={1.8} className="ob-welcome-option-arrow" aria-hidden="true" />
         </Btn>
 
-        <Btn type="button" className="ob-welcome-option ghost" onClick={onSkip}>
+        <Btn type="button" className="ob-welcome-option ghost" onClick={onSkip} disabled={busy}>
           <Txt className="ob-welcome-option-title">{t('welcome.skipTitle')}</Txt>
           <Txt className="ob-welcome-option-sub">{t('welcome.skipSub')}</Txt>
           <ArrowLeft size={16} strokeWidth={1.8} className="ob-welcome-option-arrow" aria-hidden="true" />

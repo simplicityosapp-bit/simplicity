@@ -128,7 +128,7 @@ export function defaultPreferences() {
   return {
     profile: {
       full_name: '',
-      role: 'other',
+      role: null,               /* optional — null means "not set", NOT 'other' */
       role_other: '',           /* when role==='other', the free-text custom value */
     },
     format: {

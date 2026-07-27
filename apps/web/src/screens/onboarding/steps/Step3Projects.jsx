@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { Plus, X, Users } from 'lucide-react'
 import { useProjects } from '../../../hooks/useProjects'
 import { useGroups } from '../../../hooks/useGroups'
 import { useT } from '../../../i18n/useT'
+import { useStepCTA } from '../useStepCTA'
 import { isr } from '@simplicity/core'
 import AddGroupModal from '../../../modals/AddGroupModal'
 import { CATEGORY_SWATCHES as COLORS } from '../../../lib/palette'
@@ -95,7 +96,9 @@ export default function Step3Projects({ ob, setCTA }) {
     }
   }
 
-  useEffect(() => { setCTA({ onNext, canAdvance, busy, hint }) }, [name, color, projectId, projectGroups.length, busy, canAdvance, hint]) // eslint-disable-line react-hooks/exhaustive-deps
+  /* onNext creates/updates the real project row from the CURRENT name,
+     colour and projects list — the hook keeps it off a stale closure. */
+  useStepCTA(setCTA, { onNext, canAdvance, busy, hint })
 
   const existingHint = projects?.length > 0 && !projectId
   const projectForModal = projectId ? { id: projectId, name: name.trim(), color } : null

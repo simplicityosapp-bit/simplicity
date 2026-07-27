@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef } from 'react'
 import { X, FileSpreadsheet, CheckCircle2, AlertTriangle, CreditCard, Sparkles } from 'lucide-react'
-import { SHEET_TYPES, SHEET_TYPE_LABELS, setSheetType, projectSheet, sheetRecognitionInfo } from '../../lib/sheetMapper'
+import { SHEET_TYPES, sheetTypeLabel, setSheetType, projectSheet, sheetRecognitionInfo } from '../../lib/sheetMapper'
 import { useT } from '../../i18n/useT'
 import './RecognitionWizard.css'
 import { Box, Txt, Btn } from '../../components/ui'
@@ -91,7 +91,7 @@ export default function RecognitionWizard({ sheets, onChange, onConfirm, onEditM
                     <Txt className="rw-sheet-type-lbl">{t('recognize.detectedAs')}</Txt>
                     <select className="rw-select" value={sheet.type} aria-label={t('recognize.typeAria', { name: sheet.sheetName || sheet.fileName })}
                       onChange={(e) => changeType(sheet.id, e.target.value)}>
-                      {SHEET_TYPES.map((st) => <option key={st} value={st}>{SHEET_TYPE_LABELS[st]}</option>)}
+                      {SHEET_TYPES.map((st) => <option key={st} value={st}>{sheetTypeLabel(st)}</option>)}
                     </select>
                   </Box>
                 </Box>

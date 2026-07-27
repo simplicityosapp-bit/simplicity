@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { ROUTES } from '../../lib/routes'
 import { useOnboarding } from '../../hooks/useOnboarding'
 import { finalizeOnboardingImport } from '../../lib/onboardingImport'
-import { buildReviewFromSheets } from '../../lib/importFlow'
+import { buildReviewFromSheets, sheetsFingerprint } from '../../lib/importFlow'
 import { useT } from '../../i18n/useT'
 import OnboardingShell from './OnboardingShell'
 import OnboardingReviewWizard from './OnboardingReviewWizard'
@@ -33,6 +33,30 @@ const STEPS = {
   preview:         Step8Preview,
   finish:          Step9Finish,
 }
+
+/* The step-2 approval, but only while it still describes the current data.
+   The user's edits and exclusions there are real work, so coming back to
+   step 2 must return them exactly as they were — unless a table's type or
+   column mapping changed in between, in which case the approved rows no
+   longer match what the file yields and rebuilding is the honest answer. */
+function usableApproval(pd) {
+  const approved = pd?.reviewed
+  if (!approved) return null
+  return approved.fingerprint === sheetsFingerprint(pd) ? approved : null
+}
+
+/* Approved buckets → the shape the review wizard takes. Sessions are
+   carried through like every other bucket; leaving them out here used to
+   drop a whole ledger of past meetings between the approval and the
+   create. */
+const reviewFromApproval = (approved) => ({
+  kind: 'csv',
+  clients: approved.clients || [],
+  projects: approved.projects || [],
+  leads: approved.leads || [],
+  transactions: approved.transactions || [],
+  sessions: approved.sessions || [],
+})
 
 export default function OnboardingScreen() {
   const { t } = useT('onboarding')
@@ -89,11 +113,9 @@ export default function OnboardingScreen() {
      Falls back to a fresh build (e.g. user never opened step 2's review). */
   const onDone = useCallback(async () => {
     const pd = onDoneInputs.current.ob.state.parsed_data
-    const approved = pd?.reviewed
-    const r = approved
-      ? { kind: 'csv', clients: approved.clients || [], projects: approved.projects || [], leads: approved.leads || [], transactions: approved.transactions || [] }
-      : buildReviewFromSheets(pd)
-    const hasAny = r && ((r.clients?.length || 0) + (r.projects?.length || 0) + (r.leads?.length || 0) + (r.transactions?.length || 0)) > 0
+    const approved = usableApproval(pd)
+    const r = approved ? reviewFromApproval(approved) : buildReviewFromSheets(pd)
+    const hasAny = r && ((r.clients?.length || 0) + (r.projects?.length || 0) + (r.leads?.length || 0) + (r.transactions?.length || 0) + (r.sessions?.length || 0)) > 0
     if (hasAny) { setReviewMode('finish'); setReview(r); return }
     await finishAndGoHome()
   }, [finishAndGoHome])
@@ -101,7 +123,12 @@ export default function OnboardingScreen() {
   /* Step 2 "approve now": open the same wizard from the data-import step.
      Returns true if it opened so the step knows not to advance itself. */
   const onReviewFromStep = useCallback(() => {
-    const r = buildReviewFromSheets(onDoneInputs.current.ob.state.parsed_data)
+    const pd = onDoneInputs.current.ob.state.parsed_data
+    const approved = usableApproval(pd)
+    /* Re-open on the user's own selection when they've already been through
+       here, so a trip back through step 2 doesn't quietly re-include every
+       row they took out. */
+    const r = approved ? reviewFromApproval(approved) : buildReviewFromSheets(pd)
     if (r) { setReviewMode('step2'); setReview(r); return true }
     return false
   }, [])
@@ -113,7 +140,13 @@ export default function OnboardingScreen() {
   const onReviewConfirm = useCallback(async (payload) => {
     if (reviewMode === 'step2') {
       const pd = onDoneInputs.current.ob.state.parsed_data || {}
-      await onDoneInputs.current.ob.setParsedData({ ...pd, reviewed: payload })
+      /* Stamp what the sheets looked like when this was approved, so a later
+         visit can tell "same data, restore their choices" from "they remapped
+         a column, these rows are stale". */
+      await onDoneInputs.current.ob.setParsedData({
+        ...pd,
+        reviewed: { ...payload, fingerprint: sheetsFingerprint(pd) },
+      })
       return undefined /* clean → wizard advances without a result screen */
     }
     try {

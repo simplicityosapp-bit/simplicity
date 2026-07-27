@@ -36,18 +36,6 @@
           "You can change any of it later in Settings."
         ]
       },
-      "data_import": {
-        "title": "How the import works",
-        "paragraphs": [
-          "If you have a table (Excel / CSV) with clients, projects or transactions, you can upload it and we'll pull out what we can.",
-          "Whatever we find comes through filled in on the next steps, and you can approve or edit every row before anything is saved."
-        ],
-        "bullets": [
-          "Works with CSV and Excel",
-          "You can upload more than once",
-          "Entirely optional — you can start from scratch"
-        ]
-      },
       "projects": {
         "title": "What is a project?",
         "paragraphs": [
@@ -67,32 +55,11 @@
           "From the client's card you can log meetings, take a payment, and book the next session."
         ]
       },
-      "daily_questions": {
-        "title": "How the questions work",
-        "paragraphs": [
-          "One question appears each day. A short answer on any given day lets the system build a wider picture over time.",
-          "Questions from our suggestions also feed the graphs and \"Overview\". Your own questions are more for reflection — we don't analyse those automatically."
-        ]
-      },
       "goals": {
         "title": "Goals tie everything together",
         "paragraphs": [
           "A goal is a direction, not pressure. It takes a number (how many clients, how much income, how many enquiries), a time frame, and how much it matters to you.",
           "Income goals feed the money graphs and \"Overview\". Other goals show up mainly in \"Overview\" and \"Reports\"."
-        ]
-      },
-      "recurring": {
-        "title": "Why record fixed expenses once",
-        "paragraphs": [
-          "Income and expenses that repeat (rent, insurance, a subscription, a monthly package) are created for you every month as a pending transaction.",
-          "All you do is confirm they really happened — no re-entering them each time."
-        ]
-      },
-      "preview": {
-        "title": "What are we looking at?",
-        "paragraphs": [
-          "A preview of what your data builds up to over time: an income graph, the weighted \"Overview\" score, progress against the goals you set.",
-          "The more transactions, meetings and daily answers there are, the more the picture starts to say something real."
         ]
       },
       "finish": {
@@ -106,7 +73,6 @@
   },
   "review": {
     "title": "Review before we create anything",
-    "subApprove": "Take a look at what we found in your file. For now you're just choosing what to bring in — nothing gets created until the final step, after one last confirmation. You can edit, include, or leave things out.",
     "subCreate": "Take a look at what we found in your file. Edit, include, or leave things out — only what's checked will be saved.",
     "dialogAria": "Review before creating",
     "closeAria": "Back",
@@ -192,7 +158,6 @@
       "noDate": "No date — we'll place it on an estimated date"
     },
     "summary": {
-      "willApprove": "Will be approved",
       "willCreate": "Will be created",
       "clients": "clients",
       "projects": "projects",
@@ -200,14 +165,9 @@
       "transactions": "transactions"
     },
     "confirm": {
-      "savingApprove": "Saving…",
       "savingCreate": "Creating…",
-      "approveEmpty": "Confirm and continue",
       "createEmpty": "Finish without importing",
-      "approve": "Confirm and continue ({{count}})",
-      "create": "Confirm and create ({{count}})",
-      "skipImport": "Start without importing",
-      "skipImportHint": "What you've already set up is saved. You can import the file later from Settings."
+      "create": "Confirm and create ({{count}})"
     },
     "dirty": {
       "ariaLabel": "Leave without saving?",
@@ -268,7 +228,8 @@
     "ready": "Ready for the review before we create anything.",
     "notReady": "Choose what's in each sheet and map the name / amount columns.",
     "pickYear": "Pick a year for each monthly sheet",
-    "toReview": "Continue to review"
+    "toReview": "Continue to review",
+    "reopenRecognize": "Recognition summary"
   },
   "sheet": {
     "removeAria": "Remove sheet",

@@ -2,11 +2,23 @@
   "welcome": {
     "close": "Hide the welcome card",
     "eyebrow": "Welcome to Simplicity",
-    "title": "It all starts here",
-    "sub": "Three short steps to get going. The glowing buttons on each screen will guide you.",
-    "addClient": "Add your first client",
-    "addTask": "Create a task",
-    "addLead": "Add a lead"
+    "title": "A few more things, when it suits you",
+    "taskDone": "Done",
+    "tasks": {
+      "import": {
+        "title": "Import a file",
+        "sub": "Got a spreadsheet of clients or payments? We’ll bring it in together."
+      },
+      "questions": {
+        "title": "Daily questions",
+        "sub": "One short question a day — a picture builds over time."
+      },
+      "recurring": {
+        "title": "Fixed income and expenses",
+        "sub": "Rent, insurance, a subscription — enter once and they repeat on their own."
+      }
+    },
+    "sub": "Do them whenever it suits you — none of it is required."
   },
   "widgets": {
     "attention": {

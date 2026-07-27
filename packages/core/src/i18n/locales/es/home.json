@@ -2,11 +2,23 @@
   "welcome": {
     "close": "Ocultar la tarjeta de bienvenida",
     "eyebrow": "Te damos la bienvenida a Simplicity",
-    "title": "Todo empieza aquí",
-    "sub": "Tres pasos breves para empezar. Los botones que brillan en cada pantalla te guiarán.",
-    "addClient": "Añade tu primer cliente",
-    "addTask": "Crea una tarea",
-    "addLead": "Añade un prospecto"
+    "title": "Un par de cosas más, cuando te venga bien",
+    "taskDone": "Hecho",
+    "tasks": {
+      "import": {
+        "title": "Importar un archivo",
+        "sub": "¿Tienes una hoja de cálculo con clientes o pagos? La pasamos juntos."
+      },
+      "questions": {
+        "title": "Preguntas diarias",
+        "sub": "Una pregunta corta al día: con el tiempo se forma una imagen."
+      },
+      "recurring": {
+        "title": "Ingresos y gastos fijos",
+        "sub": "Alquiler, seguro, una suscripción: se anotan una vez y se repiten solos."
+      }
+    },
+    "sub": "Hazlo cuando te venga bien: nada de esto es obligatorio."
   },
   "widgets": {
     "attention": {

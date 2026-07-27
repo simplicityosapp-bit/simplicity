@@ -841,6 +841,10 @@ export default function SettingsScreen() {
        until staleTime elapsed. A blanket invalidate after this rare, heavy op
        resyncs every cache at once and can't miss a written table. */
     qc.invalidateQueries()
+    /* Ticks "import your file" off the home setup card. Unlike the other
+       two tasks there is no row whose existence means "done" — imported
+       clients look exactly like typed ones — so the act is recorded. */
+    updatePrefs({ setup: { imported_at: new Date().toISOString() } })
     if (summary) {
       const c = summary.clients?.created || 0
       const p = summary.projects?.created || 0

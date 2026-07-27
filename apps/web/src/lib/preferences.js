@@ -185,41 +185,50 @@ export function defaultWhatsApp() {
   }
 }
 
-/* 9-step welcome flow. `step` is the key currently shown; `completed_at`
-   releases the AuthGate to /home. `answers` carries per-step inputs so
-   the user can resume mid-flow (e.g. closed tab). `parsed_data` is the
-   raw CSV-parse output when the user picked path A; cleared on finish. */
+/* 4-step welcome flow + a closing screen. `step` is the key currently
+   shown; `completed_at` releases the AuthGate to /home. `answers` carries
+   per-step inputs so the user can resume mid-flow (e.g. closed tab).
+
+   It was nine steps and asked the user to configure projects, groups,
+   daily questions, recurring expenses and a fully-specified goal before
+   they had seen a single screen of the app. The file import, the daily
+   questions and the recurring expenses now live on the home setup card,
+   where each one opens the real screen it belongs to. */
 export const ONBOARDING_STEPS = [
   'profile',
-  'data_import',
   'projects',
   'clients',
-  'daily_questions',
   'goals',
-  'recurring',
-  'preview',
   'finish',
 ]
 
+/* Where a user parked on a retired step resumes. Without this, `step`
+   holds a key ONBOARDING_STEPS no longer contains, indexOf returns -1,
+   and they are silently dropped back on step one to redo what they
+   already filled in. Each retired step maps to the surviving step that
+   comes after the work it did. */
+const RETIRED_STEPS = {
+  data_import:     'projects',
+  daily_questions: 'goals',
+  recurring:       'goals',
+  preview:         'goals',
+}
+
 export function defaultOnboarding() {
   return {
-    version: 1,
+    version: 2,
     step: 'profile',
     welcome_seen: false,         /* pre-flow gate: shows the logo + 2-card chooser until acknowledged */
     completed_at: null,
     skipped_at: null,           /* user fully skipped the flow — still released to home */
     started_at: null,
     answers: {
-      profile:         { name: '', role: null },
-      data_import:     { mode: null, file_name: null, parsed_at: null },
-      projects:        { created_ids: [], group_mode: null },
-      clients:         { created_ids: [] },
-      daily_questions: { question_ids: [], custom_text: '' },
-      goals:           { created_ids: [], income_goal_amount: null },
-      recurring:       { created_ids: [] },
+      profile:  { name: '', role: null },
+      projects: { created_ids: [], work_mode: null },
+      clients:  { created_ids: [] },
+      goals:    { created_ids: [], income_goal_amount: null },
     },
     completed_steps: [],         /* keys of steps the user actually filled (not skipped) — drives the tree growth */
-    parsed_data: null,
   }
 }
 
@@ -314,12 +323,28 @@ function migrateWhatsApp(input) {
 function migrateOnboarding(input) {
   const base = defaultOnboarding()
   if (!input || typeof input !== 'object') return base
-  return {
+  const out = {
     ...base,
     ...input,
     answers: { ...base.answers, ...(input.answers || {}) },
     completed_steps: Array.isArray(input.completed_steps) ? input.completed_steps : [],
   }
+  /* Resume somewhere that still exists — see RETIRED_STEPS. Anything
+     unrecognised (a hand-edited blob) restarts rather than dead-ends. */
+  if (!ONBOARDING_STEPS.includes(out.step)) out.step = RETIRED_STEPS[out.step] || ONBOARDING_STEPS[0]
+  out.completed_steps = out.completed_steps.filter((s) => ONBOARDING_STEPS.includes(s))
+  /* Answers are keyed by step, so the retired steps leave theirs behind:
+     update() deep-merges and never removes a key, so data_import,
+     daily_questions and recurring would sit in the blob forever, read by
+     nothing. Keep only the steps that still have somewhere to put them. */
+  const liveAnswers = Object.keys(base.answers)
+  out.answers = Object.fromEntries(Object.entries(out.answers).filter(([step]) => liveAnswers.includes(step)))
+  /* The file import moved to Settings, so the raw parse of the user's
+     spreadsheet — real client data we only held to show the review — is
+     no longer kept in preferences at all. Dropped on read for anyone who
+     still has one from the old flow. */
+  delete out.parsed_data
+  return out
 }
 
 function migrateWidgets(input) {

@@ -24,7 +24,7 @@ export default function Step9Finish({ ob, onDone, setCTA }) {
   const { questions } = useUserQuestions()
   const { templates: recurring } = useRecurring()
 
-  useStepCTA(setCTA, { onNext: onDone, canAdvance: true, nextLabel: t('step9.nextLabel') })
+  useStepCTA(setCTA, { onNext: onDone, canAdvance: true, nextLabel: t('step5.nextLabel') })
 
   /* "מה הגדרנו יחד" has to mean exactly that. These were whole-account
      counts, which happen to match on a brand-new account and stop matching
@@ -44,22 +44,22 @@ export default function Step9Finish({ ob, onDone, setCTA }) {
   const questionIds = idSet([...(answers.daily_questions?.question_ids || []), answers.goals?.question_id])
 
   const summary = [
-    { key: 'projects',  icon: Folder,   label: t('step9.projects'),  count: mine(projects, idSet(answers.projects?.created_ids)) },
-    { key: 'clients',   icon: Users,    label: t('step9.clients'),   count: mine(clients, idSet(answers.clients?.created_ids)) },
-    { key: 'goals',     icon: Target,   label: t('step9.goals'),     count: mine(goals, idSet(answers.goals?.created_ids)) },
-    { key: 'questions', icon: Sparkles, label: t('step9.questions'), count: mine((questions || []).filter((q) => q.active !== false), questionIds) },
-    { key: 'recurring', icon: Repeat,   label: t('step9.recurring'), count: mine(recurring, idSet(answers.recurring?.created_ids)) },
+    { key: 'projects',  icon: Folder,   label: t('step5.projects'),  count: mine(projects, idSet(answers.projects?.created_ids)) },
+    { key: 'clients',   icon: Users,    label: t('step5.clients'),   count: mine(clients, idSet(answers.clients?.created_ids)) },
+    { key: 'goals',     icon: Target,   label: t('step5.goals'),     count: mine(goals, idSet(answers.goals?.created_ids)) },
+    { key: 'questions', icon: Sparkles, label: t('step5.questions'), count: mine((questions || []).filter((q) => q.active !== false), questionIds) },
+    { key: 'recurring', icon: Repeat,   label: t('step5.recurring'), count: mine(recurring, idSet(answers.recurring?.created_ids)) },
   ].filter((s) => s.count > 0)
 
   return (
     <>
       <Txt as="p" className="ob-intro" style={{ justifyContent: 'center' }}>
-        <Sparkles size={16} strokeWidth={1.7} aria-hidden="true" /> {t('step9.title')}
+        <Sparkles size={16} strokeWidth={1.7} aria-hidden="true" /> {t('step5.title')}
       </Txt>
 
       {summary.length > 0 ? (
         <Box className="ob-field">
-          <Txt as="p" className="ob-label" style={{ display: 'inline-block' }}>{t('step9.summaryHeading')}</Txt>
+          <Txt as="p" className="ob-label" style={{ display: 'inline-block' }}>{t('step5.summaryHeading')}</Txt>
           <Box className="ob-finish-summary">
             {summary.map((s) => {
               const Icon = s.icon
@@ -73,23 +73,23 @@ export default function Step9Finish({ ob, onDone, setCTA }) {
             })}
           </Box>
           <Txt as="p" className="ob-empty-hint" style={{ marginTop: 8 }}>
-            {t('step9.savedNote', { verb: t('step9.savedNoteVerb') })}
+            {t('step5.savedNote', { verb: t('step5.savedNoteVerb') })}
           </Txt>
         </Box>
       ) : (
         <Txt as="p" className="ob-empty-hint" style={{ textAlign: 'center' }}>
-          {t('step9.emptyNote', { verb: t('step9.emptyNoteVerb') })}
+          {t('step5.emptyNote', { verb: t('step5.emptyNoteVerb') })}
         </Txt>
       )}
 
       <Box className="ob-field" style={{ textAlign: 'center' }}>
-        <Txt as="p" className="ob-label" style={{ display: 'inline-block' }}>{t('step9.goodToKnow')}</Txt>
+        <Txt as="p" className="ob-label" style={{ display: 'inline-block' }}>{t('step5.goodToKnow')}</Txt>
         <Box className="ob-about" style={{ fontFamily: 'var(--mg-font)', fontSize: 'calc(13.5px * var(--text-scale))', lineHeight: 1.75, color: 'var(--espresso)', textAlign: 'center' }}>
-          <Txt as="p" style={{ margin: '0 0 10px' }}>{t('step9.about1')}</Txt>
-          <Txt as="p" style={{ margin: '0 0 10px' }}>{t('step9.about2', { verb: t('step9.about2Verb') })}</Txt>
-          <Txt as="p" style={{ margin: '0 0 10px' }}>{t('step9.about3', { allow: t('step9.about3AllowVerb'), like: t('step9.about3LikeVerb'), wish: t('step9.about3WishVerb') })}</Txt>
-          <Txt as="p" style={{ margin: '0 0 10px' }}>{t('step9.about4')}</Txt>
-          <Txt as="p" style={{ margin: 0, fontWeight: 600 }}>{t('step9.about5')}</Txt>
+          <Txt as="p" style={{ margin: '0 0 10px' }}>{t('step5.about1')}</Txt>
+          <Txt as="p" style={{ margin: '0 0 10px' }}>{t('step5.about2', { verb: t('step5.about2Verb') })}</Txt>
+          <Txt as="p" style={{ margin: '0 0 10px' }}>{t('step5.about3', { allow: t('step5.about3AllowVerb'), like: t('step5.about3LikeVerb'), wish: t('step5.about3WishVerb') })}</Txt>
+          <Txt as="p" style={{ margin: '0 0 10px' }}>{t('step5.about4')}</Txt>
+          <Txt as="p" style={{ margin: 0, fontWeight: 600 }}>{t('step5.about5')}</Txt>
         </Box>
       </Box>
 

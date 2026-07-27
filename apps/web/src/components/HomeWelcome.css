@@ -59,28 +59,67 @@
   color: var(--stone);
 }
 
-.home-welcome-actions {
+/* ── Setup tasks ─────────────────────────────────────────────────
+   Full-width rows rather than a row of chips: each one carries a title
+   and a line saying what it's for, and a finished task has to read as
+   finished at a glance. */
+.home-welcome-tasks {
+  list-style: none;
+  margin: 0;
+  padding: 0;
   display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-.home-welcome-btn {
-  display: inline-flex;
-  align-items: center;
+  flex-direction: column;
   gap: 8px;
-  min-height: 44px;
-  padding: 10px 18px;
+}
+.home-welcome-task {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 56px;
+  padding: 10px 14px;
   border-radius: var(--mg-btn-radius);
   border: var(--mg-btn-secondary-border);
   background: var(--mg-btn-secondary-bg);
   color: var(--espresso);
   font-family: var(--mg-font);
-  font-size: calc(13.5px * var(--text-scale));
-  font-weight: 500;
+  text-align: start;
   cursor: pointer;
   backdrop-filter: var(--mg-card-blur);
-  transition: background 0.18s, transform 0.12s;
+  transition: background 0.18s, transform 0.12s, opacity 0.18s;
 }
-.home-welcome-btn:hover { background: var(--mg-btn-secondary-bg-hover); }
-.home-welcome-btn:active { transform: scale(0.97); }
-.home-welcome-btn svg { color: var(--terracotta); }
+.home-welcome-task:hover { background: var(--mg-btn-secondary-bg-hover); }
+.home-welcome-task:active { transform: scale(0.99); }
+
+.home-welcome-task-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  color: var(--terracotta);
+}
+.home-welcome-task-body { flex: 1 1 auto; min-width: 0; }
+.home-welcome-task-title {
+  margin: 0;
+  font-size: calc(13.5px * var(--text-scale));
+  font-weight: 600;
+}
+.home-welcome-task-sub {
+  margin: 2px 0 0;
+  font-size: calc(12px * var(--text-scale));
+  line-height: 1.45;
+  color: var(--stone);
+}
+.home-welcome-task-arrow { flex: none; color: var(--mist); }
+
+/* Done — kept on screen (so the list doesn't jump as tasks complete) but
+   visibly settled: sage tick, muted text, no pull for attention. */
+.home-welcome-task.done { opacity: 0.62; }
+.home-welcome-task.done .home-welcome-task-mark {
+  color: var(--sage);
+  background: color-mix(in srgb, var(--sage) 16%, transparent);
+}
+.home-welcome-task.done .home-welcome-task-title { font-weight: 500; color: var(--stone); }

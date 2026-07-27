@@ -6,6 +6,16 @@
 -- `supabase/introspect-schema.sql`, so this is what is ACTUALLY there —
 -- not a replay of the migration files.
 --
+-- ⚠️ PATCHED 2026-07-27 to cover 0097-0099 — but NOT a full re-introspection,
+-- so it does not carry the same guarantee as the 07-20 rebuild. Exactly one
+-- delta was applied: clients.attention_snoozed_at and its partial index
+-- (0097), both read back from pg_catalog and confirmed line-for-line rather
+-- than replayed from the migration file. 0098 was data-only (a converted_at
+-- backfill, no structure), and 0099 leaves no trace here by design — see the
+-- scope note below. Everything ELSE still dates from the 07-20 introspection,
+-- so drift applied outside a migration since then would NOT show up here.
+-- Re-run introspect-schema.sql at the next batch and move this watermark.
+--
 -- Regenerate after any batch of migrations, with that same file, and move
 -- the watermark. This document goes stale silently — nothing fails when it
 -- is wrong — which is how the previous version fell ~70 migrations behind:
@@ -51,6 +61,17 @@
 -- including the introspection query that produced this file. Confirm with:
 --   SELECT tablename, policyname, cmd, permissive FROM pg_policies
 --   WHERE schemaname='public' ORDER BY tablename, cmd;
+--
+-- ── WHAT THIS FILE DOES NOT COVER — 0099 is absent ON PURPOSE ──
+-- Migration 0099 (security advisor round 2, run 2026-07-27) pinned
+-- search_path on two functions, revoked anon EXECUTE on nine SECURITY DEFINER
+-- helpers, and replaced the world-readable `page-assets` storage policy with
+-- an owner-scoped one. None of it appears below, and nothing is missing:
+-- introspect-schema.sql reads columns, constraints, indexes, the RLS flag,
+-- policies, triggers and TABLE comments, for schema `public` only. Function
+-- bodies, function GRANTs, COLUMN comments and storage.* policies are all
+-- outside its reach. So do not read this file's silence as "unset" — for
+-- those four, the migration files are the reference, not this document.
 -- ════════════════════════════════════════════════════════════════
 
 -- Extensions
@@ -317,7 +338,8 @@ CREATE TABLE public.clients (
   price_overridden        boolean NOT NULL DEFAULT false,
   status_overridden       boolean NOT NULL DEFAULT false,
   address                 text,
-  birth_date              date
+  birth_date              date,
+  attention_snoozed_at    timestamp with time zone
 );
 ALTER TABLE public.clients ADD CONSTRAINT clients_pkey PRIMARY KEY (id);
 ALTER TABLE public.clients ADD CONSTRAINT clients_billing_mode_check CHECK ((billing_mode = ANY (ARRAY['package'::text, 'per_session'::text])));
@@ -335,6 +357,7 @@ CREATE INDEX idx_clients_status ON public.clients USING btree (status);
 CREATE INDEX idx_clients_user ON public.clients USING btree (user_id);
 CREATE INDEX idx_clients_status_id ON public.clients USING btree (status_id);
 CREATE INDEX idx_clients_meeting_type_id ON public.clients USING btree (meeting_type_id);
+CREATE INDEX clients_attention_snoozed_at_idx ON public.clients USING btree (user_id, attention_snoozed_at) WHERE (attention_snoozed_at IS NOT NULL);
 ALTER TABLE public.clients ENABLE ROW LEVEL SECURITY;
 CREATE POLICY clients_own ON public.clients FOR ALL TO authenticated USING ((user_id = auth.uid())) WITH CHECK ((user_id = auth.uid()));
 CREATE POLICY clients_tier_limit ON public.clients FOR INSERT TO authenticated WITH CHECK (((NOT billing_enforced()) OR (current_tier() <> 'free'::text) OR (NOT onboarding_completed()) OR (client_count() < 10)));  -- RESTRICTIVE in the live DB (AND-ed). See header.

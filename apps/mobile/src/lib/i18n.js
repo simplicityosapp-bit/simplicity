@@ -1,7 +1,7 @@
 // Mobile i18n bootstrap — the ENGINE + all strings live in @simplicity/core;
 // this is just the platform glue (pick the language from the device locale and
 // set layout direction). Web has the equivalent in apps/web/src/i18n/init.js.
-import i18n, { initI18n } from '@simplicity/core/i18n'
+import i18n, { initI18n, loadLanguage, DEFAULT_LANG } from '@simplicity/core/i18n'
 import { registerReflections } from '@simplicity/core/i18n/reflections'
 import { registerQuotes } from '../i18n/registerQuotes'
 import { registerPresets } from '../i18n/registerPresets'
@@ -23,6 +23,14 @@ function deviceLang() {
 export function setupI18n() {
   const lng = deviceLang()
   initI18n({ lng, dev: __DEV__ })
+  // Only `he` ships with the engine (see @simplicity/core/i18n) — a device in
+  // another language has to pull that bundle in. Metro has no code splitting,
+  // so the module is already in the bundle and this settles on the next tick;
+  // changeLanguage after it is what tells react-i18next to re-render. Kept
+  // fire-and-forget so setupI18n stays synchronous for App.js.
+  if (lng !== DEFAULT_LANG) {
+    loadLanguage(lng).then(() => i18n.changeLanguage(lng)).catch(() => { /* falls back to he */ })
+  }
   // Register the dynamic 'reflections' namespace (moon/mirror reflection text)
   // AFTER init. The module's import-time side-effect runs before init on native
   // (whole import graph loads first), so mobile must call this explicitly here.

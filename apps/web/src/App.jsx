@@ -126,6 +126,7 @@ function AppShell() {
      screen is up, so navigating to them is instant instead of showing the
      lazy fallback. Initial load stays small (these run AFTER paint, only
      when the browser is idle). Prefetch failures are silent (offline). */
+  const isAdmin = isAdminUser(user)
   useEffect(() => {
     if (prefsLoading || !obDone) return undefined
     const prefetch = () => {
@@ -135,6 +136,11 @@ function AppShell() {
       import('./screens/calendar').catch(() => {})
       import('./screens/leads').catch(() => {})
       import('./screens/goals').catch(() => {})
+      /* The console chunk, ONLY for an admin. Deliberately inside the gate
+         rather than in the list above: prefetching it for everyone would ship
+         the admin UI to every regular user's browser. It buys nothing for them
+         and it is not code we want sitting in a non-admin's cache. */
+      if (isAdmin) import('./screens/admin').catch(() => {})
     }
     if (typeof window.requestIdleCallback === 'function') {
       const id = window.requestIdleCallback(prefetch, { timeout: 2500 })
@@ -142,7 +148,7 @@ function AppShell() {
     }
     const id = setTimeout(prefetch, 1500)
     return () => clearTimeout(id)
-  }, [prefsLoading, obDone])
+  }, [prefsLoading, obDone, isAdmin])
 
   if (prefsLoading) return <LoadingSplash />
 
@@ -331,11 +337,25 @@ function authErrorFromUrl() {
   return translateAuthError(desc || err || '')
 }
 
-/* Holds the app behind the field-encryption key. It derives from the user id
-   in a few ms; until it's ready we show the splash so no screen reads
-   ciphertext or writes plaintext. See docs/ENCRYPTION_PLAN.md. */
+/* Surfaces a key-derivation failure. It no longer HOLDS the app behind the
+   key — hence "gate" only in the error sense.
+
+   WHY IT STOPPED BLOCKING (2026-07-27): the key is 100k PBKDF2 iterations on
+   the main thread, and it sat in front of the first paint of every screen on
+   every load. It was worth that when fields were encrypted at rest, but field
+   encryption was REMOVED in 2026-06 — nothing is written encrypted, and the
+   key now only decrypts leftover "ENC:" values. There are none left: a fleet
+   -wide check of all five LEGACY_DECRYPT_FIELDS columns found 0 rows. And if
+   one ever did surface mid-derivation, decryptField() returns the raw value
+   for a missing key rather than throwing, so it degrades to a flash of
+   ciphertext, not a crash.
+
+   The key is still derived (in the background, by CryptoProvider) and
+   EncryptionMigrator still waits on isReady, so the backfill path is intact.
+   Delete this along with the rest of the crypto code in the Phase-2 cleanup.
+   See docs/security-review-2026-06.md. */
 function CryptoGate({ children }) {
-  const { isReady, error, retry } = useCrypto()
+  const { error, retry } = useCrypto()
   if (error) {
     return (
       <div className="app" data-screen="crypto-error">
@@ -350,7 +370,6 @@ function CryptoGate({ children }) {
       </div>
     )
   }
-  if (!isReady) return <LoadingSplash />
   return children
 }
 

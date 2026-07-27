@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useUserPreferences } from '../hooks/useUserPreferences'
-import { isLang } from '@simplicity/core/i18n'
+import { isLang, setLanguage } from '@simplicity/core/i18n'
 
 /* ════════════════════════════════════════════════════════════════
    I18nSync — reconciles the persisted language preference into i18next.
@@ -21,7 +21,9 @@ export default function I18nSync() {
 
   useEffect(() => {
     if (isLang(pref) && pref !== i18n.language) {
-      i18n.changeLanguage(pref)
+      // setLanguage, not changeLanguage — only `he` is bundled up front, so a
+      // cross-device preference for en/es/fr has to fetch its chunk first.
+      setLanguage(pref)
     }
   }, [pref, i18n])
 

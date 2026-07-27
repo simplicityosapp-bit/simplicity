@@ -1,4 +1,4 @@
-import i18n, { initI18n } from '@simplicity/core/i18n'
+import i18n, { initI18n, loadLanguage, DEFAULT_LANG } from '@simplicity/core/i18n'
 
 /* ════════════════════════════════════════════════════════════════
    WEB i18n BOOTSTRAP — the browser-side init entry (NOT a shim).
@@ -26,6 +26,18 @@ initI18n({
     console.warn(`[i18n missing] ${ns}:${key} (${lngs?.join(',')})`)
   },
 })
+
+/* Only `he` is bundled with the engine now (see @simplicity/core/i18n) — the
+   other three are separate chunks. A visitor whose saved choice is en/es/fr
+   needs that chunk BEFORE the first render, or they'd get a flash of Hebrew.
+   Top-level await here holds the module graph, and main.jsx imports this file
+   before <App/>, so createRoot doesn't run until the bundle has landed.
+
+   For `he` — the default and the overwhelming majority — this is an
+   already-resolved promise and costs nothing. */
+if (saved && saved !== DEFAULT_LANG) {
+  await loadLanguage(saved)
+}
 
 /* Persist the active language across reloads (replaces the detector cache). */
 i18n.on('languageChanged', (lng) => {

@@ -1,6 +1,6 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useCallback, memo } from 'react'
 import { Bug, Lightbulb, Heart, MessageCircle, Search, Trash2 } from 'lucide-react'
-import { useAdminQuery, callAdmin } from '../../hooks/useAdmin'
+import { useAdminQuery, useAdminCache, callAdmin } from '../../hooks/useAdmin'
 import { useT } from '../../i18n/useT'
 import { showToast } from '../../lib/toast'
 import ConfirmModal from '../../modals/ConfirmModal'
@@ -28,8 +28,14 @@ function fmtDate(iso) {
 }
 
 /* One triage card. Holds local text state for title/notes (saved on blur) so
-   typing never round-trips; selects + status buttons patch immediately. */
-function FeedbackCard({ it, t, onPatch, checked, onToggle, onDelete }) {
+   typing never round-trips; selects + status buttons patch immediately.
+
+   memo: the board renders every row unpaginated (155 today), each with a
+   controlled input, a textarea, three selects and five buttons. Without
+   this, one keystroke in the search box re-rendered all of them. Its props
+   are stable — the parent's handlers are useCallback'd and `it` only changes
+   for the row that was actually edited. */
+const FeedbackCard = memo(function FeedbackCard({ it, t, onPatch, checked, onToggle, onDelete }) {
   const [title, setTitle] = useState(it.title || '')
   const [notes, setNotes] = useState(it.notes || '')
   const meta = TYPE_META[it.type]
@@ -120,11 +126,12 @@ function FeedbackCard({ it, t, onPatch, checked, onToggle, onDelete }) {
       />
     </Box>
   )
-}
+})
 
 export default function AdminFeedback() {
   const { t } = useT('admin')
   const { data, loading, error } = useAdminQuery('feedback_list')
+  const cache = useAdminCache()
   const [edits, setEdits] = useState({}) // id → { field: value } optimistic overrides
   const [removed, setRemoved] = useState(() => new Set()) // ids deleted this session (optimistic)
   const [selected, setSelected] = useState(() => new Set()) // ids checked for bulk actions
@@ -135,21 +142,40 @@ export default function AdminFeedback() {
   const [q, setQ] = useState('')
 
   // Derive the list from the fetch + optimistic edits, minus deleted rows.
+  // Rows with no pending edit are passed through UNCHANGED — spreading every
+  // row would hand each memoised card a new object and re-render the lot.
   const items = useMemo(
-    () => (data?.items || []).filter((it) => !removed.has(it.id)).map((it) => ({ ...it, ...(edits[it.id] || {}) })),
+    () => (data?.items || []).filter((it) => !removed.has(it.id)).map((it) => {
+      const e = edits[it.id]
+      return e ? { ...it, ...e } : it
+    }),
     [data, edits, removed],
   )
 
-  /* Patch one field via the admin edge, optimistic with per-row rollback. */
-  const patchField = async (id, field, value) => {
-    const prev = edits[id]
+  /* Patch one field via the admin edge, optimistic with per-row rollback.
+     On success the cached list is patched too (mirroring what the edge
+     stored — '' clears to null), so remounting this tab inside the cache
+     window shows the edit rather than the pre-edit payload. */
+  const patchField = useCallback(async (id, field, value) => {
     setEdits((e) => ({ ...e, [id]: { ...(e[id] || {}), [field]: value } }))
     try {
       await callAdmin('feedback_update', { id, [field]: value })
+      const stored = value === '' ? null : value
+      cache.patch('feedback_list', (p) => ({
+        ...p,
+        items: (p.items || []).map((it) => (it.id === id ? { ...it, [field]: stored } : it)),
+      }))
     } catch {
-      setEdits((e) => ({ ...e, [id]: prev })) // roll back this row's edits
+      // Roll back only the field that failed, so it falls back to the fetched
+      // value — dropping the whole row's overrides would also discard edits to
+      // OTHER fields that did save.
+      setEdits((e) => {
+        const row = { ...(e[id] || {}) }
+        delete row[field]
+        return { ...e, [id]: row }
+      })
     }
-  }
+  }, [cache])
 
   const needle = q.trim().toLowerCase()
   const filtered = useMemo(() => items.filter((it) => {
@@ -163,11 +189,14 @@ export default function AdminFeedback() {
     return true
   }), [items, typeF, statusF, classF, needle])
 
-  const toggleOne = (id) => setSelected((s) => {
+  const toggleOne = useCallback((id) => setSelected((s) => {
     const next = new Set(s)
     if (next.has(id)) next.delete(id); else next.add(id)
     return next
-  })
+  }), [])
+
+  // Stable so the memoised cards don't see a new prop every render.
+  const requestDelete = useCallback((ids) => setConfirm({ ids }), [])
 
   // "Select all" acts on the currently-filtered rows. If all are already
   // selected it clears them, otherwise it selects them all.
@@ -185,6 +214,13 @@ export default function AdminFeedback() {
   const doDelete = async (ids) => {
     try {
       await callAdmin('feedback_delete', { ids })
+      // Drop them from the cache too — and from the dashboard's open-feedback
+      // counter, which this can't patch, so invalidate the console's reads.
+      cache.patch('feedback_list', (p) => ({
+        ...p,
+        items: (p.items || []).filter((it) => !ids.includes(it.id)),
+      }))
+      cache.invalidate()
       setRemoved((r) => { const next = new Set(r); ids.forEach((id) => next.add(id)); return next })
       setSelected((s) => { const next = new Set(s); ids.forEach((id) => next.delete(id)); return next })
       showToast(t('feedback.deletedToast', { count: ids.length }))
@@ -259,7 +295,7 @@ export default function AdminFeedback() {
                 onPatch={patchField}
                 checked={selected.has(it.id)}
                 onToggle={toggleOne}
-                onDelete={(ids) => setConfirm({ ids })}
+                onDelete={requestDelete}
               />
             ))}
           </Box>

@@ -13,9 +13,15 @@
    sub-statuses.
    ════════════════════════════════════════════════════════════════ */
 import { describe, it, expect, beforeAll } from 'vitest'
-import i18n, { initI18n } from '@simplicity/core/i18n'
+import i18n, { initI18n, loadLanguage } from '@simplicity/core/i18n'
 
-beforeAll(async () => { await initI18n({ lng: 'he' }) })
+/* initI18n only bundles `he` (the other three are lazy chunks — see
+   @simplicity/core/i18n), and this suite asserts across all four, so pull
+   them in explicitly before the assertions run. */
+beforeAll(async () => {
+  await initI18n({ lng: 'he' })
+  await Promise.all(['en', 'es', 'fr'].map(loadLanguage))
+})
 
 const LANGS = ['he', 'en', 'es', 'fr']
 const tr = (lng, ns, key, opts) => i18n.getFixedT(lng, ns)(key, opts)

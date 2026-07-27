@@ -1,9 +1,9 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useCallback, memo } from 'react'
 import {
   Search, ChevronDown, BadgeCheck, Plus, Check, X, Users, CreditCard, Hand, Trash2,
   Shield, ShieldCheck, Gem,
 } from 'lucide-react'
-import { useAdminQuery, callAdmin } from '../../hooks/useAdmin'
+import { useAdminQuery, useAdminCache, callAdmin } from '../../hooks/useAdmin'
 import { ADMIN_EMAIL } from '../../lib/routes'
 import { useAuth } from '../../auth/AuthContext'
 import { adminPerms } from '../../lib/admin'
@@ -59,9 +59,12 @@ function fmtMarketing(r, t) {
 export default function AdminUsers() {
   const { t } = useT('admin')
   const { user } = useAuth()
-  const viewerPerms = adminPerms(user)
   const viewerId = user?.id || null
-  const { data, loading, error, refetch } = useAdminQuery('users')
+  // adminPerms() builds a fresh object per call — memoise it, or every row
+  // below sees a "changed" prop on every keystroke and re-renders.
+  const viewerPerms = useMemo(() => adminPerms(user), [user])
+  const { data, loading, error } = useAdminQuery('users')
+  const cache = useAdminCache()
   const [subOverride, setSubOverride] = useState({}) // id → optimistic is_subscriber (manual)
   const [q, setQ] = useState('')
   const [open, setOpen] = useState(null)        // expanded detail row id
@@ -69,7 +72,7 @@ export default function AdminUsers() {
   const [confirmId, setConfirmId] = useState(null) // user_id awaiting confirm
   const [sections, setSections] = useState({ all: true, subs: true, manual: true, regular: true })
 
-  const toggleSection = (k) => setSections((s) => ({ ...s, [k]: !s[k] }))
+  const toggleSection = useCallback((k) => setSections((s) => ({ ...s, [k]: !s[k] })), [])
 
   // Derive rows from the fetch + optimistic manual-subscriber edits. A
   // manual override only changes the 'manual' kind; 'regular' (real paid)
@@ -81,19 +84,29 @@ export default function AdminUsers() {
     return { ...r, subscriber_kind: kind, is_subscriber: !!kind }
   }), [data, subOverride])
 
-  const applyToggle = async (u) => {
+  const applyToggle = useCallback(async (u) => {
     const next = !(u.subscriber_kind === 'manual')
     setConfirmId(null)
     setBusy(u.id)
     setSubOverride((s) => ({ ...s, [u.id]: next })) // optimistic
     try {
       await callAdmin('set_subscriber', { user_id: u.id, value: next })
+      // Mirror it into the cached payload so the flag survives a remount,
+      // and bust the dashboard's subscriber counter.
+      const kind = next ? 'manual' : (u.subscriber_kind === 'regular' ? 'regular' : null)
+      cache.patch('users', (p) => ({
+        ...p,
+        rows: (p.rows || []).map((r) => (
+          r.id === u.id ? { ...r, subscriber_kind: kind, is_subscriber: !!kind } : r
+        )),
+      }))
+      cache.invalidate()
     } catch {
       setSubOverride((s) => ({ ...s, [u.id]: !next })) // rollback
     } finally {
       setBusy(null)
     }
-  }
+  }, [cache])
 
   const visible = useMemo(() => {
     const needle = q.trim().toLowerCase()
@@ -101,43 +114,53 @@ export default function AdminUsers() {
     return rows.filter((r) => (r.email || '').toLowerCase().includes(needle))
   }, [rows, q])
 
-  const subs = visible.filter((r) => r.is_subscriber)
-  const manual = visible.filter((r) => r.subscriber_kind === 'manual')
-  const regular = visible.filter((r) => r.subscriber_kind === 'regular')
+  // Memoised so each table gets a stable array identity — otherwise every
+  // keystroke hands UsersTable a brand-new `rows` and defeats the memo below.
+  const subs = useMemo(() => visible.filter((r) => r.is_subscriber), [visible])
+  const manual = useMemo(() => visible.filter((r) => r.subscriber_kind === 'manual'), [visible])
+  const regular = useMemo(() => visible.filter((r) => r.subscriber_kind === 'regular'), [visible])
 
   /* Permanently delete a user (and all their data, via DB cascade). The row's
-     typed-email confirmation already happened in the UI; refetch on success so
-     the deleted user drops out of every section. */
-  const handleDelete = async (id) => {
+     typed-email confirmation already happened in the UI; invalidate on success
+     so the deleted user drops out of every section — and out of the dashboard
+     and analytics counters, which they also feed. */
+  const handleDelete = useCallback(async (id) => {
     await callAdmin('delete_user', { user_id: id })
-    await refetch()
-  }
+    await cache.invalidate()
+  }, [cache])
 
   /* Promote / update perms / revoke admin. The edge function re-checks the
      caller's manage_admins perm and refuses self- or owner-targeting. */
-  const handleSetAdmin = async (id, perms) => {
+  const handleSetAdmin = useCallback(async (id, perms) => {
     await callAdmin('set_admin', { user_id: id, perms })
-    await refetch()
-  }
-  const handleRevokeAdmin = async (id) => {
+    await cache.invalidate()
+  }, [cache])
+  const handleRevokeAdmin = useCallback(async (id) => {
     await callAdmin('revoke_admin', { user_id: id })
-    await refetch()
-  }
+    await cache.invalidate()
+  }, [cache])
 
   /* Set a user's subscription tier and/or beta exemption (new billing model —
      writes user_subscriptions). The edge fn re-checks the set_subscriber perm. */
-  const handleSetSubscription = async (id, patch) => {
+  const handleSetSubscription = useCallback(async (id, patch) => {
     await callAdmin('set_subscription', { user_id: id, ...patch })
-    await refetch()
-  }
+    await cache.invalidate()
+  }, [cache])
 
-  const rowProps = {
+  const onToggleRow = useCallback((id) => setOpen((cur) => (cur === id ? null : id)), [])
+  const onRequestConfirm = useCallback((id) => setConfirmId(id), [])
+  const onCancelConfirm = useCallback(() => setConfirmId(null), [])
+
+  /* Stable prop bag. UserRow is memoised, so this object — and every
+     callback in it — has to keep its identity across renders, otherwise
+     typing in the search box re-renders all ~100 rows in the three tables. */
+  const rowProps = useMemo(() => ({
     openId: open,
-    onToggleRow: (id) => setOpen(open === id ? null : id),
+    onToggleRow,
     confirmId,
     busy,
-    onRequestConfirm: (id) => setConfirmId(id),
-    onCancelConfirm: () => setConfirmId(null),
+    onRequestConfirm,
+    onCancelConfirm,
     onApply: applyToggle,
     onDelete: handleDelete,
     onSetAdmin: handleSetAdmin,
@@ -146,7 +169,11 @@ export default function AdminUsers() {
     viewerPerms,
     viewerId,
     t,
-  }
+  }), [
+    open, confirmId, busy, onToggleRow, onRequestConfirm, onCancelConfirm,
+    applyToggle, handleDelete, handleSetAdmin, handleRevokeAdmin,
+    handleSetSubscription, viewerPerms, viewerId, t,
+  ])
 
   return (
     <>
@@ -208,7 +235,7 @@ function Section({ icon: Icon, title, count, open, onToggle, nested, children })
   )
 }
 
-function UsersTable({ rows, openId, onToggleRow, confirmId, busy, onRequestConfirm, onCancelConfirm, onApply, onDelete, onSetAdmin, onRevokeAdmin, onSetSubscription, viewerPerms, viewerId, t, emptyText }) {
+const UsersTable = memo(function UsersTable({ rows, openId, onToggleRow, confirmId, busy, onRequestConfirm, onCancelConfirm, onApply, onDelete, onSetAdmin, onRevokeAdmin, onSetSubscription, viewerPerms, viewerId, t, emptyText }) {
   return (
     <Box className="admin-card admin-table-wrap">
       <table className="admin-table">
@@ -227,6 +254,11 @@ function UsersTable({ rows, openId, onToggleRow, confirmId, busy, onRequestConfi
         </thead>
         <tbody>
           {rows.length === 0 && <tr><td colSpan={9} className="muted">{emptyText ?? t('users.empty.default')}</td></tr>}
+          {/* Every prop here is stable across renders (see rowProps above) so
+              the memo on UserRow holds: only the rows whose own `isOpen` /
+              `confirming` / `busy` actually flipped re-render. The per-row
+              closures that used to live here were rebuilt on every keystroke
+              and made the memo a no-op, so UserRow now binds them itself. */}
           {rows.map((r) => (
             <UserRow
               key={r.id}
@@ -234,11 +266,11 @@ function UsersTable({ rows, openId, onToggleRow, confirmId, busy, onRequestConfi
               isOpen={openId === r.id}
               confirming={confirmId === r.id}
               busy={busy === r.id}
-              onToggle={() => onToggleRow(r.id)}
-              onRequestConfirm={() => onRequestConfirm(r.id)}
+              onToggleRow={onToggleRow}
+              onRequestConfirm={onRequestConfirm}
               onCancelConfirm={onCancelConfirm}
-              onApply={() => onApply(r)}
-              onDelete={() => onDelete(r.id)}
+              onApply={onApply}
+              onDelete={onDelete}
               onSetAdmin={onSetAdmin}
               onRevokeAdmin={onRevokeAdmin}
               onSetSubscription={onSetSubscription}
@@ -251,7 +283,7 @@ function UsersTable({ rows, openId, onToggleRow, confirmId, busy, onRequestConfi
       </table>
     </Box>
   )
-}
+})
 
 /* Subscriber cell: real (paid) → static read-only badge; otherwise a
    two-step toggle (click → confirm) so a flag never happens by accident. */
@@ -368,7 +400,15 @@ function SubscriptionBlock({ r, onSetSubscription, t }) {
   )
 }
 
-function UserRow({ r, isOpen, confirming, busy, onToggle, onRequestConfirm, onCancelConfirm, onApply, onDelete, onSetAdmin, onRevokeAdmin, onSetSubscription, viewerPerms, viewerId, t }) {
+/* memo: the console renders the same user in up to three tables, so a plain
+   re-render of the screen costs ~100 of these. Every prop it takes is stable
+   (see rowProps), so React can skip the rows that didn't actually change. */
+const UserRow = memo(function UserRow({ r, isOpen, confirming, busy, onToggleRow, onRequestConfirm, onCancelConfirm, onApply, onDelete, onSetAdmin, onRevokeAdmin, onSetSubscription, viewerPerms, viewerId, t }) {
+  // Row-bound versions of the shared handlers. Built here rather than in the
+  // parent's map() so the props above stay identical between renders.
+  const toggleRow = useCallback(() => onToggleRow(r.id), [onToggleRow, r.id])
+  const requestConfirm = useCallback(() => onRequestConfirm(r.id), [onRequestConfirm, r.id])
+  const applyRow = useCallback(() => onApply(r), [onApply, r])
   const [delOpen, setDelOpen] = useState(false)
   const [delText, setDelText] = useState('')
   const [delBusy, setDelBusy] = useState(false)
@@ -418,7 +458,7 @@ function UserRow({ r, isOpen, confirming, busy, onToggle, onRequestConfirm, onCa
     if (!canDelete || delBusy) return
     setDelBusy(true); setDelErr(false)
     try {
-      await onDelete()
+      await onDelete(r.id)
       // success → the user is refetched away and this row unmounts.
     } catch {
       setDelBusy(false); setDelErr(true)
@@ -426,7 +466,7 @@ function UserRow({ r, isOpen, confirming, busy, onToggle, onRequestConfirm, onCa
   }
   return (
     <>
-      <tr className={`clickable${r.is_subscriber ? ' is-sub' : ''}`} onClick={onToggle}>
+      <tr className={`clickable${r.is_subscriber ? ' is-sub' : ''}`} onClick={toggleRow}>
         <td dir="ltr" style={{ textAlign: 'start' }}>
           {r.email || '—'}
           {r.is_owner
@@ -441,9 +481,9 @@ function UserRow({ r, isOpen, confirming, busy, onToggle, onRequestConfirm, onCa
             confirming={confirming}
             busy={busy}
             canToggle={!!viewerPerms?.set_subscriber}
-            onRequestConfirm={onRequestConfirm}
+            onRequestConfirm={requestConfirm}
             onCancelConfirm={onCancelConfirm}
-            onApply={onApply}
+            onApply={applyRow}
             t={t}
           />
         </td>
@@ -607,4 +647,4 @@ function UserRow({ r, isOpen, confirming, busy, onToggle, onRequestConfirm, onCa
       )}
     </>
   )
-}
+})

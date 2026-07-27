@@ -2,6 +2,7 @@ import { createContext, useContext, useState, useEffect, useCallback, useRef } f
 import { I18nManager } from 'react-native'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { setCurrentCurrency, setDateTimeFormat, setHebrewCalendar } from '@simplicity/core'
+import { setLanguage } from '@simplicity/core/i18n'
 import { supabase } from './supabase'
 import { THEME_KEY } from '../theme/theme'
 import i18n, { setGenderContext } from './i18n'
@@ -25,7 +26,9 @@ function applyFormatPrefs(p) {
 // we set the flag here for the next launch and the Settings screen shows a hint.
 export function applySavedLanguage(lang) {
   if (!lang || !SUPPORTED_LANGS.includes(lang) || lang === i18n.language) return
-  i18n.changeLanguage(lang)
+  // setLanguage, not changeLanguage — only `he` is bundled into the engine, so
+  // the chosen language's bundle has to be pulled in before the swap.
+  setLanguage(lang)
   const rtl = lang === 'he'
   if (I18nManager.isRTL !== rtl) {
     try { I18nManager.allowRTL(rtl); I18nManager.forceRTL(rtl) } catch { /* web ignores forceRTL */ }

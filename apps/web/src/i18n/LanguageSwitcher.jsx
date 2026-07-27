@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { useUserPreferences } from '../hooks/useUserPreferences'
-import { APP_LANGS } from '@simplicity/core/i18n'
+import { APP_LANGS, setLanguage } from '@simplicity/core/i18n'
 import './LanguageSwitcher.css'
 
 /* ════════════════════════════════════════════════════════════════
@@ -15,9 +15,11 @@ export default function LanguageSwitcher({ className = '' }) {
   const { update } = useUserPreferences()
   const active = (i18n.language || 'he').split('-')[0]
 
+  /* setLanguage (not changeLanguage) — it fetches the language chunk before
+     flipping, so the UI never paints half-translated. */
   const pick = (code) => {
     if (code === active) return
-    i18n.changeLanguage(code)
+    setLanguage(code)
     update({ design: { language: code } })
   }
 

@@ -169,6 +169,20 @@
         "noConnection": "The connection dropped — you'll need to reconnect.",
         "generic": "Something didn't work on this row — you can skip it and continue, or fix it and try again."
       }
+    },
+    "progress": {
+      "count": "{{done}} of {{total}}",
+      "note": "You can leave this open — it takes a moment.",
+      "phase": {
+        "start": "Starting…",
+        "statuses": "Creating statuses…",
+        "projects": "Creating projects…",
+        "clients": "Creating clients…",
+        "sessions": "Logging sessions…",
+        "payments": "Recording payments…",
+        "transactions": "Creating transactions…",
+        "leads": "Creating leads…"
+      }
     }
   },
   "modal": {

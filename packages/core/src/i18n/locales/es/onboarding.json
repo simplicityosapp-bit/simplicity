@@ -169,6 +169,20 @@
         "noConnection": "Se perdió la conexión — tendrás que volver a conectarte.",
         "generic": "Algo no funcionó en esta fila — puedes omitirla y continuar, o corregirla e intentarlo de nuevo."
       }
+    },
+    "progress": {
+      "count": "{{done}} de {{total}}",
+      "note": "Puedes dejar esto abierto: tarda un momento.",
+      "phase": {
+        "start": "Empezando…",
+        "statuses": "Creando estados…",
+        "projects": "Creando proyectos…",
+        "clients": "Creando clientes…",
+        "sessions": "Registrando sesiones…",
+        "payments": "Registrando pagos…",
+        "transactions": "Creando transacciones…",
+        "leads": "Creando prospectos…"
+      }
     }
   },
   "modal": {

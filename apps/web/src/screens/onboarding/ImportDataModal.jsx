@@ -43,8 +43,11 @@ export default function ImportDataModal({ parsed: initialParsed, onClose, onImpo
 
   const onSheetsChange = (nextSheets) => setParsed((p) => ({ ...p, sheets: nextSheets }))
 
-  const handleConfirm = async (payload) => {
-    const summary = await finalizeOnboardingImport(payload)
+  /* onProgress comes from the wizard, which owns the bar — the importer
+     writes one row at a time and reports each one, so a long file shows
+     movement instead of a button that has said "יוצר…" for a minute. */
+  const handleConfirm = async (payload, { onProgress } = {}) => {
+    const summary = await finalizeOnboardingImport({ ...payload, onProgress })
     summaryRef.current = summary
     return summary
   }

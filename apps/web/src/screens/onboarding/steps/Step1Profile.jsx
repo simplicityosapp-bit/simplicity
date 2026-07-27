@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useUserPreferences } from '../../../hooks/useUserPreferences'
 import { ROLE_LABELS, roleLabel } from '../../../lib/preferences'
 import { useT } from '../../../i18n/useT'
+import { useStepCTA } from '../useStepCTA'
 import { Box, Txt, Btn, Input } from '../../../components/ui'
 
 /* Form-of-address pills — labels resolved from i18n. */
@@ -47,30 +48,26 @@ export default function Step1Profile({ ob, setCTA }) {
 
   useEffect(() => { ob.markStarted() }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
+  /* The field is genuinely optional, so an untouched one is stored as
+     "not set" (null). It used to be filed as 'other' with no free text,
+     which is a different claim entirely — the profile chip and Settings
+     then showed the user as "אחר", a specialisation they never chose and
+     had no reason to look for. */
   const onNext = async () => {
-    await update({
-      profile: {
-        full_name: name.trim(),
-        role: role || 'other',
-        role_other: role === 'other' ? roleOther.trim() : '',
-      },
-      design: { gender },
-    })
-    await ob.setAnswers('profile', {
-      name: name.trim(),
-      role: role || 'other',
+    const profile = {
+      full_name: name.trim(),
+      role: role || null,
       role_other: role === 'other' ? roleOther.trim() : '',
-      gender,
-    })
+    }
+    await update({ profile, design: { gender } })
+    await ob.setAnswers('profile', { name: profile.full_name, role: profile.role, role_other: profile.role_other, gender })
     await ob.advance()
   }
 
   /* Push the latest CTA state up to the shell so the footer's "הלאה"
-     stays in sync with the form. Deps cover every input that affects
-     canAdvance / onNext closure. */
-  useEffect(() => {
-    setCTA({ onNext, canAdvance, busy: false, hint })
-  }, [name, role, roleOther, gender, canAdvance, hint]) // eslint-disable-line react-hooks/exhaustive-deps
+     stays in sync with the form. onNext is held in a ref by the hook, so
+     it always runs against the current fields. */
+  useStepCTA(setCTA, { onNext, canAdvance, hint })
 
   return (
     <>

@@ -1217,9 +1217,16 @@
   cursor: pointer;
   transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
 }
-.ob-welcome-option:hover {
+.ob-welcome-option:hover:not(:disabled) {
   transform: translateY(-2px);
   box-shadow: 0 14px 36px rgba(42, 37, 32, 0.18);
+}
+/* Both choices lock while the one that was tapped saves — so the second tap
+   people give a slow screen has something to see, not just nothing. */
+.ob-welcome-option:disabled {
+  opacity: 0.55;
+  cursor: progress;
+  transform: none;
 }
 .ob-welcome-option.primary {
   background: color-mix(in srgb, var(--sage) 22%, rgba(255, 250, 240, 0.62));

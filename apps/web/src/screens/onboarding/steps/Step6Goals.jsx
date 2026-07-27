@@ -1,13 +1,14 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { Star, AlertTriangle } from 'lucide-react'
 import DateField from '../../../components/DateField'
 import { useGoals } from '../../../hooks/useGoals'
 import { useGoalCategories } from '../../../hooks/useGoalCategories'
 import { useProjects } from '../../../hooks/useProjects'
 import { useUserQuestions } from '../../../hooks/useUserQuestions'
-import { CATEGORY_PRESETS, presetToCategory } from '../../../lib/goalPresets'
+import { CATEGORY_PRESETS, presetToCategory, resolveManualCategoryId, MANUAL_CATEGORY } from '../../../lib/goalPresets'
 import { scheduledOccurrences, buildSchedulePattern } from '@simplicity/core'
 import { useT } from '../../../i18n/useT'
+import { useStepCTA } from '../useStepCTA'
 import ScheduleDayPicker from '../../../components/ScheduleDayPicker'
 import { Box, Txt, Btn, Input } from '../../../components/ui'
 
@@ -51,10 +52,10 @@ export default function Step6Goals({ ob, setCTA }) {
      i18n at render-time, so they follow the active language). */
   const AUTO_TYPES = CATEGORY_PRESETS.map((p) => ({ key: p.key, label: p.name, icon: p.icon, hint: p.hint, auto: true }))
   const TYPES = [...AUTO_TYPES, { key: 'personal', label: t('step6.personalLabel'), icon: '✍️', hint: t('step6.personalHint'), auto: false }]
-  const { addGoal } = useGoals()
+  const { addGoal, updateGoal } = useGoals()
   const { categories, addCategory } = useGoalCategories()
   const { projects } = useProjects()
-  const { addQuestion } = useUserQuestions()
+  const { addQuestion, updateQuestion } = useUserQuestions()
 
   const initial = ob.state.answers?.goals || {}
   const [projectId, setProjectId]   = useState(initial.project_id || '')
@@ -108,11 +109,6 @@ export default function Step6Goals({ ob, setCTA }) {
     : noDays ? t('step6.noDays')
     : overMax ? t('step6.hintOverMax', { max: maxOccurrences })
     : null
-  /* Deps coerced to stable primitives — never undefined — so the array
-     keeps a constant length across renders (React requires this). */
-  // eslint-disable-next-line react-hooks/immutability -- onNext is declared just below and only invoked at CTA time, after assignment.
-  useEffect(() => { setCTA({ onNext, canAdvance, busy, hint }) },
-    [type || '', target || '', timeFrame, targetDate || '', importance, label || '', tracking, qText || '', qScale, qIcon, schedMode, schedDays.length, schedX, projectId || '', busy, canAdvance, hint || '']) // eslint-disable-line react-hooks/exhaustive-deps
 
   /* Dynamic explainer under the target field — what the number means
      depends on how the goal is measured (count of "yes" days, sum of
@@ -137,15 +133,10 @@ export default function Step6Goals({ ob, setCTA }) {
      the CATEGORY_PRESETS shape (same path as the in-app category picker);
      personal falls back to a custom manual category. */
   const resolveCategoryId = async () => {
-    if (isPersonal) {
-      const existing = categories.find((c) => !c.builtin && c.measurement_type === 'manual' && c.name === 'אישי')
-      if (existing) return existing.id
-      const created = await addCategory({
-        key: null, name: 'אישי', icon: '✍️', color: '#7a5cb8',
-        measurement_type: 'manual', data_source: null, graph_type: 'delta', builtin: false,
-      })
-      return created.id
-    }
+    /* Personal goals go into the app-wide manual bucket (lib/goalPresets),
+       the same one the goals screen uses — not a second, Hebrew-named one
+       of onboarding's own. */
+    if (isPersonal) return resolveManualCategoryId(categories, addCategory)
     const existing = categories.find((c) => c.key === type)
     if (existing) return existing.id
     const preset = CATEGORY_PRESETS.find((p) => p.key === type)
@@ -157,28 +148,39 @@ export default function Step6Goals({ ob, setCTA }) {
   const onNext = async () => {
     setBusy(true); setErr('')
     try {
-      const samePrev = initial.first_type === type
-        && Number(initial.first_target) === targetNum
-        && (initial.project_id || '') === projectId
-        && (initial.time_frame || 'monthly') === timeFrame
-        && (initial.tracking || 'manual') === tracking
-      if (samePrev && (initial.created_ids?.length || 0) > 0) {
-        await ob.advance()
-        return
-      }
-      let questionId = null
+      /* Rows this step created on an earlier pass (the user pressed "חזרה").
+         They are UPDATED in place rather than skipped or recreated: skipping
+         is what silently dropped every edit the old same-as-before check
+         didn't happen to compare — importance, target date, goal name, and
+         the entire daily-question block — and recreating would leave the
+         first goal behind as an orphan. */
+      const prevGoalId = initial.created_ids?.[0] || null
+      const prevQuestionId = initial.question_id || null
+
+      /* The daily question backing the goal. Switching the goal to manual
+         tracking retires the question we made for it (deactivated, not
+         deleted — it stays recoverable from Settings). */
+      let questionId = prevQuestionId
       if (byQuestion && qText.trim()) {
-        const q = await addQuestion({
+        const qPayload = {
           template_key: null, custom_text: qText.trim(), scale_type: qScale,
           icon: qIcon, active: true,
           /* Both slider and yes/no questions carry the chosen schedule;
              null pattern (every day) is stored as {}. */
           schedule_pattern: schedPattern || {},
-        })
+        }
+        /* Same create-if-gone fallback as the goal below. */
+        let q = null
+        if (prevQuestionId) q = await updateQuestion(prevQuestionId, qPayload).catch(() => null)
+        if (!q) q = await addQuestion(qPayload)
         questionId = q.id
+      } else if (prevQuestionId) {
+        await updateQuestion(prevQuestionId, { active: false }).catch(() => { /* non-fatal */ })
+        questionId = null
       }
+
       const categoryId = await resolveCategoryId()
-      const goal = await addGoal({
+      const goalPayload = {
         category_id: categoryId,
         parent_goal_id: null,
         project_id: projectId || null,
@@ -191,7 +193,12 @@ export default function Step6Goals({ ob, setCTA }) {
         tracking_method: byQuestion ? 'daily_question' : 'manual',
         tracked_by_question_id: questionId,
         measurement_type: isPersonal ? 'manual' : 'auto',
-      })
+      }
+      /* If the earlier row is gone (deleted from elsewhere), updating it
+         throws on 0 rows — create a fresh one rather than dead-ending. */
+      let goal = null
+      if (prevGoalId) goal = await updateGoal(prevGoalId, goalPayload).catch(() => null)
+      if (!goal) goal = await addGoal(goalPayload)
 
       await ob.setAnswers('goals', {
         project_id: projectId || null,
@@ -219,6 +226,11 @@ export default function Step6Goals({ ob, setCTA }) {
     }
   }
 
+  /* Declared after onNext so the handler exists when it's captured. The hook
+     holds it in a ref, so the goal is always written from the fields as they
+     stand at click time — no dep array to keep in sync with this many inputs. */
+  useStepCTA(setCTA, { onNext, canAdvance, busy, hint })
+
   const chosenType = TYPES.find((ty) => ty.key === type)
   const projectName = projects.find((p) => p.id === projectId)?.name || ''
   const tfKey = TIME_FRAMES.find((f) => f.k === timeFrame)?.labelKey
@@ -227,7 +239,7 @@ export default function Step6Goals({ ob, setCTA }) {
   /* Category dot color for the preview card — auto types carry the preset
      color; personal goals use the same purple the personal category gets. */
   const catColor = isPersonal
-    ? '#7a5cb8'
+    ? MANUAL_CATEGORY.color
     : (CATEGORY_PRESETS.find((p) => p.key === type)?.color || 'var(--stone)')
 
   return (

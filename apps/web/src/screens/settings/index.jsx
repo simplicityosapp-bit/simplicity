@@ -515,7 +515,10 @@ function AboutFaq() {
 function ProfileBody({ prefs, onUpdate }) {
   const { t } = useT('settings')
   const [name, setName] = useState(prefs?.profile?.full_name || '')
-  const role = prefs?.profile?.role || 'other'
+  /* No default: the field is optional, so an unset role shows no pill
+     selected rather than pre-selecting "אחר" and opening its free-text
+     panel for a specialisation the user never claimed. */
+  const role = prefs?.profile?.role || null
   const [roleOther, setRoleOther] = useState(prefs?.profile?.role_other || '')
   const [savedName, setSavedName] = useState(false)
   const [savedRoleOther, setSavedRoleOther] = useState(false)

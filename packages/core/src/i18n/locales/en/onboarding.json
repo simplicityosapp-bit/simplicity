@@ -27,7 +27,82 @@
     "saveFailed": "Couldn't save. Try again."
   },
   "help": {
-    "closeAria": "Close help"
+    "closeAria": "Close help",
+    "steps": {
+      "profile": {
+        "title": "Why we're asking",
+        "paragraphs": [
+          "Your name and what you do help us fit the system to you — the language on screen, the default categories, how clients and groups are shown.",
+          "You can change any of it later in Settings."
+        ]
+      },
+      "data_import": {
+        "title": "How the import works",
+        "paragraphs": [
+          "If you have a table (Excel / CSV) with clients, projects or transactions, you can upload it and we'll pull out what we can.",
+          "Whatever we find comes through filled in on the next steps, and you can approve or edit every row before anything is saved."
+        ],
+        "bullets": [
+          "Works with CSV and Excel",
+          "You can upload more than once",
+          "Entirely optional — you can start from scratch"
+        ]
+      },
+      "projects": {
+        "title": "What is a project?",
+        "paragraphs": [
+          "A project is the wider context — the kind of service, the kind of work, or a working group. For example \"one-on-one coaching\", \"parenting workshops\", \"couples therapy\".",
+          "Every client belongs to one project. Clients in the same project share the same goals, income calculations and groups."
+        ],
+        "bullets": [
+          "Project = the big context",
+          "Group (inside a project) = a cohort with a start and end date",
+          "Client = one person, who belongs to a project"
+        ]
+      },
+      "clients": {
+        "title": "What is a client?",
+        "paragraphs": [
+          "A client is one person you work with. Each one has a status (active / on a break / former), a project, and sometimes a package of sessions.",
+          "From the client's card you can log meetings, take a payment, and book the next session."
+        ]
+      },
+      "daily_questions": {
+        "title": "How the questions work",
+        "paragraphs": [
+          "One question appears each day. A short answer on any given day lets the system build a wider picture over time.",
+          "Questions from our suggestions also feed the graphs and \"Overview\". Your own questions are more for reflection — we don't analyse those automatically."
+        ]
+      },
+      "goals": {
+        "title": "Goals tie everything together",
+        "paragraphs": [
+          "A goal is a direction, not pressure. It takes a number (how many clients, how much income, how many enquiries), a time frame, and how much it matters to you.",
+          "Income goals feed the money graphs and \"Overview\". Other goals show up mainly in \"Overview\" and \"Reports\"."
+        ]
+      },
+      "recurring": {
+        "title": "Why record fixed expenses once",
+        "paragraphs": [
+          "Income and expenses that repeat (rent, insurance, a subscription, a monthly package) are created for you every month as a pending transaction.",
+          "All you do is confirm they really happened — no re-entering them each time."
+        ]
+      },
+      "preview": {
+        "title": "What are we looking at?",
+        "paragraphs": [
+          "A preview of what your data builds up to over time: an income graph, the weighted \"Overview\" score, progress against the goals you set.",
+          "The more transactions, meetings and daily answers there are, the more the picture starts to say something real."
+        ]
+      },
+      "finish": {
+        "title": "On to the home screen",
+        "paragraphs": [
+          "The home screen is built from widgets. You choose which ones appear, in what order, and in what colour.",
+          "You can set it all up again from \"Settings → Widgets and display\"."
+        ]
+      }
+    }
   },
   "review": {
     "title": "Review before we create anything",
@@ -236,6 +311,80 @@
       "projects": "projects",
       "leads": "leads",
       "transactions": "transactions"
+    },
+    "types": {
+      "clients": "Clients",
+      "projects": "Projects",
+      "leads": "Leads",
+      "transactions": "Income and expenses",
+      "sessions": "Meeting log",
+      "matrix": "Income/expense table by month",
+      "ignore": "Don't import"
+    },
+    "typeHelp": {
+      "clients": "A client list — name, phone, status, sessions and so on.",
+      "projects": "A list of projects, programmes or tracks.",
+      "leads": "Enquiries and interested people who haven't become clients yet.",
+      "transactions": "One row per payment or expense, with a date and an amount.",
+      "sessions": "A log of meetings that already happened — one row per meeting.",
+      "matrix": "A table where the months are columns and each row is an income or expense line.",
+      "ignore": "This sheet won't be imported."
+    },
+    "fields": {
+      "clients": {
+        "name": "Client name",
+        "status": "Status",
+        "phone": "Phone",
+        "email": "Email",
+        "sessions": "Sessions purchased",
+        "sessions_done": "Sessions held",
+        "price_per_session": "Price per session",
+        "income": "Total income",
+        "paid": "Paid",
+        "total_due": "Total due",
+        "computed_balance": "Balance due (calculated for you)",
+        "payment_method": "Payment method",
+        "payment_date": "Payment date",
+        "num_installments": "Number of instalments",
+        "project": "Project",
+        "notes": "Notes"
+      },
+      "projects": {
+        "name": "Project name",
+        "subprojects": "Sub-projects",
+        "client_count": "Number of clients",
+        "notes": "Notes"
+      },
+      "leads": {
+        "name": "Name",
+        "status": "Status",
+        "category": "Category",
+        "source": "Source",
+        "project": "Project",
+        "date": "Date",
+        "phone": "Phone",
+        "email": "Email",
+        "notes": "Notes"
+      },
+      "transactions": {
+        "client": "Client name",
+        "amount": "Amount",
+        "paid": "Paid",
+        "balance": "Balance",
+        "status": "Status",
+        "type": "Type (income/expense)",
+        "category": "Category",
+        "payment_method": "Payment method",
+        "date": "Date",
+        "project": "Project",
+        "notes": "Notes"
+      },
+      "sessions": {
+        "client": "Client name",
+        "date": "Date",
+        "summary": "Summary",
+        "notes": "Notes"
+      }
     }
   },
   "recognize": {

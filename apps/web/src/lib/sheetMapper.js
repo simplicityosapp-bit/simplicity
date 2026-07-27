@@ -16,6 +16,7 @@
    Matrix sheets defer to pivotImport; this module owns flat + routing.
    ════════════════════════════════════════════════════════════════ */
 
+import i18n from '@simplicity/core/i18n'
 import { detectMatrix } from './pivotImport'
 import { detectColumnType, parseAmount, findHeaderRow } from './columnDetect'
 import { normalizeDate } from './csvImport'
@@ -149,6 +150,32 @@ export const ENTITY_FIELDS = {
     { key: 'notes',   label: 'הערות',   syn: ['הערות', 'הערה', 'תיאור', 'notes', 'note'] },
   ],
 }
+
+/* ── i18n accessors ──────────────────────────────────────────────────
+   The maps above stay the Hebrew source of truth AND the fallback; call
+   these instead of reading them directly so the UI speaks the active
+   language. Only the LABELS are translated — the `syn` lists are the
+   recognition engine (they match against the header text inside the
+   user's own file, which is whatever language they typed it in) and must
+   never be localised.
+
+   Everything the import UI renders used to come straight off these maps,
+   so an English, Spanish or French user picked the entity type and mapped
+   every column through Hebrew-only dropdowns — in onboarding AND in the
+   in-app Settings import. */
+export const sheetTypeLabel = (type) =>
+  i18n.t(`onboarding:sheet.types.${type}`, { defaultValue: SHEET_TYPE_LABELS[type] || type })
+
+export const sheetTypeHelp = (type) =>
+  i18n.t(`onboarding:sheet.typeHelp.${type}`, { defaultValue: SHEET_TYPE_HELP[type] || '' })
+
+/* An entity's field catalog with labels resolved in the active language.
+   Shape is unchanged, so callers keep using f.key / f.label. */
+export const entityFields = (entityType) =>
+  (ENTITY_FIELDS[entityType] || []).map((f) => ({
+    ...f,
+    label: i18n.t(`onboarding:sheet.fields.${entityType}.${f.key}`, { defaultValue: f.label }),
+  }))
 
 /* Score a header row against an entity's vocabulary — how many of the
    entity's fields have a synonym present among the headers. Used to guess

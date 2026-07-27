@@ -19,6 +19,10 @@
     "group_members": {
       "name": "Miembros del grupo",
       "hint": "Se cuentan automáticamente a partir de los miembros del grupo (se puede vincular a un proyecto)"
+    },
+    "other": {
+      "name": "Otro",
+      "hint": "Lo actualizas tú"
     }
   }
 }

@@ -8,6 +8,7 @@ import { clientBalance, isr } from '@simplicity/core'
 import ClientFormFields from '../../../components/ClientFormFields'
 import MG from '../../../components/MG'
 import { useT } from '../../../i18n/useT'
+import { useStepCTA } from '../useStepCTA'
 import { Box, Txt, Btn } from '../../../components/ui'
 
 const initials = (name) =>
@@ -197,7 +198,9 @@ export default function Step4Clients({ ob, setCTA }) {
     }
   }
 
-  useEffect(() => { setCTA({ onNext, canAdvance, busy, hint }) }, [form, createdIds, busy, canAdvance, hint]) // eslint-disable-line react-hooks/exhaustive-deps
+  /* onNext commits whatever is currently in the composer — the hook keeps
+     it reading the live form rather than a snapshot. */
+  useStepCTA(setCTA, { onNext, canAdvance, busy, hint })
 
   /* Live preview — build a synthetic membership so the card reflects the
      selected group's sessions + price before the row is committed. */

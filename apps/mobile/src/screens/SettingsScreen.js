@@ -135,7 +135,10 @@ export default function SettingsScreen() {
   const toggleGroup = (k) => setOpenGroups((g) => ({ ...g, [k]: !g[k] }))
   const toggle = (k) => setOpen((o) => ({ ...o, [k]: !o[k] }))
 
-  const role = prefs.profile?.role || 'other'
+  // Optional field: an unset role shows the placeholder, not a pre-selected
+  // "אחר" (which also opened its free-text row for a specialisation the user
+  // never claimed). Mirrors the web Settings screen.
+  const role = prefs.profile?.role || null
   const setLanguage = (code) => { setLang(code); applySavedLanguage(code); update({ design: { language: code } }) }
   // Form of address → i18next context (matches web's prefs.design.gender). Apply
   // immediately so this screen re-renders gendered; other screens pick it up on

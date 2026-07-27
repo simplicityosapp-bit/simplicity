@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Target, Plus } from 'lucide-react'
 import { goalsByCategory } from '@simplicity/core'
-import { CATEGORY_PRESETS, presetToCategory } from '../../lib/goalPresets'
+import { CATEGORY_PRESETS, presetToCategory, resolveManualCategoryId } from '../../lib/goalPresets'
 import { useGoals } from '../../hooks/useGoals'
 import { useGoalCategories } from '../../hooks/useGoalCategories'
 import { useGoalEntries } from '../../hooks/useGoalEntries'
@@ -27,18 +27,9 @@ import { Box, Txt, Btn } from '../../components/ui'
 import { useT } from '../../i18n/useT'
 import './GoalsScreen.css'
 
-/* The generic "אחר — עדכון ידני" bucket: every custom manual goal lands here,
-   so the user never manages metrics on this screen. Created on demand. */
-const OTHER_METRIC = {
-  key: OTHER_METRIC_KEY,
-  name: 'אחר',
-  icon: '📝',
-  color: '#7a5cb8',
-  measurement_type: 'manual',
-  data_source: null,
-  graph_type: 'delta',
-  builtin: false,
-}
+/* The generic "אחר — עדכון ידני" bucket now lives in lib/goalPresets as
+   MANUAL_CATEGORY, shared with onboarding (which used to create its own
+   parallel one) and named in the user's language. */
 
 export default function GoalsScreen() {
   const { t } = useT('goals')
@@ -77,12 +68,7 @@ export default function GoalsScreen() {
      the category on demand. Metrics aren't managed on-screen anymore: the
      system presets are auto-measured; "אחר" is the one shared manual bucket. */
   const resolveCategoryId = async (metricKey) => {
-    if (metricKey === OTHER_METRIC_KEY) {
-      const existing = categories.find((c) => c.key === OTHER_METRIC_KEY)
-      if (existing) return existing.id
-      const created = await addCategory(presetToCategory(OTHER_METRIC))
-      return created.id
-    }
+    if (metricKey === OTHER_METRIC_KEY) return resolveManualCategoryId(categories, addCategory)
     const preset = CATEGORY_PRESETS.find((p) => p.key === metricKey)
     if (!preset) throw new Error('מדד לא מוכר')
     const existing = categories.find((c) => c.data_source === preset.data_source)

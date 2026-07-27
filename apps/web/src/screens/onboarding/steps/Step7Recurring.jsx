@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { X } from 'lucide-react'
 import { useRecurring } from '../../../hooks/useRecurring'
 import { useT } from '../../../i18n/useT'
+import { useStepCTA } from '../useStepCTA'
 import { isr } from '@simplicity/core'
 import { Box, Txt, Btn, Input } from '../../../components/ui'
 
@@ -34,7 +35,6 @@ export default function Step7Recurring({ ob, setCTA }) {
   const tryAgain = t('step7.tryAgainVerb')
   const composerValid = desc.trim().length > 0 && Number(amount) > 0
   const canAdvance = added.length > 0 || composerValid
-  useEffect(() => { setCTA({ onNext, canAdvance, busy, hint: null }) }, [type, desc, amount, dayOfMonth, added, busy, canAdvance]) // eslint-disable-line react-hooks/exhaustive-deps, react-hooks/immutability
 
   const fillPreset = (p) => {
     if (p.clear) { setType('expense'); setDesc(''); setAmount(''); return }
@@ -93,6 +93,9 @@ export default function Step7Recurring({ ob, setCTA }) {
       setBusy(false)
     }
   }
+
+  /* Declared after onNext so the handler exists when it's captured. */
+  useStepCTA(setCTA, { onNext, canAdvance, busy })
 
   return (
     <>

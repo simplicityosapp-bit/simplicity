@@ -27,7 +27,82 @@
     "saveFailed": "No se pudo guardar. Inténtalo de nuevo."
   },
   "help": {
-    "closeAria": "Cerrar la ayuda"
+    "closeAria": "Cerrar la ayuda",
+    "steps": {
+      "profile": {
+        "title": "¿Por qué te lo preguntamos?",
+        "paragraphs": [
+          "Tu nombre y tu actividad nos ayudan a adaptar el sistema a ti: el lenguaje de las pantallas, las categorías por defecto, cómo se muestran los clientes y los grupos.",
+          "Puedes cambiarlo cuando quieras desde Ajustes."
+        ]
+      },
+      "data_import": {
+        "title": "Cómo funciona la importación",
+        "paragraphs": [
+          "Si tienes una tabla (Excel / CSV) con clientes, proyectos o transacciones, puedes subirla e intentaremos sacar de ella todo lo posible.",
+          "Lo que encontremos aparecerá ya rellenado en los siguientes pasos, y podrás aprobar o editar cada fila antes de guardar nada."
+        ],
+        "bullets": [
+          "Admite CSV y Excel",
+          "Puedes subir archivos varias veces",
+          "No es obligatorio: puedes empezar desde cero"
+        ]
+      },
+      "projects": {
+        "title": "¿Qué es un proyecto?",
+        "paragraphs": [
+          "Un proyecto es el contexto amplio: el tipo de servicio, el tipo de trabajo o un grupo de trabajo. Por ejemplo «coaching individual», «talleres para madres y padres», «terapia de pareja».",
+          "Cada cliente pertenece a un proyecto. Los clientes de un mismo proyecto comparten objetivos, cálculos de ingresos y grupos."
+        ],
+        "bullets": [
+          "Proyecto = el contexto grande",
+          "Grupo (dentro de un proyecto) = una promoción con fecha de inicio y de fin",
+          "Cliente = una persona, que pertenece a un proyecto"
+        ]
+      },
+      "clients": {
+        "title": "¿Qué es un cliente?",
+        "paragraphs": [
+          "Un cliente es una persona con la que trabajas. Cada una tiene un estado (activo / en pausa / antiguo), un proyecto y a veces un paquete de sesiones.",
+          "Desde la ficha del cliente puedes registrar sesiones, cobrar un pago y agendar la siguiente cita."
+        ]
+      },
+      "daily_questions": {
+        "title": "Cómo funcionan las preguntas",
+        "paragraphs": [
+          "Cada día aparece una pregunta. Una respuesta corta en un día concreto permite al sistema construir una imagen amplia con el tiempo.",
+          "Las preguntas de nuestras sugerencias alimentan también los gráficos y «Vista general». Las tuyas propias son más para reflexionar: no las analizamos automáticamente."
+        ]
+      },
+      "goals": {
+        "title": "Los objetivos lo conectan todo",
+        "paragraphs": [
+          "Un objetivo es una dirección, no una presión. Lleva un número (cuántos clientes, cuántos ingresos, cuántas consultas), un plazo y la importancia que le das.",
+          "Los objetivos de ingresos afectan a los gráficos de dinero y a «Vista general». Los demás aparecen sobre todo en «Vista general» e «Informes»."
+        ]
+      },
+      "recurring": {
+        "title": "Por qué anotar los gastos fijos una sola vez",
+        "paragraphs": [
+          "Los ingresos y gastos que se repiten (alquiler, seguro, una suscripción, un paquete mensual) se crean solos cada mes como transacción pendiente.",
+          "Tú solo confirmas que de verdad ocurrieron: no hay que introducirlos una y otra vez."
+        ]
+      },
+      "preview": {
+        "title": "¿Qué estamos viendo?",
+        "paragraphs": [
+          "Un adelanto de lo que tus datos irán construyendo con el tiempo: un gráfico de ingresos, la puntuación ponderada de «Vista general» y el avance hacia los objetivos que definas.",
+          "Cuantas más transacciones, sesiones y respuestas diarias haya, más cosas reales empieza a contar la imagen."
+        ]
+      },
+      "finish": {
+        "title": "Vamos a la pantalla de inicio",
+        "paragraphs": [
+          "La pantalla de inicio se compone de widgets. Tú eliges cuáles aparecen, en qué orden y de qué color.",
+          "Puedes volver a configurarlo todo desde «Ajustes → Widgets y visualización»."
+        ]
+      }
+    }
   },
   "review": {
     "title": "Revisa antes de que creemos nada",
@@ -236,6 +311,80 @@
       "projects": "proyectos",
       "leads": "prospectos",
       "transactions": "transacciones"
+    },
+    "types": {
+      "clients": "Clientes",
+      "projects": "Proyectos",
+      "leads": "Prospectos",
+      "transactions": "Ingresos y gastos",
+      "sessions": "Registro de sesiones",
+      "matrix": "Tabla de ingresos/gastos por mes",
+      "ignore": "No importar"
+    },
+    "typeHelp": {
+      "clients": "Una lista de clientes: nombre, teléfono, estado, sesiones, etc.",
+      "projects": "Una lista de proyectos, programas o itinerarios.",
+      "leads": "Consultas y personas interesadas que todavía no son clientes.",
+      "transactions": "Una fila por pago o gasto, con fecha e importe.",
+      "sessions": "Un registro de sesiones ya realizadas: una fila por encuentro.",
+      "matrix": "Una tabla donde los meses son columnas y cada fila es una partida de ingreso o gasto.",
+      "ignore": "Esta hoja no se importará."
+    },
+    "fields": {
+      "clients": {
+        "name": "Nombre del cliente",
+        "status": "Estado",
+        "phone": "Teléfono",
+        "email": "Correo electrónico",
+        "sessions": "Sesiones compradas",
+        "sessions_done": "Sesiones realizadas",
+        "price_per_session": "Precio por sesión",
+        "income": "Ingreso total",
+        "paid": "Pagado",
+        "total_due": "Total a pagar",
+        "computed_balance": "Saldo pendiente (se calcula solo)",
+        "payment_method": "Método de pago",
+        "payment_date": "Fecha de pago",
+        "num_installments": "Número de cuotas",
+        "project": "Proyecto",
+        "notes": "Notas"
+      },
+      "projects": {
+        "name": "Nombre del proyecto",
+        "subprojects": "Subproyectos",
+        "client_count": "Número de clientes",
+        "notes": "Notas"
+      },
+      "leads": {
+        "name": "Nombre",
+        "status": "Estado",
+        "category": "Categoría",
+        "source": "Origen",
+        "project": "Proyecto",
+        "date": "Fecha",
+        "phone": "Teléfono",
+        "email": "Correo electrónico",
+        "notes": "Notas"
+      },
+      "transactions": {
+        "client": "Nombre del cliente",
+        "amount": "Importe",
+        "paid": "Pagado",
+        "balance": "Saldo",
+        "status": "Estado",
+        "type": "Tipo (ingreso/gasto)",
+        "category": "Categoría",
+        "payment_method": "Método de pago",
+        "date": "Fecha",
+        "project": "Proyecto",
+        "notes": "Notas"
+      },
+      "sessions": {
+        "client": "Nombre del cliente",
+        "date": "Fecha",
+        "summary": "Resumen",
+        "notes": "Notas"
+      }
     }
   },
   "recognize": {

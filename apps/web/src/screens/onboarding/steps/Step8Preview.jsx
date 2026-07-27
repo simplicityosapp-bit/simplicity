@@ -1,6 +1,6 @@
-import { useEffect } from 'react'
 import { Moon } from 'lucide-react'
 import { useT } from '../../../i18n/useT'
+import { useStepCTA } from '../useStepCTA'
 import { Box, Txt } from '../../../components/ui'
 
 /* Step 8 — a read-only "מבט על" glimpse, faithful in FORMAT to the home
@@ -14,7 +14,7 @@ const TO_GOAL = 15   /* מהיעד — secondary */
 
 export default function Step8Preview({ ob, setCTA }) {
   const { t } = useT('onboardingSteps')
-  useEffect(() => { setCTA({ onNext: () => ob.advance(), canAdvance: true, busy: false, hint: null }) }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  useStepCTA(setCTA, { onNext: () => ob.advance(), canAdvance: true })
 
   const dash = (Math.min(100, Math.max(0, PACE)) / 100) * C
 

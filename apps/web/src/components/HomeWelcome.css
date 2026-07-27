@@ -60,24 +60,37 @@
 }
 
 /* ── Setup tasks ─────────────────────────────────────────────────
-   Full-width rows rather than a row of chips: each one carries a title
-   and a line saying what it's for, and a finished task has to read as
-   finished at a glance. */
+   Tiles side by side, not a stack of full-width rows. The card is the
+   top band of the screen, so its cost has to be a strip of height rather
+   than a screenful — stacked rows made it 400px on a phone and a tall
+   narrow column on desktop, pushing the actual dashboard below the fold.
+
+   auto-fit + minmax lets the count follow the width instead of being
+   hard-coded per breakpoint: three or four across on a wide screen, two
+   on a phone, one only when there genuinely isn't room. That also means
+   the extra "finish setting up" task, which appears only for someone who
+   left the flow part-way, needs no separate rule. */
 .home-welcome-tasks {
   list-style: none;
   margin: 0;
   padding: 0;
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  /* 84px is sized so three tiles still fit across a 375px phone, where the
+     card has ~279px of inner width. A larger floor (150px) silently fell
+     back to ONE column there and made the card taller than the stacked
+     rows it replaced. auto-fit collapses the empty tracks, so on a wide
+     screen the three simply share the row instead of leaving gaps. */
+  grid-template-columns: repeat(auto-fit, minmax(84px, 1fr));
   gap: 8px;
 }
 .home-welcome-task {
   display: flex;
-  align-items: center;
-  gap: 12px;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 2px;
   width: 100%;
-  min-height: 56px;
-  padding: 10px 14px;
+  height: 100%;
+  padding: 10px 12px 12px;
   border-radius: var(--mg-btn-radius);
   border: var(--mg-btn-secondary-border);
   background: var(--mg-btn-secondary-bg);
@@ -91,29 +104,47 @@
 .home-welcome-task:hover { background: var(--mg-btn-secondary-bg-hover); }
 .home-welcome-task:active { transform: scale(0.99); }
 
+/* Icon and chevron share the top line, so the title starts at the tile's
+   inline edge instead of being indented past an icon column. */
+.home-welcome-task-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
 .home-welcome-task-mark {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   flex: none;
-  width: 30px;
-  height: 30px;
+  width: 28px;
+  height: 28px;
   border-radius: 999px;
   color: var(--terracotta);
 }
-.home-welcome-task-body { flex: 1 1 auto; min-width: 0; }
 .home-welcome-task-title {
-  margin: 0;
-  font-size: calc(13.5px * var(--text-scale));
+  margin: 2px 0 0;
+  font-size: calc(13px * var(--text-scale));
   font-weight: 600;
+  line-height: 1.3;
 }
 .home-welcome-task-sub {
   margin: 2px 0 0;
-  font-size: calc(12px * var(--text-scale));
-  line-height: 1.45;
+  font-size: calc(11.5px * var(--text-scale));
+  line-height: 1.4;
   color: var(--stone);
 }
 .home-welcome-task-arrow { flex: none; color: var(--mist); }
+
+/* On a phone the tiles are ~85px wide, where a one-line description wraps
+   to four lines and costs more height than it explains. The title and its
+   icon carry it there; the screen each tile opens does the explaining. */
+@media (max-width: 599px) {
+  .home-welcome-task-sub { display: none; }
+  .home-welcome-task { padding: 8px 9px 10px; }
+  .home-welcome-task-mark { width: 24px; height: 24px; }
+  .home-welcome-task-title { font-size: calc(12px * var(--text-scale)); }
+}
 
 /* Done — kept on screen (so the list doesn't jump as tasks complete) but
    visibly settled: sage tick, muted text, no pull for attention. */

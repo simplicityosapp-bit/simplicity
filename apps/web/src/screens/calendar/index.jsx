@@ -60,15 +60,22 @@ export default function CalendarScreen() {
   const { bookings, cancel: cancelBookingFn } = useBookings()
   const { pages: bookingPages } = useBookingPages()
   const { types: meetingTypes } = useMeetingTypes()
-  const { clients } = useClients()
-  const { groups } = useGroups()
-  const { members } = useGroupMembers()
+  const { clients, loading: clientsLoading } = useClients()
+  const { groups, loading: groupsLoading } = useGroups()
+  /* Loading flags matter as much as the data: every one of these hooks returns
+     [] while fetching, so an in-flight members list is indistinguishable from
+     "this client is in no groups" — and the generator would then read the
+     stale status_meta column. */
+  const { members, loading: membersLoading } = useGroupMembers()
 
   /* Materialize recurring client/group meetings (recurring_day + recurring_time)
      into scheduled_meetings while the calendar is open. Without this the engine
      only runs on the home screen (AttentionWidget), so a freshly-set "שעה קבועה"
      wouldn't appear here until the user happened to visit home. Idempotent. */
-  useScheduledMeetingsGeneration({ clients, groups, members, meetings, meetingsLoading, addMeeting })
+  useScheduledMeetingsGeneration({
+    clients, groups, members, meetings, addMeeting,
+    loading: meetingsLoading || clientsLoading || groupsLoading || membersLoading,
+  })
   const { leads, updateLead } = useLeads()
   const { projects } = useProjects()
   const { addTask } = useTasks()

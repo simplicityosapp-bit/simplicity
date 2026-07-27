@@ -21,16 +21,19 @@ let generatingGlobal = false
    from firing during the initial fetch — without it, the empty
    default state ([]) looks like "no meetings exist yet" and the
    engine cheerfully creates duplicates for every slot. */
-export function useScheduledMeetingsGeneration({ clients, groups, members, meetings, meetingsLoading, addMeeting }) {
+export function useScheduledMeetingsGeneration({ clients, groups, members, meetings, loading, addMeeting }) {
   useEffect(() => {
     if (generatingGlobal) return
-    if (meetingsLoading) return
-    if (!clients || !groups || !meetings) return
+    /* ONE loading gate covering every input, not just the meetings.
+       All four hooks return `data ?? []`, so "still fetching" and "genuinely
+       empty" look identical from here — and an empty MEMBERS or GROUPS array
+       is not harmless: effectiveClientMeta finds no membership, falls back to
+       the stale status_meta column, and materialises a weekly meeting for a
+       client whose groups have all ended. That is the bug fixed in 5a2ce95,
+       reachable again as a race for as long as the fetches are in flight. */
+    if (loading) return
+    if (!clients || !groups || !members || !meetings) return
     if (!clients.length && !groups.length) return
-    /* `members` decides a group-driven client's effective status, so a pass
-       that runs before the memberships land would read them as ungrouped and
-       generate for a client whose groups have all ended. Wait for the array. */
-    if (!members) return
     const due = generateScheduledMeetings(clients, groups, meetings, new Date(), { members })
     if (!due.length) return
     generatingGlobal = true
@@ -43,5 +46,5 @@ export function useScheduledMeetingsGeneration({ clients, groups, members, meeti
         generatingGlobal = false
       }
     })()
-  }, [clients, groups, members, meetings, meetingsLoading, addMeeting])
+  }, [clients, groups, members, meetings, loading, addMeeting])
 }

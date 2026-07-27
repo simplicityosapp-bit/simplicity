@@ -953,18 +953,26 @@
   font-variant-numeric: tabular-nums;
   backdrop-filter: var(--mg-card-blur);
 }
+/* Inverted (owner call 2026-07-27): the accent fills the pill and the text
+   sits on it in white, instead of coloured text on a 14%-alpha wash that
+   dissolved into the glass. --on-accent is exactly this token's job —
+   "light text on a saturated accent (sage/clay/terracotta)". */
 .f-delta.pos {
-  color: var(--sage);
-  background: rgba(139, 168, 136, 0.14);
+  color: var(--on-accent);
+  background: var(--sage);
 }
 .f-delta.neg {
-  color: var(--clay);
-  background: rgba(181, 99, 78, 0.14);
+  color: var(--on-accent);
+  background: var(--clay);
 }
 .f-delta.neu {
-  color: var(--stone);
-  background: color-mix(in srgb, var(--stone) 8%, transparent);
+  color: var(--on-accent);
+  background: var(--stone);
 }
+/* Dark mode remaps --stone to a LIGHT grey-green, so white-on-stone would
+   be unreadable; the neutral pill takes the dark ink there. sage and clay
+   stay deep in dark mode, so those two keep white. */
+[data-theme="dark"] .f-delta.neu { color: var(--ink-on-accent); }
 
 /* ── Breakdown sections (by project / by category) ─────────── */
 .f-breakdown {

@@ -36,18 +36,6 @@
           "Puedes cambiarlo cuando quieras desde Ajustes."
         ]
       },
-      "data_import": {
-        "title": "Cómo funciona la importación",
-        "paragraphs": [
-          "Si tienes una tabla (Excel / CSV) con clientes, proyectos o transacciones, puedes subirla e intentaremos sacar de ella todo lo posible.",
-          "Lo que encontremos aparecerá ya rellenado en los siguientes pasos, y podrás aprobar o editar cada fila antes de guardar nada."
-        ],
-        "bullets": [
-          "Admite CSV y Excel",
-          "Puedes subir archivos varias veces",
-          "No es obligatorio: puedes empezar desde cero"
-        ]
-      },
       "projects": {
         "title": "¿Qué es un proyecto?",
         "paragraphs": [
@@ -67,32 +55,11 @@
           "Desde la ficha del cliente puedes registrar sesiones, cobrar un pago y agendar la siguiente cita."
         ]
       },
-      "daily_questions": {
-        "title": "Cómo funcionan las preguntas",
-        "paragraphs": [
-          "Cada día aparece una pregunta. Una respuesta corta en un día concreto permite al sistema construir una imagen amplia con el tiempo.",
-          "Las preguntas de nuestras sugerencias alimentan también los gráficos y «Vista general». Las tuyas propias son más para reflexionar: no las analizamos automáticamente."
-        ]
-      },
       "goals": {
         "title": "Los objetivos lo conectan todo",
         "paragraphs": [
           "Un objetivo es una dirección, no una presión. Lleva un número (cuántos clientes, cuántos ingresos, cuántas consultas), un plazo y la importancia que le das.",
           "Los objetivos de ingresos afectan a los gráficos de dinero y a «Vista general». Los demás aparecen sobre todo en «Vista general» e «Informes»."
-        ]
-      },
-      "recurring": {
-        "title": "Por qué anotar los gastos fijos una sola vez",
-        "paragraphs": [
-          "Los ingresos y gastos que se repiten (alquiler, seguro, una suscripción, un paquete mensual) se crean solos cada mes como transacción pendiente.",
-          "Tú solo confirmas que de verdad ocurrieron: no hay que introducirlos una y otra vez."
-        ]
-      },
-      "preview": {
-        "title": "¿Qué estamos viendo?",
-        "paragraphs": [
-          "Un adelanto de lo que tus datos irán construyendo con el tiempo: un gráfico de ingresos, la puntuación ponderada de «Vista general» y el avance hacia los objetivos que definas.",
-          "Cuantas más transacciones, sesiones y respuestas diarias haya, más cosas reales empieza a contar la imagen."
         ]
       },
       "finish": {
@@ -106,7 +73,6 @@
   },
   "review": {
     "title": "Revisa antes de que creemos nada",
-    "subApprove": "Echa un vistazo a lo que encontramos en tu archivo. Por ahora solo estás eligiendo qué traer — no se crea nada hasta el último paso, tras una confirmación final. Puedes editar, incluir o dejar cosas fuera.",
     "subCreate": "Echa un vistazo a lo que encontramos en tu archivo. Edita, incluye o deja cosas fuera — solo se guardará lo que esté marcado.",
     "dialogAria": "Revisar antes de crear",
     "closeAria": "Atrás",
@@ -192,7 +158,6 @@
       "noDate": "Sin fecha — la colocaremos en una fecha estimada"
     },
     "summary": {
-      "willApprove": "Se aprobarán",
       "willCreate": "Se crearán",
       "clients": "clientes",
       "projects": "proyectos",
@@ -200,14 +165,9 @@
       "transactions": "transacciones"
     },
     "confirm": {
-      "savingApprove": "Guardando…",
       "savingCreate": "Creando…",
-      "approveEmpty": "Confirmar y continuar",
       "createEmpty": "Finalizar sin importar",
-      "approve": "Confirmar y continuar ({{count}})",
-      "create": "Confirmar y crear ({{count}})",
-      "skipImport": "Empezar sin importar",
-      "skipImportHint": "Lo que ya has configurado queda guardado. Puedes importar el archivo más tarde desde Ajustes."
+      "create": "Confirmar y crear ({{count}})"
     },
     "dirty": {
       "ariaLabel": "¿Salir sin guardar?",
@@ -268,7 +228,8 @@
     "ready": "Listo para la revisión antes de que creemos nada.",
     "notReady": "Elige qué hay en cada hoja y asigna las columnas de nombre / importe.",
     "pickYear": "Elige un año para cada hoja mensual",
-    "toReview": "Continuar a la revisión"
+    "toReview": "Continuar a la revisión",
+    "reopenRecognize": "Resumen del reconocimiento"
   },
   "sheet": {
     "removeAria": "Quitar hoja",

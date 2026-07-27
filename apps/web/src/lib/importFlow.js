@@ -64,29 +64,6 @@ export async function buildSheetsFromFiles(fileList) {
   return { sheets, names: files.map((f) => f.name).join(', ') }
 }
 
-/* Fingerprint of everything about the sheets that CHANGES what
-   buildReviewFromSheets() produces — the entity type of each table, its
-   column→field mapping, whether it was removed, and a matrix sheet's
-   pivot config. Deliberately excludes the raw rows: re-picking a file
-   builds new sheet ids, so the fingerprint moves anyway.
-
-   Used to decide whether a review the user already approved still
-   describes the current data. Without it, walking back into step 2 and
-   forward again rebuilt the review from scratch and threw away every row
-   they had excluded — silently, on the one screen where the exclusions
-   were the whole point of their work. */
-export function sheetsFingerprint(pd) {
-  const sheets = pd?.sheets
-  if (!Array.isArray(sheets)) return ''
-  return JSON.stringify(sheets.map((s) => [
-    s.id,
-    s.removed ? 1 : 0,
-    s.type,
-    s.mapping || null,
-    s.pivot ? [s.pivot.year ?? null, s.pivot.labelCol ?? null, s.pivot.rowTypes || null, [...(s.pivot.skipRows || [])].sort()] : null,
-  ]))
-}
-
 /* Project the sheet descriptors in `pd.sheets` into the merged review
    object the wizard consumes: { clients, projects, leads, transactions,
    sessions }. Flat sheets project their rows; matrix sheets flatten to

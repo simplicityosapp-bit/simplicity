@@ -19,8 +19,6 @@ import { ONBOARDING_STEPS, defaultOnboarding } from '../lib/preferences'
      - back(): move to previous step.
      - goTo(stepKey): jump to a specific step.
      - setAnswers(key, patch): merge into answers[key].
-     - setParsedData(data): used by step 2 to share CSV parse result
-       with downstream steps.
      - complete(): finish and release the guard.
    All persistence is a deep-merge into user_preferences.onboarding.
    ════════════════════════════════════════════════════════════════ */
@@ -55,11 +53,6 @@ export function useOnboarding() {
       return update({ onboarding: { answers: { [key]: merged } } })
     },
     [update, state.answers],
-  )
-
-  const setParsedData = useCallback(
-    (data) => update({ onboarding: { parsed_data: data } }),
-    [update],
   )
 
   const markStarted = useCallback(() => {
@@ -113,7 +106,6 @@ export function useOnboarding() {
     }
     if (cur === ONBOARDING_STEPS[ONBOARDING_STEPS.length - 1]) {
       nextState.skipped_at = new Date().toISOString()
-      nextState.parsed_data = null /* terminal — drop the raw CSV */
     }
     return update({ onboarding: nextState })
   }, [step, state, update])
@@ -129,15 +121,12 @@ export function useOnboarding() {
   }, [patch])
 
   const skipAll = useCallback(
-    () => patch({ skipped_at: new Date().toISOString(), parsed_data: null }),
+    () => patch({ skipped_at: new Date().toISOString() }),
     [patch],
   )
 
-  /* Completing is terminal — drop the raw CSV (personal client data we
-     only kept for the review wizard) in the SAME write that sets
-     completed_at, so a stale-state merge can't resurrect it. */
   const complete = useCallback(
-    () => patch({ completed_at: new Date().toISOString(), parsed_data: null }),
+    () => patch({ completed_at: new Date().toISOString() }),
     [patch],
   )
 
@@ -152,12 +141,11 @@ export function useOnboarding() {
     completedSteps,
     markStarted,
     setAnswers,
-    setParsedData,
     advance,
     skipStep,
     back,
     goTo,
     skipAll,
     complete,
-  }), [loading, state, step, stepIndex, total, progress, isComplete, completedSteps, markStarted, setAnswers, setParsedData, advance, skipStep, back, goTo, skipAll, complete])
+  }), [loading, state, step, stepIndex, total, progress, isComplete, completedSteps, markStarted, setAnswers, advance, skipStep, back, goTo, skipAll, complete])
 }

@@ -61,11 +61,13 @@ function humanizeError(raw, t) {
    ("פולואפ" etc.) stays selectable. */
 const CLIENT_STATUS_DEFAULTS = ['פעיל׌', 'בהפסקה', 'לשעבר', 'ללא סטטוס']
 
-/* `mode`: 'create' (step 9 — actually writes the data) or 'approve'
-   (step 2 — only records the user's approval; step 9 leans on it and is
-   the single place data is created). The two differ only in wording; the
-   confirm flow is identical (onConfirm decides whether to write). */
-export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, onCancel, mode = 'create', allowSkipImport = false }) {
+/* One pass, one meaning: what's ticked here is what gets written. The
+   wizard used to also run in an 'approve' mode from onboarding's step 2,
+   which recorded a selection that step 9 then asked about all over again
+   — the same spreadsheet, twice, before the user had seen the app. With
+   the import living in Settings there is a single review, at the point
+   of writing. */
+export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, onCancel }) {
   const { t } = useT('onboarding')
   const { clients: existingClients, loading: clientsLoading } = useClients()
   const { projects: existingProjects, loading: projectsLoading } = useProjects()
@@ -284,25 +286,6 @@ export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, 
     }
   }
 
-  /* "Start without importing" — finish onboarding and enter the app WITHOUT
-     running the import. Keeps everything the user already set up (profile,
-     projects, clients from the earlier steps); the uploaded file is simply
-     not imported (they can import later from Settings → ייבוא). Only offered
-     at the final step ('create'); step 2's "approve" has no creation to skip.
-     Guarded by the same synchronous ref as confirm so a double-tap can't
-     finish twice. */
-  const handleSkipImport = async () => {
-    if (busy || confirmingRef.current) return
-    confirmingRef.current = true
-    setBusy(true)
-    try {
-      await onComplete()
-    } finally {
-      setBusy(false)
-      confirmingRef.current = false
-    }
-  }
-
   const renderToggle = (type, i, row, inc) => (
     <Btn type="button" className={`obrw-toggle${inc ? ' on' : ''}`} onClick={() => toggle(type, i, row)}
       aria-pressed={inc} aria-label={inc ? t('review.toggle.includedAria') : t('review.toggle.excludedAria')}>
@@ -385,9 +368,7 @@ export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, 
         <Box as="header" className="obrw-head">
           <Box>
             <Txt as="p" className="obrw-title">{t('review.title')}</Txt>
-            <Txt as="p" className="obrw-sub">{mode === 'approve'
-              ? t('review.subApprove')
-              : t('review.subCreate')}</Txt>
+            <Txt as="p" className="obrw-sub">{t('review.subCreate')}</Txt>
           </Box>
           <Btn type="button" className="obrw-x" onClick={requestClose} aria-label={t('review.closeAria')} disabled={busy}>
             <X size={18} strokeWidth={1.8} aria-hidden="true" />
@@ -623,7 +604,7 @@ export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, 
 
         <Box as="footer" className="obrw-foot">
           <Txt as="p" className="obrw-summary">
-            {mode === 'approve' ? t('review.summary.willApprove') : t('review.summary.willCreate')}: <strong>{counts.clients}</strong> {t('review.summary.clients')} · <strong>{counts.projects}</strong> {t('review.summary.projects')}
+            {t('review.summary.willCreate')}: <strong>{counts.clients}</strong> {t('review.summary.clients')} · <strong>{counts.projects}</strong> {t('review.summary.projects')}
             {counts.leads > 0 && <> · <strong>{counts.leads}</strong> {t('review.summary.leads')}</>}
             {' · '}<strong>{counts.transactions}</strong> {t('review.summary.transactions')}
           </Txt>
@@ -631,18 +612,12 @@ export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, 
             <Btn type="button" className="ob-btn ghost" onClick={requestClose} disabled={busy}>
               {t('common.back')}
             </Btn>
-            {allowSkipImport && (
-              <Btn type="button" className="ob-btn ghost" onClick={handleSkipImport} disabled={busy}
-                title={t('review.confirm.skipImportHint')}>
-                {t('review.confirm.skipImport')}
-              </Btn>
-            )}
             <Btn type="button" className="ob-btn primary" onClick={handleConfirm} disabled={busy}>
               {busy
-                ? (mode === 'approve' ? t('review.confirm.savingApprove') : t('review.confirm.savingCreate'))
+                ? t('review.confirm.savingCreate')
                 : totalIncluded === 0
-                  ? (mode === 'approve' ? t('review.confirm.approveEmpty') : t('review.confirm.createEmpty'))
-                  : (mode === 'approve' ? t('review.confirm.approve', { count: totalIncluded }) : t('review.confirm.create', { count: totalIncluded }))}
+                  ? t('review.confirm.createEmpty')
+                  : t('review.confirm.create', { count: totalIncluded })}
             </Btn>
           </Box>
         </Box>

@@ -1,10 +1,10 @@
 import { useRef, useState } from 'react'
 import { X, Pencil, EyeOff, Check } from 'lucide-react'
 import { useUserPreferences } from '../../hooks/useUserPreferences'
-import { useClients } from '../../hooks/useClients'
 import { useHomeEdit } from '../../hooks/useHomeEdit'
 import { visibleWidgets, hiddenWidgets } from '../../lib/preferences'
 import HomeWelcome from '../../components/HomeWelcome'
+import { useSetupTasks } from '../../hooks/useSetupTasks'
 import QuoteWidget from './widgets/QuoteWidget'
 import MoonWidget from './widgets/MoonWidget'
 import InsightsWidget from './widgets/InsightsWidget'
@@ -49,7 +49,6 @@ const WIDGET_COMPONENTS = {
 export default function HomeScreen({ onOpenFeedback }) {
   const { t } = useT('home')
   const { prefs, update: updatePrefs } = useUserPreferences()
-  const { clients, loading: clientsLoading } = useClients()
   const stackRef = useRef(null)
   const [showHidden, setShowHidden] = useState(false)
 
@@ -66,7 +65,13 @@ export default function HomeScreen({ onOpenFeedback }) {
     onChange: (next) => updatePrefs({ widgets: { list: next } }),
   })
 
-  const showWelcome = !clientsLoading && (clients?.length || 0) === 0 && !prefs?.homeWelcomeDismissed
+  /* The card is the tail of onboarding now, not an empty-account notice:
+     it shows while any setup task is still outstanding, and retires itself
+     once they're all done. Keyed on the tasks rather than on "no clients
+     yet" — onboarding creates a client, so that test was about to be false
+     for everyone on their first visit. */
+  const setupTasks = useSetupTasks()
+  const showWelcome = setupTasks.some((task) => !task.done) && !prefs?.homeWelcomeDismissed
   /* Read through the hook: mid-drag this is the local draft, so the order
      follows the finger without a database write per pointermove. */
   const shown  = visibleWidgets(edit.list)

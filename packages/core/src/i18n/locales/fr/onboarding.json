@@ -36,18 +36,6 @@
           "Vous pouvez tout modifier plus tard dans les Réglages."
         ]
       },
-      "data_import": {
-        "title": "Comment fonctionne l'import",
-        "paragraphs": [
-          "Si vous avez un tableau (Excel / CSV) avec des clients, des projets ou des transactions, vous pouvez le téléverser et nous en extrairons tout ce que nous pouvons.",
-          "Ce que nous trouvons arrive prérempli aux étapes suivantes, et vous pouvez valider ou modifier chaque ligne avant que quoi que ce soit ne soit enregistré."
-        ],
-        "bullets": [
-          "Compatible CSV et Excel",
-          "Vous pouvez téléverser plusieurs fois",
-          "Facultatif — vous pouvez partir de zéro"
-        ]
-      },
       "projects": {
         "title": "Qu'est-ce qu'un projet ?",
         "paragraphs": [
@@ -67,32 +55,11 @@
           "Depuis la fiche du client, vous pouvez consigner des séances, encaisser un paiement et fixer le prochain rendez-vous."
         ]
       },
-      "daily_questions": {
-        "title": "Comment fonctionnent les questions",
-        "paragraphs": [
-          "Une question apparaît chaque jour. Une réponse courte un jour donné permet au système de construire une vue d'ensemble au fil du temps.",
-          "Les questions issues de nos suggestions alimentent aussi les graphiques et « Vue d'ensemble ». Les vôtres servent plutôt à la réflexion : nous ne les analysons pas automatiquement."
-        ]
-      },
       "goals": {
         "title": "Les objectifs relient tout",
         "paragraphs": [
           "Un objectif est une direction, pas une pression. Il prend un nombre (combien de clients, combien de revenus, combien de demandes), une échéance, et l'importance que vous lui donnez.",
           "Les objectifs de revenus alimentent les graphiques financiers et « Vue d'ensemble ». Les autres apparaissent surtout dans « Vue d'ensemble » et « Rapports »."
-        ]
-      },
-      "recurring": {
-        "title": "Pourquoi saisir les dépenses fixes une seule fois",
-        "paragraphs": [
-          "Les revenus et dépenses qui reviennent (loyer, assurance, un abonnement, un forfait mensuel) sont créés pour vous chaque mois sous forme de transaction en attente.",
-          "Vous n'avez qu'à confirmer qu'ils ont bien eu lieu — plus besoin de les ressaisir à chaque fois."
-        ]
-      },
-      "preview": {
-        "title": "Qu'est-ce qu'on regarde ?",
-        "paragraphs": [
-          "Un aperçu de ce que vos données construiront au fil du temps : un graphique de revenus, le score pondéré « Vue d'ensemble », l'avancement par rapport aux objectifs que vous définissez.",
-          "Plus il y a de transactions, de séances et de réponses quotidiennes, plus le tableau commence à dire quelque chose de réel."
         ]
       },
       "finish": {
@@ -106,7 +73,6 @@
   },
   "review": {
     "title": "Vérification avant de créer quoi que ce soit",
-    "subApprove": "Examinez ce que nous avons trouvé dans votre fichier. Pour l'instant, vous choisissez seulement ce que vous voulez importer — rien n'est créé avant l'étape finale, après une dernière confirmation. Vous pouvez modifier, inclure ou laisser de côté des éléments.",
     "subCreate": "Examinez ce que nous avons trouvé dans votre fichier. Modifiez, incluez ou laissez de côté des éléments — seul ce qui est coché sera enregistré.",
     "dialogAria": "Vérification avant la création",
     "closeAria": "Retour",
@@ -192,7 +158,6 @@
       "noDate": "Aucune date — nous la placerons à une date estimée"
     },
     "summary": {
-      "willApprove": "Seront approuvés",
       "willCreate": "Seront créés",
       "clients": "clients",
       "projects": "projets",
@@ -200,14 +165,9 @@
       "transactions": "transactions"
     },
     "confirm": {
-      "savingApprove": "Enregistrement…",
       "savingCreate": "Création…",
-      "approveEmpty": "Confirmer et continuer",
       "createEmpty": "Terminer sans importer",
-      "approve": "Confirmer et continuer ({{count}})",
-      "create": "Confirmer et créer ({{count}})",
-      "skipImport": "Commencer sans importer",
-      "skipImportHint": "Ce que vous avez déjà configuré est enregistré. Vous pourrez importer le fichier plus tard depuis les Paramètres."
+      "create": "Confirmer et créer ({{count}})"
     },
     "dirty": {
       "ariaLabel": "Quitter sans enregistrer ?",
@@ -268,7 +228,8 @@
     "ready": "Prêt pour la vérification avant de créer quoi que ce soit.",
     "notReady": "Choisissez ce que contient chaque feuille et associez les colonnes du nom / du montant.",
     "pickYear": "Choisissez une année pour chaque feuille mensuelle",
-    "toReview": "Continuer vers la vérification"
+    "toReview": "Continuer vers la vérification",
+    "reopenRecognize": "Résumé de la reconnaissance"
   },
   "sheet": {
     "removeAria": "Retirer la feuille",

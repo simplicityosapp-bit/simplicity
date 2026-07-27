@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react'
-import { X, AlertTriangle } from 'lucide-react'
+import { X, AlertTriangle, Sparkles } from 'lucide-react'
 import UnifiedSheetImporter from './UnifiedSheetImporter'
+import RecognitionWizard from './RecognitionWizard'
 import OnboardingReviewWizard from './OnboardingReviewWizard'
 import { finalizeOnboardingImport } from '../../lib/onboardingImport'
 import { buildReviewFromSheets } from '../../lib/importFlow'
@@ -16,6 +17,13 @@ import { Box, Txt, Btn } from '../../components/ui'  /* obrw-* modal shell */
    user gets multi-sheet, matrix (months-as-columns), leads & sessions
    — exactly what onboarding offers — instead of a single flat sheet.
    Reuses UnifiedSheetImporter + buildReviewFromSheets + finalizeOnboardingImport.
+
+   The RecognitionWizard — "here's what we found in your file, correct us
+   before you go further" — opened automatically here too when the flow
+   moved out of onboarding. It was the one part of that step worth
+   keeping: a plain-language summary in front of the column-by-column
+   mapping, so a user who only needs to confirm never has to read the
+   detailed editor at all.
    ════════════════════════════════════════════════════════════════ */
 
 export default function ImportDataModal({ parsed: initialParsed, onClose, onImported }) {
@@ -23,6 +31,9 @@ export default function ImportDataModal({ parsed: initialParsed, onClose, onImpo
   const [parsed, setParsed] = useState(initialParsed) /* { kind:'csv', file_name, sheets } */
   const [phase, setPhase] = useState('map') /* 'map' | 'review' */
   const [review, setReview] = useState(null)
+  /* Shown first, ahead of the mapping cards, whenever there's anything to
+     recognise. Re-openable from the mapping phase. */
+  const [showRecognition, setShowRecognition] = useState(() => (initialParsed?.sheets || []).some((s) => !s.removed))
   const summaryRef = useRef(null)
 
   const liveSheets = (parsed?.sheets || []).filter((s) => !s.removed)
@@ -53,6 +64,17 @@ export default function ImportDataModal({ parsed: initialParsed, onClose, onImpo
     )
   }
 
+  if (showRecognition && liveSheets.length > 0) {
+    return (
+      <RecognitionWizard
+        sheets={parsed.sheets}
+        onChange={onSheetsChange}
+        onConfirm={() => setShowRecognition(false)}
+        onEditManually={() => setShowRecognition(false)}
+      />
+    )
+  }
+
   /* ── Mapping phase ── */
   return (
     <Box className="obrw-back" role="dialog" aria-modal="true" aria-label={t('modal.dialogAria')}>
@@ -73,7 +95,13 @@ export default function ImportDataModal({ parsed: initialParsed, onClose, onImpo
 
         <Box className="obrw-body">
           {liveSheets.length > 0 ? (
-            <UnifiedSheetImporter sheets={parsed.sheets} onChange={onSheetsChange} />
+            <>
+              <Btn type="button" className="ob-btn ghost" onClick={() => setShowRecognition(true)}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: 6, margin: '0 auto 12px' }}>
+                <Sparkles size={14} strokeWidth={1.8} aria-hidden="true" /> {t('modal.reopenRecognize')}
+              </Btn>
+              <UnifiedSheetImporter sheets={parsed.sheets} onChange={onSheetsChange} />
+            </>
           ) : (
             <Txt as="p" className="obrw-loading-txt" style={{ textAlign: 'center', padding: '32px 0' }}>
               {t('modal.noData')}

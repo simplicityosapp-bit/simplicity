@@ -58,14 +58,16 @@ export const BOTTOM_NAV = [
 export const DRAWER_NAV = [
   { key: 'home', icon: 'Home', to: ROUTES.HOME },
   { key: 'clients', icon: 'Users', to: ROUTES.CLIENTS },
-  { key: 'leads', icon: 'Heart', to: ROUTES.LEADS },
+  { key: 'leads', icon: 'Magnet', to: ROUTES.LEADS },
   { key: 'finance', icon: 'Wallet', to: ROUTES.FINANCE },
   { key: 'projects', icon: 'Folder', to: ROUTES.PROJECTS },
   { key: 'tasks', icon: 'ClipboardList', to: ROUTES.TASKS },
   { key: 'goals', icon: 'Target', to: ROUTES.GOALS },
   { key: 'calendar', icon: 'Calendar', to: ROUTES.CALENDAR },
   /* מבט על promoted to the main grid (owner call 2026-07-19); connections moved
-     to the "עוד" extras panel / mobile personal section. */
-  { key: 'moon', icon: 'Moon', to: ROUTES.MOON_GLANCE },
+     to the "עוד" extras panel / mobile personal section. Eye, not Moon (owner
+     call 2026-07-27): the crescent competed with the theme toggle's own moon,
+     and the screen is a look at the practice, not a lunar feature. */
+  { key: 'moon', icon: 'Eye', to: ROUTES.MOON_GLANCE },
   { key: 'settings', icon: 'Settings', to: ROUTES.SETTINGS },
 ]

@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
-  Home, Users, Heart, Wallet, Folder, ClipboardList, Target, Calendar, Settings,
-  Moon, Activity, BarChart3, Trash2, Sun, X, Pencil, LogOut, MessageSquarePlus, Shield, Plug, LayoutTemplate,
+  Home, Users, Magnet, Wallet, Folder, ClipboardList, Target, Calendar, Settings,
+  Moon, Eye, Activity, BarChart3, Trash2, Sun, X, Pencil, LogOut, MessageSquarePlus, Shield, Plug, LayoutTemplate,
   MessagesSquare, Gem,
 } from 'lucide-react'
 import { DRAWER_NAV } from '../lib/nav'
@@ -19,7 +19,9 @@ import ProfileHealthModal from '../modals/ProfileHealthModal'
 import './MenuDrawer.css'
 import { Box, Txt, Btn } from './ui'
 
-const GRID_ICONS = { Home, Users, Heart, Wallet, Folder, ClipboardList, Target, Calendar, Settings, Plug, Moon }
+/* Keyed by the icon NAME in lib/nav.js — Moon stays imported for the theme
+   toggle below, but it is no longer a nav icon (מבט על wears Eye). */
+const GRID_ICONS = { Home, Users, Magnet, Wallet, Folder, ClipboardList, Target, Calendar, Settings, Plug, Eye }
 
 function initial(name) {
   return name?.trim()?.[0] ?? '·'

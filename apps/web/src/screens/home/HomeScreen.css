@@ -78,8 +78,22 @@
   .home-stack .home-widget[data-widget-id="moon"]       { grid-column: span 1; }
   .home-stack .home-widget[data-widget-id="insights"]   { grid-column: span 3; }
   .home-stack .home-widget[data-widget-id="quick-row"]  { grid-column: span 1; align-self: stretch; }
-  .home-stack .home-widget[data-widget-id="attention"]  { grid-column: span 2; }
-  .home-stack .home-widget[data-widget-id="next-tasks"] { grid-column: span 2; }
+  /* The two list widgets share a row, and with align-items:start each cell
+     sized to its own content — so a quiet day left "דרושה תשומת לב" as a
+     stub beside a full "משימות ותזכורות" and the row read as broken. They
+     take the height the design system already reserves for them:
+     --mg-card-lg is defined in tokens.css as "lists (tasks, attention)".
+     A floor, not a fixed height — a long list still grows past it.
+     Desktop only: on a phone they stack, so shrinking costs nothing. */
+  .home-stack .home-widget[data-widget-id="attention"],
+  .home-stack .home-widget[data-widget-id="next-tasks"] {
+    grid-column: span 2;
+    align-self: stretch;
+  }
+  .home-stack .home-widget[data-widget-id="attention"] > *:first-child,
+  .home-stack .home-widget[data-widget-id="next-tasks"] > *:first-child {
+    min-height: var(--mg-card-lg);
+  }
 
   /* The quick-add cell is a tile, so the button fills it rather than
      floating at a fixed width inside an empty column. */

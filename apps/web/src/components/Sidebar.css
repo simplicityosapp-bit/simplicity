@@ -135,6 +135,15 @@
   .mg-sidebar-link[data-screen="reports"]  { --nav-accent: var(--blush); }
   .mg-sidebar-link[data-screen="insights"] { --nav-accent: var(--sage); }
   .mg-sidebar-link[data-screen="trash"]    { --nav-accent: var(--clay); }
+  /* The extras panel's own rows were missing from this map, and the chip
+     fill is color-mix(… var(--nav-accent) …) — with the variable undefined
+     the whole declaration is invalid, so those icons rendered with NO chip
+     at all beside neighbours that had one. Same palette logic as above:
+     outward-facing screens take blush, tooling takes sage, money amber. */
+  .mg-sidebar-link[data-screen="sitePages"]    { --nav-accent: var(--blush); }
+  .mg-sidebar-link[data-screen="community"]    { --nav-accent: var(--blush); }
+  .mg-sidebar-link[data-screen="connections"]  { --nav-accent: var(--sage); }
+  .mg-sidebar-link[data-screen="subscription"] { --nav-accent: var(--amber-warn); }
 
   .mg-sidebar-link {
     display: flex;

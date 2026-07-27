@@ -40,7 +40,22 @@ export default function AddTransactionModal({ open, onClose, onSave, clients = [
   const qc = useQueryClient()
   const inv = useInvoiceProvider()
   const lockedClientId = client?.id || ''
-  const initial = { ...defaults, client_id: lockedClientId || defaults.client_id, type: defaultType || defaults.type }
+  /* A LOCKED client (the drawer's "קיבלתי תשלום") answers for the same fields
+     a picked one does — see `set` below — so it seeds them the same way, and
+     an explicit `defaults` from the caller still wins over the client. */
+  const lockedType = defaultType || defaults.type || 'income'
+  const fromLockedClient = client
+    ? {
+      project_id: client.project_id && projects.some((p) => p.id === client.project_id) ? client.project_id : undefined,
+      amount: lockedType === 'income' && Number(client.price_per_session) > 0 ? String(Number(client.price_per_session)) : undefined,
+    }
+    : {}
+  const initial = {
+    ...Object.fromEntries(Object.entries(fromLockedClient).filter(([, v]) => v !== undefined)),
+    ...defaults,
+    client_id: lockedClientId || defaults.client_id,
+    type: defaultType || defaults.type,
+  }
   const [form, setForm] = useState(() => blank(initial))
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
@@ -86,8 +101,29 @@ export default function AddTransactionModal({ open, onClose, onSave, clients = [
     /* Leaving the expense type unmounts the inline category-creator block —
        reset its state so switching back to הוצאה shows the normal <select>. */
     if (k === 'type' && v !== 'expense') { setCreatingCat(false); setNewCatName('') }
+    /* Picking a client fills in what the client already answers for: the
+       project they are attached to (clients.project_id) and, on an income,
+       their price per session. ONLY into fields still empty — something you
+       typed yourself is never overwritten by a later client pick, which is
+       what makes changing your mind about the client safe. Computed out here
+       rather than inside the updater so it stays a pure state transition. */
+    let fromClient = null
+    if (k === 'client_id' && v && v !== '__adhoc__') {
+      const picked = clients.find((c) => c.id === v)
+      if (picked) {
+        fromClient = {}
+        if (!form.project_id && picked.project_id && projects.some((p) => p.id === picked.project_id)) {
+          fromClient.project_id = picked.project_id
+        }
+        const price = Number(picked.price_per_session)
+        if (!form.amount && form.type === 'income' && price > 0) fromClient.amount = String(price)
+      }
+    }
+    /* The project field lives behind "פרטים נוספים" — a value hidden under a
+       closed lid is worse than no value at all. */
+    if (fromClient?.project_id) setDetailsOpen(true)
     setForm((f) => {
-      const next = { ...f, [k]: v }
+      const next = { ...f, [k]: v, ...(fromClient || {}) }
       /* Leaving income → the ad-hoc recipient option no longer applies. */
       if (k === 'type' && v !== 'income' && f.client_id === '__adhoc__') next.client_id = ''
       return next

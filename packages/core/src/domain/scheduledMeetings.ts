@@ -392,7 +392,12 @@ export function generateScheduledMeetings(
     for (let guard = 0; guard <= 8; guard++) {
       const candidate = zonedTimeToInstant(cursor.year, cursor.month0, cursor.day, hh, mm, timeZone)
       if (cursor.weekday === s.dow && candidate >= startFrom) { occ = candidate; break }
-      cursor = zonedParts(new Date(candidate.getTime() + MS_PER_DAY), timeZone)
+      /* Advance by a CALENDAR day, not by 24h. Adding 86,400,000ms to a slot
+         that sits close to midnight lands back on the same date across a DST
+         change (a 00:15 slot walked over an autumn fall-back reads 23:15 the
+         same day), the cursor stops moving, and the search runs out its guard
+         without finding the weekday. Noon is never inside a transition. */
+      cursor = zonedParts(zonedTimeToInstant(cursor.year, cursor.month0, cursor.day + 1, 12, 0, timeZone), timeZone)
     }
     if (!occ) continue
 

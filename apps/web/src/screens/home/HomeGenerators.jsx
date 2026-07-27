@@ -34,15 +34,20 @@ import { useBookingsGeneration } from '../../hooks/useBookingsGeneration'
 export default function HomeGenerators() {
   const { transactions, addTransaction, loading: transactionsLoading } = useTransactions()
   const { meetings, addMeeting, loading: meetingsLoading } = useScheduledMeetings()
-  const { clients } = useClients()
-  const { groups } = useGroups()
+  const { clients, loading: clientsLoading } = useClients()
+  const { groups, loading: groupsLoading } = useGroups()
   /* Memberships decide a group-driven client's effective status — the meetings
-     engine needs them to know a client's groups have all ended. */
-  const { members } = useGroupMembers()
+     engine needs them to know a client's groups have all ended. Their loading
+     flag matters as much as the data: every one of these hooks returns [] while
+     fetching, so without it an in-flight members list reads as "no groups". */
+  const { members, loading: membersLoading } = useGroupMembers()
   const { templates } = useRecurring()
   const { bookings, materialize, loading: bookingsLoading } = useBookings()
 
-  useScheduledMeetingsGeneration({ clients, groups, members, meetings, meetingsLoading, addMeeting })
+  useScheduledMeetingsGeneration({
+    clients, groups, members, meetings, addMeeting,
+    loading: meetingsLoading || clientsLoading || groupsLoading || membersLoading,
+  })
   useRecurringGeneration({
     templates,
     transactions,

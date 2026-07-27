@@ -7,37 +7,17 @@
 // numbering). No toast here — the hook's optimistic update + reload-on-error
 // surfaces failure.
 
-// Parse "HH:MM" → [hh, mm] (ported verbatim from web lib/scheduledMeetings.js).
-function parseHHMM(t) {
-  if (!t) return null
-  const m = String(t).match(/^(\d{1,2}):(\d{2})/)
-  if (!m) return null
-  const hh = Number(m[1])
-  const mm = Number(m[2])
-  if (hh < 0 || hh > 23 || mm < 0 || mm > 59) return null
-  return [hh, mm]
-}
-
 // IDs of a subject's FUTURE PENDING meetings that matched the OLD weekly slot
-// but not the NEW one — the stale occurrences to purge when a client's recurring
-// slot changes (ported verbatim from web). Past/confirmed meetings are left
-// alone. `now` is injected so callers stay testable.
-export function staleScheduledMeetingIds(subjectType, subjectId, oldSchedule, newSchedule, meetings, now = new Date()) {
-  const matchesSlot = (m, sched) => {
-    const day = sched?.day
-    if (day == null || day === '') return false
-    const hhmm = parseHHMM(sched.time)
-    if (!hhmm) return false
-    const d = new Date(m.scheduled_at)
-    return d.getDay() === Number(day) && d.getHours() === hhmm[0] && d.getMinutes() === hhmm[1]
-  }
-  return (meetings || [])
-    .filter((m) => m.subject_type === subjectType && m.subject_id === subjectId)
-    .filter((m) => m.status === 'pending')
-    .filter((m) => new Date(m.scheduled_at) > now)
-    .filter((m) => matchesSlot(m, oldSchedule) && !matchesSlot(m, newSchedule))
-    .map((m) => m.id)
-}
+// but not the NEW one — the stale occurrences to purge when a recurring slot
+// changes. This was a verbatim PORT of the web copy, which meant it also
+// inherited the web copy's bug: it read the slot with getDay/getHours, i.e. in
+// the device's own zone, so on a phone outside Israel a 19:45 meeting looked
+// like a 16:45 one and the purge either spared or dropped the wrong rows.
+// A phone is far likelier than a browser to be in another zone.
+//
+// Now the single implementation in @simplicity/core, the same one the web app
+// and the nightly cron run, computed against an explicit time zone.
+export { staleScheduledMeetingIds } from '@simplicity/core'
 
 // Next session number for a meeting's subject — count of the subject's existing
 // sessions + 1 (mirrors ClientDrawer nextNum / web nextSessionNum).

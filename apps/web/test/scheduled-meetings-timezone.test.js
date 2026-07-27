@@ -59,6 +59,25 @@ describe('generateScheduledMeetings — runtime timezone independence', () => {
     }
   })
 
+  it('finds a near-midnight slot across the autumn fall-back', () => {
+    /* The first-occurrence search used to advance the cursor by 86,400,000ms.
+       A 00:15 slot walked over Israel's 25/10 fall-back lands back on the SAME
+       calendar date, so the cursor stopped moving and the search ran out its
+       guard — the whole subject silently generated nothing. It steps a
+       calendar day now. */
+    const now = new Date('2026-10-21T22:00:00Z')      // Thu 22/10, 01:00 Israel
+    const rows = generateScheduledMeetings([], [group({ recurring_time: '00:15' })], [], now, {
+      weeksAhead: 3, pastLookbackDays: 0,
+    })
+    expect(rows.length).toBeGreaterThan(0)
+    for (const r of rows) {
+      expect(hhmmIn(r.scheduled_at, 'Asia/Jerusalem')).toBe('00:15')
+      expect(weekdayIn(r.scheduled_at, 'Asia/Jerusalem')).toBe('Wed')
+    }
+    /* Must span the boundary, otherwise the test proves nothing. */
+    expect(rows.some((r) => new Date(r.scheduled_at) > new Date('2026-10-25T00:00:00Z'))).toBe(true)
+  })
+
   it('honours an explicit timeZone override', () => {
     const now = new Date('2026-07-15T05:00:00Z')
     const rows = generateScheduledMeetings([], [group()], [], now, {

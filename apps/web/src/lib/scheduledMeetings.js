@@ -11,6 +11,7 @@
    scheduled_at) — existing rows are skipped.
    ════════════════════════════════════════════════════════════════ */
 
+import { effectiveClientMeta } from '@simplicity/core'
 import i18n from '@simplicity/core/i18n'
 /* No showToast here any more: confirm and skip both register an undo, and the
    undo toast carries the same wording plus a way back. Two toasts firing for
@@ -63,7 +64,7 @@ export function generateScheduledMeetings(
   groups,
   existingMeetings,
   now = new Date(),
-  { weeksAhead = DEFAULT_WEEKS_AHEAD, pastLookbackDays = PAST_LOOKBACK_DAYS } = {},
+  { weeksAhead = DEFAULT_WEEKS_AHEAD, pastLookbackDays = PAST_LOOKBACK_DAYS, members = [] } = {},
 ) {
   const out = []
   const existingKeys = new Set(
@@ -73,7 +74,15 @@ export function generateScheduledMeetings(
   const clientSubjects = (clients || [])
     .filter((c) => !c.deleted_at)
     .filter((c) => c.recurring_day != null && c.recurring_time)
-    .filter((c) => c.status_meta !== 'past' && c.status_meta !== 'no_status')
+    /* Status MUST come from effectiveClientMeta, never the raw `status_meta`
+       column (same rule as homeData.js). For a group-driven client the column
+       keeps whatever it last held while the app reads them as 'past' once all
+       their groups end — so the raw read kept materialising a weekly meeting,
+       forever, for a client every other screen already shows as finished. */
+    .filter((c) => {
+      const meta = effectiveClientMeta(c, members, groups)
+      return meta !== 'past' && meta !== 'no_status'
+    })
     .map((c) => ({
       type: 'client',
       id: c.id,

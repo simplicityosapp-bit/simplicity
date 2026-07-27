@@ -21,13 +21,17 @@ let generatingGlobal = false
    from firing during the initial fetch — without it, the empty
    default state ([]) looks like "no meetings exist yet" and the
    engine cheerfully creates duplicates for every slot. */
-export function useScheduledMeetingsGeneration({ clients, groups, meetings, meetingsLoading, addMeeting }) {
+export function useScheduledMeetingsGeneration({ clients, groups, members, meetings, meetingsLoading, addMeeting }) {
   useEffect(() => {
     if (generatingGlobal) return
     if (meetingsLoading) return
     if (!clients || !groups || !meetings) return
     if (!clients.length && !groups.length) return
-    const due = generateScheduledMeetings(clients, groups, meetings, new Date())
+    /* `members` decides a group-driven client's effective status, so a pass
+       that runs before the memberships land would read them as ungrouped and
+       generate for a client whose groups have all ended. Wait for the array. */
+    if (!members) return
+    const due = generateScheduledMeetings(clients, groups, meetings, new Date(), { members })
     if (!due.length) return
     generatingGlobal = true
     ;(async () => {
@@ -39,5 +43,5 @@ export function useScheduledMeetingsGeneration({ clients, groups, meetings, meet
         generatingGlobal = false
       }
     })()
-  }, [clients, groups, meetings, meetingsLoading, addMeeting])
+  }, [clients, groups, members, meetings, meetingsLoading, addMeeting])
 }

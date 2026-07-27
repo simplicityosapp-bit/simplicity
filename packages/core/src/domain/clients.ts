@@ -7,6 +7,7 @@
    ════════════════════════════════════════════════════════════════ */
 
 import { financeQuery, type Tx } from './finance'
+import { getClientMemberships, isStatusOverridden } from './scheduledMeetings'
 
 export interface Client {
   id: string
@@ -52,36 +53,20 @@ interface DateRange { from?: string | number | Date | null; to?: string | number
 const live = <T extends { deleted_at?: string | null }>(a: T[] | null | undefined): T[] =>
   (a || []).filter((r) => !r.deleted_at)
 
-export const statusMetaOf = (c: Client): string => c.status_meta || c.status || 'no_status'
+/* C1 — a client who belongs to one or more groups derives their status from
+   those groups (the group owns the client's lifecycle). "Active wins over
+   ended": if ANY of their groups is not ended → 'active'; if they only sit
+   in ended groups → 'past'. A client with no membership — or one manually
+   overridden (status_overridden, migration 0062) — keeps their own stored
+   status_meta.
 
-export function getClientMemberships(clientId: string, membersData: GroupMembership[] = []): GroupMembership[] {
-  return live(membersData).filter((m) => m.client_id === clientId && !m.left_at)
-}
-
-/* True when the coach has taken manual control of this client's status
-   (migration 0062). When set, the stored status_meta wins over whatever
-   the client's groups would otherwise dictate. Only meaningful for group
-   members — a non-member's status is always their own stored value. */
-export const isStatusOverridden = (c: Client | null | undefined): boolean => !!c?.status_overridden
-
-/* C1 — a client who belongs to one or more groups derives their status
-   from those groups (the group owns the client's lifecycle). "Active wins
-   over ended": if ANY of their groups is not ended → 'active'; if they
-   only sit in ended groups → 'past'. A client with no group membership —
-   OR one whose status the coach has manually overridden (status_overridden,
-   migration 0062) — keeps their own stored status_meta. */
-export function effectiveClientMeta(c: Client | null | undefined, membersData: GroupMembership[] = [], groupsData: Group[] = []): string {
-  if (!c) return 'no_status'
-  if (isStatusOverridden(c)) return statusMetaOf(c)
-  const memberships = getClientMemberships(c.id, membersData)
-  if (!memberships.length) return statusMetaOf(c)
-  const statuses = memberships
-    .map((m) => (groupsData || []).find((g) => g.id === m.group_id))
-    .filter((g): g is Group => Boolean(g))
-    .map((g) => g.status)
-  if (!statuses.length) return statusMetaOf(c)
-  return statuses.some((s) => s !== 'ended') ? 'active' : 'past'
-}
+   The four rules themselves live in ./scheduledMeetings, the one file in
+   this package that imports nothing: the meetings engine needs them and the
+   nightly cron bundles that file into a Deno edge function, which cannot
+   resolve this package's extensionless imports. Re-exported here so every
+   existing `from './clients'` keeps working and each rule still has exactly
+   one definition. */
+export { statusMetaOf, getClientMemberships, isStatusOverridden, effectiveClientMeta } from './scheduledMeetings'
 
 /* True when the client's status is currently being driven by a group:
    they're a member AND haven't been manually overridden. The card shows a

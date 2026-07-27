@@ -50,21 +50,25 @@ export default function HomeWelcome({ onDismiss }) {
           const Icon = ICONS[key]
           return (
           <Box as="li" key={key}>
+            {/* A tile, not a row: the tasks sit side by side across one
+                band at the top of the screen, so the card costs a strip of
+                height rather than a screenful. Icon and chevron share the
+                top line; the title and its one-liner stack beneath. */}
             <Btn
               type="button"
               className={`home-welcome-task${done ? ' done' : ''}`}
               onClick={() => navigate(to, state ? { state } : undefined)}
             >
-              <Txt className="home-welcome-task-mark" aria-hidden="true">
-                {done ? <Check size={14} strokeWidth={2.6} /> : <Icon size={17} strokeWidth={1.6} />}
-              </Txt>
-              <Box className="home-welcome-task-body">
-                <Txt as="p" className="home-welcome-task-title">{t(`welcome.tasks.${key}.title`)}</Txt>
-                <Txt as="p" className="home-welcome-task-sub">
-                  {done ? t('welcome.taskDone') : t(`welcome.tasks.${key}.sub`)}
+              <Box className="home-welcome-task-top">
+                <Txt className="home-welcome-task-mark" aria-hidden="true">
+                  {done ? <Check size={14} strokeWidth={2.6} /> : <Icon size={17} strokeWidth={1.6} />}
                 </Txt>
+                <ChevronLeft size={15} strokeWidth={1.8} className="home-welcome-task-arrow" aria-hidden="true" />
               </Box>
-              <ChevronLeft size={16} strokeWidth={1.8} className="home-welcome-task-arrow" aria-hidden="true" />
+              <Txt as="p" className="home-welcome-task-title">{t(`welcome.tasks.${key}.title`)}</Txt>
+              <Txt as="p" className="home-welcome-task-sub">
+                {done ? t('welcome.taskDone') : t(`welcome.tasks.${key}.sub`)}
+              </Txt>
             </Btn>
           </Box>
           )

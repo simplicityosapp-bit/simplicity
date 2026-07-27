@@ -60,6 +60,12 @@
   .home-stack > .home-row-top { display: contents; }
   .home-stack .home-widget { grid-column: 1 / -1; }
 
+  /* The setup card is the top BAND of the screen, so it spans the row like
+     the widgets do. Without a rule it fell to `auto` and took a single
+     column — a narrow 229px strip running 550px tall down one side, which
+     is the worst shape for a checklist and pushed the dashboard down. */
+  .home-stack > .home-welcome { grid-column: 1 / -1; }
+
   /* The quote sizes to its own content and centres against the moon chip
      beside it. It used to stretch to the full row height (set by the taller
      132px chip) so the two read as one row — but a one-line quote in a 140px

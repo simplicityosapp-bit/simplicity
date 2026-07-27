@@ -12,12 +12,18 @@
   padding-top: 16px;
 }
 
-/* Mobile — the empty-profile welcome card moves to the bottom of the
-   stack (below the widgets, above the feedback card) per beta 06/06/2026.
-   Flex `order` only; DOM order is unchanged, and desktop (grid) keeps the
-   card at the top. */
+/* Mobile — the feedback card sits last, below the widgets.
+
+   The welcome card used to be pushed down here with it (`order: 1`, per
+   beta 06/06/2026), which was right for what it was then: a greeting for
+   an account with no clients yet, pleasant but skippable. It is now the
+   tail of onboarding — the file import, the daily questions and the
+   recurring expenses were taken OUT of the flow on the promise that they
+   would be waiting here. Below every widget on a phone, a new user never
+   reaches them, which defeats the shortening. So it leads on both sizes
+   now (desktop's grid already had it at the top), and retires itself once
+   its tasks are done rather than needing to be tucked away. */
 @media (max-width: 767px) {
-  .home-stack > .home-welcome { order: 1; }
   .home-stack > .feedback-card { order: 2; }
 }
 

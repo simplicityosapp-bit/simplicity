@@ -1,10 +1,11 @@
-import { memo } from 'react'
-import { Clock, Check, CalendarDays, ArrowLeft, X } from 'lucide-react'
+import { memo, useMemo } from 'react'
+import { Clock, Check, CalendarDays, ArrowLeft, Trash2 } from 'lucide-react'
 import { statusMetaOfLead, isConvertedLead, fmtShortDate } from '@simplicity/core'
 import { useWhatsAppMessage } from '../../hooks/useWhatsAppMessage'
 import WhatsAppButton from '../../components/WhatsAppButton'
+import CardMenu from '../../components/CardMenu'
 import { useT } from '../../i18n/useT'
-import { Box, Txt, Btn } from '../../components/ui'
+import { Box, Txt } from '../../components/ui'
 
 function LeadCard({ lead, onEdit, onConvert, onDelete, sources = [], statuses = [], dragProps = null, dragging = false }) {
   const { t } = useT('leads')
@@ -26,6 +27,32 @@ function LeadCard({ lead, onEdit, onConvert, onDelete, sources = [], statuses = 
   const isConverted = isConvertedLead(lead)
   const needsClientRecord = isConverted && !lead.converted_to_client_id
 
+  /* The card's occasional actions. Messaging stays a button of its own — it is
+     the thing a coach reaches for most — and opening the lead is the card
+     itself; these two are the ones you want a few times a month, and they were
+     costing a permanent corner each. */
+  const menuItems = useMemo(() => {
+    const out = []
+    if (onConvert && (!isConverted || needsClientRecord)) {
+      out.push({
+        key: 'convert',
+        label: needsClientRecord ? t('card.createClient') : t('card.convert'),
+        icon: <ArrowLeft size={14} strokeWidth={1.8} aria-hidden="true" />,
+        onSelect: () => onConvert(lead),
+      })
+    }
+    if (onDelete) {
+      out.push({
+        key: 'delete',
+        label: t('card.deleteTitle'),
+        icon: <Trash2 size={14} strokeWidth={1.8} aria-hidden="true" />,
+        danger: true,
+        onSelect: () => onDelete(lead),
+      })
+    }
+    return out
+  }, [onConvert, onDelete, isConverted, needsClientRecord, lead, t])
+
   return (
     <Box
       className={`lead-card${dragging ? ' dragging' : ''}`}
@@ -35,17 +62,9 @@ function LeadCard({ lead, onEdit, onConvert, onDelete, sources = [], statuses = 
       onKeyDown={onEdit ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onEdit(lead) } } : undefined}
       {...(dragProps || {})}
     >
-      {onDelete && (
-        <Btn
-          type="button"
-          className="lead-del-btn"
-          aria-label={t('card.deleteAria', { name: lead.name })}
-          title={t('card.deleteTitle')}
-          onClick={(e) => { e.stopPropagation(); onDelete(lead) }}
-        >
-          <X size={13} strokeWidth={2} aria-hidden="true" />
-        </Btn>
-      )}
+      <Box className="lead-card-menu">
+        <CardMenu items={menuItems} label={t('card.menuAria', { name: lead.name })} />
+      </Box>
 
       <Txt as="p" className="lead-card-name" title={lead.name}>{lead.name}</Txt>
 
@@ -81,19 +100,9 @@ function LeadCard({ lead, onEdit, onConvert, onDelete, sources = [], statuses = 
             <Check size={12} strokeWidth={2} aria-hidden="true" /> {t('card.converted')}
           </Box>
         )}
-        {/* Offered while the lead is not converted, and also for a converted
-            lead that has no client record yet (the drag path marks the column
-            but cannot create a client). */}
-        {(!isConverted || needsClientRecord) && onConvert && (
-          <Btn
-            type="button"
-            className="lead-convert-btn"
-            onClick={(e) => { e.stopPropagation(); onConvert(lead) }}
-          >
-            <ArrowLeft size={11} strokeWidth={1.8} aria-hidden="true" />
-            {needsClientRecord ? t('card.createClient') : t('card.convert')}
-          </Btn>
-        )}
+        {/* Converting moved into the "…" menu — see menuItems. It is a few-
+            times-a-month action that was holding a permanent chip on every
+            card in the board. */}
         {/* Direct WhatsApp on EVERY lead. With no phone, wa.me opens WhatsApp's
            own contact picker. Stops propagation so it won't open edit/drag. */}
         <WhatsAppButton

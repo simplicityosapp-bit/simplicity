@@ -289,7 +289,7 @@
         },
         {
           "title": "Convertir en cliente",
-          "body": "En la ficha de un prospecto que aún no se ha convertido, toca «Convertir en cliente». Se abre una ventana «Convertir prospecto en cliente», ya cargada con el nombre y el teléfono. Puedes elegir un proyecto, un grupo y una etapa «Convertido». Al guardar, se crea un nuevo cliente activo (todavía sin sesiones ni precio), las notas se transfieren a él, y el prospecto se mueve a la columna «Convertido» con un enlace al cliente. Si seleccionaste un grupo, el cliente se añade a él como miembro."
+          "body": "En un prospecto que aún no es cliente, abre el menú «…» en la esquina de la tarjeta y elige «Convertir en cliente». Se abre una ventana con el nombre y el teléfono ya cargados. Puedes elegir proyecto, grupo y etapa. Al guardar se crea un cliente nuevo (activo, todavía sin sesiones ni precio), las notas se copian, y el prospecto pasa a la columna «Convertido» con un enlace al cliente. Si elegiste un grupo, el cliente se añade como miembro."
         },
         {
           "title": "Fuentes de prospectos",
@@ -312,8 +312,8 @@
           "body": "Tres números se sitúan en la parte superior de la pantalla: «Consultas este mes», «Convertidos en clientes» y un porcentaje con la etiqueta «de las solicitudes de este mes». Todos se calculan automáticamente a partir de los prospectos abiertos este mes."
         },
         {
-          "title": "Eliminar un prospecto",
-          "body": "Cada tarjeta tiene un botón de eliminar (X) en la esquina. Primero se abre una confirmación con el nombre del prospecto; solo entonces pasa a la Papelera, desde donde se puede restaurar en 30 días."
+          "title": "Menú de la tarjeta: convertir y eliminar",
+          "body": "Cada tarjeta tiene un menú «…» en la esquina con las acciones que no necesitas a diario: «Convertir en cliente» y «Eliminar prospecto». Al eliminar se abre primero una confirmación con el nombre; solo entonces pasa a la Papelera, desde donde se puede restaurar en 30 días. El botón de WhatsApp permanece en la tarjeta, y tocar la tarjeta abre la edición."
         }
       ],
       "tips": [

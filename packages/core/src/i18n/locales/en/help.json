@@ -289,7 +289,7 @@
         },
         {
           "title": "Converting to a client",
-          "body": "In the card of a lead that hasn't been converted yet, tap \"Convert to client\". A \"Convert lead to client\" window opens, already loaded with the name and phone. You can choose a project, group, and \"Converted\" stage. On save, a new active client is created (with no sessions or price yet), the notes are transferred to them, and the lead moves to the \"Converted\" column with a link to the client. If you selected a group, the client is added to it as a member."
+          "body": "On a lead that hasn’t become a client yet, open the \"…\" menu in the card’s corner and choose \"Convert to client\". A window opens with the name and phone already filled in. You can pick a project, a group and a stage. On save a new client is created (active, with no sessions or price yet), the notes carry over, and the lead moves to the \"Converted\" column with a link to the client. If you picked a group, the client is added to it as a member."
         },
         {
           "title": "Lead sources",
@@ -312,8 +312,8 @@
           "body": "Three numbers sit at the top of the screen: \"Inquiries this month\", \"Converted to clients\", and a percentage labelled \"of this month's enquiries\". All are calculated automatically from the leads opened this month."
         },
         {
-          "title": "Deleting a lead",
-          "body": "Every card has a delete button (X) in the corner. A confirmation naming the lead opens first; only then does it go to the Trash, where it can be restored within 30 days."
+          "title": "Card menu: convert and delete",
+          "body": "Every card has a \"…\" menu in its corner holding the actions you don’t need daily: \"Convert to client\" and \"Delete lead\". Deleting opens a confirmation naming the lead first; only then does it go to the Trash, where it can be restored within 30 days. The WhatsApp button stays on the card itself, and tapping the card opens editing."
         }
       ],
       "tips": [

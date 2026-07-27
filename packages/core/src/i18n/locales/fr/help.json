@@ -289,7 +289,7 @@
         },
         {
           "title": "Convertir en client",
-          "body": "Dans la fiche d'un prospect pas encore converti, appuyez sur « Convertir en client ». Une fenêtre « Convertir le prospect en client » s'ouvre, déjà préremplie avec le nom et le téléphone. Vous pouvez choisir un projet, un groupe et une étape « Converti ». À l'enregistrement, un nouveau client actif est créé (sans séances ni prix pour l'instant), les notes lui sont transférées, et le prospect passe dans la colonne « Convertis » avec un lien vers le client. Si vous avez sélectionné un groupe, le client y est ajouté comme membre."
+          "body": "Sur un prospect qui n’est pas encore client, ouvrez le menu « … » dans le coin de la carte et choisissez « Convertir en client ». Une fenêtre s’ouvre avec le nom et le téléphone déjà remplis. Vous pouvez choisir un projet, un groupe et une étape. À l’enregistrement, un nouveau client est créé (actif, sans séances ni tarif pour l’instant), les notes sont reprises, et le prospect passe dans la colonne « Convertis » avec un lien vers le client. Si vous avez choisi un groupe, le client y est ajouté comme membre."
         },
         {
           "title": "Sources de prospects",
@@ -312,8 +312,8 @@
           "body": "Trois chiffres se trouvent en haut de l'écran : « Demandes ce mois-ci », « Convertis en clients » et un pourcentage étiqueté « des demandes de ce mois-ci ». Tous sont calculés automatiquement à partir des prospects ouverts ce mois-ci."
         },
         {
-          "title": "Supprimer un prospect",
-          "body": "Chaque carte a un bouton de suppression (X) dans le coin. Une confirmation nommant le prospect s'ouvre d'abord ; ensuite seulement il va à la Corbeille, d'où il peut être restauré sous 30 jours."
+          "title": "Menu de la carte : convertir et supprimer",
+          "body": "Chaque carte a un menu « … » dans son coin, avec les actions dont vous n’avez pas besoin tous les jours : « Convertir en client » et « Supprimer le prospect ». La suppression ouvre d’abord une confirmation nommant le prospect ; ensuite seulement il va à la Corbeille, d’où il peut être restauré sous 30 jours. Le bouton WhatsApp reste sur la carte, et toucher la carte ouvre la modification."
         }
       ],
       "tips": [

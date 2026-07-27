@@ -74,6 +74,8 @@ export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, 
   const { leads: existingLeads } = useLeads()
   const dataLoading = clientsLoading || projectsLoading
   const [busy, setBusy] = useState(false)
+  /* { phase, done, total } while the importer is writing — see its onProgress. */
+  const [progress, setProgress] = useState(null)
   const [dirty, setDirty] = useState(false)
   const [confirmingClose, setConfirmingClose] = useState(false)
   const [result, setResult] = useState(null) /* import summary, when shown */
@@ -273,7 +275,10 @@ export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, 
         .filter((row, i) => isIncluded(type, i, row) && isValid(type, row))
         // eslint-disable-next-line no-unused-vars -- _row is destructured only to strip the UI-only field from the persisted payload.
         .map(({ _row, ...rest }) => rest)
-      const summary = await onConfirm({ projects: strip('projects'), clients: strip('clients'), leads: strip('leads'), transactions: strip('transactions'), sessions: strip('sessions') })
+      const summary = await onConfirm(
+        { projects: strip('projects'), clients: strip('clients'), leads: strip('leads'), transactions: strip('transactions'), sessions: strip('sessions') },
+        { onProgress: setProgress },
+      )
       const failed = summary
         ? (summary.projects?.failed || 0) + (summary.clients?.failed || 0) + (summary.leads?.failed || 0) + (summary.transactions?.failed || 0) + (summary.recurring?.failed || 0) + (summary.sessions?.failed || 0)
           + (summary.paymentPlans?.failed || 0) + (summary.clientStatuses?.failed || 0) + (summary.leadStatuses?.failed || 0)
@@ -282,6 +287,7 @@ export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, 
       else await onComplete()
     } finally {
       setBusy(false)
+      setProgress(null)
       confirmingRef.current = false
     }
   }
@@ -375,7 +381,29 @@ export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, 
           </Btn>
         </Box>
 
-        {dataLoading ? (
+        {progress ? (
+          /* Writing. The row list is replaced rather than dimmed — the rows
+             are no longer editable at this point, and what the user needs is
+             the one thing the old screen never said: that it is working, and
+             roughly how much is left. */
+          <Box className="obrw-progress" role="status" aria-live="polite">
+            <img className="obrw-logo obrw-logo-day"   src="/logo-dark.png"  alt="" aria-hidden="true" />
+            <img className="obrw-logo obrw-logo-night" src="/logo-light.png" alt="" aria-hidden="true" />
+            <Txt as="p" className="obrw-progress-phase">
+              {t(`review.progress.phase.${progress.phase}`, { defaultValue: t('review.progress.phase.start') })}
+            </Txt>
+            <Box className="obrw-progress-track">
+              <Box
+                className="obrw-progress-fill"
+                style={{ width: `${progress.total ? Math.round((progress.done / progress.total) * 100) : 0}%` }}
+              />
+            </Box>
+            <Txt as="p" className="obrw-progress-count mono">
+              {t('review.progress.count', { done: progress.done, total: progress.total })}
+            </Txt>
+            <Txt as="p" className="obrw-progress-note">{t('review.progress.note')}</Txt>
+          </Box>
+        ) : dataLoading ? (
           <Box className="obrw-loading">
             <img className="obrw-logo obrw-logo-day"   src="/logo-dark.png"  alt="" aria-hidden="true" />
             <img className="obrw-logo obrw-logo-night" src="/logo-light.png" alt="" aria-hidden="true" />

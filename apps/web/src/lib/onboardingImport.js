@@ -115,11 +115,39 @@ export async function finalizeOnboardingImport(input = {}) {
   const clientsWithPlan = new Set()
   try { (await listPaymentPlans()).forEach((p) => { if (p?.client_id) clientsWithPlan.add(p.client_id) }) } catch { /* assume none */ }
 
+  /* ── Progress ────────────────────────────────────────────────────
+     Every row is written on its own, deliberately: each gets its own
+     try/catch so one bad row is reported by name instead of failing the
+     run. On a real spreadsheet that is several hundred sequential round
+     trips — a minute or more during which the only signal was a button
+     reading "יוצר…", indistinguishable from a hang.
+
+     `total` starts at what the payload lets us count and GROWS as derived
+     work is discovered (payments and sessions computed from the client
+     rows), so the bar never runs backwards and never passes 100%.
+     Skipped rows tick too — otherwise it stalls short of the end on any
+     import with duplicates. */
+  const report = typeof input.onProgress === 'function' ? input.onProgress : null
+  let doneRows = 0
+  let totalRows = clientStatuses.length + leadStatuses.length + projects.length
+    + clients.length + ledgerSessions.length + transactions.length + leads.length
+  const addTotal = (n) => { totalRows += n }
+  const tick = (phase) => {
+    doneRows += 1
+    if (report) report({ phase, done: doneRows, total: Math.max(totalRows, doneRows) })
+  }
+  if (report) report({ phase: 'start', done: 0, total: totalRows })
+
   /* ── Statuses first — clients & leads link to them by name. Dedup by
      display_name (case-insensitive) so re-import doesn't duplicate. ── */
   const clientStatusIdByName = new Map()
   existingClientStatuses.forEach((s) => { if (s?.display_name) clientStatusIdByName.set(norm(s.display_name), s.id) })
   for (const s of clientStatuses) {
+    /* Ticked at the top of the body, not the bottom: every one of these
+       loops has `continue` paths for skipped rows, and a tick placed after
+       them would stall the bar short of the end on any import containing a
+       duplicate. */
+    tick('statuses')
     const key = norm(s.display_name)
     if (!key) continue
     if (clientStatusIdByName.has(key)) { summary.clientStatuses.skipped += 1; continue }
@@ -135,6 +163,7 @@ export async function finalizeOnboardingImport(input = {}) {
   const leadStatusIdByName = new Map()
   existingLeadStatuses.forEach((s) => { if (s?.display_name) leadStatusIdByName.set(norm(s.display_name), s.id) })
   for (const s of leadStatuses) {
+    tick('statuses')
     const key = norm(s.display_name)
     if (!key) continue
     if (leadStatusIdByName.has(key)) { summary.leadStatuses.skipped += 1; continue }
@@ -160,6 +189,7 @@ export async function finalizeOnboardingImport(input = {}) {
     if (p?.name) projectIdByName.set(norm(p.name), p.id)
   }
   for (const proj of projects) {
+    tick('projects')
     const key = norm(proj.name)
     if (!key) continue
     if (projectIdByName.has(key)) { summary.projects.skipped += 1; continue }
@@ -187,6 +217,7 @@ export async function finalizeOnboardingImport(input = {}) {
      (O2) — collected here, made after the client rows exist. */
   const clientSessions = []
   for (const c of clients) {
+    tick('clients')
     const key = norm(c.name)
     if (!key) continue
     if (clientIdByName.has(key)) { summary.clients.skipped += 1; continue }
@@ -300,6 +331,7 @@ export async function finalizeOnboardingImport(input = {}) {
      deduped by client+date, so a re-import never doubles. ── */
   const ledgerByClient = new Map()
   for (const ls of ledgerSessions) {
+    tick('sessions')
     const cId = ls.client_name ? clientIdByName.get(norm(ls.client_name)) : null
     if (!cId) continue /* unlinked client → skip (flagged in the review) */
     if (!ledgerByClient.has(cId)) ledgerByClient.set(cId, [])
@@ -384,7 +416,12 @@ export async function finalizeOnboardingImport(input = {}) {
      today (pollutes the current month's reports), park them on the last
      day of the PREVIOUS year — a clear, non-distorting placeholder (defined
      near the top) — and count them so the user can fix the dates in Finance. */
+  /* Derived from the client rows, so it wasn't countable up front — fold
+     it into the total before working through it rather than letting the
+     bar sit at 100% while these are still being written. */
+  addTotal(clientPayments.length)
   for (const pmt of clientPayments) {
+    tick('payments')
     const desc = `תשלום מיובא — ${pmt.name}`
     const pk = payKey(pmt.client_id, pmt.amount, desc)
     if (seenPay.has(pk)) { summary.transactions.skipped += 1; continue }
@@ -472,6 +509,7 @@ export async function finalizeOnboardingImport(input = {}) {
   }
 
   for (const t of transactions) {
+    tick('transactions')
     if (t.recurring) continue /* handled above as a recurring rule */
     let date = normalizeDate(t.date)
     const amount = Number(t.amount)
@@ -517,6 +555,7 @@ export async function finalizeOnboardingImport(input = {}) {
   try { existingLeads = await listLeads() } catch { /* assume none */ }
   const seenLeadNames = new Set(existingLeads.map((l) => norm(l?.name)).filter(Boolean))
   for (const l of leads) {
+    tick('leads')
     const name = (l.name || '').trim()
     if (!name) { summary.leads.skipped += 1; continue }
     if (seenLeadNames.has(norm(name))) { summary.leads.skipped += 1; continue }

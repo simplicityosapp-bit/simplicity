@@ -169,6 +169,20 @@
         "noConnection": "La connexion a été perdue — vous devrez vous reconnecter.",
         "generic": "Quelque chose n'a pas fonctionné sur cette ligne — vous pouvez l'ignorer et continuer, ou la corriger et réessayer."
       }
+    },
+    "progress": {
+      "count": "{{done}} sur {{total}}",
+      "note": "Vous pouvez laisser ouvert — cela prend un instant.",
+      "phase": {
+        "start": "Démarrage…",
+        "statuses": "Création des statuts…",
+        "projects": "Création des projets…",
+        "clients": "Création des clients…",
+        "sessions": "Enregistrement des séances…",
+        "payments": "Enregistrement des paiements…",
+        "transactions": "Création des transactions…",
+        "leads": "Création des prospects…"
+      }
     }
   },
   "modal": {

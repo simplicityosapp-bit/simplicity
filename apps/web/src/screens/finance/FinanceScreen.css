@@ -956,23 +956,31 @@
 /* Inverted (owner call 2026-07-27): the accent fills the pill and the text
    sits on it in white, instead of coloured text on a 14%-alpha wash that
    dissolved into the glass. --on-accent is exactly this token's job —
-   "light text on a saturated accent (sage/clay/terracotta)". */
+   "light text on a saturated accent (sage/clay/terracotta)".
+
+   The accents at full strength are too light to carry white at this size:
+   white on --sage measures 2.6:1 in light mode and 3.3:1 in dark, against
+   the 4.5:1 small text needs — and this is 10px text. So the fill is the
+   accent carried toward --ink rather than the text carried away from white
+   (owner call: darken the pill, keep the label white).
+
+   55% is the one ratio that clears 4.5:1 for all six combinations —
+   sage/clay/stone × light/dark — the tightest being stone in dark mode,
+   where the token is remapped to a LIGHT grey-green and lands at 4.8:1.
+   --ink is deliberately the mixing partner: unlike --espresso it is NOT
+   remapped in dark mode, so one declaration darkens correctly in both. */
 .f-delta.pos {
   color: var(--on-accent);
-  background: var(--sage);
+  background: color-mix(in srgb, var(--sage) 55%, var(--ink));
 }
 .f-delta.neg {
   color: var(--on-accent);
-  background: var(--clay);
+  background: color-mix(in srgb, var(--clay) 55%, var(--ink));
 }
 .f-delta.neu {
   color: var(--on-accent);
-  background: var(--stone);
+  background: color-mix(in srgb, var(--stone) 55%, var(--ink));
 }
-/* Dark mode remaps --stone to a LIGHT grey-green, so white-on-stone would
-   be unreadable; the neutral pill takes the dark ink there. sage and clay
-   stay deep in dark mode, so those two keep white. */
-[data-theme="dark"] .f-delta.neu { color: var(--ink-on-accent); }
 
 /* ── Breakdown sections (by project / by category) ─────────── */
 .f-breakdown {

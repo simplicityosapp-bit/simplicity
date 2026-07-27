@@ -3,15 +3,18 @@
    that should exist for every client/group with a recurring_day +
    recurring_time, returning the inserts the caller still owes the DB.
 
-   Window is (now − 14 days) → (now + 4 weeks). The lower bound lets
-   the home meeting-confirmation widget surface meetings the user
-   still hasn't acknowledged. New subjects don't get backfilled past
-   their created_at, so signing up doesn't conjure fake prior meetings.
-   Idempotent: rows are keyed by (subject_type, subject_id,
-   scheduled_at) — existing rows are skipped.
+   Window is (now − 14 days) → (now + 4 weeks), further clamped to the
+   subject's OWN recurring_start_date / recurring_end_date when set —
+   those columns exist on both clients and groups and the add/edit
+   forms collect them, so they are the series' real first and last day.
+   The lower bound lets the home meeting-confirmation widget surface
+   meetings the user still hasn't acknowledged. New subjects don't get
+   backfilled past their created_at, so signing up doesn't conjure fake
+   prior meetings. Idempotent: rows are keyed by (subject_type,
+   subject_id, scheduled_at) — existing rows are skipped.
    ════════════════════════════════════════════════════════════════ */
 
-import { effectiveClientMeta } from '@simplicity/core'
+import { effectiveClientMeta, toLocalDate } from '@simplicity/core'
 import i18n from '@simplicity/core/i18n'
 /* No showToast here any more: confirm and skip both register an undo, and the
    undo toast carries the same wording plus a way back. Two toasts firing for
@@ -89,6 +92,8 @@ export function generateScheduledMeetings(
       dow: Number(c.recurring_day),
       time: c.recurring_time,
       createdAt: c.created_at,
+      seriesStart: c.recurring_start_date,
+      seriesEnd: c.recurring_end_date,
     }))
 
   const groupSubjects = (groups || [])
@@ -101,6 +106,8 @@ export function generateScheduledMeetings(
       dow: Number(g.recurring_day),
       time: g.recurring_time,
       createdAt: g.created_at,
+      seriesStart: g.recurring_start_date,
+      seriesEnd: g.recurring_end_date,
     }))
 
   const subjects = [...clientSubjects, ...groupSubjects]
@@ -115,11 +122,27 @@ export function generateScheduledMeetings(
 
     /* Don't backfill before the subject existed. */
     const subjectStart = s.createdAt ? new Date(s.createdAt) : horizonStart
-    const startFrom = subjectStart > horizonStart ? subjectStart : horizonStart
+    let startFrom = subjectStart > horizonStart ? subjectStart : horizonStart
+    /* …and don't start before the SERIES does. recurring_start_date is a
+       date-only column, so toLocalDate (not new Date) — parsing it as UTC
+       would land it a few hours early and let the day before slip in. */
+    if (s.seriesStart) {
+      const seriesFrom = toLocalDate(s.seriesStart)
+      if (seriesFrom > startFrom) startFrom = seriesFrom
+    }
+    /* The series' own last day ends the run, whatever the horizon says. Taken
+       to the END of that day so a meeting ON the closing date still counts. */
+    let stopAt = horizonEnd
+    if (s.seriesEnd) {
+      const seriesTo = toLocalDate(s.seriesEnd)
+      seriesTo.setHours(23, 59, 59, 999)
+      if (seriesTo < stopAt) stopAt = seriesTo
+    }
+    if (startFrom > stopAt) continue
 
     let occ = firstOccurrenceOnOrAfter(startFrom, s.dow, hh, mm)
     if (!occ) continue
-    while (occ <= horizonEnd) {
+    while (occ <= stopAt) {
       const isoAt = occ.toISOString()
       const k = meetingKey(s.type, s.id, isoAt)
       if (!existingKeys.has(k)) {

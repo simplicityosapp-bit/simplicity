@@ -62,9 +62,15 @@ function LeadCard({ lead, onEdit, onConvert, onDelete, sources = [], statuses = 
       onKeyDown={onEdit ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onEdit(lead) } } : undefined}
       {...(dragProps || {})}
     >
-      <Box className="lead-card-menu">
-        <CardMenu items={menuItems} label={t('card.menuAria', { name: lead.name })} />
-      </Box>
+      {/* Unmounted while the card is being dragged, which drops the menu's own
+          open state with it — otherwise a menu left open when the drag began
+          would still be open on the card after it lands in its new column.
+          (The floating ghost is handled separately, in usePointerDnd.) */}
+      {!dragging && (
+        <Box className="lead-card-menu">
+          <CardMenu items={menuItems} label={t('card.menuAria', { name: lead.name })} />
+        </Box>
+      )}
 
       <Txt as="p" className="lead-card-name" title={lead.name}>{lead.name}</Txt>
 

@@ -159,6 +159,13 @@ export function usePointerDnd({ onDrop } = {}) {
     s.active = true
     const rect = sourceEl.getBoundingClientRect()
     const ghost = sourceEl.cloneNode(true)
+    /* A popover that happened to be open on the source — a card's "…" menu —
+       would otherwise be frozen into the floating ghost and travel with it.
+       The ghost is a picture of the card, not an interactive copy, so any open
+       menu is stripped and its trigger reset. Keyed on the ARIA role rather
+       than a class, so this holds for any future popover too. */
+    ghost.querySelectorAll('[role="menu"]').forEach((m) => m.remove())
+    ghost.querySelectorAll('[aria-expanded="true"]').forEach((el) => el.setAttribute('aria-expanded', 'false'))
     Object.assign(ghost.style, {
       position: 'fixed', margin: '0',
       left: `${rect.left}px`, top: `${rect.top}px`,

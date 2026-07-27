@@ -1397,20 +1397,23 @@ html[data-bg="blank"][data-card-style="flat"] .home-screen {
   gap: 6px;
   margin: 2px auto 4px;
   padding: 8px 14px;
-  border: none;
+  /* Quiet, but not invisible: with no background at all the label floated
+     bare on the photo and read as nothing. It wears the same surface as
+     every other home control instead of inventing one. */
+  border: var(--home-card-border);
   border-radius: 999px;
-  background: none;
+  background: var(--home-card-bg);
+  backdrop-filter: var(--home-card-blur);
   cursor: pointer;
   font-family: var(--mg-font);
   font-size: calc(12.5px * var(--text-scale));
   font-weight: 500;
   color: var(--stone);
-  opacity: 0.75;
-  transition: opacity 0.15s, background 0.15s;
+  transition: background 0.15s;
 }
 .home-edit-enter:hover {
-  opacity: 1;
-  background: color-mix(in srgb, var(--stone) 8%, transparent);
+  background: var(--home-card-solid);
+  color: var(--espresso);
 }
 
 /* While arranging, the widgets stop being interactive and start being

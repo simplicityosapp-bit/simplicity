@@ -2,6 +2,7 @@ import { useTransactions } from '../../hooks/useTransactions'
 import { useScheduledMeetings } from '../../hooks/useScheduledMeetings'
 import { useClients } from '../../hooks/useClients'
 import { useGroups } from '../../hooks/useGroups'
+import { useGroupMembers } from '../../hooks/useGroupMembers'
 import { useRecurring } from '../../hooks/useRecurring'
 import { useBookings } from '../../hooks/useBookings'
 import { useScheduledMeetingsGeneration } from '../../hooks/useScheduledMeetingsGeneration'
@@ -35,10 +36,13 @@ export default function HomeGenerators() {
   const { meetings, addMeeting, loading: meetingsLoading } = useScheduledMeetings()
   const { clients } = useClients()
   const { groups } = useGroups()
+  /* Memberships decide a group-driven client's effective status — the meetings
+     engine needs them to know a client's groups have all ended. */
+  const { members } = useGroupMembers()
   const { templates } = useRecurring()
   const { bookings, materialize, loading: bookingsLoading } = useBookings()
 
-  useScheduledMeetingsGeneration({ clients, groups, meetings, meetingsLoading, addMeeting })
+  useScheduledMeetingsGeneration({ clients, groups, members, meetings, meetingsLoading, addMeeting })
   useRecurringGeneration({
     templates,
     transactions,

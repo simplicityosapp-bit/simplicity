@@ -17,6 +17,7 @@ import { useBookingPages } from '../../hooks/useBookingPages'
 import { useMeetingTypes } from '../../hooks/useMeetingTypes'
 import { useClients } from '../../hooks/useClients'
 import { useGroups } from '../../hooks/useGroups'
+import { useGroupMembers } from '../../hooks/useGroupMembers'
 import { useLeads } from '../../hooks/useLeads'
 import { useProjects } from '../../hooks/useProjects'
 import { useTasks } from '../../hooks/useTasks'
@@ -61,12 +62,13 @@ export default function CalendarScreen() {
   const { types: meetingTypes } = useMeetingTypes()
   const { clients } = useClients()
   const { groups } = useGroups()
+  const { members } = useGroupMembers()
 
   /* Materialize recurring client/group meetings (recurring_day + recurring_time)
      into scheduled_meetings while the calendar is open. Without this the engine
      only runs on the home screen (AttentionWidget), so a freshly-set "שעה קבועה"
      wouldn't appear here until the user happened to visit home. Idempotent. */
-  useScheduledMeetingsGeneration({ clients, groups, meetings, meetingsLoading, addMeeting })
+  useScheduledMeetingsGeneration({ clients, groups, members, meetings, meetingsLoading, addMeeting })
   const { leads, updateLead } = useLeads()
   const { projects } = useProjects()
   const { addTask } = useTasks()

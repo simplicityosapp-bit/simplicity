@@ -5,6 +5,10 @@
     "title": "A few more things, when it suits you",
     "taskDone": "Done",
     "tasks": {
+      "setup": {
+        "title": "Finish setting up",
+        "sub": "You stopped part-way — pick up where you left off."
+      },
       "import": {
         "title": "Import a file",
         "sub": "Got a spreadsheet of clients or payments? We’ll bring it in together."

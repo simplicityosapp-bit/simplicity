@@ -5,6 +5,10 @@
     "title": "Un par de cosas más, cuando te venga bien",
     "taskDone": "Hecho",
     "tasks": {
+      "setup": {
+        "title": "Terminar la configuración",
+        "sub": "Lo dejaste a medias: sigue donde lo dejaste."
+      },
       "import": {
         "title": "Importar un archivo",
         "sub": "¿Tienes una hoja de cálculo con clientes o pagos? La pasamos juntos."

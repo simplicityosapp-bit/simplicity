@@ -15,7 +15,11 @@
     "roleOtherLabel_female": "מה את עושה?",
     "roleOtherPlaceholder": "לדוגמה: יוגה תרפיסט/ית, מורה למתמטיקה",
     "hintName": "נא להזין שם כדי להמשיך.",
-    "hintRole": "פרט/י את התחום שבחרת."
+    "hintRole": "פרט/י את התחום שבחרת.",
+    "hintRole_male": "פרט את התחום שבחרת.",
+    "hintRole_female": "פרטי את התחום שבחרת.",
+    "roleOtherPlaceholder_male": "לדוגמה: יוגה תרפיסט, מורה למתמטיקה",
+    "roleOtherPlaceholder_female": "לדוגמה: יוגה תרפיסטית, מורה למתמטיקה"
   },
   "step2": {
     "intro": "איך את/ה עובד/ת?",
@@ -55,7 +59,9 @@
     "hintPickMode_female": "בחרי איך את עובדת.",
     "hintName": "שם פרויקט חובה.",
     "errSaveFail": "השמירה נכשלה: {{error}}",
-    "tryAgain": "נסה/י שוב"
+    "tryAgain": "נסה/י שוב",
+    "tryAgain_male": "נסה שוב",
+    "tryAgain_female": "נסי שוב"
   },
   "step3": {
     "intro": "מי הלקוח הראשון?",
@@ -70,7 +76,11 @@
     "hintAddOne_male": "הוסף לקוח אחד, או דלג.",
     "hintAddOne_female": "הוסיפי לקוח אחד, או דלגי.",
     "errSaveFail": "השמירה נכשלה: {{error}}",
-    "tryAgain": "נסה/י שוב"
+    "tryAgain": "נסה/י שוב",
+    "tryAgain_male": "נסה שוב",
+    "tryAgain_female": "נסי שוב",
+    "removeAria_male": "הסר {{name}}",
+    "removeAria_female": "הסירי {{name}}"
   },
   "step4": {
     "intro": "מה חשוב לך לעקוב אחריו?",
@@ -94,7 +104,11 @@
     "hintNameGoal_male": "תן שם ליעד.",
     "hintNameGoal_female": "תני שם ליעד.",
     "errSaveFail": "השמירה נכשלה: {{error}}",
-    "tryAgain": "נסה/י שוב"
+    "tryAgain": "נסה/י שוב",
+    "tryAgain_male": "נסה שוב",
+    "tryAgain_female": "נסי שוב",
+    "personalHint_male": "למידה, יצירה, ריצה — מה שאתה מודד",
+    "personalHint_female": "למידה, יצירה, ריצה — מה שאת מודדת"
   },
   "step5": {
     "title": "סיימת! הכל מוכן",

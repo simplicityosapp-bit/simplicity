@@ -222,6 +222,10 @@ function AppShell() {
         <Suspense fallback={<ScreenFallback />}>
           <Routes>
             <Route path={ROUTES.HOME} element={<HomeScreen onOpenFeedback={() => setFeedbackOpen(true)} />} />
+            {/* Reachable AFTER the gate too, so leaving the flow part-way is
+                a pause rather than a one-way door: the home setup card links
+                back here and the user resumes on the step they left. */}
+            <Route path={ROUTES.ONBOARDING} element={<OnboardingScreen />} />
             <Route path={ROUTES.CLIENTS} element={<ClientsScreen />} />
             <Route path={ROUTES.CLIENT} element={<ClientsScreen />} />
             <Route path={ROUTES.FINANCE} element={<FinanceScreen />} />

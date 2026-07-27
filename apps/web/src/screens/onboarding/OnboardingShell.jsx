@@ -1,36 +1,36 @@
 import { useState } from 'react'
-import { HelpCircle, ChevronRight, ChevronLeft, Sun, Moon } from 'lucide-react'
-import { ONBOARDING_STEPS } from '../../lib/preferences'
+import { useNavigate } from 'react-router-dom'
+import { ChevronRight, Sun, Moon, Info } from 'lucide-react'
+import { ROUTES } from '../../lib/routes'
 import { useTheme } from '../../hooks/useTheme'
 import { useUserPreferences } from '../../hooks/useUserPreferences'
 import { useT } from '../../i18n/useT'
 import { showError } from '../../lib/toast'
 import OnboardingTree from './OnboardingTree'
-import OnboardingHelpPanel from './OnboardingHelpPanel'
-import { getStepHelp } from './helpContent'
 import { Box, Txt, Btn } from '../../components/ui'
 
-/* Layout (all 9 steps share this frame; only the body changes):
+/* Layout (every step shares this frame; only the body changes):
      1. Progress strip (slim, first thing on screen)
-     2. Header row — two panels:
-        - tree + counter combined on the inline-start side (right in RTL)
-        - help (?) button on the inline-end side (left)
-     3. Body — step-rendered fields
-     4. Footer — two clusters:
-        - Next + "דלג" (in its own micro-panel) on the inline-end side (left)
-        - "חזרה" in a small glass panel on the inline-start side (right)
-   The step component publishes its onNext/canAdvance/busy/hint via the
-   setCTA prop on the screen; the shell just renders the buttons. */
+     2. Header row — tree + counter centred, theme toggle in the corner
+     3. Body — the step's own fields, inside a <form> so Enter advances
+     4. Footer — sticky: back · hint + primary · "אמשיך אחר כך"
+   The step publishes its onNext/canAdvance/busy/hint through useStepCTA;
+   the shell just renders the buttons.
+
+   There is no help drawer any more. Four short steps that explain
+   themselves on the page don't need a second, hidden explanation behind a
+   "?" — and a panel nobody opens is a place for copy to go stale. */
 export default function OnboardingShell({ ob, cta, children }) {
   const { t } = useT('onboarding')
-  const [helpOpen, setHelpOpen] = useState(false)
+  const navigate = useNavigate()
   const [skipping, setSkipping] = useState(false)
+  const [exiting, setExiting] = useState(false)
+
   /* The primary CTA was wired straight to cta.onNext, which is async on most
      steps. A rejection therefore became an unhandled promise rejection: the
      user tapped "next"/"סיום", nothing moved, and nothing said why. Most
-     visible on the last step, where finishAndGoHome re-throws on a failed
-     save — by design, so a retry is possible — but the throw had nowhere to
-     land. Surfacing it here covers every step, not just that one. */
+     visible on the last step, where finishing re-throws on a failed save —
+     by design, so a retry is possible — but the throw had nowhere to land. */
   const runNext = async (e) => {
     try {
       await cta?.onNext?.(e)
@@ -38,22 +38,70 @@ export default function OnboardingShell({ ob, cta, children }) {
       showError(t('shell.saveFailed'))
     }
   }
-  /* The App-level gate (obDone) swaps to Home once skip/complete writes land;
-     show a busy state meanwhile so the last-step "סיום" isn't a dead tap. */
-  const onSkip = async () => {
+
+  /* Advance without recording the step. Reset the flag on BOTH paths: on a
+     non-last step this only moves forward (the shell stays mounted), so
+     without it the guard would block every later skip. */
+  const onSkipStep = async () => {
     if (skipping) return
     setSkipping(true)
-    /* Reset on BOTH success and failure: skipStep on a non-last step only
-       advances (the shell stays mounted), so without resetting here the
-       button stuck on "מסיים…" forever and the `skipping` guard blocked
-       every later skip. On the last step skipStep navigates home and the
-       shell unmounts, where this setState is a harmless no-op. */
     try { await ob.skipStep() } finally { setSkipping(false) }
   }
-  /* Resolved per render (not module-load) so it follows the active language. */
-  const helpContent = getStepHelp(ob.step)
+
+  /* Leave the flow. It used to be a one-way door offered exactly once, on
+     the welcome screen: after that the App-level gate sent every route back
+     here, and someone who stalled on step 3 had no way out but to press
+     "skip" through every remaining step. This releases the gate and lands
+     them home — and because it only sets skipped_at, the setup card can
+     bring them back to the step they left. */
+  const onExit = async () => {
+    if (exiting) return
+    setExiting(true)
+    try {
+      await ob.skipAll()
+      navigate(ROUTES.HOME, { replace: true })
+    } catch {
+      setExiting(false)
+      showError(t('shell.saveFailed'))
+    }
+  }
+
   const isFirst = ob.stepIndex === 0
-  const isLast = ob.stepIndex === ONBOARDING_STEPS.length - 1
+
+  /* The primary button is never dead. A step with nothing in it offers to
+     move on instead of greying out — the old screen disabled it on arrival
+     and left a small "דלג" link as the only way forward, which reads as the
+     app being stuck. Filled → it saves; empty or not yet valid → it says so
+     and moves on. The hint beside it says what filling it in would get. */
+  const canAdvance = !!cta?.canAdvance
+  const busy = !!cta?.busy
+  const primaryLabel = busy
+    ? t('shell.saving')
+    : (canAdvance ? (cta?.nextLabel || t('shell.next')) : t('shell.later'))
+  const onPrimary = canAdvance ? runNext : onSkipStep
+
+  /* Enter advances, only when the step is actually complete — otherwise the
+     key that means "done with this field" would silently skip the step.
+
+     Handled on keydown rather than left to the form's implicit submission,
+     which HTML only performs when a form has exactly one field or a default
+     button. Both were true here and it still didn't fire in Chrome, so the
+     one keystroke everybody presses would have worked on some steps and
+     quietly done nothing on others. This is explicit and step-count blind. */
+  const submitFromKey = (e) => {
+    if (e.key !== 'Enter' || e.shiftKey) return
+    /* A textarea's Enter is a newline, and a focused button has its own
+       action — neither should be hijacked into advancing. */
+    const tag = e.target?.tagName
+    if (tag === 'TEXTAREA' || tag === 'BUTTON') return
+    e.preventDefault()
+    if (canAdvance && !busy) runNext(e)
+  }
+  const onSubmit = (e) => {
+    e.preventDefault()
+    if (canAdvance && !busy) runNext(e)
+  }
+
   /* Theme toggle — same plumbing as AppShell: flip the local hook
      immediately for instant feedback, then persist to prefs so the
      choice survives reload + sync across devices. */
@@ -82,13 +130,12 @@ export default function OnboardingShell({ ob, cta, children }) {
           <OnboardingTree stepIndex={ob.stepIndex} />
         </Box>
 
-        {/* Top inline-end corner cluster: theme toggle + (optional)
-            help button. Pulled out of flow by CSS so the centered
-            tree above the progress strip stays optically centered. */}
+        {/* Top inline-end corner: the theme toggle. Pulled out of flow by
+            CSS so the centered tree above the progress strip stays
+            optically centered. */}
         <Box className="ob-head-right">
           <Btn
-            type="button"
-            className="ob-help-btn"
+            className="ob-corner-btn"
             onClick={handleToggleTheme}
             aria-label={isDark ? t('shell.dayMode') : t('shell.nightMode')}
             title={isDark ? t('shell.dayMode') : t('shell.nightMode')}
@@ -97,65 +144,48 @@ export default function OnboardingShell({ ob, cta, children }) {
               ? <Sun size={16} strokeWidth={1.5} aria-hidden="true" />
               : <Moon size={16} strokeWidth={1.5} aria-hidden="true" />}
           </Btn>
-          {helpContent && (
-            <Btn
-              type="button"
-              className="ob-help-btn"
-              onClick={() => setHelpOpen(true)}
-              aria-label={t('shell.helpAria')}
-              title={t('shell.helpAria')}
-            >
-              <HelpCircle size={16} strokeWidth={1.5} aria-hidden="true" />
-            </Btn>
-          )}
         </Box>
       </Box>
 
-      <Box as="main" className="ob-body">{children}</Box>
+      {/* A form for the semantics; Enter is handled on keydown (see above)
+          rather than by implicit submission. Every Btn defaults to
+          type="button" (components/ui/Btn), so no pill can submit it. */}
+      <Box as="form" className="ob-body" onSubmit={onSubmit} onKeyDown={submitFromKey}>
+        {children}
+      </Box>
 
       <Box as="footer" className="ob-foot">
-        {/* "חזרה" first → renders on the inline-start side (right in RTL). */}
-        <Box className="ob-foot-back">
-          <Btn
-            type="button"
-            className="ob-btn ghost"
-            onClick={ob.back}
-            disabled={isFirst}
-          >
-            <ChevronRight size={16} strokeWidth={1.5} aria-hidden="true" /> {t('shell.back')}
-          </Btn>
-        </Box>
-
-        {/* CTA cluster (Next + "דלג") second → renders on inline-end (left in RTL).
-            The skip link has its own micro-panel now so it's visible against the bg. */}
-        <Box className="ob-foot-cta">
-          {cta?.hint && <Txt as="p" className="ob-empty-hint">{cta.hint}</Txt>}
-          <Btn
-            type="button"
-            className="ob-btn primary"
-            onClick={runNext}
-            disabled={!cta?.canAdvance || cta?.busy || !cta?.onNext}
-          >
-            {cta?.busy ? t('shell.saving') : (cta?.nextLabel || t('shell.next'))}
-          </Btn>
-          {!isLast && (
-            <Btn
-              type="button"
-              className="ob-btn link ob-foot-skip"
-              onClick={onSkip}
-              disabled={skipping}
-            >
-              {skipping ? t('shell.finishing') : t('shell.skip')} <ChevronLeft size={16} strokeWidth={1.5} aria-hidden="true" />
+        <Box className="ob-foot-row">
+          {/* "חזרה" first → renders on the inline-start side (right in RTL). */}
+          <Box className="ob-foot-back">
+            <Btn className="ob-btn ghost" onClick={ob.back} disabled={isFirst}>
+              <ChevronRight size={16} strokeWidth={1.5} aria-hidden="true" /> {t('shell.back')}
             </Btn>
-          )}
-        </Box>
-      </Box>
+          </Box>
 
-      <OnboardingHelpPanel
-        open={helpOpen}
-        onClose={() => setHelpOpen(false)}
-        content={helpContent}
-      />
+          <Box className="ob-foot-cta">
+            {cta?.hint && (
+              <Txt as="p" className="ob-cta-hint">
+                <Info size={13} strokeWidth={2} aria-hidden="true" />
+                {cta.hint}
+              </Txt>
+            )}
+            <Btn
+              className={`ob-btn primary${canAdvance ? '' : ' quiet'}`}
+              onClick={onPrimary}
+              disabled={busy || skipping || !cta}
+            >
+              {skipping ? t('shell.saving') : primaryLabel}
+            </Btn>
+          </Box>
+        </Box>
+
+        {/* The way out. Deliberately the quietest thing here — a text link
+            under the buttons, not a third control competing with them. */}
+        <Btn className="ob-foot-exit" onClick={onExit} disabled={exiting}>
+          {exiting ? t('shell.saving') : t('shell.exit')}
+        </Btn>
+      </Box>
     </Box>
   )
 }

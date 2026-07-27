@@ -21,7 +21,7 @@
       "hint": "Counted automatically from group members (can be linked to a project)"
     },
     "other": {
-      "name": "Other",
+      "name": "Personal",
       "hint": "You update it yourself"
     }
   }

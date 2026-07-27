@@ -1,16 +1,17 @@
 {
   "step1": {
     "welcome": "Qué bien que estés aquí",
+    "introSub": "Solo para saber cómo dirigirnos a ti y adaptar el sistema; todo se puede cambiar después en Ajustes.",
     "nameLabel": "Nombre completo",
     "namePlaceholder": "¿Cómo te llamamos?",
     "genderLabel": "¿Cómo nos dirigimos a ti?",
     "genderFemale": "Ella",
     "genderMale": "Él",
     "genderNeutral": "Neutro",
-    "roleLabel": "A qué te dedicas",
+    "roleLabel": "A qué te dedicas (opcional)",
     "roleOtherLabel": "¿A qué te dedicas?",
     "roleOtherPlaceholder": "p. ej. terapeuta de yoga, profesor de matemáticas",
-    "hintName": "Introduce tu nombre para continuar.",
+    "hintName": "Hace falta un nombre para guardar.",
     "hintRole": "Cuéntanos un poco a qué te dedicas."
   },
   "step2": {
@@ -45,7 +46,7 @@
     "clientsTeaser": "En el siguiente paso añadimos tu primer cliente.",
     "existingBanner": "Ya tienes {{count}} proyectos. Añadir aquí solo crea uno más.",
     "hintPickMode": "Elige cómo trabajas.",
-    "hintName": "El nombre del proyecto es obligatorio.",
+    "hintName": "El proyecto necesita un nombre para guardarse.",
     "errSaveFail": "No se pudo guardar: {{error}}",
     "tryAgain": "inténtalo de nuevo"
   },
@@ -58,7 +59,7 @@
     "addAnother": "Añadir y empezar otro",
     "addedHeading": "Añadidos ({{count}})",
     "removeAria": "Quitar a {{name}}",
-    "hintAddOne": "Añade un cliente, u omite este paso.",
+    "hintAddOne": "Puedes añadir un cliente ahora, o más tarde desde la pantalla de clientes.",
     "errSaveFail": "No se pudo guardar: {{error}}",
     "tryAgain": "inténtalo de nuevo"
   },

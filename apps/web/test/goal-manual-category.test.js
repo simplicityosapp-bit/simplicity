@@ -20,6 +20,11 @@
    ════════════════════════════════════════════════════════════════ */
 import { describe, it, expect } from 'vitest'
 
+import hePresets from '../src/i18n/locales/he/presets.json'
+import enPresets from '../src/i18n/locales/en/presets.json'
+import esPresets from '../src/i18n/locales/es/presets.json'
+import frPresets from '../src/i18n/locales/fr/presets.json'
+
 /* ── copied from lib/goalPresets.js ─────────────────────────────── */
 const MANUAL_CATEGORY_KEY = 'other'
 const LEGACY_MANUAL_NAMES = ['אחר', 'אישי']
@@ -66,5 +71,29 @@ describe('findManualCategory', () => {
   it('returns null for an empty or missing list, so the caller creates one', () => {
     expect(findManualCategory([])).toBeNull()
     expect(findManualCategory(undefined)).toBeNull()
+  })
+})
+
+describe('what the bucket is called', () => {
+  const LOCALES = { he: hePresets, en: enPresets, es: esPresets, fr: frPresets }
+
+  it('is named in every language', () => {
+    /* MANUAL_CATEGORY.name is a getter over presets:category.other, and the
+       name is COPIED INTO THE ROW at creation time — a missing entry doesn't
+       fall back later, it writes the key into the user's database. */
+    for (const [lang, ns] of Object.entries(LOCALES)) {
+      expect(typeof ns.category?.other?.name, `${lang}: category.other.name`).toBe('string')
+      expect(ns.category.other.name.trim().length, `${lang}: category.other.name`).toBeGreaterThan(0)
+      expect(ns.category.other.hint?.trim().length, `${lang}: category.other.hint`).toBeGreaterThan(0)
+    }
+  })
+
+  it('no longer says "אחר", which onboarding never called it', () => {
+    /* Onboarding offers "יעד אישי" and the board grouped it under "אחר" —
+       the same thing under two words. The bucket carries the clearer one;
+       "אחר" survives only in LEGACY_MANUAL_NAMES, to re-find rows already
+       written with it. */
+    expect(hePresets.category.other.name).toBe('אישי')
+    expect(LEGACY_MANUAL_NAMES).toContain('אחר')
   })
 })

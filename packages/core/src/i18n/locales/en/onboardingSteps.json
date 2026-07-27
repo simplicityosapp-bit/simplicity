@@ -1,16 +1,17 @@
 {
   "step1": {
     "welcome": "So glad you're here",
+    "introSub": "Just so we know how to address you and can tailor things — all of it is changeable later in Settings.",
     "nameLabel": "Full name",
     "namePlaceholder": "What should we call you?",
     "genderLabel": "How should we address you?",
     "genderFemale": "She",
     "genderMale": "He",
     "genderNeutral": "Neutral",
-    "roleLabel": "What you do",
+    "roleLabel": "What you do (optional)",
     "roleOtherLabel": "What do you do?",
     "roleOtherPlaceholder": "e.g. yoga therapist, math teacher",
-    "hintName": "Enter your name to continue.",
+    "hintName": "A name is needed to save this.",
     "hintRole": "Tell us a bit about what you do."
   },
   "step2": {
@@ -45,7 +46,7 @@
     "clientsTeaser": "Next step we'll add your first client.",
     "existingBanner": "You already have {{count}} projects. Adding here just creates one more.",
     "hintPickMode": "Pick how you work.",
-    "hintName": "A project name is required.",
+    "hintName": "The project needs a name to be saved.",
     "errSaveFail": "Saving failed: {{error}}",
     "tryAgain": "try again"
   },
@@ -58,7 +59,7 @@
     "addAnother": "Add and start another",
     "addedHeading": "Added ({{count}})",
     "removeAria": "Remove {{name}}",
-    "hintAddOne": "Add one client, or skip.",
+    "hintAddOne": "Add a client now, or later from the clients screen.",
     "errSaveFail": "Saving failed: {{error}}",
     "tryAgain": "try again"
   },

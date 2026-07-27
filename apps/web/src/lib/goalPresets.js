@@ -125,9 +125,11 @@ export const MANUAL_CATEGORY = Object.defineProperties({
   hint: { enumerable: true, get() { return presetHint(MANUAL_CATEGORY_KEY) } },
 })
 
-/* Names the two pre-unification buckets were created with. Matched so an
-   existing account keeps using the row it already has rather than growing
-   a third one — these are OUR old literals, never user-typed names. */
+/* Every Hebrew name this bucket has ever been written with: "אחר" from the
+   goals screen, "אישי" from onboarding's own parallel one, and "אישי" again
+   now that the two are unified under the clearer word. Matched so an account
+   that predates the key keeps the row it already has instead of growing a
+   second — these are OUR literals, never user-typed names. */
 const LEGACY_MANUAL_NAMES = ['אחר', 'אישי']
 
 /* The user's existing manual bucket, or null if they have none yet. */

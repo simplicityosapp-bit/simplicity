@@ -104,7 +104,7 @@
   },
   "addGoal": {
     "title": "Nouvel objectif",
-    "otherMetricName": "Autre — mise à jour manuelle",
+    "otherMetricName": "Personnel — mise à jour manuelle",
     "needMetric": "Choisissez une mesure.",
     "needTarget": "Saisissez une cible numérique positive.",
     "needTargetDate": "Choisissez une date cible.",

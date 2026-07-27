@@ -248,6 +248,59 @@ function meetingKey(type: string | undefined, id: string | undefined, at: Meetin
   return `${type}|${id}|${new Date(at as string).getTime()}`
 }
 
+export interface SlotSchedule {
+  day?: number | string | null
+  time?: string | null
+}
+export interface StaleMeetingRow {
+  id?: string
+  subject_type?: string
+  subject_id?: string
+  status?: string
+  scheduled_at?: MeetingDateInput
+}
+
+/* Ids of FUTURE pending meetings that were generated for a subject's OLD
+   recurring slot but no longer fit the NEW one — the stale occurrences to drop
+   after a recurring day/time changes or is cleared. Keyed on the OLD slot, so
+   genuinely one-off meetings (which never matched it) are left alone, and PAST
+   pending rows are kept: they may still need confirming. A null/empty schedule
+   matches nothing, so clearing the recurring time drops every old-slot future
+   occurrence.
+
+   Lives beside the generator, and asks its question the same way: "does this
+   instant fall on that slot?" is decided by rebuilding the slot's instant in
+   the coach's zone and comparing, rather than by reading the runtime's clock.
+   The two used to disagree the moment the runtime wasn't in Israel. */
+export function staleScheduledMeetingIds(
+  subjectType: string,
+  subjectId: string,
+  oldSchedule: SlotSchedule | null | undefined,
+  newSchedule: SlotSchedule | null | undefined,
+  meetings: StaleMeetingRow[] | null | undefined,
+  now: Date = new Date(),
+  timeZone: string = DEFAULT_TIME_ZONE,
+): string[] {
+  const matchesSlot = (at: Date, sched: SlotSchedule | null | undefined): boolean => {
+    const day = sched?.day
+    if (day == null || day === '') return false
+    const hhmm = parseHHMM(sched?.time)
+    if (!hhmm) return false
+    const p = zonedParts(at, timeZone)
+    if (p.weekday !== Number(day)) return false
+    return zonedTimeToInstant(p.year, p.month0, p.day, hhmm[0], hhmm[1], timeZone).getTime() === at.getTime()
+  }
+  return (meetings || [])
+    .filter((m) => m.subject_type === subjectType && m.subject_id === subjectId)
+    .filter((m) => m.status === 'pending')
+    .filter((m) => new Date(m.scheduled_at as string) > now)
+    .filter((m) => {
+      const at = new Date(m.scheduled_at as string)
+      return matchesSlot(at, oldSchedule) && !matchesSlot(at, newSchedule)
+    })
+    .map((m) => m.id as string)
+}
+
 export function generateScheduledMeetings(
   clients: MeetingClient[] | null | undefined,
   groups: MeetingGroup[] | null | undefined,

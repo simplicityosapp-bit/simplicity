@@ -10,7 +10,7 @@
    and the review-window filter.
    ════════════════════════════════════════════════════════════════ */
 
-import { generateScheduledMeetings } from '@simplicity/core'
+import { generateScheduledMeetings, staleScheduledMeetingIds } from '@simplicity/core'
 import i18n from '@simplicity/core/i18n'
 /* No showToast here any more: confirm and skip both register an undo, and the
    undo toast carries the same wording plus a way back. Two toasts firing for
@@ -28,40 +28,11 @@ const PAST_LOOKBACK_DAYS = 14
    helpers that DO belong to the browser (toasts, undo). */
 export { generateScheduledMeetings }
 
-function parseHHMM(t) {
-  if (!t) return null
-  const m = String(t).match(/^(\d{1,2}):(\d{2})/)
-  if (!m) return null
-  const hh = Number(m[1])
-  const mm = Number(m[2])
-  if (hh < 0 || hh > 23 || mm < 0 || mm > 59) return null
-  return [hh, mm]
-}
-
-/* Ids of FUTURE pending scheduled meetings that were generated for a subject's
-   OLD recurring slot but no longer fit the NEW one — i.e. stale occurrences to
-   drop after the recurring day/time changes or is cleared on a client/group.
-   Keyed on the OLD slot so genuinely one-off meetings (which never matched the
-   recurring slot) are left alone, and PAST pending rows are kept (they may
-   still need confirming). schedule = { day: number|string|null, time:
-   'HH:MM'|null }; a null/empty schedule matches nothing (so clearing the
-   recurring time drops every old-slot future occurrence). */
-export function staleScheduledMeetingIds(subjectType, subjectId, oldSchedule, newSchedule, meetings, now = new Date()) {
-  const matchesSlot = (m, sched) => {
-    const day = sched?.day
-    if (day == null || day === '') return false
-    const hhmm = parseHHMM(sched.time)
-    if (!hhmm) return false
-    const d = new Date(m.scheduled_at)
-    return d.getDay() === Number(day) && d.getHours() === hhmm[0] && d.getMinutes() === hhmm[1]
-  }
-  return (meetings || [])
-    .filter((m) => m.subject_type === subjectType && m.subject_id === subjectId)
-    .filter((m) => m.status === 'pending')
-    .filter((m) => new Date(m.scheduled_at) > now)
-    .filter((m) => matchesSlot(m, oldSchedule) && !matchesSlot(m, newSchedule))
-    .map((m) => m.id)
-}
+/* Ids of FUTURE pending meetings left behind when a recurring slot changes.
+   It lives in core beside the generator: both answer "does this instant fall on
+   that slot?", and when only one of them knew about time zones the two could
+   disagree the moment the runtime wasn't in Israel. */
+export { staleScheduledMeetingIds }
 
 /* Next session number for a meeting's subject — count of the subject's
    existing sessions + 1 (mirrors ClientDrawer / project-detail). */

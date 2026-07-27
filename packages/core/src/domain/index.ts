@@ -3,7 +3,8 @@
    the client-status rules, which dates.ts / clients.ts already re-export —
    a star here would collide with them. */
 export {
-  generateScheduledMeetings, zonedParts, zonedTimeToInstant, DEFAULT_TIME_ZONE,
+  generateScheduledMeetings, staleScheduledMeetingIds,
+  zonedParts, zonedTimeToInstant, DEFAULT_TIME_ZONE,
 } from './scheduledMeetings'
 export * from './paymentPlans'
 export * from './subscription'

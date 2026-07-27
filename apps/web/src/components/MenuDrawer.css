@@ -268,6 +268,13 @@
   gap: 8px;
   margin: 6px 0 8px;
 }
+/* A last tile left alone (or as a pair) on its own row stretches across the
+   empty columns instead of sitting as a lone square with a gap beside it —
+   today that is הגדרות, the 10th of 10. Written against the item's POSITION,
+   not its identity, so adding or removing a screen keeps the grid whole
+   without anyone having to remember this rule. */
+.dnav-item:last-child:nth-child(3n + 1) { grid-column: 1 / -1; }
+.dnav-item:last-child:nth-child(3n + 2) { grid-column: span 2; }
 .dnav-item {
   display: flex;
   flex-direction: column;

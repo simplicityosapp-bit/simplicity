@@ -314,9 +314,29 @@ Deno.serve(async (req) => {
       const raw = Array.isArray(body?.ids) ? body.ids : (body?.id ? [body.id] : [])
       const ids = [...new Set(raw)].filter((x) => typeof x === 'string' && UUID_RE.test(x))
       if (!ids.length) return json({ error: 'bad request' }, 400)
-      const { error } = await admin.from('feedback').delete().in('id', ids)
-      if (error) return json({ error: 'delete failed', detail: error.message }, 500)
-      return json({ ok: true, deleted: ids.length })
+      /* CHUNKED. PostgREST puts `.in()` in the QUERY STRING, so one big delete
+         blows the request-line limit: measured against this project, 600 ids
+         still went through and 1200 came back "Bad Request" — as an opaque
+         "delete failed" toast with nothing removed. Select-all-then-delete is
+         precisely the call that grows, so it would have broken exactly when it
+         was most useful. 200 keeps the URL near 8KB.
+
+         `.select('id')` makes each delete RETURN the rows it actually removed,
+         so the count below is real. It used to echo the REQUESTED length —
+         deleting 600 ids that matched nothing still reported "600 deleted". */
+      const CHUNK = 200
+      const deleted: string[] = []
+      for (let i = 0; i < ids.length; i += CHUNK) {
+        const { data, error } = await admin
+          .from('feedback').delete().in('id', ids.slice(i, i + CHUNK)).select('id')
+        if (error) {
+          // Report what DID go through — a later chunk failing doesn't put the
+          // earlier ones back, and the client re-syncs from the server on error.
+          return json({ error: 'delete failed', detail: error.message, deleted: deleted.length }, 500)
+        }
+        for (const r of (data ?? []) as { id: string }[]) deleted.push(r.id)
+      }
+      return json({ ok: true, deleted: deleted.length, ids: deleted })
     }
 
     // Manually mark/unmark a user as a subscriber — even without a real

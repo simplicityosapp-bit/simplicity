@@ -222,13 +222,16 @@
     "selectAria": "Seleccionar comentario",
     "deleteOneAria": "Eliminar comentario",
     "selectAll": "Seleccionar todo",
-    "selectedCount": "{{count}} seleccionados",
     "deleteSelected": "Eliminar ({{count}})",
-    "deletedToast": "{{count}} comentarios eliminados",
     "deleteError": "Error al eliminar",
     "deleteTitle": "Eliminar comentario",
-    "deleteConfirm": "¿Eliminar {{count}} comentario(s)? Esta acción es irreversible.",
-    "deleteConfirmBtn": "Eliminar"
+    "deleteConfirmBtn": "Eliminar",
+    "selectedCount_one": "1 seleccionado",
+    "selectedCount_other": "{{count}} seleccionados",
+    "deletedToast_one": "1 comentario eliminado",
+    "deletedToast_other": "{{count}} comentarios eliminados",
+    "deleteConfirm_one": "¿Eliminar 1 comentario? Esta acción es irreversible.",
+    "deleteConfirm_other": "¿Eliminar {{count}} comentarios? Esta acción es irreversible."
   },
   "analytics": {
     "title": "Analíticas",

@@ -222,13 +222,16 @@
     "selectAria": "Sélectionner le retour",
     "deleteOneAria": "Supprimer le retour",
     "selectAll": "Tout sélectionner",
-    "selectedCount": "{{count}} sélectionnés",
     "deleteSelected": "Supprimer ({{count}})",
-    "deletedToast": "{{count}} retours supprimés",
     "deleteError": "Échec de la suppression",
     "deleteTitle": "Supprimer le retour",
-    "deleteConfirm": "Supprimer {{count}} retour(s) ? Cette action est irréversible.",
-    "deleteConfirmBtn": "Supprimer"
+    "deleteConfirmBtn": "Supprimer",
+    "selectedCount_one": "1 sélectionné",
+    "selectedCount_other": "{{count}} sélectionnés",
+    "deletedToast_one": "1 retour supprimé",
+    "deletedToast_other": "{{count}} retours supprimés",
+    "deleteConfirm_one": "Supprimer 1 retour ? Cette action est irréversible.",
+    "deleteConfirm_other": "Supprimer {{count}} retours ? Cette action est irréversible."
   },
   "analytics": {
     "title": "Statistiques",

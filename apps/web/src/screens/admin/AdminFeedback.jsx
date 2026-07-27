@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, memo } from 'react'
+import { useState, useMemo, useCallback, useRef, useEffect, memo } from 'react'
 import { Bug, Lightbulb, Heart, MessageCircle, Search, Trash2 } from 'lucide-react'
 import { useAdminQuery, useAdminCache, callAdmin } from '../../hooks/useAdmin'
 import { useT } from '../../i18n/useT'
@@ -211,9 +211,20 @@ export default function AdminFeedback() {
 
   const selectedCount = filteredIds.filter((id) => selected.has(id)).length
 
+  /* A partly-filled selection has to LOOK partial. `indeterminate` is only
+     settable from JS, so without this the box reads as empty while the bar
+     next to it says "140 נבחרו" — which is exactly when you're about to press
+     delete and want to be sure of the scope. */
+  const selectAllRef = useRef(null)
+  useEffect(() => {
+    if (selectAllRef.current) {
+      selectAllRef.current.indeterminate = selectedCount > 0 && !allSelected
+    }
+  }, [selectedCount, allSelected])
+
   const doDelete = async (ids) => {
     try {
-      await callAdmin('feedback_delete', { ids })
+      const res = await callAdmin('feedback_delete', { ids })
       // Drop them from the cache too — and from the dashboard's open-feedback
       // counter, which this can't patch, so invalidate the console's reads.
       cache.patch('feedback_list', (p) => ({
@@ -223,8 +234,14 @@ export default function AdminFeedback() {
       cache.invalidate()
       setRemoved((r) => { const next = new Set(r); ids.forEach((id) => next.add(id)); return next })
       setSelected((s) => { const next = new Set(s); ids.forEach((id) => next.delete(id)); return next })
-      showToast(t('feedback.deletedToast', { count: ids.length }))
+      // The server's count, not ours — it reports the rows it actually removed,
+      // which differs if some were already gone (another tab, another admin).
+      showToast(t('feedback.deletedToast', { count: res?.deleted ?? ids.length }))
     } catch {
+      /* A bulk delete is chunked server-side, so a failure can be PARTIAL —
+         some rows really are gone. Re-fetch rather than leaving the board
+         showing rows that no longer exist. */
+      cache.invalidate()
       showToast(t('feedback.deleteError'), 'error')
     }
   }
@@ -267,7 +284,7 @@ export default function AdminFeedback() {
           {filtered.length > 0 && (
             <Box className="admin-fb-bulkbar">
               <label className="admin-fb-selall">
-                <input type="checkbox" className="admin-fb-check" checked={allSelected} onChange={toggleAll} />
+                <input ref={selectAllRef} type="checkbox" className="admin-fb-check" checked={allSelected} onChange={toggleAll} />
                 <Txt>{t('feedback.selectAll')}</Txt>
               </label>
               {selectedCount > 0 && (

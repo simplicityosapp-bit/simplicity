@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   Home, Users, Magnet, Wallet, Folder, ClipboardList, Target, Calendar, Settings,
-  Sun, Moon, Eye, LogOut, BarChart3, MoreHorizontal, Trash2, Sparkles, X, MessageSquarePlus, Shield, Plug, FileText, LayoutTemplate,
+  Sun, Moon, Eye, LogOut, BarChart3, MoreHorizontal, Trash2, Sparkles, X, MessageSquarePlus, Shield, Plug, LayoutTemplate,
   MessagesSquare, Gem,
 } from 'lucide-react'
 import { DRAWER_NAV } from '../lib/nav'
@@ -45,7 +45,9 @@ const EXTRAS = [
      the existing items.connections label. מבט על took its grid slot. */
   { key: 'connections', labelKey: 'items.connections', icon: Plug,  to: ROUTES.CONNECTIONS },
   { key: 'trash',    labelKey: 'extras.trash',    icon: Trash2,     to: ROUTES.TRASH },
-  { key: 'legal',    labelKey: 'extras.legal',    icon: FileText,   to: ROUTES.LEGAL },
+  /* מדיניות פרטיות / תנאים / DPA deliberately NOT here (owner call
+     2026-07-27): legal documents belong in Settings → אודות, which already
+     links all three, not in the navigation. The /legal route stays open. */
 ]
 
 /* ════════════════════════════════════════════════════════════════

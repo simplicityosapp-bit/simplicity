@@ -1,16 +1,17 @@
 {
   "step1": {
     "welcome": "Quelle joie de vous voir ici",
+    "introSub": "Juste pour savoir comment vous appeler et adapter le système — tout se modifie ensuite dans les Réglages.",
     "nameLabel": "Nom complet",
     "namePlaceholder": "Comment devons-nous vous appeler ?",
     "genderLabel": "Comment souhaitez-vous être adressé ?",
     "genderFemale": "Elle",
     "genderMale": "Il",
     "genderNeutral": "Neutre",
-    "roleLabel": "Votre activité",
+    "roleLabel": "Votre activité (facultatif)",
     "roleOtherLabel": "Que faites-vous ?",
     "roleOtherPlaceholder": "ex. yoga-thérapeute, professeur de mathématiques",
-    "hintName": "Saisissez votre nom pour continuer.",
+    "hintName": "Un nom est nécessaire pour enregistrer.",
     "hintRole": "Dites-nous un peu en quoi consiste votre activité."
   },
   "step2": {
@@ -45,7 +46,7 @@
     "clientsTeaser": "À l'étape suivante, nous ajoutons votre premier client.",
     "existingBanner": "Vous avez déjà {{count}} projets. Ajouter ici en crée simplement un de plus.",
     "hintPickMode": "Choisissez comment vous travaillez.",
-    "hintName": "Le nom du projet est obligatoire.",
+    "hintName": "Le projet a besoin d’un nom pour être enregistré.",
     "errSaveFail": "Échec de l'enregistrement : {{error}}",
     "tryAgain": "réessayez"
   },
@@ -58,7 +59,7 @@
     "addAnother": "Ajouter et en saisir un autre",
     "addedHeading": "Ajoutés ({{count}})",
     "removeAria": "Retirer {{name}}",
-    "hintAddOne": "Ajoutez un client, ou passez.",
+    "hintAddOne": "Vous pouvez ajouter un client maintenant, ou plus tard depuis l’écran clients.",
     "errSaveFail": "Échec de l'enregistrement : {{error}}",
     "tryAgain": "réessayez"
   },

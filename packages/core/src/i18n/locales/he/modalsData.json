@@ -108,7 +108,7 @@
   },
   "addGoal": {
     "title": "יעד חדש",
-    "otherMetricName": "אחר — עדכון ידני",
+    "otherMetricName": "אישי — עדכון ידני",
     "needMetric": "יש לבחור מדד.",
     "needTarget": "יש למלא יעד מספרי חיובי.",
     "needTargetDate": "יש לבחור תאריך יעד.",

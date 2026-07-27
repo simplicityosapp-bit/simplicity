@@ -21,7 +21,7 @@
       "hint": "Se cuentan automáticamente a partir de los miembros del grupo (se puede vincular a un proyecto)"
     },
     "other": {
-      "name": "Otro",
+      "name": "Personal",
       "hint": "Lo actualizas tú"
     }
   }

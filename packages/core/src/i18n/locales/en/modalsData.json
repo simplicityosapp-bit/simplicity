@@ -104,7 +104,7 @@
   },
   "addGoal": {
     "title": "New goal",
-    "otherMetricName": "Other — manual update",
+    "otherMetricName": "Personal — manual update",
     "needMetric": "Pick a metric.",
     "needTarget": "Enter a positive numeric target.",
     "needTargetDate": "Pick a target date.",

@@ -71,7 +71,11 @@ export default function Step1Profile({ ob, setCTA }) {
 
   return (
     <>
-      <Txt as="p" className="ob-intro-sub">{welcomeGreeting}</Txt>
+      <Txt as="p" className="ob-intro">{welcomeGreeting}</Txt>
+      {/* Why we're asking. It used to live in the help drawer, behind a "?"
+          most people never press — and every other step says its piece on
+          the page. */}
+      <Txt as="p" className="ob-intro-sub">{t('step1.introSub')}</Txt>
 
       <Box className="ob-field-row">
         <Box className="ob-field">

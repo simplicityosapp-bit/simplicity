@@ -117,7 +117,10 @@ export default function ClientStatusesModal({ open, onClose }) {
 
   return (
     <Modal open={open} onClose={onClose} title={t('statuses.title')}>
-      <Txt as="p" className="m-hint">{t('statuses.hint')}</Txt>
+      {/* The rename sentence is web-only: mobile's panel lists chips with a
+          delete and no rename, so a shared hint would promise it something
+          it doesn't do. */}
+      <Txt as="p" className="m-hint">{t('statuses.hint')} {t('statuses.hintRename')}</Txt>
 
       {loading ? (
         <Txt as="p" className="m-hint">{t('statuses.loading')}</Txt>

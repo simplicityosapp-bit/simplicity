@@ -262,7 +262,7 @@
   "statuses": {
     "link": "Sous-statuts",
     "title": "Gérer les sous-statuts",
-    "hint": "Vos propres sous-statuts au sein des quatre groupes fixes. Touchez un nom pour le modifier.",
+    "hint": "Vos propres sous-statuts au sein des quatre groupes fixes.",
     "placeholder": "Sous-statut dans « {{meta}} »",
     "empty": "Aucun sous-statut ici pour l'instant.",
     "loading": "Chargement…",
@@ -273,6 +273,7 @@
     "renameAria": "Nouveau nom pour {{name}}",
     "saveName": "Enregistrer le nom",
     "cancelRename": "Annuler",
-    "close": "Fermer"
+    "close": "Fermer",
+    "hintRename": "Touchez un nom pour le modifier."
   }
 }

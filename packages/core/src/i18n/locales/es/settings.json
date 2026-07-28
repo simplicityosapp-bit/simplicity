@@ -9,11 +9,11 @@
   "sections": {
     "profile": {
       "title": "Perfil",
-      "sub": "Nombre, profesión, tratamiento e idioma"
+      "sub": "Tu nombre, tratamiento y profesión"
     },
     "design": {
       "title": "Apariencia",
-      "sub": "Claro/oscuro, fondo, tamaño de texto y tarjetas"
+      "sub": "Idioma, claro/oscuro, fondo y el aspecto de la app"
     },
     "home": {
       "title": "Pantalla de inicio",
@@ -21,7 +21,7 @@
     },
     "payments": {
       "title": "Moneda, fecha y hora",
-      "sub": "Cómo se muestran importes, fechas y horas"
+      "sub": "Moneda, fecha, hora y primer día de la semana"
     },
     "meetingTypes": {
       "title": "Tipos de sesión y precios",
@@ -55,11 +55,11 @@
   "groups": {
     "personal": {
       "title": "Personal",
-      "sub": "Nombre, profesión, tratamiento e idioma"
+      "sub": "Tu nombre, tratamiento y profesión"
     },
     "appearance": {
       "title": "Aspecto y formato",
-      "sub": "Cómo se ve la app y cómo se muestran fechas e importes"
+      "sub": "Idioma, aspecto de la app y cómo se muestran fechas e importes"
     },
     "work": {
       "title": "Mi trabajo",
@@ -67,7 +67,7 @@
     },
     "account": {
       "title": "Mi cuenta",
-      "sub": "Tus datos, restablecer e información de la app"
+      "sub": "Datos, conexiones, restablecer e información de la app"
     }
   },
   "common": {

@@ -9,11 +9,11 @@
   "sections": {
     "profile": {
       "title": "Profile",
-      "sub": "Name, profession, form of address and language"
+      "sub": "Your name, form of address and profession"
     },
     "design": {
       "title": "Appearance",
-      "sub": "Light/dark, background, text size and card look"
+      "sub": "Language, light/dark, background and how the app looks"
     },
     "home": {
       "title": "Home screen",
@@ -21,7 +21,7 @@
     },
     "payments": {
       "title": "Currency, date and time",
-      "sub": "How amounts, dates and times are shown"
+      "sub": "Currency, date, time and the first day of the week"
     },
     "meetingTypes": {
       "title": "Meeting types and prices",
@@ -55,11 +55,11 @@
   "groups": {
     "personal": {
       "title": "Personal",
-      "sub": "Name, profession, form of address and language"
+      "sub": "Your name, form of address and profession"
     },
     "appearance": {
       "title": "Look and display",
-      "sub": "How the app looks, and how dates and amounts are shown"
+      "sub": "Language, how the app looks, and how dates and amounts are shown"
     },
     "work": {
       "title": "My work",
@@ -67,7 +67,7 @@
     },
     "account": {
       "title": "My account",
-      "sub": "Your data, reset, and app information"
+      "sub": "Data, connections, reset and app information"
     }
   },
   "common": {

@@ -42,14 +42,6 @@
     "about": {
       "title": "Acerca de",
       "sub": "Versión, privacidad y términos"
-    },
-    "clients": {
-      "title": "Clientes y estados",
-      "sub": "Tus propios subestados"
-    },
-    "leads": {
-      "title": "Ajustes de prospectos",
-      "sub": "Fuentes y estados"
     }
   },
   "groups": {

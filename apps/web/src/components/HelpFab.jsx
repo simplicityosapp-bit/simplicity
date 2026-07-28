@@ -27,7 +27,10 @@ const TABS = [
 /* Screens that deliberately show no help sheet — the "?" FAB is hidden for
    them entirely (e.g. subscription: a short, self-explanatory plan screen
    where generic help would just be noise). */
-const NO_HELP_SCREENS = new Set(['subscription'])
+/* 'help' is the guide itself — a "?" button there would open a sheet
+   summarising the page you are already reading, and with no entry of its own
+   it fell back to the HOME guide, which is worse than nothing. */
+const NO_HELP_SCREENS = new Set(['subscription', 'help'])
 
 /* Finds the current screen's header card so the "?" button can be portaled
    INTO it (and thus scroll with it) instead of floating over the viewport.

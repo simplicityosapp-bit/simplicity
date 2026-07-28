@@ -80,8 +80,8 @@
       "intro": "Home is your personal dashboard. It's made up of widgets you can turn on, turn off, and rearrange however you like. Each one gives you a quick look at a different area of your work and a shortcut to get there.",
       "features": [
         {
-          "title": "The widgets that make up the screen",
-          "body": "The screen is built from eight widgets: daily quote, overview, daily check-in, quick transaction / quick update, alerts (sessions, payments), upcoming reminders, next tasks, and status cards (clients / net / tasks). Each one can be turned on, turned off, and reordered under Settings → Widgets & Display."
+          "title": "The cards that make up the screen",
+          "body": "The screen is built from seven cards: Daily quote, Overview, How are you today, Quick add, Things needing attention, Tasks and reminders, and Quick numbers. Each can be switched on or off and reordered in \"Settings → Look and display → Home screen\", or by pressing and holding a card here on the home screen."
         },
         {
           "title": "Overview widget",
@@ -100,7 +100,7 @@
           "body": "Two buttons: \"Quick add\" opens shortcuts to add a transaction, client, lead, task, project, goal, reminder, or session — all right from Home. \"Update goal\" lets you pick a goal category and manually log progress."
         },
         {
-          "title": "Alerts widget (needs attention)",
+          "title": "Things needing attention card",
           "body": "A card that collects everything waiting for you in one place: transactions to confirm, sessions you haven't marked yet, clients with an outstanding balance, a gap from the monthly goal, urgent tasks, clients you haven't spoken to in 45 days, leads with no activity, follow-ups due today, and duplicates against Google Calendar. Transactions open a window where each row has \"Yes, it happened\", \"No, it didn't\" and delete; sessions open a confirmation window (confirm / skip / delete); everything else takes you to the relevant screen."
         },
         {
@@ -108,15 +108,11 @@
           "body": "In the \"Sessions to confirm\" window inside the alerts card, you can mark each session as \"Took place\" (which creates a real session in the client or group card), \"Did not take place\", or delete it. You can also confirm, decline, or delete an expense linked to that session."
         },
         {
-          "title": "Upcoming reminders widget",
-          "body": "A card showing all your upcoming reminders from today through 60 days out, in date order, highlighting how many are \"today\". Each row opens the calendar, and the ✓ button marks a reminder as done. A recurring reminder simply jumps to its next date; you can undo with \"Cancel\"."
+          "title": "Tasks and reminders card",
+          "body": "One card bringing together your open tasks and your upcoming reminders, by urgency and date. The summary shows how many are urgent out of the total, a red dot marks an urgent task, and tapping a row opens the matching screen. The ✓ marks it done — a repeating reminder simply jumps to its next date, and you can take it back with \"Undo\"."
         },
         {
-          "title": "Next tasks widget",
-          "body": "A card with all your open tasks, sorted by urgency. The summary shows how many are urgent out of the total. A red dot marks an urgent task, tapping a row opens the Tasks screen, and ✓ marks the task as done (you can undo with \"Cancel\")."
-        },
-        {
-          "title": "Status cards widget",
+          "title": "Quick numbers card",
           "body": "Three cards — Tasks · Net · Clients — each with a live number on top. Tapping one opens a filter and detail window (by time, type, status, urgency, project, category, group) with a trend chart, and the number updates to match your filter. \"Open in full\" takes you to the full screen. Net counts only confirmed transactions, and the card title switches to \"Income\" or \"Expenses\" if you filter to a single type."
         },
         {
@@ -124,12 +120,12 @@
           "body": "Until you have at least one client, a \"Everything starts here\" card sits at the top of the screen with three steps — first client, first task, and first lead — each linking to the screen with the add button highlighted. You can hide it with X, and it disappears on its own once your first client is created."
         },
         {
-          "title": "Customizing the display and sending feedback",
-          "body": "Under Settings → Widgets & Display you can change card style (frosted / flat / outlined), text weight (regular / bold), and density (compact / regular / spacious). You can also toggle \"compact\" mode or a separate density on widgets that support it. At the bottom of Home there's a \"Got feedback?\" card for submitting suggestions and bug reports."
+          "title": "Adjusting the display, and sending feedback",
+          "body": "In \"Settings → Look and display → Appearance\" you can change the card style (Glass or Solid), the letter thickness (Regular or Thick) and the spacing between items (Tight, Regular or Roomy) — with a sample card that changes in real time. At the bottom of the home screen there is a \"Got feedback?\" card for suggestions and bugs."
         }
       ],
       "tips": [
-        "Want to redesign Home? Go to Settings → Widgets & Display — that's where you turn widgets on and off, and choose style, text weight, and density.",
+        "Want to redesign Home? Go to Settings → Look and display → Home screen — that's where you turn widgets on and off, and choose style, text weight, and density.",
         "You set the order of widgets by dragging the row in Settings, or using the up/down arrows. The quote and overview widgets always sit in the top row when they're on.",
         "Tapping the Tasks / Net / Clients card doesn't just show a number — it opens a full filter, and your settings are saved for next time.",
         "\"Quick add\" on Home is a shortcut to add anything in the app (transaction, client, lead, task, project, goal, reminder, session) without switching screens.",
@@ -139,7 +135,7 @@
       "faq": [
         {
           "q": "How do I add or remove a widget from Home?",
-          "a": "Go to Settings → Widgets & Display → open the \"Widgets\" list and toggle each one on or off. You can't add widgets directly from the Home screen itself."
+          "a": "Go to Settings → Look and display → Home screen → open the \"Widgets\" list and toggle each one on or off. You can't add widgets directly from the Home screen itself."
         },
         {
           "q": "What does the percentage in the Overview circle mean?",
@@ -606,7 +602,7 @@
         }
       ],
       "tips": [
-        "A task is for something with no date. The moment you need a specific day and time, switch to Reminders and add one there. That's also what will appear in the Upcoming Reminders widget on the Home screen.",
+        "A task is for something with no date. The moment you need a specific day and time, switch to Reminders and add one there. That's also what will appear in the \"Tasks and reminders\" card on the home screen.",
         "Link a task to a client to connect it to them. Sessions with a date are managed in the Calendar, not here.",
         "Set up your statuses and categories once in \"Statuses & Categories\", then easily filter by category using the pills above the list.",
         "A recurring reminder doesn't disappear when you mark it — it jumps to the next occurrence. If several missed occurrences have built up, you'll see an ×N badge next to the title in the \"Open\" tab.",
@@ -1123,113 +1119,100 @@
     },
     "settings": {
       "title": "Settings",
-      "intro": "Settings is where you customize the app to fit your workflow. It's divided into nine sections — from your profile and preferred form of address, through widgets, statuses, daily questions and design, to export, import and account deletion.",
+      "intro": "Settings is where you make the app yours. It has four areas — Personal, Look and display, My work, and My account — with a search field on top, for when typing what you want beats guessing where it lives.",
       "features": [
         {
-          "title": "How the screen is organized — nine collapsible sections",
-          "body": "Settings are divided into sections that open one at a time: Profile, Widgets & Display, Clients & Statuses, Payments & Currency, Daily Questions, Lead Settings, Design, Data, and About. All sections start collapsed. When you open one, the previous one closes."
+          "title": "Search — the short way",
+          "body": "A search field sits at the top. Type a word — a synonym works too, like \"shekel\", \"font\", \"backup\" or \"calendar\" — and the screen narrows to the matching setting, already open and ready to change. The ✕ clears the search and brings every area back."
         },
         {
-          "title": "Profile — name, form of address and profession",
-          "body": "Fill in your full name, choose your preferred form of address (feminine, masculine or neutral), and select your profession from the available options (therapist, coach, facilitator, teacher, instructor, other). Choosing \"Other\" opens a free-text field — \"What do you do?\" — for your own description. Your form of address changes the wording throughout the entire app."
+          "title": "How the screen is built — four areas",
+          "body": "Personal · Look and display · My work · My account. Each opens on a tap and holds sections, and all start closed. An area with a single section inside — \"Personal\" — opens straight to its content, with no second door."
         },
         {
-          "title": "Auto-save in Profile",
-          "body": "There is no Save button here. Your name and free-text field are saved as soon as you click out of the field, and a small \"· Saved\" note appears next to them. Even if you close the section before clicking out — what you typed is saved. Choosing a form of address or profession is saved immediately on click."
+          "title": "Personal — your name, form of address and profession",
+          "body": "Fill in your full name, choose a form of address (feminine, masculine or neutral), and pick a profession from the buttons. Choosing \"Other\" opens a free-text field for what you actually do. The form of address changes the wording across the whole app."
         },
         {
-          "title": "Widgets & Display — general display settings",
-          "body": "At the top of this section are three controls that affect all cards on the Home screen: \"Card Style\" (blurred, flat or outlined), \"Text Weight\" (normal or bold) and \"Density\" (compact, normal or spacious)."
+          "title": "Saved automatically, and confirmed",
+          "body": "There is no save button. The name and the free-text field save the moment you leave them — even if you closed the area first. Every change raises a short \"Setting saved\" note, and if a save fails (a dropped connection, usually) a red message appears at the top instead of the value quietly reverting."
         },
         {
-          "title": "Managing Home widgets",
-          "body": "Below the general controls is a collapsible section called \"Widgets\". There you can toggle each widget on or off and reorder them by dragging or using the arrow buttons. Each active widget gets its own density control (global, compact, normal or spacious), and some have a \"Compact\" mode as well. The list includes the daily quote, overview ring, Daily Check-In, quick add / goal update, alerts, upcoming reminders, next tasks and status cards."
+          "title": "Look and display — Appearance",
+          "body": "Everything about how the app looks lives here: language, light/dark, background, text size, and under \"Card look\" — style (Glass or Solid), letter thickness (Regular or Thick) and spacing between items (Tight, Regular or Roomy). The Hebrew-calendar switches sit at the bottom."
         },
         {
-          "title": "Clients & Statuses — custom sub-statuses",
-          "body": "Here you add and delete sub-statuses for each client group (active, in-between, former, no status). Type a name and press the plus button or Enter. If you delete a sub-status that has clients in it, a window opens letting you move them to another sub-status or leave them without one. You can also undo if you make a mistake."
+          "title": "A sample card that changes with you",
+          "body": "Above the card controls sits a real sample card that changes in real time with every choice. That way you can see what \"Glass\" or \"Roomy\" does without leaving the screen — the result of those choices normally lives on other screens."
         },
         {
-          "title": "Payments & Currency",
-          "body": "Choose your currency (₪ Shekel, $ Dollar or € Euro), date format (DD/MM/YY, MM/DD/YY or YYYY-MM-DD), time format (24-hour or 12h AM/PM), and which day the week starts on (Sunday or Monday). The currency you choose changes how amounts are displayed throughout the app."
+          "title": "Home screen — what appears and in what order",
+          "body": "A list of every card on the home screen, with a switch to show or hide it and arrows to reorder. You can also arrange and hide them on the home screen itself — press and hold a card. The arrows stay here for anyone not working with a mouse or touch."
         },
         {
-          "title": "Daily Questions — adding, disabling and deleting",
-          "body": "You start with no questions and add them yourself via \"Add Question\". You can choose from a ready-made template (mood, energy, sleep, focus, nutrition, movement, stillness), or write your own with free text, answer type (scale 1–10 or yes/no) and an icon. Each question can be disabled, enabled or deleted. A question linked to a goal is marked with a target icon."
+          "title": "Currency, date and time",
+          "body": "Choose a currency, a date format, a clock and the day your week starts on. The date and time options show today and now in each format — so you see the result and pick what reads well, instead of decoding an abbreviation."
         },
         {
-          "title": "Question schedule",
-          "body": "Clicking the schedule label on a question opens an editor with three options: \"Every day\", \"Specific days\" (choose days of the week) and \"Every X days\" (every 2 to 30 days). This way a question can appear only on the days you choose. Click \"Save\" to confirm, or \"Cancel\" to exit without changes."
+          "title": "My work — meeting types and prices",
+          "body": "Your price list: a name for each meeting type and a default price. A price set on a type applies automatically to the clients linked to it — unless they have a manual price. Name and price are editable straight in the row."
         },
         {
-          "title": "Daily reminder for questions",
-          "body": "At the bottom of the Questions section, under \"Daily Reminder\", you can turn on a reminder and set a time. If you haven't answered by that time, a gentle nudge appears in the Daily Check-In widget on the Home screen. The time field only appears when the reminder is on."
+          "title": "Daily questions and the reminder",
+          "body": "You start with no questions and add them through \"Add question\" — a ready template or your own, with an answer type (a 1–10 scale or yes/no) and an icon. Tapping the schedule label opens \"Every day\" / \"Certain days\" / \"Every X days\". At the bottom you can turn on a daily reminder and pick a time; if you have not answered by then, a gentle nudge appears on the \"How are you today\" card."
         },
         {
-          "title": "Lead Settings — lead sources and stages",
-          "body": "Under \"Lead Sources\" you add new sources with a color and delete existing ones. Under \"Sub-Statuses\" you manage the stages for the lead board columns (in progress, converted, not relevant) — also with colors, and the same delete-with-reassign flow as for clients."
+          "title": "Statuses, stages and sources — on their own screens",
+          "body": "Client sub-statuses, and lead stages and sources, are managed on the screens that use them — not here. Settings has rows that lead there: \"Client sub-statuses\" opens the clients screen (where a \"Sub-statuses\" button opens the editor — add, rename, and delete with a move for the clients on it), and \"Lead stages and sources\" opens the leads screen."
         },
         {
-          "title": "Design — light/dark mode and text size",
-          "body": "Here you choose light/dark mode (day or night) and text size (small, normal or large). Text size only changes the font, not the screen layout. To change your form of address, go to the Profile section, not here."
-        },
-        {
-          "title": "Data — summary, export and import",
-          "body": "At the top of this section you can see how many of each item you have (clients, transactions, leads, tasks, projects, categories). \"Export Data\" opens one dialog: either an Excel file with a sheet for each type, or a separate export of transactions / clients / projects as a CSV. \"Import from File\" accepts CSV, TSV and Excel files — including multiple files and sheets at once — auto-detects columns, and lets you review and adjust the mapping before anything is imported."
+          "title": "My account — Data",
+          "body": "The top of the section shows how many of everything you have. \"Export data\" opens one window: an Excel file with a sheet per type, or a separate CSV export of transactions / clients / projects. \"Import from a file\" reads CSV, TSV and Excel, recognises columns on its own and lets you correct them before anything is written. \"Start the intro over\" is here too."
         },
         {
           "title": "Exporting sensitive data (optional)",
-          "body": "The export dialog has checkboxes for sensitive data — sessions, goals, daily answers and reflections. They are off by default and reset every time you open the dialog. Checking a box adds more sheets to the Excel file, and the data exports as plain text — so keep the file somewhere safe."
+          "body": "The export window has checkboxes for sensitive data — sessions, goals, daily answers and reflections. They are off by default and reset every time the window opens. Ticking one adds sheets to the file, and the data leaves as plain text — so keep the file somewhere safe."
         },
         {
-          "title": "Restart the onboarding flow",
-          "body": "This restarts the onboarding wizard from the beginning — useful if you skipped through it. It is non-destructive: the wizard steps reset, but everything you already created (clients, projects, etc.) stays. You'll see a short confirmation before proceeding."
+          "title": "Reset and delete — a section of its own",
+          "body": "The two actions that cannot be undone sit in their own section, not at the bottom of the export scroll. \"Erase all data and start over\" clears the account's contents and restarts the intro. \"Delete the account permanently\" removes the whole account including your login — with a 30-day grace period to change your mind. Both ask again after you press."
         },
         {
-          "title": "Reset account — delete all data",
-          "body": "\"Delete all data and start over\" removes everything in your account (clients, projects, groups, leads, transactions and recurring expenses, categories, tasks, goals, questions and answers, sessions, notes, reminders, statuses and sources) and restarts the onboarding. You need to confirm twice — first a warning, then type the word \"delete\". This cannot be undone."
-        },
-        {
-          "title": "Delete account permanently",
-          "body": "\"Delete account permanently\" marks your entire account for deletion — including your login itself, not just the data. You need to confirm twice and type \"delete account\". It does not happen immediately: a 30-day grace period begins during which you can change your mind and cancel on any login. Only after that grace period is everything permanently deleted."
-        },
-        {
-          "title": "About — three tabs",
-          "body": "The \"About\" section has three tabs: \"About\" (what the app is, its principles, version and credits) with links to the Privacy Policy, Terms of Use and Data Processing Agreement; \"Guide\" — the full explanation for every screen (the same help that appears in the ? button); and \"FAQ\"."
+          "title": "About, and the ways out",
+          "body": "\"About\" holds the version, the principles and the links to the Privacy Policy, Terms of Use and Data Processing Agreement. The same area has rows leading to \"Connections\" (Google Calendar, invoices, WhatsApp) and to \"Trash\". The full guide and the FAQ moved to a help screen of their own — reach it from the menu (\"Help and guide\") or from the ? button at the top of any screen."
         }
       ],
       "tips": [
-        "It's worth setting your form of address in the Profile section first — it changes the wording throughout the entire app, including text on other screens.",
-        "Your profile saves automatically: just click out of the field (or close the section) and the change is captured. There is no Save button.",
-        "It's worth exporting all your data to Excel at least once a month as a backup. The client and project files are saved in a format that can be re-imported.",
-        "Before deleting a sub-status that has clients or leads in it — choose in the dialog where to move them, so you don't leave records without a label. And even if you make a mistake, there's an undo option.",
-        "Want a daily question that only appears on weekdays? Open the question's schedule, choose \"Specific days\" and check the days.",
-        "Don't confuse \"Reset account\" (deletes data, you type \"delete\") with \"Delete account permanently\" (deletes your login too, you type \"delete account\", with 30 days to change your mind)."
+        "Not sure where something lives? Don't guess — type the word into the search field at the top. Even \"shekel\" or \"font\" will get you there.",
+        "Language is under \"Look and display → Appearance\", together with light/dark and text size — not under \"Personal\".",
+        "Everything saves itself. The \"Setting saved\" note is the confirmation; if something fails you get a red message, not silence.",
+        "Want to see what \"Glass\" or \"Roomy\" does? The sample card above the controls changes with you in real time.",
+        "Client sub-statuses and lead stages are edited on their own screens. The rows in Settings are the shortcut there."
       ],
       "faq": [
         {
-          "q": "I changed my name or profession and didn't see a Save button — was it saved?",
-          "a": "Yes. There is no Save button in Profile. Your name and free-text field are saved as soon as you click out of the field (and even if you close the section mid-edit), and selecting a form of address or profession saves immediately on click. A \"· Saved\" note appears next to a field that has been saved."
+          "q": "Where do I change the language?",
+          "a": "Settings → Look and display → Appearance. It sits there with light/dark, the background and text size, and switches immediately."
         },
         {
-          "q": "Why don't I have any daily questions in the Questions section?",
-          "a": "That's expected — the app doesn't set up questions in advance. Click \"Add Question\" and choose a ready-made template or create your own. Once you've added questions, you can set a schedule for each one and enable or disable them."
+          "q": "Where do I add or delete a client sub-status?",
+          "a": "On the clients screen — the \"Sub-statuses\" button in the toolbar. You can add, rename (tap the name) and delete; deleting one that has clients on it asks where to move them. Settings has a row that leads there."
         },
         {
-          "q": "What's the difference between \"Reset account\" and \"Delete account permanently\"?",
-          "a": "Resetting your account deletes all your data and restarts the onboarding, but your login stays. Deleting your account marks your login itself for deletion — with a 30-day grace period to cancel before everything is permanently deleted. Both actions require double confirmation and typing a different word (\"delete\" vs. \"delete account\")."
+          "q": "Where are the lead stages and sources?",
+          "a": "On the leads screen — the \"Statuses\" tab manages the stages and the \"Sources\" button manages where enquiries come from. Settings has a row that leads there."
         },
         {
-          "q": "If I restart the onboarding, will I lose the data I already entered?",
-          "a": "No. \"Restart onboarding\" only resets the wizard steps to the beginning. The clients, projects and data you already created stay. If you want to delete the data itself, that's \"Reset account\" in the danger section."
+          "q": "Where are the full guide and the FAQ?",
+          "a": "On a help screen of their own: menu (\"More\") → \"Help and guide\". You can also get there from the ? button at the top of any screen, via \"The full guide to every screen\"."
         },
         {
-          "q": "Does the export include my sensitive sessions and reflections?",
-          "a": "Only if you check the boxes. The export dialog has checkboxes for sensitive data (sessions, goals, daily answers, reflections), and they are off by default. When you check them, they are added to the Excel file as plain text — so keep the file somewhere safe."
+          "q": "I changed a setting and I'm not sure it saved",
+          "a": "Every change raises a short \"Setting saved\" note. If a red message appeared at the top, the save failed — usually a dropped connection — and it is worth trying again."
         },
         {
-          "q": "Where do I change dark mode or text size?",
-          "a": "In the \"Design\" section. There you choose light/dark mode and text size (small, normal, large). Text size only changes the font, not the screen layout. To change your form of address (masculine/feminine/neutral), go to the Profile section instead."
+          "q": "Why is \"Delete account\" no longer under \"Data\"?",
+          "a": "It got its own section, \"Reset and delete\", so it would not share a scroll with export and import. The actions themselves did not change, and neither did the double confirmation."
         }
       ]
     },
@@ -1367,7 +1350,7 @@
         },
         {
           "q": "How do I delete my account?",
-          "a": "Settings → Data → Delete account permanently. This deletes the entire account, including your login, and requires two confirmations with typed input. After deletion there is a 30-day grace period — during that time you can change your mind and cancel."
+          "a": "Settings → My account → Reset and delete. This deletes the entire account, including your login, and requires two confirmations with typed input. After deletion there is a 30-day grace period — during that time you can change your mind and cancel."
         }
       ]
     },
@@ -1388,7 +1371,7 @@
         },
         {
           "q": "Can I change the order of screens in the navigation?",
-          "a": "The screen order in navigation is fixed for now. You can customize the Home screen: Settings → Widgets & Display. There you enable and disable widgets, change their order and choose a display style."
+          "a": "The screen order in navigation is fixed for now. You can customize the Home screen: Settings → Look and display → Home screen. There you enable and disable widgets, change their order and choose a display style."
         }
       ]
     },

@@ -80,8 +80,8 @@
       "intro": "L'Accueil est votre tableau de bord personnel. Il est composé de widgets que vous pouvez activer, désactiver et réorganiser à votre guise. Chacun vous donne un aperçu rapide d'un domaine de votre travail et un raccourci pour y accéder.",
       "features": [
         {
-          "title": "Les widgets qui composent l'écran",
-          "body": "L'écran est constitué de huit widgets : citation du jour, vue d'ensemble, point quotidien, transaction rapide / mise à jour rapide, alertes (séances, paiements), rappels à venir, prochaines tâches et cartes de statut (clients / net / tâches). Chacun peut être activé, désactivé et réorganisé dans Paramètres → Widgets et affichage."
+          "title": "Les cartes qui composent l'écran",
+          "body": "L'écran est composé de sept cartes : Citation du jour, Vue d'ensemble, Comment allez-vous, Ajout rapide, Ce qui demande votre attention, Tâches et rappels, et Chiffres rapides. Chacune peut être activée, désactivée et réordonnée dans « Réglages → Aspect et affichage → Écran d'accueil », ou par un appui long sur une carte ici même."
         },
         {
           "title": "Widget Vue d'ensemble",
@@ -100,7 +100,7 @@
           "body": "Deux boutons : « Ajout rapide » ouvre des raccourcis pour ajouter une transaction, un client, un prospect, une tâche, un projet, un objectif, un rappel ou une séance — le tout directement depuis l'Accueil. « Mettre à jour un objectif » vous permet de choisir une catégorie d'objectif et d'enregistrer manuellement la progression."
         },
         {
-          "title": "Widget Alertes (nécessite votre attention)",
+          "title": "Carte Ce qui demande votre attention",
           "body": "Une carte qui rassemble en un seul endroit tout ce qui vous attend : transactions à confirmer, séances que vous n'avez pas encore marquées, clients avec un solde impayé, écart par rapport à l'objectif mensuel, tâches urgentes, clients à qui vous n'avez pas parlé depuis 45 jours, prospects sans activité, relances dues aujourd'hui et doublons avec Google Calendar. Les transactions ouvrent une fenêtre où chaque ligne propose « Oui, cela a eu lieu », « Non, cela n'a pas eu lieu » et supprimer ; les séances ouvrent une fenêtre de confirmation (confirmer / passer / supprimer) ; tout le reste vous mène à l'écran concerné."
         },
         {
@@ -108,15 +108,11 @@
           "body": "Dans la fenêtre « Séances à confirmer » de la carte d'alertes, vous pouvez marquer chaque séance comme « A eu lieu » (ce qui crée une séance réelle dans la fiche du client ou du groupe), « N'a pas eu lieu », ou la supprimer. Vous pouvez aussi confirmer, refuser ou supprimer une dépense liée à cette séance."
         },
         {
-          "title": "Widget Rappels à venir",
-          "body": "Une carte affichant tous vos rappels à venir, d'aujourd'hui jusqu'à 60 jours plus tard, par ordre de date, en mettant en évidence le nombre de rappels « aujourd'hui ». Chaque ligne ouvre le calendrier, et le bouton ✓ marque un rappel comme terminé. Un rappel récurrent passe simplement à sa prochaine date ; vous pouvez annuler avec « Annuler »."
+          "title": "Carte Tâches et rappels",
+          "body": "Une seule carte réunissant vos tâches ouvertes et vos rappels à venir, par urgence et par date. Le résumé indique combien sont urgentes sur le total, un point rouge signale une tâche urgente, et toucher une ligne ouvre l'écran correspondant. Le ✓ la marque comme faite — un rappel récurrent passe simplement à sa date suivante, et « Annuler » permet de revenir en arrière."
         },
         {
-          "title": "Widget Prochaines tâches",
-          "body": "Une carte avec toutes vos tâches ouvertes, triées par urgence. Le résumé indique combien sont urgentes sur le total. Un point rouge marque une tâche urgente, appuyer sur une ligne ouvre l'écran Tâches, et ✓ marque la tâche comme terminée (vous pouvez annuler avec « Annuler »)."
-        },
-        {
-          "title": "Widget Cartes de statut",
+          "title": "Carte Chiffres rapides",
           "body": "Trois cartes — Tâches · Net · Clients — chacune avec un chiffre en direct en haut. En appuyer sur une ouvre une fenêtre de filtre et de détails (par période, type, statut, urgence, projet, catégorie, groupe) avec un graphique de tendance, et le chiffre se met à jour selon votre filtre. « Ouvrir en grand » vous mène à l'écran complet. Le net ne compte que les transactions confirmées, et le titre de la carte devient « Revenu » ou « Dépenses » si vous filtrez sur un seul type."
         },
         {
@@ -124,12 +120,12 @@
           "body": "Tant que vous n'avez pas au moins un client, une carte « Tout commence ici » se trouve en haut de l'écran avec trois étapes — premier client, première tâche et premier prospect — chacune menant à l'écran avec le bouton d'ajout mis en évidence. Vous pouvez la masquer avec le X, et elle disparaît d'elle-même une fois votre premier client créé."
         },
         {
-          "title": "Personnaliser l'affichage et envoyer un commentaire",
-          "body": "Dans Paramètres → Widgets et affichage, vous pouvez changer le style des cartes (givré / plat / contour), l'épaisseur du texte (normal / gras) et la densité (compact / normal / spacieux). Vous pouvez aussi activer le mode « compact » ou une densité distincte sur les widgets qui le permettent. En bas de l'Accueil, une carte « Un commentaire ? » permet d'envoyer des suggestions et des rapports de bugs."
+          "title": "Ajuster l'affichage et envoyer un retour",
+          "body": "Dans « Réglages → Aspect et affichage → Apparence », vous pouvez changer le style des cartes (Verre ou Uni), l'épaisseur des lettres (Normale ou Épaisse) et l'espace entre les éléments (Serré, Normal ou Aéré), avec une carte d'exemple qui change en temps réel. En bas de l'accueil, une carte « Un retour ? » permet d'envoyer suggestions et bugs."
         }
       ],
       "tips": [
-        "Vous voulez réaménager l'Accueil ? Allez dans Paramètres → Widgets et affichage — c'est là que vous activez et désactivez les widgets, et que vous choisissez le style, l'épaisseur du texte et la densité.",
+        "Vous voulez réaménager l'Accueil ? Allez dans Paramètres → Aspect et affichage → Écran d'accueil — c'est là que vous activez et désactivez les widgets, et que vous choisissez le style, l'épaisseur du texte et la densité.",
         "Vous définissez l'ordre des widgets en faisant glisser la ligne dans les Paramètres, ou avec les flèches haut/bas. Les widgets citation et vue d'ensemble se placent toujours sur la ligne du haut lorsqu'ils sont activés.",
         "Appuyer sur la carte Tâches / Net / Clients ne fait pas qu'afficher un chiffre — cela ouvre un filtre complet, et vos réglages sont enregistrés pour la prochaine fois.",
         "« Ajout rapide » sur l'Accueil est un raccourci pour ajouter n'importe quoi dans l'application (transaction, client, prospect, tâche, projet, objectif, rappel, séance) sans changer d'écran.",
@@ -139,7 +135,7 @@
       "faq": [
         {
           "q": "Comment ajouter ou retirer un widget de l'Accueil ?",
-          "a": "Allez dans Paramètres → Widgets et affichage → ouvrez la liste « Widgets » et activez ou désactivez chacun. Vous ne pouvez pas ajouter de widgets directement depuis l'écran d'accueil lui-même."
+          "a": "Allez dans Paramètres → Aspect et affichage → Écran d'accueil → ouvrez la liste « Widgets » et activez ou désactivez chacun. Vous ne pouvez pas ajouter de widgets directement depuis l'écran d'accueil lui-même."
         },
         {
           "q": "Que signifie le pourcentage dans le cercle de Vue d'ensemble ?",
@@ -606,7 +602,7 @@
         }
       ],
       "tips": [
-        "Une tâche, c'est pour quelque chose sans date. Dès que vous avez besoin d'un jour et d'une heure précis, basculez vers Rappels et ajoutez-en un là. C'est aussi ce qui apparaîtra dans le widget Rappels à venir sur l'écran d'accueil.",
+        "Une tâche, c'est pour quelque chose sans date. Dès que vous avez besoin d'un jour et d'une heure précis, basculez vers Rappels et ajoutez-en un là. C'est aussi ce qui apparaîtra dans le carte « Tâches et rappels » sur l'écran d'accueil.",
         "Liez une tâche à un client pour l'y rattacher. Les séances avec une date sont gérées dans le Calendrier, pas ici.",
         "Configurez vos statuts et catégories une fois dans « Statuts et catégories », puis filtrez facilement par catégorie à l'aide des pastilles au-dessus de la liste.",
         "Un rappel récurrent ne disparaît pas quand vous le marquez — il passe à la prochaine occurrence. Si plusieurs occurrences manquées se sont accumulées, vous verrez un badge ×N à côté du titre dans l'onglet « Ouverts ».",
@@ -1122,114 +1118,101 @@
       ]
     },
     "settings": {
-      "title": "Paramètres",
-      "intro": "Les Paramètres sont l'endroit où vous adaptez l'application à votre façon de travailler. Ils sont divisés en neuf sections — de votre profil et de votre forme d'adresse préférée, en passant par les widgets, les statuts, les questions quotidiennes et l'apparence, jusqu'à l'export, l'import et la suppression du compte.",
+      "title": "Réglages",
+      "intro": "Les réglages sont l'endroit où vous adaptez l'app à vous. Quatre zones — Personnel, Aspect et affichage, Mon activité et Mon compte — avec un champ de recherche en haut, au cas où écrire ce que vous cherchez serait plus simple que deviner où ça se trouve.",
       "features": [
         {
-          "title": "Comment l'écran est organisé — neuf sections repliables",
-          "body": "Les Paramètres sont divisés en sections qui s'ouvrent une à la fois : Profil, Widgets et affichage, Clients et statuts, Paiements et devise, Questions quotidiennes, Paramètres des prospects, Apparence, Données et À propos. Toutes les sections sont repliées au départ. Quand vous en ouvrez une, la précédente se ferme."
+          "title": "Recherche : le chemin court",
+          "body": "Un champ de recherche est placé en haut. Tapez un mot — un synonyme fonctionne aussi, comme « shekel », « police », « sauvegarde » ou « agenda » — et l'écran se réduit au réglage correspondant, déjà ouvert. La ✕ efface la recherche et fait revenir toutes les zones."
         },
         {
-          "title": "Profil — nom, forme d'adresse et profession",
-          "body": "Renseignez votre nom complet, choisissez votre forme d'adresse préférée (féminine, masculine ou neutre) et sélectionnez votre profession parmi les options disponibles (thérapeute, coach, facilitateur, enseignant, instructeur, autre). Choisir « Autre » ouvre un champ de texte libre — « Que faites-vous ? » — pour votre propre description. Votre forme d'adresse modifie la formulation dans toute l'application."
+          "title": "Comment l'écran est construit — quatre zones",
+          "body": "Personnel · Aspect et affichage · Mon activité · Mon compte. Chacune s'ouvre d'une pression et contient des sections, toutes fermées au départ. Une zone qui ne contient qu'une section — « Personnel » — s'ouvre directement sur son contenu, sans seconde porte."
         },
         {
-          "title": "Enregistrement automatique dans le Profil",
-          "body": "Il n'y a pas de bouton Enregistrer ici. Votre nom et votre champ de texte libre sont enregistrés dès que vous cliquez en dehors du champ, et une petite note « · Enregistré » apparaît à côté. Même si vous fermez la section avant de cliquer en dehors — ce que vous avez saisi est enregistré. Choisir une forme d'adresse ou une profession est enregistré immédiatement au clic."
+          "title": "Personnel : votre nom, forme d'adresse et métier",
+          "body": "Vous renseignez votre nom complet, choisissez la forme d'adresse (féminin, masculin ou neutre) et sélectionnez un métier parmi les boutons. « Autre » ouvre un champ libre pour décrire ce que vous faites. La forme d'adresse change la formulation dans toute l'app."
         },
         {
-          "title": "Widgets et affichage — réglages d'affichage généraux",
-          "body": "En haut de cette section, trois contrôles affectent toutes les cartes de l'écran d'accueil : « Style des cartes » (givré, plat ou contour), « Épaisseur du texte » (normal ou gras) et « Densité » (compact, normal ou spacieux)."
+          "title": "Enregistré tout seul, et confirmé",
+          "body": "Il n'y a pas de bouton d'enregistrement. Le nom et le champ libre sont enregistrés dès que vous les quittez, même si vous avez refermé la zone avant. Chaque modification affiche un bref « Réglage enregistré », et si l'enregistrement échoue (souvent une connexion coupée) un message rouge apparaît en haut, au lieu que la valeur revienne en arrière en silence."
         },
         {
-          "title": "Gérer les widgets de l'Accueil",
-          "body": "Sous les contrôles généraux se trouve une section repliable appelée « Widgets ». Là, vous pouvez activer ou désactiver chaque widget et les réorganiser par glissement ou à l'aide des boutons fléchés. Chaque widget actif reçoit son propre contrôle de densité (global, compact, normal ou spacieux), et certains ont aussi un mode « Compact ». La liste comprend la citation du jour, l'anneau de vue d'ensemble, le Point quotidien, l'ajout rapide / mise à jour d'objectif, les alertes, les rappels à venir, les prochaines tâches et les cartes de statut."
+          "title": "Aspect et affichage : Apparence",
+          "body": "Tout ce qui touche à l'apparence est ici : langue, clair/sombre, fond, taille du texte, et sous « Aspect des cartes » le style (Verre ou Uni), l'épaisseur des lettres (Normale ou Épaisse) et l'espace entre les éléments (Serré, Normal ou Aéré). Les interrupteurs du calendrier hébraïque sont en bas."
         },
         {
-          "title": "Clients et statuts — sous-statuts personnalisés",
-          "body": "Ici, vous ajoutez et supprimez des sous-statuts pour chaque groupe de clients (actif, en pause, ancien, sans statut). Saisissez un nom et appuyez sur le bouton plus ou sur Entrée. Si vous supprimez un sous-statut qui contient des clients, une fenêtre s'ouvre vous permettant de les déplacer vers un autre sous-statut ou de les laisser sans aucun. Vous pouvez aussi annuler en cas d'erreur."
+          "title": "Une carte d’exemple qui change avec vous",
+          "body": "Au-dessus des réglages de cartes se trouve une vraie carte d'exemple qui change en temps réel à chaque choix. Vous voyez ainsi ce que font « Verre » ou « Aéré » sans quitter l'écran — le résultat de ces choix vit d'ordinaire sur d'autres écrans."
         },
         {
-          "title": "Paiements et devise",
-          "body": "Choisissez votre devise (₪ Shekel, $ Dollar ou € Euro), le format de date (DD/MM/YY, MM/DD/YY ou YYYY-MM-DD), le format de l'heure (24 heures ou 12h AM/PM), et le jour où la semaine commence (dimanche ou lundi). La devise que vous choisissez modifie l'affichage des montants dans toute l'application."
+          "title": "Écran d'accueil : ce qui s'affiche et dans quel ordre",
+          "body": "La liste de toutes les cartes de l'écran d'accueil, avec un interrupteur pour les afficher ou les masquer et des flèches pour les réordonner. Vous pouvez aussi les organiser depuis l'écran d'accueil lui-même : appui long sur une carte. Les flèches restent ici pour qui n'utilise ni souris ni gestes."
         },
         {
-          "title": "Questions quotidiennes — ajouter, désactiver et supprimer",
-          "body": "Vous commencez sans aucune question et les ajoutez vous-même via « Ajouter une question ». Vous pouvez choisir parmi un modèle prêt à l'emploi (humeur, énergie, sommeil, concentration, nutrition, mouvement, calme) ou écrire la vôtre avec du texte libre, un type de réponse (échelle 1–10 ou oui/non) et une icône. Chaque question peut être désactivée, activée ou supprimée. Une question liée à un objectif est marquée d'une icône de cible."
+          "title": "Devise, date et heure",
+          "body": "Vous choisissez une devise, un format de date, une horloge et le jour où commence votre semaine. Les options de date et d'heure affichent aujourd'hui et maintenant dans chaque format : vous voyez le résultat et choisissez ce qui se lit bien, au lieu de déchiffrer une abréviation."
         },
         {
-          "title": "Programmation des questions",
-          "body": "Cliquer sur l'étiquette de programmation d'une question ouvre un éditeur avec trois options : « Tous les jours », « Jours précis » (choisir des jours de la semaine) et « Tous les X jours » (tous les 2 à 30 jours). Ainsi, une question peut n'apparaître que les jours que vous choisissez. Cliquez sur « Enregistrer » pour confirmer, ou sur « Annuler » pour quitter sans changement."
+          "title": "Mon activité : types de séance et tarifs",
+          "body": "Votre grille tarifaire : un nom par type de séance et un tarif par défaut. Le tarif d'un type s'applique automatiquement aux clients qui y sont rattachés, sauf s'ils ont un tarif manuel. Le nom et le tarif se modifient directement dans la ligne."
         },
         {
-          "title": "Rappel quotidien pour les questions",
-          "body": "En bas de la section Questions, sous « Rappel quotidien », vous pouvez activer un rappel et définir une heure. Si vous n'avez pas répondu avant cette heure, un petit rappel bienveillant apparaît dans le widget Point quotidien sur l'écran d'accueil. Le champ d'heure n'apparaît que lorsque le rappel est activé."
+          "title": "Questions quotidiennes et rappel",
+          "body": "Vous commencez sans questions et les ajoutez via « Ajouter une question » : un modèle prêt ou la vôtre, avec un type de réponse (échelle 1–10 ou oui/non) et une icône. Toucher l'étiquette de planification ouvre « Chaque jour » / « Certains jours » / « Tous les X jours ». En bas, vous pouvez activer un rappel quotidien et choisir une heure ; si vous n'avez pas répondu d'ici là, un rappel discret apparaît sur la carte « Comment allez-vous »."
         },
         {
-          "title": "Paramètres des prospects — sources et étapes",
-          "body": "Sous « Sources de prospects », vous ajoutez de nouvelles sources avec une couleur et supprimez celles qui existent. Sous « Étapes », vous gérez les étapes pour les colonnes du tableau des prospects (en cours, convertis, non pertinents) — également avec des couleurs, et le même flux de suppression avec réaffectation que pour les clients."
+          "title": "Statuts, étapes et sources : sur leurs propres écrans",
+          "body": "Les sous-statuts des clients, ainsi que les étapes et sources des prospects, se gèrent sur les écrans qui les utilisent, pas ici. Les réglages proposent des lignes qui y mènent : « Sous-statuts des clients » ouvre l'écran des clients (où un bouton « Sous-statuts » ouvre l'éditeur — ajouter, renommer, et supprimer en déplaçant les clients concernés), et « Étapes et sources de prospects » ouvre l'écran des prospects."
         },
         {
-          "title": "Apparence — mode clair/sombre et taille du texte",
-          "body": "Ici, vous choisissez le mode clair/sombre (jour ou nuit) et la taille du texte (petite, normale ou grande). La taille du texte ne change que la police, pas la mise en page de l'écran. Pour changer votre forme d'adresse, allez dans la section Profil, pas ici."
-        },
-        {
-          "title": "Données — résumé, export et import",
-          "body": "En haut de cette section, vous pouvez voir combien d'éléments de chaque type vous avez (clients, transactions, prospects, tâches, projets, catégories). « Exporter les données » ouvre une seule boîte de dialogue : soit un fichier Excel avec une feuille par type, soit un export séparé des transactions / clients / projets en CSV. « Importer depuis un fichier » accepte les fichiers CSV, TSV et Excel — y compris plusieurs fichiers et feuilles à la fois — détecte automatiquement les colonnes et vous permet de revoir et d'ajuster la correspondance avant tout import."
+          "title": "Mon compte : Données",
+          "body": "En haut de la section, vous voyez combien vous avez de chaque chose. « Exporter les données » ouvre une seule fenêtre : un fichier Excel avec une feuille par type, ou un export séparé des mouvements / clients / projets en CSV. « Importer depuis un fichier » lit CSV, TSV et Excel, reconnaît les colonnes seul et vous laisse corriger avant toute écriture. « Reprendre l'introduction » est également ici."
         },
         {
           "title": "Exporter des données sensibles (facultatif)",
-          "body": "La boîte de dialogue d'export comporte des cases pour les données sensibles — séances, objectifs, réponses quotidiennes et réflexions. Elles sont désactivées par défaut et se réinitialisent à chaque ouverture de la boîte de dialogue. Cocher une case ajoute des feuilles supplémentaires au fichier Excel, et les données s'exportent en texte clair — conservez donc le fichier en lieu sûr."
+          "body": "La fenêtre d'export comporte des cases pour les données sensibles : séances, objectifs, réponses quotidiennes et réflexions. Elles sont désactivées par défaut et se réinitialisent à chaque ouverture. Les cocher ajoute des feuilles au fichier, et les données sortent en texte clair : gardez le fichier en lieu sûr."
         },
         {
-          "title": "Redémarrer le flux d'introduction",
-          "body": "Cela redémarre l'assistant d'introduction depuis le début — utile si vous l'avez parcouru à la hâte. C'est non destructif : les étapes de l'assistant sont réinitialisées, mais tout ce que vous avez déjà créé (clients, projets, etc.) demeure. Vous verrez une courte confirmation avant de continuer."
+          "title": "Réinitialiser et supprimer : une section à part",
+          "body": "Les deux actions irréversibles ont leur propre section, et non le bas du défilement d'export. « Effacer toutes les données et repartir de zéro » vide le contenu du compte et relance l'introduction. « Supprimer le compte définitivement » retire le compte entier, identifiant de connexion compris, avec 30 jours pour changer d'avis. Les deux redemandent confirmation après le clic."
         },
         {
-          "title": "Réinitialiser le compte — supprimer toutes les données",
-          "body": "« Supprimer toutes les données et recommencer » retire tout ce qui se trouve dans votre compte (clients, projets, groupes, prospects, transactions et dépenses récurrentes, catégories, tâches, objectifs, questions et réponses, séances, notes, rappels, statuts et sources) et redémarre l'introduction. Vous devez confirmer deux fois — d'abord un avertissement, puis taper le mot « supprimer ». Cela ne peut pas être annulé."
-        },
-        {
-          "title": "Supprimer le compte définitivement",
-          "body": "« Supprimer le compte définitivement » marque l'ensemble de votre compte pour suppression — y compris votre identifiant de connexion lui-même, pas seulement les données. Vous devez confirmer deux fois et taper « supprimer le compte ». Cela ne se produit pas immédiatement : une période de grâce de 30 jours commence, durant laquelle vous pouvez changer d'avis et annuler à n'importe quelle connexion. Ce n'est qu'après cette période de grâce que tout est définitivement supprimé."
-        },
-        {
-          "title": "À propos — trois onglets",
-          "body": "La section « À propos » a trois onglets : « À propos » (ce qu'est l'application, ses principes, sa version et ses crédits) avec des liens vers la Politique de confidentialité, les Conditions d'utilisation et l'Accord de traitement des données ; « Guide » — l'explication complète de chaque écran (la même aide qui apparaît dans le bouton ?) ; et « FAQ »."
+          "title": "À propos, et les sorties",
+          "body": "« À propos » contient la version, les principes et les liens vers la politique de confidentialité, les conditions d'utilisation et l'accord de traitement des données. La même zone comporte des lignes vers « Connexions » (Google Agenda, factures, WhatsApp) et vers « Corbeille ». Le guide complet et les questions fréquentes ont migré vers un écran d'aide dédié : depuis le menu (« Plus ») → « Aide et guide », ou depuis le bouton ? en haut de chaque écran."
         }
       ],
       "tips": [
-        "Il vaut la peine de définir votre forme d'adresse dans la section Profil en premier — elle modifie la formulation dans toute l'application, y compris le texte des autres écrans.",
-        "Votre profil s'enregistre automatiquement : cliquez simplement en dehors du champ (ou fermez la section) et la modification est saisie. Il n'y a pas de bouton Enregistrer.",
-        "Il vaut la peine d'exporter toutes vos données vers Excel au moins une fois par mois comme sauvegarde. Les fichiers clients et projets sont enregistrés dans un format réimportable.",
-        "Avant de supprimer un sous-statut qui contient des clients ou des prospects — choisissez dans la boîte de dialogue où les déplacer, pour ne pas laisser d'enregistrements sans étiquette. Et même en cas d'erreur, il y a une option d'annulation.",
-        "Vous voulez une question quotidienne qui n'apparaît que les jours de semaine ? Ouvrez la programmation de la question, choisissez « Jours précis » et cochez les jours.",
-        "Ne confondez pas « Réinitialiser le compte » (supprime les données, vous tapez « supprimer ») et « Supprimer le compte définitivement » (supprime aussi votre identifiant de connexion, vous tapez « supprimer le compte », avec 30 jours pour changer d'avis)."
+        "Vous ne savez pas où se trouve un réglage ? Ne devinez pas : tapez le mot dans le champ de recherche en haut. Même « shekel » ou « police » vous y mènent.",
+        "La langue est dans « Aspect et affichage → Apparence », avec clair/sombre et la taille du texte — pas dans « Personnel ».",
+        "Tout s'enregistre seul. Le message « Réglage enregistré » est la confirmation ; en cas d'échec vous voyez un message rouge, pas du silence.",
+        "Envie de voir ce que font « Verre » ou « Aéré » ? La carte d'exemple au-dessus des réglages change avec vous en temps réel.",
+        "Les sous-statuts des clients et les étapes des prospects se modifient sur leurs écrans. Les lignes des réglages sont le raccourci."
       ],
       "faq": [
         {
-          "q": "J'ai changé mon nom ou ma profession et je n'ai pas vu de bouton Enregistrer — a-t-il été enregistré ?",
-          "a": "Oui. Il n'y a pas de bouton Enregistrer dans le Profil. Votre nom et votre champ de texte libre sont enregistrés dès que vous cliquez en dehors du champ (et même si vous fermez la section en cours de modification), et sélectionner une forme d'adresse ou une profession est enregistré immédiatement au clic. Une note « · Enregistré » apparaît à côté d'un champ qui a été enregistré."
+          "q": "Où puis-je changer la langue ?",
+          "a": "Réglages → Aspect et affichage → Apparence. Elle est là avec clair/sombre, le fond et la taille du texte, et change immédiatement."
         },
         {
-          "q": "Pourquoi n'ai-je aucune question quotidienne dans la section Questions ?",
-          "a": "C'est normal — l'application ne configure pas de questions à l'avance. Cliquez sur « Ajouter une question » et choisissez un modèle prêt à l'emploi ou créez la vôtre. Une fois que vous avez ajouté des questions, vous pouvez définir une programmation pour chacune et les activer ou les désactiver."
+          "q": "Où ajouter ou supprimer un sous-statut client ?",
+          "a": "Sur l'écran des clients, via le bouton « Sous-statuts » de la barre d'outils. Vous pouvez ajouter, renommer (touchez le nom) et supprimer ; supprimer un sous-statut occupé demande où déplacer les clients. Les réglages proposent une ligne qui y mène."
         },
         {
-          "q": "Quelle est la différence entre « Réinitialiser le compte » et « Supprimer le compte définitivement » ?",
-          "a": "Réinitialiser votre compte supprime toutes vos données et redémarre l'introduction, mais votre identifiant de connexion demeure. Supprimer votre compte marque votre identifiant de connexion lui-même pour suppression — avec une période de grâce de 30 jours pour annuler avant que tout ne soit définitivement supprimé. Les deux actions requièrent une double confirmation et la saisie d'un mot différent (« supprimer » ou « supprimer le compte »)."
+          "q": "Où sont les étapes et les sources de prospects ?",
+          "a": "Sur l'écran des prospects : l'onglet « Statuts » gère les étapes et le bouton « Sources » gère la provenance des demandes. Les réglages proposent une ligne qui y mène."
         },
         {
-          "q": "Si je redémarre l'introduction, vais-je perdre les données que j'ai déjà saisies ?",
-          "a": "Non. « Redémarrer l'introduction » ne réinitialise que les étapes de l'assistant au début. Les clients, projets et données que vous avez déjà créés demeurent. Si vous voulez supprimer les données elles-mêmes, c'est « Réinitialiser le compte » dans la section dangereuse."
+          "q": "Où sont le guide complet et les questions fréquentes ?",
+          "a": "Sur un écran d'aide dédié : menu (« Plus ») → « Aide et guide ». Également depuis le bouton ? en haut de chaque écran, via « Le guide complet de tous les écrans »."
         },
         {
-          "q": "L'export inclut-il mes séances et réflexions sensibles ?",
-          "a": "Seulement si vous cochez les cases. La boîte de dialogue d'export comporte des cases pour les données sensibles (séances, objectifs, réponses quotidiennes, réflexions), et elles sont désactivées par défaut. Quand vous les cochez, elles sont ajoutées au fichier Excel en texte clair — conservez donc le fichier en lieu sûr."
+          "q": "J'ai changé un réglage et je ne sais pas s'il a été enregistré",
+          "a": "Chaque modification affiche un bref « Réglage enregistré ». Si un message rouge est apparu en haut, l'enregistrement a échoué — souvent la connexion — et il vaut mieux réessayer."
         },
         {
-          "q": "Où changer le mode sombre ou la taille du texte ?",
-          "a": "Dans la section « Apparence ». Là, vous choisissez le mode clair/sombre et la taille du texte (petite, normale, grande). La taille du texte ne change que la police, pas la mise en page de l'écran. Pour changer votre forme d'adresse (masculine/féminine/neutre), allez plutôt dans la section Profil."
+          "q": "Pourquoi « Supprimer le compte » n'est plus dans « Données » ?",
+          "a": "Elle a sa propre section, « Réinitialiser et supprimer », pour ne pas partager le défilement avec l'export et l'import. Les actions elles-mêmes n'ont pas changé, ni la double confirmation."
         }
       ]
     },
@@ -1367,7 +1350,7 @@
         },
         {
           "q": "Comment supprimer mon compte ?",
-          "a": "Paramètres → Données → Supprimer le compte définitivement. Cela supprime l'ensemble du compte, y compris votre identifiant de connexion, et requiert deux confirmations avec saisie au clavier. Après la suppression, il y a une période de grâce de 30 jours — pendant ce temps, vous pouvez changer d'avis et annuler."
+          "a": "Paramètres → Mon compte → Réinitialiser et supprimer. Cela supprime l'ensemble du compte, y compris votre identifiant de connexion, et requiert deux confirmations avec saisie au clavier. Après la suppression, il y a une période de grâce de 30 jours — pendant ce temps, vous pouvez changer d'avis et annuler."
         }
       ]
     },
@@ -1388,7 +1371,7 @@
         },
         {
           "q": "Puis-je changer l'ordre des écrans dans la navigation ?",
-          "a": "L'ordre des écrans dans la navigation est fixe pour l'instant. Vous pouvez personnaliser l'écran d'accueil : Paramètres → Widgets et affichage. Là, vous activez et désactivez les widgets, changez leur ordre et choisissez un style d'affichage."
+          "a": "L'ordre des écrans dans la navigation est fixe pour l'instant. Vous pouvez personnaliser l'écran d'accueil : Paramètres → Aspect et affichage → Écran d'accueil. Là, vous activez et désactivez les widgets, changez leur ordre et choisissez un style d'affichage."
         }
       ]
     },

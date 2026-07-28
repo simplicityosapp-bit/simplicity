@@ -104,14 +104,18 @@ export const GENDER_OPTIONS = [
   { v: 'male',    l: 'זכר' },
 ]
 
+/* The `l` labels are fallbacks — settings re-labels every option through
+   t('options.*') so the pills follow the active language. Kept in step with
+   that copy anyway: a fallback that contradicts the shipped word is a trap
+   for whoever reads this file next. */
 export const CARD_STYLE_OPTIONS = [
-  { v: 'frosted',  l: 'מעורפל' },
-  { v: 'flat',     l: 'שטוח' },
+  { v: 'frosted',  l: 'זכוכית' },
+  { v: 'flat',     l: 'אחיד' },
 ]
 
 export const TEXT_STRENGTH_OPTIONS = [
   { v: 'normal', l: 'רגיל' },
-  { v: 'bold',   l: 'מודגש' },
+  { v: 'bold',   l: 'עבה' },
 ]
 
 export const DENSITY_OPTIONS = [

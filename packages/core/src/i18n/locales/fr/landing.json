@@ -66,7 +66,7 @@
     },
     "clarity": {
       "title": "Sécurité et confidentialité",
-      "text": "Nous ferons de notre mieux pour protéger vos informations et votre vie privée — ainsi que celles de vos clients. Chaque utilisateur compte pour nous — et est traité comme un roi."
+      "text": "Vos informations et votre vie privée — ainsi que celles de vos clients — sont protégées et conservées en sécurité, de façon responsable. Chaque utilisateur compte pour nous, et reçoit une attention personnelle et sincère."
     },
     "growth": {
       "title": "Objectifs et croissance",
@@ -86,16 +86,16 @@
       "text": "Connectez SUMIT et Green Invoice, configurez des revenus et dépenses récurrents, classez par catégories — et organisez votre flux de trésorerie exactement comme vous le souhaitez."
     },
     "clients": {
-      "title": "Prospects et clients",
+      "title": "Demandes et clients",
       "text": "Nous vous aidons à entretenir la relation de la première demande à la dernière séance, pour que tout reste sans effort, autant pour vous que pour vos clients."
     },
     "insights": {
       "title": "Aperçus quotidiens",
-      "text": "Sachant qu'il s'agit d'une personne et pas seulement d'une activité, nous avons conçu un système qui voit l'image complète — holistique et personnel."
+      "text": "Chaque matin, un aperçu court qui relie les chiffres à la dimension humaine — qui a besoin d'attention, ce qui bouge, et où mettre votre focus aujourd'hui."
     },
     "projects": {
       "title": "Projets",
-      "text": "Cohortes de groupe, clients en tête-à-tête ; construisez et adaptez un mini-système pour chaque projet à part — pour que ampleur et concentration ne fassent que se renforcer mutuellement."
+      "text": "Cohortes de groupe ou accompagnement individuel — chaque projet a son propre espace, adapté exactement à sa façon de fonctionner. Ainsi vous en gérez plusieurs sans perdre le focus sur aucun."
     },
     "goals": {
       "title": "Objectifs et vue d'ensemble",
@@ -112,7 +112,7 @@
     "sub": "",
     "secure": {
       "title": "Protégé et en sécurité",
-      "text": "Vos données sont stockées sur des serveurs en Irlande (UE), protégées au niveau de l'infrastructure, et entièrement isolées — vous seul pouvez accéder à vos données."
+      "text": "Vos données sont conservées sur des serveurs sécurisés en Europe (Irlande), séparées et protégées — et jamais vendues ni partagées avec qui que ce soit."
     },
     "hebrew": {
       "title": "Conçu en hébreu",
@@ -136,7 +136,7 @@
     },
     "privacy": {
       "q": "Qu'en est-il de la confidentialité de mes clients ?",
-      "a": "Vos données sont stockées sur des serveurs en Irlande (UE), protégées au niveau de l'infrastructure, et isolées de sorte que vous seul puissiez y accéder — nous ne les vendons ni ne les partageons jamais avec qui que ce soit."
+      "a": "Vos données sont conservées sur des serveurs sécurisés en Europe (Irlande), séparées pour qu'aucun autre utilisateur du système ne puisse les voir — et jamais vendues ni partagées avec qui que ce soit."
     },
     "price": {
       "q": "Combien ça coûte ?",
@@ -149,7 +149,7 @@
   },
   "cta": {
     "title": "Tout commence ici.",
-    "sub": "Rejoignez les {{roles}} qui gèrent déjà leur activité avec sérénité — le tout au même endroit.",
+    "sub": "Rejoignez les {{roles}} qui veulent gérer leur activité avec sérénité — le tout au même endroit.",
     "ctaPrimary": "Commencer gratuitement",
     "ctaSecondary": "J'ai déjà un compte",
     "micro": "Inscription gratuite · Partez quand vous voulez · Importez et exportez toutes vos données"

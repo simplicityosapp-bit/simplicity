@@ -66,7 +66,7 @@
     },
     "clarity": {
       "title": "Security and privacy",
-      "text": "We'll do our very best to protect your information and privacy — and your clients'. Every single user matters to us — and gets treated like royalty."
+      "text": "Your information and privacy — and your clients' — are protected and kept safe, responsibly. Every user matters to us, and gets genuine, personal attention."
     },
     "growth": {
       "title": "Goals and growth",
@@ -86,16 +86,16 @@
       "text": "Connect SUMIT and Green Invoice, set up recurring income and expenses, sort into categories — and lay out your cash flow exactly the way you want."
     },
     "clients": {
-      "title": "Leads and clients",
+      "title": "Inquiries and clients",
       "text": "We help you hold the relationship from the first inquiry to the last session, so it stays effortless for you and for your clients alike."
     },
     "insights": {
       "title": "Daily insights",
-      "text": "Knowing this is a person, not just a business, led us to build a system that sees the whole picture — holistic and personal."
+      "text": "Every morning, a short insight that connects the numbers to the human picture — who needs attention, what's moving, and where to put your focus today."
     },
     "projects": {
       "title": "Projects",
-      "text": "Group cohorts, one-on-one clients; build and tailor a mini-system for each project on its own — so breadth and focus only strengthen each other."
+      "text": "Group cohorts or one-on-one work — each project gets its own space, tailored to exactly how it runs. So you can manage many without losing focus on any."
     },
     "goals": {
       "title": "Goals and big picture",
@@ -112,7 +112,7 @@
     "sub": "",
     "secure": {
       "title": "Protected and safe",
-      "text": "Your data is stored on servers in Ireland (EU), protected at the infrastructure level, and fully isolated — only you can reach your data."
+      "text": "Your data is kept on secure servers in Europe (Ireland), separated and safe — and never sold or shared with anyone."
     },
     "hebrew": {
       "title": "Built in Hebrew",
@@ -136,7 +136,7 @@
     },
     "privacy": {
       "q": "What about my clients' privacy?",
-      "a": "Your data is stored on servers in Ireland (EU), protected at the infrastructure level, and isolated so only you can reach it — we never sell or share it with anyone."
+      "a": "Your data is kept on secure servers in Europe (Ireland), separated so no other user of the system can see it — and never sold or shared with anyone."
     },
     "price": {
       "q": "How much does it cost?",
@@ -149,7 +149,7 @@
   },
   "cta": {
     "title": "It all starts here.",
-    "sub": "Join the {{roles}} who already run their practice with calm — all in one place.",
+    "sub": "Join the {{roles}} who want to run their practice with calm — all in one place.",
     "ctaPrimary": "Start free",
     "ctaSecondary": "I already have an account",
     "micro": "Free to sign up · Leave anytime · Import and export all your data"

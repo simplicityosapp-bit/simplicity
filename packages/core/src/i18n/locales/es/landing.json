@@ -66,7 +66,7 @@
     },
     "clarity": {
       "title": "Seguridad y privacidad",
-      "text": "Haremos todo lo posible por proteger tu información y tu privacidad — y las de tus clientes. Cada usuario nos importa — y recibe un trato de rey."
+      "text": "Tu información y tu privacidad — y las de tus clientes — están protegidas y a buen recaudo, con responsabilidad. Cada usuario nos importa, y recibe una atención personal y genuina."
     },
     "growth": {
       "title": "Objetivos y crecimiento",
@@ -86,16 +86,16 @@
       "text": "Conecta SUMIT y Green Invoice, configura ingresos y gastos recurrentes, ordénalos en categorías — y organiza tu flujo de caja exactamente como tú quieras."
     },
     "clients": {
-      "title": "Prospectos y clientes",
+      "title": "Consultas y clientes",
       "text": "Te ayudamos a sostener la relación desde la primera consulta hasta la última sesión, para que siga siendo fácil tanto para ti como para tus clientes."
     },
     "insights": {
       "title": "Reflexiones diarias",
-      "text": "Saber que esto es una persona, y no solo un negocio, nos llevó a crear un sistema que ve la imagen completa — holístico y personal."
+      "text": "Cada mañana, una reflexión breve que conecta los números con la parte humana — quién necesita atención, qué se mueve y dónde poner el foco hoy."
     },
     "projects": {
       "title": "Proyectos",
-      "text": "Agrupa cohortes y clientes individuales; construye y adapta un mini-sistema para cada proyecto por separado — para que la amplitud y el enfoque se refuercen mutuamente."
+      "text": "Cohortes en grupo o acompañamiento individual — cada proyecto tiene su propio espacio, adaptado justo a cómo funciona. Así puedes llevar muchos sin perder el foco en ninguno."
     },
     "goals": {
       "title": "Objetivos y vista de conjunto",
@@ -112,7 +112,7 @@
     "sub": "",
     "secure": {
       "title": "Protegido y seguro",
-      "text": "Tus datos se almacenan en servidores en Irlanda (UE), protegidos a nivel de infraestructura y totalmente aislados — solo tú puedes acceder a tus datos."
+      "text": "Tus datos se guardan en servidores seguros en Europa (Irlanda), separados y a salvo — y nunca se venden ni se comparten con nadie."
     },
     "hebrew": {
       "title": "Creado en hebreo",
@@ -136,7 +136,7 @@
     },
     "privacy": {
       "q": "¿Y la privacidad de mis clientes?",
-      "a": "Tus datos se almacenan en servidores en Irlanda (UE), protegidos a nivel de infraestructura y aislados para que solo tú puedas acceder a ellos — nunca los vendemos ni los compartimos con nadie."
+      "a": "Tus datos se guardan en servidores seguros en Europa (Irlanda), separados para que ningún otro usuario del sistema pueda verlos — y nunca los vendemos ni los compartimos con nadie."
     },
     "price": {
       "q": "¿Cuánto cuesta?",
@@ -149,7 +149,7 @@
   },
   "cta": {
     "title": "Todo empieza aquí.",
-    "sub": "Únete a los {{roles}} que ya llevan su práctica con calma — todo en un solo lugar.",
+    "sub": "Únete a los {{roles}} que quieren llevar su práctica con calma — todo en un solo lugar.",
     "ctaPrimary": "Empezar gratis",
     "ctaSecondary": "Ya tengo una cuenta",
     "micro": "Registro gratuito · Puedes irte cuando quieras · Importa y exporta todos tus datos"

@@ -227,5 +227,9 @@
     "title": "Mover a una etapa"
   },
   "newSourcePlaceholder": "Nueva fuente…",
-  "tagline": "Cuidar las relaciones es lo que trae resultados."
+  "tagline": "Cuidar las relaciones es lo que trae resultados.",
+  "color": {
+    "pick": "Cambiar el color de {{name}}",
+    "option": "Color {{index}} de {{total}}"
+  }
 }

@@ -235,5 +235,9 @@
     "title": "העברה לשלב"
   },
   "newSourcePlaceholder": "מקור חדש…",
-  "tagline": "טיפוח קשרים מוביל לתוצאות."
+  "tagline": "טיפוח קשרים מוביל לתוצאות.",
+  "color": {
+    "pick": "שינוי הצבע של {{name}}",
+    "option": "צבע {{index}} מתוך {{total}}"
+  }
 }

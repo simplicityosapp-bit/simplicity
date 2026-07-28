@@ -1,6 +1,6 @@
 import { useCallback } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { listLeadSources, insertLeadSource, removeLeadSource as apiRemove, restoreLeadSource } from '../lib/api/leadSources'
+import { listLeadSources, insertLeadSource, updateLeadSource as apiUpdate, removeLeadSource as apiRemove, restoreLeadSource } from '../lib/api/leadSources'
 import { pushUndo } from '../lib/undo'
 
 /* React-Query-backed: read on the leads screen + filter modal. Public API unchanged. */
@@ -33,5 +33,14 @@ export function useLeadSources() {
     } catch { qc.invalidateQueries({ queryKey: KEY }) }
   }, [qc])
 
-  return { sources, loading: isLoading, error: error?.message ?? null, addSource, removeSource, refetch }
+  /* Optimistic patch — the colour, today. `updateLeadSource` had shipped in
+     the API with no caller since the table existed, so a source's colour was
+     whatever was picked in the second it was created and could never be
+     changed. */
+  const updateSource = useCallback(async (id, patch) => {
+    qc.setQueryData(KEY, (prev) => (prev ?? []).map((s) => (s.id === id ? { ...s, ...patch } : s)))
+    try { await apiUpdate(id, patch) } catch { qc.invalidateQueries({ queryKey: KEY }) }
+  }, [qc])
+
+  return { sources, loading: isLoading, error: error?.message ?? null, addSource, updateSource, removeSource, refetch }
 }

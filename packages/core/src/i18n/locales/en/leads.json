@@ -227,5 +227,9 @@
     "title": "Move to a stage"
   },
   "newSourcePlaceholder": "New source…",
-  "tagline": "Tending relationships is what brings results."
+  "tagline": "Tending relationships is what brings results.",
+  "color": {
+    "pick": "Change the colour of {{name}}",
+    "option": "Colour {{index}} of {{total}}"
+  }
 }

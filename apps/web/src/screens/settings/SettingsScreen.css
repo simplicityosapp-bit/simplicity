@@ -327,25 +327,6 @@
 .set-sub-add .m-input { flex: 1; }
 .set-sub-add .set-q-add { margin-top: 0; padding: 0 10px; height: 40px; }
 
-/* Color swatch picker (lead sources + lead sub-statuses) */
-.set-color-dots {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 7px;
-  margin-top: 8px;
-}
-.set-color-dot {
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  border: 2px solid transparent;
-  padding: 0;
-  cursor: pointer;
-  transition: transform 0.12s, border-color 0.12s;
-}
-.set-color-dot:hover { transform: scale(1.12); }
-.set-color-dot.on { border-color: var(--espresso); transform: scale(1.12); }
-
 /* AddQuestionModal — template chooser */
 /* The daily-question template picker (.q-tmpl*) now lives in
    src/modals/AddQuestionModal.css, co-located with the modal so it loads
@@ -1297,8 +1278,6 @@ html[dir="ltr"] .set-profile-body .m-pills.has-more {
      way to reorder without a pointer. */
   .set-w-move-btn { width: 32px; height: 28px; }
   .set-q-del { width: 36px; height: 36px; }
-  .set-color-dot { width: 28px; height: 28px; }
-  .set-color-dots { gap: 9px; }
 
   /* Three 63px columns of tabular numbers do not read as data. */
   .set-data-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }

@@ -57,7 +57,7 @@ export default function LeadsScreen() {
   const navigate = useNavigate()
   const { leads: leadList, loading, error, addLead, updateLead, removeLead } = useLeads()
   const { pages: leadPages } = useLeadPages()
-  const { sources, addSource, removeSource } = useLeadSources()
+  const { sources, addSource, updateSource, removeSource } = useLeadSources()
   const [showSources, setShowSources] = useState(false)
   const { statuses: leadStatuses, loading: statusesLoading, addStatus: addLeadStatus, updateStatus: updateLeadStatus, removeStatus: removeLeadStatus } = useLeadStatuses()
   const { addClient } = useClients()
@@ -429,6 +429,7 @@ export default function LeadsScreen() {
         onClose={() => setShowSources(false)}
         sources={sources}
         onAdd={addSource}
+        onUpdate={updateSource}
         onRemove={removeSource}
       />
       <AddLeadModal open={showAdd} onClose={() => setShowAdd(false)} sources={sources} statuses={leadStatuses} projects={projects} groups={groups} onAddSource={handleAddSource} onSave={addLead} />

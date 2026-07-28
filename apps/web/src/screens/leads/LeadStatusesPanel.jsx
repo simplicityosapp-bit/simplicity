@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Plus, X, GripVertical } from 'lucide-react'
 import { LEAD_META, metaTitle } from '@simplicity/core'
 import { usePointerDnd } from '../../hooks/usePointerDnd'
+import ColorDotPicker from '../../components/ColorDotPicker'
 import { nextSortOrder } from '../../lib/api/leadStatuses'
 import ConfirmModal from '../../modals/ConfirmModal'
 import { useT } from '../../i18n/useT'
@@ -120,7 +121,14 @@ export default function LeadStatusesPanel({ statuses, onAdd, onUpdate, onRemove 
                     {...dnd.dropZoneProps(s.id)}
                   >
                     <GripVertical size={12} strokeWidth={1.7} aria-hidden="true" className="lead-statuses-chip-grip" />
-                    <Txt className="lead-statuses-chip-dot" style={{ background: s.color || 'var(--stone)' }} />
+                    {/* Stages carried a colour that nothing could change —
+                        it was only ever set by whatever default the add row
+                        used. The dot is the picker now. */}
+                    <ColorDotPicker
+                      value={s.color}
+                      onPick={(c) => onUpdate?.(s.id, { color: c })}
+                      label={t('color.pick', { name: s.display_name })}
+                    />
                     <Txt>{s.display_name}</Txt>
                     {!s.is_default && (
                       <Btn

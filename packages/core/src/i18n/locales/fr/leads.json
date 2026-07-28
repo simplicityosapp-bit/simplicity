@@ -227,5 +227,9 @@
     "title": "Déplacer vers une étape"
   },
   "newSourcePlaceholder": "Nouvelle source…",
-  "tagline": "Entretenir les relations, voilà ce qui porte ses fruits."
+  "tagline": "Entretenir les relations, voilà ce qui porte ses fruits.",
+  "color": {
+    "pick": "Changer la couleur de {{name}}",
+    "option": "Couleur {{index}} sur {{total}}"
+  }
 }

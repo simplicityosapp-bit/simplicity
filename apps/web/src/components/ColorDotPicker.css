@@ -1,0 +1,70 @@
+/* The coloured dot a row already showed, turned into the control that
+   changes it. Sized to sit inside a chip without making the chip taller. */
+.cdp {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+}
+
+.cdp-dot {
+  width: 12px;
+  height: 12px;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  cursor: pointer;
+  transition: transform 0.12s, box-shadow 0.12s;
+}
+[data-theme="dark"] .cdp-dot { border-color: rgba(255, 255, 255, 0.18); }
+.cdp-dot:hover,
+.cdp-dot[aria-expanded="true"] {
+  transform: scale(1.25);
+  box-shadow: 0 0 0 2px var(--mg-card-bg), 0 0 0 3px var(--stone);
+}
+/* The dot is 12px so the chip keeps its height; the tap target is not.
+   44px of pressable area, centred, without moving anything around it. */
+.cdp-dot::after {
+  content: '';
+  position: absolute;
+  inset: 50% auto auto 50%;
+  width: 44px;
+  height: 44px;
+  transform: translate(-50%, -50%);
+}
+
+.cdp-pop {
+  position: absolute;
+  top: calc(100% + 8px);
+  inset-inline-start: 50%;
+  transform: translateX(50%);
+  z-index: 40;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  padding: 10px;
+  border-radius: 14px;
+  border: var(--mg-card-border);
+  background: var(--mg-card-bg);
+  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.14);
+  backdrop-filter: var(--mg-card-blur);
+  -webkit-backdrop-filter: var(--mg-card-blur);
+}
+/* translateX(50%) centres it in RTL; LTR needs the mirror. */
+html[dir="ltr"] .cdp-pop { transform: translateX(-50%); }
+
+.cdp-swatch {
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: transform 0.12s, border-color 0.12s;
+}
+.cdp-swatch:hover { transform: scale(1.12); }
+.cdp-swatch.on { border-color: var(--espresso); transform: scale(1.12); }
+[data-theme="dark"] .cdp-swatch.on { border-color: var(--cream); }
+
+@media (max-width: 767px) {
+  .cdp-swatch { width: 32px; height: 32px; }
+}

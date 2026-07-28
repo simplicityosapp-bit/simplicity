@@ -3,13 +3,14 @@ import { Plus, X } from 'lucide-react'
 import Modal from './Modal'
 import ConfirmModal from './ConfirmModal'
 import { CATEGORY_COLORS } from '../lib/api/categories'
+import ColorDotPicker from '../components/ColorDotPicker'
 import { useT } from '../i18n/useT'
 import { Box, Txt, Btn, Input } from '../components/ui'
 
 /* Dedicated editor for lead sources (name + colour). CRUD ties to
    useLeadSources via the parent. Deleting a source asks to confirm first;
    the hook still queues an undo afterwards. */
-export default function LeadSourcesModal({ open, onClose, sources = [], onAdd, onRemove }) {
+export default function LeadSourcesModal({ open, onClose, sources = [], onAdd, onUpdate, onRemove }) {
   const { t } = useT('leads')
   const [name, setName] = useState('')
   const [color, setColor] = useState(CATEGORY_COLORS[0])
@@ -42,7 +43,14 @@ export default function LeadSourcesModal({ open, onClose, sources = [], onAdd, o
         <Box className="m-tax-chips">
           {sources.map((s) => (
             <Txt key={s.id} className="m-tax-chip">
-              <Txt className="m-tax-dot" style={{ background: s.color || 'var(--stone)' }} />
+              {/* The dot is the picker: the colour used to be settable only
+                  in the add row below, so a wrong one meant deleting the
+                  source and rebuilding it. */}
+              <ColorDotPicker
+                value={s.color}
+                onPick={(c) => onUpdate?.(s.id, { color: c })}
+                label={t('color.pick', { name: s.name })}
+              />
               <Txt>{s.name}</Txt>
               <Btn
                 type="button"

@@ -4,6 +4,30 @@
    in styles/screens.css.
    ════════════════════════════════════════════════════════════════ */
 
+/* ── Screen proportion (per-screen override) ─────────────────────
+   The same move the home screen made, brought over here: a tighter corner
+   and less padding than the app default, so a grid of client cards reads as
+   TILES rather than as a stack of wide bands. Only the proportion changes —
+   the material is untouched, exactly as on home (see HomeScreen.css §SURFACE).
+
+   Declared on the screen root rather than in tokens.css on purpose: every
+   other screen keeps 20px / 24×28 until it is converted on its own terms.
+
+   The padding happens to equal [data-density="compact"], but it is set here
+   rather than borrowed from it — the density preference is the user's and
+   still governs the rest of the app; this screen wants the tight proportion
+   at any density.
+
+   Inheritance note: .cd-panel (the client drawer) renders INSIDE this box
+   rather than through a portal, so its .cd-hero / .cd-section surfaces pick
+   up the 14px corner too. Their padding is hard-coded, so only the corner
+   moves, and it suits sub-cards inside a panel — but it is a knock-on, not
+   a decision this screen made. */
+.c-screen {
+  --mg-card-radius: 14px;
+  --mg-card-pad:    16px 18px;
+}
+
 /* ── Tabs ──────────────────────────────────────────────────────── */
 .c-tabs-row {
   display: flex;
@@ -227,11 +251,15 @@
 /* On desktop the cards lay out as a flexible 4-up grid (auto-fit so
    the column count drops gracefully on smaller widths); on mobile
    they stay a single-column stack with the original spacing. */
+/* The desktop gap follows the tiles: 12px, the same rhythm the home grid
+   uses and the same value as --gap, which already spaces the cards on
+   mobile. At 16px the tighter cards sat in the old band-sized gutters and
+   the grid read looser than the cards it holds. */
 @media (min-width: 768px) {
   .c-list {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 16px;
+    gap: var(--gap);
   }
   .c-list > .cc { margin-bottom: 0; }
   .c-list > .empty { grid-column: 1 / -1; }
@@ -239,7 +267,7 @@
   .c-proj-group {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 16px;
+    gap: var(--gap);
   }
   .c-proj-group > .c-proj-head {
     grid-column: 1 / -1;

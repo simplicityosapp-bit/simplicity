@@ -4,7 +4,7 @@ description: >-
   Commit, merge, and push uncommitted changes to `main` following this repo's
   established git workflow (short-lived feature branch → one descriptive commit
   → `git merge --no-ff` with a `Merge: ...` message → push to origin/main), then
-  update the matching feedback row in Supabase (public.feedback). Use whenever the user wants to ship /
+  update the matching feedback row in Supabase (public.feedback) via the Supabase MCP connector. Use whenever the user wants to ship /
   push / merge work to main, e.g. "תעשה פוש ומרג להגל", "תעלה ל-main",
   "commit and merge", "ship to main".
 ---
@@ -72,15 +72,23 @@ description: >-
    ```
 
 7. **עדכון שורת הפידבק ב-Supabase — חובה בסוף כל תיקון שבוצע.**
-   לכל שינוי שמוזג, עדכן את השורה התואמת ב-`public.feedback` דרך ה-edge `admin` עם הטוקן
-   מ-`C:\dev\simplicity\.feedback-cli.env` (`FEEDBACK_FUNCTIONS_URL`, `FEEDBACK_CLI_TOKEN`).
-   שלוף `feedback_list`, מצא את השורה לפי `title`/`message`, ואז:
-   ```bash
-   curl -s -X POST "$FEEDBACK_FUNCTIONS_URL" -H "content-type: application/json" \
-     -H "x-feedback-token: $FEEDBACK_CLI_TOKEN" \
-     -d '{"action":"feedback_update","id":"<uuid>","status":"done","notes":"<מה תוקן, קבצים, תאריך, merge hash>"}'
+   מקור האמת: `public.feedback` (פרויקט EU `rdurkakzyymxhocvhufw`, `simplicity business os`).
+   הגישה דרך **קונקטור Supabase (MCP)** — הכלי `execute_sql` עם `project_id="rdurkakzyymxhocvhufw"`.
+   **אין יותר edge/טוקן** (`.feedback-cli.env` וה-action-ים `feedback_list`/`feedback_update` הוצאו משימוש).
+   שלוף את השורות הפתוחות, מצא את השורה התואמת לפי `title`/`message`, ואז עדכן:
+   ```sql
+   -- execute_sql · project_id = rdurkakzyymxhocvhufw
+   -- מציאת השורה:
+   select id, title, message, status from public.feedback
+   where status <> 'done' order by created_at;
+
+   -- עדכון (escape לגרש בודד ע"י הכפלה ''):
+   update public.feedback
+   set status = 'done',
+       notes  = '<מה תוקן, קבצים, תאריך, merge hash>'
+   where id = '<uuid>';
    ```
-   - אם אין שורה תואמת, או שלא ניתן לעדכן — ציין זאת מפורשות בדיווח הסיום (אפשר גם דרך מסך אדמין → פידבקים).
+   - אם אין שורה תואמת, או שהקונקטור לא זמין/לא ניתן לעדכן — ציין זאת מפורשות בדיווח הסיום (אפשר גם דרך מסך אדמין → פידבקים).
 
 8. **דווח** למשתמש: אילו branchים נוצרו, hash לכל merge, מה נדחף, ואילו שורות
    פידבק עודכנו.
@@ -91,5 +99,5 @@ description: >-
 - build חייב לעבור לפני **כל** commit.
 - לעולם אל תעשה `git push --force`.
 - אל תיגע בקבצים/סודות שלא קשורים לשינוי.
-- **כל תיקון שמוזג → עדכון שורת הפידבק ב-`public.feedback`.** אל תסיים בלי לעדכן (או לדווח שלא היה ניתן).
+- **כל תיקון שמוזג → עדכון שורת הפידבק ב-`public.feedback`** דרך קונקטור Supabase. אל תסיים בלי לעדכן (או לדווח שלא היה ניתן).
 - אם לא ברור איך לקבץ קומיטים, מה הודעת ה-merge, או איזו שורת פידבק — **שאל**.

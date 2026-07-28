@@ -64,7 +64,7 @@ export default function ProjectsScreen() {
   const cardIncomeLabel = view === 'monthly' ? t('cardIncome.monthly') : t('cardIncome.cumulative')
 
   return (
-    <Box className="screen">
+    <Box className="screen p-screen">
       <Box className="screen-top">
         <Box as="header" className="screen-head">
           <Box>

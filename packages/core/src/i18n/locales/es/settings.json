@@ -272,7 +272,7 @@
       "sub": "En la pantalla de clientes, donde también puedes renombrarlos"
     },
     "leads": {
-      "title": "Etapas y orígenes de prospectos",
+      "title": "Etiquetas y fuentes de prospectos",
       "sub": "En la pantalla de prospectos, donde también puedes reordenarlos y renombrarlos"
     },
     "connections": {
@@ -317,7 +317,7 @@
       "reset": "restablecer borrar eliminar empezar de nuevo eliminar cuenta cerrar cuenta todo",
       "about": "acerca de versión privacidad términos legal tratamiento de datos",
       "clients": "clientes estado estados subestado categoría activo en pausa antiguo",
-      "leads": "prospectos prospecto etapa etapas origen orígenes fuente embudo consulta",
+      "leads": "prospectos prospecto etapa etapas origen orígenes fuente embudo consulta etiqueta etiquetas motivo motivos",
       "connections": "conexiones calendario google factura facturas whatsapp cobros pagos integración sincronizar",
       "trash": "papelera reciclaje restaurar eliminados recuperar",
       "subscription": "suscripción plan facturación mejora premium paquete"

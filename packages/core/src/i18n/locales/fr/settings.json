@@ -272,7 +272,7 @@
       "sub": "Sur l'écran des clients, où vous pouvez aussi les renommer"
     },
     "leads": {
-      "title": "Étapes et sources de prospects",
+      "title": "Libellés et sources de prospects",
       "sub": "Sur l'écran des prospects, où vous pouvez aussi les réordonner et les renommer"
     },
     "connections": {
@@ -317,7 +317,7 @@
       "reset": "réinitialiser supprimer effacer recommencer supprimer le compte fermer le compte tout",
       "about": "à propos version confidentialité conditions légal traitement des données",
       "clients": "clients statut statuts sous-statut catégorie actif en pause ancien",
-      "leads": "prospects prospect étape étapes source sources pipeline demande",
+      "leads": "prospects prospect étape étapes source sources pipeline demande libellé libellés motif motifs",
       "connections": "connexions agenda google facture factures whatsapp paiements intégration synchronisation",
       "trash": "corbeille restaurer supprimés récupérer",
       "subscription": "abonnement formule facturation mise à niveau premium forfait"

@@ -7,28 +7,22 @@ import i18n from '../lib/i18n'
 import { colors } from '../theme/theme'
 
 // Convert a lead → client (mirrors web ConvertLeadModal). The lead's name/phone
-// seed the form; pick a project/group and an optional "converted" sub-status. On
-// save: (1) create the client, (2) create the group membership if a group was
-// picked (best-effort), (3) flip the lead to 'converted' + link it to the new
-// client. The parent wires onCreateClient / onUpdateLead / onAddGroupMember.
+// seed the form; pick a project/group. On save: (1) create the client, (2) create
+// the group membership if a group was picked (best-effort), (3) flip the lead to
+// 'converted' + link it to the new client. The parent wires onCreateClient /
+// onUpdateLead / onAddGroupMember.
 const C = (k, o) => i18n.t(`modalsClient:common.${k}`, o)
 const T = (k, o) => i18n.t(`modalsClient:convertLead.${k}`, o)
 
 export default function ConvertLeadModal({ open, onClose, lead, onCreateClient, onUpdateLead, onAddGroupMember }) {
-  // Sub-statuses inside the 'converted' meta live in lead_statuses — NOT
-  // client_statuses (whose meta_category CHECK excludes 'converted'). Web passes
-  // leadStatuses here; reading clientStatuses made convertedSubStatuses always
-  // empty → status_id null → no 'converted' lead_status_log row was ever written.
-  const { projects = [], groups = [], leadStatuses = [] } = useFormOptions()
-  const [form, setForm] = useState(() => ({ name: lead?.name || '', phone: lead?.phone || '', project_id: lead?.project_id || '', group_id: lead?.group_id || '', status_id: '' }))
+  const { projects = [], groups = [] } = useFormOptions()
+  const [form, setForm] = useState(() => ({ name: lead?.name || '', phone: lead?.phone || '', project_id: lead?.project_id || '', group_id: lead?.group_id || '' }))
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }))
-  useEffect(() => { if (open) { setForm({ name: lead?.name || '', phone: lead?.phone || '', project_id: lead?.project_id || '', group_id: lead?.group_id || '', status_id: '' }); setErr(''); setBusy(false) } }, [open, lead])
+  useEffect(() => { if (open) { setForm({ name: lead?.name || '', phone: lead?.phone || '', project_id: lead?.project_id || '', group_id: lead?.group_id || '' }); setErr(''); setBusy(false) } }, [open, lead])
 
   const projectGroups = form.project_id ? groups.filter((g) => g.project_id === form.project_id && !g.deleted_at) : []
-  const convertedSubStatuses = leadStatuses.filter((s) => s.meta_category === 'converted')
-  const defaultConverted = convertedSubStatuses.find((s) => s.is_default)
 
   const submit = async () => {
     if (!lead) return
@@ -52,9 +46,12 @@ export default function ConvertLeadModal({ open, onClose, lead, onCreateClient, 
           total_override: null, has_custom_price: false, package_sessions_override: null, left_mid_process: false,
         }).catch(() => {}) // best-effort — never block the conversion
       }
-      const subStatusId = form.status_id || defaultConverted?.id || null
+      // status_id is cleared, not chosen: a closed lead is described by the
+      // project it joined, not by a sub-status (owner's call). updateLead only
+      // writes a lead_status_log row when there IS a to_status_id, so this
+      // opens no row — converted_at + the client link carry the funnel.
       await onUpdateLead(lead.id, {
-        status_meta: 'converted', status_id: subStatusId,
+        status_meta: 'converted', status_id: null,
         converted_at: now, converted_to_client_id: newClient.id, last_status_changed_at: now,
       }, { source: 'converted' })
       onClose()
@@ -98,12 +95,6 @@ export default function ConvertLeadModal({ open, onClose, lead, onCreateClient, 
             <Select label={C('groupOptional')} value={form.group_id} onChange={(v) => set('group_id', v)} placeholder={C('none')}
               options={[{ value: '', label: C('none') }, ...projectGroups.map((g) => ({ value: g.id, label: g.name || '' }))]} />
           ) : null}
-          {convertedSubStatuses.length ? (
-            <Select label={T('convertedSubStatusOptional')} value={form.status_id} onChange={(v) => set('status_id', v)}
-              placeholder={defaultConverted ? T('convertedDefault', { name: defaultConverted.display_name }) : C('none')}
-              options={[{ value: '', label: defaultConverted ? T('convertedDefault', { name: defaultConverted.display_name }) : C('none') }, ...convertedSubStatuses.map((s) => ({ value: s.id, label: `${s.icon ? s.icon + ' ' : ''}${s.display_name || ''}` }))]} />
-          ) : null}
-
           <Text style={styles.hint}>{T('footHint')}</Text>
 
           {err ? <Text style={styles.error}>{err}</Text> : null}

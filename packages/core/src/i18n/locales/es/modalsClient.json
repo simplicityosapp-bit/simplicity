@@ -37,7 +37,9 @@
     "day4": "Jueves",
     "day5": "Viernes",
     "day6": "Sábado",
-    "leadStageOptional": "Etapa (opcional)"
+    "leadStageOptional": "Etiqueta (opcional)",
+    "leadStageOptional_in_process": "Etapa (opcional)",
+    "leadStageOptional_not_relevant": "Motivo (opcional)"
   },
   "addClient": {
     "titleLabel": "Nuevo cliente",
@@ -130,14 +132,12 @@
     "metaInProcess": "En proceso",
     "metaConverted": "Convertido",
     "metaNotRelevant": "No relevante",
-    "stage": "Etapa"
+    "stage": "Etiqueta"
   },
   "convertLead": {
     "title": "Convertir prospecto en cliente",
     "nameRequired": "Dale un nombre al cliente.",
     "clientName": "Nombre del cliente",
-    "convertedSubStatusOptional": "Etapa en «Convertidos» (opcional)",
-    "convertedDefault": "Predeterminado ({{name}})",
     "footHint": "Se creará un nuevo cliente; el prospecto se marcará como «convertido en cliente» y permanecerá en la columna «Convertidos» con un enlace al nuevo cliente.",
     "converting": "Convirtiendo…",
     "convert": "Convertir en cliente",
@@ -228,7 +228,7 @@
     "delete": "Eliminar",
     "deleting": "Eliminando…",
     "deleteAndMove": "Eliminar y mover",
-    "titleLead": "Eliminar la etapa «{{name}}»"
+    "titleLead": "Eliminar la etiqueta «{{name}}»"
   },
   "groupBilling": {
     "package": "Por paquete",

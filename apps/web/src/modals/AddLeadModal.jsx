@@ -200,8 +200,10 @@ export default function AddLeadModal({ open, onClose, onSave, sources = [], stat
             )}
             {inProcessStatuses.length > 0 && (
               <Box className="m-field">
-                <Box as="label" className="m-label">{t('common.leadStageOptional')}</Box>
-                <SelectMenu value={form.status_id} onChange={(v) => set('status_id', v)} options={statusOptions} placeholder={t('common.none')} ariaLabel={t('common.leadStageOptional')} />
+                {/* A new lead always lands in "בתהליך", so the field is
+                    always a stage here — never a not-relevant reason. */}
+                <Box as="label" className="m-label">{t('common.leadStageOptional', { context: 'in_process' })}</Box>
+                <SelectMenu value={form.status_id} onChange={(v) => set('status_id', v)} options={statusOptions} placeholder={t('common.none')} ariaLabel={t('common.leadStageOptional', { context: 'in_process' })} />
               </Box>
             )}
             <Box className="m-row2">

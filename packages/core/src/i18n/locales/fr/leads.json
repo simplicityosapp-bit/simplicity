@@ -59,7 +59,7 @@
     "period_lastMonth": "Le mois dernier",
     "project": "Projet",
     "group": "Groupe",
-    "status": "Étape",
+    "status": "Libellé",
     "source": "Source",
     "all": "Tous",
     "unassigned": "Non attribué",
@@ -72,7 +72,7 @@
   },
   "loading": "Chargement des prospects…",
   "loadError": "Impossible de charger les prospects : {{error}}",
-  "subFilterAria": "Filtrer par étape",
+  "subFilterAria": "Filtrer par libellé",
   "all": "Tous",
   "undoStatusChanged": "Statut modifié",
   "delete": {
@@ -81,8 +81,10 @@
     "confirm": "Supprimer"
   },
   "dropPicker": {
-    "title": "Vers quelle étape le déplacer ?",
-    "none": "Aucune étape"
+    "title": "Quel libellé ?",
+    "none": "Sans libellé",
+    "title_in_process": "Quelle étape ?",
+    "title_not_relevant": "Quel motif ?"
   },
   "column": {
     "empty": "Aucun prospect dans cette colonne"
@@ -112,15 +114,18 @@
     "close": "Fermer"
   },
   "statusesPanel": {
-    "intro": "Gérez les étapes au sein de chaque colonne. Une étape apparaît comme une pastille de couleur sur la fiche du prospect, et sert au filtrage et aux graphiques.",
-    "addPlaceholder": "Étape dans « {{meta}} »",
+    "intro": "Gérez les libellés au sein de chaque colonne — étapes dans « En cours », motifs dans « Non pertinent ». Le libellé apparaît comme un point de couleur sur la fiche du prospect et alimente les filtres et les graphiques. Un prospect devenu client n'en reçoit pas : on lui attribue un projet.",
+    "addPlaceholder": "Libellé dans « {{meta}} »",
     "addAria": "Ajouter",
     "dropHere": "Déposez ici",
     "deleteChipAria": "Supprimer {{name}}",
     "deleteChipTitle": "Supprimer",
-    "deleteTitle": "Supprimer l’étape",
-    "deleteMessage": "Supprimer « {{name}} » ? Les prospects qui la portent n’auront plus d’étape. Restaurable depuis la corbeille sous 30 jours.",
-    "deleteConfirm": "Supprimer"
+    "deleteTitle": "Supprimer le libellé",
+    "deleteMessage": "Supprimer « {{name}} » ? Les prospects qui le portent restent sans libellé. Restaurable depuis la corbeille pendant 30 jours.",
+    "deleteConfirm": "Supprimer",
+    "addPlaceholder_in_process": "Étape dans « {{meta}} »",
+    "addPlaceholder_not_relevant": "Motif de « {{meta}} »",
+    "convertedNote": "Un prospect devenu client ne reçoit pas de libellé — on lui attribue un projet."
   },
   "pages": {
     "title": "Pages de prospects",
@@ -224,7 +229,7 @@
     "pagesLink": "Ou créez une page qui les collecte pour vous"
   },
   "move": {
-    "title": "Déplacer vers une étape"
+    "title": "Déplacer vers un libellé"
   },
   "newSourcePlaceholder": "Nouvelle source…",
   "tagline": "Entretenir les relations, voilà ce qui porte ses fruits.",

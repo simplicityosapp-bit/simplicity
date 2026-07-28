@@ -39,7 +39,9 @@
     "day4": "חמישי",
     "day5": "שישי",
     "day6": "שבת",
-    "leadStageOptional": "שלב (אופציונלי)"
+    "leadStageOptional": "סיווג (אופציונלי)",
+    "leadStageOptional_in_process": "שלב (אופציונלי)",
+    "leadStageOptional_not_relevant": "סיבה (אופציונלי)"
   },
   "addClient": {
     "titleLabel": "לקוח חדש",
@@ -144,14 +146,12 @@
     "metaInProcess": "בתהליך",
     "metaConverted": "הפך ללקוח",
     "metaNotRelevant": "לא רלוונטי",
-    "stage": "שלב"
+    "stage": "סיווג"
   },
   "convertLead": {
-    "title": "המרת ליד ללקוח",
+    "title": "הפיכת ליד ללקוח",
     "nameRequired": "יש לתת שם ללקוח.",
     "clientName": "שם הלקוח",
-    "convertedSubStatusOptional": "שלב ב\"הפכו ללקוחות\" (אופציונלי)",
-    "convertedDefault": "ברירת מחדל ({{name}})",
     "footHint": "ייווצר לקוח חדש; הליד יסומן כ\"נוסף לרשימת הלקוחות\" ויישאר בעמודה \"הפכו ללקוחות\" עם קישור ללקוח החדש.",
     "converting": "יוצר לקוח…",
     "convert": "הפיכה ללקוח",
@@ -256,7 +256,7 @@
     "deleteAndMove": "מחק והעבר",
     "affected_two": "{{count}} שיוכים פעילים יושפעו מהמחיקה.",
     "affected_many": "{{count}} שיוכים פעילים יושפעו מהמחיקה.",
-    "titleLead": "מחיקת שלב \"{{name}}\""
+    "titleLead": "מחיקת סיווג \"{{name}}\""
   },
   "groupBilling": {
     "package": "מחיר לחבילה",

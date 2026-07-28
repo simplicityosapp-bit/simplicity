@@ -61,7 +61,7 @@
     "period_lastMonth": "החודש שעבר",
     "project": "פרויקט",
     "group": "קבוצה",
-    "status": "שלב",
+    "status": "סיווג",
     "source": "מקור",
     "all": "הכל",
     "unassigned": "ללא שיוך",
@@ -74,7 +74,7 @@
   },
   "loading": "טוען לידים…",
   "loadError": "שגיאה בטעינת הלידים: {{error}}",
-  "subFilterAria": "סינון לפי שלב",
+  "subFilterAria": "סינון לפי סיווג",
   "all": "הכל",
   "undoStatusChanged": "הסטטוס שונה",
   "delete": {
@@ -83,8 +83,10 @@
     "confirm": "מחק"
   },
   "dropPicker": {
-    "title": "לאיזה שלב לשייך?",
-    "none": "ללא שלב"
+    "title": "לאיזה סיווג לשייך?",
+    "none": "ללא סיווג",
+    "title_in_process": "לאיזה שלב לשייך?",
+    "title_not_relevant": "לאיזו סיבה לשייך?"
   },
   "column": {
     "empty": "אין לידים בעמודה זו"
@@ -114,15 +116,18 @@
     "close": "סגירה"
   },
   "statusesPanel": {
-    "intro": "ניהול השלבים בתוך כל עמודה. שלב מסומן כנקודת צבע על כרטיס הליד, ומשמש לסינון ולגרפים.",
-    "addPlaceholder": "שלב ב\"{{meta}}\"",
+    "intro": "ניהול הסיווגים בתוך כל עמודה — שלבים ב\"בתהליך\", סיבות ב\"לא רלוונטי\". הסיווג מסומן כנקודת צבע על כרטיס הליד, ומשמש לסינון ולגרפים. ליד שהפך ללקוח לא מקבל סיווג — משייכים אותו לפרויקט.",
+    "addPlaceholder": "סיווג ב\"{{meta}}\"",
     "addAria": "הוספה",
     "dropHere": "שחרר כאן",
     "deleteChipAria": "מחיקת {{name}}",
     "deleteChipTitle": "מחיקה",
-    "deleteTitle": "מחיקת שלב",
-    "deleteMessage": "למחוק את \"{{name}}\"? לידים שמסומנים בו יישארו ללא שלב. ניתן לשחזר מסל המיחזור תוך 30 יום.",
-    "deleteConfirm": "מחק"
+    "deleteTitle": "מחיקת סיווג",
+    "deleteMessage": "למחוק את \"{{name}}\"? לידים שמסומנים בו יישארו ללא סיווג. ניתן לשחזר מסל המיחזור תוך 30 יום.",
+    "deleteConfirm": "מחק",
+    "addPlaceholder_in_process": "שלב ב\"{{meta}}\"",
+    "addPlaceholder_not_relevant": "סיבה ל\"{{meta}}\"",
+    "convertedNote": "ליד שהפך ללקוח לא מקבל סיווג — משייכים אותו לפרויקט."
   },
   "pages": {
     "title": "דפי נחיתה",
@@ -232,7 +237,7 @@
     "pagesLink": "או יצירת דף נחיתה שאוסף פניות לבד"
   },
   "move": {
-    "title": "העברה לשלב"
+    "title": "העברה לסיווג"
   },
   "newSourcePlaceholder": "מקור חדש…",
   "tagline": "טיפוח קשרים מוביל לתוצאות.",

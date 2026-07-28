@@ -151,7 +151,10 @@ export default function AddLeadModal({ open, onClose, onSave, onDelete, onConver
 
       {isEdit ? (
         <View style={styles.field}>
-          <Text style={styles.label}>{i18n.t('modalsClient:editLead.stage', { defaultValue: 'שלב' })}</Text>
+          {/* These pills pick the COLUMN, not the sub-status — web labels them
+              editLead.status. This said "שלב", which is now the sub-status
+              word inside "בתהליך" only. */}
+          <Text style={styles.label}>{i18n.t('modalsClient:editLead.status')}</Text>
           <View style={styles.pills}>
             {METAS.map((m) => {
               const on = form.status_meta === m.k
@@ -164,9 +167,12 @@ export default function AddLeadModal({ open, onClose, onSave, onDelete, onConver
           </View>
         </View>
       ) : null}
-      {subStatuses.length ? (
+      {/* leadStageOptional, not subStatusOptional — "תת-סטטוס" is the clients'
+          word. The label follows the column (stage / reason), and "הפכו
+          ללקוחות" takes none unless the lead already carries one. */}
+      {subStatuses.length && (form.status_meta !== 'converted' || form.status_id) ? (
         <Select
-          label={i18n.t('modalsClient:common.subStatusOptional')}
+          label={i18n.t('modalsClient:common.leadStageOptional', { context: form.status_meta })}
           value={form.status_id}
           onChange={(v) => set('status_id', v)}
           placeholder={none}

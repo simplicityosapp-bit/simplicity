@@ -202,10 +202,14 @@ export default function EditLeadModal({ open, onClose, onSave, lead, statuses = 
           ))}
         </Box>
       </Box>
-      {subStatuses.length > 0 && (
+      {/* "הפכו ללקוחות" takes no sub-status any more — the field stays for a
+          lead that already carries one from before the rule, so it can still
+          be cleared, and disappears the moment it is. The label follows the
+          column: a stage in "בתהליך", a reason in "לא רלוונטי". */}
+      {subStatuses.length > 0 && (form.status_meta !== 'converted' || !!form.status_id) && (
         <Box className="m-field">
-          <Box as="label" className="m-label">{t('common.leadStageOptional')}</Box>
-          <SelectMenu value={form.status_id} onChange={(v) => set('status_id', v)} options={subStatusOptions} placeholder={t('common.none')} ariaLabel={t('common.leadStageOptional')} />
+          <Box as="label" className="m-label">{t('common.leadStageOptional', { context: form.status_meta })}</Box>
+          <SelectMenu value={form.status_id} onChange={(v) => set('status_id', v)} options={subStatusOptions} placeholder={t('common.none')} ariaLabel={t('common.leadStageOptional', { context: form.status_meta })} />
         </Box>
       )}
       <Box className="m-field">

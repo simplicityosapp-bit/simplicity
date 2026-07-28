@@ -58,7 +58,8 @@
     "sessionNum": "פגישה {{num}}",
     "completedOn": "הושלמה • {{date}}",
     "openAtEnd": "פתוחה בסוף {{date}}",
-    "urgent": "דחוף"
+    "urgent": "דחוף",
+    "deleted": "נמחקה"
   },
   "metrics": {
     "newInquiries": "פניות חדשות",

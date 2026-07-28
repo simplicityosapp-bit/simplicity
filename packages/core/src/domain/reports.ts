@@ -243,8 +243,15 @@ export function computeReportForRange(start: Date, end: Date, data: ReportData =
   const net = income - expense
 
   /* ── Tasks ── */
-  const liveTasks = live(tasks)
-  const tasksCompleted = liveTasks.filter((t) => inRangeTs(t.completed_at)).length
+  /* Counted from the RAW list, not live(): completing a task is an event that
+     happened, and deleting the task afterwards does not un-happen it. Filtering
+     by deleted_at made a finished month quietly lose work as the user tidied
+     up their task list — reported by a beta user (acbbeaa5).
+
+     openTasksAsOf below already worked this way; this was the one tasks metric
+     that didn't. Nothing purges the trash (it only offers restore), so the
+     soft-deleted row stays available to count indefinitely. */
+  const tasksCompleted = (tasks || []).filter((t) => inRangeTs(t.completed_at)).length
   const openAtEnd = openTasksAsOf(tasks, end)
 
   return {
@@ -425,7 +432,6 @@ export function getDrillRecords(metricId: string, start: Date, end: Date, data: 
   const liveLeads = live(leads)
   const liveClients = live(clients)
   const liveSessions = live(sessions)
-  const liveTasks = live(tasks)
 
   const leadRow = (l: RLead, secondary: string): DrillRecord => ({
     icon: 'leaf',
@@ -563,13 +569,18 @@ export function getDrillRecords(metricId: string, start: Date, end: Date, data: 
       break
     }
     case 'tasksCompleted': {
-      liveTasks.forEach((t) => {
+      /* Raw list, to match the metric — see computeReportForRange. A row for a
+         deleted task says so and points at the trash: sending it to /tasks
+         would open a screen the task is no longer on. */
+      ;(tasks || []).forEach((t) => {
         if (!inRangeTs(t.completed_at)) return
+        const gone = !!t.deleted_at
         out.push({
           icon: 'check',
           primary: t.title || i18n.t('reports:drill.noTitle'),
-          secondary: i18n.t('reports:drill.completedOn', { date: fmtDay(t.completed_at) }),
-          navigateTo: '/tasks',
+          secondary: i18n.t('reports:drill.completedOn', { date: fmtDay(t.completed_at) })
+            + (gone ? ` • ${i18n.t('reports:drill.deleted')}` : ''),
+          navigateTo: gone ? '/trash' : '/tasks',
         })
       })
       break

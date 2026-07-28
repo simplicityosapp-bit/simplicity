@@ -20,7 +20,7 @@ import { useLeads } from '../../hooks/useLeads'
 import { useClients } from '../../hooks/useClients'
 import { useSessions } from '../../hooks/useSessions'
 import { useTransactions } from '../../hooks/useTransactions'
-import { useTasks } from '../../hooks/useTasks'
+import { useTasksForReports } from '../../hooks/useTasks'
 import { useGroupMembers } from '../../hooks/useGroupMembers'
 import { useGroups } from '../../hooks/useGroups'
 import { useT } from '../../i18n/useT'
@@ -59,7 +59,9 @@ export default function ReportsScreen() {
   const { clients, loading: clientsLoading } = useClients()
   const { sessions, loading: sessionsLoading } = useSessions()
   const { transactions, loading: txLoading } = useTransactions()
-  const { tasks, loading: tasksLoading } = useTasks()
+  /* Includes soft-deleted tasks: a task completed in June still counts for
+     June after it is tidied off the tasks screen. See useTasksForReports. */
+  const { tasks, loading: tasksLoading } = useTasksForReports()
   const { members: groupMembers, loading: gmLoading } = useGroupMembers()
   const { groups, loading: groupsLoading } = useGroups()
   /* First-load gate: until the core data arrives every metric computes as 0, so

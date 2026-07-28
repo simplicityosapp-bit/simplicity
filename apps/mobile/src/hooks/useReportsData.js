@@ -3,8 +3,13 @@ import { supabase } from '../lib/supabase'
 import { selectAll } from '../lib/paginate'
 
 // The seven tables the reports engine (core computeReportForRange) needs. Loaded
-// raw — core's live() filters soft-deleted rows, and this avoids a missing
+// raw — core decides per metric what a soft-deleted row means (live() drops it
+// for most, tasksCompleted deliberately keeps it), and this avoids a missing
 // deleted_at column erroring on relation tables (group_members).
+//
+// Web reaches the same place from the other direction: its hooks filter
+// deleted_at server-side, so the reports screen there needs the dedicated
+// listTasksForReports() to see them at all.
 const EMPTY = { leads: [], clients: [], sessions: [], transactions: [], tasks: [], groupMembers: [], groups: [] }
 const TABLES = { leads: 'leads', clients: 'clients', sessions: 'sessions', transactions: 'transactions', tasks: 'tasks', groupMembers: 'group_members', groups: 'groups' }
 

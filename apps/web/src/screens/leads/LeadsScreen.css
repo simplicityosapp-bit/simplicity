@@ -611,18 +611,34 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
-/* "…" overflow — the far (inline-end) top corner the delete X used to hold
-   alone. NOT dimmed the way that X was: it is now the only route to
-   "הפיכה ללקוח", and on touch there is no hover to reveal a faded control.
-   Its quiet comes from the stone colour and the absent background, which is
-   enough to keep it out of the way without hiding it. */
-.lead-card-menu {
+/* delete — sits in the far (inline-end) top corner, on the card itself.
+   Dimmed at rest and full strength on hover/focus: it is a rare, destructive
+   action, and converting no longer depends on it, so it can stay calm. Still
+   visible and tappable on touch, where there is no hover to reveal it. */
+.lead-del-btn {
   position: absolute;
-  top: 6px;
-  inset-inline-end: 6px;
+  top: 8px;
+  inset-inline-end: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--stone);
+  cursor: pointer;
+  opacity: 0.55;
+  transition: opacity 0.15s ease, background 0.15s ease, color 0.15s ease;
 }
-/* The open menu must clear the cards stacked after it in the column. */
-.lead-card:has(.card-menu [aria-expanded="true"]) { z-index: 5; }
+.lead-card:hover .lead-del-btn,
+.lead-del-btn:focus-visible { opacity: 1; }
+.lead-del-btn:hover {
+  background: color-mix(in srgb, var(--clay) 14%, transparent);
+  color: var(--clay);
+}
 /* drop-target sub-status picker */
 .lead-drop-picker { display: flex; flex-direction: column; gap: 8px; }
 .lead-drop-opt {
@@ -709,21 +725,49 @@
   color: var(--sage);
 }
 
-/* The "הפיכה ללקוח" chip moved into the card's "…" menu — a
-   few-times-a-month action was holding a permanent pill on every card. */
+/* "הפיכה ללקוח" CTA — soft chip at the bottom of every non-converted
+   card, on the card itself rather than behind an overflow menu.
+   stopPropagation on click prevents the card's edit handler from also
+   firing. */
+.lead-convert-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 8px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--divider);
+  background: transparent;
+  font-family: var(--mg-font);
+  font-size: calc(11px * var(--text-scale));
+  color: var(--espresso);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.lead-convert-btn:hover {
+  background: color-mix(in srgb, var(--sage) 12%, transparent);
+  border-color: color-mix(in srgb, var(--sage) 35%, transparent);
+  color: var(--sage);
+}
+[data-theme="dark"] .lead-convert-btn:hover {
+  background: color-mix(in srgb, var(--sage) 18%, transparent);
+  border-color: color-mix(in srgb, var(--sage) 40%, transparent);
+}
 
-/* Card footer — holds the converted badge alongside the
-   direct WhatsApp action so neither overlaps the corner delete X. */
+/* Card footer — holds the convert chip / converted badge alongside the
+   direct WhatsApp action so neither overlaps the corner delete button. */
 .lead-card-foot {
   display: flex;
   align-items: center;
   gap: 8px;
   margin-top: 8px;
 }
-/* The badge takes the slack so WhatsApp always lands on the same edge. With
-   space-between it moved: pinned to the start on a plain lead (nothing to
-   space against) and to the end on a converted one — the most-used button on
-   the card shifting position with the lead's state. */
+/* WhatsApp always lands on the same edge, whatever else the footer holds:
+   the chip takes the slack when there is one, the badge when there isn't,
+   and a lone button pushes itself over. (Plain space-between could not do
+   this — it pinned a lone WhatsApp to the start and a paired one to the
+   end, moving the most-used button with the lead's state.) */
+.lead-card-foot .lead-convert-btn { flex: 1; justify-content: center; margin-top: 0; }
 .lead-card-foot .lead-converted { margin-top: 0; margin-inline-end: auto; }
 .lead-card-foot > .lead-wa-btn:only-child { margin-inline-start: auto; }
 .lead-wa-btn {

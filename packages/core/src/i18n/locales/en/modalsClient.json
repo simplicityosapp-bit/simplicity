@@ -129,7 +129,8 @@
     "status": "Status",
     "metaInProcess": "In process",
     "metaConverted": "Converted",
-    "metaNotRelevant": "Not relevant"
+    "metaNotRelevant": "Not relevant",
+    "stage": "Stage"
   },
   "convertLead": {
     "title": "Convert lead to client",
@@ -160,7 +161,8 @@
     "color": "Color",
     "errPackagePrice": "Please enter a positive package price.",
     "errSessions": "Please enter a positive number of sessions.",
-    "errPerSession": "Please enter a positive price per session."
+    "errPerSession": "Please enter a positive price per session.",
+    "noMembers": "No members yet"
   },
   "editGroup": {
     "title": "Edit group",

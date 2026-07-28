@@ -115,5 +115,9 @@
     "meetingSkipped": "Meeting skipped",
     "followupDone": "Follow-up marked done",
     "actionFailed": "Action failed — please try again."
+  },
+  "kinds": {
+    "followup": "Follow-up",
+    "reminder": "Reminder"
   }
 }

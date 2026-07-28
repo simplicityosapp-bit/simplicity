@@ -210,5 +210,10 @@
   "editProject": {
     "title": "Edit project",
     "projectName": "Project name"
+  },
+  "quickUpdate": {
+    "title": "Update a goal",
+    "empty": "No goals you can update by hand.",
+    "logProgress": "Log progress"
   }
 }

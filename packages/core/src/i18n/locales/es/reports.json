@@ -89,5 +89,6 @@
   "trend": {
     "empty": "Aún no hay datos suficientes para un gráfico.",
     "aria": "Tendencias de varias métricas"
-  }
+  },
+  "tagline": "Los números cuentan la historia."
 }

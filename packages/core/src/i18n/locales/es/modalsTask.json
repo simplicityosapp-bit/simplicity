@@ -70,7 +70,9 @@
     "summary": "Resumen (opcional)",
     "summaryPlaceholder": "¿Qué surgió? ¿Cuál es el siguiente paso?",
     "notes": "Notas privadas (opcional)",
-    "notesPlaceholder": "Una nota para ti"
+    "notesPlaceholder": "Una nota para ti",
+    "deleteTitle": "Eliminar sesión",
+    "deleteMessage": "¿Eliminar la sesión registrada?"
   },
   "meeting": {
     "title": "Programar una cita",
@@ -124,7 +126,8 @@
     "icon": "Icono",
     "editTitle": "Editar pregunta",
     "scaleLockedRange": "El tipo de respuesta (escala 1–10) se mantiene para que tu historial de respuestas quede intacto.",
-    "scaleLockedYesNo": "El tipo de respuesta (Sí / No) se mantiene para que tu historial de respuestas quede intacto."
+    "scaleLockedYesNo": "El tipo de respuesta (Sí / No) se mantiene para que tu historial de respuestas quede intacto.",
+    "titleEdit": "Editar pregunta"
   },
   "duplicate": {
     "title": "Duplicados del calendario",

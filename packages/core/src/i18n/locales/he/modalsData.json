@@ -230,5 +230,10 @@
   "editProject": {
     "title": "עריכת פרויקט",
     "projectName": "שם הפרויקט"
+  },
+  "quickUpdate": {
+    "title": "עדכון יעד",
+    "empty": "אין יעדים שאפשר לעדכן ידנית.",
+    "logProgress": "רישום התקדמות"
   }
 }

@@ -70,7 +70,9 @@
     "summary": "Summary (optional)",
     "summaryPlaceholder": "What came up? What's the next step?",
     "notes": "Private notes (optional)",
-    "notesPlaceholder": "A note to yourself"
+    "notesPlaceholder": "A note to yourself",
+    "deleteTitle": "Delete session",
+    "deleteMessage": "Delete the recorded session?"
   },
   "meeting": {
     "title": "Schedule a meeting",
@@ -124,7 +126,8 @@
     "icon": "Icon",
     "editTitle": "Edit question",
     "scaleLockedRange": "The answer type (scale 1–10) is kept so your answer history stays intact.",
-    "scaleLockedYesNo": "The answer type (Yes / No) is kept so your answer history stays intact."
+    "scaleLockedYesNo": "The answer type (Yes / No) is kept so your answer history stays intact.",
+    "titleEdit": "Edit question"
   },
   "duplicate": {
     "title": "Calendar duplicates",

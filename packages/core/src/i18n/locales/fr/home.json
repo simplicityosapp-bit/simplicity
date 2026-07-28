@@ -65,7 +65,10 @@
         "staleLeads_other": "{{count}} prospects sans activité",
         "dueFollowups_one": "1 relance pour aujourd'hui",
         "dueFollowups_other": "{{count}} relances pour aujourd'hui"
-      }
+      },
+      "count_one": "1 élément",
+      "count_other": "{{count}} éléments",
+      "noPeople": "Personne pour le moment"
     },
     "chips": {
       "income": "Revenus",
@@ -134,10 +137,17 @@
       "dueToday_one": "1 pour aujourd'hui",
       "dueToday_other": "{{count}} pour aujourd'hui",
       "todayOf_one": "{{todayText}} sur {{count}} ouverte",
-      "todayOf_other": "{{todayText}} sur {{count}} ouvertes"
+      "todayOf_other": "{{todayText}} sur {{count}} ouvertes",
+      "addWord": "en ajouter",
+      "allDone": "Rien en cours. Vous pouvez {{add}} une nouvelle.",
+      "urgent_one": "1 urgente",
+      "urgent_other": "{{count}} urgentes",
+      "urgentOf_one": "{{urgentText}} sur {{count}} en cours",
+      "urgentOf_other": "{{urgentText}} sur {{count}} en cours"
     },
     "quick": {
-      "quickAdd": "Ajout rapide"
+      "quickAdd": "Ajout rapide",
+      "goalUpdate": "Mettre à jour un objectif"
     },
     "quote": {
       "sourceAria": "Choisir la source des citations",
@@ -163,6 +173,16 @@
       "showLess": "Voir moins",
       "showAll_one": "1 de plus",
       "showAll_other": "{{count}} de plus"
+    },
+    "reminders": {
+      "title": "Rappels",
+      "link_one": "1 rappel",
+      "link_other": "{{count}} rappels",
+      "markDoneAria": "Marquer comme faite",
+      "todaySummary_one": "{{today}} pour aujourd'hui",
+      "todaySummary_other": "{{today}} pour aujourd'hui, sur {{count}}",
+      "soonSummary_one": "1 à venir",
+      "soonSummary_other": "{{count}} à venir"
     }
   },
   "edit": {

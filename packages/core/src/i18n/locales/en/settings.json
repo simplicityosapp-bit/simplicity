@@ -69,14 +69,16 @@
     "color": "Color",
     "colorNamed": "Color {{index}} of {{total}}",
     "saveError": "The change was not saved — the connection may have dropped. Check your connection and try again.",
-    "saved": "Setting saved"
+    "saved": "Setting saved",
+    "none": "—"
   },
   "payments": {
     "currency": "Currency",
     "dateFormat": "Date format",
     "timeFormat": "Time format",
     "weekStart": "First day of the week",
-    "exampleToday": "The examples show today's date."
+    "exampleToday": "The examples show today's date.",
+    "typePlaceholder": "Meeting type…"
   },
   "widgets": {
     "names": {
@@ -114,7 +116,10 @@
     "previewCardTitle": "Dana Levi",
     "previewChip": "Session tomorrow",
     "previewCardBody": "A sample card — it changes with every choice here, so you never have to guess.",
-    "previewMeta": "Still owed"
+    "previewMeta": "Still owed",
+    "language": "Language",
+    "rtlHint": "A full change of text direction takes effect after a restart.",
+    "themeHint": "Switching mode refreshes the app."
   },
   "about": {
     "version": "Version {{version}}",
@@ -133,7 +138,8 @@
     "genders": {
       "female": "She",
       "male": "He",
-      "neutral": "Neutral"
+      "neutral": "Neutral",
+      "label": "Form of address"
     },
     "role": "Profession",
     "roleOther": "What do you do?",
@@ -150,7 +156,8 @@
     "reminderTitle": "Daily reminder",
     "reminderToggle": "Daily reminder",
     "reminderLabel": "Remind me to answer if I haven't by",
-    "reminderHint": "If you haven't answered by the time you pick, a gentle reminder appears in the \"How are you today\" widget on your home screen."
+    "reminderHint": "If you haven't answered by the time you pick, a gentle reminder appears in the \"How are you today\" widget on your home screen.",
+    "manage": "Manage the daily questions"
   },
   "data": {
     "intro": "An overview of your data, plus import and export from a CSV / Excel file.",
@@ -184,7 +191,9 @@
     "importSessions_one": "{{count}} session",
     "importSessions_other": "{{count}} sessions",
     "restartOnboarding": "Restart the intro",
-    "restartHint": "Reopens the setup wizard from the first step. Handy if you skipped partway through."
+    "restartHint": "Reopens the setup wizard from the first step. Handy if you skipped partway through.",
+    "exportClients": "Export clients (CSV)",
+    "exportTransactions": "Export transactions (CSV)"
   },
   "danger": {
     "resetTitle": "Reset account",
@@ -196,7 +205,9 @@
     "restartTitle": "Restart the intro",
     "restartConfirm": "Restart",
     "restartMessage": "Restart the intro? The steps reset to the beginning — data you've already created (clients, projects, etc.) stays put.",
-    "intro": "Two actions that cannot be undone. Both ask again after you press."
+    "intro": "Two actions that cannot be undone. Both ask again after you press.",
+    "resetConfirmAgain": "Are you sure? This cannot be undone.",
+    "signOutConfirm": "Sign out of your account?"
   },
   "schedule": {
     "everyDay": "Every day",

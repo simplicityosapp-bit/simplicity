@@ -38,7 +38,8 @@
   "list": {
     "empty": "אין תנועות לחודש זה.",
     "confirmed": "אושרו",
-    "skipped": "לא קרו"
+    "skipped": "לא קרו",
+    "skippedTag": "דולג"
   },
   "pending": {
     "income": "הכנסות {{amount}}",
@@ -186,5 +187,8 @@
     "backToMonth": "חזרה ל{{month}}",
     "noResults": "לא נמצאו תנועות שמתאימות ל\"{{query}}\".",
     "noneOfType": "אין תנועות מסוג זה החודש."
-  }
+  },
+  "exportCsv": "ייצוא CSV",
+  "snapshot": "תמונת מצב",
+  "tagline": "הפעולות שלך יוצרות תוצאות טובות."
 }

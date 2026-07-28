@@ -222,5 +222,10 @@
     "sub": "Every enquiry that comes in — by phone, by message or from a landing page — is recorded here and followed until it becomes a client.",
     "addLead": "Record the first enquiry",
     "pagesLink": "Or build a landing page that collects them for you"
-  }
+  },
+  "move": {
+    "title": "Move to a stage"
+  },
+  "newSourcePlaceholder": "New source…",
+  "tagline": "Tending relationships is what brings results."
 }

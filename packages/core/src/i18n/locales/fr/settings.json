@@ -69,14 +69,16 @@
     "color": "Couleur",
     "colorNamed": "Couleur {{index}} sur {{total}}",
     "saveError": "La modification n'a pas été enregistrée — la connexion a peut-être été interrompue. Vérifiez votre connexion et réessayez.",
-    "saved": "Réglage enregistré"
+    "saved": "Réglage enregistré",
+    "none": "—"
   },
   "payments": {
     "currency": "Devise",
     "dateFormat": "Format de date",
     "timeFormat": "Format d'heure",
     "weekStart": "Premier jour de la semaine",
-    "exampleToday": "Les exemples montrent la date d'aujourd'hui."
+    "exampleToday": "Les exemples montrent la date d'aujourd'hui.",
+    "typePlaceholder": "Type de séance…"
   },
   "widgets": {
     "names": {
@@ -114,7 +116,10 @@
     "previewCardTitle": "Dana Levi",
     "previewChip": "Séance demain",
     "previewCardBody": "Une carte d'exemple — elle change à chaque choix, pour que vous n'ayez rien à deviner.",
-    "previewMeta": "Reste à payer"
+    "previewMeta": "Reste à payer",
+    "language": "Langue",
+    "rtlHint": "Le changement complet du sens de lecture s'applique après un redémarrage.",
+    "themeHint": "Changer de mode rafraîchit l'app."
   },
   "about": {
     "version": "Version {{version}}",
@@ -133,7 +138,8 @@
     "genders": {
       "female": "Elle",
       "male": "Il",
-      "neutral": "Neutre"
+      "neutral": "Neutre",
+      "label": "Forme d'adresse"
     },
     "role": "Profession",
     "roleOther": "Que faites-vous ?",
@@ -150,7 +156,8 @@
     "reminderTitle": "Rappel quotidien",
     "reminderToggle": "Rappel quotidien",
     "reminderLabel": "Me rappeler de répondre si je ne l'ai pas fait avant",
-    "reminderHint": "Si vous n'avez pas répondu à l'heure que vous choisissez, un rappel discret apparaît dans le widget « Comment allez-vous aujourd'hui ? » de votre écran d'accueil."
+    "reminderHint": "Si vous n'avez pas répondu à l'heure que vous choisissez, un rappel discret apparaît dans le widget « Comment allez-vous aujourd'hui ? » de votre écran d'accueil.",
+    "manage": "Gérer les questions quotidiennes"
   },
   "data": {
     "intro": "Un aperçu de vos données, ainsi que l'importation et l'exportation depuis un fichier CSV / Excel.",
@@ -184,7 +191,9 @@
     "importSessions_one": "{{count}} séance",
     "importSessions_other": "{{count}} séances",
     "restartOnboarding": "Recommencer l'introduction",
-    "restartHint": "Rouvre l'assistant de configuration depuis la première étape. Pratique si vous l'avez sauté en cours de route."
+    "restartHint": "Rouvre l'assistant de configuration depuis la première étape. Pratique si vous l'avez sauté en cours de route.",
+    "exportClients": "Exporter les clients (CSV)",
+    "exportTransactions": "Exporter les mouvements (CSV)"
   },
   "danger": {
     "resetTitle": "Réinitialiser le compte",
@@ -196,7 +205,9 @@
     "restartTitle": "Recommencer l'introduction",
     "restartConfirm": "Recommencer",
     "restartMessage": "Recommencer l'introduction ? Les étapes reviennent au début — les données déjà créées (clients, projets, etc.) sont conservées.",
-    "intro": "Deux actions irréversibles. Toutes deux redemandent confirmation après le clic."
+    "intro": "Deux actions irréversibles. Toutes deux redemandent confirmation après le clic.",
+    "resetConfirmAgain": "Vous êtes sûr ? Cette action est irréversible.",
+    "signOutConfirm": "Se déconnecter du compte ?"
   },
   "schedule": {
     "everyDay": "Chaque jour",

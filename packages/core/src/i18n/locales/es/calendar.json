@@ -115,5 +115,9 @@
     "meetingSkipped": "Reunión omitida",
     "followupDone": "Seguimiento marcado como hecho",
     "actionFailed": "La acción falló. Inténtalo de nuevo."
+  },
+  "kinds": {
+    "followup": "Seguimiento",
+    "reminder": "Recordatorio"
   }
 }

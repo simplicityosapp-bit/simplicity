@@ -142,12 +142,13 @@ describe('board search', () => {
   })
 })
 
-/* ── The lead card's "…" menu ────────────────────────────────────
-   Item derivation copied from LeadCard. The rule worth pinning is the
-   awkward middle state: a lead DRAGGED into the converted column is
-   converted but has no client record, and must still be offered the step
-   that creates one — otherwise the drag path becomes a dead end. */
-function menuKeys(lead, { onConvert = true, onDelete = true } = {}) {
+/* ── The lead card's own actions ─────────────────────────────────
+   Derivation copied from LeadCard: the convert chip in the footer and the
+   delete button in the corner, both on the card itself. The rule worth
+   pinning is the awkward middle state: a lead DRAGGED into the converted
+   column is converted but has no client record, and must still be offered
+   the step that creates one — otherwise the drag path becomes a dead end. */
+function cardActions(lead, { onConvert = true, onDelete = true } = {}) {
   const converted = isConvertedLead(lead)
   const needsClientRecord = converted && !lead.converted_to_client_id
   const out = []
@@ -156,24 +157,24 @@ function menuKeys(lead, { onConvert = true, onDelete = true } = {}) {
   return out
 }
 
-describe('the lead card menu offers the right actions', () => {
+describe('the lead card offers the right actions', () => {
   it('an ordinary lead: convert + delete', () => {
-    expect(menuKeys({ status_meta: 'in_process' })).toEqual(['convert', 'delete'])
+    expect(cardActions({ status_meta: 'in_process' })).toEqual(['convert', 'delete'])
   })
 
   it('a lead DRAGGED into converted still offers the client record', () => {
     const dragged = applyLeadMove(freshLead(), 'converted')
-    expect(menuKeys(dragged)).toEqual(['createClient', 'delete'])
+    expect(cardActions(dragged)).toEqual(['createClient', 'delete'])
   })
 
   it('a properly converted lead offers delete only', () => {
-    expect(menuKeys({ status_meta: 'converted', converted_at: '2026-07-01T00:00:00Z', converted_to_client_id: 'c1' }))
+    expect(cardActions({ status_meta: 'converted', converted_at: '2026-07-01T00:00:00Z', converted_to_client_id: 'c1' }))
       .toEqual(['delete'])
   })
 
   it('collapses to nothing when the parent wires no handlers', () => {
-    /* CardMenu renders null on an empty list, so the trigger disappears
-       rather than opening an empty popover. */
-    expect(menuKeys({ status_meta: 'in_process' }, { onConvert: false, onDelete: false })).toEqual([])
+    /* Both controls render only when their handler exists, so a read-only
+       card carries neither. */
+    expect(cardActions({ status_meta: 'in_process' }, { onConvert: false, onDelete: false })).toEqual([])
   })
 })

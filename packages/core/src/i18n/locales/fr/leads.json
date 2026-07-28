@@ -88,13 +88,13 @@
     "empty": "Aucun prospect dans cette colonne"
   },
   "card": {
+    "deleteAria": "Supprimer le prospect {{name}}",
     "deleteTitle": "Supprimer le prospect",
     "noSource": "Aucune source",
     "inquiry": "Demande {{date}}",
     "converted": "Converti en client",
     "convert": "Convertir en client",
-    "createClient": "Créer la fiche client",
-    "menuAria": "Actions pour {{name}}"
+    "createClient": "Créer la fiche client"
   },
   "sourcesModal": {
     "title": "Sources de prospects",

@@ -10,28 +10,34 @@
    or '../i18n/reflections' from a core domain module).
    ════════════════════════════════════════════════════════════════ */
 
-import i18n from './index'
+import i18n, { onI18nReady } from './index'
 import heReflections from './locales/he/reflections.json'
 import enReflections from './locales/en/reflections.json'
 import esReflections from './locales/es/reflections.json'
 import frReflections from './locales/fr/reflections.json'
 
 /* Register the 4 reflections bundles into the i18n singleton. Idempotent
-   (skips already-present bundles) and guarded against an uninitialized i18n —
-   in non-init contexts (e.g. pure-logic unit tests importing the barrel) it
-   simply skips instead of crashing.
+   (skips already-present bundles).
 
-   Exported AND called on import: web consumers rely on the import side-effect
-   (they load this module AFTER initI18n, so it registers straight away). Native
-   (mobile) loads the whole import graph BEFORE its setupI18n() runs, so the
-   import-time call lands before init and is lost — mobile therefore calls
-   registerReflections() explicitly right after initI18n(). */
+   Order-independent: onI18nReady registers immediately when i18next is already
+   initialised, and otherwise queues so initI18n flushes it the moment it is.
+   That matters because BOTH orders happen for real — web bundles this module
+   into a chunk the entry imports (so it evaluates BEFORE initI18n), while in
+   dev and on native it lands after. Registering only in the "after" case is
+   what left every reflections:* key rendering as its own raw key in the built
+   web app. A caller with no i18n at all (pure-logic unit tests importing the
+   barrel) simply never flushes, which is the old skip-don't-crash behaviour.
+
+   Exported AND called on import: web relies on the import side-effect, while
+   mobile also calls registerReflections() explicitly after initI18n. Both are
+   safe — the second call is a no-op. */
 export function registerReflections(): void {
-  if (typeof i18n.hasResourceBundle !== 'function') return
-  if (!i18n.hasResourceBundle('he', 'reflections')) i18n.addResourceBundle('he', 'reflections', heReflections, true, true)
-  if (!i18n.hasResourceBundle('en', 'reflections')) i18n.addResourceBundle('en', 'reflections', enReflections, true, true)
-  if (!i18n.hasResourceBundle('es', 'reflections')) i18n.addResourceBundle('es', 'reflections', esReflections, true, true)
-  if (!i18n.hasResourceBundle('fr', 'reflections')) i18n.addResourceBundle('fr', 'reflections', frReflections, true, true)
+  onI18nReady(() => {
+    if (!i18n.hasResourceBundle('he', 'reflections')) i18n.addResourceBundle('he', 'reflections', heReflections, true, true)
+    if (!i18n.hasResourceBundle('en', 'reflections')) i18n.addResourceBundle('en', 'reflections', enReflections, true, true)
+    if (!i18n.hasResourceBundle('es', 'reflections')) i18n.addResourceBundle('es', 'reflections', esReflections, true, true)
+    if (!i18n.hasResourceBundle('fr', 'reflections')) i18n.addResourceBundle('fr', 'reflections', frReflections, true, true)
+  })
 }
 
 registerReflections()

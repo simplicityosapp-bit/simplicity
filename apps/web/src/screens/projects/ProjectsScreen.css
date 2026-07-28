@@ -5,6 +5,24 @@
    in styles/screens.css.
    ════════════════════════════════════════════════════════════════ */
 
+/* ── Screen proportion (per-screen override) ─────────────────────
+   The same move home made and clients took after it: a tighter corner and
+   less padding than the app default, so a grid of project cards reads as
+   TILES rather than as a stack of wide bands. Proportion only — the cream
+   glass is untouched (see HomeScreen.css §SURFACE, where a flattened
+   surface was tried and reverted while the structural work stayed).
+
+   Declared on the screen root rather than in tokens.css on purpose: every
+   screen that hasn't been converted keeps 20px / 24×28.
+
+   Unlike the clients screen, nothing here renders inside .screen except
+   portaled modals, so the override reaches the screen's own cards and
+   stops there. */
+.p-screen {
+  --mg-card-radius: 14px;
+  --mg-card-pad:    16px 18px;
+}
+
 .p-hero {
   margin-bottom: 16px;
 }
@@ -55,12 +73,17 @@
 }
 
 /* On desktop project cards lay out as a flexible 4-up grid; on
-   mobile they stay a single-column stack with the original spacing. */
+   mobile they stay a single-column stack with the original spacing.
+
+   The gap follows the tiles down to --gap (12px), which is what already
+   spaces the cards on mobile via .pc's margin-bottom. --mg-row-gap (16px)
+   is the rhythm for full-width card ROWS; once the cards are tiles it left
+   them sitting in band-sized gutters, looser than the cards themselves. */
 @media (min-width: 768px) {
   .p-list {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: var(--mg-row-gap);
+    gap: var(--gap);
   }
   .p-list > .pc { margin-bottom: 0; }
   .p-list > .empty { grid-column: 1 / -1; }
@@ -128,6 +151,7 @@
 }
 .pc-edit,
 .pc-del {
+  position: relative;
   flex-shrink: 0;
   width: 26px;
   height: 26px;
@@ -140,6 +164,41 @@
   align-items: center;
   justify-content: center;
   transition: background 0.15s, color 0.15s;
+}
+/* Grown pointer targets, the same separation the home cards make: the
+   VISUAL control stays 26px, the thing a finger aims at is the pseudo-
+   element and is ~44px tall. Nothing about the layout moves — the card head
+   keeps its exact height and spacing.
+
+   Both buttons sit inside a card that is ITSELF a button (tapping the card
+   opens the project), and one of them deletes — three different outcomes
+   within 26px of each other. So the growth is deliberately asymmetric, into
+   space where there is nothing else to hit:
+
+     • up, into the card's top padding — empty;
+     • down, into .ph's 12px bottom margin — the divider and the stats sit
+       below it and neither is interactive;
+     • 6px toward each other, exactly half the 12px flex gap, so the two
+       targets meet at the midpoint and never overlap;
+     • .pc-del alone grows outward to the card's inline edge, which is free
+       padding — it is the LAST child, so inset-inline-end is the outer side
+       in both RTL and LTR.
+
+   Deliberately NOT grown further downward or inward: that space belongs to
+   the card's own open action, and stealing it would make a mis-tap land on
+   delete instead of on the project. */
+.pc-edit::after,
+.pc-del::after {
+  content: '';
+  position: absolute;
+  inset-block: -9px;
+}
+.pc-edit::after {
+  inset-inline: -6px;
+}
+.pc-del::after {
+  inset-inline-start: -6px;
+  inset-inline-end: -14px;
 }
 .pc-edit:hover { color: var(--espresso); background: color-mix(in srgb, var(--espresso) 6%, transparent); }
 .pc-del:hover {

@@ -343,7 +343,7 @@ export default function ClientsScreen() {
   const balanceDataError = !loading && !error && !!(txError || sessionsError || groupsError || membersError)
 
   return (
-    <Box className={`screen${selectMode ? ' has-bulk-bar' : ''}`}>
+    <Box className={`screen c-screen${selectMode ? ' has-bulk-bar' : ''}`}>
       <Box className="screen-top">
         <Box as="header" className="screen-head">
           <Box>

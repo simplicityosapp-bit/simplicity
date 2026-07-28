@@ -81,7 +81,7 @@
       "features": [
         {
           "title": "Las tarjetas que forman la pantalla",
-          "body": "La pantalla se compone de siete tarjetas: Cita diaria, Vista general, ¿Cómo estás hoy?, Añadir rápido, Cosas que requieren atención, Tareas y recordatorios y Números rápidos. Cada una se puede activar, desactivar y reordenar en «Ajustes → Aspecto y formato → Pantalla de inicio», o manteniendo pulsada una tarjeta aquí mismo."
+          "body": "La pantalla se compone de tarjetas: Cita diaria, Vista general, ¿Cómo estás hoy?, Añadir rápido, Cosas que requieren atención, Tareas y recordatorios y Números rápidos. La lista completa —y todo lo que puedes activar, desactivar y reordenar— está en «Ajustes → Aspecto y formato → Pantalla de inicio», o manteniendo pulsada una tarjeta aquí mismo."
         },
         {
           "title": "Widget de resumen",

@@ -29,7 +29,7 @@
     },
     "questions": {
       "title": "Daily questions",
-      "sub": "What you are asked each day, and when to remind you"
+      "sub": "The questions you're asked each day"
     },
     "data": {
       "title": "Data",

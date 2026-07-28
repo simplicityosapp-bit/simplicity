@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import {
   Home, Users, Magnet, Wallet, Folder, ClipboardList, Target, Calendar, Settings,
   Moon, Eye, Activity, BarChart3, Trash2, Sun, X, Pencil, LogOut, MessageSquarePlus, Shield, Plug, LayoutTemplate,
-  MessagesSquare, Gem,
+  MessagesSquare, Gem, BookOpen,
 } from 'lucide-react'
 import { DRAWER_NAV } from '../lib/nav'
 import { ROUTES } from '../lib/routes'
@@ -194,6 +194,15 @@ export default function MenuDrawer({ open, onClose, screen, isDark, onToggleThem
           <Txt className="drawer-link-text">
             {t('feedback')}
             <Txt className="drawer-link-text-sub">{t('items.feedbackSub')}</Txt>
+          </Txt>
+        </Btn>
+
+        {/* The full guide + FAQ, promoted out of Settings → אודות → tab. */}
+        <Btn className="drawer-link" onClick={() => goTo(ROUTES.HELP)}>
+          <Txt className="drawer-link-icon"><BookOpen size={18} strokeWidth={1.5} /></Txt>
+          <Txt className="drawer-link-text">
+            {t('extras.help')}
+            <Txt className="drawer-link-text-sub">{t('items.helpSub')}</Txt>
           </Txt>
         </Btn>
 

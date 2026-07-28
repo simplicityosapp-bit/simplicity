@@ -3,9 +3,9 @@ import { View, Text, TextInput, Pressable, StyleSheet, ScrollView, Share, Alert,
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import Constants from 'expo-constants'
 import { useNavigation } from '@react-navigation/native'
-import { User, Palette, Database, LogOut, ChevronDown, ChevronUp, Sparkles, Download, X, Plus, Check, Wallet, Info, LayoutGrid, Trash2, Eye, Layers, Users, Leaf } from 'lucide-react-native'
+import { User, Palette, Database, LogOut, ChevronDown, ChevronUp, Sparkles, Download, X, Plus, Check, Wallet, Info, LayoutGrid, Trash2, Eye, Users, Leaf, Briefcase, Settings2, CalendarClock, Plug } from 'lucide-react-native'
 import { LANGUAGE_OPTIONS } from '@simplicity/core/i18n'
-import { fmtShortDate, payMethodLabel } from '@simplicity/core'
+import { fmtShortDate, payMethodLabel, formatDateAs, formatTimeAs, SETTINGS_TREE, soleSectionKeyOf } from '@simplicity/core'
 import i18n, { setGenderContext } from '../lib/i18n'
 import { csvCell } from '../lib/csv'
 import { supabase } from '../lib/supabase'
@@ -37,17 +37,29 @@ const TIME_FMTS = [{ k: '24h', l: '24 שעות' }, { k: '12h', l: '12h' }]
 const WEEK_STARTS = [{ k: 'sunday', l: 'ראשון' }, { k: 'monday', l: 'שני' }]
 const T = (k, o) => i18n.t(`settings:${k}`, o)
 
-// Two-level section tree — mirrors web's SECTION_GROUPS exactly: a group (collapsible)
-// holds a set of sections (also collapsible). Each section key maps to a body in
-// renderBody() below. Group + section icons match web's SECTION_GROUPS / SECTION_DEFS.
-const SECTION_ICON = { profile: User, design: Palette, widgets: LayoutGrid, payments: Wallet, clients: Users, leads: Leaf, questions: Sparkles, data: Database, about: Info }
-const GROUPS = [
-  { key: 'personal', Icon: User, items: ['profile', 'design'] },
-  { key: 'display', Icon: Eye, items: ['widgets', 'payments'] },
-  { key: 'workflow', Icon: Layers, items: ['clients', 'leads', 'questions'] },
-  { key: 'data', Icon: Database, items: ['data'] },
-  { key: 'about', Icon: Info, items: ['about'] },
-]
+// Two-level section tree — a group (collapsible) holds sections (also
+// collapsible), and each section key maps to a body in renderBody() below.
+//
+// The STRUCTURE comes from @simplicity/core, not from a copy kept here. This
+// screen used to hold its own list while reading every title from the SAME
+// shared i18n namespace, so when web regrouped (2026-07-28) each heading this
+// file asked for was retired underneath it and the screen quietly rendered raw
+// keys. Nothing threw; the only way to notice was to open the screen, on a
+// platform that has no device to open it on. Icons stay local — lucide-react
+// and lucide-react-native are different packages.
+const SECTION_ICON = {
+  profile: User, design: Palette, home: LayoutGrid, payments: CalendarClock,
+  meetingTypes: Wallet, questions: Sparkles, clients: Users, leads: Leaf,
+  data: Database, reset: Trash2, about: Info,
+}
+const GROUP_ICON = { personal: User, appearance: Eye, work: Briefcase, account: Settings2 }
+
+// Rows that leave settings. The tree names them; each app resolves the name
+// to its own destination, since a react-router path means nothing here.
+// A key with no entry is simply not drawn — this build has no subscription
+// or help screen, so those rows don't appear.
+const LINK_TARGET = { clients: 'Clients', leads: 'Leads', connections: 'Connections', trash: 'Trash' }
+const LINK_ICON = { clients: Users, leads: Leaf, connections: Plug, trash: Trash2 }
 
 // On/off switch (mirrors web Switch). RN has no built-in, so it's a pill track + knob.
 function Switch({ checked, onChange }) {
@@ -237,6 +249,8 @@ export default function SettingsScreen() {
 
   // Section bodies keyed by section id (mirrors web's renderBody switch). Grouping
   // is purely presentational — the same controls, split by web's section boundaries.
+  // Captured once per render so every date/time example describes one moment.
+  const now = new Date()
   const renderBody = (key) => {
     if (key === 'profile') {
       return (
@@ -283,7 +297,7 @@ export default function SettingsScreen() {
         </>
       )
     }
-    if (key === 'widgets') {
+    if (key === 'home') {
       return widgetList.map((w, i) => (
         <View key={w.id} style={styles.widgetRow}>
           <View style={styles.widgetReorder}>
@@ -301,11 +315,16 @@ export default function SettingsScreen() {
           <Field label={T('payments.currency', { defaultValue: 'מטבע' })}>
             <Pills options={CURRENCIES.map((c) => ({ k: c.k, label: T(`options.currency.${c.k}`, { defaultValue: c.l }) }))} value={prefs.format?.currency || 'ILS'} onPick={(v) => setFormat('currency', v)} />
           </Field>
+          {/* The pills showed the pattern strings — "DD/MM/YY", "12h" — which
+              is developer notation offered as a choice. They now show TODAY
+              formatted each way, through the same functions the app formats
+              with, so the example can't drift from the result. */}
           <Field label={T('payments.dateFormat', { defaultValue: 'פורמט תאריך' })}>
-            <Pills options={DATE_FMTS.map((d) => ({ k: d.k, label: d.l }))} value={prefs.format?.date_format || 'DD/MM/YY'} onPick={(v) => setFormat('date_format', v)} />
+            <Pills options={DATE_FMTS.map((d) => ({ k: d.k, label: formatDateAs(d.k, now) }))} value={prefs.format?.date_format || 'DD/MM/YY'} onPick={(v) => setFormat('date_format', v)} />
+            <Text style={styles.hint}>{T('payments.exampleToday', { defaultValue: '' })}</Text>
           </Field>
           <Field label={T('payments.timeFormat', { defaultValue: 'פורמט שעה' })}>
-            <Pills options={TIME_FMTS.map((t) => ({ k: t.k, label: T(`options.timeFormat.${t.k}`, { defaultValue: t.l }) }))} value={prefs.format?.time_format || '24h'} onPick={(v) => setFormat('time_format', v)} />
+            <Pills options={TIME_FMTS.map((t) => ({ k: t.k, label: formatTimeAs(t.k, now) }))} value={prefs.format?.time_format || '24h'} onPick={(v) => setFormat('time_format', v)} />
           </Field>
           <Field label={T('payments.weekStart', { defaultValue: 'יום ראשון בשבוע' })}>
             <Pills options={WEEK_STARTS.map((w) => ({ k: w.k, label: T(`options.weekStart.${w.k}`, { defaultValue: w.l }) }))} value={prefs.format?.week_start || 'sunday'} onPick={(v) => setFormat('week_start', v)} />
@@ -313,36 +332,24 @@ export default function SettingsScreen() {
         </>
       )
     }
-    if (key === 'clients') {
+    /* A price list is a setting in its own right, and it was the only thing
+       inside the client-statuses section that wasn't a status. */
+    if (key === 'meetingTypes') {
       return (
-        <>
-          <StatusManager tax={tax} />
-          <TaxonomyManager
-            title={T('clients.meetingTypesHeading', { defaultValue: 'סוגי פגישה ומחירים' })}
-            items={tax.meetingTypes.map((m) => ({ id: m.id, label: `${m.name}${m.default_price != null ? ` · ₪${m.default_price}` : ''}`, editName: m.name, editSecond: m.default_price != null ? String(m.default_price) : '' }))}
-            placeholder={T('payments.typePlaceholder', { defaultValue: 'סוג פגישה…' })}
-            secondPlaceholder="₪"
-            onAdd={(name, price) => tax.addMeetingType(name, price ? Number(price) : null)}
-            onUpdate={(id, name, price) => tax.updateMeetingType(id, name, price ? Number(price) : null)}
-            onRemove={tax.removeMeetingType}
-          />
-        </>
+        <TaxonomyManager
+          items={tax.meetingTypes.map((m) => ({ id: m.id, label: `${m.name}${m.default_price != null ? ` · ₪${m.default_price}` : ''}`, editName: m.name, editSecond: m.default_price != null ? String(m.default_price) : '' }))}
+          placeholder={T('payments.typePlaceholder', { defaultValue: 'סוג פגישה…' })}
+          secondPlaceholder="₪"
+          onAdd={(name, price) => tax.addMeetingType(name, price ? Number(price) : null)}
+          onUpdate={(id, name, price) => tax.updateMeetingType(id, name, price ? Number(price) : null)}
+          onRemove={tax.removeMeetingType}
+        />
       )
     }
-    if (key === 'leads') {
-      return (
-        <>
-          <TaxonomyManager
-            title={T('leads.sources', { defaultValue: 'מקורות פנייה' })}
-            items={tax.leadSources.map((s) => ({ id: s.id, label: s.name, color: s.color }))}
-            placeholder={T('leads.sourcePlaceholder', { defaultValue: 'מקור חדש…' })}
-            onAdd={(name) => tax.addLeadSource(name)}
-            onRemove={tax.removeLeadSource}
-          />
-          <LeadStatusManager tax={tax} />
-        </>
-      )
-    }
+    /* The client-status and lead editors that used to sit here now live on
+       the screens that use them — StatusManager became ClientStatusesModal on
+       web, and mobile's leads screen grew a LeadSourcesPanel beside the stage
+       panel it already had. Settings links to both. */
     if (key === 'questions') {
       return (
         <Pressable style={styles.rowBtn} onPress={() => nav.navigate('Insights')}>
@@ -365,8 +372,16 @@ export default function SettingsScreen() {
             <Download size={16} strokeWidth={1.7} color={colors.textSub} />
             <Text style={styles.rowBtnText}>{T('data.exportTransactions', { defaultValue: 'ייצוא תנועות (CSV)' })}</Text>
           </Pressable>
-
-          {/* Danger zone — reset data + delete account (mirrors web) */}
+        </>
+      )
+    }
+    /* Its own section. Wiping the account and deleting it outright used to be
+       the bottom of the export scroll, one flick below two harmless buttons.
+       Reaching them is now a deliberate choice made at a header that says so. */
+    if (key === 'reset') {
+      return (
+        <>
+          <Text style={styles.intro}>{T('danger.intro', { defaultValue: '' })}</Text>
           <View style={styles.dangerZone}>
             <Text style={styles.dangerTitle}>{T('danger.resetTitle', { defaultValue: 'איפוס חשבון' })}</Text>
             <Pressable style={styles.dangerBtn} onPress={resetData}>
@@ -415,32 +430,66 @@ export default function SettingsScreen() {
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <ScreenHead title={i18n.t('settings:header.title', { defaultValue: 'הגדרות' })} />
 
-        {GROUPS.map((g) => (
-          <Group
-            key={g.key}
-            Icon={g.Icon}
-            title={T(`groups.${g.key}.title`, { defaultValue: g.key })}
-            sub={T(`groups.${g.key}.sub`, { defaultValue: '' })}
-            open={!!openGroups[g.key]}
-            onToggle={() => toggleGroup(g.key)}
-          >
-            {g.items.map((key) => {
-              const Icon = SECTION_ICON[key]
-              return (
-                <Section
-                  key={key}
-                  Icon={Icon}
-                  title={T(`sections.${key}.title`, { defaultValue: key })}
-                  sub={T(`sections.${key}.sub`, { defaultValue: '' })}
-                  open={!!open[key]}
-                  onToggle={() => toggle(key)}
-                >
-                  {renderBody(key)}
-                </Section>
-              )
-            })}
-          </Group>
-        ))}
+        {SETTINGS_TREE.map((g) => {
+          const items = g.items
+          /* A group holding one section IS that section — opening it twice
+             was a door leading to a door, the same complaint the old
+             one-section "נתונים" and "אודות" groups earned. */
+          const sole = soleSectionKeyOf(g)
+          /* Links this build can actually resolve. There is no subscription
+             or help screen here, so those rows simply aren't drawn. */
+          const links = (g.links || []).filter((k) => LINK_TARGET[k])
+          return (
+            <Group
+              key={g.key}
+              Icon={GROUP_ICON[g.key] || Info}
+              title={T(`groups.${g.key}.title`, { defaultValue: g.key })}
+              sub={T(`groups.${g.key}.sub`, { defaultValue: '' })}
+              open={!!openGroups[g.key]}
+              onToggle={() => toggleGroup(g.key)}
+            >
+              {sole ? (
+                <View style={styles.groupSoleBody}>{renderBody(sole)}</View>
+              ) : (
+                <>
+                  {items.map((key) => {
+                    const Icon = SECTION_ICON[key] || Info
+                    return (
+                      <Section
+                        key={key}
+                        Icon={Icon}
+                        title={T(`sections.${key}.title`, { defaultValue: key })}
+                        sub={T(`sections.${key}.sub`, { defaultValue: '' })}
+                        open={!!open[key]}
+                        onToggle={() => toggle(key)}
+                      >
+                        {renderBody(key)}
+                      </Section>
+                    )
+                  })}
+                  {links.map((key) => {
+                    const LinkIcon = LINK_ICON[key] || Info
+                    return (
+                      <Card key={key} padded={false} style={styles.sectionOuter} contentStyle={styles.section}>
+                        <Pressable style={styles.secHead} onPress={() => nav.navigate(LINK_TARGET[key])}>
+                          <View style={styles.secIcon}><LinkIcon size={17} strokeWidth={1.7} color={colors.brand} /></View>
+                          <View style={styles.secTitleWrap}>
+                            <Text style={styles.secTitle}>{T(`links.${key}.title`, { defaultValue: key })}</Text>
+                            <Text style={styles.secSub} numberOfLines={1}>{T(`links.${key}.sub`, { defaultValue: '' })}</Text>
+                          </View>
+                          {/* The file's existing "go forward" glyph — the
+                              legal links and the questions row use the same
+                              rotated chevron, so links read alike. */}
+                          <ChevronDown size={16} strokeWidth={1.6} color={colors.textFaint} style={{ transform: [{ rotate: '-90deg' }] }} />
+                        </Pressable>
+                      </Card>
+                    )
+                  })}
+                </>
+              )}
+            </Group>
+          )
+        })}
 
         {/* Sign out */}
         <Pressable style={styles.signOut} onPress={signOut}>
@@ -473,7 +522,10 @@ function TaxonomyManager({ title, items, placeholder, secondPlaceholder, onAdd, 
   const startEdit = (it) => { if (!onUpdate) return; setEditId(it.id); setName(it.editName ?? it.label); setSecond(it.editSecond ?? '') }
   return (
     <View style={styles.taxBlock}>
-      <Text style={styles.taxTitle}>{title}</Text>
+      {/* Optional: a manager that is the ONLY thing in its section already has
+          the section header saying what it is, and a second heading under it
+          repeating the words is just an empty line's worth of noise. */}
+      {title ? <Text style={styles.taxTitle}>{title}</Text> : null}
       <View style={styles.chips}>
         {items.length ? items.map((it) => (
           <View key={it.id} style={[styles.chip, editId === it.id && styles.chipEditing]}>
@@ -493,85 +545,6 @@ function TaxonomyManager({ title, items, placeholder, secondPlaceholder, onAdd, 
   )
 }
 
-// Client statuses — chips + add (name + a meta pill so it's grouped correctly).
-const STATUS_METAS = ['active', 'wandering', 'past']
-function StatusManager({ tax }) {
-  const [name, setName] = useState('')
-  const [meta, setMeta] = useState('active')
-  const [busy, setBusy] = useState(false)
-  const add = async () => {
-    const v = name.trim(); if (!v || busy) return
-    setBusy(true); try { await tax.addClientStatus(v, meta); setName('') } finally { setBusy(false) }
-  }
-  return (
-    <View style={styles.taxBlock}>
-      <Text style={styles.taxTitle}>{i18n.t('settings:clients.statusesTitle', { defaultValue: 'סטטוסי לקוחות' })}</Text>
-      <View style={styles.chips}>
-        {tax.clientStatuses.length ? tax.clientStatuses.map((s) => (
-          <View key={s.id} style={styles.chip}>
-            {s.icon ? <Text style={styles.chipIcon}>{s.icon}</Text> : null}
-            <Text style={styles.chipText}>{s.display_name}</Text>
-            {s.is_default ? null : <Pressable onPress={() => tax.removeClientStatus(s.id)} hitSlop={6}><X size={12} strokeWidth={2} color={colors.textFaint} /></Pressable>}
-          </View>
-        )) : <Text style={styles.hint}>{i18n.t('settings:common.none', { defaultValue: '—' })}</Text>}
-      </View>
-      <View style={styles.metaPills}>
-        {STATUS_METAS.map((m) => {
-          const on = meta === m
-          return (
-            <Pressable key={m} style={[styles.metaPill, on && styles.metaPillOn]} onPress={() => setMeta(m)}>
-              <Text style={[styles.metaPillText, on && styles.pillTextOnInv]}>{i18n.t(`clients:status.${m === 'no_status' ? 'noStatus' : m}`, { defaultValue: m })}</Text>
-            </Pressable>
-          )
-        })}
-      </View>
-      <View style={styles.addRow}>
-        <TextInput style={[styles.input, styles.addInput]} value={name} onChangeText={setName} placeholder={i18n.t('settings:clients.statusPlaceholder', { defaultValue: 'סטטוס חדש…' })} placeholderTextColor={colors.textFaint} onSubmitEditing={add} />
-        <Pressable style={styles.addBtn} onPress={add} disabled={busy || !name.trim()}><Plus size={18} strokeWidth={2} color={colors.onBrand} /></Pressable>
-      </View>
-    </View>
-  )
-}
-
-// Lead sub-statuses — chips + add (name + a meta pill), mirrors web's leads section.
-const LEAD_METAS = ['in_process', 'converted', 'not_relevant']
-function LeadStatusManager({ tax }) {
-  const [name, setName] = useState('')
-  const [meta, setMeta] = useState('in_process')
-  const [busy, setBusy] = useState(false)
-  const add = async () => {
-    const v = name.trim(); if (!v || busy) return
-    setBusy(true); try { await tax.addLeadStatus(v, meta); setName('') } finally { setBusy(false) }
-  }
-  return (
-    <View style={styles.taxBlock}>
-      <Text style={styles.taxTitle}>{i18n.t('settings:leads.subStatuses', { defaultValue: 'תתי-סטטוסים' })}</Text>
-      <View style={styles.chips}>
-        {tax.leadStatuses.length ? tax.leadStatuses.map((s) => (
-          <View key={s.id} style={styles.chip}>
-            <Text style={styles.chipText}>{s.display_name}</Text>
-            {s.is_default ? null : <Pressable onPress={() => tax.removeLeadStatus(s.id)} hitSlop={6}><X size={12} strokeWidth={2} color={colors.textFaint} /></Pressable>}
-          </View>
-        )) : <Text style={styles.hint}>{i18n.t('settings:common.none', { defaultValue: '—' })}</Text>}
-      </View>
-      <View style={styles.metaPills}>
-        {LEAD_METAS.map((m) => {
-          const on = meta === m
-          return (
-            <Pressable key={m} style={[styles.metaPill, on && styles.metaPillOn]} onPress={() => setMeta(m)}>
-              <Text style={[styles.metaPillText, on && styles.pillTextOnInv]}>{i18n.t(`settings:leadMetas.${m}`, { defaultValue: m })}</Text>
-            </Pressable>
-          )
-        })}
-      </View>
-      <View style={styles.addRow}>
-        <TextInput style={[styles.input, styles.addInput]} value={name} onChangeText={setName} placeholder={i18n.t('settings:clients.statusPlaceholder', { defaultValue: 'סטטוס חדש…' })} placeholderTextColor={colors.textFaint} onSubmitEditing={add} />
-        <Pressable style={styles.addBtn} onPress={add} disabled={busy || !name.trim()}><Plus size={18} strokeWidth={2} color={colors.onBrand} /></Pressable>
-      </View>
-    </View>
-  )
-}
-
 const styles = StyleSheet.create({
   content: { paddingHorizontal: 20, paddingBottom: 96, gap: 14 },
 
@@ -584,6 +557,9 @@ const styles = StyleSheet.create({
   groupTitle: { fontSize: 17, fontWeight: '700', color: colors.text, letterSpacing: -0.4 },
   groupSub: { fontSize: 12, color: colors.textFaint, marginTop: 2 },
   groupChildren: { gap: 10, paddingHorizontal: 12, paddingTop: 12, paddingBottom: 14 },
+  /* A one-section group renders that section's body straight into the
+     children slot — no inner card, no second header, so no indent either. */
+  groupSoleBody: { gap: 10 },
 
   // Section (nested)
   sectionOuter: {},

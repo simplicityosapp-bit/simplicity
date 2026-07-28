@@ -9,61 +9,65 @@
   "sections": {
     "profile": {
       "title": "Profile",
-      "sub": "Name, profession and focus"
+      "sub": "Name, profession, form of address and language"
     },
-    "widgets": {
-      "title": "Widgets & display",
-      "sub": "What shows on your home screen"
+    "design": {
+      "title": "Appearance",
+      "sub": "Light/dark, background, text size and card look"
+    },
+    "home": {
+      "title": "Home screen",
+      "sub": "What appears there, and in what order"
+    },
+    "payments": {
+      "title": "Currency, date and time",
+      "sub": "How amounts, dates and times are shown"
+    },
+    "meetingTypes": {
+      "title": "Meeting types and prices",
+      "sub": "The price list a new client is priced from"
+    },
+    "questions": {
+      "title": "Daily questions",
+      "sub": "What you are asked each day, and when to remind you"
+    },
+    "data": {
+      "title": "Data",
+      "sub": "Export, import, and starting the intro over"
+    },
+    "reset": {
+      "title": "Reset and delete",
+      "sub": "Erase your data, or the whole account"
+    },
+    "about": {
+      "title": "About",
+      "sub": "Version, privacy and terms"
     },
     "clients": {
       "title": "Clients & statuses",
       "sub": "Your own sub-statuses"
     },
-    "payments": {
-      "title": "Currency, date & time",
-      "sub": "Amount, date & time formats and week start"
-    },
-    "questions": {
-      "title": "Daily questions",
-      "sub": "What you're asked each day"
-    },
     "leads": {
       "title": "Lead settings",
       "sub": "Sources and statuses"
-    },
-    "design": {
-      "title": "Appearance",
-      "sub": "Light/dark mode, background, Hebrew calendar, text size"
-    },
-    "data": {
-      "title": "Data",
-      "sub": "Export, import, reset"
-    },
-    "about": {
-      "title": "About",
-      "sub": "Version and info"
     }
   },
   "groups": {
     "personal": {
       "title": "Personal",
-      "sub": "Your profile and language settings"
+      "sub": "Name, profession, form of address and language"
     },
-    "display": {
-      "title": "Display",
-      "sub": "Home screen design and date/time preferences"
+    "appearance": {
+      "title": "Look and display",
+      "sub": "How the app looks, and how dates and amounts are shown"
     },
-    "workflow": {
-      "title": "Workflow",
-      "sub": "Clients, leads and daily routines"
+    "work": {
+      "title": "My work",
+      "sub": "Prices, daily routine, clients and leads"
     },
-    "data": {
-      "title": "Data",
-      "sub": "Export, import and account controls"
-    },
-    "about": {
-      "title": "About",
-      "sub": "App information and help"
+    "account": {
+      "title": "My account",
+      "sub": "Your data, reset, and app information"
     }
   },
   "common": {
@@ -71,46 +75,33 @@
     "soon": "More settings coming soon.",
     "delete": "Delete",
     "color": "Color",
-    "colorNamed": "Color {{color}}"
-  },
-  "clientMetas": {
-    "active": "Active",
-    "wandering": "Paused",
-    "past": "Former",
-    "no_status": "No status"
-  },
-  "leadMetas": {
-    "in_process": "In progress",
-    "converted": "Converted",
-    "not_relevant": "Not a fit"
+    "colorNamed": "Color {{index}} of {{total}}",
+    "saveError": "The change was not saved — the connection may have dropped. Check your connection and try again.",
+    "saved": "Setting saved"
   },
   "payments": {
     "currency": "Currency",
     "dateFormat": "Date format",
     "timeFormat": "Time format",
-    "weekStart": "First day of the week"
+    "weekStart": "First day of the week",
+    "exampleToday": "The examples show today's date."
   },
   "widgets": {
-    "globalView": "Global display",
     "names": {
       "quote": "Daily quote",
       "moon": "Overview",
       "insights": "How are you today",
-      "quick-row": "Quick action / update",
-      "attention": "Alerts (meetings, payments)",
+      "quick-row": "Quick add",
+      "attention": "Things needing attention",
       "next-tasks": "Tasks and reminders",
-      "chips": "Status cards (clients/net/tasks)"
+      "chips": "Quick numbers"
     },
-    "cardStyle": "Card style",
-    "textStrength": "Text weight",
-    "density": "Density",
-    "widgets": "Widgets",
     "moveUp": "{{label}} — move up",
     "moveDown": "{{label}} — move down",
     "toggle": "{{label}} — {{state}}",
     "on": "turn on",
     "off": "turn off",
-    "editOnHome": "You can also press and hold a widget on the home screen to move or hide it."
+    "editOnHome": "You can also press and hold a card on the home screen to move or hide it."
   },
   "design": {
     "theme": "Light / dark mode",
@@ -121,15 +112,19 @@
     "hebrewCalendarDual": "Show Gregorian date alongside",
     "hebrewCalendarDualHint": "Dual view — each day also shows its Gregorian date.",
     "hebrewDateInput": "Hebrew date picker",
-    "hebrewDateInputHint": "Pick dates by the Hebrew calendar everywhere in the app. The date itself is stored normally."
+    "hebrewDateInputHint": "Pick dates by the Hebrew calendar everywhere in the app. The date itself is stored normally.",
+    "cardsHeading": "Card look",
+    "hebrewHeading": "Hebrew calendar",
+    "cardStyle": "Card style",
+    "textStrength": "Letter thickness",
+    "density": "Spacing between items",
+    "previewLabel": "Here's how it looks",
+    "previewCardTitle": "Dana Levi",
+    "previewChip": "Session tomorrow",
+    "previewCardBody": "A sample card — it changes with every choice here, so you never have to guess.",
+    "previewMeta": "Still owed"
   },
   "about": {
-    "tabsAria": "About and help",
-    "tabs": {
-      "about": "About",
-      "guide": "Guide",
-      "faq": "FAQ"
-    },
     "version": "Version {{version}}",
     "privacy": "Privacy policy",
     "terms": "Terms of use",
@@ -151,15 +146,6 @@
     "role": "Profession",
     "roleOther": "What do you do?",
     "roleOtherPlaceholder": "e.g. yoga therapist, math teacher"
-  },
-  "status": {
-    "loadError": "Couldn't load: {{error}}",
-    "empty": "—",
-    "deleteAria": "Delete",
-    "subStatusDeleted": "Sub-status deleted",
-    "subStatusPlaceholder": "Sub-status for \"{{meta}}\"",
-    "addFailed": "Couldn't add it — please try again.",
-    "leadStagePlaceholder": "Stage in \"{{meta}}\""
   },
   "questions": {
     "loadError": "Couldn't load your questions: {{error}}",
@@ -191,7 +177,6 @@
     "importProcessing": "Processing the file…",
     "importUnsupported": "Couldn't read the file — that format isn't supported. You can import CSV or Excel (xlsx/xls); a Numbers or Google Sheets file can be exported to CSV.",
     "importFailed": "Couldn't read the file — make sure it's a valid CSV or Excel file and isn't currently open in another program.",
-    "importErrorPrefix": "Couldn't read the file",
     "importNone": "No new records were created (they may already exist).",
     "importSuccess": "Imported successfully: {{parts}}.{{estNote}}",
     "importEstNote_one": " 1 of them with an estimated date — you can edit it on the money screen.",
@@ -218,19 +203,8 @@
     "deleteHint": "Deletes the whole account — including the login itself — not just the data. There's a 30-day grace period to change your mind and cancel; after that everything is permanently deleted and you can't sign in again. Requires typed double confirmation.",
     "restartTitle": "Restart the intro",
     "restartConfirm": "Restart",
-    "restartMessage": "Restart the intro? The steps reset to the beginning — data you've already created (clients, projects, etc.) stays put."
-  },
-  "clients": {
-    "meetingTypesHeading": "Meeting types & prices"
-  },
-  "leads": {
-    "sources": "Lead sources",
-    "sourcesLoadError": "Couldn't load sources: {{error}}",
-    "sourcesEmpty": "No sources yet. Add your first one.",
-    "deleteSourceAria": "Delete source",
-    "newSourcePlaceholder": "New source name",
-    "addSourceFailed": "Couldn't add the source — please try again.",
-    "subStatuses": "Stages"
+    "restartMessage": "Restart the intro? The steps reset to the beginning — data you've already created (clients, projects, etc.) stays put.",
+    "intro": "Two actions that cannot be undone. Both ask again after you press."
   },
   "schedule": {
     "everyDay": "Every day",
@@ -257,15 +231,6 @@
       "USD": "$ Dollar",
       "EUR": "€ Euro"
     },
-    "dateFormat": {
-      "DD/MM/YY": "DD/MM/YY",
-      "MM/DD/YY": "MM/DD/YY",
-      "YYYY-MM-DD": "YYYY-MM-DD"
-    },
-    "timeFormat": {
-      "24h": "24-hour",
-      "12h": "12-hour (AM/PM)"
-    },
     "weekStart": {
       "sunday": "Sunday",
       "monday": "Monday"
@@ -285,18 +250,74 @@
       "blank": "Blank"
     },
     "cardStyle": {
-      "frosted": "Frosted",
-      "flat": "Flat",
-      "outlined": "Outlined"
+      "frosted": "Glass",
+      "flat": "Solid"
     },
     "textStrength": {
-      "normal": "Normal",
-      "bold": "Bold"
+      "normal": "Regular",
+      "bold": "Thick"
     },
     "density": {
-      "compact": "Compact",
-      "comfortable": "Normal",
-      "spacious": "Spacious"
+      "compact": "Tight",
+      "comfortable": "Regular",
+      "spacious": "Roomy"
+    }
+  },
+  "links": {
+    "clients": {
+      "title": "Client sub-statuses",
+      "sub": "On the clients screen — where you can also rename them"
+    },
+    "leads": {
+      "title": "Lead stages and sources",
+      "sub": "On the leads screen — where you can also reorder and rename them"
+    },
+    "connections": {
+      "title": "Connections",
+      "sub": "Google Calendar, invoices, WhatsApp and payments"
+    },
+    "trash": {
+      "title": "Trash",
+      "sub": "Restore anything you deleted"
+    },
+    "subscription": {
+      "title": "My plan",
+      "sub": "Your Simplicity subscription"
+    }
+  },
+  "help": {
+    "title": "Help",
+    "tagline": "Everything you can do, screen by screen.",
+    "meta": "Guide and questions",
+    "screens_one": "one screen",
+    "screens_other": "{{count}} screens",
+    "tabsAria": "Guide and FAQ",
+    "tabs": {
+      "guide": "Guide",
+      "faq": "FAQ"
+    }
+  },
+  "search": {
+    "placeholder": "Search settings…",
+    "aria": "Search settings",
+    "clear": "Clear the search",
+    "noResults": "No setting called \"{{query}}\".",
+    "noResultsHint": "Try another word — \"shekel\", \"font\", \"backup\" or \"calendar\", for instance.",
+    "keywords": {
+      "profile": "profile name profession role form of address gender specialisation",
+      "design": "design appearance look colour color theme dark light night day background photo text size font typeface letters spacing density cards glass blur transparency hebrew calendar language",
+      "home": "home screen cards widgets order hide show what appears",
+      "payments": "currency shekel dollar euro amounts date time format week sunday monday clock",
+      "meetingTypes": "price prices rate cost session type meeting types fee per session",
+      "questions": "daily questions question reminder reflection how are you today",
+      "data": "export import backup excel csv file download upload intro wizard",
+      "reset": "reset delete erase start over delete account close account everything",
+      "about": "about version privacy terms legal data processing",
+      "clients": "clients status statuses sub-status category active on a break past",
+      "leads": "leads lead stage stages source sources pipeline enquiry",
+      "connections": "connections calendar google invoice invoices whatsapp payments integration sync",
+      "trash": "trash bin recycle restore deleted items recover",
+      "subscription": "subscription plan billing upgrade premium package"
     }
   }
 }

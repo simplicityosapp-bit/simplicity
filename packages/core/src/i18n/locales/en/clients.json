@@ -258,5 +258,21 @@
     "grpContact": "Contact",
     "grpRecurring": "Recurring meeting"
   },
-  "dataWarning": "Some data didn't load — balances may be incomplete."
+  "dataWarning": "Some data didn't load — balances may be incomplete.",
+  "statuses": {
+    "link": "Sub-statuses",
+    "title": "Manage sub-statuses",
+    "hint": "Your own sub-statuses inside the four fixed groups. Tap a name to edit it.",
+    "placeholder": "Sub-status in \"{{meta}}\"",
+    "empty": "No sub-status here yet.",
+    "loading": "Loading…",
+    "addAria": "Add a sub-status",
+    "addFailed": "Couldn't add it — please try again.",
+    "deleteAria": "Delete {{name}}",
+    "deleted": "Sub-status deleted",
+    "renameAria": "New name for {{name}}",
+    "saveName": "Save the name",
+    "cancelRename": "Cancel",
+    "close": "Close"
+  }
 }

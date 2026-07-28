@@ -63,14 +63,40 @@ export function fmtMonthYear(date: DateInput): string {
   return new Intl.DateTimeFormat(locale, { month: 'long', year: 'numeric' }).format(d)
 }
 
-export function fmtTime(date: DateInput): string {
+/* ── Formatting under an EXPLICIT pattern ────────────────────────
+   The formatters below read the user's saved preference from module
+   state, which is right everywhere in the app but useless in the one
+   place that has to show what each option WOULD look like. Settings
+   listed the raw pattern strings instead — "DD/MM/YY", "12h (AM/PM)" —
+   which is developer notation offered to a coach as a choice.
+
+   These take the pattern as an argument and are what the preference-
+   reading versions delegate to, so an example in Settings can never
+   drift from what the app then renders. */
+export function formatTimeAs(pattern: string, date: DateInput): string {
   const d = toLocalDate(date)
-  if (timeFmt === '12h') {
+  if (pattern === '12h') {
     const ampm = d.getHours() >= 12 ? 'PM' : 'AM'
     const h12 = d.getHours() % 12 || 12
     return `${h12}:${pad(d.getMinutes())} ${ampm}`
   }
   return `${pad(d.getHours())}:${pad(d.getMinutes())}`
+}
+
+export function formatDateAs(pattern: string, date: DateInput): string {
+  const d = toLocalDate(date)
+  if (Number.isNaN(d.getTime())) return ''
+  const dd = pad(d.getDate())
+  const mm = pad(d.getMonth() + 1)
+  const yyyy = d.getFullYear()
+  const yy = pad(yyyy % 100)
+  if (pattern === 'MM/DD/YY') return `${mm}/${dd}/${yy}`
+  if (pattern === 'YYYY-MM-DD') return `${yyyy}-${mm}-${dd}`
+  return `${dd}/${mm}/${yy}`
+}
+
+export function fmtTime(date: DateInput): string {
+  return formatTimeAs(timeFmt, date)
 }
 
 export function fmtShortDate(date: DateInput): string {
@@ -87,15 +113,7 @@ export function fmtShortDate(date: DateInput): string {
    follows the browser's UI language instead). */
 export function fmtDateInput(date: DateInput | null | undefined): string {
   if (!date) return ''
-  const d = toLocalDate(date)
-  if (Number.isNaN(d.getTime())) return ''
-  const dd = pad(d.getDate())
-  const mm = pad(d.getMonth() + 1)
-  const yyyy = d.getFullYear()
-  const yy = pad(yyyy % 100)
-  if (dateFmt === 'MM/DD/YY') return `${mm}/${dd}/${yy}`
-  if (dateFmt === 'YYYY-MM-DD') return `${yyyy}-${mm}-${dd}`
-  return `${dd}/${mm}/${yy}`
+  return formatDateAs(dateFmt, date)
 }
 
 function sameDay(a: Date, b: Date): boolean {

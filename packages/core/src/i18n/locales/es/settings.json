@@ -9,61 +9,65 @@
   "sections": {
     "profile": {
       "title": "Perfil",
-      "sub": "Nombre, profesión y enfoque"
+      "sub": "Nombre, profesión, tratamiento e idioma"
     },
-    "widgets": {
-      "title": "Widgets y visualización",
-      "sub": "Qué se muestra en tu pantalla de inicio"
+    "design": {
+      "title": "Apariencia",
+      "sub": "Claro/oscuro, fondo, tamaño de texto y tarjetas"
+    },
+    "home": {
+      "title": "Pantalla de inicio",
+      "sub": "Qué aparece y en qué orden"
+    },
+    "payments": {
+      "title": "Moneda, fecha y hora",
+      "sub": "Cómo se muestran importes, fechas y horas"
+    },
+    "meetingTypes": {
+      "title": "Tipos de sesión y precios",
+      "sub": "La lista de precios de la que parte un cliente nuevo"
+    },
+    "questions": {
+      "title": "Preguntas diarias",
+      "sub": "Qué se te pregunta cada día y cuándo recordártelo"
+    },
+    "data": {
+      "title": "Datos",
+      "sub": "Exportar, importar y repetir la introducción"
+    },
+    "reset": {
+      "title": "Restablecer y eliminar",
+      "sub": "Borrar tus datos o toda la cuenta"
+    },
+    "about": {
+      "title": "Acerca de",
+      "sub": "Versión, privacidad y términos"
     },
     "clients": {
       "title": "Clientes y estados",
       "sub": "Tus propios subestados"
     },
-    "payments": {
-      "title": "Moneda, fecha y hora",
-      "sub": "Formatos de importe, fecha y hora, e inicio de semana"
-    },
-    "questions": {
-      "title": "Preguntas diarias",
-      "sub": "Lo que se te pregunta cada día"
-    },
     "leads": {
       "title": "Ajustes de prospectos",
       "sub": "Fuentes y estados"
-    },
-    "design": {
-      "title": "Apariencia",
-      "sub": "Modo claro/oscuro, fondo, calendario hebreo, tamaño del texto"
-    },
-    "data": {
-      "title": "Datos",
-      "sub": "Exportar, importar, restablecer"
-    },
-    "about": {
-      "title": "Acerca de",
-      "sub": "Versión e información"
     }
   },
   "groups": {
     "personal": {
       "title": "Personal",
-      "sub": "Tu perfil y ajustes de idioma"
+      "sub": "Nombre, profesión, tratamiento e idioma"
     },
-    "display": {
-      "title": "Visualización",
-      "sub": "Diseño de la pantalla de inicio y preferencias de fecha/hora"
+    "appearance": {
+      "title": "Aspecto y formato",
+      "sub": "Cómo se ve la app y cómo se muestran fechas e importes"
     },
-    "workflow": {
-      "title": "Flujo de trabajo",
-      "sub": "Clientes, prospectos y rutinas diarias"
+    "work": {
+      "title": "Mi trabajo",
+      "sub": "Precios, rutina diaria, clientes y prospectos"
     },
-    "data": {
-      "title": "Datos",
-      "sub": "Exportar, importar y controles de la cuenta"
-    },
-    "about": {
-      "title": "Acerca de",
-      "sub": "Información de la app y ayuda"
+    "account": {
+      "title": "Mi cuenta",
+      "sub": "Tus datos, restablecer e información de la app"
     }
   },
   "common": {
@@ -71,46 +75,33 @@
     "soon": "Pronto habrá más ajustes.",
     "delete": "Eliminar",
     "color": "Color",
-    "colorNamed": "Color {{color}}"
-  },
-  "clientMetas": {
-    "active": "Activo",
-    "wandering": "En pausa",
-    "past": "Anterior",
-    "no_status": "Sin estado"
-  },
-  "leadMetas": {
-    "in_process": "En curso",
-    "converted": "Convertido",
-    "not_relevant": "No encaja"
+    "colorNamed": "Color {{index}} de {{total}}",
+    "saveError": "El cambio no se guardó: es posible que se haya perdido la conexión. Comprueba la conexión e inténtalo de nuevo.",
+    "saved": "Ajuste guardado"
   },
   "payments": {
     "currency": "Moneda",
     "dateFormat": "Formato de fecha",
     "timeFormat": "Formato de hora",
-    "weekStart": "Primer día de la semana"
+    "weekStart": "Primer día de la semana",
+    "exampleToday": "Los ejemplos muestran la fecha de hoy."
   },
   "widgets": {
-    "globalView": "Visualización global",
     "names": {
       "quote": "Cita diaria",
       "moon": "Resumen",
       "insights": "¿Cómo estás hoy?",
-      "quick-row": "Acción rápida / actualización",
-      "attention": "Avisos (citas, pagos)",
+      "quick-row": "Añadir rápido",
+      "attention": "Cosas que requieren atención",
       "next-tasks": "Tareas y recordatorios",
-      "chips": "Tarjetas de estado (clientes/neto/tareas)"
+      "chips": "Números rápidos"
     },
-    "cardStyle": "Estilo de las tarjetas",
-    "textStrength": "Grosor del texto",
-    "density": "Densidad",
-    "widgets": "Widgets",
     "moveUp": "{{label}} — subir",
     "moveDown": "{{label}} — bajar",
     "toggle": "{{label}} — {{state}}",
     "on": "activar",
     "off": "desactivar",
-    "editOnHome": "También puedes mantener pulsado un widget en la pantalla de inicio para moverlo u ocultarlo."
+    "editOnHome": "También puedes mantener pulsada una tarjeta en la pantalla de inicio para moverla u ocultarla."
   },
   "design": {
     "theme": "Modo claro / oscuro",
@@ -121,15 +112,19 @@
     "hebrewCalendarDual": "Mostrar también la fecha gregoriana",
     "hebrewCalendarDualHint": "Vista dual: cada día muestra también su fecha gregoriana.",
     "hebrewDateInput": "Selector de fecha hebreo",
-    "hebrewDateInputHint": "Elige las fechas según el calendario hebreo en toda la app. La fecha en sí se guarda de forma normal."
+    "hebrewDateInputHint": "Elige las fechas según el calendario hebreo en toda la app. La fecha en sí se guarda de forma normal.",
+    "cardsHeading": "Aspecto de las tarjetas",
+    "hebrewHeading": "Calendario hebreo",
+    "cardStyle": "Estilo de las tarjetas",
+    "textStrength": "Grosor de la letra",
+    "density": "Espacio entre elementos",
+    "previewLabel": "Así se ve",
+    "previewCardTitle": "Dana Levi",
+    "previewChip": "Sesión mañana",
+    "previewCardBody": "Una tarjeta de ejemplo: cambia con cada elección para que no tengas que adivinar.",
+    "previewMeta": "Pendiente de pago"
   },
   "about": {
-    "tabsAria": "Acerca de y ayuda",
-    "tabs": {
-      "about": "Acerca de",
-      "guide": "Guía",
-      "faq": "Preguntas frecuentes"
-    },
     "version": "Versión {{version}}",
     "privacy": "Política de privacidad",
     "terms": "Condiciones de uso",
@@ -151,15 +146,6 @@
     "role": "Profesión",
     "roleOther": "¿A qué te dedicas?",
     "roleOtherPlaceholder": "p. ej. terapeuta de yoga, profesor de matemáticas"
-  },
-  "status": {
-    "loadError": "No se pudo cargar: {{error}}",
-    "empty": "—",
-    "deleteAria": "Eliminar",
-    "subStatusDeleted": "Subestado eliminado",
-    "subStatusPlaceholder": "Subestado para «{{meta}}»",
-    "addFailed": "No se pudo añadir; inténtalo de nuevo.",
-    "leadStagePlaceholder": "Etapa en «{{meta}}»"
   },
   "questions": {
     "loadError": "No se pudieron cargar tus preguntas: {{error}}",
@@ -191,7 +177,6 @@
     "importProcessing": "Procesando el archivo…",
     "importUnsupported": "No se pudo leer el archivo — ese formato no es compatible. Puedes importar CSV o Excel (xlsx/xls); un archivo de Numbers o Google Sheets se puede exportar a CSV.",
     "importFailed": "No se pudo leer el archivo — asegúrate de que sea un CSV o Excel válido y de que no esté abierto en otro programa.",
-    "importErrorPrefix": "No se pudo leer el archivo",
     "importNone": "No se crearon registros nuevos (puede que ya existan).",
     "importSuccess": "Importado correctamente: {{parts}}.{{estNote}}",
     "importEstNote_one": " 1 de ellos con una fecha estimada — puedes editarlo en la pantalla de dinero.",
@@ -218,19 +203,8 @@
     "deleteHint": "Elimina toda la cuenta — incluido el propio acceso — no solo los datos. Hay un periodo de gracia de 30 días para cambiar de opinión y cancelar; después, todo se elimina de forma permanente y no podrás volver a iniciar sesión. Requiere doble confirmación escrita.",
     "restartTitle": "Reiniciar la introducción",
     "restartConfirm": "Reiniciar",
-    "restartMessage": "¿Reiniciar la introducción? Los pasos vuelven al principio — los datos que ya hayas creado (clientes, proyectos, etc.) se mantienen."
-  },
-  "clients": {
-    "meetingTypesHeading": "Tipos de cita y precios"
-  },
-  "leads": {
-    "sources": "Fuentes de prospectos",
-    "sourcesLoadError": "No se pudieron cargar las fuentes: {{error}}",
-    "sourcesEmpty": "Aún no hay fuentes. Añade la primera.",
-    "deleteSourceAria": "Eliminar fuente",
-    "newSourcePlaceholder": "Nombre de la nueva fuente",
-    "addSourceFailed": "No se pudo añadir la fuente; inténtalo de nuevo.",
-    "subStatuses": "Etapas"
+    "restartMessage": "¿Reiniciar la introducción? Los pasos vuelven al principio — los datos que ya hayas creado (clientes, proyectos, etc.) se mantienen.",
+    "intro": "Dos acciones que no se pueden deshacer. Ambas piden confirmación después de pulsar."
   },
   "schedule": {
     "everyDay": "Cada día",
@@ -257,15 +231,6 @@
       "USD": "$ Dólar",
       "EUR": "€ Euro"
     },
-    "dateFormat": {
-      "DD/MM/YY": "DD/MM/YY",
-      "MM/DD/YY": "MM/DD/YY",
-      "YYYY-MM-DD": "YYYY-MM-DD"
-    },
-    "timeFormat": {
-      "24h": "24 horas",
-      "12h": "12 horas (AM/PM)"
-    },
     "weekStart": {
       "sunday": "Domingo",
       "monday": "Lunes"
@@ -285,18 +250,74 @@
       "blank": "Liso"
     },
     "cardStyle": {
-      "frosted": "Esmerilado",
-      "flat": "Plano",
-      "outlined": "Con contorno"
+      "frosted": "Cristal",
+      "flat": "Liso"
     },
     "textStrength": {
       "normal": "Normal",
-      "bold": "Negrita"
+      "bold": "Gruesa"
     },
     "density": {
-      "compact": "Compacto",
+      "compact": "Junto",
       "comfortable": "Normal",
       "spacious": "Amplio"
+    }
+  },
+  "links": {
+    "clients": {
+      "title": "Subestados de clientes",
+      "sub": "En la pantalla de clientes, donde también puedes renombrarlos"
+    },
+    "leads": {
+      "title": "Etapas y orígenes de prospectos",
+      "sub": "En la pantalla de prospectos, donde también puedes reordenarlos y renombrarlos"
+    },
+    "connections": {
+      "title": "Conexiones",
+      "sub": "Google Calendar, facturas, WhatsApp y cobros"
+    },
+    "trash": {
+      "title": "Papelera",
+      "sub": "Recupera lo que hayas eliminado"
+    },
+    "subscription": {
+      "title": "Mi plan",
+      "sub": "Tu suscripción a Simplicity"
+    }
+  },
+  "help": {
+    "title": "Ayuda",
+    "tagline": "Todo lo que puedes hacer, pantalla por pantalla.",
+    "meta": "Guía y preguntas",
+    "screens_one": "una pantalla",
+    "screens_other": "{{count}} pantallas",
+    "tabsAria": "Guía y preguntas frecuentes",
+    "tabs": {
+      "guide": "Guía",
+      "faq": "Preguntas frecuentes"
+    }
+  },
+  "search": {
+    "placeholder": "Buscar en los ajustes…",
+    "aria": "Buscar en los ajustes",
+    "clear": "Borrar la búsqueda",
+    "noResults": "No hay ningún ajuste llamado «{{query}}».",
+    "noResultsHint": "Prueba con otra palabra: «shekel», «fuente», «copia» o «calendario», por ejemplo.",
+    "keywords": {
+      "profile": "perfil nombre profesión rol tratamiento género especialidad",
+      "design": "diseño apariencia aspecto color tema oscuro claro noche día fondo foto tamaño de texto fuente tipografía letras espacio densidad tarjetas cristal desenfoque calendario hebreo idioma",
+      "home": "pantalla de inicio tarjetas widgets orden ocultar mostrar qué aparece",
+      "payments": "moneda shekel dólar euro importes fecha hora formato semana domingo lunes reloj",
+      "meetingTypes": "precio precios tarifa coste tipo de sesión tipos de sesión por sesión",
+      "questions": "preguntas diarias pregunta recordatorio reflexión cómo estás hoy",
+      "data": "exportar importar copia de seguridad excel csv archivo descargar subir introducción asistente",
+      "reset": "restablecer borrar eliminar empezar de nuevo eliminar cuenta cerrar cuenta todo",
+      "about": "acerca de versión privacidad términos legal tratamiento de datos",
+      "clients": "clientes estado estados subestado categoría activo en pausa antiguo",
+      "leads": "prospectos prospecto etapa etapas origen orígenes fuente embudo consulta",
+      "connections": "conexiones calendario google factura facturas whatsapp cobros pagos integración sincronizar",
+      "trash": "papelera reciclaje restaurar eliminados recuperar",
+      "subscription": "suscripción plan facturación mejora premium paquete"
     }
   }
 }

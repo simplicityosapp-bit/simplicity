@@ -22,6 +22,15 @@ export async function listLeadStatuses() {
   return [...(data || [])].sort((a, b) => (a.sort_order || 0) - (b.sort_order || 0))
 }
 
+/* The sort_order a NEW status should carry to land at the end of its meta
+   group. `list` is that group's existing statuses. Callers used to omit the
+   field entirely, letting it fall to the DB default of 0 — which sorts ahead
+   of the existing 10/20/30, so every stage a user added appeared FIRST. */
+export function nextSortOrder(list) {
+  const max = (list || []).reduce((m, s) => Math.max(m, Number(s?.sort_order) || 0), 0)
+  return max + 10
+}
+
 export async function insertLeadStatus(input) {
   const { data: { session } } = await supabase.auth.getSession()
   if (!session) throw new Error('אין חיבור פעיל — התחבר/י מחדש')

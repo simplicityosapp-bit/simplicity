@@ -8,6 +8,92 @@
   gap: 16px;
 }
 
+/* ── Search ─────────────────────────────────────────────────────
+   Answers "where do I change X?" without the user having to guess which
+   heading X was filed under. Sits above the tree, always visible. */
+.set-search {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-bottom: 14px;
+  padding: 0 14px;
+  height: 46px;
+  border-radius: 999px;
+  border: var(--mg-card-border);
+  background: var(--mg-card-bg);
+  box-shadow: var(--mg-card-shadow);
+  backdrop-filter: var(--mg-card-blur);
+  -webkit-backdrop-filter: var(--mg-card-blur);
+  color: var(--stone);
+}
+.set-search:focus-within { border-color: var(--terracotta); }
+.set-search-input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  outline: none;
+  font-family: var(--mg-font);
+  font-size: calc(14px * var(--text-scale));
+  color: var(--espresso);
+}
+.set-search-input::placeholder { color: var(--mist); }
+/* The browser's own clear affordance would sit beside ours. */
+.set-search-input::-webkit-search-cancel-button { display: none; }
+.set-search-clear {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: var(--stone);
+  cursor: pointer;
+}
+.set-search-clear:hover { background: var(--mg-row-hover-bg); color: var(--espresso); }
+
+.set-search-empty {
+  margin-bottom: 14px;
+  padding: 18px 20px;
+  border-radius: var(--mg-card-radius);
+  border: var(--mg-card-border);
+  background: var(--mg-card-bg);
+  backdrop-filter: var(--mg-card-blur);
+  font-family: var(--mg-font);
+  font-size: calc(13.5px * var(--text-scale));
+  color: var(--espresso);
+}
+.set-search-empty p { margin: 0; }
+.set-search-empty-hint {
+  margin-top: 6px !important;
+  font-size: calc(12.5px * var(--text-scale));
+  color: var(--stone);
+  line-height: 1.55;
+}
+
+@media (max-width: 767px) {
+  .set-search-clear { width: 38px; height: 38px; }
+}
+
+/* A preference write that failed. The provider rolls the value back from
+   the server, so without this the control just flips itself back. */
+.set-save-error {
+  margin-bottom: 14px;
+  padding: 10px 14px;
+  border-radius: var(--mg-card-radius);
+  border: 1px solid color-mix(in srgb, var(--clay) 40%, transparent);
+  background: color-mix(in srgb, var(--clay) 10%, var(--mg-card-bg));
+  backdrop-filter: var(--mg-card-blur);
+  font-family: var(--mg-font);
+  font-size: calc(13px * var(--text-scale));
+  font-weight: 600;
+  line-height: 1.5;
+  color: var(--clay);
+}
+
 .set-group {
   border-radius: var(--mg-card-radius);
   border: var(--mg-card-border);
@@ -92,6 +178,16 @@
 }
 [data-theme="dark"] .set-group-children {
   border-top-color: rgba(255,255,255,0.12);
+}
+/* A one-section group renders that section's body straight into its own
+   children slot — no inner card, no second header. Indented to line up
+   under the group's title rather than its icon, the way .set-acc-body
+   lines up under a section's. */
+.set-group-body {
+  padding-inline-start: 50px;
+}
+@media (max-width: 767px) {
+  .set-group-body { padding-inline-start: 0; }
 }
 
 .set-acc {
@@ -320,6 +416,18 @@
   padding: 0 18px 18px;
   padding-inline-start: 64px;
 }
+
+/* A row that leaves settings. Same card as a section so the group reads as
+   one list; the chevron points the way OUT rather than down. */
+.set-link-chev {
+  flex-shrink: 0;
+  color: var(--stone);
+}
+/* The glyph points left, which is "forward" in Hebrew. Mirror it for LTR
+   rather than shipping a second icon. */
+html[dir="ltr"] .set-link-chev { transform: scaleX(-1); }
+.set-link .set-acc-head:hover .set-link-chev,
+.set-link .set-acc-head:focus-visible .set-link-chev { color: var(--terracotta); }
 .set-soon {
   margin: 0;
   font-family: var(--mg-font);
@@ -364,6 +472,21 @@
   cursor: pointer;
   transition: background 120ms, color 120ms;
 }
+/* "There is more this way." Applied only while a row actually scrolls and
+   hasn't reached its end — useEdgeHint measures and toggles .has-more, so a
+   row that fits never fades. In practice this lands on the מקצוע pills; the
+   segmented groups wrap and never qualify. The trailing edge is the LEFT
+   one in RTL, so each direction gets its own rule — mask-image has no
+   logical equivalent. */
+html[dir="rtl"] .set-seg.has-more,
+html[dir="rtl"] .set-profile-body .m-pills.has-more {
+  mask-image: linear-gradient(to left, #000 calc(100% - 34px), transparent);
+}
+html[dir="ltr"] .set-seg.has-more,
+html[dir="ltr"] .set-profile-body .m-pills.has-more {
+  mask-image: linear-gradient(to right, #000 calc(100% - 34px), transparent);
+}
+
 .set-seg-btn.on {
   background: var(--espresso);
   color: var(--cream);
@@ -396,15 +519,8 @@
   background: rgba(255,255,255,.03);
 }
 .set-w-row.off { opacity: 0.55; }
-.set-w-row.dragging { opacity: 0.4; }
-.set-w-row.over {
-  border-color: var(--moon-deep);
-  background: rgba(125, 138, 172, 0.08);
-}
-[data-theme="dark"] .set-w-row.over {
-  border-color: var(--moon-hi);
-  background: rgba(125, 138, 172, 0.18);
-}
+/* .dragging / .over were dropped with the panel's own drag-to-reorder —
+   rearranging happens on the home screen now, and here via the arrows. */
 .set-w-move { display: inline-flex; flex-direction: column; gap: 1px; }
 .set-w-move-btn {
   display: inline-flex;
@@ -969,6 +1085,123 @@
   background: var(--clay);
   filter: brightness(1.08);
 }
+/* ── Live example card ──────────────────────────────────────────
+   A real card wearing the appearance choices as they are being made, so
+   "מעורפל" and "צפוף" stop being words about a screen the user can't see
+   while adjusting it.
+
+   Its data-* attributes are its OWN (set by DesignPreview), not inherited
+   from <html>, which is what lets it show the pending look. The rules
+   below mirror the app's: card style through the same --mg-card-* tokens
+   PrefsApplier drives, density through padding + gap the way the home
+   stack does, text strength through weight. */
+.set-example-note {
+  margin: -4px 0 0;
+  font-family: var(--mg-font);
+  font-size: calc(11.5px * var(--text-scale));
+  color: var(--stone);
+}
+
+.set-preview {
+  margin-bottom: 4px;
+}
+.set-preview-label {
+  margin: 0 0 6px;
+  font-family: var(--mg-font);
+  font-size: calc(11px * var(--text-scale));
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--stone);
+}
+.set-preview-card {
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--mg-card-radius);
+  border: var(--mg-card-border);
+  background: var(--mg-card-bg);
+  box-shadow: var(--mg-card-shadow);
+  backdrop-filter: var(--mg-card-blur);
+  -webkit-backdrop-filter: var(--mg-card-blur);
+  transition: padding 160ms ease, gap 160ms ease;
+}
+/* Card style — the same two looks tokens.css defines, scoped to the sample
+   so the page around it keeps the user's CURRENT choice until they commit. */
+.set-preview[data-card-style="flat"] .set-preview-card {
+  background: #F5EFE2;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: none;
+}
+[data-theme="dark"] .set-preview[data-card-style="flat"] .set-preview-card {
+  background: #262B33;
+}
+/* Density — mirrors the home stack's gap plus the per-widget padding. */
+.set-preview[data-density="compact"]     .set-preview-card { padding: 10px 14px; gap: 6px; }
+.set-preview[data-density="comfortable"] .set-preview-card { padding: 16px 18px; gap: 10px; }
+.set-preview[data-density="spacious"]    .set-preview-card { padding: 24px 20px; gap: 16px; }
+/* Text size — the sample scales on its own, without waiting for the write
+   to reach <html data-text-size>. */
+.set-preview[data-text-size="small"]  { --preview-scale: 0.92; }
+.set-preview[data-text-size="normal"] { --preview-scale: 1; }
+.set-preview[data-text-size="large"]  { --preview-scale: 1.10; }
+
+.set-preview-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+/* Normal weights sit BELOW the bold ones on purpose: a sample whose title
+   is already 600 shows nothing when "עבה" is picked, which is the one thing
+   this card exists to demonstrate. */
+.set-preview-title {
+  font-family: var(--mg-font);
+  font-size: calc(14px * var(--preview-scale, 1));
+  font-weight: 500;
+  color: var(--espresso);
+}
+.set-preview-body {
+  margin: 0;
+  font-family: var(--mg-font);
+  font-size: calc(12.5px * var(--preview-scale, 1));
+  line-height: 1.55;
+  color: var(--stone);
+}
+.set-preview-meta {
+  font-family: var(--mg-font);
+  font-size: calc(11.5px * var(--preview-scale, 1));
+  color: var(--stone);
+}
+.set-preview-num {
+  font-family: var(--mg-font-num);
+  font-size: calc(15px * var(--preview-scale, 1));
+  font-weight: 400;
+  color: var(--espresso);
+  font-variant-numeric: tabular-nums;
+}
+.set-preview-chip {
+  flex-shrink: 0;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--sage) 18%, transparent);
+  font-family: var(--mg-font);
+  font-size: calc(11px * var(--preview-scale, 1));
+  color: var(--espresso);
+}
+/* Text strength — the same bump the home screen applies. */
+.set-preview[data-text-strength="bold"] .set-preview-body,
+.set-preview[data-text-strength="bold"] .set-preview-meta { font-weight: 500; }
+.set-preview[data-text-strength="bold"] .set-preview-title,
+.set-preview[data-text-strength="bold"] .set-preview-num { font-weight: 600; }
+
+/* Import result. Three tones, set from the message's own kind rather than
+   from sniffing its text: ok (something was written), info (the file was
+   read but produced nothing), error (it wasn't read at all). */
+.set-import-msg { font-weight: 600; }
+.set-import-msg.ok { color: var(--sage); }
+.set-import-msg.error { color: var(--clay); }
+.set-import-msg.info { color: var(--stone); }
+
 /* Danger zone — visually separated block at the bottom of the data tab. */
 .set-danger-zone {
   margin-top: 18px;
@@ -1029,4 +1262,47 @@
   font-size: calc(12px * var(--text-scale));
   color: var(--stone);
   line-height: 1.45;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   NARROW SCREENS — the file had no media query at all until now.
+   ════════════════════════════════════════════════════════════════
+   Everything below fixes one root cause and its consequences: the body
+   was indented 64px so it lined up under the section icon, which on a
+   375px phone left a 206px column for the content. Rows built for a
+   comfortable width then overflowed it — the daily-question row spilled
+   28px past its card and squeezed the question itself down to 33px,
+   narrower than its own schedule chip.
+
+   The indent is decoration; the content is not. Below 768px the indent
+   goes, the multi-control rows are allowed to wrap, and the controls
+   that are only tapped on a phone stop being 15px tall.
+   ════════════════════════════════════════════════════════════════ */
+@media (max-width: 767px) {
+  .set-acc-body {
+    padding: 0 14px 16px;
+    padding-inline-start: 14px;
+  }
+  .set-group-children { padding: 12px 12px 14px; }
+  .set-group-head { padding: 16px 14px 12px; }
+
+  /* Question rows: the text takes the first line (it is the row's point),
+     the chip + switch + delete wrap under it. */
+  .set-q-row { flex-wrap: wrap; }
+  .set-q-text { flex: 1 1 calc(100% - 40px); }
+  .set-q-sched { padding: 5px 10px; }
+
+  /* Touch targets. The widget reorder arrows were 20×15 — a pair of them
+     stacked in a 15px band, on the one surface where they are the ONLY
+     way to reorder without a pointer. */
+  .set-w-move-btn { width: 32px; height: 28px; }
+  .set-q-del { width: 36px; height: 36px; }
+  .set-color-dot { width: 28px; height: 28px; }
+  .set-color-dots { gap: 9px; }
+
+  /* Three 63px columns of tabular numbers do not read as data. */
+  .set-data-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+  /* Buttons and their hints stop sharing a cramped line with the edge. */
+  .set-data-action { align-self: stretch; justify-content: center; }
 }

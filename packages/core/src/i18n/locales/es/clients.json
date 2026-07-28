@@ -258,5 +258,21 @@
     "grpContact": "Contacto",
     "grpRecurring": "Cita recurrente"
   },
-  "dataWarning": "Algunos datos no se cargaron — los saldos pueden estar incompletos."
+  "dataWarning": "Algunos datos no se cargaron — los saldos pueden estar incompletos.",
+  "statuses": {
+    "link": "Subestados",
+    "title": "Gestionar subestados",
+    "hint": "Tus propios subestados dentro de los cuatro grupos fijos. Toca un nombre para editarlo.",
+    "placeholder": "Subestado en «{{meta}}»",
+    "empty": "Aquí todavía no hay ningún subestado.",
+    "loading": "Cargando…",
+    "addAria": "Añadir un subestado",
+    "addFailed": "No se pudo añadir; inténtalo de nuevo.",
+    "deleteAria": "Eliminar {{name}}",
+    "deleted": "Subestado eliminado",
+    "renameAria": "Nuevo nombre para {{name}}",
+    "saveName": "Guardar el nombre",
+    "cancelRename": "Cancelar",
+    "close": "Cerrar"
+  }
 }

@@ -60,6 +60,35 @@ function addBundle(lng: string, bundle: Bundle): void {
 }
 
 /* ════════════════════════════════════════════════════════════════
+   onI18nReady — run `register` once the singleton actually has a store.
+   ════════════════════════════════════════════════════════════════
+   The dynamic namespaces self-register with addResourceBundle at import
+   time, which only works if their module happens to be evaluated AFTER
+   initI18n. In dev that is true by luck: main.jsx imports ./i18n/init
+   before <App/>, so nothing has pulled the domain modules in yet.
+
+   In a BUILT app it is false. The bundler puts the registering module in
+   a chunk that the entry chunk imports, and ESM evaluates every imported
+   chunk before the importer's own body — so the registration ran before
+   init.js had called initI18n. i18next only installs getResource/
+   addResourceBundle/hasResourceBundle on the instance during init(), so
+   pre-init those methods are `undefined`: the registration was skipped
+   and never retried, and every `reflections:` key rendered as its own
+   raw key ("moon.behind") in production while dev looked fine.
+
+   Queue anything that arrives early and flush it at the end of initI18n,
+   so registration is correct in BOTH orders. Synchronous on purpose (not
+   the 'initialized' event, which i18next defers a tick) — the strings
+   must be there for the first render, not one paint later.
+   ════════════════════════════════════════════════════════════════ */
+const pendingRegistrations: Array<() => void> = []
+
+export function onI18nReady(register: () => void): void {
+  if (typeof i18n.hasResourceBundle === 'function') register()
+  else pendingRegistrations.push(register)
+}
+
+/* ════════════════════════════════════════════════════════════════
    loadLanguage — make `lng`'s resources available. Resolves immediately
    for he (bundled) and for anything already loaded. Unknown codes resolve
    without doing anything: the caller still gets the he fallback, which is
@@ -135,6 +164,9 @@ export function initI18n(opts: InitI18nOptions = {}): typeof i18n {
         ? (lngs, ns, key) => opts.onMissingKey!(lngs, ns, key)
         : undefined,
     })
+  /* i18next's init() installs the resource-store API synchronously, so any
+     dynamic namespace that self-registered too early can go in right now. */
+  while (pendingRegistrations.length) pendingRegistrations.shift()!()
   return i18n
 }
 

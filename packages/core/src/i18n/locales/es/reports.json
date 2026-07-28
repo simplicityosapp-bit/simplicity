@@ -52,7 +52,8 @@
     "sessionNum": "Sesión {{num}}",
     "completedOn": "Completada • {{date}}",
     "openAtEnd": "Abierta el {{date}}",
-    "urgent": "Urgente"
+    "urgent": "Urgente",
+    "deleted": "eliminada"
   },
   "metrics": {
     "newInquiries": "Consultas nuevas",

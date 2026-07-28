@@ -4,6 +4,26 @@
    in styles/screens.css.
    ════════════════════════════════════════════════════════════════ */
 
+/* ── Screen proportion (per-screen override) ─────────────────────
+   Third screen to take the home proportion, after clients and projects.
+   The root class is .tk-screen and NOT .t-screen: that name is already the
+   global page-title class in styles/screens.css.
+
+   What it actually reaches here is the CORNER — .tc, .s-hero, .empty and
+   .screen-head. --mg-card-pad is declared alongside it but is inert on this
+   screen today: every surface here hard-codes its own padding (.tc is
+   13px 14px). It is set anyway so a converted screen defines its proportion
+   in ONE place, and anything added later inherits it rather than quietly
+   picking up the 24×28 app default.
+
+   Corroboration that 14px is the right corner here: .t-group-card below had
+   already hard-coded exactly 14px, arrived at independently when the
+   collapsible panels were built. It now reads the token instead. */
+.tk-screen {
+  --mg-card-radius: 14px;
+  --mg-card-pad:    16px 18px;
+}
+
 /* ── Hero ──────────────────────────────────────────────────────── */
 .t-hero {
   margin-bottom: 14px;
@@ -203,7 +223,9 @@
    header spans the full width; expanding reveals the tasks inside it. ── */
 .t-group-card {
   margin-bottom: 12px;
-  border-radius: 14px;
+  /* Was a hard-coded 14px, reached independently when these panels were
+     built — the same corner the screen now sets as its token. */
+  border-radius: var(--mg-card-radius);
   border: 0.5px solid color-mix(in srgb, var(--espresso) 9%, transparent);
   background: color-mix(in srgb, var(--mg-card-bg) 55%, transparent);
   backdrop-filter: var(--mg-card-blur);
@@ -257,16 +279,27 @@
   box-shadow: var(--mg-card-shadow);
   backdrop-filter: var(--mg-card-blur);
 }
+/* Quieter than it was, the same change home made to .h-check for the same
+   reason. It used to carry the glass background (translucent surface + blur,
+   beta 04/06/2026) — but .tc is ITSELF a glass card, so the circle was glass
+   on glass and read as a bright disc pulling the eye down the row, louder
+   than the task it belongs to. Only the outline remains; it fills in on
+   hover/focus, and the sage "done" fill below is untouched.
+
+   The outline is deliberately STRONGER than the --divider hairline it
+   replaces: with the fill gone, a 0.06-alpha border would have left the
+   control nearly invisible. Same value home settled on.
+
+   The visual shrinking costs nothing in reach — the pointer target below is
+   a pseudo-element and is sized independently. */
 .tc-chk {
   width: 22px;
   height: 22px;
+  position: relative;
   flex-shrink: 0;
   border-radius: 50%;
-  border: 1.5px solid var(--divider);
-  /* Frosted glass instead of an opaque circle — translucent surface + blur,
-     the app's two-layer standard (beta feedback 04/06/2026). */
-  background: var(--mg-card-bg);
-  backdrop-filter: var(--mg-card-blur);
+  border: 1.5px solid color-mix(in srgb, var(--stone) 28%, transparent);
+  background: transparent;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
@@ -274,8 +307,27 @@
   color: transparent;
   transition: border-color 0.15s, background 0.15s, color 0.15s;
 }
-.tc-chk:hover {
+.tc-chk:hover,
+.tc-chk:focus-visible {
   border-color: var(--sage);
+  color: var(--sage);
+  background: color-mix(in srgb, var(--sage) 12%, transparent);
+}
+/* Grown pointer target — home's separation of what you SEE from what you
+   HIT. The circle stays 22px, the target becomes ~44px, and no layout moves.
+
+   The geometry differs from the projects card on purpose: the row here is
+   NOT itself a button (nothing happens when you tap .tc), so growing into
+   the row costs nothing — except on the side facing .tc-body, where the
+   title carries a double-click / long-press rename gesture. So it grows
+   freely up, down and outward to the card edge, and only half the 12px flex
+   gap inward, leaving the rename gesture its own space. */
+.tc-chk::after {
+  content: '';
+  position: absolute;
+  inset-block: -11px;
+  inset-inline-start: -14px;
+  inset-inline-end: -6px;
 }
 .tc-chk.on {
   background: var(--sage);
@@ -354,6 +406,7 @@
 }
 
 .tc-edit {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -367,6 +420,16 @@
   cursor: pointer;
   flex-shrink: 0;
   transition: color 0.15s, opacity 0.15s;
+}
+/* Same separation as .tc-chk above: 24px glyph, ~44px target. Grows the full
+   height of the row's padding, and half the flex gap on each side — toward
+   .tc-body (whose title owns the rename gesture) and toward .tc-dot, which
+   is decorative and aria-hidden. */
+.tc-edit::after {
+  content: '';
+  position: absolute;
+  inset-block: -10px;
+  inset-inline: -6px;
 }
 .tc-edit:hover { color: var(--espresso); opacity: 1; }
 .tc-edit:active { transform: scale(0.9); }

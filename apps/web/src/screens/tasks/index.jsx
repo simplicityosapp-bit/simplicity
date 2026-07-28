@@ -253,7 +253,7 @@ export default function TasksScreen() {
     : (filter === 'done' ? t('empty.remindersDone') : t('empty.remindersTodo'))
 
   return (
-    <Box className="screen">
+    <Box className="screen tk-screen">
       <Box className="screen-top">
         <Box as="header" className="screen-head">
           <Box>

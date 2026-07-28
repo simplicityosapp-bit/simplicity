@@ -70,7 +70,9 @@
     "summary": "Résumé (facultatif)",
     "summaryPlaceholder": "Qu'est-ce qui est ressorti ? Quelle est la prochaine étape ?",
     "notes": "Notes privées (facultatif)",
-    "notesPlaceholder": "Une note pour vous-même"
+    "notesPlaceholder": "Une note pour vous-même",
+    "deleteTitle": "Supprimer la séance",
+    "deleteMessage": "Supprimer la séance enregistrée ?"
   },
   "meeting": {
     "title": "Planifier un rendez-vous",
@@ -124,7 +126,8 @@
     "icon": "Icône",
     "editTitle": "Modifier la question",
     "scaleLockedRange": "Le type de réponse (échelle 1–10) est conservé pour préserver l'historique de vos réponses.",
-    "scaleLockedYesNo": "Le type de réponse (Oui / Non) est conservé pour préserver l'historique de vos réponses."
+    "scaleLockedYesNo": "Le type de réponse (Oui / Non) est conservé pour préserver l'historique de vos réponses.",
+    "titleEdit": "Modifier la question"
   },
   "duplicate": {
     "title": "Doublons du calendrier",

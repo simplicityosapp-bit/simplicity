@@ -89,5 +89,6 @@
   "trend": {
     "empty": "Données encore insuffisantes pour un graphique.",
     "aria": "Tendances multi-indicateurs"
-  }
+  },
+  "tagline": "Les chiffres racontent l’histoire."
 }

@@ -222,5 +222,10 @@
     "sub": "Chaque demande qui arrive — par téléphone, par message ou depuis une page de destination — est enregistrée ici et suivie jusqu’à ce qu’elle devienne un client.",
     "addLead": "Enregistrer la première demande",
     "pagesLink": "Ou créez une page qui les collecte pour vous"
-  }
+  },
+  "move": {
+    "title": "Déplacer vers une étape"
+  },
+  "newSourcePlaceholder": "Nouvelle source…",
+  "tagline": "Entretenir les relations, voilà ce qui porte ses fruits."
 }

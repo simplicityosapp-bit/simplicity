@@ -210,5 +210,10 @@
   "editProject": {
     "title": "Editar proyecto",
     "projectName": "Nombre del proyecto"
+  },
+  "quickUpdate": {
+    "title": "Actualizar un objetivo",
+    "empty": "No hay objetivos que puedas actualizar a mano.",
+    "logProgress": "Registrar progreso"
   }
 }

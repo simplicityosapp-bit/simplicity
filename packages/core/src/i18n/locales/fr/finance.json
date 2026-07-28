@@ -36,7 +36,8 @@
   "list": {
     "empty": "Aucune transaction ce mois-ci.",
     "confirmed": "Confirmées",
-    "skipped": "N'ont pas eu lieu"
+    "skipped": "N'ont pas eu lieu",
+    "skippedTag": "Ignoré"
   },
   "pending": {
     "income": "Revenus {{amount}}",
@@ -166,5 +167,8 @@
     "backToMonth": "Retour à {{month}}",
     "noResults": "Aucune transaction ne correspond à « {{query}} ».",
     "noneOfType": "Aucune transaction de ce type ce mois-ci."
-  }
+  },
+  "exportCsv": "Exporter en CSV",
+  "snapshot": "Aperçu",
+  "tagline": "Ce que vous faites porte ses fruits."
 }

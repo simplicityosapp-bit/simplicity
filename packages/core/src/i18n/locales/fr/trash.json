@@ -39,5 +39,6 @@
     "restoreLabel": "Restaurer {{label}}",
     "restoring": "Restauration…",
     "restore": "Restaurer"
-  }
+  },
+  "restore": "Restaurer"
 }

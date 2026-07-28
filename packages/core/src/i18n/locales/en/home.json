@@ -65,7 +65,10 @@
         "staleLeads_other": "{{count}} leads with no activity",
         "dueFollowups_one": "1 follow-up due today",
         "dueFollowups_other": "{{count}} follow-ups due today"
-      }
+      },
+      "count_one": "1 item",
+      "count_other": "{{count}} items",
+      "noPeople": "Nobody right now"
     },
     "chips": {
       "income": "Income",
@@ -134,10 +137,17 @@
       "dueToday_one": "1 due today",
       "dueToday_other": "{{count}} due today",
       "todayOf_one": "{{todayText}} of {{count}} open",
-      "todayOf_other": "{{todayText}} of {{count}} open"
+      "todayOf_other": "{{todayText}} of {{count}} open",
+      "addWord": "add",
+      "allDone": "Nothing open. You can {{add}} a new one.",
+      "urgent_one": "1 urgent",
+      "urgent_other": "{{count}} urgent",
+      "urgentOf_one": "{{urgentText}} of {{count}} open",
+      "urgentOf_other": "{{urgentText}} of {{count}} open"
     },
     "quick": {
-      "quickAdd": "Quick add"
+      "quickAdd": "Quick add",
+      "goalUpdate": "Update a goal"
     },
     "quote": {
       "sourceAria": "Choose quote source",
@@ -163,6 +173,16 @@
       "showLess": "Show less",
       "showAll_one": "1 more",
       "showAll_other": "{{count}} more"
+    },
+    "reminders": {
+      "title": "Reminders",
+      "link_one": "1 reminder",
+      "link_other": "{{count}} reminders",
+      "markDoneAria": "Mark as done",
+      "todaySummary_one": "{{today}} for today",
+      "todaySummary_other": "{{today}} for today, of {{count}}",
+      "soonSummary_one": "1 coming up",
+      "soonSummary_other": "{{count}} coming up"
     }
   },
   "edit": {

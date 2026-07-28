@@ -129,7 +129,8 @@
     "status": "Statut",
     "metaInProcess": "En cours",
     "metaConverted": "Converti",
-    "metaNotRelevant": "Non pertinent"
+    "metaNotRelevant": "Non pertinent",
+    "stage": "Étape"
   },
   "convertLead": {
     "title": "Convertir le prospect en client",
@@ -160,7 +161,8 @@
     "color": "Couleur",
     "errPackagePrice": "Veuillez saisir un prix de forfait positif.",
     "errSessions": "Veuillez saisir un nombre de séances positif.",
-    "errPerSession": "Veuillez saisir un prix par séance positif."
+    "errPerSession": "Veuillez saisir un prix par séance positif.",
+    "noMembers": "Aucun membre pour le moment"
   },
   "editGroup": {
     "title": "Modifier le groupe",

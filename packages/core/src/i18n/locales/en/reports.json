@@ -89,5 +89,6 @@
   "trend": {
     "empty": "Not enough data for a chart yet.",
     "aria": "Multi-metric trends"
-  }
+  },
+  "tagline": "The numbers tell the story."
 }

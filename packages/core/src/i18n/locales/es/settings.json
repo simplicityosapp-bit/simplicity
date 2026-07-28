@@ -69,14 +69,16 @@
     "color": "Color",
     "colorNamed": "Color {{index}} de {{total}}",
     "saveError": "El cambio no se guardó: es posible que se haya perdido la conexión. Comprueba la conexión e inténtalo de nuevo.",
-    "saved": "Ajuste guardado"
+    "saved": "Ajuste guardado",
+    "none": "—"
   },
   "payments": {
     "currency": "Moneda",
     "dateFormat": "Formato de fecha",
     "timeFormat": "Formato de hora",
     "weekStart": "Primer día de la semana",
-    "exampleToday": "Los ejemplos muestran la fecha de hoy."
+    "exampleToday": "Los ejemplos muestran la fecha de hoy.",
+    "typePlaceholder": "Tipo de sesión…"
   },
   "widgets": {
     "names": {
@@ -114,7 +116,10 @@
     "previewCardTitle": "Dana Levi",
     "previewChip": "Sesión mañana",
     "previewCardBody": "Una tarjeta de ejemplo: cambia con cada elección para que no tengas que adivinar.",
-    "previewMeta": "Pendiente de pago"
+    "previewMeta": "Pendiente de pago",
+    "language": "Idioma",
+    "rtlHint": "El cambio completo de dirección del texto se aplica tras reiniciar.",
+    "themeHint": "Cambiar de modo actualiza la app."
   },
   "about": {
     "version": "Versión {{version}}",
@@ -133,7 +138,8 @@
     "genders": {
       "female": "Ella",
       "male": "Él",
-      "neutral": "Neutro"
+      "neutral": "Neutro",
+      "label": "Tratamiento"
     },
     "role": "Profesión",
     "roleOther": "¿A qué te dedicas?",
@@ -150,7 +156,8 @@
     "reminderTitle": "Recordatorio diario",
     "reminderToggle": "Recordatorio diario",
     "reminderLabel": "Recuérdame responder si no lo he hecho antes de",
-    "reminderHint": "Si no has respondido a la hora que elijas, aparecerá un recordatorio suave en el widget «¿Cómo estás hoy?» de tu pantalla de inicio."
+    "reminderHint": "Si no has respondido a la hora que elijas, aparecerá un recordatorio suave en el widget «¿Cómo estás hoy?» de tu pantalla de inicio.",
+    "manage": "Gestionar las preguntas diarias"
   },
   "data": {
     "intro": "Un resumen de tus datos, además de importar y exportar desde un archivo CSV / Excel.",
@@ -184,7 +191,9 @@
     "importSessions_one": "{{count}} sesión",
     "importSessions_other": "{{count}} sesiones",
     "restartOnboarding": "Reiniciar la introducción",
-    "restartHint": "Vuelve a abrir el asistente de configuración desde el primer paso. Útil si lo saltaste a la mitad."
+    "restartHint": "Vuelve a abrir el asistente de configuración desde el primer paso. Útil si lo saltaste a la mitad.",
+    "exportClients": "Exportar clientes (CSV)",
+    "exportTransactions": "Exportar movimientos (CSV)"
   },
   "danger": {
     "resetTitle": "Restablecer la cuenta",
@@ -196,7 +205,9 @@
     "restartTitle": "Reiniciar la introducción",
     "restartConfirm": "Reiniciar",
     "restartMessage": "¿Reiniciar la introducción? Los pasos vuelven al principio — los datos que ya hayas creado (clientes, proyectos, etc.) se mantienen.",
-    "intro": "Dos acciones que no se pueden deshacer. Ambas piden confirmación después de pulsar."
+    "intro": "Dos acciones que no se pueden deshacer. Ambas piden confirmación después de pulsar.",
+    "resetConfirmAgain": "¿Seguro? Esto no se puede deshacer.",
+    "signOutConfirm": "¿Cerrar sesión?"
   },
   "schedule": {
     "everyDay": "Cada día",

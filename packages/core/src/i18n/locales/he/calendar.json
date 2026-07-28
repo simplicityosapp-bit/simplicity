@@ -115,5 +115,9 @@
     "meetingSkipped": "הפגישה דולגה",
     "followupDone": "המעקב סומן כבוצע",
     "actionFailed": "הפעולה נכשלה. נסו שוב."
+  },
+  "kinds": {
+    "followup": "מעקב",
+    "reminder": "תזכורת"
   }
 }

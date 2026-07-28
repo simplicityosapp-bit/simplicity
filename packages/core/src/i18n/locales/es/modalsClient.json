@@ -129,7 +129,8 @@
     "status": "Estado",
     "metaInProcess": "En proceso",
     "metaConverted": "Convertido",
-    "metaNotRelevant": "No relevante"
+    "metaNotRelevant": "No relevante",
+    "stage": "Etapa"
   },
   "convertLead": {
     "title": "Convertir prospecto en cliente",
@@ -160,7 +161,8 @@
     "color": "Color",
     "errPackagePrice": "Introduce un precio de paquete positivo.",
     "errSessions": "Introduce un número de sesiones positivo.",
-    "errPerSession": "Introduce un precio por sesión positivo."
+    "errPerSession": "Introduce un precio por sesión positivo.",
+    "noMembers": "Aún no hay miembros"
   },
   "editGroup": {
     "title": "Editar grupo",

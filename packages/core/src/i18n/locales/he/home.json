@@ -89,7 +89,12 @@
         "dueFollowups_two": "{{count}} פולואו-אפים להיום",
         "dueFollowups_many": "{{count}} פולואו-אפים להיום",
         "dueFollowups_other": "{{count}} פולואו-אפים להיום"
-      }
+      },
+      "count_one": "פריט אחד",
+      "count_two": "{{count}} פריטים",
+      "count_many": "{{count}} פריטים",
+      "count_other": "{{count}} פריטים",
+      "noPeople": "אין אנשים כרגע"
     },
     "chips": {
       "income": "הכנסות",
@@ -182,10 +187,21 @@
       "todayOf_one": "{{todayText}} מתוך {{count}} פתוח",
       "todayOf_two": "{{todayText}} מתוך {{count}} פתוחים",
       "todayOf_many": "{{todayText}} מתוך {{count}} פתוחים",
-      "todayOf_other": "{{todayText}} מתוך {{count}} פתוחים"
+      "todayOf_other": "{{todayText}} מתוך {{count}} פתוחים",
+      "addWord": "להוסיף",
+      "allDone": "אין משימות פתוחות. אפשר {{add}} חדשה.",
+      "urgent_one": "משימה דחופה אחת",
+      "urgent_two": "{{count}} דחופות",
+      "urgent_many": "{{count}} דחופות",
+      "urgent_other": "{{count}} דחופות",
+      "urgentOf_one": "{{urgentText}} מתוך {{count}} פתוחה",
+      "urgentOf_two": "{{urgentText}} מתוך {{count}} פתוחות",
+      "urgentOf_many": "{{urgentText}} מתוך {{count}} פתוחות",
+      "urgentOf_other": "{{urgentText}} מתוך {{count}} פתוחות"
     },
     "quick": {
-      "quickAdd": "הוספה מהירה"
+      "quickAdd": "הוספה מהירה",
+      "goalUpdate": "עדכון יעד"
     },
     "quote": {
       "sourceAria": "בחירת מקור הציטוטים",
@@ -213,6 +229,22 @@
       "showAll_two": "ועוד {{count}}",
       "showAll_many": "ועוד {{count}}",
       "showAll_other": "ועוד {{count}}"
+    },
+    "reminders": {
+      "title": "תזכורות",
+      "link_one": "תזכורת אחת",
+      "link_two": "{{count}} תזכורות",
+      "link_many": "{{count}} תזכורות",
+      "link_other": "{{count}} תזכורות",
+      "markDoneAria": "סמן כבוצעה",
+      "todaySummary_one": "{{today}} להיום",
+      "todaySummary_two": "{{today}} להיום מתוך {{count}}",
+      "todaySummary_many": "{{today}} להיום מתוך {{count}}",
+      "todaySummary_other": "{{today}} להיום מתוך {{count}}",
+      "soonSummary_one": "תזכורת אחת קרובה",
+      "soonSummary_two": "{{count}} תזכורות קרובות",
+      "soonSummary_many": "{{count}} תזכורות קרובות",
+      "soonSummary_other": "{{count}} תזכורות קרובות"
     }
   },
   "edit": {

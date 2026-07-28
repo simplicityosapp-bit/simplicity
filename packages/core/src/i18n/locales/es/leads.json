@@ -222,5 +222,10 @@
     "sub": "Cada solicitud que llega — por teléfono, por mensaje o desde una página de aterrizaje — se registra aquí y se sigue hasta que se convierte en cliente.",
     "addLead": "Registrar la primera solicitud",
     "pagesLink": "O crea una página que las recoja por ti"
-  }
+  },
+  "move": {
+    "title": "Mover a una etapa"
+  },
+  "newSourcePlaceholder": "Nueva fuente…",
+  "tagline": "Cuidar las relaciones es lo que trae resultados."
 }

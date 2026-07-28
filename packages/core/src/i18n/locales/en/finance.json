@@ -36,7 +36,8 @@
   "list": {
     "empty": "No transactions this month.",
     "confirmed": "Confirmed",
-    "skipped": "Didn't happen"
+    "skipped": "Didn't happen",
+    "skippedTag": "Skipped"
   },
   "pending": {
     "income": "Income {{amount}}",
@@ -166,5 +167,8 @@
     "backToMonth": "Back to {{month}}",
     "noResults": "No transactions match \"{{query}}\".",
     "noneOfType": "No transactions of this type this month."
-  }
+  },
+  "exportCsv": "Export CSV",
+  "snapshot": "Snapshot",
+  "tagline": "What you do adds up to good results."
 }

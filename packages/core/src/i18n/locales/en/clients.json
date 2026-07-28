@@ -111,7 +111,8 @@
     "manualPayTitle": "Manual payment update",
     "manualPayMessage": "You updated \"Paid\" by {{amount}}. You can record the amount as income in your finance reports, or correct the client card only — a card-only correction will not appear in your finance reports.",
     "manualPayConfirm": "Record as income",
-    "manualPayCancel": "Correct card only"
+    "manualPayCancel": "Correct card only",
+    "deleteMessage": "The client moves to the trash, and can be restored within 30 days."
   },
   "sections": {
     "activity": "Activity",

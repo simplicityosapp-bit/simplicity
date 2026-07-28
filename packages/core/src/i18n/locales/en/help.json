@@ -125,8 +125,8 @@
         }
       ],
       "tips": [
-        "Want to redesign Home? Go to Settings → Look and display → Home screen — that's where you turn widgets on and off, and choose style, text weight, and density.",
-        "You set the order of widgets by dragging the row in Settings, or using the up/down arrows. The quote and overview widgets always sit in the top row when they're on.",
+        "Want to redesign Home? \"Settings → Look and display → Appearance\" for the card style, letter thickness and spacing; \"Home screen\" for choosing what appears and in what order.",
+        "You set the order by pressing and holding a card here on the home screen and dragging it, or with the arrows in \"Settings → Look and display → Home screen\". The quote and overview cards always sit in the top row when they are on.",
         "Tapping the Tasks / Net / Clients card doesn't just show a number — it opens a full filter, and your settings are saved for next time.",
         "\"Quick add\" on Home is a shortcut to add anything in the app (transaction, client, lead, task, project, goal, reminder, session) without switching screens.",
         "Marked a reminder or task by accident? You can undo it immediately using the \"Cancel\" notification that pops up after the action.",
@@ -134,8 +134,8 @@
       ],
       "faq": [
         {
-          "q": "How do I add or remove a widget from Home?",
-          "a": "Go to Settings → Look and display → Home screen → open the \"Widgets\" list and toggle each one on or off. You can't add widgets directly from the Home screen itself."
+          "q": "How do I add or remove a card from Home?",
+          "a": "\"Settings → Look and display → Home screen\" — there is a switch for every card. You can also do it right here: press and hold a card to enter edit mode, then ✕ hides it."
         },
         {
           "q": "What does the percentage in the Overview circle mean?",
@@ -146,7 +146,7 @@
           "a": "The cards open a detail and filter window. To get to the full screen, tap \"Open in full\" at the bottom of the window."
         },
         {
-          "q": "Why doesn't the \"Net\" number on the status cards match what I entered?",
+          "q": "Why doesn't the \"Net\" number on the quick numbers card match what I entered?",
           "a": "The card counts only confirmed transactions (not ones awaiting approval, and not ones you marked as \"Didn't happen\") and shows net for the time range you selected in the filter window (default: this month). Transactions awaiting approval appear separately under \"Needs attention\"."
         },
         {
@@ -841,7 +841,7 @@
         },
         {
           "title": "Managing questions in Settings",
-          "body": "Add, delete, and schedule questions in Settings > Daily Check-In Questions. There you can add a question from a ready-made template or write your own (text, answer type, and icon), and set whether it appears \"Every day\", on \"Specific days\", or \"Every X days\"."
+          "body": "Add, delete, and schedule questions in Settings > Daily questions. There you can add a question from a ready-made template or write your own (text, answer type, and icon), and set whether it appears \"Every day\", on \"Specific days\", or \"Every X days\"."
         }
       ],
       "tips": [
@@ -849,7 +849,7 @@
         "If a question is not relevant today, it is better to click \"Skip\" than to give an inaccurate answer. Skipping does not affect your averages or trends.",
         "Weekly highs and lows appear in the reflection only for 1–10 scale questions, and only when there are enough answers in that week. Yes/no questions are not included in that calculation.",
         "A question you disabled stays on the screen in a muted style with all its history — you can re-enable it at any time using the toggle on the card.",
-        "To change which days a question appears, open the scheduling row in Settings > Daily Check-In Questions and choose \"Specific days\" or \"Every X days\"."
+        "To change which days a question appears, open the scheduling row in Settings > Daily questions and choose \"Specific days\" or \"Every X days\"."
       ],
       "faq": [
         {
@@ -866,7 +866,7 @@
         },
         {
           "q": "Where do I add or delete questions?",
-          "a": "In Settings > Daily Check-In Questions. On the Daily Check-In screen you can only enable, disable, and answer — not add or delete. Skipping a question for today moved to the \"How are you today\" widget on the Home screen."
+          "a": "In Settings > Daily questions. On the Daily Check-In screen you can only enable, disable, and answer — not add or delete. Skipping a question for today moved to the \"How are you today\" widget on the Home screen."
         },
         {
           "q": "Are there correlations between metrics here?",
@@ -941,7 +941,7 @@
         },
         {
           "q": "Why is the \"Daily Check-In\" button in the graph disabled?",
-          "a": "The button only becomes active if you have active daily check-in questions. Enable or create a question in Settings → Daily Check-In Questions, and then you'll be able to select it and see it on the graph."
+          "a": "The button only becomes active if you have active daily check-in questions. Enable or create a question in Settings → Daily questions, and then you'll be able to select it and see it on the graph."
         },
         {
           "q": "The score isn't changing — why?",
@@ -1359,11 +1359,11 @@
       "items": [
         {
           "q": "How do I switch to dark mode?",
-          "a": "Open the menu (\"More\" in the navigation) and click the \"Dark mode\" toggle (when it's on it's called \"Light mode\"). You can also go to Settings → Design → Light/Dark Mode."
+          "a": "Open the menu (\"More\" in the navigation) and click the \"Dark mode\" toggle (when it's on it's called \"Light mode\"). You can also go to Settings → Appearance → Light/Dark Mode."
         },
         {
           "q": "How do I make the text larger?",
-          "a": "Settings → Design → Text Size. There are three options: small, normal, large."
+          "a": "Settings → Appearance → Text Size. There are three options: small, normal, large."
         },
         {
           "q": "How do I set my preferred form of address (masculine/feminine/neutral)?",

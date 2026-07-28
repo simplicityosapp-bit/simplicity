@@ -81,7 +81,7 @@
       "features": [
         {
           "title": "Les cartes qui composent l'écran",
-          "body": "L'écran est composé de cartes : Citation du jour, Vue d'ensemble, Comment allez-vous, Ajout rapide, Ce qui demande votre attention, Tâches et rappels, et Chiffres rapides. La liste complète — et tout ce que vous pouvez activer, désactiver ou réordonner — se trouve dans « Réglages → Aspect et affichage → Écran d'accueil », ou par un appui long sur une carte ici même."
+          "body": "L'écran est composé de cartes : Citation du jour, Aperçu, Comment allez-vous aujourd'hui, Ajout rapide, Ce qui demande votre attention, Tâches et rappels, et Chiffres rapides. La liste complète — et tout ce que vous pouvez activer, désactiver ou réordonner — se trouve dans « Réglages → Aspect et affichage → Écran d'accueil », ou par un appui long sur une carte ici même."
         },
         {
           "title": "Widget Vue d'ensemble",
@@ -125,8 +125,8 @@
         }
       ],
       "tips": [
-        "Vous voulez réaménager l'Accueil ? Allez dans Paramètres → Aspect et affichage → Écran d'accueil — c'est là que vous activez et désactivez les widgets, et que vous choisissez le style, l'épaisseur du texte et la densité.",
-        "Vous définissez l'ordre des widgets en faisant glisser la ligne dans les Paramètres, ou avec les flèches haut/bas. Les widgets citation et vue d'ensemble se placent toujours sur la ligne du haut lorsqu'ils sont activés.",
+        "Vous voulez réaménager l'Accueil ? « Paramètres → Aspect et affichage → Apparence » pour le style des cartes, l'épaisseur des lettres et les espaces ; « Écran d'accueil » pour choisir ce qui s'affiche et dans quel ordre.",
+        "L'ordre se définit par un appui long sur une carte ici même, puis en la faisant glisser, ou avec les flèches de « Paramètres → Aspect et affichage → Écran d'accueil ». Les cartes citation et aperçu restent toujours sur la ligne du haut lorsqu'elles sont activées.",
         "Appuyer sur la carte Tâches / Net / Clients ne fait pas qu'afficher un chiffre — cela ouvre un filtre complet, et vos réglages sont enregistrés pour la prochaine fois.",
         "« Ajout rapide » sur l'Accueil est un raccourci pour ajouter n'importe quoi dans l'application (transaction, client, prospect, tâche, projet, objectif, rappel, séance) sans changer d'écran.",
         "Vous avez marqué un rappel ou une tâche par erreur ? Vous pouvez annuler immédiatement grâce à la notification « Annuler » qui apparaît après l'action.",
@@ -134,8 +134,8 @@
       ],
       "faq": [
         {
-          "q": "Comment ajouter ou retirer un widget de l'Accueil ?",
-          "a": "Allez dans Paramètres → Aspect et affichage → Écran d'accueil → ouvrez la liste « Widgets » et activez ou désactivez chacun. Vous ne pouvez pas ajouter de widgets directement depuis l'écran d'accueil lui-même."
+          "q": "Comment ajouter ou retirer une carte de l'Accueil ?",
+          "a": "« Paramètres → Aspect et affichage → Écran d'accueil » — il y a un interrupteur pour chaque carte. Vous pouvez aussi le faire ici : un appui long sur une carte ouvre le mode édition, puis ✕ la masque."
         },
         {
           "q": "Que signifie le pourcentage dans le cercle de Vue d'ensemble ?",
@@ -841,7 +841,7 @@
         },
         {
           "title": "Gérer les questions dans les Paramètres",
-          "body": "Ajoutez, supprimez et programmez des questions dans Paramètres > Questions du point quotidien. Là, vous pouvez ajouter une question à partir d'un modèle prêt à l'emploi ou écrire la vôtre (texte, type de réponse et icône), et définir si elle apparaît « Tous les jours », des « Jours précis » ou « Tous les X jours »."
+          "body": "Ajoutez, supprimez et programmez des questions dans Paramètres > Questions quotidiennes. Là, vous pouvez ajouter une question à partir d'un modèle prêt à l'emploi ou écrire la vôtre (texte, type de réponse et icône), et définir si elle apparaît « Tous les jours », des « Jours précis » ou « Tous les X jours »."
         }
       ],
       "tips": [
@@ -849,7 +849,7 @@
         "Si une question n'est pas pertinente aujourd'hui, mieux vaut cliquer sur « Passer » que de donner une réponse inexacte. Passer n'affecte ni vos moyennes ni vos tendances.",
         "Les pics et les creux hebdomadaires apparaissent dans la réflexion uniquement pour les questions à échelle 1–10, et seulement lorsqu'il y a assez de réponses dans cette semaine. Les questions oui/non ne sont pas incluses dans ce calcul.",
         "Une question que vous avez désactivée reste à l'écran dans un style atténué avec tout son historique — vous pouvez la réactiver à tout moment à l'aide de l'interrupteur de la carte.",
-        "Pour changer les jours où une question apparaît, ouvrez la ligne de programmation dans Paramètres > Questions du point quotidien et choisissez « Jours précis » ou « Tous les X jours »."
+        "Pour changer les jours où une question apparaît, ouvrez la ligne de programmation dans Paramètres > Questions quotidiennes et choisissez « Jours précis » ou « Tous les X jours »."
       ],
       "faq": [
         {
@@ -866,7 +866,7 @@
         },
         {
           "q": "Où ajouter ou supprimer des questions ?",
-          "a": "Dans Paramètres > Questions du point quotidien. Sur l'écran Point quotidien, vous pouvez seulement activer, désactiver et répondre — pas ajouter ni supprimer. Passer une question pour aujourd'hui a été déplacé vers le widget « Point quotidien » de l'écran d'accueil."
+          "a": "Dans Paramètres > Questions quotidiennes. Sur l'écran Point quotidien, vous pouvez seulement activer, désactiver et répondre — pas ajouter ni supprimer. Passer une question pour aujourd'hui a été déplacé vers le widget « Point quotidien » de l'écran d'accueil."
         },
         {
           "q": "Y a-t-il des corrélations entre les mesures ici ?",
@@ -941,7 +941,7 @@
         },
         {
           "q": "Pourquoi le bouton « Point quotidien » du graphique est-il désactivé ?",
-          "a": "Le bouton ne devient actif que si vous avez des questions de point quotidien actives. Activez ou créez une question dans Paramètres → Questions du point quotidien, et vous pourrez alors la sélectionner et la voir sur le graphique."
+          "a": "Le bouton ne devient actif que si vous avez des questions de point quotidien actives. Activez ou créez une question dans Paramètres → Questions quotidiennes, et vous pourrez alors la sélectionner et la voir sur le graphique."
         },
         {
           "q": "Le score ne change pas — pourquoi ?",

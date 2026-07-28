@@ -81,7 +81,7 @@
       "features": [
         {
           "title": "Las tarjetas que forman la pantalla",
-          "body": "La pantalla se compone de tarjetas: Cita diaria, Vista general, ¿Cómo estás hoy?, Añadir rápido, Cosas que requieren atención, Tareas y recordatorios y Números rápidos. La lista completa —y todo lo que puedes activar, desactivar y reordenar— está en «Ajustes → Aspecto y formato → Pantalla de inicio», o manteniendo pulsada una tarjeta aquí mismo."
+          "body": "La pantalla se compone de tarjetas: Cita diaria, Resumen, ¿Cómo estás hoy?, Añadir rápido, Cosas que requieren atención, Tareas y recordatorios y Números rápidos. La lista completa —y todo lo que puedes activar, desactivar y reordenar— está en «Ajustes → Aspecto y formato → Pantalla de inicio», o manteniendo pulsada una tarjeta aquí mismo."
         },
         {
           "title": "Widget de resumen",
@@ -125,8 +125,8 @@
         }
       ],
       "tips": [
-        "¿Quieres rediseñar Inicio? Ve a Ajustes → Aspecto y formato → Pantalla de inicio: ahí activas y desactivas widgets, y eliges estilo, grosor de texto y densidad.",
-        "El orden de los widgets se establece arrastrando la fila en Ajustes, o usando las flechas arriba/abajo. Los widgets de cita y resumen siempre están en la fila superior cuando están activados.",
+        "¿Quieres rediseñar Inicio? «Ajustes → Aspecto y formato → Apariencia» para el estilo de las tarjetas, el grosor de la letra y los espacios; «Pantalla de inicio» para elegir qué aparece y en qué orden.",
+        "El orden se establece manteniendo pulsada una tarjeta aquí en Inicio y arrastrándola, o con las flechas de «Ajustes → Aspecto y formato → Pantalla de inicio». Las tarjetas de cita y resumen siempre están en la fila superior cuando están activadas.",
         "Tocar la tarjeta de Tareas / Neto / Clientes no solo muestra un número: abre un filtro completo, y tus ajustes se guardan para la próxima vez.",
         "«Añadir rápido» en Inicio es un acceso directo para añadir cualquier cosa en la app (transacción, cliente, prospecto, tarea, proyecto, objetivo, recordatorio, sesión) sin cambiar de pantalla.",
         "¿Marcaste un recordatorio o una tarea sin querer? Puedes deshacerlo de inmediato con la notificación «Cancelar» que aparece tras la acción.",
@@ -134,8 +134,8 @@
       ],
       "faq": [
         {
-          "q": "¿Cómo añado o quito un widget de Inicio?",
-          "a": "Ve a Ajustes → Aspecto y formato → Pantalla de inicio → abre la lista «Widgets» y activa o desactiva cada uno. No puedes añadir widgets directamente desde la propia pantalla de Inicio."
+          "q": "¿Cómo añado o quito una tarjeta de Inicio?",
+          "a": "«Ajustes → Aspecto y formato → Pantalla de inicio»: ahí hay un interruptor para cada tarjeta. También puedes hacerlo aquí mismo: mantén pulsada una tarjeta para entrar en modo edición y luego ✕ la oculta."
         },
         {
           "q": "¿Qué significa el porcentaje del círculo de Resumen?",
@@ -146,7 +146,7 @@
           "a": "Las tarjetas abren una ventana de detalle y filtro. Para llegar a la pantalla completa, toca «Abrir completo» en la parte inferior de la ventana."
         },
         {
-          "q": "¿Por qué el número «Neto» de las tarjetas de estado no coincide con lo que introduje?",
+          "q": "¿Por qué el número «Neto» de la tarjeta de números rápidos no coincide con lo que introduje?",
           "a": "La tarjeta cuenta solo transacciones confirmadas (ni las que esperan aprobación ni las marcadas como «No ocurrió») y muestra el neto del rango de tiempo que seleccionaste en la ventana de filtro (por defecto: este mes). Las transacciones que esperan aprobación aparecen aparte en «Necesita atención»."
         },
         {
@@ -841,7 +841,7 @@
         },
         {
           "title": "Gestionar preguntas en Ajustes",
-          "body": "Añade, elimina y programa preguntas en Ajustes > Preguntas del registro diario. Ahí puedes añadir una pregunta a partir de una plantilla lista o escribir la tuya (texto, tipo de respuesta e icono), y establecer si aparece «Cada día», en «Días concretos» o «Cada X días»."
+          "body": "Añade, elimina y programa preguntas en Ajustes > Preguntas diarias. Ahí puedes añadir una pregunta a partir de una plantilla lista o escribir la tuya (texto, tipo de respuesta e icono), y establecer si aparece «Cada día», en «Días concretos» o «Cada X días»."
         }
       ],
       "tips": [
@@ -849,7 +849,7 @@
         "Si una pregunta no es relevante hoy, es mejor hacer clic en «Saltar» que dar una respuesta inexacta. Saltar no afecta a tus promedios ni a tus tendencias.",
         "Los máximos y mínimos semanales aparecen en la reflexión solo para preguntas de escala 1–10, y solo cuando hay suficientes respuestas en esa semana. Las preguntas de sí/no no se incluyen en ese cálculo.",
         "Una pregunta que desactivaste permanece en la pantalla en un estilo atenuado con todo su historial: puedes reactivarla en cualquier momento con el interruptor de la tarjeta.",
-        "Para cambiar en qué días aparece una pregunta, abre la fila de programación en Ajustes > Preguntas del registro diario y elige «Días concretos» o «Cada X días»."
+        "Para cambiar en qué días aparece una pregunta, abre la fila de programación en Ajustes > Preguntas diarias y elige «Días concretos» o «Cada X días»."
       ],
       "faq": [
         {
@@ -866,7 +866,7 @@
         },
         {
           "q": "¿Dónde añado o elimino preguntas?",
-          "a": "En Ajustes > Preguntas del registro diario. En la pantalla de Registro diario solo puedes activar, desactivar y responder, no añadir ni eliminar. Saltar una pregunta por hoy se ha movido al widget «Registro diario» de la pantalla de Inicio."
+          "a": "En Ajustes > Preguntas diarias. En la pantalla de Registro diario solo puedes activar, desactivar y responder, no añadir ni eliminar. Saltar una pregunta por hoy se ha movido al widget «Registro diario» de la pantalla de Inicio."
         },
         {
           "q": "¿Hay correlaciones entre métricas aquí?",
@@ -941,7 +941,7 @@
         },
         {
           "q": "¿Por qué está desactivado el botón «Registro diario» en el gráfico?",
-          "a": "El botón solo se activa si tienes preguntas de registro diario activas. Activa o crea una pregunta en Ajustes → Preguntas del registro diario, y entonces podrás seleccionarla y verla en el gráfico."
+          "a": "El botón solo se activa si tienes preguntas de registro diario activas. Activa o crea una pregunta en Ajustes → Preguntas diarias, y entonces podrás seleccionarla y verla en el gráfico."
         },
         {
           "q": "La puntuación no cambia, ¿por qué?",
@@ -1359,11 +1359,11 @@
       "items": [
         {
           "q": "¿Cómo cambio al modo oscuro?",
-          "a": "Abre el menú («Más» en la navegación) y haz clic en el interruptor «Modo oscuro» (cuando está activado se llama «Modo claro»). También puedes ir a Ajustes → Diseño → Modo claro/oscuro."
+          "a": "Abre el menú («Más» en la navegación) y haz clic en el interruptor «Modo oscuro» (cuando está activado se llama «Modo claro»). También puedes ir a Ajustes → Apariencia → Modo claro/oscuro."
         },
         {
           "q": "¿Cómo hago el texto más grande?",
-          "a": "Ajustes → Diseño → Tamaño del texto. Hay tres opciones: pequeño, normal, grande."
+          "a": "Ajustes → Apariencia → Tamaño del texto. Hay tres opciones: pequeño, normal, grande."
         },
         {
           "q": "¿Cómo fijo mi forma de tratamiento preferida (masculino/femenino/neutro)?",

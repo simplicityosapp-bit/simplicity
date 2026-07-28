@@ -1,5 +1,5 @@
 /* ════════════════════════════════════════════════════════════════
-   LEADS VOCABULARY — "stage" for leads, "sub-status" for clients.
+   LEADS VOCABULARY — per-column for leads, "sub-status" for clients.
    ════════════════════════════════════════════════════════════════
    The owner's call was to rename the leads wording ONLY. Three keys were
    shared with the clients domain (the picker label, the editor placeholder,
@@ -13,11 +13,22 @@
    suite guards did not, so it follows them rather than pinning a settings
    namespace that no longer has an editor to label.
 
+   Then the word itself split (2026-07-28, owner's second call): "שלב" is
+   honest about בתהליך and dishonest everywhere else — a lead is not at a
+   "stage of not-relevant" — so the label now depends on the column, through
+   i18next `context`:
+
+     in_process   → stage    (a step on the way)
+     not_relevant → reason   (why it stopped)
+     converted    → nothing  (a closed lead gets a project, not a sub-status)
+
+   and the cross-column strings (filter, move, delete) take a neutral
+   umbrella that is deliberately NOT the clients' "תת-סטטוס".
+
    That split is the fragile part: nothing in the type system stops someone
-   pointing a lead modal back at the client key, or deleting the sibling as
-   an apparent duplicate. These assert both halves — the leads keys exist
-   and read as stages, and the client keys still exist and still read as
-   sub-statuses.
+   pointing a lead modal back at the client key, deleting a context variant
+   as an apparent duplicate, or "simplifying" the three lead words back into
+   one. These assert every half.
    ════════════════════════════════════════════════════════════════ */
 import { describe, it, expect, beforeAll } from 'vitest'
 import i18n, { initI18n, loadLanguage } from '@simplicity/core/i18n'
@@ -37,21 +48,74 @@ const resolves = (lng, ns, key, opts) => {
   return typeof out === 'string' && out.length > 0 && out !== key && !out.includes(key)
 }
 
-/* The word each language settled on, so a later edit can't quietly drift. */
+/* The word each language settled on, so a later edit can't quietly drift.
+   Matching is case-insensitive on the stem so a mid-sentence "étape" still
+   counts as the same word as a sentence-initial "Étape". */
 const STAGE = { he: 'שלב', en: 'Stage', es: 'Etapa', fr: 'Étape' }
+const REASON = { he: 'סיבה', en: 'Reason', es: 'Motivo', fr: 'Motif' }
+const UMBRELLA = { he: 'סיווג', en: 'Label', es: 'Etiqueta', fr: 'Libellé' }
 const SUBSTATUS = { he: 'תת-סטטוס', en: 'Sub-status', es: 'Subestado', fr: 'Sous-statut' }
+/* Hebrew has no case; the other three are matched loosely so "Motif"/"motifs"
+   both count. Locale-aware lowercasing keeps É→é. */
+const says = (text, word, lng) => text.toLocaleLowerCase(lng).includes(word.toLocaleLowerCase(lng))
 
-describe('the leads keys exist and say "stage"', () => {
+describe('"בתהליך" says stage', () => {
   LANGS.forEach((lng) => {
     it(lng, () => {
-      expect(resolves(lng, 'modalsClient', 'common.leadStageOptional')).toBe(true)
-      expect(resolves(lng, 'leads', 'statusesPanel.addPlaceholder', { meta: 'x' })).toBe(true)
+      expect(resolves(lng, 'modalsClient', 'common.leadStageOptional', { context: 'in_process' })).toBe(true)
+      expect(resolves(lng, 'leads', 'statusesPanel.addPlaceholder', { meta: 'x', context: 'in_process' })).toBe(true)
       expect(resolves(lng, 'modalsClient', 'deleteSubStatus.titleLead', { name: 'x' })).toBe(true)
 
-      expect(tr(lng, 'modalsClient', 'common.leadStageOptional')).toContain(STAGE[lng])
-      expect(tr(lng, 'leads', 'statusesPanel.addPlaceholder', { meta: 'x' })).toContain(STAGE[lng])
-      expect(tr(lng, 'leads', 'filter.status')).toContain(STAGE[lng])
-      expect(tr(lng, 'leads', 'dropPicker.title')).toContain(STAGE[lng].toLowerCase().slice(0, 4))
+      expect(says(tr(lng, 'modalsClient', 'common.leadStageOptional', { context: 'in_process' }), STAGE[lng], lng)).toBe(true)
+      expect(says(tr(lng, 'leads', 'statusesPanel.addPlaceholder', { meta: 'x', context: 'in_process' }), STAGE[lng], lng)).toBe(true)
+      expect(says(tr(lng, 'leads', 'dropPicker.title', { context: 'in_process' }), STAGE[lng], lng)).toBe(true)
+    })
+  })
+})
+
+describe('"לא רלוונטי" says reason, not stage', () => {
+  LANGS.forEach((lng) => {
+    it(lng, () => {
+      const label = tr(lng, 'modalsClient', 'common.leadStageOptional', { context: 'not_relevant' })
+      const add = tr(lng, 'leads', 'statusesPanel.addPlaceholder', { meta: 'x', context: 'not_relevant' })
+      const drop = tr(lng, 'leads', 'dropPicker.title', { context: 'not_relevant' })
+
+      ;[label, add, drop].forEach((s) => {
+        expect(says(s, REASON[lng], lng)).toBe(true)
+        /* The whole point of the split — a lead is not at a "stage of
+           not-relevant". */
+        expect(says(s, STAGE[lng], lng)).toBe(false)
+      })
+    })
+  })
+})
+
+describe('the cross-column strings borrow neither column\'s word', () => {
+  LANGS.forEach((lng) => {
+    it(lng, () => {
+      /* The filter, the move sheet and the delete dialog span all three
+         columns, so they take the umbrella. */
+      ;['filter.status', 'move.title', 'statusesPanel.deleteTitle'].forEach((k) => {
+        const s = tr(lng, 'leads', k)
+        expect(says(s, UMBRELLA[lng], lng)).toBe(true)
+        expect(says(s, STAGE[lng], lng)).toBe(false)
+        expect(says(s, REASON[lng], lng)).toBe(false)
+      })
+      /* …and it must not be the clients' word either. */
+      expect(says(UMBRELLA[lng], SUBSTATUS[lng], lng)).toBe(false)
+    })
+  })
+})
+
+describe('"הפכו ללקוחות" offers no sub-status at all', () => {
+  LANGS.forEach((lng) => {
+    it(lng, () => {
+      /* The convert modal's picker is gone — a closed lead is described by
+         its project (beta feedback a67d59f1). If someone re-adds the key,
+         they have re-added the field. */
+      expect(resolves(lng, 'modalsClient', 'convertLead.convertedSubStatusOptional')).toBe(false)
+      /* The panel says why the add row is missing rather than leaving a gap. */
+      expect(resolves(lng, 'leads', 'statusesPanel.convertedNote')).toBe(true)
     })
   })
 })
@@ -74,9 +138,9 @@ describe('the client keys survive and still say "sub-status"', () => {
 describe('the two domains genuinely differ', () => {
   LANGS.forEach((lng) => {
     it(lng, () => {
-      expect(tr(lng, 'modalsClient', 'common.leadStageOptional'))
+      expect(tr(lng, 'modalsClient', 'common.leadStageOptional', { context: 'in_process' }))
         .not.toBe(tr(lng, 'modalsClient', 'common.subStatusOptional'))
-      expect(tr(lng, 'leads', 'statusesPanel.addPlaceholder', { meta: 'x' }))
+      expect(tr(lng, 'leads', 'statusesPanel.addPlaceholder', { meta: 'x', context: 'in_process' }))
         .not.toBe(tr(lng, 'clients', 'statuses.placeholder', { meta: 'x' }))
     })
   })

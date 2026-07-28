@@ -439,6 +439,16 @@
   font-size: calc(11px * var(--text-scale));
   color: var(--stone);
 }
+/* Stands in for the add row under "הפכו ללקוחות", which has none — it says
+   why rather than leaving a silent gap where the other two columns have an
+   input. Quieter than .lead-statuses-intro: it explains an absence. */
+.lead-statuses-note {
+  margin: 0;
+  font-family: var(--mg-font);
+  font-size: calc(11px * var(--text-scale));
+  line-height: 1.5;
+  color: var(--mist);
+}
 .lead-statuses-chips {
   display: flex;
   flex-wrap: wrap;

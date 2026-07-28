@@ -223,11 +223,17 @@ export default function LeadsScreen() {
 
   /* Drag-drop between meta columns. No-op on same column. If the target
      column has 2+ sub-statuses, ask which one; exactly 1 → auto-assign;
-     none → move with no sub-status. */
+     none → move with no sub-status.
+
+     "הפכו ללקוחות" skips the question entirely: a closed lead is described
+     by its project, not by a sub-status (owner's call). Old accounts may
+     still HAVE converted sub-statuses from before the rule — we just stop
+     assigning new ones rather than rewriting anyone's data. */
   const handleDropLead = useCallback((leadId, newMeta) => {
     const lead = leadList.find((l) => l.id === leadId)
     if (!lead) return
     if (statusMetaOfLead(lead) === newMeta) return
+    if (newMeta === 'converted') { applyLeadMove(leadId, newMeta, null); return }
     const subs = leadStatuses.filter((s) => s.meta_category === newMeta && !s.deleted_at)
     if (subs.length >= 2) { setDropPicker({ leadId, newMeta, subs }); return }
     applyLeadMove(leadId, newMeta, subs.length === 1 ? subs[0].id : null)
@@ -452,7 +458,6 @@ export default function LeadsScreen() {
         lead={convertLead}
         projects={projects}
         groups={groups}
-        statuses={leadStatuses}
         onCreateClient={addClient}
         onUpdateLead={updateLead}
         onAddGroupMember={addMember}
@@ -489,7 +494,7 @@ export default function LeadsScreen() {
       <Modal
         open={!!dropPicker}
         onClose={() => setDropPicker(null)}
-        title={t('dropPicker.title')}
+        title={t('dropPicker.title', { context: dropPicker?.newMeta })}
       >
         <Box className="lead-drop-picker">
           {(dropPicker?.subs || []).map((s) => (

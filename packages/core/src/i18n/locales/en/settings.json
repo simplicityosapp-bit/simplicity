@@ -272,7 +272,7 @@
       "sub": "On the clients screen — where you can also rename them"
     },
     "leads": {
-      "title": "Lead stages and sources",
+      "title": "Lead labels and sources",
       "sub": "On the leads screen — where you can also reorder and rename them"
     },
     "connections": {
@@ -317,7 +317,7 @@
       "reset": "reset delete erase start over delete account close account everything",
       "about": "about version privacy terms legal data processing",
       "clients": "clients status statuses sub-status category active on a break past",
-      "leads": "leads lead stage stages source sources pipeline enquiry",
+      "leads": "leads lead stage stages source sources pipeline enquiry label labels reason reasons",
       "connections": "connections calendar google invoice invoices whatsapp payments integration sync",
       "trash": "trash bin recycle restore deleted items recover",
       "subscription": "subscription plan billing upgrade premium package"

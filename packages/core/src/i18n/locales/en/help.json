@@ -261,11 +261,11 @@
     },
     "leads": {
       "title": "Leads",
-      "intro": "A board for managing all your inquiries. Track every lead from the moment it's \"In progress\" until it becomes a client — with sources, stages, and follow-ups.",
+      "intro": "A board for managing all your inquiries. Track every lead from the moment it's \"In progress\" until it becomes a client — with sources, labels, and follow-ups.",
       "features": [
         {
           "title": "Two views: Leads and Statuses",
-          "body": "Two tabs sit at the top of the screen. \"Leads\" shows the kanban board. \"Statuses\" opens a panel for managing stages without leaving the screen. Your selection is saved, and the screen opens in the same view next time."
+          "body": "Two tabs sit at the top of the screen. \"Leads\" shows the kanban board. \"Statuses\" opens a panel for managing labels without leaving the screen. Your selection is saved, and the screen opens in the same view next time."
         },
         {
           "title": "Kanban board with three columns",
@@ -273,7 +273,7 @@
         },
         {
           "title": "Dragging between columns",
-          "body": "You can drag a lead card from one column to another, by touch or with a mouse. If the target is off-screen, hold near the edge and the board scrolls by itself until that column arrives. If the column you dragged to has two or more stages, you'll be asked \"Which stage should this go under?\" (with a \"No stage\" option). If there's only one, it's selected automatically. Right after the move, \"Undo\" appears to go back to the previous status."
+          "body": "You can drag a lead card from one column to another, by touch or with a mouse. If the target is off-screen, hold near the edge and the board scrolls by itself until that column arrives. If the column you dragged to has two or more labels, you'll be asked which one — \"Which stage?\" in \"In process\", \"Which reason?\" in \"Not relevant\" — and you can always skip. If there's only one, it's selected automatically. Dragging to \"Converted\" asks nothing. Right after the move, \"Undo\" appears to go back to the previous status."
         },
         {
           "title": "Adding a lead",
@@ -281,23 +281,23 @@
         },
         {
           "title": "Editing a lead",
-          "body": "The edit window updates every detail, moves the lead between columns via the status buttons, and picks a stage. Changing the status clears the stage, and changing the project clears the group. Leaving without saving asks first."
+          "body": "The edit window updates every detail and moves the lead between columns via the status buttons. Below them sits the field for the current column: \"Stage\" in \"In process\", \"Reason\" in \"Not relevant\". Changing the status clears that choice, and changing the project clears the group. Leaving without saving asks first."
         },
         {
           "title": "Converting to a client",
-          "body": "On a lead that hasn’t become a client yet, open the \"…\" menu in the card’s corner and choose \"Convert to client\". A window opens with the name and phone already filled in. You can pick a project, a group and a stage. On save a new client is created (active, with no sessions or price yet), the notes carry over, and the lead moves to the \"Converted\" column with a link to the client. If you picked a group, the client is added to it as a member."
+          "body": "A lead that hasn't become a client yet has a \"Convert to client\" button at the bottom of its card. A window opens with the name and phone already filled in. You can pick a project and a group — a lead that closed gets no label; the project is what describes it. On save a new client is created (active, with no sessions or price yet), the notes carry over, and the lead moves to the \"Converted\" column with a link to the client. If you picked a group, the client is added to it as a member."
         },
         {
           "title": "Lead sources",
           "body": "Every lead can be tagged with a source — referral, Instagram, website, etc. In the add and edit windows you can create a new source on the spot without leaving: choose \"+ New source…\", type a name, and it's saved and selected immediately. A card without a source is labeled \"No source\"."
         },
         {
-          "title": "Stages",
-          "body": "In the \"Statuses\" view you can add, delete, and reorder (by dragging) stages under each column. They appear as a colored dot on the lead card and are used for filtering and charts. A default stage can't be deleted. When you delete another one, leads remain without a stage."
+          "title": "Labels: stages and reasons",
+          "body": "In the \"Statuses\" view you can add, delete, and reorder (by dragging) the labels inside each column — stages in \"In process\" (e.g. \"Waiting for a callback\"), reasons in \"Not relevant\" (e.g. \"Too expensive\"). Clicking the coloured dot on a chip opens a colour picker. The label appears as a coloured dot on the lead card and drives filters and charts. \"Converted\" has no labels — a lead that closed is given a project. A default label can't be deleted; when you delete another one, leads are left with no label."
         },
         {
           "title": "Search, filter and sort",
-          "body": "A search box and a \"Filter\" button sit above the board. Search matches name, phone, email, notes, source or project, and is not case-sensitive. \"Filter\" opens a sheet with period, project, group, stage, source and date sorting — the number on the button counts the active filters (sorting isn't counted, since it hides nothing). Your selections are saved."
+          "body": "A search box and a \"Filter\" button sit above the board. Search matches name, phone, email, notes, source or project, and is not case-sensitive. \"Filter\" opens a sheet with period, project, group, label, source and date sorting — the number on the button counts the active filters (sorting isn't counted, since it hides nothing). Your selections are saved."
         },
         {
           "title": "Follow-ups",
@@ -308,15 +308,15 @@
           "body": "Three numbers sit at the top of the screen: \"Inquiries this month\", \"Converted to clients\", and a percentage labelled \"of this month's enquiries\". All are calculated automatically from the leads opened this month."
         },
         {
-          "title": "Card menu: convert and delete",
-          "body": "Every card has a \"…\" menu in its corner holding the actions you don’t need daily: \"Convert to client\" and \"Delete lead\". Deleting opens a confirmation naming the lead first; only then does it go to the Trash, where it can be restored within 30 days. The WhatsApp button stays on the card itself, and tapping the card opens editing."
+          "title": "Buttons on the card: convert, WhatsApp and delete",
+          "body": "The actions sit on the card itself, with no menu. The ✕ in the top corner deletes — a confirmation window with the lead's name opens first, and only then does the lead go to the Trash, where it can be restored within 30 days. Along the bottom row: \"Convert to client\" (only on a lead that hasn't converted yet) and a WhatsApp button. Clicking the card itself opens the editor."
         }
       ],
       "tips": [
         "Fill in a \"Follow-up\" date so the lead shows up in the follow-ups strip on the day you need to get back to it. That way no inquiry slips through.",
         "Tag each lead with the right source. The conversion rate and other stats rely on this to show you where your best-fit clients are coming from.",
         "Instead of opening the edit window, just drag a card to another column to advance a lead. If the column you want is off-screen, hold near the edge and the board scrolls itself. Made a mistake? Tap \"Undo\" that appears right after the drag.",
-        "Set up your own stages in the \"Statuses\" view (e.g. \"Waiting for a callback\", \"Intro call scheduled\"), then filter by them on the board to stay focused.",
+        "Set up your own stages for \"In process\" in the \"Statuses\" view (e.g. \"Waiting for a callback\", \"Intro call scheduled\") and your own reasons for \"Not relevant\", then filter by them on the board to stay focused.",
         "When converting to a client you can already assign them to a project and group. Notes from the lead transfer automatically to the new client card."
       ],
       "faq": [
@@ -326,15 +326,15 @@
         },
         {
           "q": "A lead I converted to a client still shows on the board — is that normal?",
-          "a": "Yes. Converted leads move to the \"Converted\" column and stay there, labeled \"Converted to client\" with a link to the client. You can filter by stage to focus your view."
+          "a": "Yes. Converted leads move to the \"Converted\" column and stay there, labeled \"Converted to client\" with a link to the client. You can filter by project to focus your view."
         },
         {
-          "q": "I dragged a lead to another column and was asked which stage — why?",
-          "a": "When the column you dragged to has two or more stages, the app asks which one to assign (or \"No stage\"). If there's only one, it's selected automatically. If there are none, the lead moves without a stage."
+          "q": "I dragged a lead to another column and was asked which label — why?",
+          "a": "When the column you dragged to has two or more labels, the app asks which one to assign — \"Which stage?\" in \"In process\", \"Which reason?\" in \"Not relevant\" — and you can always skip. If there's only one, it's selected automatically. If there are none, the lead moves without one. Dragging to \"Converted\" doesn't ask at all."
         },
         {
           "q": "I deleted a lead by accident — can I restore it?",
-          "a": "Yes. The lead goes to the Trash and can be restored within 30 days. The same goes for a deleted stage or source — \"Undo\" appears for immediate restoration, and they can also be restored from the Trash."
+          "a": "Yes. The lead goes to the Trash and can be restored within 30 days. The same goes for a deleted label or source — \"Undo\" appears for immediate restoration, and they can also be restored from the Trash."
         },
         {
           "q": "Does converting to a client set a price or number of sessions?",
@@ -1162,8 +1162,8 @@
           "body": "You start with no questions and add them through \"Add question\" — a ready template or your own, with an answer type (a 1–10 scale or yes/no) and an icon. Tapping the schedule label opens \"Every day\" / \"Certain days\" / \"Every X days\". At the bottom you can turn on a daily reminder and pick a time; if you have not answered by then, a gentle nudge appears on the \"How are you today\" card."
         },
         {
-          "title": "Statuses, stages and sources — on their own screens",
-          "body": "Client sub-statuses, and lead stages and sources, are managed on the screens that use them — not here. Settings has rows that lead there: \"Client sub-statuses\" opens the clients screen (where a \"Sub-statuses\" button opens the editor — add, rename, and delete with a move for the clients on it), and \"Lead stages and sources\" opens the leads screen."
+          "title": "Statuses, labels and sources — on their own screens",
+          "body": "Client sub-statuses, and lead labels and sources, are managed on the screens that use them — not here. Settings has rows that lead there: \"Client sub-statuses\" opens the clients screen (where a \"Sub-statuses\" button opens the editor — add, rename, and delete with a move for the clients on it), and \"Lead labels and sources\" opens the leads screen."
         },
         {
           "title": "My account — Data",
@@ -1187,7 +1187,7 @@
         "Language is under \"Look and display → Appearance\", together with light/dark and text size — not under \"Personal\".",
         "Everything saves itself. The \"Setting saved\" note is the confirmation; if something fails you get a red message, not silence.",
         "Want to see what \"Glass\" or \"Roomy\" does? The sample card above the controls changes with you in real time.",
-        "Client sub-statuses and lead stages are edited on their own screens. The rows in Settings are the shortcut there."
+        "Client sub-statuses and lead labels are edited on their own screens. The rows in Settings are the shortcut there."
       ],
       "faq": [
         {
@@ -1199,8 +1199,8 @@
           "a": "On the clients screen — the \"Sub-statuses\" button in the toolbar. You can add, rename (tap the name) and delete; deleting one that has clients on it asks where to move them. Settings has a row that leads there."
         },
         {
-          "q": "Where are the lead stages and sources?",
-          "a": "On the leads screen — the \"Statuses\" tab manages the stages and the \"Sources\" button manages where enquiries come from. Settings has a row that leads there."
+          "q": "Where are the lead labels and sources?",
+          "a": "On the leads screen — the \"Statuses\" tab manages the labels (stages in \"In process\", reasons in \"Not relevant\") and the \"Sources\" button manages where enquiries come from. Settings has a row that leads there."
         },
         {
           "q": "Where are the full guide and the FAQ?",
@@ -1226,7 +1226,7 @@
         },
         {
           "title": "Items are organized by type",
-          "body": "Deleted items are grouped by type, and each group shows an icon, name and item count. Types include: clients, projects, groups, tasks, leads, lead sources, lead stages, transactions, expense categories, recurring templates, sessions, reminders, goals, goal metrics, goal entries, daily questions and daily answers."
+          "body": "Deleted items are grouped by type, and each group shows an icon, name and item count. Types include: clients, projects, groups, tasks, leads, lead sources, lead labels, transactions, expense categories, recurring templates, sessions, reminders, goals, goal metrics, goal entries, daily questions and daily answers."
         },
         {
           "title": "Restoring an item",

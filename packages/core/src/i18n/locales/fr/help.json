@@ -261,11 +261,11 @@
     },
     "leads": {
       "title": "Prospects",
-      "intro": "Un tableau pour gérer toutes vos demandes. Suivez chaque prospect du moment où il est « En cours » jusqu'à ce qu'il devienne client — avec sources, étapes et relances.",
+      "intro": "Un tableau pour gérer toutes vos demandes. Suivez chaque prospect du moment où il est « En cours » jusqu'à ce qu'il devienne client — avec sources, libellés et relances.",
       "features": [
         {
           "title": "Deux vues : Prospects et Statuts",
-          "body": "Deux onglets se trouvent en haut de l'écran. « Prospects » affiche le tableau kanban. « Statuts » ouvre un panneau pour gérer les étapes sans quitter l'écran. Votre sélection est enregistrée, et l'écran s'ouvre dans la même vue la prochaine fois."
+          "body": "Deux onglets se trouvent en haut de l'écran. « Prospects » affiche le tableau kanban. « Statuts » ouvre un panneau pour gérer les libellés sans quitter l'écran. Votre sélection est enregistrée, et l'écran s'ouvre dans la même vue la prochaine fois."
         },
         {
           "title": "Tableau kanban à trois colonnes",
@@ -273,7 +273,7 @@
         },
         {
           "title": "Glisser entre les colonnes",
-          "body": "Vous pouvez faire glisser une carte de prospect d'une colonne à une autre, au doigt ou à la souris. Si la cible est hors de l'écran, maintenez près du bord et le tableau défile tout seul jusqu'à ce que cette colonne arrive. Si la colonne vers laquelle vous l'avez glissée a deux étapes ou plus, on vous demandera « Vers quelle étape le classer ? » (avec une option « Sans étape »). S'il n'y en a qu'une, elle est sélectionnée automatiquement. Juste après le déplacement, « Annuler » apparaît pour revenir au statut précédent."
+          "body": "Vous pouvez faire glisser une carte de prospect d'une colonne à une autre, au doigt ou à la souris. Si la cible est hors de l'écran, maintenez près du bord et le tableau défile tout seul jusqu'à ce que cette colonne arrive. Si la colonne vers laquelle vous l'avez glissée a deux libellés ou plus, on vous demandera lequel — « Quelle étape ? » dans « En cours », « Quel motif ? » dans « Non pertinent » — et vous pouvez toujours passer. S'il n'y en a qu'un, il est sélectionné automatiquement. Glisser vers « Convertis » ne demande rien. Juste après le déplacement, « Annuler » apparaît pour revenir au statut précédent."
         },
         {
           "title": "Ajouter un prospect",
@@ -281,23 +281,23 @@
         },
         {
           "title": "Modifier un prospect",
-          "body": "La fenêtre de modification met à jour tous les détails, déplace le prospect entre les colonnes via les boutons de statut et choisit une étape. Changer le statut efface l'étape, et changer le projet efface le groupe. Quitter sans enregistrer demande d'abord."
+          "body": "La fenêtre de modification met à jour tous les détails et déplace le prospect entre les colonnes via les boutons de statut. En dessous se trouve le champ de la colonne actuelle : « Étape » dans « En cours », « Motif » dans « Non pertinent ». Changer le statut efface ce choix, et changer le projet efface le groupe. Quitter sans enregistrer demande d'abord."
         },
         {
           "title": "Convertir en client",
-          "body": "Sur un prospect qui n’est pas encore client, ouvrez le menu « … » dans le coin de la carte et choisissez « Convertir en client ». Une fenêtre s’ouvre avec le nom et le téléphone déjà remplis. Vous pouvez choisir un projet, un groupe et une étape. À l’enregistrement, un nouveau client est créé (actif, sans séances ni tarif pour l’instant), les notes sont reprises, et le prospect passe dans la colonne « Convertis » avec un lien vers le client. Si vous avez choisi un groupe, le client y est ajouté comme membre."
+          "body": "Un prospect qui n'est pas encore client a un bouton « Convertir en client » en bas de sa carte. Une fenêtre s'ouvre avec le nom et le téléphone déjà remplis. Vous pouvez choisir un projet et un groupe — un prospect qui s'est conclu ne reçoit pas de libellé, c'est le projet qui le décrit. À l'enregistrement, un nouveau client est créé (actif, sans séances ni tarif pour l'instant), les notes sont reprises, et le prospect passe dans la colonne « Convertis » avec un lien vers le client. Si vous avez choisi un groupe, le client y est ajouté comme membre."
         },
         {
           "title": "Sources de prospects",
           "body": "Chaque prospect peut être étiqueté avec une source — recommandation, Instagram, site web, etc. Dans les fenêtres d'ajout et de modification, vous pouvez créer une nouvelle source sur le moment sans quitter : choisissez « + Nouvelle source… », saisissez un nom, et elle est enregistrée et sélectionnée immédiatement. Une carte sans source est étiquetée « Sans source »."
         },
         {
-          "title": "Étapes",
-          "body": "Dans la vue « Statuts », vous pouvez ajouter, supprimer et réorganiser (par glissement) les étapes sous chaque colonne. Ils apparaissent comme un point coloré sur la carte du prospect et servent au filtrage et aux graphiques. Un étape par défaut ne peut pas être supprimé. Quand vous en supprimez un autre, les prospects restent sans étape."
+          "title": "Libellés : étapes et motifs",
+          "body": "Dans la vue « Statuts », vous pouvez ajouter, supprimer et réorganiser (par glissement) les libellés de chaque colonne — des étapes dans « En cours » (par ex. « En attente d'un rappel »), des motifs dans « Non pertinent » (par ex. « Trop cher »). Un appui sur le point coloré d'une puce ouvre un sélecteur de couleur. Le libellé apparaît comme un point coloré sur la carte du prospect et sert au filtrage et aux graphiques. « Convertis » n'a pas de libellés : un prospect conclu se voit attribuer un projet. Un libellé par défaut ne peut pas être supprimé ; quand vous en supprimez un autre, les prospects restent sans libellé."
         },
         {
           "title": "Rechercher, filtrer et trier",
-          "body": "Un champ de recherche et un bouton « Filtrer » se trouvent au-dessus du tableau. La recherche trouve par nom, téléphone, e-mail, notes, source ou projet, et ne tient pas compte de la casse. « Filtrer » ouvre une fenêtre avec période, projet, groupe, étape, source et tri par date — le nombre sur le bouton compte les filtres actifs (le tri n'est pas compté, car il ne masque rien). Vos sélections sont enregistrées."
+          "body": "Un champ de recherche et un bouton « Filtrer » se trouvent au-dessus du tableau. La recherche trouve par nom, téléphone, e-mail, notes, source ou projet, et ne tient pas compte de la casse. « Filtrer » ouvre une fenêtre avec période, projet, groupe, libellé, source et tri par date — le nombre sur le bouton compte les filtres actifs (le tri n'est pas compté, car il ne masque rien). Vos sélections sont enregistrées."
         },
         {
           "title": "Relances",
@@ -308,15 +308,15 @@
           "body": "Trois chiffres se trouvent en haut de l'écran : « Demandes ce mois-ci », « Convertis en clients » et un pourcentage étiqueté « des demandes de ce mois-ci ». Tous sont calculés automatiquement à partir des prospects ouverts ce mois-ci."
         },
         {
-          "title": "Menu de la carte : convertir et supprimer",
-          "body": "Chaque carte a un menu « … » dans son coin, avec les actions dont vous n’avez pas besoin tous les jours : « Convertir en client » et « Supprimer le prospect ». La suppression ouvre d’abord une confirmation nommant le prospect ; ensuite seulement il va à la Corbeille, d’où il peut être restauré sous 30 jours. Le bouton WhatsApp reste sur la carte, et toucher la carte ouvre la modification."
+          "title": "Boutons sur la carte : convertir, WhatsApp et supprimer",
+          "body": "Les actions se trouvent sur la carte elle-même, sans menu. La ✕ dans le coin supérieur supprime — une fenêtre de confirmation avec le nom du prospect s'ouvre d'abord, et seulement ensuite le prospect va à la Corbeille, d'où il peut être restauré sous 30 jours. Sur la ligne du bas : « Convertir en client » (uniquement sur un prospect pas encore converti) et un bouton WhatsApp. Un appui sur la carte elle-même ouvre la modification."
         }
       ],
       "tips": [
         "Renseignez une date de « Relance » pour que le prospect apparaisse dans le bandeau des relances le jour où vous devez le recontacter. Ainsi aucune demande ne passe entre les mailles du filet.",
         "Étiquetez chaque prospect avec la bonne source. Le taux de conversion et les autres statistiques s'appuient là-dessus pour vous montrer d'où viennent vos clients les plus adaptés.",
         "Au lieu d'ouvrir la fenêtre de modification, faites simplement glisser une carte vers une autre colonne pour faire avancer un prospect. Si la colonne voulue est hors de l'écran, maintenez près du bord et le tableau défile tout seul. Vous vous êtes trompé ? Appuyez sur « Annuler » qui apparaît juste après le glissement.",
-        "Configurez vos propres étapes dans la vue « Statuts » (par ex. « En attente d'un rappel », « Appel de découverte planifié »), puis filtrez par eux sur le tableau pour rester concentré.",
+        "Configurez vos propres étapes pour « En cours » dans la vue « Statuts » (par ex. « En attente d'un rappel », « Appel de découverte planifié ») et vos propres motifs pour « Non pertinent », puis filtrez par eux sur le tableau pour rester concentré.",
         "Lors de la conversion en client, vous pouvez déjà l'affecter à un projet et à un groupe. Les notes du prospect sont transférées automatiquement vers la nouvelle fiche client."
       ],
       "faq": [
@@ -326,15 +326,15 @@
         },
         {
           "q": "Un prospect que j'ai converti en client apparaît toujours sur le tableau — est-ce normal ?",
-          "a": "Oui. Les prospects convertis passent dans la colonne « Convertis » et y restent, étiquetés « Converti en client » avec un lien vers le client. Vous pouvez filtrer par étape pour concentrer votre vue."
+          "a": "Oui. Les prospects convertis passent dans la colonne « Convertis » et y restent, étiquetés « Converti en client » avec un lien vers le client. Vous pouvez filtrer par projet pour concentrer votre vue."
         },
         {
-          "q": "J'ai glissé un prospect vers une autre colonne et on m'a demandé quelle étape — pourquoi ?",
-          "a": "Lorsque la colonne vers laquelle vous l'avez glissé a deux étapes ou plus, l'application demande lequel attribuer (ou « Sans étape »). S'il n'y en a qu'une, elle est sélectionnée automatiquement. S'il n'y en a aucun, le prospect est déplacé sans étape."
+          "q": "J'ai glissé un prospect vers une autre colonne et on m'a demandé quel libellé — pourquoi ?",
+          "a": "Lorsque la colonne vers laquelle vous l'avez glissé a deux libellés ou plus, l'application demande lequel attribuer — « Quelle étape ? » dans « En cours », « Quel motif ? » dans « Non pertinent » — et vous pouvez toujours passer. S'il n'y en a qu'un, il est sélectionné automatiquement. S'il n'y en a aucun, le prospect est déplacé sans libellé. Glisser vers « Convertis » ne demande rien du tout."
         },
         {
           "q": "J'ai supprimé un prospect par erreur — puis-je le restaurer ?",
-          "a": "Oui. Le prospect va à la Corbeille et peut être restauré sous 30 jours. Il en va de même pour une étape ou une source supprimés — « Annuler » apparaît pour une restauration immédiate, et ils peuvent aussi être restaurés depuis la Corbeille."
+          "a": "Oui. Le prospect va à la Corbeille et peut être restauré sous 30 jours. Il en va de même pour un libellé ou une source supprimés — « Annuler » apparaît pour une restauration immédiate, et ils peuvent aussi être restaurés depuis la Corbeille."
         },
         {
           "q": "La conversion en client fixe-t-elle un prix ou un nombre de séances ?",
@@ -1162,8 +1162,8 @@
           "body": "Vous commencez sans questions et les ajoutez via « Ajouter une question » : un modèle prêt ou la vôtre, avec un type de réponse (échelle 1–10 ou oui/non) et une icône. Toucher l'étiquette de planification ouvre « Chaque jour » / « Certains jours » / « Tous les X jours ». En bas, vous pouvez activer un rappel quotidien et choisir une heure ; si vous n'avez pas répondu d'ici là, un rappel discret apparaît sur la carte « Comment allez-vous »."
         },
         {
-          "title": "Statuts, étapes et sources : sur leurs propres écrans",
-          "body": "Les sous-statuts des clients, ainsi que les étapes et sources des prospects, se gèrent sur les écrans qui les utilisent, pas ici. Les réglages proposent des lignes qui y mènent : « Sous-statuts des clients » ouvre l'écran des clients (où un bouton « Sous-statuts » ouvre l'éditeur — ajouter, renommer, et supprimer en déplaçant les clients concernés), et « Étapes et sources de prospects » ouvre l'écran des prospects."
+          "title": "Statuts, libellés et sources : sur leurs propres écrans",
+          "body": "Les sous-statuts des clients, ainsi que les libellés et sources des prospects, se gèrent sur les écrans qui les utilisent, pas ici. Les réglages proposent des lignes qui y mènent : « Sous-statuts des clients » ouvre l'écran des clients (où un bouton « Sous-statuts » ouvre l'éditeur — ajouter, renommer, et supprimer en déplaçant les clients concernés), et « Libellés et sources de prospects » ouvre l'écran des prospects."
         },
         {
           "title": "Mon compte : Données",
@@ -1187,7 +1187,7 @@
         "La langue est dans « Aspect et affichage → Apparence », avec clair/sombre et la taille du texte — pas dans « Personnel ».",
         "Tout s'enregistre seul. Le message « Réglage enregistré » est la confirmation ; en cas d'échec vous voyez un message rouge, pas du silence.",
         "Envie de voir ce que font « Verre » ou « Aéré » ? La carte d'exemple au-dessus des réglages change avec vous en temps réel.",
-        "Les sous-statuts des clients et les étapes des prospects se modifient sur leurs écrans. Les lignes des réglages sont le raccourci."
+        "Les sous-statuts des clients et les libellés des prospects se modifient sur leurs écrans. Les lignes des réglages sont le raccourci."
       ],
       "faq": [
         {
@@ -1199,8 +1199,8 @@
           "a": "Sur l'écran des clients, via le bouton « Sous-statuts » de la barre d'outils. Vous pouvez ajouter, renommer (touchez le nom) et supprimer ; supprimer un sous-statut occupé demande où déplacer les clients. Les réglages proposent une ligne qui y mène."
         },
         {
-          "q": "Où sont les étapes et les sources de prospects ?",
-          "a": "Sur l'écran des prospects : l'onglet « Statuts » gère les étapes et le bouton « Sources » gère la provenance des demandes. Les réglages proposent une ligne qui y mène."
+          "q": "Où sont les libellés et les sources de prospects ?",
+          "a": "Sur l'écran des prospects : l'onglet « Statuts » gère les libellés (étapes dans « En cours », motifs dans « Non pertinent ») et le bouton « Sources » gère la provenance des demandes. Les réglages proposent une ligne qui y mène."
         },
         {
           "q": "Où sont le guide complet et les questions fréquentes ?",
@@ -1226,7 +1226,7 @@
         },
         {
           "title": "Les éléments sont organisés par type",
-          "body": "Les éléments supprimés sont regroupés par type, et chaque groupe affiche une icône, un nom et un nombre d'éléments. Les types comprennent : clients, projets, groupes, tâches, prospects, sources de prospects, étapes de prospects, transactions, catégories de dépenses, modèles récurrents, séances, rappels, objectifs, mesures d'objectifs, entrées d'objectifs, questions quotidiennes et réponses quotidiennes."
+          "body": "Les éléments supprimés sont regroupés par type, et chaque groupe affiche une icône, un nom et un nombre d'éléments. Les types comprennent : clients, projets, groupes, tâches, prospects, sources de prospects, libellés de prospects, transactions, catégories de dépenses, modèles récurrents, séances, rappels, objectifs, mesures d'objectifs, entrées d'objectifs, questions quotidiennes et réponses quotidiennes."
         },
         {
           "title": "Restaurer un élément",

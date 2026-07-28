@@ -145,6 +145,13 @@ export default function LeadStatusesPanel({ statuses, onAdd, onUpdate, onRemove 
                 ))}
               </Box>
             )}
+            {/* "הפכו ללקוחות" takes no new sub-statuses: a lead that closed
+                is described by the project it joined, not by a step through a
+                pipeline it already left (owner's call). Existing chips stay
+                visible and deletable so anyone who made some can clean up. */}
+            {m.key === 'converted' ? (
+              <Txt as="p" className="lead-statuses-note">{t('statusesPanel.convertedNote')}</Txt>
+            ) : (
             <Box
               className={`lead-statuses-add${dnd.overZone === `add:${m.key}` && dnd.dragId ? ' drop-target' : ''}`}
               {...dnd.dropZoneProps(`add:${m.key}`)}
@@ -159,7 +166,7 @@ export default function LeadStatusesPanel({ statuses, onAdd, onUpdate, onRemove 
                     value={drafts[m.key] || ''}
                     onChange={(e) => setDraft(m.key, e.target.value)}
                     onKeyDown={(e) => { if (e.key === 'Enter') submit(m.key) }}
-                    placeholder={t('statusesPanel.addPlaceholder', { meta: metaTitle(m.key) })}
+                    placeholder={t('statusesPanel.addPlaceholder', { meta: metaTitle(m.key), context: m.key })}
                   />
                   <Btn
                     type="button"
@@ -173,6 +180,7 @@ export default function LeadStatusesPanel({ statuses, onAdd, onUpdate, onRemove 
                 </>
               )}
             </Box>
+            )}
           </Box>
         )
       })}

@@ -142,6 +142,9 @@ export default function LeadsScreen() {
   // Move a lead to a chosen meta: 2+ sub-statuses → ask which; 1 → auto; 0 → none.
   const chooseMeta = (lead, newMeta) => {
     if (statusMetaOfLead(lead) === newMeta) { setMovePicker(null); return }
+    // "הפכו ללקוחות" takes no sub-status — a closed lead is described by its
+    // project (owner's call). Mirrors handleDropLead on web.
+    if (newMeta === 'converted') { applyLeadMove(lead.id, newMeta, null); setMovePicker(null); return }
     const subs = leadStatuses.filter((s) => s.meta_category === newMeta && !s.deleted_at)
     if (subs.length >= 2) { setMovePicker({ lead, newMeta, subs }); return }
     applyLeadMove(lead.id, newMeta, subs.length === 1 ? subs[0].id : null)
@@ -376,7 +379,7 @@ export default function LeadsScreen() {
       <Sheet
         open={!!movePicker}
         onClose={() => setMovePicker(null)}
-        title={movePicker?.newMeta ? i18n.t('leads:dropPicker.title', { defaultValue: 'לאיזה תת-סטטוס לשייך?' }) : i18n.t('leads:move.title', { defaultValue: 'העברה לשלב' })}
+        title={movePicker?.newMeta ? i18n.t('leads:dropPicker.title', { context: movePicker.newMeta }) : i18n.t('leads:move.title')}
       >
         {movePicker && !movePicker.newMeta ? (
           LEAD_META.filter((m) => m.key !== statusMetaOfLead(movePicker.lead)).map((m) => {
@@ -398,7 +401,7 @@ export default function LeadsScreen() {
               </Pressable>
             ))}
             <Pressable style={styles.opt} onPress={() => { applyLeadMove(movePicker.lead.id, movePicker.newMeta, null); setMovePicker(null) }}>
-              <Text style={[styles.optText, { color: colors.textSub }]}>{i18n.t('leads:dropPicker.none', { defaultValue: 'ללא תת-סטטוס' })}</Text>
+              <Text style={[styles.optText, { color: colors.textSub }]}>{i18n.t('leads:dropPicker.none')}</Text>
             </Pressable>
           </>
         ) : null}
@@ -528,10 +531,17 @@ function StatusGroup({ meta, title, statuses, onAdd, onRemove, onUpdate }) {
           </View>
         )) : <Text style={styles.chipEmpty}>—</Text>}
       </View>
-      <View style={styles.addRow}>
-        <TextInput style={styles.addInput} value={draft} onChangeText={setDraft} placeholder={i18n.t('leads:statusesPanel.addPlaceholder', { meta: title })} placeholderTextColor={colors.textFaint} onSubmitEditing={add} />
-        <Pressable style={styles.addBtn} onPress={add} disabled={busy || !draft.trim()}><Plus size={18} strokeWidth={2} color={colors.onBrand} /></Pressable>
-      </View>
+      {/* "הפכו ללקוחות" takes no new sub-statuses (owner's call) — existing
+          chips stay above so anyone who made some can clean up. Mirrors web
+          LeadStatusesPanel. */}
+      {meta === 'converted' ? (
+        <Text style={styles.groupNote}>{i18n.t('leads:statusesPanel.convertedNote')}</Text>
+      ) : (
+        <View style={styles.addRow}>
+          <TextInput style={styles.addInput} value={draft} onChangeText={setDraft} placeholder={i18n.t('leads:statusesPanel.addPlaceholder', { meta: title, context: meta })} placeholderTextColor={colors.textFaint} onSubmitEditing={add} />
+          <Pressable style={styles.addBtn} onPress={add} disabled={busy || !draft.trim()}><Plus size={18} strokeWidth={2} color={colors.onBrand} /></Pressable>
+        </View>
+      )}
     </View>
   )
 }
@@ -596,6 +606,9 @@ const styles = StyleSheet.create({
   chipDot: { width: 8, height: 8, borderRadius: 4 },
   chipText: { fontSize: 13, color: colors.text },
   chipEmpty: { fontSize: 12, color: colors.textFaint },
+  // Stands in for the add row under "הפכו ללקוחות" — explains the absence
+  // rather than leaving a silent gap where the other two columns have an input.
+  groupNote: { fontSize: 12, color: colors.textFaint, lineHeight: 17 },
   addRow: { flexDirection: 'row', gap: 8, alignItems: 'center' },
   addInput: { flex: 1, borderWidth: 1, borderColor: colors.border, borderRadius: 12, paddingVertical: 10, paddingHorizontal: 14, fontSize: 14, color: colors.text, backgroundColor: colors.card },
   addBtn: { width: 44, height: 44, borderRadius: 12, backgroundColor: colors.brand, alignItems: 'center', justifyContent: 'center' },

@@ -59,7 +59,7 @@
     "period_lastMonth": "Mes pasado",
     "project": "Proyecto",
     "group": "Grupo",
-    "status": "Etapa",
+    "status": "Etiqueta",
     "source": "Fuente",
     "all": "Todo",
     "unassigned": "Sin asignar",
@@ -72,7 +72,7 @@
   },
   "loading": "Cargando prospectos…",
   "loadError": "No se pudieron cargar los prospectos: {{error}}",
-  "subFilterAria": "Filtrar por etapa",
+  "subFilterAria": "Filtrar por etiqueta",
   "all": "Todo",
   "undoStatusChanged": "Estado cambiado",
   "delete": {
@@ -81,8 +81,10 @@
     "confirm": "Eliminar"
   },
   "dropPicker": {
-    "title": "¿A qué etapa debe ir?",
-    "none": "Sin etapa"
+    "title": "¿Qué etiqueta?",
+    "none": "Sin etiqueta",
+    "title_in_process": "¿Qué etapa?",
+    "title_not_relevant": "¿Qué motivo?"
   },
   "column": {
     "empty": "No hay prospectos en esta columna"
@@ -112,15 +114,18 @@
     "close": "Cerrar"
   },
   "statusesPanel": {
-    "intro": "Gestiona las etapas dentro de cada columna. Una etapa se muestra como un punto de color en la ficha del prospecto, y se usa para filtrar y en los gráficos.",
-    "addPlaceholder": "Etapa en «{{meta}}»",
+    "intro": "Gestiona las etiquetas dentro de cada columna: etapas en «En proceso», motivos en «No relevante». La etiqueta aparece como un punto de color en la ficha del prospecto y alimenta filtros y gráficos. Un prospecto que se convirtió en cliente no lleva etiqueta: se le asigna un proyecto.",
+    "addPlaceholder": "Etiqueta en «{{meta}}»",
     "addAria": "Añadir",
     "dropHere": "Suelta aquí",
     "deleteChipAria": "Eliminar {{name}}",
     "deleteChipTitle": "Eliminar",
-    "deleteTitle": "Eliminar etapa",
-    "deleteMessage": "¿Eliminar «{{name}}»? Los prospectos marcados con ella se quedan sin etapa. Se puede restaurar desde la papelera en 30 días.",
-    "deleteConfirm": "Eliminar"
+    "deleteTitle": "Eliminar etiqueta",
+    "deleteMessage": "¿Eliminar «{{name}}»? Los prospectos marcados con ella quedan sin etiqueta. Se puede restaurar desde la papelera durante 30 días.",
+    "deleteConfirm": "Eliminar",
+    "addPlaceholder_in_process": "Etapa en «{{meta}}»",
+    "addPlaceholder_not_relevant": "Motivo de «{{meta}}»",
+    "convertedNote": "Un prospecto que se convirtió en cliente no lleva etiqueta: se le asigna un proyecto."
   },
   "pages": {
     "title": "Páginas de captación",
@@ -224,7 +229,7 @@
     "pagesLink": "O crea una página que las recoja por ti"
   },
   "move": {
-    "title": "Mover a una etapa"
+    "title": "Mover a una etiqueta"
   },
   "newSourcePlaceholder": "Nueva fuente…",
   "tagline": "Cuidar las relaciones es lo que trae resultados.",

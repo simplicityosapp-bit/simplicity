@@ -59,7 +59,7 @@
     "period_lastMonth": "Last month",
     "project": "Project",
     "group": "Group",
-    "status": "Stage",
+    "status": "Label",
     "source": "Source",
     "all": "All",
     "unassigned": "Unassigned",
@@ -72,7 +72,7 @@
   },
   "loading": "Loading leads…",
   "loadError": "Couldn't load leads: {{error}}",
-  "subFilterAria": "Filter by stage",
+  "subFilterAria": "Filter by label",
   "all": "All",
   "undoStatusChanged": "Status changed",
   "delete": {
@@ -81,8 +81,10 @@
     "confirm": "Delete"
   },
   "dropPicker": {
-    "title": "Which stage should it go to?",
-    "none": "No stage"
+    "title": "Which label?",
+    "none": "No label",
+    "title_in_process": "Which stage?",
+    "title_not_relevant": "Which reason?"
   },
   "column": {
     "empty": "No leads in this column"
@@ -112,15 +114,18 @@
     "close": "Close"
   },
   "statusesPanel": {
-    "intro": "Manage the stages inside each column. A stage shows as a colour dot on the lead card, and is used for filtering and charts.",
-    "addPlaceholder": "Stage in \"{{meta}}\"",
+    "intro": "Manage the labels inside each column — stages in \"In process\", reasons in \"Not relevant\". A label shows as a coloured dot on the lead card, and drives filters and charts. A lead that became a client gets no label; you give it a project instead.",
+    "addPlaceholder": "Label in \"{{meta}}\"",
     "addAria": "Add",
     "dropHere": "Drop here",
     "deleteChipAria": "Delete {{name}}",
     "deleteChipTitle": "Delete",
-    "deleteTitle": "Delete stage",
-    "deleteMessage": "Delete \"{{name}}\"? Leads marked with it keep no stage. Restorable from the recycle bin within 30 days.",
-    "deleteConfirm": "Delete"
+    "deleteTitle": "Delete label",
+    "deleteMessage": "Delete \"{{name}}\"? Leads marked with it are left with no label. Restorable from the trash for 30 days.",
+    "deleteConfirm": "Delete",
+    "addPlaceholder_in_process": "Stage in \"{{meta}}\"",
+    "addPlaceholder_not_relevant": "Reason for \"{{meta}}\"",
+    "convertedNote": "A lead that became a client gets no label — you give it a project instead."
   },
   "pages": {
     "title": "Lead pages",
@@ -224,7 +229,7 @@
     "pagesLink": "Or build a landing page that collects them for you"
   },
   "move": {
-    "title": "Move to a stage"
+    "title": "Move to a label"
   },
   "newSourcePlaceholder": "New source…",
   "tagline": "Tending relationships is what brings results.",

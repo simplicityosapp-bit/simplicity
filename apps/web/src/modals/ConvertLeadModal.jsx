@@ -14,7 +14,7 @@ import { Box, Txt, Btn, Input } from '../components/ui'
         with source='converted' so the lead_status_log captures it.
    The parent wires onCreateClient + onUpdateLead so the modal stays
    adapter-agnostic. */
-export default function ConvertLeadModal({ open, onClose, lead, projects = [], groups = [], statuses = [], onCreateClient, onUpdateLead, onAddGroupMember }) {
+export default function ConvertLeadModal({ open, onClose, lead, projects = [], groups = [], onCreateClient, onUpdateLead, onAddGroupMember }) {
   const { t } = useT('modalsClient')
   const { t: ts } = useT('modalsSystem') // shared modal chrome (discard prompt)
   const [form, setForm] = useState(() => ({
@@ -22,7 +22,6 @@ export default function ConvertLeadModal({ open, onClose, lead, projects = [], g
     phone: lead?.phone || '',
     project_id: lead?.project_id || '',
     group_id: lead?.group_id || '',
-    status_id: '',
   }))
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
@@ -39,7 +38,6 @@ export default function ConvertLeadModal({ open, onClose, lead, projects = [], g
     || form.phone !== (lead.phone || '')
     || form.project_id !== (lead.project_id || '')
     || form.group_id !== (lead.group_id || '')
-    || form.status_id !== ''
   )
   /* The single exit for Escape, the overlay and the X. */
   const requestClose = () => { if (formDirty) setConfirmDiscard(true); else onClose() }
@@ -51,21 +49,9 @@ export default function ConvertLeadModal({ open, onClose, lead, projects = [], g
     ? groups.filter((g) => g.project_id === form.project_id && !g.deleted_at)
     : []
 
-  /* Sub-statuses inside the 'converted' meta — if the user has
-     defined any, offer them so the lead_status_log captures the
-     transition cleanly. */
-  const convertedSubStatuses = statuses.filter((s) => s.meta_category === 'converted')
-  const defaultConverted = convertedSubStatuses.find((s) => s.is_default)
-
-  /* Same option shapes as the other lead modals. The blank row keeps its
-     special label here: leaving it empty does not mean "no sub-status", it
-     means "use the default one" — so the row says which. */
+  /* Same option shapes as the other lead modals. */
   const projectOptions = [{ value: '', label: t('common.none') }, ...projects.map((p) => ({ value: p.id, label: p.name }))]
   const groupOptions = [{ value: '', label: t('common.none') }, ...projectGroups.map((g) => ({ value: g.id, label: g.name }))]
-  const convertedOptions = [
-    { value: '', label: defaultConverted ? t('convertLead.convertedDefault', { name: defaultConverted.display_name }) : t('common.none') },
-    ...convertedSubStatuses.map((s) => ({ value: s.id, label: `${s.icon ? `${s.icon} ` : ''}${s.display_name}` })),
-  ]
 
   const submit = async () => {
     if (!form.name.trim()) { setErr(t('convertLead.nameRequired')); return }
@@ -113,14 +99,19 @@ export default function ConvertLeadModal({ open, onClose, lead, projects = [], g
 
       /* Step 2 — flip the lead to 'converted' and stamp the link.
          Pass source='converted' so the log row labels the transition
-         correctly. The sub-status (if any) drives whether a log row
-         is actually written — the table requires to_status_id. */
-      const subStatusId = form.status_id || defaultConverted?.id || null
+         correctly.
+
+         status_id is cleared, not chosen: a closed lead is described by the
+         project it joined, which the picker above already collects — asking
+         for a sub-status on top of it was the one field coaches queried
+         (owner's call). updateLead writes a log row only when there IS a
+         to_status_id, so this simply opens no row; converted_at + the
+         client link are what the funnel actually reads. */
       await onUpdateLead(
         lead.id,
         {
           status_meta: 'converted',
-          status_id: subStatusId,
+          status_id: null,
           converted_at: now,
           converted_to_client_id: newClient.id,
           last_status_changed_at: now,
@@ -166,13 +157,6 @@ export default function ConvertLeadModal({ open, onClose, lead, projects = [], g
         <Box className="m-field">
           <Box as="label" className="m-label">{t('common.groupOptional')}</Box>
           <SelectMenu value={form.group_id} onChange={(v) => set('group_id', v)} options={groupOptions} placeholder={t('common.none')} ariaLabel={t('common.groupOptional')} />
-        </Box>
-      )}
-
-      {convertedSubStatuses.length > 0 && (
-        <Box className="m-field">
-          <Box as="label" className="m-label">{t('convertLead.convertedSubStatusOptional')}</Box>
-          <SelectMenu value={form.status_id} onChange={(v) => set('status_id', v)} options={convertedOptions} ariaLabel={t('convertLead.convertedSubStatusOptional')} />
         </Box>
       )}
 

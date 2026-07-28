@@ -37,7 +37,9 @@
     "day4": "Jeudi",
     "day5": "Vendredi",
     "day6": "Samedi",
-    "leadStageOptional": "Étape (facultatif)"
+    "leadStageOptional": "Libellé (facultatif)",
+    "leadStageOptional_in_process": "Étape (facultatif)",
+    "leadStageOptional_not_relevant": "Motif (facultatif)"
   },
   "addClient": {
     "titleLabel": "Nouveau client",
@@ -130,14 +132,12 @@
     "metaInProcess": "En cours",
     "metaConverted": "Converti",
     "metaNotRelevant": "Non pertinent",
-    "stage": "Étape"
+    "stage": "Libellé"
   },
   "convertLead": {
     "title": "Convertir le prospect en client",
     "nameRequired": "Veuillez donner un nom au client.",
     "clientName": "Nom du client",
-    "convertedSubStatusOptional": "Étape dans « Convertis » (facultatif)",
-    "convertedDefault": "Par défaut ({{name}})",
     "footHint": "Un nouveau client sera créé ; le prospect sera marqué « converti en client » et restera dans la colonne « Convertis » avec un lien vers le nouveau client.",
     "converting": "Conversion…",
     "convert": "Convertir en client",
@@ -228,7 +228,7 @@
     "delete": "Supprimer",
     "deleting": "Suppression…",
     "deleteAndMove": "Supprimer et déplacer",
-    "titleLead": "Supprimer l’étape « {{name}} »"
+    "titleLead": "Supprimer le libellé « {{name}} »"
   },
   "groupBilling": {
     "package": "Par forfait",

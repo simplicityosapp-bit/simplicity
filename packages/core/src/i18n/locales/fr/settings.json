@@ -42,14 +42,6 @@
     "about": {
       "title": "À propos",
       "sub": "Version, confidentialité et conditions"
-    },
-    "clients": {
-      "title": "Clients et statuts",
-      "sub": "Vos propres sous-statuts"
-    },
-    "leads": {
-      "title": "Paramètres des prospects",
-      "sub": "Sources et statuts"
     }
   },
   "groups": {

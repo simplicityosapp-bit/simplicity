@@ -42,14 +42,6 @@
     "about": {
       "title": "About",
       "sub": "Version, privacy and terms"
-    },
-    "clients": {
-      "title": "Clients & statuses",
-      "sub": "Your own sub-statuses"
-    },
-    "leads": {
-      "title": "Lead settings",
-      "sub": "Sources and statuses"
     }
   },
   "groups": {

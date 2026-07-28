@@ -80,8 +80,8 @@
       "intro": "Inicio es tu panel personal. Está formado por widgets que puedes activar, desactivar y reorganizar como prefieras. Cada uno te da un vistazo rápido a un área distinta de tu trabajo y un acceso directo para llegar a ella.",
       "features": [
         {
-          "title": "Los widgets que componen la pantalla",
-          "body": "La pantalla se compone de ocho widgets: cita diaria, resumen, registro diario, transacción rápida / actualización rápida, alertas (sesiones, pagos), próximos recordatorios, próximas tareas y tarjetas de estado (clientes / neto / tareas). Cada uno se puede activar, desactivar y reordenar en Ajustes → Widgets y visualización."
+          "title": "Las tarjetas que forman la pantalla",
+          "body": "La pantalla se compone de siete tarjetas: Cita diaria, Vista general, ¿Cómo estás hoy?, Añadir rápido, Cosas que requieren atención, Tareas y recordatorios y Números rápidos. Cada una se puede activar, desactivar y reordenar en «Ajustes → Aspecto y formato → Pantalla de inicio», o manteniendo pulsada una tarjeta aquí mismo."
         },
         {
           "title": "Widget de resumen",
@@ -108,12 +108,8 @@
           "body": "En la ventana «Sesiones por confirmar» dentro de la tarjeta de alertas, puedes marcar cada sesión como «Se realizó» (lo que crea una sesión real en la ficha del cliente o del grupo), «No se realizó» o eliminarla. También puedes confirmar, rechazar o eliminar un gasto vinculado a esa sesión."
         },
         {
-          "title": "Widget de próximos recordatorios",
-          "body": "Una tarjeta que muestra todos tus próximos recordatorios, desde hoy hasta 60 días vista, en orden de fecha, destacando cuántos son «para hoy». Cada fila abre el calendario, y el botón ✓ marca un recordatorio como hecho. Un recordatorio recurrente simplemente salta a su siguiente fecha; puedes deshacerlo con «Cancelar»."
-        },
-        {
-          "title": "Widget de próximas tareas",
-          "body": "Una tarjeta con todas tus tareas abiertas, ordenadas por urgencia. El resumen muestra cuántas son urgentes del total. Un punto rojo marca una tarea urgente, al tocar una fila se abre la pantalla de Tareas, y ✓ marca la tarea como hecha (puedes deshacerlo con «Cancelar»)."
+          "title": "Tarjeta Tareas y recordatorios",
+          "body": "Una sola tarjeta que reúne las tareas abiertas y los recordatorios próximos, por urgencia y fecha. El resumen indica cuántas son urgentes del total, un punto rojo marca una tarea urgente y tocar una fila abre la pantalla correspondiente. La ✓ la marca como hecha: un recordatorio periódico salta a su próxima fecha, y puedes deshacerlo con «Deshacer»."
         },
         {
           "title": "Widget de tarjetas de estado",
@@ -125,11 +121,11 @@
         },
         {
           "title": "Personalizar la visualización y enviar comentarios",
-          "body": "En Ajustes → Widgets y visualización puedes cambiar el estilo de tarjeta (esmerilado / plano / con borde), el grosor del texto (normal / negrita) y la densidad (compacta / normal / amplia). También puedes activar el modo «compacto» o una densidad aparte en los widgets que lo admitan. Al final de Inicio hay una tarjeta «¿Tienes comentarios?» para enviar sugerencias e informes de errores."
+          "body": "En Ajustes → Aspecto y formato → Pantalla de inicio puedes cambiar el estilo de tarjeta (esmerilado / plano / con borde), el grosor del texto (normal / negrita) y la densidad (compacta / normal / amplia). También puedes activar el modo «compacto» o una densidad aparte en los widgets que lo admitan. Al final de Inicio hay una tarjeta «¿Tienes comentarios?» para enviar sugerencias e informes de errores."
         }
       ],
       "tips": [
-        "¿Quieres rediseñar Inicio? Ve a Ajustes → Widgets y visualización: ahí activas y desactivas widgets, y eliges estilo, grosor de texto y densidad.",
+        "¿Quieres rediseñar Inicio? Ve a Ajustes → Aspecto y formato → Pantalla de inicio: ahí activas y desactivas widgets, y eliges estilo, grosor de texto y densidad.",
         "El orden de los widgets se establece arrastrando la fila en Ajustes, o usando las flechas arriba/abajo. Los widgets de cita y resumen siempre están en la fila superior cuando están activados.",
         "Tocar la tarjeta de Tareas / Neto / Clientes no solo muestra un número: abre un filtro completo, y tus ajustes se guardan para la próxima vez.",
         "«Añadir rápido» en Inicio es un acceso directo para añadir cualquier cosa en la app (transacción, cliente, prospecto, tarea, proyecto, objetivo, recordatorio, sesión) sin cambiar de pantalla.",
@@ -139,7 +135,7 @@
       "faq": [
         {
           "q": "¿Cómo añado o quito un widget de Inicio?",
-          "a": "Ve a Ajustes → Widgets y visualización → abre la lista «Widgets» y activa o desactiva cada uno. No puedes añadir widgets directamente desde la propia pantalla de Inicio."
+          "a": "Ve a Ajustes → Aspecto y formato → Pantalla de inicio → abre la lista «Widgets» y activa o desactiva cada uno. No puedes añadir widgets directamente desde la propia pantalla de Inicio."
         },
         {
           "q": "¿Qué significa el porcentaje del círculo de Resumen?",
@@ -1123,113 +1119,100 @@
     },
     "settings": {
       "title": "Ajustes",
-      "intro": "Ajustes es donde personalizas la app para que se adapte a tu forma de trabajar. Está dividido en nueve secciones: desde tu perfil y la forma de tratamiento que prefieres, pasando por los widgets, los estados, las preguntas diarias y el diseño, hasta la exportación, la importación y la eliminación de la cuenta.",
+      "intro": "Ajustes es donde adaptas la app a ti. Tiene cuatro áreas — Personal, Aspecto y formato, Mi trabajo y Mi cuenta — con un campo de búsqueda arriba, por si escribir lo que buscas es más fácil que adivinar dónde está.",
       "features": [
         {
-          "title": "Cómo se organiza la pantalla — nueve secciones desplegables",
-          "body": "Los ajustes se dividen en secciones que se abren de una en una: Perfil, Widgets y visualización, Clientes y estados, Pagos y moneda, Preguntas diarias, Ajustes de prospectos, Diseño, Datos y Acerca de. Todas las secciones empiezan plegadas. Cuando abres una, la anterior se cierra."
+          "title": "Búsqueda: el camino corto",
+          "body": "Arriba hay un campo de búsqueda. Escribe una palabra — también vale un sinónimo, como «shekel», «fuente», «copia» o «calendario» — y la pantalla se reduce al ajuste correspondiente, ya abierto y listo. La ✕ borra la búsqueda y devuelve todas las áreas."
         },
         {
-          "title": "Perfil — nombre, forma de tratamiento y profesión",
-          "body": "Rellena tu nombre completo, elige la forma de tratamiento que prefieres (femenino, masculino o neutro) y selecciona tu profesión entre las opciones disponibles (terapeuta, coach, facilitador, profesor, instructor, otro). Elegir «Otro» abre un campo de texto libre —«¿A qué te dedicas?»— para tu propia descripción. La forma de tratamiento cambia la redacción en toda la app."
+          "title": "Cómo se organiza — cuatro áreas",
+          "body": "Personal · Aspecto y formato · Mi trabajo · Mi cuenta. Cada una se abre al tocarla y contiene secciones, y todas empiezan cerradas. Un área con una sola sección dentro — «Personal» — se abre directamente a su contenido, sin una segunda puerta."
         },
         {
-          "title": "Guardado automático en Perfil",
-          "body": "Aquí no hay botón de Guardar. Tu nombre y el campo de texto libre se guardan en cuanto haces clic fuera del campo, y aparece junto a ellos una pequeña nota «· Guardado». Aunque cierres la sección antes de hacer clic fuera, lo que escribiste se guarda. Elegir una forma de tratamiento o una profesión se guarda de inmediato al hacer clic."
+          "title": "Personal: tu nombre, tratamiento y profesión",
+          "body": "Aquí pones tu nombre completo, eliges el tratamiento (femenino, masculino o neutro) y seleccionas una profesión entre los botones. Si eliges «Otro», se abre un campo libre para describir lo que haces. El tratamiento cambia la redacción en toda la app."
         },
         {
-          "title": "Widgets y visualización — ajustes generales de visualización",
-          "body": "En la parte superior de esta sección hay tres controles que afectan a todas las tarjetas de la pantalla de Inicio: «Estilo de tarjeta» (esmerilado, plano o con borde), «Grosor del texto» (normal o negrita) y «Densidad» (compacta, normal o amplia)."
+          "title": "Se guarda solo, y te lo confirma",
+          "body": "No hay botón de guardar. El nombre y el campo libre se guardan al salir de ellos, incluso si cerraste el área antes. Cada cambio muestra un aviso breve «Ajuste guardado», y si falla (normalmente una conexión perdida) aparece un mensaje rojo arriba en lugar de que el valor vuelva atrás en silencio."
         },
         {
-          "title": "Gestionar los widgets de Inicio",
-          "body": "Debajo de los controles generales hay una sección desplegable llamada «Widgets». Ahí puedes activar o desactivar cada widget y reordenarlos arrastrando o usando los botones de flecha. Cada widget activo tiene su propio control de densidad (global, compacta, normal o amplia), y algunos también tienen un modo «Compacto». La lista incluye la cita diaria, el anillo de resumen, el Registro diario, añadir rápido / actualización de objetivo, las alertas, los próximos recordatorios, las próximas tareas y las tarjetas de estado."
+          "title": "Aspecto y formato: Apariencia",
+          "body": "Todo lo relativo al aspecto está aquí: idioma, claro/oscuro, fondo, tamaño del texto y, bajo «Aspecto de las tarjetas», el estilo (Cristal o Liso), el grosor de la letra (Normal o Gruesa) y el espacio entre elementos (Junto, Normal o Amplio). Los interruptores del calendario hebreo están al final."
         },
         {
-          "title": "Clientes y estados — subestados personalizados",
-          "body": "Aquí añades y eliminas subestados para cada grupo de clientes (activo, intermedio, antiguo, sin estado). Escribe un nombre y pulsa el botón más o Enter. Si eliminas un subestado que tiene clientes en él, se abre una ventana que te permite moverlos a otro subestado o dejarlos sin ninguno. También puedes deshacer si te equivocas."
+          "title": "Una tarjeta de ejemplo que cambia contigo",
+          "body": "Sobre los controles de las tarjetas hay una tarjeta de ejemplo real que cambia en tiempo real con cada elección. Así ves qué hace «Cristal» o «Amplio» sin salir de la pantalla: el resultado de esas opciones suele vivir en otras pantallas."
         },
         {
-          "title": "Pagos y moneda",
-          "body": "Elige tu moneda (₪ Séquel, $ Dólar o € Euro), el formato de fecha (DD/MM/YY, MM/DD/YY o YYYY-MM-DD), el formato de hora (24 horas o 12h AM/PM) y en qué día empieza la semana (domingo o lunes). La moneda que elijas cambia cómo se muestran los importes en toda la app."
+          "title": "Pantalla de inicio: qué aparece y en qué orden",
+          "body": "Una lista de todas las tarjetas de la pantalla de inicio, con un interruptor para mostrarlas u ocultarlas y flechas para reordenarlas. También puedes ordenarlas y ocultarlas en la propia pantalla de inicio: mantén pulsada una tarjeta. Las flechas siguen aquí para quien no usa ratón ni gestos."
         },
         {
-          "title": "Preguntas diarias — añadir, desactivar y eliminar",
-          "body": "Empiezas sin preguntas y las añades tú mismo con «Añadir pregunta». Puedes elegir entre una plantilla lista (ánimo, energía, sueño, concentración, alimentación, movimiento, calma) o escribir la tuya con texto libre, tipo de respuesta (escala 1–10 o sí/no) y un icono. Cada pregunta se puede desactivar, activar o eliminar. Una pregunta vinculada a un objetivo se marca con un icono de diana."
+          "title": "Moneda, fecha y hora",
+          "body": "Eliges moneda, formato de fecha, reloj y el día en que empieza tu semana. Las opciones de fecha y hora muestran hoy y ahora en cada formato, así que ves el resultado y eliges lo que se lee mejor, en vez de descifrar una abreviatura."
         },
         {
-          "title": "Programación de la pregunta",
-          "body": "Al hacer clic en la etiqueta de programación de una pregunta se abre un editor con tres opciones: «Cada día», «Días concretos» (elige días de la semana) y «Cada X días» (cada 2 a 30 días). Así una pregunta puede aparecer solo en los días que elijas. Haz clic en «Guardar» para confirmar, o «Cancelar» para salir sin cambios."
+          "title": "Mi trabajo: tipos de sesión y precios",
+          "body": "Tu lista de precios: un nombre para cada tipo de sesión y un precio por defecto. El precio de un tipo se aplica automáticamente a los clientes vinculados, salvo que tengan un precio manual. Nombre y precio se editan en la propia fila."
         },
         {
-          "title": "Recordatorio diario para las preguntas",
-          "body": "En la parte inferior de la sección Preguntas, bajo «Recordatorio diario», puedes activar un recordatorio y fijar una hora. Si no has respondido para esa hora, aparece un aviso suave en el widget de Registro diario de la pantalla de Inicio. El campo de hora solo aparece cuando el recordatorio está activado."
+          "title": "Preguntas diarias y el recordatorio",
+          "body": "Empiezas sin preguntas y las añades con «Añadir pregunta»: una plantilla lista o la tuya, con tipo de respuesta (escala 1–10 o sí/no) e icono. Al tocar la etiqueta de programación se abre «Cada día» / «Ciertos días» / «Cada X días». Abajo puedes activar un recordatorio diario y elegir la hora; si no has respondido para entonces, aparece un aviso suave en la tarjeta «¿Cómo estás hoy?»."
         },
         {
-          "title": "Ajustes de prospectos — fuentes de prospectos y etapas",
-          "body": "Bajo «Fuentes de prospectos» añades nuevas fuentes con un color y eliminas las existentes. Bajo «Etapas» gestionas los etapas de las columnas del tablero de prospectos (en curso, convertido, no relevante), también con colores, y con el mismo flujo de eliminar con reasignación que para los clientes."
+          "title": "Estados, etapas y orígenes: en sus propias pantallas",
+          "body": "Los subestados de clientes, y las etapas y orígenes de prospectos, se gestionan en las pantallas que los usan, no aquí. Ajustes tiene filas que llevan allí: «Subestados de clientes» abre la pantalla de clientes (donde el botón «Subestados» abre el editor: añadir, renombrar y eliminar moviendo a los clientes), y «Etapas y orígenes de prospectos» abre la pantalla de prospectos."
         },
         {
-          "title": "Diseño — modo claro/oscuro y tamaño del texto",
-          "body": "Aquí eliges el modo claro/oscuro (día o noche) y el tamaño del texto (pequeño, normal o grande). El tamaño del texto solo cambia la fuente, no el diseño de la pantalla. Para cambiar tu forma de tratamiento, ve a la sección Perfil, no aquí."
-        },
-        {
-          "title": "Datos — resumen, exportación e importación",
-          "body": "En la parte superior de esta sección puedes ver cuántos elementos tienes de cada tipo (clientes, transacciones, prospectos, tareas, proyectos, categorías). «Exportar datos» abre un único diálogo: o bien un archivo de Excel con una hoja por cada tipo, o bien una exportación aparte de transacciones / clientes / proyectos como CSV. «Importar desde archivo» admite archivos CSV, TSV y Excel —incluidos varios archivos y hojas a la vez—, detecta las columnas automáticamente, y te deja revisar y ajustar la correspondencia antes de importar nada."
+          "title": "Mi cuenta: Datos",
+          "body": "Arriba ves cuántos elementos tienes de cada cosa. «Exportar datos» abre una única ventana: un archivo Excel con una hoja por tipo, o una exportación aparte de movimientos / clientes / proyectos en CSV. «Importar desde archivo» lee CSV, TSV y Excel, reconoce las columnas solo y te deja corregirlas antes de escribir nada. «Repetir la introducción» también está aquí."
         },
         {
           "title": "Exportar datos sensibles (opcional)",
-          "body": "El diálogo de exportación tiene casillas para datos sensibles: sesiones, objetivos, respuestas diarias y reflexiones. Están desactivadas por defecto y se restablecen cada vez que abres el diálogo. Marcar una casilla añade más hojas al archivo de Excel, y los datos se exportan como texto sin cifrar, así que guarda el archivo en un lugar seguro."
+          "body": "La ventana de exportación tiene casillas para datos sensibles: sesiones, objetivos, respuestas diarias y reflexiones. Están desactivadas por defecto y se reinician cada vez que se abre la ventana. Marcarlas añade hojas al archivo, y los datos salen como texto legible, así que guarda el archivo en un sitio seguro."
         },
         {
-          "title": "Reiniciar el flujo de introducción",
-          "body": "Esto reinicia el asistente de introducción desde el principio, útil si lo saltaste. No es destructivo: los pasos del asistente se restablecen, pero todo lo que ya creaste (clientes, proyectos, etc.) se queda. Verás una breve confirmación antes de continuar."
+          "title": "Restablecer y eliminar: una sección aparte",
+          "body": "Las dos acciones irreversibles están en su propia sección, no al final del desplazamiento de exportación. «Borrar todos los datos y empezar de cero» vacía el contenido de la cuenta y reinicia la introducción. «Eliminar la cuenta permanentemente» borra la cuenta entera, incluido tu inicio de sesión, con 30 días de gracia para arrepentirte. Ambas piden confirmación después de pulsar."
         },
         {
-          "title": "Restablecer cuenta — eliminar todos los datos",
-          "body": "«Eliminar todos los datos y empezar de cero» quita todo lo que hay en tu cuenta (clientes, proyectos, grupos, prospectos, transacciones y gastos recurrentes, categorías, tareas, objetivos, preguntas y respuestas, sesiones, notas, recordatorios, estados y fuentes) y reinicia la introducción. Tienes que confirmar dos veces: primero una advertencia, luego escribe la palabra «eliminar». Esto no se puede deshacer."
-        },
-        {
-          "title": "Eliminar la cuenta de forma permanente",
-          "body": "«Eliminar la cuenta de forma permanente» marca toda tu cuenta para su eliminación, incluido tu propio inicio de sesión, no solo los datos. Tienes que confirmar dos veces y escribir «eliminar cuenta». No ocurre de inmediato: comienza un periodo de gracia de 30 días durante el cual puedes cambiar de opinión y cancelar en cualquier inicio de sesión. Solo después de ese periodo de gracia se elimina todo de forma permanente."
-        },
-        {
-          "title": "Acerca de — tres pestañas",
-          "body": "La sección «Acerca de» tiene tres pestañas: «Acerca de» (qué es la app, sus principios, la versión y los créditos) con enlaces a la Política de privacidad, las Condiciones de uso y el Acuerdo de tratamiento de datos; «Guía» —la explicación completa de cada pantalla (la misma ayuda que aparece en el botón ?)—; y «Preguntas frecuentes»."
+          "title": "Acerca de, y las salidas",
+          "body": "«Acerca de» contiene la versión, los principios y los enlaces a la Política de Privacidad, los Términos de Uso y el Acuerdo de Tratamiento de Datos. En la misma área hay filas que llevan a «Conexiones» (Google Calendar, facturas, WhatsApp) y a «Papelera». La guía completa y las preguntas frecuentes se mudaron a una pantalla de ayuda propia: desde el menú («Más») → «Ayuda y guía», o desde el botón ? de cualquier pantalla."
         }
       ],
       "tips": [
-        "Vale la pena fijar primero tu forma de tratamiento en la sección Perfil: cambia la redacción en toda la app, incluido el texto de otras pantallas.",
-        "Tu perfil se guarda automáticamente: solo haz clic fuera del campo (o cierra la sección) y el cambio queda capturado. No hay botón de Guardar.",
-        "Vale la pena exportar todos tus datos a Excel al menos una vez al mes como copia de seguridad. Los archivos de clientes y proyectos se guardan en un formato que se puede volver a importar.",
-        "Antes de eliminar un subestado que tiene clientes o prospectos en él, elige en el diálogo a dónde moverlos, para no dejar registros sin etiqueta. Y aunque te equivoques, hay una opción de deshacer.",
-        "¿Quieres una pregunta diaria que solo aparezca entre semana? Abre la programación de la pregunta, elige «Días concretos» y marca los días.",
-        "No confundas «Restablecer cuenta» (elimina los datos, escribes «eliminar») con «Eliminar la cuenta de forma permanente» (elimina también tu inicio de sesión, escribes «eliminar cuenta», con 30 días para cambiar de opinión)."
+        "¿No sabes dónde está algo? No adivines: escribe la palabra en el campo de búsqueda de arriba. Hasta «shekel» o «fuente» te llevan al sitio.",
+        "El idioma está en «Aspecto y formato → Apariencia», junto con claro/oscuro y el tamaño del texto, no en «Personal».",
+        "Todo se guarda solo. El aviso «Ajuste guardado» es la confirmación; si algo falla verás un mensaje rojo, no silencio.",
+        "¿Quieres ver qué hace «Cristal» o «Amplio»? La tarjeta de ejemplo sobre los controles cambia contigo en tiempo real.",
+        "Los subestados de clientes y las etapas de prospectos se editan en sus pantallas. Las filas de Ajustes son el atajo."
       ],
       "faq": [
         {
-          "q": "Cambié mi nombre o profesión y no vi un botón de Guardar, ¿se guardó?",
-          "a": "Sí. No hay botón de Guardar en Perfil. Tu nombre y el campo de texto libre se guardan en cuanto haces clic fuera del campo (e incluso si cierras la sección a mitad de la edición), y seleccionar una forma de tratamiento o una profesión se guarda de inmediato al hacer clic. Aparece una nota «· Guardado» junto a un campo que se ha guardado."
+          "q": "¿Dónde cambio el idioma?",
+          "a": "Ajustes → Aspecto y formato → Apariencia. Está junto a claro/oscuro, el fondo y el tamaño del texto, y cambia de inmediato."
         },
         {
-          "q": "¿Por qué no tengo ninguna pregunta diaria en la sección Preguntas?",
-          "a": "Es lo esperado: la app no configura preguntas de antemano. Haz clic en «Añadir pregunta» y elige una plantilla lista o crea la tuya. Una vez que hayas añadido preguntas, puedes fijar una programación para cada una y activarlas o desactivarlas."
+          "q": "¿Dónde añado o elimino un subestado de cliente?",
+          "a": "En la pantalla de clientes, con el botón «Subestados» de la barra. Puedes añadir, renombrar (toca el nombre) y eliminar; al eliminar uno con clientes te pregunta a dónde moverlos. Ajustes tiene una fila que lleva allí."
         },
         {
-          "q": "¿Cuál es la diferencia entre «Restablecer cuenta» y «Eliminar la cuenta de forma permanente»?",
-          "a": "Restablecer tu cuenta elimina todos tus datos y reinicia la introducción, pero tu inicio de sesión se queda. Eliminar tu cuenta marca tu propio inicio de sesión para su eliminación, con un periodo de gracia de 30 días para cancelar antes de que todo se elimine de forma permanente. Ambas acciones requieren doble confirmación y escribir una palabra diferente («eliminar» frente a «eliminar cuenta»)."
+          "q": "¿Dónde están las etapas y los orígenes de prospectos?",
+          "a": "En la pantalla de prospectos: la pestaña «Estados» gestiona las etapas y el botón «Fuentes», los orígenes. Ajustes tiene una fila que lleva allí."
         },
         {
-          "q": "Si reinicio la introducción, ¿perderé los datos que ya introduje?",
-          "a": "No. «Reiniciar la introducción» solo restablece los pasos del asistente al principio. Los clientes, proyectos y datos que ya creaste se quedan. Si quieres eliminar los datos en sí, eso es «Restablecer cuenta» en la sección de peligro."
+          "q": "¿Dónde están la guía completa y las preguntas frecuentes?",
+          "a": "En una pantalla de ayuda propia: menú («Más») → «Ayuda y guía». También desde el botón ? de cualquier pantalla, con «La guía completa de todas las pantallas»."
         },
         {
-          "q": "¿La exportación incluye mis sesiones y reflexiones sensibles?",
-          "a": "Solo si marcas las casillas. El diálogo de exportación tiene casillas para datos sensibles (sesiones, objetivos, respuestas diarias, reflexiones), y están desactivadas por defecto. Cuando las marcas, se añaden al archivo de Excel como texto sin cifrar, así que guarda el archivo en un lugar seguro."
+          "q": "Cambié un ajuste y no sé si se guardó",
+          "a": "Cada cambio muestra un breve «Ajuste guardado». Si apareció un mensaje rojo arriba, el guardado falló —normalmente por conexión— y conviene reintentarlo."
         },
         {
-          "q": "¿Dónde cambio el modo oscuro o el tamaño del texto?",
-          "a": "En la sección «Diseño». Ahí eliges el modo claro/oscuro y el tamaño del texto (pequeño, normal, grande). El tamaño del texto solo cambia la fuente, no el diseño de la pantalla. Para cambiar tu forma de tratamiento (masculino/femenino/neutro), ve a la sección Perfil en su lugar."
+          "q": "¿Por qué «Eliminar cuenta» ya no está en «Datos»?",
+          "a": "Tiene su propia sección, «Restablecer y eliminar», para no compartir desplazamiento con exportar e importar. Las acciones no cambiaron, ni la doble confirmación."
         }
       ]
     },
@@ -1367,7 +1350,7 @@
         },
         {
           "q": "¿Cómo elimino mi cuenta?",
-          "a": "Ajustes → Datos → Eliminar la cuenta de forma permanente. Esto elimina toda la cuenta, incluido tu inicio de sesión, y requiere dos confirmaciones con entrada escrita. Tras la eliminación hay un periodo de gracia de 30 días: durante ese tiempo puedes cambiar de opinión y cancelar."
+          "a": "Ajustes → Mi cuenta → Restablecer y eliminar. Esto elimina toda la cuenta, incluido tu inicio de sesión, y requiere dos confirmaciones con entrada escrita. Tras la eliminación hay un periodo de gracia de 30 días: durante ese tiempo puedes cambiar de opinión y cancelar."
         }
       ]
     },
@@ -1388,7 +1371,7 @@
         },
         {
           "q": "¿Puedo cambiar el orden de las pantallas en la navegación?",
-          "a": "El orden de las pantallas en la navegación es fijo por ahora. Puedes personalizar la pantalla de Inicio: Ajustes → Widgets y visualización. Ahí activas y desactivas widgets, cambias su orden y eliges un estilo de visualización."
+          "a": "El orden de las pantallas en la navegación es fijo por ahora. Puedes personalizar la pantalla de Inicio: Ajustes → Aspecto y formato → Pantalla de inicio. Ahí activas y desactivas widgets, cambias su orden y eliges un estilo de visualización."
         }
       ]
     },

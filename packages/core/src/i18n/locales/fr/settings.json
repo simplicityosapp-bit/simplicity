@@ -9,11 +9,11 @@
   "sections": {
     "profile": {
       "title": "Profil",
-      "sub": "Nom, métier, forme d'adresse et langue"
+      "sub": "Votre nom, forme d'adresse et métier"
     },
     "design": {
       "title": "Apparence",
-      "sub": "Clair/sombre, fond, taille du texte et cartes"
+      "sub": "Langue, clair/sombre, fond et l'apparence de l'app"
     },
     "home": {
       "title": "Écran d'accueil",
@@ -21,7 +21,7 @@
     },
     "payments": {
       "title": "Devise, date et heure",
-      "sub": "Comment sont affichés montants, dates et heures"
+      "sub": "Devise, date, heure et premier jour de la semaine"
     },
     "meetingTypes": {
       "title": "Types de séance et tarifs",
@@ -55,11 +55,11 @@
   "groups": {
     "personal": {
       "title": "Personnel",
-      "sub": "Nom, métier, forme d'adresse et langue"
+      "sub": "Votre nom, forme d'adresse et métier"
     },
     "appearance": {
       "title": "Aspect et affichage",
-      "sub": "L'apparence de l'app, et l'affichage des dates et montants"
+      "sub": "Langue, apparence de l'app et affichage des dates et montants"
     },
     "work": {
       "title": "Mon activité",
@@ -67,7 +67,7 @@
     },
     "account": {
       "title": "Mon compte",
-      "sub": "Vos données, réinitialisation et informations sur l'app"
+      "sub": "Données, connexions, réinitialisation et informations sur l'app"
     }
   },
   "common": {

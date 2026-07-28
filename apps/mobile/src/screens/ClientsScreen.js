@@ -629,7 +629,9 @@ const styles = StyleSheet.create({
   statusMetaText: { fontSize: 12.5, color: colors.textSub },
   statusMetaTextOn: { color: colors.onBrand },
   statusAddRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  statusInput: { flex: 1, minWidth: 0, height: 44, paddingHorizontal: 12, borderRadius: 12, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.divider, color: colors.text, fontSize: 14 },
+  /* No minWidth:0 — that's a CSS flexbox workaround; RN's flex has no such
+     default and doesn't need it. */
+  statusInput: { flex: 1, height: 44, paddingHorizontal: 12, borderRadius: 12, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.divider, color: colors.text, fontSize: 14 },
   statusAddBtn: { width: 44, height: 44, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.brand },
 
   sortOpt: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 13, paddingHorizontal: 4 },

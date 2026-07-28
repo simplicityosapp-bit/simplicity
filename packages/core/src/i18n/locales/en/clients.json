@@ -262,7 +262,7 @@
   "statuses": {
     "link": "Sub-statuses",
     "title": "Manage sub-statuses",
-    "hint": "Your own sub-statuses inside the four fixed groups. Tap a name to edit it.",
+    "hint": "Your own sub-statuses inside the four fixed groups.",
     "placeholder": "Sub-status in \"{{meta}}\"",
     "empty": "No sub-status here yet.",
     "loading": "Loading…",
@@ -273,6 +273,7 @@
     "renameAria": "New name for {{name}}",
     "saveName": "Save the name",
     "cancelRename": "Cancel",
-    "close": "Close"
+    "close": "Close",
+    "hintRename": "Tap a name to edit it."
   }
 }

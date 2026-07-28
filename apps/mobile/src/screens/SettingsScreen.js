@@ -58,7 +58,17 @@ const GROUP_ICON = { personal: User, appearance: Eye, work: Briefcase, account: 
 // to its own destination, since a react-router path means nothing here.
 // A key with no entry is simply not drawn — this build has no subscription
 // or help screen, so those rows don't appear.
-const LINK_TARGET = { clients: 'Clients', leads: 'Leads', connections: 'Connections', trash: 'Trash' }
+// Settings is a STACK screen, so a bare name only resolves to another stack
+// screen. Clients is a TAB inside "Main" — navigating to it by name from here
+// is not handled by any navigator and silently does nothing, which is how
+// BottomBar and TileDrillModal already reach it. Leads / Connections / Trash
+// are stack screens and take the plain form.
+const LINK_TARGET = {
+  clients: ['Main', { screen: 'Clients' }],
+  leads: ['Leads'],
+  connections: ['Connections'],
+  trash: ['Trash'],
+}
 const LINK_ICON = { clients: Users, leads: Leaf, connections: Plug, trash: Trash2 }
 
 // On/off switch (mirrors web Switch). RN has no built-in, so it's a pill track + knob.
@@ -471,7 +481,7 @@ export default function SettingsScreen() {
                     const LinkIcon = LINK_ICON[key] || Info
                     return (
                       <Card key={key} padded={false} style={styles.sectionOuter} contentStyle={styles.section}>
-                        <Pressable style={styles.secHead} onPress={() => nav.navigate(LINK_TARGET[key])}>
+                        <Pressable style={styles.secHead} onPress={() => nav.navigate(...LINK_TARGET[key])}>
                           <View style={styles.secIcon}><LinkIcon size={17} strokeWidth={1.7} color={colors.brand} /></View>
                           <View style={styles.secTitleWrap}>
                             <Text style={styles.secTitle}>{T(`links.${key}.title`, { defaultValue: key })}</Text>

@@ -262,7 +262,7 @@
   "statuses": {
     "link": "Subestados",
     "title": "Gestionar subestados",
-    "hint": "Tus propios subestados dentro de los cuatro grupos fijos. Toca un nombre para editarlo.",
+    "hint": "Tus propios subestados dentro de los cuatro grupos fijos.",
     "placeholder": "Subestado en «{{meta}}»",
     "empty": "Aquí todavía no hay ningún subestado.",
     "loading": "Cargando…",
@@ -273,6 +273,7 @@
     "renameAria": "Nuevo nombre para {{name}}",
     "saveName": "Guardar el nombre",
     "cancelRename": "Cancelar",
-    "close": "Cerrar"
+    "close": "Cerrar",
+    "hintRename": "Toca un nombre para editarlo."
   }
 }

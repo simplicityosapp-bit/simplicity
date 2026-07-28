@@ -43,6 +43,26 @@ export function screenKeyFromPath(pathname) {
   return 'home'
 }
 
+/* Screens that deliberately have no guide entry, so HelpFab draws no "?" at
+   all. Lives beside screenKeyFromPath — it is a statement about screen keys,
+   and a component file may only export components if react-refresh is to
+   keep working.
+
+   The distinction matters: an unknown key makes HelpFab fall back to the
+   HOME guide, so a screen with no entry gets a "?" that confidently explains
+   the wrong screen. Silence is better, and the guide's coverage test uses
+   this set to tell "deliberately silent" from "nobody wrote it yet". */
+export const NO_HELP_SCREENS = new Set([
+  'subscription',
+  'help',        // the guide itself — a "?" would summarise the page you're on
+  'onboarding',  // runs without app chrome, so no "?" is drawn anyway
+  'leadPages',   // retired route; App redirects it to the /pages hub
+  /* The booking-page builder has no entry written yet. Until one exists it
+     stays silent rather than falling back to the home guide, which is about
+     widgets and tells a builder user nothing true. */
+  'bookingPages',
+])
+
 /* Bottom tab bar — 4 quick screens + the menu button (handled separately).
    Order chosen 25.05.26 (matches the prototype's .mg-bottombar). Display
    labels resolve via i18n at the call site (nav:items.<key>). */

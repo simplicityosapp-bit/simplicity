@@ -228,7 +228,13 @@ export default function LeadsScreen() {
           </View>
 
           {view === 'statuses' ? (
-            <LeadStatusesPanel leadStatuses={tax.leadStatuses} onAdd={tax.addLeadStatus} onRemove={tax.removeLeadStatus} onUpdate={tax.updateLeadStatus} />
+            <View style={{ gap: 20 }}>
+              <LeadStatusesPanel leadStatuses={tax.leadStatuses} onAdd={tax.addLeadStatus} onRemove={tax.removeLeadStatus} onUpdate={tax.updateLeadStatus} />
+              {/* Sources belong to this tab too — it is the lead TAXONOMY tab,
+                  and stages alone left settings as the only place in the app
+                  that could delete a source. */}
+              <LeadSourcesPanel sources={tax.leadSources} onAdd={tax.addLeadSource} onRemove={tax.removeLeadSource} />
+            </View>
           ) : (
           <>
           <View style={styles.statsRow}>
@@ -529,7 +535,47 @@ function StatusGroup({ meta, title, statuses, onAdd, onRemove, onUpdate }) {
     </View>
   )
 }
+// Where leads come from. Add + remove, in the same chip rhythm as the stage
+// groups above. Colour isn't set here: the shared taxonomy hook inserts a
+// source by name only, and inventing a picker that writes a column mobile
+// never reads would be a second source of truth, not a feature.
+function LeadSourcesPanel({ sources, onAdd, onRemove }) {
+  const [draft, setDraft] = useState('')
+  const [busy, setBusy] = useState(false)
+  const add = async () => {
+    const v = draft.trim(); if (!v || busy) return
+    setBusy(true); try { await onAdd(v); setDraft('') } finally { setBusy(false) }
+  }
+  const live = (sources || []).filter((s) => !s.deleted_at)
+  return (
+    <View style={styles.sgroup}>
+      <Text style={styles.sgroupTitle}>{i18n.t('leads:sourcesModal.title', { defaultValue: 'מקורות פנייה' })}</Text>
+      <View style={styles.chips}>
+        {live.length ? live.map((s) => (
+          <View key={s.id} style={styles.chip}>
+            {s.color ? <View style={[styles.chipDot, { backgroundColor: s.color }]} /> : null}
+            <Text style={styles.chipText}>{s.name}</Text>
+            <Pressable onPress={() => onRemove(s.id)} hitSlop={6}><X size={12} strokeWidth={2} color={colors.textFaint} /></Pressable>
+          </View>
+        )) : <Text style={styles.chipEmpty}>—</Text>}
+      </View>
+      <View style={styles.addRow}>
+        <TextInput
+          style={styles.addInput}
+          value={draft}
+          onChangeText={setDraft}
+          placeholder={i18n.t('leads:sourcesModal.placeholder', { defaultValue: 'מקור חדש…' })}
+          placeholderTextColor={colors.textFaint}
+          onSubmitEditing={add}
+        />
+        <Pressable style={styles.addBtn} onPress={add} disabled={busy || !draft.trim()}><Plus size={18} strokeWidth={2} color={colors.onBrand} /></Pressable>
+      </View>
+    </View>
+  )
+}
+
 LeadStatusesPanel.displayName = 'LeadStatusesPanel'
+LeadSourcesPanel.displayName = 'LeadSourcesPanel'
 StatusGroup.displayName = 'StatusGroup'
 
 const styles = StyleSheet.create({

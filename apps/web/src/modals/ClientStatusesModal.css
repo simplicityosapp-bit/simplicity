@@ -1,0 +1,105 @@
+/* Client sub-status editor — one block per meta group. Mirrors the list
+   rhythm the settings editor used, so the move reads as a relocation
+   rather than a redesign. */
+.cst-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 4px;
+}
+.cst-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--divider);
+}
+.cst-meta {
+  margin: 0 0 2px;
+  font-family: var(--mg-font);
+  font-size: calc(13px * var(--text-scale));
+  font-weight: 600;
+  color: var(--espresso);
+}
+.cst-empty {
+  margin: 0;
+  font-family: var(--mg-font);
+  font-size: calc(12px * var(--text-scale));
+  font-style: italic;
+  color: var(--stone);
+}
+.cst-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 0;
+  border-bottom: 1px solid var(--divider);
+}
+.cst-row:last-of-type { border-bottom: none; }
+
+/* The name doubles as the rename trigger, so it has to look pressable
+   without becoming a button-shaped thing in a list of plain rows. */
+.cst-name {
+  flex: 1;
+  min-width: 0;
+  text-align: start;
+  border: none;
+  background: transparent;
+  padding: 6px 6px;
+  border-radius: 8px;
+  font-family: var(--mg-font);
+  font-size: calc(13px * var(--text-scale));
+  color: var(--espresso);
+  cursor: text;
+  transition: background 0.12s;
+}
+.cst-name:hover,
+.cst-name:focus-visible { background: var(--mg-row-hover-bg); }
+
+.cst-edit-input { flex: 1; min-width: 0; }
+
+.cst-icon-btn {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: var(--stone);
+  cursor: pointer;
+}
+.cst-icon-btn:hover { background: var(--mg-row-hover-bg); color: var(--espresso); }
+.cst-del { color: var(--clay); }
+.cst-del:hover { color: var(--clay); }
+
+.cst-add {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+}
+.cst-add .m-input { flex: 1; min-width: 0; }
+.cst-add-btn {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+  padding: 0 12px;
+  border-radius: var(--mg-btn-radius);
+  border: 1px solid var(--divider);
+  background: transparent;
+  color: var(--terracotta);
+  cursor: pointer;
+}
+.cst-add-btn:disabled { opacity: 0.45; cursor: default; }
+
+/* Touch targets on a phone — these are the same 26/30px controls that made
+   the settings copy hard to hit. */
+@media (max-width: 767px) {
+  .cst-icon-btn { width: 38px; height: 38px; }
+}

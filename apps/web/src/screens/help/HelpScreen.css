@@ -1,0 +1,177 @@
+/* ════════════════════════════════════════════════════════════════
+   HELP SCREEN — the full guide + the FAQ.
+   ════════════════════════════════════════════════════════════════
+   Lifted out of Settings → אודות, where the same markup carried .set-*
+   names. The rules are the settings ones renamed, so the reading
+   experience is unchanged — only its address is. The .help-tip* classes
+   are NOT redefined here: they belong to HelpFab.css, which AppShell
+   always loads, and the two surfaces are meant to look identical.
+   ════════════════════════════════════════════════════════════════ */
+
+.hs-screen {
+  max-width: var(--mg-content-narrow, 780px);
+}
+
+/* ── Tabs (מדריך · שאלות נפוצות) ─────────────────────────────── */
+.hs-tabs {
+  display: flex;
+  gap: 2px;
+  padding: 3px;
+  margin-bottom: 16px;
+  border-radius: 14px;
+  background: var(--mg-card-bg);
+  border: var(--mg-card-border);
+  backdrop-filter: var(--mg-card-blur);
+}
+.hs-tab {
+  flex: 1 1 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 11px 8px;
+  border-radius: 11px;
+  font-family: var(--mg-font);
+  font-size: calc(13.5px * var(--text-scale));
+  font-weight: 500;
+  color: var(--stone);
+  transition: background 0.15s, color 0.15s;
+}
+.hs-tab.on {
+  background: rgba(255, 255, 255, 0.62);
+  color: var(--espresso);
+  box-shadow: var(--mg-card-shadow);
+}
+[data-theme="dark"] .hs-tab.on {
+  background: rgba(220, 230, 255, 0.16);
+}
+
+.hs-intro {
+  margin: 0 0 8px;
+  font-family: var(--mg-font);
+  font-size: calc(13px * var(--text-scale));
+  line-height: 1.55;
+  color: var(--stone);
+}
+
+/* ── Guide: one collapsible per screen ───────────────────────── */
+.hs-guide,
+.hs-faq {
+  border-radius: var(--mg-card-radius);
+  border: var(--mg-card-border);
+  background: var(--mg-card-bg);
+  box-shadow: var(--mg-card-shadow);
+  backdrop-filter: var(--mg-card-blur);
+  padding: 18px 20px;
+}
+.hs-guide-screen { border-bottom: 1px solid var(--divider); }
+.hs-guide-screen:last-of-type { border-bottom: none; }
+.hs-guide-screen > summary {
+  list-style: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 2px;
+  font-family: var(--mg-font);
+  font-size: calc(14.5px * var(--text-scale));
+  font-weight: 600;
+  color: var(--espresso);
+}
+.hs-guide-screen > summary::-webkit-details-marker { display: none; }
+.hs-chev {
+  margin-inline-start: auto;
+  color: var(--stone);
+  opacity: 0.7;
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+}
+.hs-guide-screen[open] > summary .hs-chev,
+.hs-faq-item[open] > summary .hs-chev { transform: rotate(180deg); }
+.hs-guide-body { padding: 0 2px 16px; }
+.hs-guide-intro {
+  margin: 0 0 12px;
+  font-family: var(--mg-font);
+  font-size: calc(12.5px * var(--text-scale));
+  font-style: italic;
+  line-height: 1.6;
+  color: var(--mist);
+}
+.hs-feat { margin-bottom: 11px; }
+.hs-feat-t {
+  margin: 0 0 2px;
+  font-family: var(--mg-font);
+  font-size: calc(13px * var(--text-scale));
+  font-weight: 600;
+  color: var(--espresso);
+}
+.hs-feat-b {
+  margin: 0;
+  font-family: var(--mg-font);
+  font-size: calc(12.5px * var(--text-scale));
+  line-height: 1.6;
+  color: var(--stone);
+}
+.hs-sub {
+  margin: 16px 0 6px;
+  font-family: var(--mg-font);
+  font-size: calc(11px * var(--text-scale));
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--terracotta);
+}
+.hs-qa { margin-bottom: 10px; }
+.hs-q {
+  margin: 0 0 2px;
+  font-family: var(--mg-font);
+  font-size: calc(12.5px * var(--text-scale));
+  font-weight: 600;
+  color: var(--espresso);
+}
+.hs-a {
+  margin: 0;
+  padding: 0 2px 13px;
+  font-family: var(--mg-font);
+  font-size: calc(12.5px * var(--text-scale));
+  line-height: 1.65;
+  color: var(--stone);
+}
+.hs-qa .hs-a { padding: 0; }
+
+/* ── FAQ: categorised collapsibles ───────────────────────────── */
+.hs-faq-group { margin-bottom: 8px; }
+.hs-faq-cat {
+  margin: 16px 2px 4px;
+  font-family: var(--mg-font);
+  font-size: calc(11px * var(--text-scale));
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--terracotta);
+}
+.hs-faq-group:first-child .hs-faq-cat { margin-top: 0; }
+.hs-faq-item { border-bottom: 1px solid var(--divider); }
+.hs-faq-group:last-child .hs-faq-item:last-of-type { border-bottom: none; }
+.hs-faq-item > summary {
+  list-style: none;
+  cursor: pointer;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 12px 2px;
+  font-family: var(--mg-font);
+  font-size: calc(13px * var(--text-scale));
+  font-weight: 500;
+  line-height: 1.5;
+  color: var(--espresso);
+}
+.hs-faq-item > summary::-webkit-details-marker { display: none; }
+
+@media (max-width: 767px) {
+  .hs-guide,
+  .hs-faq { padding: 14px; }
+}

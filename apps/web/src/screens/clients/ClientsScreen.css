@@ -402,6 +402,26 @@
   margin-bottom: 12px;
   flex-wrap: wrap;
 }
+/* Opens the sub-status editor. Same pill as the leads screen's "מקורות"
+   button, so the two taxonomy entry points read as the same kind of thing. */
+.c-statuses-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 13px;
+  border-radius: 999px;
+  border: 1px solid var(--divider);
+  background: var(--mg-card-bg);
+  -webkit-backdrop-filter: var(--mg-card-blur);
+  backdrop-filter: var(--mg-card-blur);
+  font-family: var(--mg-font);
+  font-size: calc(12px * var(--text-scale));
+  font-weight: 500;
+  color: var(--espresso);
+  cursor: pointer;
+}
+.c-statuses-link:hover { border-color: var(--espresso); }
+
 .c-sort-wrap {
   position: relative;
   display: inline-block;

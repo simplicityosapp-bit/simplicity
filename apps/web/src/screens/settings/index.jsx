@@ -1,18 +1,16 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { useNavigate, useLocation } from 'react-router-dom'
 import {
-  ChevronDown, ChevronUp, User, LayoutGrid, Users, Target, Wallet, Sparkles, Palette, Info,
-  Plus, Trash2, Leaf, CalendarDays, Database, Download, Upload,
-  BookOpen, HelpCircle, Lightbulb, Eye, Layers,
+  ChevronDown, ChevronUp, ChevronLeft, Target, Sparkles,
+  Plus, Trash2, CalendarDays, Download, Upload, Search, X,
 } from 'lucide-react'
+import { SECTION_DEFS, SECTION_GROUPS, groupOfSection, soleSectionOf } from './sections'
+import { searchTree } from './searchSettings'
 import { ROUTES } from '../../lib/routes'
 import { buildSheetsFromFiles, ACCEPT } from '../../lib/importFlow'
 import ImportDataModal from '../onboarding/ImportDataModal'
 import { useUserQuestions } from '../../hooks/useUserQuestions'
-import { useLeadSources } from '../../hooks/useLeadSources'
-import { useClientStatuses } from '../../hooks/useClientStatuses'
-import { useLeadStatuses } from '../../hooks/useLeadStatuses'
 import { useUserPreferences } from '../../hooks/useUserPreferences'
 import { useClients } from '../../hooks/useClients'
 import { useProjects } from '../../hooks/useProjects'
@@ -21,11 +19,8 @@ import { useCategories } from '../../hooks/useCategories'
 import { useTasks } from '../../hooks/useTasks'
 import { useLeads } from '../../hooks/useLeads'
 import { useGoals } from '../../hooks/useGoals'
-import { countClientsByStatus, reassignClientsStatus, reassignClientsStatusByIds, restoreClientStatus } from '../../lib/api/clientStatuses'
-import { countLeadsByStatus, reassignLeadsStatus, reassignLeadsStatusByIds, restoreLeadStatus } from '../../lib/api/leadStatuses'
-import { pushUndo } from '../../lib/undo'
+import { pushNote } from '../../lib/undo'
 import { MeetingTypesManager } from '../../modals/MeetingTypesModal'
-import DeleteSubStatusModal from '../../modals/DeleteSubStatusModal'
 import ResetAccountModal from '../../modals/ResetAccountModal'
 import ConfirmModal from '../../modals/ConfirmModal'
 import DeleteAccountModal from '../../modals/DeleteAccountModal'
@@ -35,93 +30,101 @@ import {
   TEXT_SIZE_OPTIONS, WIDGET_REGISTRY, setWidgetVisible, moveWidgetTo,
   CARD_STYLE_OPTIONS, TEXT_STRENGTH_OPTIONS, DENSITY_OPTIONS,
 } from '../../lib/preferences'
-import { CATEGORY_COLORS } from '../../lib/api/categories'
 import { useT } from '../../i18n/useT'
-import { LANGUAGE_OPTIONS, setLanguage as applyLanguage } from '@simplicity/core/i18n'
-import { questionText, describeSchedule } from '@simplicity/core'
+/* The instance, not the hook's `t`: savePrefs must keep a stable identity
+   (ProfileBody's commit-on-unmount effect depends on it) and the hook's `t`
+   is re-created on a language change. */
+import i18n, { LANGUAGE_OPTIONS, setLanguage as applyLanguage } from '@simplicity/core/i18n'
+import { questionText, describeSchedule, formatDateAs, formatTimeAs } from '@simplicity/core'
 import { exportTransactionsCSV, exportClientsCSV, exportProjectsCSV, exportAllXLSX } from '../../lib/export'
 import { loadSensitiveExportData } from '../../lib/exportSensitive'
 import ExportDataModal from '../../modals/ExportDataModal'
 import { defaultOnboarding } from '../../lib/preferences'
 import AddQuestionModal from '../../modals/AddQuestionModal'
 import QuestionScheduleEditor from './QuestionScheduleEditor'
-import { getHelpScreen, getGlobalFaq, getAboutContent } from '../../lib/helpContent'
+/* The guide and the FAQ readers moved with them to screens/help; only the
+   app's own identity is still read here. */
+import { getAboutContent } from '../../lib/helpContent'
 import MG from '../../components/MG'
 import './SettingsScreen.css'
 import { Box, Txt, Btn, Input } from '../../components/ui'
 
-/* Section identity (key + icon). Titles + subtitles are translated at
-   render time via t(`sections.${key}.title` / `.sub`). */
-const SECTION_DEFS = {
-  profile: { key: 'profile', icon: User, titleKey: 'sections.profile.title', subKey: 'sections.profile.sub' },
-  widgets: { key: 'widgets', icon: LayoutGrid, titleKey: 'sections.widgets.title', subKey: 'sections.widgets.sub' },
-  clients: { key: 'clients', icon: Users, titleKey: 'sections.clients.title', subKey: 'sections.clients.sub' },
-  payments: { key: 'payments', icon: Wallet, titleKey: 'sections.payments.title', subKey: 'sections.payments.sub' },
-  questions: { key: 'questions', icon: Sparkles, titleKey: 'sections.questions.title', subKey: 'sections.questions.sub' },
-  leads: { key: 'leads', icon: Leaf, titleKey: 'sections.leads.title', subKey: 'sections.leads.sub' },
-  design: { key: 'design', icon: Palette, titleKey: 'sections.design.title', subKey: 'sections.design.sub' },
-  data: { key: 'data', icon: Database, titleKey: 'sections.data.title', subKey: 'sections.data.sub' },
-  about: { key: 'about', icon: Info, titleKey: 'sections.about.title', subKey: 'sections.about.sub' },
+/* ── Edge hint for a row that scrolls sideways ────────────────────
+   Below 640px an option row that doesn't fit scrolls instead of wrapping
+   (the C6 rule in Modal.css). That protects the layout and says nothing:
+   on a 375px phone the מקצוע row hides 143px — the last two roles sit
+   off-screen with no sign they exist. This marks the element while there
+   is still something past its trailing edge; the CSS fades that edge, and
+   the fade lifts the moment the end is reached.
+
+   MEASURED, never assumed: a row that fits is never marked, which is why
+   the segmented controls (they wrap) come out clean. */
+function useEdgeHint(ref, dep) {
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return undefined
+    const sync = () => {
+      /* RTL reports scrollLeft as negative in most engines — the distance
+         travelled is what matters, not its sign. */
+      const more = el.scrollWidth - el.clientWidth - Math.abs(el.scrollLeft)
+      el.classList.toggle('has-more', more > 2)
+    }
+    sync()
+    el.addEventListener('scroll', sync, { passive: true })
+    const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(sync) : null
+    ro?.observe(el)
+    return () => { el.removeEventListener('scroll', sync); ro?.disconnect() }
+  }, [ref, dep])
 }
-
-const SECTION_GROUPS = [
-  {
-    key: 'personal',
-    icon: User,
-    titleKey: 'groups.personal.title',
-    subKey: 'groups.personal.sub',
-    /* מנוי moved to its own nav screen (screens/subscription) — no longer a
-       section here; useUpgradeNav routes there. */
-    items: ['profile', 'design'],
-  },
-  {
-    key: 'display',
-    icon: Eye,
-    titleKey: 'groups.display.title',
-    subKey: 'groups.display.sub',
-    items: ['widgets', 'payments'],
-  },
-  {
-    key: 'workflow',
-    icon: Layers,
-    titleKey: 'groups.workflow.title',
-    subKey: 'groups.workflow.sub',
-    items: ['clients', 'leads', 'questions'],
-  },
-  {
-    key: 'data',
-    icon: Database,
-    titleKey: 'groups.data.title',
-    subKey: 'groups.data.sub',
-    items: ['data'],
-  },
-  {
-    key: 'about',
-    icon: Info,
-    titleKey: 'groups.about.title',
-    subKey: 'groups.about.sub',
-    items: ['about'],
-  },
-]
-
-/* Meta-category keys; labels are translated via t(`clientMetas.${k}`) /
-   t(`leadMetas.${k}`) at the call site. */
-const CLIENT_METAS = ['active', 'wandering', 'past', 'no_status']
-const LEAD_METAS = ['in_process', 'converted', 'not_relevant']
 
 /* ── Segmented control ────────────────────────────────────────────
    Compact horizontal pill group. Used by payments + design. */
 function Segmented({ label, value, options, onChange }) {
+  const idx = options.findIndex((o) => o.v === value)
+  /* A radiogroup is ONE tab stop, and the arrow keys move within it. These
+     were plain buttons wearing role="radio": tabbing through the design
+     section meant stopping on all four languages, all three backgrounds and
+     all three text sizes in turn, and the arrows did nothing. Roving
+     tabindex + arrow handling, no visual change. */
+  const groupRef = useRef(null)
+  const step = (delta) => {
+    if (!options.length) return
+    const from = idx < 0 ? 0 : idx
+    const at = (from + delta + options.length) % options.length
+    const next = options[at]
+    if (!next) return
+    onChange(next.v)
+    /* Focus follows selection, or the tab stop would stay on the option the
+       user just moved off (and the next arrow press would go nowhere). */
+    groupRef.current?.querySelectorAll('[role="radio"]')?.[at]?.focus()
+  }
+  const onKeyDown = (e) => {
+    /* Horizontal keys are mirrored in RTL by the browser's own semantics,
+       so map by document direction to keep "next" meaning next. */
+    const rtl = typeof document !== 'undefined' && document.dir === 'rtl'
+    if (e.key === 'ArrowDown' || e.key === (rtl ? 'ArrowLeft' : 'ArrowRight')) { e.preventDefault(); step(1) }
+    else if (e.key === 'ArrowUp' || e.key === (rtl ? 'ArrowRight' : 'ArrowLeft')) { e.preventDefault(); step(-1) }
+  }
+
+  /* Segmented groups keep `flex-wrap: wrap`, so the C6 sideways-scroll rule
+     never engages on them — they wrap to a second line and every option
+     stays visible. Measured on a 375px phone: all eleven of them report
+     scrollWidth === clientWidth. No edge hint is needed here; the pill rows
+     below, which are `nowrap`, are a different story (see useEdgeHint). */
+  useEdgeHint(groupRef, options)
   return (
     <Box className="m-field">
       <Box as="label" className="m-label">{label}</Box>
-      <Box className="set-seg" role="radiogroup">
-        {options.map((o) => (
+      <Box ref={groupRef} className="set-seg" role="radiogroup" aria-label={label} onKeyDown={onKeyDown}>
+        {options.map((o, i) => (
           <Btn
             key={o.v}
             type="button"
             role="radio"
             aria-checked={value === o.v}
+            /* The checked option holds the tab stop; if none is checked yet,
+               the first one does, so the group is never unreachable. */
+            tabIndex={value === o.v || (idx < 0 && i === 0) ? 0 : -1}
             className={`set-seg-btn${value === o.v ? ' on' : ''}`}
             onClick={() => onChange(o.v)}
           >
@@ -143,38 +146,35 @@ function PaymentsBody({ prefs, onUpdate }) {
   /* Option labels come from lib arrays (Hebrew `l`); re-label via t() so the
      <Segmented> pills follow the active language. */
   const tOpts = (group, opts) => opts.map((o) => ({ ...o, l: t(`options.${group}.${o.v}`) }))
+
+  /* The date and time pills used to read "DD/MM/YY" and "12h (AM/PM)" —
+     the pattern strings straight out of the code. A coach choosing how
+     their calendar should look was being shown developer notation and
+     asked to picture the result.
+
+     They now show the result: TODAY, formatted each way, through the same
+     functions the app formats with — so the example cannot drift from
+     what the choice actually produces. `now` is captured once per render
+     rather than per option, so all three pills describe one moment. */
+  const now = new Date()
+  const dateOpts = DATE_FORMAT_OPTIONS.map((o) => ({ ...o, l: formatDateAs(o.v, now) }))
+  const timeOpts = TIME_FORMAT_OPTIONS.map((o) => ({ ...o, l: formatTimeAs(o.v, now) }))
+
   return (
     <Box className="set-profile-body">
       <Segmented label={t('payments.currency')} value={f.currency || 'ILS'} options={tOpts('currency', CURRENCY_OPTIONS)} onChange={setVal('currency')} />
-      <Segmented label={t('payments.dateFormat')} value={f.date_format || 'DD/MM/YY'} options={tOpts('dateFormat', DATE_FORMAT_OPTIONS)} onChange={setVal('date_format')} />
-      <Segmented label={t('payments.timeFormat')} value={f.time_format || '24h'} options={tOpts('timeFormat', TIME_FORMAT_OPTIONS)} onChange={setVal('time_format')} />
+      <Segmented label={t('payments.dateFormat')} value={f.date_format || 'DD/MM/YY'} options={dateOpts} onChange={setVal('date_format')} />
+      <Txt as="p" className="set-example-note">{t('payments.exampleToday')}</Txt>
+      <Segmented label={t('payments.timeFormat')} value={f.time_format || '24h'} options={timeOpts} onChange={setVal('time_format')} />
       <Segmented label={t('payments.weekStart')} value={f.week_start || 'sunday'} options={tOpts('weekStart', WEEK_START_OPTIONS)} onChange={setVal('week_start')} />
     </Box>
   )
 }
 
-/* ── Color dots ───────────────────────────────────────────────────
-   Shared swatch picker (reuses the finance category palette) for the
-   lead-source and lead sub-status colors. */
-function ColorDots({ value, onChange }) {
-  const { t } = useT('settings')
-  return (
-    <Box className="set-color-dots" role="radiogroup" aria-label={t('common.color')}>
-      {CATEGORY_COLORS.map((c) => (
-        <Btn
-          key={c}
-          type="button"
-          role="radio"
-          aria-checked={value === c}
-          aria-label={t('common.colorNamed', { color: c })}
-          className={`set-color-dot${value === c ? ' on' : ''}`}
-          style={{ background: c }}
-          onClick={() => onChange(c)}
-        />
-      ))}
-    </Box>
-  )
-}
+/* The colour-swatch picker that used to live here went with the lead
+   sources and stages it coloured — the leads screen owns both now. Its
+   `common.colorNamed` string stays in the locale files for that screen's
+   own picker, which announces a position rather than a hex code. */
 
 /* ── Switch ───────────────────────────────────────────────────────
    One on/off control used everywhere in settings (replaces the old mix
@@ -194,26 +194,29 @@ function Switch({ checked, onChange, label }) {
   )
 }
 
-/* ── Widgets body ────────────────────────────────────────────────
-   The three global appearance controls, plus a plain show/hide + order list.
+/* ── Home-screen body ────────────────────────────────────────────
+   A plain show/hide + order list, and nothing else.
 
-   Arranging the home screen now happens ON the home screen — press and hold a
-   widget, drag it, ✕ to hide (see useHomeEdit). This panel used to carry ~45
-   controls: a drag handle, two arrows, a toggle, a "compact" chip and four
-   density chips for every widget, describing a screen you could not see while
-   adjusting it. The per-widget density duplicated the global one right above
-   it, and "compact" and "צפוף" looked identical in the result.
+   The three GLOBAL appearance controls (card style, text weight, density)
+   used to head this panel. They were never about the home screen — they
+   restyle every card in the app — so they now live in the design section
+   with the rest of the appearance settings, and this section is left doing
+   the one thing its name promises.
+
+   Arranging the home screen also happens ON the home screen — press and hold
+   a widget, drag it, ✕ to hide (see useHomeEdit). This panel used to carry
+   ~45 controls: a drag handle, two arrows, a toggle, a "compact" chip and
+   four density chips for every widget, describing a screen you could not see
+   while adjusting it.
 
    What stays here, deliberately: an ORDERING path that works without a
    pointer. The home gesture is press-and-drag, which a keyboard user cannot
    perform — removing these arrows would have made rearranging mouse-only. */
-function WidgetsBody({ prefs, onUpdate }) {
+function HomeBody({ prefs, onUpdate }) {
   const { t } = useT('settings')
   const cfg = prefs?.widgets || {}
   const list = cfg.list || []
-  const global = cfg.global || {}
 
-  const setGlobal = (k) => (v) => onUpdate({ widgets: { global: { [k]: v } } })
   const setVisible = (id, visible) => onUpdate({ widgets: { list: setWidgetVisible(list, id, visible) } })
   const move = (id, dir) => {
     const idx = list.findIndex((w) => w.id === id)
@@ -223,13 +226,6 @@ function WidgetsBody({ prefs, onUpdate }) {
 
   return (
     <Box className="set-w-body">
-      <Txt as="p" className="set-sub-h">{t('widgets.globalView')}</Txt>
-      <Segmented label={t('widgets.cardStyle')} value={(global.cardStyle === 'outlined' || !global.cardStyle) ? 'frosted' : global.cardStyle} options={CARD_STYLE_OPTIONS.map((o) => ({ ...o, l: t(`options.cardStyle.${o.v}`) }))} onChange={setGlobal('cardStyle')} />
-      <Txt as="p" className="set-sub-h">{t('widgets.textStrength')}</Txt>
-      <Segmented label={t('widgets.textStrength')} value={global.textStrength || 'normal'} options={TEXT_STRENGTH_OPTIONS.map((o) => ({ ...o, l: t(`options.textStrength.${o.v}`) }))} onChange={setGlobal('textStrength')} />
-      <Segmented label={t('widgets.density')} value={global.density || 'comfortable'} options={DENSITY_OPTIONS.map((o) => ({ ...o, l: t(`options.density.${o.v}`) }))} onChange={setGlobal('density')} />
-
-      <Txt as="p" className="set-sub-h">{t('widgets.widgets')}</Txt>
       <Txt as="p" className="set-w-note">{t('widgets.editOnHome')}</Txt>
       <Box className="set-w-list">
         {list.map((w, i) => {
@@ -273,8 +269,15 @@ function WidgetsBody({ prefs, onUpdate }) {
 }
 
 /* ── Design body ─────────────────────────────────────────────────
-   Theme + text size + grammatical gender. PrefsApplier picks up the
-   change and pushes it to <html> attributes app-wide. */
+   Every appearance setting in the app, in one section. PrefsApplier picks
+   up the change and pushes it to <html> attributes app-wide.
+
+   The card style / text weight / density trio arrived here from the widgets
+   panel: they restyle every card in the app, not the home screen, and being
+   filed under "ווידג׳טים" put half the appearance settings in a different
+   group from the other half. Three sub-headings keep the eight controls
+   readable — what the app looks like, what its cards look like, and the
+   Hebrew-calendar pair. */
 const THEME_OPTIONS = [
   { v: 'light' },
   { v: 'dark' },
@@ -288,22 +291,85 @@ const BACKGROUND_OPTIONS = [
   { v: 'blank' },
 ]
 
+/* ── Live example card ───────────────────────────────────────────
+   The appearance controls describe things a coach cannot picture and
+   cannot check: "מעורפל" or "שטוח", "צפוף" or "מרווח", text "רגיל" or
+   "מודגש". The result of every one of them lives on OTHER screens, so
+   the only way to judge a choice was to pick one, navigate away, look,
+   and come back — which is why the panel had been trimmed once already.
+
+   This is a real card wearing the choices as they are being made. It
+   carries its own data-* attributes rather than inheriting the page's,
+   so it previews the pending look even before the write lands, and it
+   uses the same tokens the app's cards use — so it is a sample, not a
+   drawing of one. */
+function DesignPreview({ cardStyle, textStrength, density, textSize }) {
+  const { t } = useT('settings')
+  return (
+    <Box
+      className="set-preview"
+      data-card-style={cardStyle}
+      data-text-strength={textStrength}
+      data-density={density}
+      data-text-size={textSize}
+      aria-hidden="true"
+    >
+      <Txt as="p" className="set-preview-label">{t('design.previewLabel')}</Txt>
+      <Box className="set-preview-card">
+        <Box className="set-preview-row">
+          <Txt className="set-preview-title">{t('design.previewCardTitle')}</Txt>
+          <Txt className="set-preview-chip">{t('design.previewChip')}</Txt>
+        </Box>
+        <Txt as="p" className="set-preview-body">{t('design.previewCardBody')}</Txt>
+        <Box className="set-preview-row">
+          <Txt className="set-preview-meta">{t('design.previewMeta')}</Txt>
+          <Txt className="set-preview-num mono">₪450</Txt>
+        </Box>
+      </Box>
+    </Box>
+  )
+}
+
 function DesignBody({ prefs, onUpdate }) {
   const d = prefs?.design || {}
+  const global = prefs?.widgets?.global || {}
   /* Namespaced to 'settings'; the language label lives in 'common', so it's
      resolved via the cross-namespace `common:language` key below. */
   const { t, i18n } = useT('settings')
   const setVal = (k) => (v) => onUpdate({ design: { [k]: v } })
+  /* The card trio still persists under widgets.global — moving the CONTROLS
+     is a settings-layout change, not a data migration, and every reader of
+     that sub-tree (PrefsApplier, the home screen) stays untouched. */
+  const setGlobal = (k) => (v) => onUpdate({ widgets: { global: { [k]: v } } })
   /* Language is special: also switch i18next live (localStorage-cached),
      not just persist the preference. */
   const activeLang = (i18n.language || 'he').split('-')[0]
   // applyLanguage (not i18n.changeLanguage) fetches the language chunk first.
   const setLanguage = (code) => { applyLanguage(code); onUpdate({ design: { language: code } }) }
+  /* Same normalisation the control uses — 'outlined' is a retired value that
+     still sits in older prefs blobs and reads as frosted. */
+  const cardStyle = (global.cardStyle === 'outlined' || !global.cardStyle) ? 'frosted' : global.cardStyle
   return (
     <Box className="set-profile-body">
       <Segmented label={t('common:language')} value={activeLang} options={LANGUAGE_OPTIONS} onChange={setLanguage} />
       <Segmented label={t('design.theme')} value={d.theme || 'light'} options={THEME_OPTIONS.map((o) => ({ ...o, l: t(`options.theme.${o.v}`) }))} onChange={setVal('theme')} />
       <Segmented label={t('design.background')} value={d.background || 'nature'} options={BACKGROUND_OPTIONS.map((o) => ({ ...o, l: t(`options.background.${o.v}`) }))} onChange={setVal('background')} />
+      <Segmented label={t('design.textSize')} value={d.text_size || 'normal'} options={TEXT_SIZE_OPTIONS.map((o) => ({ ...o, l: t(`options.textSize.${o.v}`) }))} onChange={setVal('text_size')} />
+
+      <Txt as="p" className="set-sub-h">{t('design.cardsHeading')}</Txt>
+      {/* Above the three controls it answers, so the change is visible in the
+          same glance as the tap that caused it. */}
+      <DesignPreview
+        cardStyle={cardStyle}
+        textStrength={global.textStrength || 'normal'}
+        density={global.density || 'comfortable'}
+        textSize={d.text_size || 'normal'}
+      />
+      <Segmented label={t('design.cardStyle')} value={(global.cardStyle === 'outlined' || !global.cardStyle) ? 'frosted' : global.cardStyle} options={CARD_STYLE_OPTIONS.map((o) => ({ ...o, l: t(`options.cardStyle.${o.v}`) }))} onChange={setGlobal('cardStyle')} />
+      <Segmented label={t('design.textStrength')} value={global.textStrength || 'normal'} options={TEXT_STRENGTH_OPTIONS.map((o) => ({ ...o, l: t(`options.textStrength.${o.v}`) }))} onChange={setGlobal('textStrength')} />
+      <Segmented label={t('design.density')} value={global.density || 'comfortable'} options={DENSITY_OPTIONS.map((o) => ({ ...o, l: t(`options.density.${o.v}`) }))} onChange={setGlobal('density')} />
+
+      <Txt as="p" className="set-sub-h">{t('design.hebrewHeading')}</Txt>
       <SwitchField
         label={t('design.hebrewCalendar')}
         hint={t('design.hebrewCalendarHint')}
@@ -327,7 +393,6 @@ function DesignBody({ prefs, onUpdate }) {
           onChange={setVal('hebrew_calendar_dual')}
         />
       )}
-      <Segmented label={t('design.textSize')} value={d.text_size || 'normal'} options={TEXT_SIZE_OPTIONS.map((o) => ({ ...o, l: t(`options.textSize.${o.v}`) }))} onChange={setVal('text_size')} />
     </Box>
   )
 }
@@ -347,59 +412,13 @@ function SwitchField({ label, hint, checked, onChange, nested = false }) {
 }
 
 /* ── About body ──────────────────────────────────────────────────
-   Three tabs: אודות (app identity) · מדריך (full per-screen guide) ·
-   שאלות נפוצות (global FAQ). Guide/FAQ content lives in lib/helpContent.js
-   (shared with the floating HelpFab). The tip/list sub-styles reuse the
-   help-* classes from HelpFab.css, which is always loaded inside AppShell. */
-const ABOUT_TABS = [
-  { key: 'about', icon: Info },
-  { key: 'guide', icon: BookOpen },
-  { key: 'faq',   icon: HelpCircle },
-]
-
-/* Screen order for the full guide — a logical reading order (not the raw
-   object key order). Owner-only screens (admin) are intentionally omitted. */
-const GUIDE_ORDER = [
-  'home', 'clients', 'leads', 'finance', 'projects', 'tasks',
-  'calendar', 'goals', 'insights', 'moon', 'reports', 'connections',
-  'settings', 'trash',
-]
-
-function AboutBody({ initialTab }) {
+   The app's identity, its version and the legal documents — and nothing
+   else. The full per-screen guide and the FAQ were two more tabs here
+   until they became their own screen (screens/help): a manual filed four
+   disclosures deep inside a settings section is a manual nobody opens. */
+function AboutBody() {
   const { t } = useT('settings')
   const navigate = useNavigate()
-  const [tab, setTab] = useState(
-    initialTab && ABOUT_TABS.some((x) => x.key === initialTab) ? initialTab : 'about',
-  )
-  return (
-    <Box className="set-about-wrap">
-      <Box className="set-about-tabs" role="tablist" aria-label={t('about.tabsAria')}>
-        {ABOUT_TABS.map((tab2) => {
-          const Icon = tab2.icon
-          return (
-            <Btn
-              key={tab2.key}
-              type="button"
-              role="tab"
-              aria-selected={tab === tab2.key}
-              className={`set-about-tab${tab === tab2.key ? ' on' : ''}`}
-              onClick={() => setTab(tab2.key)}
-            >
-              <Icon size={14} strokeWidth={1.7} aria-hidden="true" />
-              {t(`about.tabs.${tab2.key}`)}
-            </Btn>
-          )
-        })}
-      </Box>
-      {tab === 'about' && <AboutInfo navigate={navigate} />}
-      {tab === 'guide' && <AboutGuide />}
-      {tab === 'faq' && <AboutFaq />}
-    </Box>
-  )
-}
-
-function AboutInfo({ navigate }) {
-  const { t } = useT('settings')
   const about = getAboutContent()
   return (
     <Box className="set-about">
@@ -433,83 +452,6 @@ function AboutInfo({ navigate }) {
   )
 }
 
-function AboutGuide() {
-  const { t } = useT('settings')
-  return (
-    <Box className="set-guide">
-      <Txt as="p" className="set-sub-intro">{t('about.guideIntro')}</Txt>
-      {GUIDE_ORDER.map((key) => {
-        const s = getHelpScreen(key)
-        if (!s) return null
-        return (
-          <Box as="details" key={key} className="set-guide-screen">
-            <Txt as="summary">
-              {s.title}
-              <ChevronDown size={16} strokeWidth={1.7} className="set-guide-chev" aria-hidden="true" />
-            </Txt>
-            <Box className="set-guide-screen-body">
-              {s.intro && <Txt as="p" className="set-guide-intro"><MG text={s.intro} /></Txt>}
-              {(s.features || []).map((f, i) => (
-                <Box key={i} className="set-guide-feat">
-                  <Txt as="p" className="set-guide-feat-t"><MG text={f.title} /></Txt>
-                  <Txt as="p" className="set-guide-feat-b"><MG text={f.body} /></Txt>
-                </Box>
-              ))}
-              {(s.tips || []).length > 0 && (
-                <>
-                  <Txt as="p" className="set-guide-sub">{t('about.guideTips')}</Txt>
-                  <Box as="ul" className="help-tips">
-                    {s.tips.map((t, i) => (
-                      <Box as="li" key={i} className="help-tip">
-                        <Txt className="help-tip-icon">
-                          <Lightbulb size={15} strokeWidth={1.7} aria-hidden="true" />
-                        </Txt>
-                        <MG text={t} />
-                      </Box>
-                    ))}
-                  </Box>
-                </>
-              )}
-              {(s.faq || []).length > 0 && (
-                <>
-                  <Txt as="p" className="set-guide-sub">{t('about.guideFaq')}</Txt>
-                  {s.faq.map((item, i) => (
-                    <Box key={i} className="set-guide-qa">
-                      <Txt as="p" className="set-guide-q"><MG text={item.q} /></Txt>
-                      <Txt as="p" className="set-guide-a"><MG text={item.a} /></Txt>
-                    </Box>
-                  ))}
-                </>
-              )}
-            </Box>
-          </Box>
-        )
-      })}
-    </Box>
-  )
-}
-
-function AboutFaq() {
-  return (
-    <Box className="set-faq">
-      {getGlobalFaq().map((cat, ci) => (
-        <Box key={ci} className="set-faq-group">
-          <Txt as="p" className="set-faq-cat">{cat.category}</Txt>
-          {cat.items.map((item, i) => (
-            <Box as="details" key={i} className="set-faq-item">
-              <Txt as="summary">
-                <MG text={item.q} />
-                <ChevronDown size={15} strokeWidth={1.7} className="set-faq-chev" aria-hidden="true" />
-              </Txt>
-              <Txt as="p" className="set-faq-a"><MG text={item.a} /></Txt>
-            </Box>
-          ))}
-        </Box>
-      ))}
-    </Box>
-  )
-}
-
 /* ── Profile body ────────────────────────────────────────────────
    Editable name + role pills + gender + role_other custom panel.
    Saves on blur (name / role_other) / click (role / gender). */
@@ -523,9 +465,29 @@ function ProfileBody({ prefs, onUpdate }) {
   const [roleOther, setRoleOther] = useState(prefs?.profile?.role_other || '')
   const [savedName, setSavedName] = useState(false)
   const [savedRoleOther, setSavedRoleOther] = useState(false)
+  /* "· נשמר" is a confirmation, not a state of the field: it used to stay
+     up until the next keystroke, so a name saved yesterday still read as
+     just-saved today. Both flags retire themselves. */
+  useEffect(() => {
+    if (!savedName) return undefined
+    const id = setTimeout(() => setSavedName(false), 2500)
+    return () => clearTimeout(id)
+  }, [savedName])
+  useEffect(() => {
+    if (!savedRoleOther) return undefined
+    const id = setTimeout(() => setSavedRoleOther(false), 2500)
+    return () => clearTimeout(id)
+  }, [savedRoleOther])
   const gender = prefs?.design?.gender || 'neutral'
   const ROLE_KEYS = Object.keys(ROLE_LABELS)
   const GENDERS = ['female', 'male', 'neutral']
+  /* Both rows scroll sideways on a phone; only the one that actually
+     overflows gets marked (see useEdgeHint). The role labels change with
+     the form of address, so the gender is what re-measures them. */
+  const genderPillsRef = useRef(null)
+  const rolePillsRef = useRef(null)
+  useEdgeHint(genderPillsRef, gender)
+  useEdgeHint(rolePillsRef, gender)
 
   const commitName = () => {
     const trimmed = name.trim()
@@ -554,9 +516,13 @@ function ProfileBody({ prefs, onUpdate }) {
     if (n.trim() !== sn) onUpdate({ profile: { full_name: n.trim() } })
     if (ro.trim() !== sr) onUpdate({ profile: { role_other: ro.trim() } })
   }, [onUpdate])
+  /* The typed specialisation is KEPT when the role moves off "אחר". It is
+     only ever displayed while role === 'other', so nothing leaks — whereas
+     clearing it silently threw away what the user had written the moment
+     they tapped another pill, and made coming back a retype. */
   const pickRole = (k) => {
     if (k === role) return
-    onUpdate({ profile: { role: k, role_other: k === 'other' ? roleOther : '' } })
+    onUpdate({ profile: { role: k } })
   }
   const pickGender = (g) => {
     if (g === gender) return
@@ -577,7 +543,7 @@ function ProfileBody({ prefs, onUpdate }) {
       </Box>
       <Box className="m-field">
         <Box as="label" className="m-label">{t('profile.address')}</Box>
-        <Box className="m-pills">
+        <Box ref={genderPillsRef} className="m-pills">
           {GENDERS.map((g) => (
             <Btn key={g} type="button" className={`m-pill${gender === g ? ' on' : ''}`} onClick={() => pickGender(g)}>{t(`profile.genders.${g}`)}</Btn>
           ))}
@@ -585,7 +551,9 @@ function ProfileBody({ prefs, onUpdate }) {
       </Box>
       <Box className="m-field">
         <Box as="label" className="m-label">{t('profile.role')}</Box>
-        <Box className="m-pills">
+        {/* Six roles do not fit a phone: this row hides ~143px of itself at
+            375px, and used to do it silently. */}
+        <Box ref={rolePillsRef} className="m-pills">
           {ROLE_KEYS.map((k) => (
             <Btn key={k} type="button" className={`m-pill${role === k ? ' on' : ''}`} onClick={() => pickRole(k)}>{roleLabel(k, gender)}</Btn>
           ))}
@@ -607,75 +575,6 @@ function ProfileBody({ prefs, onUpdate }) {
   )
 }
 
-/* Render a meta-grouped sub-status list with an inline add row per meta.
-   Used for both client_statuses and lead_statuses. */
-/* `placeholderKey` — leads call these "stages", clients still call them
-   sub-statuses, so the shared editor takes the label from its caller rather
-   than baking in one domain's word. */
-function StatusGroups({ metas, metaNs, statuses, drafts, setDraft, onAdd, onRemove, loading, error, withColor = false, placeholderKey = 'status.subStatusPlaceholder' }) {
-  const { t } = useT('settings')
-  const [addError, setAddError] = useState(null)
-  const [draftColors, setDraftColors] = useState({})
-  if (loading) {
-    return <Box className="set-sub"><Txt as="p" className="set-sub-empty">{t('common.loading')}</Txt></Box>
-  }
-  return (
-    <Box className="set-sub">
-      {error && <Txt as="p" className="set-sub-empty" style={{ color: 'var(--clay)' }}>{t('status.loadError', { error })}</Txt>}
-      {metas.map((mk) => {
-        const metaLabel = t(`${metaNs}.${mk}`)
-        const list = statuses.filter((s) => s.meta_category === mk)
-        const draft = drafts[mk] || ''
-        const color = draftColors[mk] || CATEGORY_COLORS[0]
-        const submit = async () => {
-          const name = draft.trim()
-          if (!name) return
-          try {
-            const payload = { meta_category: mk, display_name: name, icon: null, is_default: false }
-            if (withColor) payload.color = color
-            await onAdd(payload)
-            setDraft(mk, '')
-            setAddError(null)
-          } catch (e) {
-            setAddError(e?.message || t('status.addFailed'))
-          }
-        }
-        return (
-          <Box key={mk} className="set-sub-group">
-            <Txt as="p" className="set-sub-meta">{metaLabel}</Txt>
-            {list.length === 0 && <Txt as="p" className="set-sub-empty">{t('status.empty')}</Txt>}
-            {list.map((s) => (
-              <Box key={s.id} className="set-q-row">
-                <Txt className="set-q-icon" style={s.color ? { color: s.color } : undefined}>{s.icon || '•'}</Txt>
-                <Txt className="set-q-text">{s.display_name}</Txt>
-                <Btn type="button" className="set-q-del" onClick={() => onRemove(s, list)} aria-label={t('status.deleteAria')}>
-                  <Trash2 size={14} strokeWidth={1.7} aria-hidden="true" />
-                </Btn>
-              </Box>
-            ))}
-            <Box className="set-sub-add">
-              <Input
-                className="m-input"
-                value={draft}
-                onChange={(e) => setDraft(mk, e.target.value)}
-                placeholder={t(placeholderKey, { meta: metaLabel })}
-                onKeyDown={(e) => { if (e.key === 'Enter') submit() }}
-              />
-              <Btn type="button" className="set-q-add" onClick={submit} disabled={!draft.trim()}>
-                <Plus size={15} strokeWidth={1.8} aria-hidden="true" />
-              </Btn>
-            </Box>
-            {withColor && (
-              <ColorDots value={color} onChange={(c) => setDraftColors((d) => ({ ...d, [mk]: c }))} />
-            )}
-          </Box>
-        )
-      })}
-      {addError && <Txt as="p" className="set-sub-empty" style={{ color: 'var(--clay)' }}>{addError}</Txt>}
-    </Box>
-  )
-}
-
 export default function SettingsScreen() {
   const { t } = useT('settings')
   /* Groups and sections start CLOSED. Only open a group or section when the
@@ -686,9 +585,19 @@ export default function SettingsScreen() {
     return section ? { [section]: true } : {}
   })
   const [openGroups, setOpenGroups] = useState(() => {
-    const group = location.state?.openGroup
+    /* The section's own group counts as requested too — see groupOfSection. */
+    const group = location.state?.openGroup || groupOfSection(location.state?.openSection)
     return group ? { [group]: true } : {}
   })
+  /* A deep-linked section can sit thousands of pixels below the fold, so
+     opening it is only half the job. The request is stamped with the
+     navigation that made it; the effect below records which navigation it
+     has already scrolled for, so the request retires itself without a
+     second render. */
+  const [scrollReq, setScrollReq] = useState(
+    () => (location.state?.openSection ? { section: location.state.openSection, nav: location.key } : null),
+  )
+  const scrolledForNav = useRef(null)
   /* The initializers above only run on mount. When the user is ALREADY on
      /settings and navigates here again with fresh state (e.g. HelpFab "open full
      guide", or the profile-health "complete profile" row), there's no remount —
@@ -700,25 +609,53 @@ export default function SettingsScreen() {
   if (location.key !== prevNavKey) {
     setPrevNavKey(location.key)
     const section = location.state?.openSection
-    const group = location.state?.openGroup
-    if (section) setOpen((o) => ({ ...o, [section]: true }))
+    const group = location.state?.openGroup || groupOfSection(section)
+    if (section) { setOpen((o) => ({ ...o, [section]: true })); setScrollReq({ section, nav: location.key }) }
     if (group) setOpenGroups((g) => ({ ...g, [group]: true }))
   }
+
+  /* Bring the requested section into view once it exists. No dep array: the
+     section only mounts on the render AFTER its group opens, so this waits
+     for whichever render puts it in the document. Marking the navigation as
+     handled is what stops it repeating — a plain ref write, so no extra
+     render. A no-op on every other pass. */
+  useEffect(() => {
+    if (!scrollReq || scrolledForNav.current === scrollReq.nav) return
+    const el = document.getElementById(`set-sec-${scrollReq.section}`)
+    if (!el) return
+    scrolledForNav.current = scrollReq.nav
+    el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  })
   const [showAddQ, setShowAddQ] = useState(false)
-  const [newSourceName, setNewSourceName] = useState('')
-  const [newSourceColor, setNewSourceColor] = useState(CATEGORY_COLORS[0])
-  const [sourceError, setSourceError] = useState(null)
-  const [clientDrafts, setClientDrafts] = useState({})
-  const [leadDrafts, setLeadDrafts] = useState({})
+  /* "Where do I change X?" — answered without knowing which heading X was
+     filed under. See searchSettings.js for what a query is matched against. */
+  const [query, setQuery] = useState('')
+  const searching = query.trim().length > 0
+  const results = useMemo(() => searchTree(SECTION_GROUPS, t, query), [t, query])
   const [editingScheduleId, setEditingScheduleId] = useState(null)
   const { questions, loading: questionsLoading, error: questionsError, addQuestion, toggleActive, updateQuestion, removeQuestion } = useUserQuestions()
   const { goals } = useGoals()
   /* C10 — which questions are wired to a goal (goals.tracked_by_question_id). */
   const goalLinkedQ = new Set((goals || []).filter((g) => g.tracked_by_question_id).map((g) => g.tracked_by_question_id))
-  const { sources, loading: sourcesLoading, error: sourcesError, addSource, removeSource } = useLeadSources()
-  const { statuses: clientStatuses, loading: clientStatusesLoading, error: clientStatusesError, addStatus: addClientStatus, removeStatus: removeClientStatus, refetch: refetchClientStatuses } = useClientStatuses()
-  const { statuses: leadStatuses, loading: leadStatusesLoading, error: leadStatusesError, addStatus: addLeadStatus, removeStatus: removeLeadStatus, refetch: refetchLeadStatuses } = useLeadStatuses()
-  const { prefs, loading: prefsLoading, update: updatePrefs } = useUserPreferences()
+  /* Both taxonomies are edited on the screens that use them now — client
+     sub-statuses in ClientStatusesModal, lead stages and sources on the
+     leads screen. Settings links to both instead of keeping thinner copies. */
+  /* prefsError was collected by the provider and shown to nobody: a failed
+     write rolls the value back from the server, so a toggle the user had
+     just flipped simply flipped itself back, silently. Surfaced below. */
+  const { prefs, loading: prefsLoading, error: prefsError, update: updatePrefs } = useUserPreferences()
+  /* Every control on this screen saved in total silence — the one exception
+     being the name field's "· נשמר". Nothing else told the user their tap
+     had landed, so a working toggle and a dead one looked identical.
+     `savePrefs` is what the preference BODIES get; the screen's own
+     bookkeeping writes (recording an import, resetting onboarding,
+     scheduling account deletion) keep the raw update, since none of them is
+     a setting the user just changed. Stable identity — ProfileBody's
+     commit-on-unmount effect depends on it. */
+  const savePrefs = useCallback(async (patch) => {
+    await updatePrefs(patch)
+    pushNote(i18n.t('settings:common.saved'))
+  }, [updatePrefs])
   const gender = prefs?.design?.gender || 'neutral'
   /* Data-section hooks — pulled lazily-ish: useClients/etc. all use a
      single network round-trip on mount, so this isn't expensive. */
@@ -728,64 +665,12 @@ export default function SettingsScreen() {
   const { transactions: dataTransactions } = useTransactions()
   const { categories: dataCategories } = useCategories()
   const { tasks: dataTasks } = useTasks()
-  const { leads: dataLeads, refetch: refetchLeads } = useLeads()
-  const [pendingDelete, setPendingDelete] = useState(null)  /* { kind, status, peers } | null */
+  const { leads: dataLeads } = useLeads()
   const [showExport, setShowExport] = useState(false)
-  /* Captures which leads/clients a sub-status delete reassigned, so undo
-     can move exactly those rows back (see handleSubStatusReassign/Delete). */
-  const reassignRef = useRef(null)
-
-  /* ── Sub-status delete with reassignment-aware undo ────────────────
-     The modal calls reassign (if there are assignees) then delete. We
-     snapshot the exact rows moved, then register ONE composite undo that
-     restores the sub-status AND moves those rows back to it. */
-  const handleSubStatusReassign = async (fromId, toId) => {
-    const kind = pendingDelete?.kind
-    const src = kind === 'lead' ? (dataLeads || []) : (dataClients || [])
-    const ids = src.filter((x) => x.status_id === fromId && !x.deleted_at).map((x) => x.id)
-    reassignRef.current = { kind, statusId: fromId, toId, ids }
-    await (kind === 'lead' ? reassignLeadsStatus : reassignClientsStatus)(fromId, toId)
-  }
-
-  const handleSubStatusDelete = async (statusId) => {
-    const kind = pendingDelete?.kind
-    await (kind === 'lead' ? removeLeadStatus : removeClientStatus)(statusId)
-    const snap = (reassignRef.current && reassignRef.current.statusId === statusId) ? reassignRef.current : null
-    reassignRef.current = null
-    const ids = snap?.ids || []
-    const toId = snap?.toId ?? null
-    /* Overwrites the restore-only undo the hook just queued, adding the
-       reassignment revert. */
-    pushUndo({
-      label: t('status.subStatusDeleted'),
-      undo: async () => {
-        if (kind === 'lead') {
-          try { await restoreLeadStatus(statusId) } catch { /* keep going */ }
-          try { if (ids.length) await reassignLeadsStatusByIds(ids, statusId) } catch { /* keep going */ }
-          refetchLeadStatuses(); refetchLeads()
-        } else {
-          try { await restoreClientStatus(statusId) } catch { /* keep going */ }
-          try { if (ids.length) await reassignClientsStatusByIds(ids, statusId) } catch { /* keep going */ }
-          refetchClientStatuses(); refetchClients()
-        }
-      },
-      redo: async () => {
-        if (kind === 'lead') {
-          try { if (ids.length) await reassignLeadsStatusByIds(ids, toId) } catch { /* keep going */ }
-          try { await removeLeadStatus(statusId) } catch { /* keep going */ }
-          refetchLeads()
-        } else {
-          try { if (ids.length) await reassignClientsStatusByIds(ids, toId) } catch { /* keep going */ }
-          try { await removeClientStatus(statusId) } catch { /* keep going */ }
-          refetchClients()
-        }
-      },
-    })
-    /* Forward path must refresh clients/leads too — the reassign changed their
-       status_id; the undo/redo paths already refetch, so mirror them here. */
-    if (kind === 'lead') { refetchLeadStatuses(); refetchLeads() }
-    else { refetchClientStatuses(); refetchClients() }
-  }
+  /* The sub-status delete-with-reassignment flow (and its composite undo,
+     which restores the status AND moves exactly the clients that were
+     reassigned back onto it) moved to ClientStatusesModal, alongside the
+     editor it belongs to. */
   const [showReset, setShowReset] = useState(false)
   const [showDelete, setShowDelete] = useState(false)
   const [showRestartOb, setShowRestartOb] = useState(false)
@@ -813,15 +698,19 @@ export default function SettingsScreen() {
      mapping+review modal onboarding uses. */
   const importFileRef = useRef(null)
   const [importParsed, setImportParsed] = useState(null)
-  const [importMsg, setImportMsg] = useState('')
+  /* { text, kind: 'ok' | 'error' | 'info' }. The kind used to be inferred by
+     testing whether the message STARTED WITH a translated error prefix —
+     which mis-coloured "no new records were created" as a green success, and
+     would have silently mis-coloured every message the day the copy moved. */
+  const [importMsg, setImportMsg] = useState(null)
   const [importBusy, setImportBusy] = useState(false)
   const onPickImport = async (fileList) => {
     const files = Array.from(fileList || [])
     if (!files.length) return
-    setImportMsg('')
+    setImportMsg(null)
     const UNSUPPORTED = ['pdf', 'numbers', 'pages', 'png', 'jpg', 'jpeg', 'gif', 'heic', 'webp', 'doc', 'docx', 'gsheet']
     if (files.some((f) => UNSUPPORTED.includes((f.name.split('.').pop() || '').toLowerCase()))) {
-      setImportMsg(t('data.importUnsupported'))
+      setImportMsg({ text: t('data.importUnsupported'), kind: 'error' })
       return
     }
     setImportBusy(true)
@@ -829,7 +718,7 @@ export default function SettingsScreen() {
       const { sheets, names } = await buildSheetsFromFiles(files)
       setImportParsed({ kind: 'csv', file_name: names, sheets })
     } catch {
-      setImportMsg(t('data.importFailed'))
+      setImportMsg({ text: t('data.importFailed'), kind: 'error' })
     } finally {
       setImportBusy(false)
     }
@@ -862,8 +751,10 @@ export default function SettingsScreen() {
       if (sCount) parts.push(t('data.importSessions', { count: sCount }))
       setImportMsg(
         parts.length === 0
-          ? t('data.importNone')
-          : t('data.importSuccess', { parts: parts.join(' · '), estNote }),
+          /* Nothing was written. Not a failure, but not a success either —
+             it reads as "your file did nothing", so it gets the neutral tone. */
+          ? { text: t('data.importNone'), kind: 'info' }
+          : { text: t('data.importSuccess', { parts: parts.join(' · '), estNote }), kind: 'ok' },
       )
     }
   }
@@ -871,32 +762,40 @@ export default function SettingsScreen() {
   const toggle = (key) => setOpen((cur) => ({ ...cur, [key]: !cur[key] }))
   const toggleGroup = (key) => setOpenGroups((cur) => ({ ...cur, [key]: !cur[key] }))
 
-  const setClientDraft = (k, v) => setClientDrafts((d) => ({ ...d, [k]: v }))
-  const setLeadDraft = (k, v) => setLeadDrafts((d) => ({ ...d, [k]: v }))
 
   const renderBody = (key) => {
     if (key === 'profile') {
       if (prefsLoading) return <Txt as="p" className="set-soon">{t('common.loading')}</Txt>
-      return <ProfileBody prefs={prefs} onUpdate={updatePrefs} />
+      return <ProfileBody prefs={prefs} onUpdate={savePrefs} />
     }
     if (key === 'payments') {
       if (prefsLoading) return <Txt as="p" className="set-soon">{t('common.loading')}</Txt>
-      return <PaymentsBody prefs={prefs} onUpdate={updatePrefs} />
+      return <PaymentsBody prefs={prefs} onUpdate={savePrefs} />
     }
     if (key === 'design') {
       if (prefsLoading) return <Txt as="p" className="set-soon">{t('common.loading')}</Txt>
-      return <DesignBody prefs={prefs} onUpdate={updatePrefs} />
+      return <DesignBody prefs={prefs} onUpdate={savePrefs} />
     }
     if (key === 'about') {
-      return <AboutBody initialTab={location.state?.aboutTab} />
+      return <AboutBody />
     }
-    if (key === 'widgets') {
+    if (key === 'home') {
       if (prefsLoading) return <Txt as="p" className="set-soon">{t('common.loading')}</Txt>
-      return <WidgetsBody prefs={prefs} onUpdate={updatePrefs} />
+      return <HomeBody prefs={prefs} onUpdate={savePrefs} />
+    }
+    /* Promoted out of the client-statuses section: a price list is a setting
+       of its own, and it was the only thing in there that wasn't a status —
+       which mattered once that section became a link to the clients screen. */
+    if (key === 'meetingTypes') {
+      return (
+        <Box className="set-q">
+          <MeetingTypesManager onChanged={refetchClients} />
+        </Box>
+      )
     }
     if (key === 'questions') {
       const reminderPref = prefs?.insightsReminder || { enabled: false, time: '20:00' }
-      const setReminder = (patch) => updatePrefs?.({ insightsReminder: { ...reminderPref, ...patch } })
+      const setReminder = (patch) => savePrefs({ insightsReminder: { ...reminderPref, ...patch } })
       return (
         <Box className="set-q">
           {questionsLoading ? (
@@ -1065,8 +964,9 @@ export default function SettingsScreen() {
             <Txt as="p" className="set-data-hint" role="status" aria-live="polite">{t('data.importProcessing')}</Txt>
           )}
           {importMsg && (
-            <Txt as="p" className="set-data-hint" role="status" aria-live="polite"
-              style={{ color: importMsg.startsWith(t('data.importErrorPrefix')) ? 'var(--clay)' : 'var(--sage)', fontWeight: 600 }}>{importMsg}</Txt>
+            <Txt as="p" className={`set-data-hint set-import-msg ${importMsg.kind}`} role="status" aria-live="polite">
+              {importMsg.text}
+            </Txt>
           )}
 
           <Btn
@@ -1082,6 +982,18 @@ export default function SettingsScreen() {
             {t('data.restartHint')}
           </Txt>
 
+        </Box>
+      )
+    }
+    /* Its own section now. Wiping the account and deleting it outright used
+       to sit at the bottom of the export/import scroll, styled like the
+       buttons above them — one section, one scroll, four buttons, two of
+       them irreversible. Reaching them is now a deliberate choice made at a
+       heading that says what they are. */
+    if (key === 'reset') {
+      return (
+        <Box className="set-data">
+          <Txt as="p" className="set-sub-intro">{t('danger.intro')}</Txt>
           <Box className="set-danger-zone">
             <Txt as="p" className="set-danger-title">{t('danger.resetTitle')}</Txt>
             <Btn
@@ -1112,91 +1024,6 @@ export default function SettingsScreen() {
         </Box>
       )
     }
-    if (key === 'clients') {
-      return (
-        <>
-          <StatusGroups
-            metas={CLIENT_METAS}
-            metaNs="clientMetas"
-            statuses={clientStatuses}
-            drafts={clientDrafts}
-            setDraft={setClientDraft}
-            onAdd={addClientStatus}
-            onRemove={(status, peers) => setPendingDelete({ kind: 'client', status, peers })}
-            loading={clientStatusesLoading}
-            error={clientStatusesError}
-          />
-          <Box className="set-q" style={{ marginTop: 14 }}>
-            <Txt as="p" className="set-sub-h">{t('clients.meetingTypesHeading')}</Txt>
-            <MeetingTypesManager onChanged={refetchClients} />
-          </Box>
-        </>
-      )
-    }
-    if (key === 'leads') {
-      const submitNewSource = async () => {
-        const v = newSourceName.trim()
-        if (!v) return
-        try {
-          await addSource({ name: v, color: newSourceColor })
-          setNewSourceName('')
-          setSourceError(null)
-        } catch (e) {
-          setSourceError(e?.message || t('leads.addSourceFailed'))
-        }
-      }
-      return (
-        <Box className="set-q">
-          <Txt as="p" className="set-sub-h">{t('leads.sources')}</Txt>
-          {sourcesLoading ? (
-            <Txt as="p" className="set-sub-empty">{t('common.loading')}</Txt>
-          ) : sourcesError ? (
-            <Txt as="p" className="set-sub-empty" style={{ color: 'var(--clay)' }}>{t('leads.sourcesLoadError', { error: sourcesError })}</Txt>
-          ) : sources.length === 0 ? (
-            <Txt as="p" className="set-sub-empty">{t('leads.sourcesEmpty')}</Txt>
-          ) : (
-            sources.map((s) => (
-              <Box key={s.id} className="set-q-row">
-                <Txt className="set-q-icon" style={{ color: s.color }}>●</Txt>
-                <Txt className="set-q-text">{s.name}</Txt>
-                <Btn type="button" className="set-q-del" onClick={() => removeSource(s.id)} aria-label={t('leads.deleteSourceAria')}>
-                  <Trash2 size={14} strokeWidth={1.7} aria-hidden="true" />
-                </Btn>
-              </Box>
-            ))
-          )}
-          <Box className="set-sub-add">
-            <Input
-              className="m-input"
-              value={newSourceName}
-              onChange={(e) => setNewSourceName(e.target.value)}
-              placeholder={t('leads.newSourcePlaceholder')}
-              onKeyDown={(e) => { if (e.key === 'Enter') submitNewSource() }}
-            />
-            <Btn type="button" className="set-q-add" onClick={submitNewSource} disabled={!newSourceName.trim()}>
-              <Plus size={15} strokeWidth={1.8} aria-hidden="true" />
-            </Btn>
-          </Box>
-          <ColorDots value={newSourceColor} onChange={setNewSourceColor} />
-          {sourceError && <Txt as="p" className="set-sub-empty" style={{ color: 'var(--clay)' }}>{sourceError}</Txt>}
-
-          <Txt as="p" className="set-sub-h" style={{ marginTop: 14 }}>{t('leads.subStatuses')}</Txt>
-          <StatusGroups
-            metas={LEAD_METAS}
-            metaNs="leadMetas"
-            statuses={leadStatuses}
-            drafts={leadDrafts}
-            setDraft={setLeadDraft}
-            onAdd={addLeadStatus}
-            onRemove={(status, peers) => setPendingDelete({ kind: 'lead', status, peers })}
-            loading={leadStatusesLoading}
-            error={leadStatusesError}
-            withColor
-            placeholderKey="status.leadStagePlaceholder"
-          />
-        </Box>
-      )
-    }
     return <Txt as="p" className="set-soon">{t('common.soon')}</Txt>
   }
 
@@ -1216,12 +1043,51 @@ export default function SettingsScreen() {
         </Box>
       </Box>
 
+      {prefsError && (
+        <Box className="set-save-error" role="alert">
+          {t('common.saveError')}
+        </Box>
+      )}
+
+      <Box className="set-search">
+        <Search size={16} strokeWidth={1.7} aria-hidden="true" />
+        <Input
+          type="search"
+          className="set-search-input"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder={t('search.placeholder')}
+          aria-label={t('search.aria')}
+        />
+        {query && (
+          <Btn type="button" className="set-search-clear" onClick={() => setQuery('')} aria-label={t('search.clear')}>
+            <X size={15} strokeWidth={2} aria-hidden="true" />
+          </Btn>
+        )}
+      </Box>
+
+      {searching && results.length === 0 && (
+        <Box className="set-search-empty" role="status">
+          <Txt as="p">{t('search.noResults', { query: query.trim() })}</Txt>
+          <Txt as="p" className="set-search-empty-hint">{t('search.noResultsHint')}</Txt>
+        </Box>
+      )}
+
       <Box className="set-list">
-        {SECTION_GROUPS.map((group) => {
-          const groupOpen = !!openGroups[group.key]
+        {results.map(({ group, items, links }) => {
+          /* While searching, every surviving group is open and so is every
+             surviving section: the point of a result is to BE the answer,
+             not to be another thing to click open. */
+          const groupOpen = searching || !!openGroups[group.key]
           const GroupIcon = group.icon
+          /* A group holding one section is that section — opening it twice
+             was a door leading to a door. Its header carries the section's
+             anchor id so deep links still land on it. Suspended while
+             searching, where the section header is what tells the user WHAT
+             matched. */
+          const sole = searching ? null : soleSectionOf(group)
           return (
-            <Box key={group.key} className="set-group">
+            <Box key={group.key} id={sole ? `set-sec-${sole.key}` : undefined} className="set-group">
               <Btn
                 type="button"
                 className={`set-group-head${groupOpen ? ' open' : ''}`}
@@ -1235,15 +1101,20 @@ export default function SettingsScreen() {
                 </Box>
                 <ChevronDown size={18} strokeWidth={1.6} className="set-group-chev" aria-hidden="true" />
               </Btn>
-              {groupOpen && (
+              {groupOpen && sole && (
                 <Box className="set-group-children">
-                  {group.items.map((key) => {
+                  <Box className="set-group-body">{renderBody(sole.key)}</Box>
+                </Box>
+              )}
+              {groupOpen && !sole && (
+                <Box className="set-group-children">
+                  {items.map((key) => {
                     const section = SECTION_DEFS[key]
                     if (!section) return null
                     const Icon = section.icon
-                    const isOpen = !!open[key]
+                    const isOpen = searching || !!open[key]
                     return (
-                      <Box key={key} className={`set-acc${isOpen ? ' open' : ''}`}>
+                      <Box key={key} id={`set-sec-${key}`} className={`set-acc${isOpen ? ' open' : ''}`}>
                         <Btn type="button" className="set-acc-head" onClick={() => toggle(key)} aria-expanded={isOpen}>
                           <Txt className="set-acc-icon"><Icon size={18} strokeWidth={1.6} aria-hidden="true" /></Txt>
                           <Txt className="set-acc-text">
@@ -1253,6 +1124,25 @@ export default function SettingsScreen() {
                           <ChevronDown size={18} strokeWidth={1.6} className="set-acc-chev" aria-hidden="true" />
                         </Btn>
                         {isOpen && <Box className="set-acc-body">{renderBody(key)}</Box>}
+                      </Box>
+                    )
+                  })}
+                  {/* Rows that leave settings, after the sections. Same shape
+                      as a section header so the group reads as one list, with
+                      the chevron pointing the way out instead of down. */}
+                  {links.map((link) => {
+                    if (link.enabled && !link.enabled()) return null
+                    const LinkIcon = link.icon
+                    return (
+                      <Box key={link.key} className="set-acc set-link">
+                        <Btn type="button" className="set-acc-head" onClick={() => navigate(link.to)}>
+                          <Txt className="set-acc-icon"><LinkIcon size={18} strokeWidth={1.6} aria-hidden="true" /></Txt>
+                          <Txt className="set-acc-text">
+                            <Txt className="set-acc-title">{t(link.titleKey)}</Txt>
+                            <Txt className="set-acc-sub">{t(link.subKey)}</Txt>
+                          </Txt>
+                          <ChevronLeft size={18} strokeWidth={1.6} className="set-link-chev" aria-hidden="true" />
+                        </Btn>
                       </Box>
                     )
                   })}
@@ -1269,18 +1159,6 @@ export default function SettingsScreen() {
         nextOrder={questions.length}
         onSave={addQuestion}
         usedTemplateKeys={questions.filter((q) => q.template_key).map((q) => q.template_key)}
-      />
-
-      <DeleteSubStatusModal
-        key={pendingDelete?.status?.id || 'none'}
-        open={!!pendingDelete}
-        onClose={() => setPendingDelete(null)}
-        status={pendingDelete?.status}
-        peers={pendingDelete?.peers || []}
-        kind={pendingDelete?.kind === 'lead' ? 'lead' : 'client'}
-        onCount={pendingDelete?.kind === 'lead' ? countLeadsByStatus : countClientsByStatus}
-        onReassign={handleSubStatusReassign}
-        onDelete={handleSubStatusDelete}
       />
 
       {importParsed && (

@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Plus, X, GripVertical } from 'lucide-react'
 import { LEAD_META, metaTitle } from '@simplicity/core'
 import { usePointerDnd } from '../../hooks/usePointerDnd'
+import { nextSortOrder } from '../../lib/api/leadStatuses'
 import ConfirmModal from '../../modals/ConfirmModal'
 import { useT } from '../../i18n/useT'
 import { Box, Txt, Btn, Input } from '../../components/ui'
@@ -84,7 +85,11 @@ export default function LeadStatusesPanel({ statuses, onAdd, onUpdate, onRemove 
     if (!v || busy[meta]) return
     setBusyFor(meta, true)
     try {
-      await onAdd({ meta_category: meta, display_name: v, icon: null, is_default: false })
+      /* Land at the END of the group. Omitting sort_order left it at the DB
+         default of 0, which sorts ahead of the existing 10/20/30 — so a new
+         stage jumped to the front of the very group it was added to. */
+      const group = (statuses || []).filter((s) => s.meta_category === meta)
+      await onAdd({ meta_category: meta, display_name: v, icon: null, is_default: false, sort_order: nextSortOrder(group) })
       setDraft(meta, '')
     } finally {
       setBusyFor(meta, false)

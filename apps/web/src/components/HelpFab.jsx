@@ -109,9 +109,12 @@ export default function HelpFab({ screenKey }) {
         open={open}
         help={help}
         onClose={() => setOpen(false)}
+        /* Straight to the guide. This used to aim at a TAB inside a section
+           inside a group inside settings — and named only the section, so it
+           landed on a screen with everything collapsed and nothing to read. */
         onOpenGuide={() => {
           setOpen(false)
-          navigate(ROUTES.SETTINGS, { state: { openSection: 'about', aboutTab: 'guide' } })
+          navigate(ROUTES.HELP)
         }}
       />
     </>

@@ -59,6 +59,7 @@ const ReportsScreen = lazyWithRetry(() => import('./screens/reports'))
 const ProjectsScreen = lazyWithRetry(() => import('./screens/projects'))
 const ProjectDetailScreen = lazyWithRetry(() => import('./screens/project-detail'))
 const TrashScreen = lazyWithRetry(() => import('./screens/trash'))
+const HelpScreen = lazyWithRetry(() => import('./screens/help'))
 const InsightsScreen = lazyWithRetry(() => import('./screens/insights'))
 const ConnectionsScreen = lazyWithRetry(() => import('./screens/connections'))
 const CalendarConnectionScreen = lazyWithRetry(() => import('./screens/connections/CalendarConnection'))
@@ -257,6 +258,7 @@ function AppShell() {
             <Route path={ROUTES.PROJECTS} element={<ProjectsScreen />} />
             <Route path={ROUTES.PROJECT} element={<ProjectDetailScreen />} />
             <Route path={ROUTES.TRASH} element={<TrashScreen />} />
+            <Route path={ROUTES.HELP} element={<HelpScreen />} />
             <Route path={ROUTES.INSIGHTS} element={<InsightsScreen />} />
             <Route path={ROUTES.CONNECTIONS} element={<ConnectionsScreen />} />
             <Route path={ROUTES.CONNECTION_CALENDAR} element={<CalendarConnectionScreen />} />

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { Search, SlidersHorizontal, X, UserPlus, Wallet, ChevronLeft, AlertTriangle } from 'lucide-react'
+import { Search, SlidersHorizontal, X, UserPlus, Wallet, ChevronLeft, AlertTriangle, Tags } from 'lucide-react'
 import { ROUTES } from '../../lib/routes'
 import { effectiveClientMeta, paidForClients, sessionsCountForClients, clientBalance, currentMonthRange, isr, financeQuery } from '@simplicity/core'
 import { useClients } from '../../hooks/useClients'
@@ -25,6 +25,7 @@ import ClientCard from './ClientCard'
 import ClientDrawer from '../../drawers/client/ClientDrawer'
 import AddClientModal from '../../modals/AddClientModal'
 import DeleteClientModal from '../../modals/DeleteClientModal'
+import ClientStatusesModal from '../../modals/ClientStatusesModal'
 import MG from '../../components/MG'
 import { pushUndo } from '../../lib/undo'
 import './ClientsScreen.css'
@@ -145,6 +146,10 @@ export default function ClientsScreen() {
     if (routeClientId) setOpenId(routeClientId)
   }
   const [showAdd, setShowAdd] = useState(false)
+  /* The sub-status editor. It used to live in Settings — the only place in
+     the app that could create or delete one, while this screen (which names
+     them on every card and filters by them) could only read. */
+  const [showStatuses, setShowStatuses] = useState(false)
   const [pendingDeleteClient, setPendingDeleteClient] = useState(null)
   const [pendingDeleteBatch, setPendingDeleteBatch] = useState(null)
   /* One "תצוגה" menu holds sort + grouping + multi-select — the three
@@ -426,6 +431,17 @@ export default function ClientsScreen() {
               </Box>
             )}
           </Box>
+          {/* Beside the view menu rather than inside it: sorting and grouping
+              change what you SEE, this changes the vocabulary itself. Mirrors
+              the leads screen's "מקורות" button. */}
+          <Btn
+            type="button"
+            className="c-statuses-link"
+            onClick={() => setShowStatuses(true)}
+          >
+            <Tags size={14} strokeWidth={1.7} aria-hidden="true" />
+            {t('statuses.link')}
+          </Btn>
         </Box>
 
       {groupBy === 'status' && (
@@ -634,6 +650,8 @@ export default function ClientsScreen() {
         statuses={clientStatuses}
         onSave={async (c) => { await addClient(c); setTab(c.status_meta || 'no_status') }}
       />
+
+      <ClientStatusesModal open={showStatuses} onClose={() => setShowStatuses(false)} />
 
       <DeleteClientModal
         key={pendingDeleteClient?.id || (pendingDeleteBatch?.map((c) => c.id).join('|') || 'none')}

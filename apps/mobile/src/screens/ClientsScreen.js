@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { View, Text, TextInput, Pressable, StyleSheet, ScrollView, ActivityIndicator, RefreshControl } from 'react-native'
 import { useRoute, useNavigation, useFocusEffect } from '@react-navigation/native'
-import { Search, Wallet, ArrowUpDown, Check, X, Trash2, CheckCircle2, Clock, CircleSlash, CircleDashed } from 'lucide-react-native'
+import { Search, Wallet, ArrowUpDown, Check, X, Trash2, CheckCircle2, Clock, CircleSlash, CircleDashed, Tags, Plus } from 'lucide-react-native'
 import { clientBalance, effectiveClientMeta, paidForClients, sessionsCountForClients, currentMonthRange, financeQuery, isr } from '@simplicity/core'
 import i18n from '../lib/i18n'
 import Screen from '../components/Screen'
@@ -15,6 +15,7 @@ import { useFormOptions } from '../lib/formOptions'
 import { colors, shadow } from '../theme/theme'
 import { useClientsList } from '../hooks/useClientsList'
 import { usePreferences } from '../hooks/usePreferences'
+import { useConfigTaxonomy } from '../hooks/useConfigTaxonomy'
 
 const TABS = [
   { key: 'active', icon: CheckCircle2 },
@@ -90,6 +91,8 @@ export default function ClientsScreen() {
   const [tab, setTab] = useState('active')
   const [query, setQuery] = useState('')
   const [sortOpen, setSortOpen] = useState(false)
+  const [statusesOpen, setStatusesOpen] = useState(false)
+  const tax = useConfigTaxonomy()
   // Persisted controls (survive across sessions, like the web).
   const balanceOnly = !!prefs.clientsBalanceOnly
   const setBalanceOnly = (v) => updatePrefs({ clientsBalanceOnly: v })
@@ -269,6 +272,13 @@ export default function ClientsScreen() {
             <GlassPressable radius={999} on={selectMode} onColor={colors.text} style={styles.selectBtn} onPress={() => (selectMode ? exitSelect() : setSelectMode(true))}>
               <Text style={[styles.selectBtnText, selectMode && styles.toggleTextOn]}>{selectMode ? i18n.t('clients:select.cancel', { defaultValue: 'בטל בחירה' }) : i18n.t('clients:select.enter', { defaultValue: 'בחר/י' })}</Text>
             </GlassPressable>
+            {/* The sub-status editor. It lived in Settings, which was the only
+                place on this platform that could create or delete one, while
+                THIS screen named them on every card and filtered by them. */}
+            <GlassPressable radius={999} style={styles.sortBtn} onPress={() => setStatusesOpen(true)}>
+              <Tags size={14} strokeWidth={1.7} color={colors.textSub} />
+              <Text style={styles.sortBtnText}>{i18n.t('clients:statuses.link', { defaultValue: 'תתי-סטטוסים' })}</Text>
+            </GlassPressable>
           </View>
 
           {/* Status tabs (status mode only) */}
@@ -394,6 +404,11 @@ export default function ClientsScreen() {
         </View>
       </Sheet>
 
+      {/* Sub-status editor */}
+      <Sheet open={statusesOpen} onClose={() => setStatusesOpen(false)} title={i18n.t('clients:statuses.title', { defaultValue: 'ניהול תתי-סטטוסים' })}>
+        <ClientStatusesPanel tax={tax} />
+      </Sheet>
+
       {/* Sort sheet */}
       <Sheet open={sortOpen} onClose={() => setSortOpen(false)} title={i18n.t('clients:sort.heading', { defaultValue: 'מיין/י לפי' })}>
         {SORT_OPTIONS.map((f) => {
@@ -460,6 +475,71 @@ function CardStat({ label, value, divided }) {
     </View>
   )
 }
+
+/* The client sub-status editor, moved here from Settings — which was the only
+   place on this platform able to create or delete one, while this screen (the
+   one that names them on every card, tabs by them and filters by them) could
+   only read. Chips per meta group, a meta pill to choose where a new one
+   lands, and an add row: the same shape the leads screen uses for its stages,
+   so the two taxonomies are edited the same way.
+
+   `no_status` is deliberately absent from the pills — it is the bucket for
+   clients with no sub-status at all, so creating one inside it would be a
+   contradiction. */
+const STATUS_METAS = ['active', 'wandering', 'past']
+
+function ClientStatusesPanel({ tax }) {
+  const [name, setName] = useState('')
+  const [meta, setMeta] = useState('active')
+  const [busy, setBusy] = useState(false)
+  const add = async () => {
+    const v = name.trim(); if (!v || busy) return
+    setBusy(true); try { await tax.addClientStatus(v, meta); setName('') } finally { setBusy(false) }
+  }
+  const live = (tax.clientStatuses || []).filter((s) => !s.deleted_at)
+  return (
+    <View style={{ gap: 10 }}>
+      <Text style={styles.statusHint}>{i18n.t('clients:statuses.hint', { defaultValue: '' })}</Text>
+      <View style={styles.statusChips}>
+        {live.length ? live.map((s) => (
+          <View key={s.id} style={styles.statusChip}>
+            {s.icon ? <Text style={styles.statusChipIcon}>{s.icon}</Text> : null}
+            <Text style={styles.statusChipText}>{s.display_name}</Text>
+            {s.is_default ? null : (
+              <Pressable onPress={() => tax.removeClientStatus(s.id)} hitSlop={6}>
+                <X size={12} strokeWidth={2} color={colors.textFaint} />
+              </Pressable>
+            )}
+          </View>
+        )) : <Text style={styles.statusHint}>{i18n.t('clients:statuses.empty', { defaultValue: '—' })}</Text>}
+      </View>
+      <View style={styles.statusMetas}>
+        {STATUS_METAS.map((m) => {
+          const on = meta === m
+          return (
+            <Pressable key={m} style={[styles.statusMeta, on && styles.statusMetaOn]} onPress={() => setMeta(m)}>
+              <Text style={[styles.statusMetaText, on && styles.statusMetaTextOn]}>{i18n.t(`clients:status.${m}`, { defaultValue: m })}</Text>
+            </Pressable>
+          )
+        })}
+      </View>
+      <View style={styles.statusAddRow}>
+        <TextInput
+          style={styles.statusInput}
+          value={name}
+          onChangeText={setName}
+          placeholder={i18n.t('clients:statuses.placeholder', { meta: i18n.t(`clients:status.${meta}`), defaultValue: 'סטטוס חדש…' })}
+          placeholderTextColor={colors.textFaint}
+          onSubmitEditing={add}
+        />
+        <Pressable style={styles.statusAddBtn} onPress={add} disabled={busy || !name.trim()}>
+          <Plus size={18} strokeWidth={2} color={colors.onBrand} />
+        </Pressable>
+      </View>
+    </View>
+  )
+}
+ClientStatusesPanel.displayName = 'ClientStatusesPanel'
 
 const styles = StyleSheet.create({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
@@ -537,6 +617,21 @@ const styles = StyleSheet.create({
   ccStatV: { fontSize: 17, fontWeight: '500', color: colors.text },
 
   // Sort sheet
+  /* Sub-status editor (ClientStatusesPanel) */
+  statusHint: { fontSize: 12.5, lineHeight: 18, color: colors.textSub },
+  statusChips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  statusChip: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 6, paddingHorizontal: 11, borderRadius: 999, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.divider },
+  statusChipIcon: { fontSize: 13 },
+  statusChipText: { fontSize: 13, color: colors.text },
+  statusMetas: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
+  statusMeta: { paddingVertical: 5, paddingHorizontal: 12, borderRadius: 999, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.divider },
+  statusMetaOn: { backgroundColor: colors.text, borderColor: colors.text },
+  statusMetaText: { fontSize: 12.5, color: colors.textSub },
+  statusMetaTextOn: { color: colors.onBrand },
+  statusAddRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  statusInput: { flex: 1, minWidth: 0, height: 44, paddingHorizontal: 12, borderRadius: 12, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.divider, color: colors.text, fontSize: 14 },
+  statusAddBtn: { width: 44, height: 44, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.brand },
+
   sortOpt: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 13, paddingHorizontal: 4 },
   sortOptText: { fontSize: 15, color: colors.text },
   sortOptOn: { color: colors.brand, fontWeight: '600' },

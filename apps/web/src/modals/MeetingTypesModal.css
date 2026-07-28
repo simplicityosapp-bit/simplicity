@@ -13,3 +13,15 @@
 
 .mt-row-price,
 .mt-add-price { text-align: start; }
+
+/* On a phone the fixed 110px price column left the NAME — the field that
+   identifies the row — about 54px wide inside Settings, half the width of
+   the price beside it. Below 768px the name takes its own line. */
+@media (max-width: 767px) {
+  .mt-row,
+  .mt-add {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+  .mt-row-name,
+  .mt-add-name { grid-column: 1 / -1; }
+}

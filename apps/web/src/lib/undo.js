@@ -24,6 +24,7 @@ import i18n from '@simplicity/core/i18n'
 
 const OFFER_MS = 6000   /* how long "בטל" is offered after an action */
 const UNDONE_MS = 3500  /* brief confirm window after undo (redo lives here) */
+const NOTE_MS = 2200    /* a plain confirmation — nothing to undo, so it goes sooner */
 
 /* Public, render-facing snapshot. `seq` bumps on every transition so
    the toast can re-key its countdown bar to restart the CSS animation. */
@@ -63,6 +64,21 @@ export function pushUndo({ label, undo, redo }) {
   redoable = null
   state = { phase: 'offer', label, duration: OFFER_MS, seq: state.seq + 1 }
   timer = setTimeout(expire, OFFER_MS)
+  emit()
+}
+
+/* A confirmation with nothing to reverse — "the setting was saved". Settings
+   writes were silent: a preference landed in the DB and the screen said
+   nothing, so there was no way to tell a saved change from a dead control.
+   It borrows the toast's slot rather than inventing a second one, and drops
+   any pending undo offer, which is correct — the newer action is what the
+   toast is now describing, and this one can't be taken back anyway. */
+export function pushNote(label) {
+  clearTimer()
+  pending = null
+  redoable = null
+  state = { phase: 'note', label, duration: NOTE_MS, seq: state.seq + 1 }
+  timer = setTimeout(expire, NOTE_MS)
   emit()
 }
 

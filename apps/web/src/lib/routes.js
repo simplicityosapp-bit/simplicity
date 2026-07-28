@@ -36,6 +36,10 @@ export const ROUTES = {
   MOON_GLANCE: '/moon',
   REPORTS: '/reports',
   SETTINGS: '/settings',
+  /* The full guide + FAQ. Used to be two tabs inside Settings → אודות,
+     four disclosures deep; the floating ? button on every screen points
+     here now, and so does a row in the settings account group. */
+  HELP: '/help',
   SUBSCRIPTION: '/subscription', // the user's own Simplicity plan (promoted out of Settings)
   PROJECTS: '/projects',
   TRASH: '/trash',

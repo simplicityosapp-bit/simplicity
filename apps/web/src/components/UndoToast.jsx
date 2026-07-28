@@ -16,6 +16,10 @@ import { Box, Txt, Btn } from './ui'
                       countdown bar that auto-expires after ~6s.
    • phase 'undone' → brief "בוטל" confirmation (Ctrl+Y still redoes
                       during this window).
+   • phase 'note'   → brief confirmation with nothing to undo, e.g. a
+                      saved setting. Same shape as 'undone'; performUndo
+                      already ignores every phase but 'offer', so Ctrl+Z
+                      during one is a no-op.
 
    Desktop adds Ctrl/Cmd+Z (undo) and Ctrl/Cmd+Y or Ctrl/Cmd+Shift+Z
    (redo); typing inside an input/textarea/contenteditable is left to

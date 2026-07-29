@@ -53,7 +53,7 @@
     "completedOn": "Completed • {{date}}",
     "openAtEnd": "Open at {{date}}",
     "urgent": "Urgent",
-    "deleted": "deleted"
+    "deleted": "in the trash"
   },
   "metrics": {
     "newInquiries": "New inquiries",

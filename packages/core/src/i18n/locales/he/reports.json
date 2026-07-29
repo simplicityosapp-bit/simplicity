@@ -59,7 +59,7 @@
     "completedOn": "הושלמה • {{date}}",
     "openAtEnd": "פתוחה בסוף {{date}}",
     "urgent": "דחוף",
-    "deleted": "נמחקה"
+    "deleted": "בסל המיחזור"
   },
   "metrics": {
     "newInquiries": "פניות חדשות",

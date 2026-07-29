@@ -1,6 +1,6 @@
 import { useCallback } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { listTasks, listTasksForReports, insertTask, updateTask, removeTask as apiRemoveTask, restoreTask } from '../lib/api/tasks'
+import { listTasks, insertTask, updateTask, removeTask as apiRemoveTask, restoreTask } from '../lib/api/tasks'
 import { registerDeleteUndo } from '../lib/undoActions'
 import i18n from '@simplicity/core/i18n'
 import { pushUndo } from '../lib/undo'
@@ -8,7 +8,6 @@ import { pushUndo } from '../lib/undo'
 /* React-Query-backed: home widgets (attention, chips, next-tasks) shared
    the same task fetch. Public API unchanged. */
 const KEY = ['tasks']
-const KEY_REPORTS = ['tasks', 'withDeleted']
 
 export function useTasks() {
   const qc = useQueryClient()
@@ -82,13 +81,4 @@ export function useTasks() {
   }, [qc])
 
   return { tasks, loading: isLoading, error: error?.message ?? null, addTask, toggleTask, editTask, removeTask, clearCompleted, refetch }
-}
-
-/* Reports-only, read-only: includes soft-deleted rows so a month keeps the
-   tasks that were completed in it after the user tidies them away. Its own
-   query key on purpose — sharing ['tasks'] would hand deleted rows to the
-   tasks screen and every home widget through the same cache entry. */
-export function useTasksForReports() {
-  const { data, isLoading, error } = useQuery({ queryKey: KEY_REPORTS, queryFn: listTasksForReports })
-  return { tasks: data ?? [], loading: isLoading, error: error?.message ?? null }
 }

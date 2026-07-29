@@ -16,13 +16,7 @@ import {
 import Modal from '../../modals/Modal'
 import InfoPopover from '../../components/InfoPopover'
 import { useReportsConfig } from '../../hooks/useReportsConfig'
-import { useLeads } from '../../hooks/useLeads'
-import { useClients } from '../../hooks/useClients'
-import { useSessions } from '../../hooks/useSessions'
-import { useTransactions } from '../../hooks/useTransactions'
-import { useTasksForReports } from '../../hooks/useTasks'
-import { useGroupMembers } from '../../hooks/useGroupMembers'
-import { useGroups } from '../../hooks/useGroups'
+import { useReportsData } from '../../hooks/useReportsData'
 import { useT } from '../../i18n/useT'
 import './ReportsScreen.css'
 import { Box, Txt, Btn } from '../../components/ui'
@@ -55,19 +49,10 @@ export default function ReportsScreen() {
   const { config, setView, setRange, toggleMetric, reorderMetric, resetConfig } = useReportsConfig()
   const [customizeOpen, setCustomizeOpen] = useState(false)
   const [drill, setDrill] = useState(null)  /* { metricId, period } | null */
-  const { leads, loading: leadsLoading } = useLeads()
-  const { clients, loading: clientsLoading } = useClients()
-  const { sessions, loading: sessionsLoading } = useSessions()
-  const { transactions, loading: txLoading } = useTransactions()
-  /* Includes soft-deleted tasks: a task completed in June still counts for
-     June after it is tidied off the tasks screen. See useTasksForReports. */
-  const { tasks, loading: tasksLoading } = useTasksForReports()
-  const { members: groupMembers, loading: gmLoading } = useGroupMembers()
-  const { groups, loading: groupsLoading } = useGroups()
-  /* First-load gate: until the core data arrives every metric computes as 0, so
-     the screen would flash the "no activity" empty state + a misleading
-     "go to month X" suggestion. Hold a loading placeholder instead. */
-  const loading = leadsLoading || clientsLoading || sessionsLoading || txLoading || tasksLoading || gmLoading || groupsLoading
+  /* One raw read of all seven tables rather than the app's editing hooks:
+     those filter deleted_at server-side, which would hide the history this
+     screen exists to report. See useReportsData. */
+  const { leads, clients, sessions, transactions, tasks, groupMembers, groups, loading } = useReportsData()
 
   const data = useMemo(
     () => ({ leads, clients, sessions, transactions, tasks, groupMembers, groups }),
@@ -130,6 +115,9 @@ export default function ReportsScreen() {
         />
       )}
 
+      {/* First-load gate: until the data arrives every metric computes as 0,
+          so the screen would flash the "no activity" empty state + a
+          misleading "go to month X" suggestion. Hold a placeholder instead. */}
       {loading ? (
         <Box className="rep-empty">
           <Txt className="rep-empty-icon"><BarChart3 size={28} strokeWidth={1.3} aria-hidden="true" /></Txt>

@@ -76,9 +76,11 @@
 }
 
 /* ── Status filter ─────────────────────────────────────────────── */
+/* Same 14px gap the entity toggle above it uses — the two centred pills sat
+   at 14 and 18 and the uneven rhythm showed once the third bar was gone. */
 .t-filter {
   width: fit-content;
-  margin: 0 auto 18px;
+  margin: 0 auto 14px;
 }
 /* Entity toggle (משימות ↔ תזכורות) — sits between the screen-top
    row and the hero summary so the same chrome serves both views. */
@@ -481,12 +483,21 @@
 /* ── Inline title rename (double-click / long-press) ───────────────
    The title becomes editable in place without opening the full modal.
    Suppress the native long-press text-selection callout on touch so the
-   gesture reads as "edit", not "select". Titles are short, so losing
-   desktop text-selection here is an acceptable trade. */
+   gesture reads as "edit", not "select".
+
+   The selection block is scoped to coarse pointers now. It used to apply
+   everywhere and was written off as an acceptable trade, but it only ever
+   bought anything on touch — on a desktop the rename gesture is a
+   double-click, which doesn't conflict with selecting, so the rule was pure
+   loss there: you couldn't drag over a task title to copy it. */
 .tc-title {
-  -webkit-user-select: none;
-  user-select: none;
   -webkit-touch-callout: none;
+}
+@media (pointer: coarse) {
+  .tc-title {
+    -webkit-user-select: none;
+    user-select: none;
+  }
 }
 .tc-rename {
   display: flex;

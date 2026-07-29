@@ -60,15 +60,15 @@
     "all": "Tous",
     "manage": "Statuts et catégories"
   },
-  "clearAll": "Tout effacer",
+  "clearAll": "Supprimer les terminées",
   "doneGroup": "Terminées",
   "loading": {
     "tasks": "Chargement des tâches…",
     "reminders": "Chargement des rappels…"
   },
   "loadError": {
-    "tasks": "Impossible de charger les tâches : {{error}}",
-    "reminders": "Impossible de charger les rappels : {{error}}"
+    "tasks": "Impossible de charger vos tâches. Essayez d'actualiser la page.",
+    "reminders": "Impossible de charger vos rappels. Essayez d'actualiser la page."
   },
   "empty": {
     "tasksDone": "Aucune tâche terminée pour l'instant.",
@@ -86,7 +86,7 @@
     "remindersTitle": "Supprimer les rappels terminés",
     "remindersMessageOne": "Supprimer ce rappel terminé ? Vous pouvez le restaurer depuis la corbeille pendant 30 jours.",
     "remindersMessageMany": "Supprimer {{count}} rappels terminés ? Vous pouvez les restaurer depuis la corbeille pendant 30 jours.",
-    "confirm": "Tout effacer"
+    "confirm": "Supprimer"
   },
   "item": {
     "uncheck": "Annuler l'achèvement",
@@ -103,7 +103,8 @@
     "repeatEveryX": "Tous les {{x}} jours",
     "repeatGeneric": "Récurrent",
     "renameSave": "Enregistrer",
-    "renameHint": "Entrée pour enregistrer · Échap pour annuler"
+    "renameHint": "Entrée pour enregistrer · Échap pour annuler",
+    "renameStartHint": "Double-cliquez pour renommer"
   },
   "groupBy": {
     "aria": "Grouper les tâches",

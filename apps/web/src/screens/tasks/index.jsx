@@ -35,8 +35,11 @@ const FILTERS = ['todo', 'done', 'all']
    re-slice the same tasks. */
 const GROUP_BY = ['priority', 'project', 'category']
 const GROUP_FALLBACK_COLOR = 'var(--mist)'
-/* Reminders get their own tabs: open, the recurring schedule, and completed. */
-const REM_FILTERS = ['todo', 'recurring', 'done']
+/* Reminders get their own tabs: open, completed, and the recurring schedule.
+   "הושלמו" deliberately holds the SAME second slot it holds for tasks — it used
+   to sit third here and second there, so flipping the entity toggle moved the
+   tab under your finger and the muscle-memory tap landed on the wrong one. */
+const REM_FILTERS = ['todo', 'done', 'recurring']
 
 /* Date buckets used to group reminders the same way tasks are grouped
    by priority — keeps the visual rhythm identical between the two
@@ -93,6 +96,32 @@ function byDueDate(a, b) {
 function taskDueBucket(task, now) {
   if (!task.due_at || task.status === 'done') return null
   return dateToBucket(new Date(task.due_at), now)
+}
+
+/* The collapsible panel every list on this screen sits in. Only the task groups
+   used to have it; the reminder buckets and the recurring schedule were bare
+   glass labels over loose cards, so the same screen spoke two different visual
+   languages depending on which side of the entity toggle you were on — and a
+   long "מאוחר יותר" bucket could not be folded away the way a long "רגיל"
+   group could. Extracted rather than copied four times. */
+function GroupPanel({ groupKey, label, color, count, collapsed, onToggle, children }) {
+  const isCollapsed = collapsed.has(groupKey)
+  return (
+    <Box className={`t-group t-group-card${isCollapsed ? '' : ' open'}`}>
+      <Btn
+        type="button"
+        className="t-group-lbl t-group-toggle"
+        onClick={() => onToggle(groupKey)}
+        aria-expanded={!isCollapsed}
+      >
+        <Txt className="t-group-dot" style={{ background: color }} />
+        {label}
+        <Txt className="t-group-count">{count}</Txt>
+        <ChevronDown size={14} strokeWidth={1.6} className={`t-group-chev${isCollapsed ? '' : ' open'}`} aria-hidden="true" />
+      </Btn>
+      {!isCollapsed && <Box className="t-group-body">{children}</Box>}
+    </Box>
+  )
 }
 
 export default function TasksScreen() {
@@ -380,11 +409,16 @@ export default function TasksScreen() {
         {filters.map((f) => (
           <Btn
             key={f}
+            id={`t-filter-${f}`}
             type="button"
             className={`mg-toggle-btn${filter === f ? ' on' : ''}`}
             onClick={() => setFilter(f)}
             role="tab"
             aria-selected={filter === f}
+            /* These were tabs with no panel: a screen reader announced
+               "tab, 1 of 3" and had nothing to move into. The list below is
+               that panel now. */
+            aria-controls="t-list"
           >
             {t(`filter.${f}`)}
           </Btn>
@@ -466,11 +500,22 @@ export default function TasksScreen() {
         </Box>
       )}
 
-      <Box as="section" className="t-list">
+      <Box
+        as="section"
+        className="t-list"
+        id="t-list"
+        role="tabpanel"
+        aria-labelledby={`t-filter-${filter}`}
+      >
         {loading ? (
           <Box className="empty"><Txt as="p" className="empty-text">{isTasks ? t('loading.tasks') : t('loading.reminders')}</Txt></Box>
         ) : error ? (
-          <Box className="empty"><Txt as="p" className="empty-text">{isTasks ? t('loadError.tasks', { error }) : t('loadError.reminders', { error })}</Txt></Box>
+          /* The raw Supabase message ("JWT expired", "FetchError: …") used to
+             be printed straight at the user. It says nothing to a coach and
+             frightens the ones this app is for — the sentence tells them what
+             to do, and the technical text stays on the title for a support
+             conversation. */
+          <Box className="empty"><Txt as="p" className="empty-text" title={error}>{isTasks ? t('loadError.tasks') : t('loadError.reminders')}</Txt></Box>
         ) : isTasks ? (
           filteredTasks.length === 0 ? (
             tasks.length === 0 ? (
@@ -485,23 +530,16 @@ export default function TasksScreen() {
               <Box className="empty"><Txt as="p" className="empty-text">{emptyMsg}</Txt></Box>
             )
           ) : (
-            taskGroups.map((g) => {
-              const isCollapsed = collapsed.has(g.key)
-              return (
-                <Box key={g.key} className={`t-group t-group-card${isCollapsed ? '' : ' open'}`}>
-                  <Btn
-                    type="button"
-                    className="t-group-lbl t-group-toggle"
-                    onClick={() => toggleGroup(g.key)}
-                    aria-expanded={!isCollapsed}
-                  >
-                    <Txt className="t-group-dot" style={{ background: g.color }} />
-                    {g.label}
-                    <Txt className="t-group-count">{g.items.length}</Txt>
-                    <ChevronDown size={14} strokeWidth={1.6} className={`t-group-chev${isCollapsed ? '' : ' open'}`} aria-hidden="true" />
-                  </Btn>
-                  {!isCollapsed && (
-                    <Box className="t-group-body">
+            taskGroups.map((g) => (
+                <GroupPanel
+                  key={g.key}
+                  groupKey={g.key}
+                  label={g.label}
+                  color={g.color}
+                  count={g.items.length}
+                  collapsed={collapsed}
+                  onToggle={toggleGroup}
+                >
                       {g.items.map((task, i) => (
                         <TaskItem
                           key={task.id}
@@ -530,11 +568,8 @@ export default function TasksScreen() {
                           category={task.category_id ? categoryById.get(task.category_id) : null}
                         />
                       ))}
-                    </Box>
-                  )}
-                </Box>
-              )
-            })
+                </GroupPanel>
+            ))
           )
         ) : (
           filter === 'recurring' ? (
@@ -543,12 +578,15 @@ export default function TasksScreen() {
               <Box className="empty"><Txt as="p" className="empty-text">{t('empty.noRecurring')}</Txt></Box>
             ) : (
               recurringGroups.map((g) => (
-                <Box key={g.key} className="t-group">
-                  <Txt as="p" className="t-group-lbl">
-                    <Txt className="t-group-dot" style={{ background: g.color }} />
-                    {g.label}
-                    <Txt className="t-group-count">{g.items.length}</Txt>
-                  </Txt>
+                <GroupPanel
+                  key={g.key}
+                  groupKey={g.key}
+                  label={g.label}
+                  color={g.color}
+                  count={g.items.length}
+                  collapsed={collapsed}
+                  onToggle={toggleGroup}
+                >
                   {g.items.map((r, i) => (
                     <ReminderItem
                       key={r.id}
@@ -562,18 +600,20 @@ export default function TasksScreen() {
                       index={i}
                     />
                   ))}
-                </Box>
+                </GroupPanel>
               ))
             )
           ) : (filteredReminders.length === 0 && datedTasks.length === 0) ? (
             <Box className="empty"><Txt as="p" className="empty-text">{filter === 'done' ? t('empty.remindersDone') : t('empty.remindersTodo')}</Txt></Box>
           ) : filter === 'done' ? (
-            <Box className="t-group">
-              <Txt as="p" className="t-group-lbl">
-                <Txt className="t-group-dot" style={{ background: 'var(--stone)' }} />
-                {t('doneGroup')}
-                <Txt className="t-group-count">{filteredReminders.length}</Txt>
-              </Txt>
+            <GroupPanel
+              groupKey="rem-done"
+              label={t('doneGroup')}
+              color="var(--stone)"
+              count={filteredReminders.length}
+              collapsed={collapsed}
+              onToggle={toggleGroup}
+            >
               {filteredReminders.map((r, i) => (
                 <ReminderItem
                   key={r.id}
@@ -587,19 +627,22 @@ export default function TasksScreen() {
                   index={i}
                 />
               ))}
-            </Box>
+            </GroupPanel>
           ) : (
             REM_BUCKETS.map((b) => {
               const items = filteredReminders.filter((r) => reminderBucket(r, now) === b.key)
               const dueTasks = datedTasks.filter((task) => taskDueBucket(task, now) === b.key)
               if (!items.length && !dueTasks.length) return null
               return (
-                <Box key={b.key} className="t-group">
-                  <Txt as="p" className="t-group-lbl">
-                    <Txt className="t-group-dot" style={{ background: b.color }} />
-                    {t(`buckets.${b.key}`)}
-                    <Txt className="t-group-count">{items.length + dueTasks.length}</Txt>
-                  </Txt>
+                <GroupPanel
+                  key={b.key}
+                  groupKey={b.key}
+                  label={t(`buckets.${b.key}`)}
+                  color={b.color}
+                  count={items.length + dueTasks.length}
+                  collapsed={collapsed}
+                  onToggle={toggleGroup}
+                >
                   {items.map((r, i) => (
                     <ReminderItem
                       key={r.id}
@@ -634,7 +677,7 @@ export default function TasksScreen() {
                       category={task.category_id ? categoryById.get(task.category_id) : null}
                     />
                   ))}
-                </Box>
+                </GroupPanel>
               )
             })
           )

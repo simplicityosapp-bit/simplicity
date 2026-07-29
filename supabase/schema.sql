@@ -12,9 +12,24 @@
 -- (0097), both read back from pg_catalog and confirmed line-for-line rather
 -- than replayed from the migration file. 0098 was data-only (a converted_at
 -- backfill, no structure), and 0099 leaves no trace here by design — see the
--- scope note below. Everything ELSE still dates from the 07-20 introspection,
--- so drift applied outside a migration since then would NOT show up here.
--- Re-run introspect-schema.sql at the next batch and move this watermark.
+-- scope note below.
+--
+-- ⚠️ PATCHED AGAIN 2026-07-29 to cover 0100-0102, same method and same
+-- caveat: every line below was read back from pg_catalog, not replayed from
+-- the migration files. The delta was report_tallies (table, PK, FK, index,
+-- RLS, policy), clients.last_status_changed_at, six triggers across
+-- clients/leads/sessions/tasks/group_members, and a new FUNCTIONS section —
+-- see the note there for why a table-only reference file stopped being
+-- adequate at 0100. Everything ELSE still dates from the 07-20
+-- introspection, so drift applied outside a migration since then would NOT
+-- show up here.
+--
+-- A full re-introspection is still owed and is now two patches deep. It was
+-- not attempted here because the output is ~1,100 lines (55 tables, 653
+-- columns, 78 policies, 49 triggers) and a truncated paste would be worse
+-- than an honest patch. Run introspect-schema.sql properly at the next
+-- batch, from the SQL editor where the whole result can be exported, and
+-- move this watermark to a real rebuild.
 --
 -- Regenerate after any batch of migrations, with that same file, and move
 -- the watermark. This document goes stale silently — nothing fails when it
@@ -339,8 +354,13 @@ CREATE TABLE public.clients (
   status_overridden       boolean NOT NULL DEFAULT false,
   address                 text,
   birth_date              date,
-  attention_snoozed_at    timestamp with time zone
+  attention_snoozed_at    timestamp with time zone,
+  last_status_changed_at  timestamp with time zone   -- 0101
 );
+-- COMMENT last_status_changed_at: when status_meta last changed. Mirrors
+-- leads.last_status_changed_at, which reports.ts already assumed existed here.
+-- NULL for rows predating 0101 on purpose — the real dates are unknown, so
+-- churn counts personal clients from that migration forward.
 ALTER TABLE public.clients ADD CONSTRAINT clients_pkey PRIMARY KEY (id);
 ALTER TABLE public.clients ADD CONSTRAINT clients_billing_mode_check CHECK ((billing_mode = ANY (ARRAY['package'::text, 'per_session'::text])));
 ALTER TABLE public.clients ADD CONSTRAINT clients_recurring_day_check CHECK (((recurring_day >= 0) AND (recurring_day <= 6)));
@@ -362,6 +382,8 @@ ALTER TABLE public.clients ENABLE ROW LEVEL SECURITY;
 CREATE POLICY clients_own ON public.clients FOR ALL TO authenticated USING ((user_id = auth.uid())) WITH CHECK ((user_id = auth.uid()));
 CREATE POLICY clients_tier_limit ON public.clients FOR INSERT TO authenticated WITH CHECK (((NOT billing_enforced()) OR (current_tier() <> 'free'::text) OR (NOT onboarding_completed()) OR (client_count() < 10)));  -- RESTRICTIVE in the live DB (AND-ed). See header.
 CREATE TRIGGER trg_clients_updated BEFORE UPDATE ON public.clients FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+CREATE TRIGGER trg_clients_stamp_status BEFORE INSERT OR UPDATE ON public.clients FOR EACH ROW EXECUTE FUNCTION clients_stamp_status_change();
+CREATE TRIGGER trg_report_sync_client AFTER INSERT OR UPDATE ON public.clients FOR EACH ROW EXECUTE FUNCTION report_sync_client();
 
 -- ════════════════════════════════════════════════════════════════
 -- community_* — the shared room (0080-0093)
@@ -720,6 +742,7 @@ CREATE INDEX idx_group_members_user ON public.group_members USING btree (user_id
 ALTER TABLE public.group_members ENABLE ROW LEVEL SECURITY;
 CREATE POLICY group_members_own ON public.group_members FOR ALL TO authenticated USING ((user_id = auth.uid())) WITH CHECK ((user_id = auth.uid()));
 CREATE TRIGGER trg_group_members_updated BEFORE UPDATE ON public.group_members FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+CREATE TRIGGER trg_report_sync_member AFTER INSERT OR UPDATE ON public.group_members FOR EACH ROW EXECUTE FUNCTION report_sync_member();
 
 CREATE TABLE public.groups (
   id                   uuid NOT NULL DEFAULT gen_random_uuid(),
@@ -910,6 +933,7 @@ CREATE INDEX idx_leads_pending_review ON public.leads USING btree (user_id) WHER
 ALTER TABLE public.leads ENABLE ROW LEVEL SECURITY;
 CREATE POLICY leads_own ON public.leads FOR ALL TO authenticated USING ((user_id = auth.uid())) WITH CHECK ((user_id = auth.uid()));
 CREATE TRIGGER trg_leads_updated BEFORE UPDATE ON public.leads FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+CREATE TRIGGER trg_report_sync_lead AFTER INSERT OR UPDATE ON public.leads FOR EACH ROW EXECUTE FUNCTION report_sync_lead();
 
 -- ════════════════════════════════════════════════════════════════
 -- meeting_types (0043) / moon_snapshots
@@ -1215,6 +1239,42 @@ CREATE POLICY reminders_own ON public.reminders FOR ALL TO authenticated USING (
 CREATE TRIGGER trg_reminders_updated BEFORE UPDATE ON public.reminders FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 
 -- ════════════════════════════════════════════════════════════════
+-- report_tallies                                            -- 0100/0101
+-- ════════════════════════════════════════════════════════════════
+-- The reports screen's numbers. NOT a cache: rows here are written by
+-- triggers at the moment an event happens, which is what lets the 30-day
+-- purge remove the underlying row without moving any figure.
+--
+-- Two kinds of row share the table, and confusing them corrupts data:
+--   · COUNTERS   (new_inquiries, leads_closed, leads_converted,
+--                 cohort_converted, new_clients, sessions_held,
+--                 tasks_completed, ended_total, ended_left_mid)
+--     accumulate — only ever touched through report_bump(), which adds a
+--     delta. `period` is the month the EVENT falls in.
+--   · SNAPSHOTS  (active_clients_at_end, open_tasks_at_end)
+--     are a value AT a date, written by report_snapshot_month(), which
+--     OVERWRITES. Never point report_bump() at these.
+--
+-- `period` is the first day of the month in Asia/Jerusalem (report_month()),
+-- because getPeriodsForMonths() builds month bounds in local time — a naive
+-- UTC date_trunc files a 23:00 30-June row into June while the app shows it
+-- in July.
+--
+-- SELECT-only to the user: every write goes through a SECURITY DEFINER
+-- function, so a client cannot invent its own numbers.
+CREATE TABLE public.report_tallies (
+  user_id uuid NOT NULL,
+  period  date NOT NULL,
+  metric  text NOT NULL,
+  count   integer NOT NULL DEFAULT 0
+);
+ALTER TABLE public.report_tallies ADD CONSTRAINT report_tallies_pkey PRIMARY KEY (user_id, period, metric);
+ALTER TABLE public.report_tallies ADD CONSTRAINT report_tallies_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
+CREATE INDEX report_tallies_user_period_idx ON public.report_tallies USING btree (user_id, period);
+ALTER TABLE public.report_tallies ENABLE ROW LEVEL SECURITY;
+CREATE POLICY report_tallies_select_own ON public.report_tallies FOR SELECT TO public USING ((user_id = auth.uid()));
+
+-- ════════════════════════════════════════════════════════════════
 -- scheduled_meetings / sessions
 -- ════════════════════════════════════════════════════════════════
 CREATE TABLE public.scheduled_meetings (
@@ -1270,6 +1330,7 @@ CREATE INDEX idx_sessions_user ON public.sessions USING btree (user_id);
 ALTER TABLE public.sessions ENABLE ROW LEVEL SECURITY;
 CREATE POLICY sessions_own ON public.sessions FOR ALL TO authenticated USING ((user_id = auth.uid())) WITH CHECK ((user_id = auth.uid()));
 CREATE TRIGGER trg_sessions_updated BEFORE UPDATE ON public.sessions FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+CREATE TRIGGER trg_report_sync_session AFTER INSERT OR UPDATE ON public.sessions FOR EACH ROW EXECUTE FUNCTION report_sync_session();
 
 -- ════════════════════════════════════════════════════════════════
 -- site_pages — the shared block engine behind landing/lead/booking (0066+)
@@ -1376,6 +1437,7 @@ CREATE INDEX idx_tasks_user_due ON public.tasks USING btree (user_id, due_at) WH
 ALTER TABLE public.tasks ENABLE ROW LEVEL SECURITY;
 CREATE POLICY tasks_own ON public.tasks FOR ALL TO authenticated USING ((user_id = auth.uid())) WITH CHECK ((user_id = auth.uid()));
 CREATE TRIGGER trg_tasks_updated BEFORE UPDATE ON public.tasks FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+CREATE TRIGGER trg_report_sync_task AFTER INSERT OR UPDATE ON public.tasks FOR EACH ROW EXECUTE FUNCTION report_sync_task();
 
 -- ════════════════════════════════════════════════════════════════
 -- transactions — the money ledger. Everything financial resolves here.
@@ -1595,9 +1657,48 @@ CREATE POLICY user_subscriptions_select_own ON public.user_subscriptions FOR SEL
 CREATE TRIGGER trg_user_subscriptions_updated BEFORE UPDATE ON public.user_subscriptions FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 
 -- ════════════════════════════════════════════════════════════════
--- Scheduled jobs (pg_cron), verified 2026-07-20:
+-- Reporting & retention functions — read back 2026-07-29 (0100-0102)
+-- ════════════════════════════════════════════════════════════════
+-- This file otherwise covers TABLES only, which was survivable while the
+-- logic lived in the app. It no longer does: the reports screen's numbers
+-- and the retention sweep are both database functions, so a rebuild from
+-- this file alone would come up with an empty report_tallies and reports
+-- that silently went back to counting rows. Listed here for that reason —
+-- signatures and security properties, not bodies. The bodies are in
+-- supabase/migrations/0100-0102.
+--
+--   report_month(ts timestamptz) -> date
+--   report_bump(p_user uuid, p_period date, p_metric text, p_delta int) -> void  [SECURITY DEFINER] search_path=public
+--   report_contrib_lead(l leads)            -> TABLE(period date, metric text)
+--   report_contrib_client(c clients)        -> TABLE(period date, metric text)
+--   report_contrib_session(s sessions)      -> TABLE(period date, metric text)
+--   report_contrib_task(t tasks)            -> TABLE(period date, metric text)
+--   report_contrib_member(m group_members)  -> TABLE(period date, metric text)
+--   report_sync_lead/client/session/task/member() -> trigger  [SECURITY DEFINER] search_path=public
+--   report_snapshot_month(p_user uuid, p_period date) -> void  [SECURITY DEFINER] search_path=public
+--   report_snapshot_backfill() -> integer  [SECURITY DEFINER] search_path=public
+--   purge_trash(p_dry_run boolean DEFAULT true, p_days integer DEFAULT 30)
+--       -> TABLE(table_name text, purged int, skipped int)  [SECURITY DEFINER] search_path=public
+--   purge_trash_guard(p_table text) -> text  search_path=public
+--   clients_stamp_status_change() -> trigger
+--
+-- EXECUTE on purge_trash + purge_trash_guard is REVOKED from anon and
+-- authenticated: only the service role and the cron job reach them.
+--
+-- ⚠️ The report_sync_* triggers fire on INSERT and UPDATE only, never
+-- DELETE. That is deliberate — the purge must not decrement what it
+-- removes — and adding a DELETE trigger would silently reintroduce the bug
+-- the ledger exists to fix.
+
+-- ════════════════════════════════════════════════════════════════
+-- Scheduled jobs (pg_cron), verified 2026-07-29:
 --   invoice-poll                  0 3 * * *    daily 03:00
 --   purge-deleted-accounts-daily  15 3 * * *   daily 03:15
+--   scheduled-meetings-daily      30 3 * * *   daily 03:30
+--   purge-trash-daily             45 3 * * *   daily 03:45   -- 0102
 -- See supabase/functions/invoice-poll — daily by design; a 15-minute
 -- cadence previously ran up real provider charges.
+-- purge-trash-daily calls the SQL directly (report_snapshot_backfill() then
+-- purge_trash(false, 30)) rather than posting to its edge function, which
+-- is deployed nowhere and optional. Snapshot BEFORE purge, always.
 -- ════════════════════════════════════════════════════════════════

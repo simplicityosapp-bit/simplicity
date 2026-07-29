@@ -88,9 +88,35 @@ WITH t AS (
   FROM t WHERE obj_description(t.oid, 'pg_class') IS NOT NULL
 )
 
-SELECT format('%s | %s', tbl, line) AS schema_line
-FROM parts
-ORDER BY tbl, grp, ord;
+/* 8 — functions. Added 2026-07-29, because tables stopped being enough:
+   migrations 0100-0102 put the reports engine and the retention sweep into
+   database functions, so a table-only reference file describes a database
+   that would compute the wrong numbers. Signatures and security properties
+   only — the bodies belong in the migrations, but the fact that
+   report_bump() exists and is SECURITY DEFINER belongs here.
+
+   Filed under a leading '~' so functions sort after every table rather than
+   interleaving with one that happens to share a prefix. The sort keys are
+   carried as columns and dropped by the outer select: after a UNION ALL the
+   final ORDER BY can only see output columns, so `ORDER BY tbl, grp, ord`
+   would no longer resolve. */
+SELECT schema_line FROM (
+  SELECT tbl AS s1, grp AS s2, ord AS s3, format('%s | %s', tbl, line) AS schema_line
+  FROM parts
+  UNION ALL
+  SELECT '~functions', 8, row_number() OVER (ORDER BY p.proname)::int,
+         format('~functions |   %s(%s) -> %s%s%s',
+           p.proname,
+           pg_get_function_arguments(p.oid),
+           pg_get_function_result(p.oid),
+           CASE WHEN p.prosecdef THEN '  [SECURITY DEFINER]' ELSE '' END,
+           COALESCE('  ' || (SELECT cfg FROM unnest(p.proconfig) cfg
+                             WHERE cfg LIKE 'search_path%'), ''))
+  FROM pg_proc p
+  JOIN pg_namespace n ON n.oid = p.pronamespace
+  WHERE n.nspname = 'public' AND p.prokind = 'f'
+) x
+ORDER BY s1, s2, s3;
 
 -- ════════════════════════════════════════════════════════════════
 --  Worth running alongside it, and pasting too — three answers that

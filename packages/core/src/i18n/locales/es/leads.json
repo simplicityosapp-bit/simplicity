@@ -48,8 +48,8 @@
     "dueCount_other": "{{count}} seguimientos para hoy"
   },
   "filter": {
-    "btn": "Filtrar",
-    "btnAria": "Filtrar prospectos",
+    "btn": "Vista",
+    "btnAria": "Opciones de vista y filtro",
     "title": "Filtrar prospectos",
     "hint": "Acota el tablero de prospectos por periodo, proyecto, grupo, subestado y fuente.",
     "period": "Periodo",

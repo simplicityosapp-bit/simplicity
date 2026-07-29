@@ -48,8 +48,8 @@
     "dueCount_other": "{{count}} follow-ups due today"
   },
   "filter": {
-    "btn": "Filter",
-    "btnAria": "Filter leads",
+    "btn": "View",
+    "btnAria": "View and filter options",
     "title": "Filter leads",
     "hint": "Narrow the leads board by period, project, group, sub-status and source.",
     "period": "Period",

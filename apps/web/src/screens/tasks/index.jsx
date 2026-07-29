@@ -29,7 +29,11 @@ const PRIORITY_COLOR = {
 /* Group/filter keys; their labels are resolved via t() at render time
    (the constants live at module scope where t isn't available). */
 const PRIORITY_GROUPS = ['high', 'medium', 'low']
-const FILTERS = ['todo', 'done', 'all']
+/* Open / completed, and nothing else. There used to be a third "הכל" tab here;
+   once "הכל" became the name of a MODE in the toggle above, the same word sat
+   twice on one screen meaning two different things — a whole-practice view up
+   top, a status slice down here. The mode keeps the word. */
+const FILTERS = ['todo', 'done']
 /* How the task list is grouped (collapsible sections). Priority is the
    default (preserves the original layout); project/category let the user
    re-slice the same tasks. */
@@ -40,6 +44,12 @@ const GROUP_FALLBACK_COLOR = 'var(--mist)'
    to sit third here and second there, so flipping the entity toggle moved the
    tab under your finger and the muscle-memory tap landed on the wrong one. */
 const REM_FILTERS = ['todo', 'done', 'recurring']
+/* Same two slices as tasks — there is no "recurring" for a mixed list. */
+const ALL_FILTERS = FILTERS
+/* The three things this screen can show. Tasks and reminders each answer half
+   of "what do I owe"; "הכל" is the half-free answer, and the one the home
+   widget has always given. */
+const VIEWS = ['tasks', 'reminders', 'all']
 
 /* Date buckets used to group reminders the same way tasks are grouped
    by priority — keeps the visual rhythm identical between the two
@@ -51,6 +61,12 @@ const REM_BUCKETS = [
   { key: 'week',    color: 'var(--sage)' },
   { key: 'later',   color: 'var(--mist)' },
 ]
+/* "הכל" adds a tail bucket the date buckets have no room for: a task with no
+   deadline is still owed. Dropping it is what kept the merged view from being
+   a complete answer. */
+const ALL_BUCKETS = [...REM_BUCKETS, { key: 'undated', color: 'var(--stone)' }]
+/* Priority tie-break inside a bucket, same order the home widget uses. */
+const PORDER = { high: 0, medium: 1, low: 2 }
 
 /* Map a due Date → bucket key against now. Shared by reminders and dated
    tasks so both land in the same overdue/today/week/later sections. */
@@ -90,12 +106,6 @@ function byDueDate(a, b) {
   if (da === null) return 1
   if (db === null) return -1
   return da - db
-}
-
-/* A dated, still-open task surfaces on the reminders view in its due bucket. */
-function taskDueBucket(task, now) {
-  if (!task.due_at || task.status === 'done') return null
-  return dateToBucket(new Date(task.due_at), now)
 }
 
 /* The collapsible panel every list on this screen sits in. Only the task groups
@@ -141,9 +151,11 @@ export default function TasksScreen() {
   const [editItem, setEditItem] = useState(null)
   const [confirmClear, setConfirmClear] = useState(false)
   const [showTaxonomy, setShowTaxonomy] = useState(false)
-  /* A dated task tapped from the reminders view opens its own task editor,
-     independent of the reminders edit state (different entity + modal). */
+  /* A task tapped from the mixed "הכל" list opens its own task editor,
+     independent of the active view's edit state (different entity + modal).
+     Its reminder twin does the same, so one list can edit both kinds. */
   const [editDatedTask, setEditDatedTask] = useState(null)
+  const [editMixedReminder, setEditMixedReminder] = useState(null)
   /* Multi-select category filter — empty set = all categories. Several pills
      can be active at once (a task shows if its category is in the set). */
   const [categoryFilters, setCategoryFilters] = useState(() => new Set())
@@ -199,12 +211,14 @@ export default function TasksScreen() {
   }
 
   const isTasks = view === 'tasks'
+  const isAll = view === 'all'
   /* Flip view + reset the filter tab and any in-progress edit. Done in the
      handler (not an effect) to avoid a cascading set-state-in-effect. */
   const switchView = (v) => { setView(v); setFilter('todo'); setEditItem(null) }
-  const filters = isTasks ? FILTERS : REM_FILTERS
-  const loading = isTasks ? tasksLoading : remindersLoading
-  const error = isTasks ? tasksError : remindersError
+  const filters = isTasks ? FILTERS : (isAll ? ALL_FILTERS : REM_FILTERS)
+  /* "הכל" draws on both tables, so it waits for both and reports either error. */
+  const loading = isAll ? (tasksLoading || remindersLoading) : (isTasks ? tasksLoading : remindersLoading)
+  const error = isAll ? (tasksError || remindersError) : (isTasks ? tasksError : remindersError)
 
   /* The category pills are a SCOPE, not a view: everything the header and the
      hero report is counted inside them. They used to be counted over the whole
@@ -217,28 +231,33 @@ export default function TasksScreen() {
   const scopedTasks = useMemo(() => tasks.filter(inCategoryScope), [tasks, categoryFilters]) // eslint-disable-line react-hooks/exhaustive-deps -- inCategoryScope is derived from categoryFilters, already a dep
   const scopedReminders = useMemo(() => reminders.filter(inCategoryScope), [reminders, categoryFilters]) // eslint-disable-line react-hooks/exhaustive-deps -- same
 
-  /* Counts for the header + hero ─ both entities share a pending/done
-     contract so we can derive them with a single .status check. */
-  const openCount  = isTasks
-    ? scopedTasks.filter((t) => t.status !== 'done').length
-    : scopedReminders.filter((r) => r.status !== 'completed').length
-  const doneCount  = isTasks
-    ? scopedTasks.filter((t) => t.status === 'done').length
-    : scopedReminders.filter((r) => r.status === 'completed').length
+  /* Counts for the hero ─ both entities share a pending/done contract so we
+     can derive them with a single .status check, and "הכל" is simply both. */
+  const openTasks = scopedTasks.filter((t) => t.status !== 'done').length
+  const openRems = scopedReminders.filter((r) => r.status !== 'completed').length
+  const doneTasks = scopedTasks.filter((t) => t.status === 'done').length
+  const doneRems = scopedReminders.filter((r) => r.status === 'completed').length
+  const openCount = isAll ? openTasks + openRems : (isTasks ? openTasks : openRems)
+  const doneCount = isAll ? doneTasks + doneRems : (isTasks ? doneTasks : doneRems)
   const now = useMemo(() => new Date(), [reminders, tasks, filter, view]) // eslint-disable-line react-hooks/exhaustive-deps -- deps intentionally refresh "now" when the list re-renders on data/filter/view change
-  /* "Urgent" tile re-labels per entity: tasks use priority=high, while
-     reminders use overdue (past due AND still pending). */
-  const urgentCount = isTasks
-    ? scopedTasks.filter((t) => t.status !== 'done' && t.priority === 'high').length
-    : scopedReminders.filter((r) => r.status !== 'completed' && new Date(r.scheduled_at) < now).length
+  /* Middle tile re-labels per view: tasks use priority=high ("דחופות"), while
+     reminders use overdue ("באיחור"). "הכל" takes the overdue reading over both
+     kinds — a passed deadline is the one fact a mixed list can state about
+     everything in it, and it's the bucket that heads that list. */
+  const overdueRems = scopedReminders.filter((r) => r.status !== 'completed' && new Date(r.scheduled_at) < now).length
+  const urgentCount = isAll
+    ? scopedTasks.filter((t) => t.status !== 'done' && t.due_at && new Date(t.due_at) < now).length + overdueRems
+    : (isTasks
+      ? scopedTasks.filter((t) => t.status !== 'done' && t.priority === 'high').length
+      : overdueRems)
 
   /* Built on the same scoped set the counts use, so the list and the numbers
      above it can't drift apart; only the status tab is applied on top. */
-  const filteredTasks = useMemo(() => {
-    if (filter === 'todo') return scopedTasks.filter((t) => t.status !== 'done')
-    if (filter === 'done') return scopedTasks.filter((t) => t.status === 'done')
-    return scopedTasks
-  }, [scopedTasks, filter])
+  const filteredTasks = useMemo(() => (
+    filter === 'done'
+      ? scopedTasks.filter((t) => t.status === 'done')
+      : scopedTasks.filter((t) => t.status !== 'done')
+  ), [scopedTasks, filter])
 
   /* Build collapsible groups for the filtered tasks per the chosen groupBy.
      Priority keeps the original fixed order; project/category order follows
@@ -293,14 +312,63 @@ export default function TasksScreen() {
     return scopedReminders.filter(isActiveReminder)
   }, [scopedReminders, filter])
 
-  /* Dated tasks that "pop" onto the reminders view — open tasks with a due_at,
-     shown only on the open ("פתוחות") tab, bucketed by their due date. They
-     ride the same category scope as everything else on the screen. */
-  const datedTasks = useMemo(() => (
-    (view === 'reminders' && filter === 'todo')
-      ? scopedTasks.filter((task) => task.due_at && task.status !== 'done')
-      : []
-  ), [view, filter, scopedTasks])
+  /* "הכל" — both kinds in one list, which is the answer the home widget has
+     always given and this screen never did: tasks alone can't tell you what is
+     due today, reminders alone can't tell you what is merely owed.
+     Dated tasks used to be sprinkled onto the REMINDERS view instead, which
+     made a tab named after one kind quietly contain the other. That view is
+     reminders again; the mixing happens here, where the name says so. */
+  const allItems = useMemo(() => {
+    if (!isAll) return []
+    const wantDone = filter === 'done'
+    const items = []
+    scopedTasks.forEach((task) => {
+      if ((task.status === 'done') !== wantDone) return
+      items.push({ key: `task-${task.id}`, kind: 'task', task, when: task.due_at || null })
+    })
+    scopedReminders.forEach((r) => {
+      const done = r.status === 'completed'
+      if (done !== wantDone) return
+      if (!wantDone && !isActiveReminder(r)) return
+      items.push({ key: `rem-${r.id}`, kind: 'reminder', reminder: r, when: r.scheduled_at || null })
+    })
+    return items
+  }, [isAll, filter, scopedTasks, scopedReminders])
+
+  /* Soonest first. Undated work (and a tie) falls back to urgency, then to a
+     task ahead of a reminder — you act on a task, a reminder only tells you
+     something. The same tie-breaks the home widget settled on. */
+  const byPressure = (a, b) => {
+    const ta = a.when ? +new Date(a.when) : null
+    const tb = b.when ? +new Date(b.when) : null
+    if (ta !== null && tb !== null && ta !== tb) return ta - tb
+    const pa = a.kind === 'task' ? (a.task.priority || 'medium') : 'medium'
+    const pb = b.kind === 'task' ? (b.task.priority || 'medium') : 'medium'
+    if (pa !== pb) return (PORDER[pa] ?? 1) - (PORDER[pb] ?? 1)
+    if (a.kind !== b.kind) return a.kind === 'task' ? -1 : 1
+    return 0
+  }
+
+  const allGroups = useMemo(() => {
+    if (!isAll) return []
+    if (filter === 'done') {
+      return allItems.length
+        ? [{ key: 'all-done', label: t('doneGroup'), color: 'var(--stone)', items: [...allItems].sort(byPressure) }]
+        : []
+    }
+    return ALL_BUCKETS
+      .map((b) => ({
+        key: `all-${b.key}`,
+        label: t(`buckets.${b.key}`),
+        color: b.color,
+        items: allItems
+          .filter((it) => (b.key === 'undated'
+            ? !it.when
+            : !!it.when && dateToBucket(new Date(it.when), now) === b.key))
+          .sort(byPressure),
+      }))
+      .filter((g) => g.items.length)
+  }, [isAll, filter, allItems, now, t])
 
   /* "חוזרות" tab — all active recurring reminders, grouped: weekly by
      day-of-week, monthly together, every-X-days together. Scoped like every
@@ -346,48 +414,51 @@ export default function TasksScreen() {
         <Box as="header" className="screen-head">
           <Txt as="p" className="t-screen">
             <ClipboardList size={20} strokeWidth={1.6} aria-hidden="true" />
-            {isTasks ? t('tasks') : t('reminders')}
+            {isAll ? t('all') : (isTasks ? t('tasks') : t('reminders'))}
           </Txt>
         </Box>
         <Coachmark id="add-task" radius="50%">
+          {/* In the mixed view "+" adds a TASK — the screen's own entity, and
+              the one you reach for far more often. A reminder is still one tap
+              away through the תזכורות toggle. */}
           <Btn
             className="cta-add"
             type="button"
-            aria-label={isTasks ? t('add.taskAria') : t('add.reminderAria')}
+            aria-label={isTasks || isAll ? t('add.taskAria') : t('add.reminderAria')}
             onClick={() => setShowAdd(true)}
           >
-            {isTasks ? t('add.task') : t('add.reminder')}
+            {isTasks || isAll ? t('add.task') : t('add.reminder')}
           </Btn>
         </Coachmark>
       </Box>
 
-      {/* Entity toggle — same role as Leads' kanban/statuses switcher,
-          rendered below screen-top so it doesn't break the centered
-          "+" slot. */}
-      <Box className="mg-toggle t-view" role="tablist" aria-label={t('view.aria')}>
-        <Btn
-          type="button"
-          className={`mg-toggle-btn${view === 'tasks' ? ' on' : ''}`}
-          onClick={() => switchView('tasks')}
-          role="tab"
-          aria-selected={view === 'tasks'}
-        >
-          {t('tasks')}
-        </Btn>
-        <Btn
-          type="button"
-          className={`mg-toggle-btn${view === 'reminders' ? ' on' : ''}`}
-          onClick={() => switchView('reminders')}
-          role="tab"
-          aria-selected={view === 'reminders'}
-        >
-          {t('reminders')}
-        </Btn>
-      </Box>
-
       <Box as="section" className="t-hero">
         <Box className="s-hero">
-          <Txt as="p" className="t-hero-title">{isTasks ? t('hero.tasksTitle') : t('hero.remindersTitle')}</Txt>
+          {/* The entity toggle used to be a standalone centred pill on a band
+              of its own between the header and this card. It belongs to the
+              summary — it decides what the three numbers below it count — so it
+              rides the card's top line, opposite the title, and the screen
+              loses another full row of chrome. */}
+          <Box className="t-hero-head">
+            <Txt as="p" className="t-hero-title">
+              {isAll ? t('hero.allTitle') : (isTasks ? t('hero.tasksTitle') : t('hero.remindersTitle'))}
+            </Txt>
+            <Box className="mg-toggle t-view" role="tablist" aria-label={t('view.aria')}>
+              {VIEWS.map((v) => (
+                <Btn
+                  key={v}
+                  type="button"
+                  className={`mg-toggle-btn${view === v ? ' on' : ''}`}
+                  onClick={() => switchView(v)}
+                  role="tab"
+                  aria-selected={view === v}
+                  aria-controls="t-list"
+                >
+                  {t(v)}
+                </Btn>
+              ))}
+            </Box>
+          </Box>
           <Box className="t-hero-grid">
             <Box className="t-hero-stat">
               <Txt as="p" className="t-hero-stat-l">{t('hero.open')}</Txt>
@@ -395,6 +466,7 @@ export default function TasksScreen() {
             </Box>
             <Box className="t-hero-stat divided">
               <Txt as="p" className="t-hero-stat-l">{isTasks ? t('hero.urgentTasks') : t('hero.overdueReminders')}</Txt>
+              {/* "הכל" borrows the reminders label — see urgentCount above. */}
               <Txt as="p" className="t-hero-stat-v mono">{urgentCount}</Txt>
             </Box>
             <Box className="t-hero-stat">
@@ -508,14 +580,63 @@ export default function TasksScreen() {
         aria-labelledby={`t-filter-${filter}`}
       >
         {loading ? (
-          <Box className="empty"><Txt as="p" className="empty-text">{isTasks ? t('loading.tasks') : t('loading.reminders')}</Txt></Box>
+          <Box className="empty"><Txt as="p" className="empty-text">{isTasks || isAll ? t('loading.tasks') : t('loading.reminders')}</Txt></Box>
         ) : error ? (
           /* The raw Supabase message ("JWT expired", "FetchError: …") used to
              be printed straight at the user. It says nothing to a coach and
              frightens the ones this app is for — the sentence tells them what
              to do, and the technical text stays on the title for a support
              conversation. */
-          <Box className="empty"><Txt as="p" className="empty-text" title={error}>{isTasks ? t('loadError.tasks') : t('loadError.reminders')}</Txt></Box>
+          <Box className="empty"><Txt as="p" className="empty-text" title={error}>{isTasks || isAll ? t('loadError.tasks') : t('loadError.reminders')}</Txt></Box>
+        ) : isAll ? (
+          allGroups.length === 0 ? (
+            <Box className="empty"><Txt as="p" className="empty-text">{filter === 'done' ? t('empty.allDone') : t('empty.allTodo')}</Txt></Box>
+          ) : (
+            allGroups.map((g) => (
+              <GroupPanel
+                key={g.key}
+                groupKey={g.key}
+                label={g.label}
+                color={g.color}
+                count={g.items.length}
+                collapsed={collapsed}
+                onToggle={toggleGroup}
+              >
+                {g.items.map((it, i) => (it.kind === 'task' ? (
+                  <TaskItem
+                    key={it.key}
+                    task={it.task}
+                    project={projOf(it.task.project_id)}
+                    clientName={clientNameOf(it.task.client_id)}
+                    dueLabel={it.task.due_at ? formatWhen(it.task.due_at) : null}
+                    /* The bucket is the date, so priority always needs the word
+                       here — same rule as the dated tasks used to follow. */
+                    dotColor={g.color}
+                    urgentTag={(it.task.priority || 'medium') === 'high'}
+                    onToggle={() => toggleTask(it.task)}
+                    onEdit={setEditDatedTask}
+                    onRename={renameTask}
+                    index={i}
+                    taskStatus={it.task.status_id ? statusById.get(it.task.status_id) : null}
+                    category={it.task.category_id ? categoryById.get(it.task.category_id) : null}
+                  />
+                ) : (
+                  <ReminderItem
+                    key={it.key}
+                    reminder={it.reminder}
+                    clientName={clientNameOf(it.reminder.client_id)}
+                    category={it.reminder.category_id ? categoryById.get(it.reminder.category_id) : null}
+                    dotColor={g.color}
+                    onComplete={completeReminder}
+                    onEdit={setEditMixedReminder}
+                    onRename={renameReminder}
+                    count={dueOccurrenceCount(it.reminder, now)}
+                    index={i}
+                  />
+                )))}
+              </GroupPanel>
+            ))
+          )
         ) : isTasks ? (
           filteredTasks.length === 0 ? (
             tasks.length === 0 ? (
@@ -603,7 +724,7 @@ export default function TasksScreen() {
                 </GroupPanel>
               ))
             )
-          ) : (filteredReminders.length === 0 && datedTasks.length === 0) ? (
+          ) : filteredReminders.length === 0 ? (
             <Box className="empty"><Txt as="p" className="empty-text">{filter === 'done' ? t('empty.remindersDone') : t('empty.remindersTodo')}</Txt></Box>
           ) : filter === 'done' ? (
             <GroupPanel
@@ -631,15 +752,14 @@ export default function TasksScreen() {
           ) : (
             REM_BUCKETS.map((b) => {
               const items = filteredReminders.filter((r) => reminderBucket(r, now) === b.key)
-              const dueTasks = datedTasks.filter((task) => taskDueBucket(task, now) === b.key)
-              if (!items.length && !dueTasks.length) return null
+              if (!items.length) return null
               return (
                 <GroupPanel
                   key={b.key}
                   groupKey={b.key}
                   label={t(`buckets.${b.key}`)}
                   color={b.color}
-                  count={items.length + dueTasks.length}
+                  count={items.length}
                   collapsed={collapsed}
                   onToggle={toggleGroup}
                 >
@@ -657,26 +777,6 @@ export default function TasksScreen() {
                       index={i}
                     />
                   ))}
-                  {/* Dated tasks pop in here, distinguished by the task check-circle. */}
-                  {dueTasks.map((task, i) => (
-                    <TaskItem
-                      key={task.id}
-                      task={task}
-                      project={projOf(task.project_id)}
-                      clientName={clientNameOf(task.client_id)}
-                      dueLabel={formatWhen(task.due_at)}
-                      /* Already the bucket's colour here — the date is the
-                         grouping, so priority always needs the word. */
-                      dotColor={b.color}
-                      urgentTag={(task.priority || 'medium') === 'high'}
-                      onToggle={() => toggleTask(task)}
-                      onEdit={setEditDatedTask}
-                      onRename={renameTask}
-                      index={items.length + i}
-                      taskStatus={task.status_id ? statusById.get(task.status_id) : null}
-                      category={task.category_id ? categoryById.get(task.category_id) : null}
-                    />
-                  ))}
                 </GroupPanel>
               )
             })
@@ -684,8 +784,9 @@ export default function TasksScreen() {
         )}
       </Box>
 
-      {/* Edit a dated task tapped from the reminders view — its own task modal,
-          rendered regardless of the active view. */}
+      {/* The mixed "הכל" list can hand you either kind, so both editors are
+          mounted regardless of the active view — the toggle decides what the
+          LIST shows, not what you're allowed to open from it. */}
       <AddTaskModal
         key={editDatedTask?.id || 'edit-dated-task'}
         open={!!editDatedTask}
@@ -697,6 +798,16 @@ export default function TasksScreen() {
         categories={taskCategories}
         onSave={(patch) => editDatedTask && editTask(editDatedTask.id, patch)}
         onDelete={removeTask}
+      />
+      <AddReminderModal
+        key={editMixedReminder?.id || 'edit-mixed-rem'}
+        open={!!editMixedReminder}
+        onClose={() => setEditMixedReminder(null)}
+        reminder={editMixedReminder}
+        clients={clients}
+        categories={taskCategories}
+        onSave={(patch) => editMixedReminder && editReminder(editMixedReminder.id, patch)}
+        onDelete={removeReminder}
       />
 
       {/* Category/status taxonomy — shared, so the manage button works from

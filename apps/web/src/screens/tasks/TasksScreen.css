@@ -33,8 +33,20 @@
 .t-hero {
   margin-bottom: 14px;
 }
+/* Title on the start edge, entity toggle opposite it on the end — the toggle
+   decides what the three numbers underneath count, so it belongs to this card
+   rather than to a centred band of its own above it. Wraps on a narrow screen
+   instead of squeezing the title. */
+.t-hero-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
 .t-hero-title {
-  margin: 0 0 14px;
+  margin: 0;
   font-family: var(--mg-font);
   font-size: calc(11px * var(--text-scale));
   font-weight: 500;
@@ -82,11 +94,12 @@
   width: fit-content;
   margin: 0 auto 14px;
 }
-/* Entity toggle (משימות ↔ תזכורות) — sits between the screen-top
-   row and the hero summary so the same chrome serves both views. */
+/* Entity toggle (משימות / תזכורות / הכל) — now a member of the summary card's
+   top line (.t-hero-head), not a centred band of its own. */
 .t-view {
   width: fit-content;
-  margin: 0 auto 14px;
+  margin: 0;
+  flex-shrink: 0;
 }
 
 /* ── "מחק הכל" action (completed-tasks view only) ───────────────── */

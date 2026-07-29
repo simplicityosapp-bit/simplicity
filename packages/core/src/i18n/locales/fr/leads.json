@@ -48,8 +48,8 @@
     "dueCount_other": "{{count}} relances pour aujourd’hui"
   },
   "filter": {
-    "btn": "Filtrer",
-    "btnAria": "Filtrer les prospects",
+    "btn": "Affichage",
+    "btnAria": "Options d'affichage et de filtre",
     "title": "Filtrer les prospects",
     "hint": "Affinez le tableau des prospects par période, projet, groupe, sous-statut et source.",
     "period": "Période",

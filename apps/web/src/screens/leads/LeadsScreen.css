@@ -296,6 +296,18 @@
 }
 .l-filter-btn:hover { border-color: var(--espresso); }
 .l-filter-btn.on { border-color: var(--terracotta); color: var(--terracotta); }
+/* Grown tap target, paint unchanged — the same ::after treatment every other
+   "תצוגה" pill and toggle in the app got. ~32px painted, ~44px tappable.
+   Vertical only: it shares its row with the search field. */
+.l-filter-btn {
+  position: relative;
+}
+.l-filter-btn::after {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  inset-block: -6px;
+}
 .l-filter-count {
   display: inline-flex;
   align-items: center;

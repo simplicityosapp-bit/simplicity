@@ -978,8 +978,12 @@
           "body": "Haz clic en un número en la vista de lista, o en una celda no vacía en la vista de tabla, y se abre un panel que te muestra los registros reales que hay detrás —prospectos, clientes, sesiones, transacciones o tareas—, junto con su recuento total."
         },
         {
+          "title": "Los registros eliminados siguen contando",
+          "body": "Eliminar ordena tus pantallas; no deshace lo que ocurrió. Un mes ya pasado sigue mostrando las consultas que llegaron, las sesiones que se realizaron y las tareas que terminaste, incluso después de eliminarlas. En el detalle el registro aparece marcado «en la papelera». Dos excepciones: en el dinero, una transacción eliminada sale de los ingresos, los gastos y el neto — una transacción suele eliminarse porque era errónea, no por orden. Y en los números «al final», un cliente o una tarea eliminados durante el mes no se cuentan al cierre, porque ya no estaban."
+        },
+        {
           "title": "Navegar del desglose a la pantalla",
-          "body": "Cada fila del panel de desglose es un enlace. Al hacer clic te lleva a la pantalla correspondiente: Prospectos, Clientes, Calendario, Dinero o Tareas. Nota: el enlace te lleva a la pantalla, no siempre al registro concreto."
+          "body": "Cada fila de la ventana de detalle es un enlace. Al pulsarla vas a la pantalla correspondiente: prospectos, clientes, agenda, dinero o tareas. Una fila marcada «en la papelera» lleva a la papelera, porque el registro ya no está en la pantalla de la que se eliminó. Ten en cuenta: el enlace te lleva a la pantalla, no siempre al registro concreto."
         },
         {
           "title": "Elegir números y orden",
@@ -1003,7 +1007,7 @@
         }
       ],
       "tips": [
-        "Los ingresos, gastos y neto solo cuentan las transacciones que has confirmado. Una transacción que no se ha confirmado no aparecerá en el informe.",
+        "En ingresos, gastos y neto solo se cuentan las transacciones que ya has confirmado. Una transacción sin confirmar no aparece en el informe, y una eliminada también sale de las cifras: el dinero es lo único que se comporta así.",
         "La columna de resumen de la tabla no siempre es una suma simple: los números «al final» son promedios, y los porcentajes se recalculan. Así que no esperes que el resumen sea exactamente la suma de las columnas.",
         "Una celda o número que sea igual a 0 no se puede tocar. Solo puedes profundizar en números que tengan algo detrás.",
         "Usa el botón de engranaje para ocultar los números que no te importan y mantener el informe enfocado. Ocultar no elimina nada: solo lo quita de la vista. Y si lo ocultas todo, la tabla te avisará de que no hay números activos.",
@@ -1021,7 +1025,7 @@
         },
         {
           "q": "¿Cuál es la diferencia entre «Prospectos cerrados» y «Convertidos en clientes»?",
-          "a": "«Prospectos cerrados» cuenta cada prospecto que salió del proceso: convertido en cliente, marcado como no relevante o eliminado. «Convertidos en clientes» cuenta solo a los que realmente se hicieron clientes, así que suele ser un número menor."
+          "a": "«Prospectos cerrados» cuenta todo prospecto que salió del proceso: convertido o marcado como no relevante. «Convertidos» cuenta solo los que realmente pasaron a ser clientes, por eso suele ser menor. Eliminar un prospecto no lo cierra: uno que eliminaste mientras estaba en proceso no se cuenta como cerrado."
         },
         {
           "q": "¿Por qué el resumen de la tabla no es igual a la suma de las columnas?",
@@ -1034,6 +1038,10 @@
         {
           "q": "¿Qué pasa cuando hago clic en un número del informe?",
           "a": "Se abre un panel que te muestra los registros reales que hay detrás del número, junto con su recuento. Al hacer clic en una fila del panel te lleva a la pantalla correspondiente: Prospectos, Clientes, Calendario, Dinero o Tareas."
+        },
+        {
+          "q": "Eliminé un registro y el número no bajó, ¿por qué?",
+          "a": "Así debe funcionar. El informe cuenta lo que pasó en el mes, y eliminar algo después no lo deshace; de lo contrario, cada limpieza de tu pantalla de clientes o tareas encogería meses ya cerrados. En el detalle los reconoces por la marca «en la papelera». La excepción: las transacciones eliminadas sí salen de las cifras de dinero."
         }
       ]
     },

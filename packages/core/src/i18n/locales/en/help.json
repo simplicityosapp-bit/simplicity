@@ -978,8 +978,12 @@
           "body": "Click a number in list view, or a non-empty cell in table view, and a panel opens showing you the actual records behind it — leads, clients, sessions, transactions, or tasks — along with their total count."
         },
         {
+          "title": "Deleted records still count",
+          "body": "Deleting tidies your screens — it does not undo what happened. A month that has passed keeps showing the inquiries it received, the sessions that took place and the tasks you finished, even after you delete them. In the drill-down the record appears marked \"in the trash\". Two exceptions: for money, a deleted transaction leaves income, expense and net — a transaction is usually deleted because it was wrong, not for tidiness. And for the \"at the end\" numbers, a client or task deleted during the month is not counted at its end, because it was no longer there."
+        },
+        {
           "title": "Navigating from the Drill-Down to the Screen",
-          "body": "Each row in the drill-down panel is a link. Clicking it takes you to the relevant screen — Leads, Clients, Calendar, Finance, or Tasks. Note: the link takes you to the screen, not always to the specific record."
+          "body": "Every row in the drill-down window is a link. Tapping it takes you to the matching screen — leads, clients, calendar, money or tasks. A row marked \"in the trash\" leads to the trash, since the record is no longer on the screen it was deleted from. Note: the link takes you to the screen, not always to the specific record."
         },
         {
           "title": "Choosing Numbers and Order",
@@ -1003,7 +1007,7 @@
         }
       ],
       "tips": [
-        "Revenue, expenses, and net only count transactions you've confirmed. A transaction that hasn't been confirmed won't appear in the report.",
+        "Income, expense and net count only transactions you have confirmed. An unconfirmed transaction will not appear in the report, and a deleted one leaves the figures too — money is the only thing that behaves this way.",
         "The Summary column in the table isn't always a simple sum: the \"at end\" numbers are averages, and percentages are recalculated. So don't expect the summary to be exactly the sum of the columns.",
         "A cell or number that equals 0 can't be clicked. You can only drill down into numbers that have something behind them.",
         "Use the gear button to hide numbers you don't care about and keep the report focused. Hiding doesn't delete anything — it just removes it from view. And if you hide everything, the table will let you know there are no active numbers.",
@@ -1021,7 +1025,7 @@
         },
         {
           "q": "What's the difference between \"Leads closed\" and \"Converted to clients\"?",
-          "a": "\"Leads closed\" counts every lead that exited the process — converted to a client, marked as not relevant, or deleted. \"Converted to clients\" counts only those who actually became clients, so it's usually a lower number."
+          "a": "\"Leads closed\" counts every lead that left the process — either converted or marked not relevant. \"Converted\" counts only those that actually became clients, so it is usually lower. Deleting a lead does not close it: a lead you deleted while it was still in process is not counted as closed."
         },
         {
           "q": "Why doesn't the summary in the table equal the sum of the columns?",
@@ -1034,6 +1038,10 @@
         {
           "q": "What happens when I click a number in the report?",
           "a": "A panel opens showing you the actual records behind the number, along with their count. Clicking a row in the panel takes you to the relevant screen — Leads, Clients, Calendar, Finance, or Tasks."
+        },
+        {
+          "q": "I deleted a record and the number did not drop — why?",
+          "a": "That is how it is meant to work. The report says what happened in the month, and deleting something later does not undo it — otherwise every tidy-up of your clients or tasks screen would shrink closed months. In the drill-down you can spot these by the \"in the trash\" mark. The exception: deleted transactions do leave the money figures."
         }
       ]
     },

@@ -92,7 +92,10 @@
     "remindersTitle": "Eliminar recordatorios completados",
     "remindersMessageOne": "¿Eliminar este recordatorio completado? Puedes restaurarlo desde la papelera durante 30 días.",
     "remindersMessageMany": "¿Eliminar {{count}} recordatorios completados? Puedes restaurarlos desde la papelera durante 30 días.",
-    "confirm": "Eliminar"
+    "confirm": "Eliminar",
+    "allTitle": "Eliminar elementos completados",
+    "allMessageOne": "¿Eliminar este elemento completado? Puedes restaurarlo desde la papelera durante 30 días.",
+    "allMessageMany": "¿Eliminar {{count}} elementos completados? Puedes restaurarlos desde la papelera durante 30 días."
   },
   "item": {
     "uncheck": "Quitar la marca de hecho",

@@ -92,7 +92,10 @@
     "remindersTitle": "Delete completed reminders",
     "remindersMessageOne": "Delete this completed reminder? You can restore it from the recycle bin within 30 days.",
     "remindersMessageMany": "Delete {{count}} completed reminders? You can restore them from the recycle bin within 30 days.",
-    "confirm": "Delete"
+    "confirm": "Delete",
+    "allTitle": "Delete completed items",
+    "allMessageOne": "Delete this completed item? You can restore it from the recycle bin within 30 days.",
+    "allMessageMany": "Delete {{count}} completed items? You can restore them from the recycle bin within 30 days."
   },
   "item": {
     "uncheck": "Clear completion",

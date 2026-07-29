@@ -145,7 +145,11 @@ export default function TasksScreen() {
   /* Top toggle drives entity choice. The rest of the screen reads
      from the active hook and renders the same chrome (header counts,
      hero stats, filter, list). */
-  const [view, setView] = useState('tasks')
+  /* Opens on the mixed list. The screen's job on arrival is to answer "what do
+     I owe" — the same question the home widget answers — and only "הכל" answers
+     it without you first choosing which half to look at. משימות and תזכורות are
+     where you go to organise one kind, which is a later, deliberate move. */
+  const [view, setView] = useState('all')
   const [filter, setFilter] = useState('todo')
   const [showAdd, setShowAdd] = useState(false)
   const [editItem, setEditItem] = useState(null)
@@ -626,7 +630,21 @@ export default function TasksScreen() {
           <Box className="empty"><Txt as="p" className="empty-text" title={error}>{isTasks || isAll ? t('loadError.tasks') : t('loadError.reminders')}</Txt></Box>
         ) : isAll ? (
           allGroups.length === 0 ? (
-            <Box className="empty"><Txt as="p" className="empty-text">{filter === 'done' ? t('empty.allDone') : t('empty.allTodo')}</Txt></Box>
+            /* "הכל" is where the screen opens, so it inherits the first-run
+               welcome the tasks view used to give: an account with nothing in
+               it at all needs a way in, not the "all calm" line that belongs to
+               someone who has cleared their plate. */
+            (tasks.length === 0 && reminders.length === 0 && filter !== 'done') ? (
+              <Box className="empty">
+                <Txt className="empty-icon"><ListTodo size={28} strokeWidth={1.5} aria-hidden="true" /></Txt>
+                <Txt as="p" className="empty-text">{t('empty.firstTask')}</Txt>
+                <Btn className="empty-action" type="button" onClick={() => setShowAdd(true)}>
+                  <Plus size={18} strokeWidth={1.5} aria-hidden="true" /> {t('empty.addTask')}
+                </Btn>
+              </Box>
+            ) : (
+              <Box className="empty"><Txt as="p" className="empty-text">{filter === 'done' ? t('empty.allDone') : t('empty.allTodo')}</Txt></Box>
+            )
           ) : (
             allGroups.map((g) => (
               <GroupPanel
@@ -859,17 +877,53 @@ export default function TasksScreen() {
         onRemoveCategory={handleRemoveCategory}
       />
 
-      {isTasks ? (
+      {/* WHAT "+" ADDS follows the button's own label, not the list underneath
+          it. This used to hang off `isTasks`, so in the mixed view — where the
+          CTA reads "+ משימה חדשה" — it opened the reminder form and quietly
+          created a reminder instead. */}
+      {isTasks || isAll ? (
+        <AddTaskModal
+          open={showAdd}
+          onClose={() => setShowAdd(false)}
+          projects={projects}
+          clients={clients}
+          statuses={taskStatuses}
+          categories={taskCategories}
+          onSave={addTask}
+        />
+      ) : (
+        <AddReminderModal
+          open={showAdd}
+          onClose={() => setShowAdd(false)}
+          clients={clients}
+          categories={taskCategories}
+          onSave={addReminder}
+        />
+      )}
+
+      {/* Clearing completed work sweeps whatever the view is showing — in the
+          mixed list that is BOTH tables. Hanging this off `isTasks` too meant
+          "מחיקת שהושלמו" there swept only reminders and left every completed
+          task sitting in a list that claimed to be empty. */}
+      {isAll && (
+        <ConfirmModal
+          open={confirmClear}
+          onClose={() => setConfirmClear(false)}
+          title={t('clearConfirm.allTitle')}
+          message={doneCount === 1 ? t('clearConfirm.allMessageOne') : t('clearConfirm.allMessageMany', { count: doneCount })}
+          confirmLabel={t('clearConfirm.confirm')}
+          danger
+          onConfirm={async () => { await clearCompleted(); await clearCompletedReminders() }}
+        />
+      )}
+
+      {/* Per-view editors and clear confirms. These are exclusive on purpose:
+          the second arm used to be a plain `else`, which meant the mixed view
+          ALSO mounted the reminders clear-confirm — two confirms open at once,
+          the reminder one last in the DOM and therefore the one you actually
+          saw and pressed. */}
+      {isTasks && (
         <>
-          <AddTaskModal
-            open={showAdd}
-            onClose={() => setShowAdd(false)}
-            projects={projects}
-            clients={clients}
-            statuses={taskStatuses}
-            categories={taskCategories}
-            onSave={addTask}
-          />
           <AddTaskModal
             key={editItem?.id || 'edit-task'}
             open={!!editItem}
@@ -892,15 +946,9 @@ export default function TasksScreen() {
             onConfirm={() => clearCompleted()}
           />
         </>
-      ) : (
+      )}
+      {!isTasks && !isAll && (
         <>
-          <AddReminderModal
-            open={showAdd}
-            onClose={() => setShowAdd(false)}
-            clients={clients}
-            categories={taskCategories}
-            onSave={addReminder}
-          />
           <AddReminderModal
             key={editItem?.id || 'edit-rem'}
             open={!!editItem}

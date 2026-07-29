@@ -4,7 +4,7 @@ import { useT } from '../../i18n/useT'
 import InlineTitle from './InlineTitle'
 import { Box, Txt, Btn } from '../../components/ui'
 
-function TaskItem({ task, project, clientName, dotColor, onToggle, onEdit, onRename, index, taskStatus, category, dueLabel }) {
+function TaskItem({ task, project, clientName, dotColor, onToggle, onEdit, onRename, index, taskStatus, category, dueLabel, urgentTag = false }) {
   const { t } = useT('tasks')
   const isDone = task.status === 'done'
   /* The deadline is split out of the joined meta line so a passed one can be
@@ -37,8 +37,12 @@ function TaskItem({ task, project, clientName, dotColor, onToggle, onEdit, onRen
             {meta}
           </Txt>
         )}
-        {(taskStatus || category) && (
+        {(urgentTag || taskStatus || category) && (
           <Box className="tc-tags">
+            {/* Priority in words. The row's dot mirrors whatever the list is
+                grouped by, so when that isn't priority, "דחוף" has no other
+                carrier — and a colour with no legend was never one anyway. */}
+            {urgentTag && <Txt className="tc-tag tc-tag-urgent">{t('priority.high')}</Txt>}
             {taskStatus && (
               <Txt className="tc-tag">
                 <Txt className="tc-tag-dot" style={{ background: taskStatus.color || 'var(--stone)' }} />

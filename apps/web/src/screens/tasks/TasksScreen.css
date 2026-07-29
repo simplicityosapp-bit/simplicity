@@ -53,10 +53,14 @@
   border-inline-start: 1px solid var(--divider);
   border-inline-end: 1px solid var(--divider);
 }
+/* --mg-micro (11px) is the floor of the type scale in tokens.css — this label
+   sat at 9px, two steps under the smallest size the design system defines, and
+   uppercase Hebrew at that size is the hardest thing on the screen to read for
+   the people the app is for. */
 .t-hero-stat-l {
   margin: 0 0 4px;
   font-family: var(--mg-font);
-  font-size: calc(9px * var(--text-scale));
+  font-size: var(--mg-micro);
   font-weight: 500;
   color: var(--stone);
   letter-spacing: 0.04em;
@@ -405,9 +409,19 @@
   border: var(--mg-card-border);
   background: var(--mg-card-bg);
   font-family: var(--mg-font);
-  font-size: calc(10px * var(--text-scale));
+  /* Was 10px — under --mg-micro, the smallest size tokens.css defines. */
+  font-size: var(--mg-micro);
   font-weight: 500;
   color: var(--stone);
+}
+/* Urgent, said in words. Danger TEXT reads --clay-on-dark (it aliases to
+   --clay in light mode and lifts in dark, where raw clay is unreadable), over
+   the same soft clay tint the ×N badge uses. */
+.tc-tag-urgent {
+  border-color: color-mix(in srgb, var(--clay) 35%, transparent);
+  background: color-mix(in srgb, var(--clay) 12%, transparent);
+  color: var(--clay-on-dark);
+  font-weight: 600;
 }
 .tc-tag-dot {
   width: 7px;

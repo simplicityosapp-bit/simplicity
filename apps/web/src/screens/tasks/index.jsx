@@ -512,7 +512,16 @@ export default function TasksScreen() {
                              ever rendered on the reminders view, so on its own
                              screen a task's deadline was invisible. */
                           dueLabel={task.due_at ? formatWhen(task.due_at) : null}
-                          dotColor={PRIORITY_COLOR[task.priority || 'medium']}
+                          /* The dot mirrors the group it sits under, so the
+                             group header IS its legend. It used to be priority
+                             regardless of the grouping, which put two unlabelled
+                             colour systems on one row — a project-coloured
+                             heading over priority-coloured dots.
+                             Priority then needs a carrier of its own when it
+                             isn't what we're grouping by, so an urgent task says
+                             so in words instead. */
+                          dotColor={g.color}
+                          urgentTag={groupBy !== 'priority' && (task.priority || 'medium') === 'high'}
                           onToggle={() => toggleTask(task)}
                           onEdit={setEditItem}
                           onRename={renameTask}
@@ -613,7 +622,10 @@ export default function TasksScreen() {
                       project={projOf(task.project_id)}
                       clientName={clientNameOf(task.client_id)}
                       dueLabel={formatWhen(task.due_at)}
+                      /* Already the bucket's colour here — the date is the
+                         grouping, so priority always needs the word. */
                       dotColor={b.color}
+                      urgentTag={(task.priority || 'medium') === 'high'}
                       onToggle={() => toggleTask(task)}
                       onEdit={setEditDatedTask}
                       onRename={renameTask}

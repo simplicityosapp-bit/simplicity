@@ -351,6 +351,101 @@
    ("עדכון יעד"). That action moved per-goal into the moon widget, leaving one
    primary button here and in project-detail — no second style is used. */
 
+/* ── Shared "תצוגה" menu (trigger pill + popover) ──────────────────
+   A screen's view options — grouping, sorting — folded behind one pill
+   instead of another permanent row of tabs. Clients arrived at this shape
+   first (.c-sort-* in ClientsScreen.css); these are the same visuals under
+   neutral names, living here because screens.css is loaded globally
+   (main.jsx) while a per-screen chunk is not — the same reason .h-quick-row
+   moved here. Clients still carries its own copy; it can adopt these when
+   that screen is next touched.
+   Pair with usePopoverSide so the popover opens toward the screen centre. */
+.mg-menu-wrap {
+  position: relative;
+  display: inline-block;
+}
+.mg-menu-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 7px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(42, 37, 32, 0.18);
+  background: rgba(255, 250, 240, 0.55);
+  -webkit-backdrop-filter: blur(18px) saturate(150%);
+  backdrop-filter: blur(18px) saturate(150%);
+  box-shadow: 0 4px 14px rgba(42, 37, 32, 0.08);
+  font-family: var(--mg-font);
+  font-size: calc(12px * var(--text-scale));
+  color: var(--espresso);
+  cursor: pointer;
+  transition: background 0.15s, box-shadow 0.15s;
+}
+.mg-menu-btn:hover {
+  background: rgba(255, 250, 240, 0.78);
+  box-shadow: 0 6px 18px rgba(42, 37, 32, 0.12);
+}
+[data-theme="dark"] .mg-menu-btn {
+  border-color: rgba(240, 235, 224, 0.20);
+  background: rgba(20, 18, 14, 0.55);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.32);
+}
+[data-theme="dark"] .mg-menu-btn:hover {
+  background: rgba(240, 235, 224, 0.07);
+}
+/* A non-default choice echoed on the trigger, so the control that caused the
+   change isn't itself hidden inside the closed menu. */
+.mg-menu-active {
+  color: var(--stone);
+  font-weight: 500;
+}
+.mg-menu-pop {
+  position: absolute;
+  top: calc(100% + 6px);
+  /* left/right: 0 is set inline via usePopoverSide — never spills off-edge. */
+  z-index: 30;
+  min-width: 160px;
+  max-width: calc(100vw - 24px);
+  padding: 8px;
+  border-radius: 12px;
+  border: 1px solid var(--divider);
+  background: var(--mg-card-bg);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  -webkit-backdrop-filter: var(--mg-card-blur);
+  backdrop-filter: var(--mg-card-blur);
+}
+.mg-menu-h {
+  margin: 0 0 6px;
+  font-family: var(--mg-font);
+  font-size: calc(11px * var(--text-scale));
+  font-weight: 600;
+  color: var(--stone);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.mg-menu-opt {
+  display: block;
+  width: 100%;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  text-align: start;
+  font-family: var(--mg-font);
+  font-size: calc(13px * var(--text-scale));
+  color: var(--espresso);
+  cursor: pointer;
+}
+.mg-menu-opt:hover { background: rgba(42, 37, 32, 0.04); }
+/* Selected — the same opaque terracotta fill as .mg-toggle-btn.on, so
+   "selected" reads identically wherever it appears. */
+.mg-menu-opt.on {
+  background: var(--terracotta);
+  color: var(--on-accent);
+  font-weight: 500;
+}
+[data-theme="dark"] .mg-menu-opt.on { color: var(--ink-on-accent); }
+
 /* ── Desktop content-width cap ─────────────────────────────────────
    On desktop .screen fills the whole viewport, so cards/lists over-
    stretch on wide monitors. Cap + centre each screen's top-level

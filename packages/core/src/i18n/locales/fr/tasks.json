@@ -107,6 +107,8 @@
   },
   "groupBy": {
     "aria": "Grouper les tâches",
+    "label": "Affichage",
+    "heading": "Grouper par",
     "priority": "Priorité",
     "project": "Projet",
     "category": "Catégorie",

@@ -52,11 +52,11 @@ export default function ReportsScreen() {
   /* One raw read of all seven tables rather than the app's editing hooks:
      those filter deleted_at server-side, which would hide the history this
      screen exists to report. See useReportsData. */
-  const { leads, clients, sessions, transactions, tasks, groupMembers, groups, loading } = useReportsData()
+  const { leads, clients, sessions, transactions, tasks, groupMembers, groups, tallies, loading } = useReportsData()
 
   const data = useMemo(
-    () => ({ leads, clients, sessions, transactions, tasks, groupMembers, groups }),
-    [leads, clients, sessions, transactions, tasks, groupMembers, groups],
+    () => ({ leads, clients, sessions, transactions, tasks, groupMembers, groups, tallies }),
+    [leads, clients, sessions, transactions, tasks, groupMembers, groups, tallies],
   )
 
   const openDrill = (metricId, period) => setDrill({ metricId, period })

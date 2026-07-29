@@ -230,3 +230,73 @@ describe('the period still bounds everything', () => {
     })
   })
 })
+
+/* ── The ledger ──────────────────────────────────────────────────── */
+
+describe('the ledger and the row count agree', () => {
+  /* computeReportForRange has two paths now: count the rows (no tallies) or
+     read report_tallies (migration 0100). They must produce the same number
+     for the same history, or switching the screen over would move figures
+     the user has already seen. This pins them to each other.
+
+     Tally periods are month-start dates in the app timezone, exactly what
+     the database triggers write. */
+  const JUNE = '2026-06-01'
+  const rows = {
+    leads: [
+      { id: 'a', name: 'a', inquiry_date: '2026-06-02', status_meta: 'converted', converted_at: IN, closed_at: IN },
+      { id: 'b', name: 'b', inquiry_date: '2026-06-03', status_meta: 'in_process' },
+    ],
+    clients: [{ id: 'c', name: 'c', created_at: IN, status_meta: 'active' }],
+    sessions: [{ id: 's', date: IN }],
+    tasks: [{ id: 'k', title: 'k', status: 'done', created_at: IN, completed_at: IN }],
+  }
+  /* What the triggers would have recorded for that same history. */
+  const tallies = [
+    { period: JUNE, metric: 'new_inquiries', count: 2 },
+    { period: JUNE, metric: 'leads_closed', count: 1 },
+    { period: JUNE, metric: 'leads_converted', count: 1 },
+    { period: JUNE, metric: 'cohort_converted', count: 1 },
+    { period: JUNE, metric: 'new_clients', count: 1 },
+    { period: JUNE, metric: 'sessions_held', count: 1 },
+    { period: JUNE, metric: 'tasks_completed', count: 1 },
+  ]
+
+  const FLOW_IDS = ['newInquiries', 'leadsClosed', 'leadsConverted', 'conversionRate',
+    'newClients', 'sessions', 'tasksCompleted']
+
+  it('produces identical flow metrics either way', () => {
+    const fromRows = metrics(rows)
+    const fromLedger = metrics({ ...rows, tallies })
+    FLOW_IDS.forEach((id) => {
+      expect(fromLedger[id], `${id} differs`).toEqual(fromRows[id])
+    })
+  })
+
+  it('reads the ledger, not the rows, when both are present', () => {
+    /* The proof that the ledger is authoritative: give it a number the rows
+       cannot produce and it must win. This is what survives the purge. */
+    const bumped = tallies.map((t) => (t.metric === 'tasks_completed' ? { ...t, count: 9 } : t))
+    expect(metrics({ ...rows, tallies: bumped }).tasksCompleted).toBe(9)
+  })
+
+  it('counts a purged month with no rows left at all', () => {
+    /* After the 30-day purge this is the real shape of an old month. */
+    expect(metrics({ tallies }).tasksCompleted).toBe(1)
+    expect(metrics({ tallies }).newInquiries).toBe(2)
+    expect(metrics({ tallies }).conversionRate).toBe(50)
+  })
+
+  it('ignores buckets outside the period', () => {
+    const other = [{ period: '2026-07-01', metric: 'tasks_completed', count: 7 }]
+    expect(metrics({ tallies: other }).tasksCompleted).toBe(0)
+  })
+
+  it('leaves money and the snapshots on the rows', () => {
+    /* Neither is in the ledger; a stray tally must not be picked up. */
+    const noise = [{ period: JUNE, metric: 'income', count: 999 }]
+    const withMoney = { transactions: [{ id: 't', type: 'income', amount: 50, date: IN, status: 'confirmed' }], tallies: noise }
+    expect(metrics(withMoney).income).toBe(50)
+    expect(metrics({ clients: rows.clients, tallies: noise }).activeClientsAtEnd).toBe(1)
+  })
+})

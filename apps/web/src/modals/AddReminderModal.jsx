@@ -1,6 +1,8 @@
 import { useState } from 'react'
+import { Trash2 } from 'lucide-react'
 import DateField from '../components/DateField'
 import Modal from './Modal'
+import ConfirmModal from './ConfirmModal'
 import { useT } from '../i18n/useT'
 import { Box, Txt, Btn, Input, Textarea } from '../components/ui'
 
@@ -82,8 +84,11 @@ function fromReminder(r, date, time) {
    This avoids the confusing "pick a calendar date for a weekly reminder"
    (which silently defaulted to today → everything showed "היום").
    `defaultLinkedTo` pre-binds the reminder to a project/group/etc. and hides
-   the client selector — used when opened from a project drawer. */
-export default function AddReminderModal({ open, onClose, onSave, clients = [], categories = [], defaultLinkedTo = null, linkedSubjectName = '', reminder = null, initialDate, initialTime }) {
+   the client selector — used when opened from a project drawer.
+   `onDelete(id)` is optional — supplied only where the caller owns a delete
+   (the tasks screen); without it no delete action is shown. Soft-delete →
+   Trash, so the confirm says so. */
+export default function AddReminderModal({ open, onClose, onSave, onDelete, clients = [], categories = [], defaultLinkedTo = null, linkedSubjectName = '', reminder = null, initialDate, initialTime }) {
   const isEdit = !!reminder
   const { t } = useT('modalsTask')
   /* initialDate/initialTime prefill a NEW one-off reminder when opened from a
@@ -91,6 +96,7 @@ export default function AddReminderModal({ open, onClose, onSave, clients = [], 
   const [form, setForm] = useState(() => fromReminder(reminder, initialDate, initialTime))
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
+  const [confirmDelete, setConfirmDelete] = useState(false)
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }))
   const close = () => { setForm(fromReminder(reminder, initialDate, initialTime)); setErr(''); setBusy(false); onClose() }
 
@@ -169,6 +175,7 @@ export default function AddReminderModal({ open, onClose, onSave, clients = [], 
   const recurring = form.recurrence !== 'none'
 
   return (
+    <>
     <Modal open={open} onClose={close} title={isEdit ? t('reminder.titleEdit') : t('reminder.titleNew')}>
       <Box className="m-field">
         <Box as="label" className="m-label">{t('reminder.what')}</Box>
@@ -294,9 +301,30 @@ export default function AddReminderModal({ open, onClose, onSave, clients = [], 
       {err && <Txt as="p" className="m-error">{err}</Txt>}
 
       <Box className="m-actions">
+        {onDelete && reminder?.id && (
+          <Btn type="button" className="m-btn-delete-inline" onClick={() => setConfirmDelete(true)}>
+            <Trash2 size={15} strokeWidth={1.8} aria-hidden="true" /> {t('reminder.delete')}
+          </Btn>
+        )}
         <Btn type="button" className="m-btn-cancel" onClick={close}>{t('common.cancel')}</Btn>
         <Btn type="button" className="m-btn-save" onClick={submit} disabled={busy}>{busy ? t('common.saving') : t('common.save')}</Btn>
       </Box>
     </Modal>
+
+    {/* Sibling of the sheet, not a child — see the note in AddTaskModal: a
+        nested Modal's portal lands before its parent's in document.body, and
+        with a shared z-index the confirm would sit invisible underneath.
+        A recurring reminder goes in full — every future occurrence with it —
+        so the confirm names it and leans on the 30-day restore. */}
+    <ConfirmModal
+      open={confirmDelete}
+      onClose={() => setConfirmDelete(false)}
+      title={t('reminder.deleteTitle')}
+      message={t('reminder.deleteMessage', { title: reminder?.title || '' })}
+      confirmLabel={t('reminder.deleteConfirm')}
+      danger
+      onConfirm={async () => { await onDelete(reminder.id); onClose() }}
+    />
+    </>
   )
 }

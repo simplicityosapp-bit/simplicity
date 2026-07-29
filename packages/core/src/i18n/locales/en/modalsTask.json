@@ -26,7 +26,11 @@
     "dueTime": "Time",
     "addDue": "+ Add a due date",
     "removeDue": "Remove due date",
-    "noDueDateHint": "Tasks have no due date — need a reminder for a specific day? Add a <0>reminder</0> instead."
+    "noDueDateHint": "Tasks have no due date — need a reminder for a specific day? Add a <0>reminder</0> instead.",
+    "delete": "Delete task",
+    "deleteTitle": "Delete task",
+    "deleteMessage": "Delete \"{{title}}\"? You can restore it from the trash for 30 days.",
+    "deleteConfirm": "Delete"
   },
   "reminder": {
     "titleEdit": "Edit reminder",
@@ -58,7 +62,11 @@
     "category": "Category (optional)",
     "details": "Details (optional)",
     "detailsPlaceholder": "More details",
-    "project": "Project"
+    "project": "Project",
+    "delete": "Delete reminder",
+    "deleteTitle": "Delete reminder",
+    "deleteMessage": "Delete \"{{title}}\"? You can restore it from the trash for 30 days.",
+    "deleteConfirm": "Delete"
   },
   "session": {
     "titleEdit": "Edit session",

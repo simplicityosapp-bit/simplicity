@@ -7,7 +7,11 @@ import { Box, Txt, Btn } from '../../components/ui'
 function TaskItem({ task, project, clientName, dotColor, onToggle, onEdit, onRename, index, taskStatus, category, dueLabel }) {
   const { t } = useT('tasks')
   const isDone = task.status === 'done'
-  const meta = [dueLabel, clientName, project?.name].filter(Boolean).join(' · ')
+  /* The deadline is split out of the joined meta line so a passed one can be
+     coloured on its own. Derived here rather than passed in, so both views
+     that render a dated task agree without threading a flag through. */
+  const isOverdue = !isDone && !!task.due_at && new Date(task.due_at) < new Date()
+  const meta = [clientName, project?.name].filter(Boolean).join(' · ')
 
   return (
     <Box className={`tc anim${isDone ? ' is-done' : ''}`} style={{ animationDelay: `${index * 0.04}s` }}>
@@ -26,7 +30,13 @@ function TaskItem({ task, project, clientName, dotColor, onToggle, onEdit, onRen
           title={task.title}
           onRename={onRename ? (next) => onRename(task.id, next) : undefined}
         />
-        {meta && <Txt as="p" className="tc-meta">{meta}</Txt>}
+        {(dueLabel || meta) && (
+          <Txt as="p" className="tc-meta">
+            {dueLabel && <Txt className={`tc-due${isOverdue ? ' is-overdue' : ''}`}>{dueLabel}</Txt>}
+            {dueLabel && meta ? ' · ' : ''}
+            {meta}
+          </Txt>
+        )}
         {(taskStatus || category) && (
           <Box className="tc-tags">
             {taskStatus && (

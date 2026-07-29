@@ -26,7 +26,11 @@
     "dueTime": "Hora",
     "addDue": "+ Añadir fecha límite",
     "removeDue": "Quitar fecha límite",
-    "noDueDateHint": "Las tareas no tienen fecha límite. ¿Necesitas un recordatorio para un día concreto? Añade un <0>recordatorio</0> en su lugar."
+    "noDueDateHint": "Las tareas no tienen fecha límite. ¿Necesitas un recordatorio para un día concreto? Añade un <0>recordatorio</0> en su lugar.",
+    "delete": "Eliminar tarea",
+    "deleteTitle": "Eliminar tarea",
+    "deleteMessage": "¿Eliminar \"{{title}}\"? Puedes restaurarla desde la papelera durante 30 días.",
+    "deleteConfirm": "Eliminar"
   },
   "reminder": {
     "titleEdit": "Editar recordatorio",
@@ -58,7 +62,11 @@
     "category": "Categoría (opcional)",
     "details": "Detalles (opcional)",
     "detailsPlaceholder": "Más detalles",
-    "project": "Proyecto"
+    "project": "Proyecto",
+    "delete": "Eliminar recordatorio",
+    "deleteTitle": "Eliminar recordatorio",
+    "deleteMessage": "¿Eliminar \"{{title}}\"? Puedes restaurarlo desde la papelera durante 30 días.",
+    "deleteConfirm": "Eliminar"
   },
   "session": {
     "titleEdit": "Editar sesión",

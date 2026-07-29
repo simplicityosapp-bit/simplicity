@@ -6,7 +6,6 @@ import { useProjects } from '../../hooks/useProjects'
 import { useClients } from '../../hooks/useClients'
 import { useTaskStatuses } from '../../hooks/useTaskStatuses'
 import { useTaskCategories } from '../../hooks/useTaskCategories'
-import { useUserPreferences } from '../../hooks/useUserPreferences'
 import { useT } from '../../i18n/useT'
 import TaskItem from './TaskItem'
 import ReminderItem from './ReminderItem'
@@ -15,7 +14,6 @@ import AddReminderModal from '../../modals/AddReminderModal'
 import ConfirmModal from '../../modals/ConfirmModal'
 import TaskTaxonomyModal from '../../modals/TaskTaxonomyModal'
 import Coachmark from '../../components/Coachmark'
-import { coachmarkText } from '../../lib/coachmarks'
 import { formatWhen, isRecurring, isActiveReminder, dueOccurrenceCount } from '@simplicity/core'
 import { reassignTasksStatus } from '../../lib/api/taskStatuses'
 import { reassignTasksCategory } from '../../lib/api/taskCategories'
@@ -68,6 +66,28 @@ function reminderBucket(rem, now) {
   return dateToBucket(new Date(rem.scheduled_at), now)
 }
 
+/* A task's deadline as a timestamp, or null when it has none / is unparsable.
+   Shared by the group sort below. */
+function dueTs(task) {
+  if (!task.due_at) return null
+  const v = +new Date(task.due_at)
+  return Number.isNaN(v) ? null : v
+}
+
+/* Inside a group the deadline decides the order — soonest first, undated
+   last. The fetch is newest-created first, which sat a task due next month
+   above one due tomorrow; combined with the date not being rendered at all,
+   the order read as arbitrary. Ties and the undated tail keep the fetch
+   order, so a group where nothing is dated is unchanged. */
+function byDueDate(a, b) {
+  const da = dueTs(a)
+  const db = dueTs(b)
+  if (da === db) return 0
+  if (da === null) return 1
+  if (db === null) return -1
+  return da - db
+}
+
 /* A dated, still-open task surfaces on the reminders view in its due bucket. */
 function taskDueBucket(task, now) {
   if (!task.due_at || task.status === 'done') return null
@@ -76,10 +96,8 @@ function taskDueBucket(task, now) {
 
 export default function TasksScreen() {
   const { t } = useT('tasks')
-  const { prefs } = useUserPreferences()
-  const gender = prefs?.design?.gender
-  const { tasks, loading: tasksLoading, error: tasksError, addTask, toggleTask, editTask, clearCompleted, refetch: refetchTasks } = useTasks()
-  const { reminders, loading: remindersLoading, error: remindersError, addReminder, completeReminder, editReminder, clearCompleted: clearCompletedReminders } = useReminders()
+  const { tasks, loading: tasksLoading, error: tasksError, addTask, toggleTask, editTask, removeTask, clearCompleted, refetch: refetchTasks } = useTasks()
+  const { reminders, loading: remindersLoading, error: remindersError, addReminder, completeReminder, editReminder, removeReminder, clearCompleted: clearCompletedReminders } = useReminders()
   const { projects } = useProjects()
   const { clients } = useClients()
   const { statuses: taskStatuses, addStatus, removeStatus } = useTaskStatuses()
@@ -168,14 +186,17 @@ export default function TasksScreen() {
      Priority keeps the original fixed order; project/category order follows
      the user's own project/category list, with an "unassigned" bucket last. */
   const taskGroups = useMemo(() => {
+    /* .filter() already hands back a fresh array, so sorting it in place
+       never touches the cached task list. */
+    const inGroup = (pred) => filteredTasks.filter(pred).sort(byDueDate)
     if (groupBy === 'project') {
       const groups = projects.map((p) => ({
         key: `p-${p.id}`,
         label: p.name,
         color: p.color || GROUP_FALLBACK_COLOR,
-        items: filteredTasks.filter((task) => task.project_id === p.id),
+        items: inGroup((task) => task.project_id === p.id),
       }))
-      const none = filteredTasks.filter((task) => !task.project_id || !projects.some((p) => p.id === task.project_id))
+      const none = inGroup((task) => !task.project_id || !projects.some((p) => p.id === task.project_id))
       if (none.length) groups.push({ key: 'p-none', label: t('groupBy.noProject'), color: GROUP_FALLBACK_COLOR, items: none })
       return groups.filter((g) => g.items.length)
     }
@@ -184,9 +205,9 @@ export default function TasksScreen() {
         key: `c-${c.id}`,
         label: c.name,
         color: c.color || GROUP_FALLBACK_COLOR,
-        items: filteredTasks.filter((task) => task.category_id === c.id),
+        items: inGroup((task) => task.category_id === c.id),
       }))
-      const none = filteredTasks.filter((task) => !task.category_id || !taskCategories.some((c) => c.id === task.category_id))
+      const none = inGroup((task) => !task.category_id || !taskCategories.some((c) => c.id === task.category_id))
       if (none.length) groups.push({ key: 'c-none', label: t('groupBy.noCategory'), color: GROUP_FALLBACK_COLOR, items: none })
       return groups.filter((g) => g.items.length)
     }
@@ -196,7 +217,7 @@ export default function TasksScreen() {
         key: `pri-${g}`,
         label: t(`priority.${g}`),
         color: PRIORITY_COLOR[g],
-        items: filteredTasks.filter((task) => (task.priority || 'medium') === g),
+        items: inGroup((task) => (task.priority || 'medium') === g),
       }))
       .filter((g) => g.items.length)
   }, [groupBy, filteredTasks, projects, taskCategories, t])
@@ -206,12 +227,15 @@ export default function TasksScreen() {
        shows if its category is in the set; empty set = all). */
     const inCategory = (r) => !categoryFilters.size || categoryFilters.has(r.category_id)
     if (filter === 'done') return reminders.filter((r) => r.status === 'completed' && inCategory(r))
-    /* "פתוחות" = open one-off + recurring whose occurrence has come due. */
-    return reminders.filter((r) => {
-      if (!isActiveReminder(r) || !inCategory(r)) return false
-      return isRecurring(r) ? dueOccurrenceCount(r, now) >= 1 : true
-    })
-  }, [reminders, now, filter, categoryFilters])
+    /* "פתוחות" = everything still owed, one-off and recurring alike, bucketed
+       by its next occurrence (a recurring reminder's scheduled_at IS that
+       occurrence). Recurring ones used to be gated on dueOccurrenceCount >= 1,
+       which hid a weekly reminder set for next week completely — while an
+       identical-looking one-off for the very same day appeared under
+       "מאוחר יותר". Same-looking rows now behave the same; "חוזרות" stays the
+       schedule view. */
+    return reminders.filter((r) => isActiveReminder(r) && inCategory(r))
+  }, [reminders, filter, categoryFilters])
 
   /* Dated tasks that "pop" onto the reminders view — open tasks with a due_at,
      shown only on the open ("פתוחות") tab, bucketed by their due date. The
@@ -405,10 +429,6 @@ export default function TasksScreen() {
                 <Btn className="empty-action" type="button" onClick={() => setShowAdd(true)}>
                   <Plus size={18} strokeWidth={1.5} aria-hidden="true" /> {t('empty.addTask')}
                 </Btn>
-                <Box as="details" className="empty-reminder">
-                  <Txt as="summary">{t('empty.whyImportant')}</Txt>
-                  <Txt as="p" className="empty-reminder-body">{coachmarkText('add-task', gender).detail}</Txt>
-                </Box>
               </Box>
             ) : (
               <Box className="empty"><Txt as="p" className="empty-text">{emptyMsg}</Txt></Box>
@@ -437,6 +457,10 @@ export default function TasksScreen() {
                           task={task}
                           project={projOf(task.project_id)}
                           clientName={clientNameOf(task.client_id)}
+                          /* The date the group is now ordered by — it was only
+                             ever rendered on the reminders view, so on its own
+                             screen a task's deadline was invisible. */
+                          dueLabel={task.due_at ? formatWhen(task.due_at) : null}
                           dotColor={PRIORITY_COLOR[task.priority || 'medium']}
                           onToggle={() => toggleTask(task)}
                           onEdit={setEditItem}
@@ -566,6 +590,7 @@ export default function TasksScreen() {
         statuses={taskStatuses}
         categories={taskCategories}
         onSave={(patch) => editDatedTask && editTask(editDatedTask.id, patch)}
+        onDelete={removeTask}
       />
 
       {/* Category/status taxonomy — shared, so the manage button works from
@@ -602,6 +627,7 @@ export default function TasksScreen() {
             statuses={taskStatuses}
             categories={taskCategories}
             onSave={(patch) => editItem && editTask(editItem.id, patch)}
+            onDelete={removeTask}
           />
           <ConfirmModal
             open={confirmClear}
@@ -630,6 +656,7 @@ export default function TasksScreen() {
             clients={clients}
             categories={taskCategories}
             onSave={(patch) => editItem && editReminder(editItem.id, patch)}
+            onDelete={removeReminder}
           />
           <ConfirmModal
             open={confirmClear}

@@ -63,6 +63,7 @@ export default function TaskTaxonomyModal({
   }
 
   return (
+    <>
     <Modal open={open} onClose={onClose} title={t('taxonomy.title')}>
       {/* ── Default priority ───────────────────────────────────── */}
       {/* Which priority a NEW task opens on. Same pill widget as the task
@@ -180,15 +181,23 @@ export default function TaskTaxonomyModal({
         <Btn type="button" className="m-btn-save" onClick={onClose}>{t('common.close')}</Btn>
       </Box>
 
-      <ConfirmModal
-        open={!!confirm}
-        onClose={() => setConfirm(null)}
-        title={t('taxonomy.deleteTitle')}
-        danger
-        confirmLabel={t('taxonomy.deleteConfirm')}
-        message={confirm ? (confirm.kind === 'status' ? t('taxonomy.deleteMessageStatus', { name: confirm.name }) : t('taxonomy.deleteMessageCategory', { name: confirm.name })) : ''}
-        onConfirm={() => { if (confirm) return (confirm.kind === 'status' ? onRemoveStatus : onRemoveCategory)(confirm.id) }}
-      />
     </Modal>
+
+    {/* Sibling of the sheet, not a child. Every .m-sheet shares z-index 510, so
+        paint order is DOM order — and a Modal nested inside another Modal's
+        children has its portal appended to document.body BEFORE its parent's.
+        Deleting a category opened this confirm invisibly UNDERNEATH the
+        taxonomy sheet: the only way to reach it was to close the sheet on top.
+        Same fix as AddTaskModal / AddReminderModal. */}
+    <ConfirmModal
+      open={!!confirm}
+      onClose={() => setConfirm(null)}
+      title={t('taxonomy.deleteTitle')}
+      danger
+      confirmLabel={t('taxonomy.deleteConfirm')}
+      message={confirm ? (confirm.kind === 'status' ? t('taxonomy.deleteMessageStatus', { name: confirm.name }) : t('taxonomy.deleteMessageCategory', { name: confirm.name })) : ''}
+      onConfirm={() => { if (confirm) return (confirm.kind === 'status' ? onRemoveStatus : onRemoveCategory)(confirm.id) }}
+    />
+    </>
   )
 }

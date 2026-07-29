@@ -98,6 +98,32 @@ function taskDueBucket(task, now) {
   return dateToBucket(new Date(task.due_at), now)
 }
 
+/* The collapsible panel every list on this screen sits in. Only the task groups
+   used to have it; the reminder buckets and the recurring schedule were bare
+   glass labels over loose cards, so the same screen spoke two different visual
+   languages depending on which side of the entity toggle you were on — and a
+   long "מאוחר יותר" bucket could not be folded away the way a long "רגיל"
+   group could. Extracted rather than copied four times. */
+function GroupPanel({ groupKey, label, color, count, collapsed, onToggle, children }) {
+  const isCollapsed = collapsed.has(groupKey)
+  return (
+    <Box className={`t-group t-group-card${isCollapsed ? '' : ' open'}`}>
+      <Btn
+        type="button"
+        className="t-group-lbl t-group-toggle"
+        onClick={() => onToggle(groupKey)}
+        aria-expanded={!isCollapsed}
+      >
+        <Txt className="t-group-dot" style={{ background: color }} />
+        {label}
+        <Txt className="t-group-count">{count}</Txt>
+        <ChevronDown size={14} strokeWidth={1.6} className={`t-group-chev${isCollapsed ? '' : ' open'}`} aria-hidden="true" />
+      </Btn>
+      {!isCollapsed && <Box className="t-group-body">{children}</Box>}
+    </Box>
+  )
+}
+
 export default function TasksScreen() {
   const { t } = useT('tasks')
   const { tasks, loading: tasksLoading, error: tasksError, addTask, toggleTask, editTask, removeTask, clearCompleted, refetch: refetchTasks } = useTasks()
@@ -504,23 +530,16 @@ export default function TasksScreen() {
               <Box className="empty"><Txt as="p" className="empty-text">{emptyMsg}</Txt></Box>
             )
           ) : (
-            taskGroups.map((g) => {
-              const isCollapsed = collapsed.has(g.key)
-              return (
-                <Box key={g.key} className={`t-group t-group-card${isCollapsed ? '' : ' open'}`}>
-                  <Btn
-                    type="button"
-                    className="t-group-lbl t-group-toggle"
-                    onClick={() => toggleGroup(g.key)}
-                    aria-expanded={!isCollapsed}
-                  >
-                    <Txt className="t-group-dot" style={{ background: g.color }} />
-                    {g.label}
-                    <Txt className="t-group-count">{g.items.length}</Txt>
-                    <ChevronDown size={14} strokeWidth={1.6} className={`t-group-chev${isCollapsed ? '' : ' open'}`} aria-hidden="true" />
-                  </Btn>
-                  {!isCollapsed && (
-                    <Box className="t-group-body">
+            taskGroups.map((g) => (
+                <GroupPanel
+                  key={g.key}
+                  groupKey={g.key}
+                  label={g.label}
+                  color={g.color}
+                  count={g.items.length}
+                  collapsed={collapsed}
+                  onToggle={toggleGroup}
+                >
                       {g.items.map((task, i) => (
                         <TaskItem
                           key={task.id}
@@ -549,11 +568,8 @@ export default function TasksScreen() {
                           category={task.category_id ? categoryById.get(task.category_id) : null}
                         />
                       ))}
-                    </Box>
-                  )}
-                </Box>
-              )
-            })
+                </GroupPanel>
+            ))
           )
         ) : (
           filter === 'recurring' ? (
@@ -562,12 +578,15 @@ export default function TasksScreen() {
               <Box className="empty"><Txt as="p" className="empty-text">{t('empty.noRecurring')}</Txt></Box>
             ) : (
               recurringGroups.map((g) => (
-                <Box key={g.key} className="t-group">
-                  <Txt as="p" className="t-group-lbl">
-                    <Txt className="t-group-dot" style={{ background: g.color }} />
-                    {g.label}
-                    <Txt className="t-group-count">{g.items.length}</Txt>
-                  </Txt>
+                <GroupPanel
+                  key={g.key}
+                  groupKey={g.key}
+                  label={g.label}
+                  color={g.color}
+                  count={g.items.length}
+                  collapsed={collapsed}
+                  onToggle={toggleGroup}
+                >
                   {g.items.map((r, i) => (
                     <ReminderItem
                       key={r.id}
@@ -581,18 +600,20 @@ export default function TasksScreen() {
                       index={i}
                     />
                   ))}
-                </Box>
+                </GroupPanel>
               ))
             )
           ) : (filteredReminders.length === 0 && datedTasks.length === 0) ? (
             <Box className="empty"><Txt as="p" className="empty-text">{filter === 'done' ? t('empty.remindersDone') : t('empty.remindersTodo')}</Txt></Box>
           ) : filter === 'done' ? (
-            <Box className="t-group">
-              <Txt as="p" className="t-group-lbl">
-                <Txt className="t-group-dot" style={{ background: 'var(--stone)' }} />
-                {t('doneGroup')}
-                <Txt className="t-group-count">{filteredReminders.length}</Txt>
-              </Txt>
+            <GroupPanel
+              groupKey="rem-done"
+              label={t('doneGroup')}
+              color="var(--stone)"
+              count={filteredReminders.length}
+              collapsed={collapsed}
+              onToggle={toggleGroup}
+            >
               {filteredReminders.map((r, i) => (
                 <ReminderItem
                   key={r.id}
@@ -606,19 +627,22 @@ export default function TasksScreen() {
                   index={i}
                 />
               ))}
-            </Box>
+            </GroupPanel>
           ) : (
             REM_BUCKETS.map((b) => {
               const items = filteredReminders.filter((r) => reminderBucket(r, now) === b.key)
               const dueTasks = datedTasks.filter((task) => taskDueBucket(task, now) === b.key)
               if (!items.length && !dueTasks.length) return null
               return (
-                <Box key={b.key} className="t-group">
-                  <Txt as="p" className="t-group-lbl">
-                    <Txt className="t-group-dot" style={{ background: b.color }} />
-                    {t(`buckets.${b.key}`)}
-                    <Txt className="t-group-count">{items.length + dueTasks.length}</Txt>
-                  </Txt>
+                <GroupPanel
+                  key={b.key}
+                  groupKey={b.key}
+                  label={t(`buckets.${b.key}`)}
+                  color={b.color}
+                  count={items.length + dueTasks.length}
+                  collapsed={collapsed}
+                  onToggle={toggleGroup}
+                >
                   {items.map((r, i) => (
                     <ReminderItem
                       key={r.id}
@@ -653,7 +677,7 @@ export default function TasksScreen() {
                       category={task.category_id ? categoryById.get(task.category_id) : null}
                     />
                   ))}
-                </Box>
+                </GroupPanel>
               )
             })
           )

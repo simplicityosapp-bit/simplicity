@@ -102,8 +102,30 @@ export interface DrillRecord {
   navigateTo: string
 }
 
-const live = <T extends { deleted_at?: string | null }>(a: T[] | null | undefined): T[] =>
-  (a || []).filter((r) => !r.deleted_at)
+/* ── What a deleted row means to a report ──────────────────────────
+   A period is a record of what happened in it. Deleting a row later is
+   the user tidying their working screens; it is not a claim that the
+   event never occurred, and a finished month must not quietly shrink
+   because of it (feedback acbbeaa5, extended to every metric by the
+   owner 2026-07-28).
+
+   So FLOW metrics — things that happened on a date: inquiries, closes,
+   conversions, new clients, sessions, money, completed tasks — count
+   from the raw list and ignore deleted_at entirely. `all()` names that
+   intent, so a bare `(rows || [])` never reads like an oversight.
+
+   SNAPSHOT metrics are different, and the difference is not a product
+   choice but arithmetic: "active clients at the end of June" is a
+   question about June. A client deleted in June was already gone by the
+   30th; one deleted in July was still there. Those use `existedAsOf`,
+   the rule openTasksAsOf has always applied.
+
+   The trash never purges — it only offers restore — so these rows stay
+   available to count indefinitely. */
+const all = <T,>(a: T[] | null | undefined): T[] => a || []
+
+const existedAsOf = (row: { deleted_at?: string | null }, end: Date): boolean =>
+  !row.deleted_at || new Date(row.deleted_at).getTime() > end.getTime()
 
 /* ── Period engine ─────────────────────────────────────────────── */
 
@@ -137,10 +159,15 @@ export function getLast12Months(now: Date = new Date(), lng?: string): ReportPer
 
 /* Active clients "as of" an end date — naive: current status_meta is
    assumed to have held since created_at. Good-enough until we ship a
-   per-status log. */
+   per-status log.
+
+   Deleted clients count only while they still existed: one deleted in
+   July was genuinely active at the end of June. Same rule as
+   openTasksAsOf below. */
 function activeClientsAsOf(clients: RClient[] | undefined, end: Date): number {
   const t = end.getTime()
-  return live(clients).filter((c) => {
+  return all(clients).filter((c) => {
+    if (!existedAsOf(c, end)) return false
     if ((c.status_meta || c.status || 'no_status') !== 'active') return false
     const created = c.created_at ? new Date(c.created_at).getTime() : 0
     if (created > t) return false
@@ -149,14 +176,15 @@ function activeClientsAsOf(clients: RClient[] | undefined, end: Date): number {
 }
 
 /* Open tasks "as of" an end date — created by then, not completed by
-   then, not deleted by then. */
+   then, not deleted by then. The original "as of" metric; existedAsOf was
+   extracted from this one. */
 function openTasksAsOf(tasks: RTask[] | undefined, end: Date): number {
   const t = end.getTime()
   let count = 0
-  ;(tasks || []).forEach((task) => {
+  all(tasks).forEach((task) => {
     const created = task.created_at ? new Date(task.created_at).getTime() : 0
     if (created > t) return
-    if (task.deleted_at && new Date(task.deleted_at).getTime() <= t) return
+    if (!existedAsOf(task, end)) return
     if (task.completed_at && new Date(task.completed_at).getTime() <= t) return
     if (!task.completed_at && task.status === 'done') return  /* defensive */
     count++
@@ -189,36 +217,37 @@ export function computeReportForRange(start: Date, end: Date, data: ReportData =
   const inRangeYMD = (ymd?: string | null) => !!ymd && ymd >= sYMD && ymd <= eYMD
 
   /* ── Leads ── */
-  const liveLeads = live(leads)
-  const newLeads = liveLeads.filter((l) =>
+  const allLeads = all(leads)
+  const newLeads = allLeads.filter((l) =>
     l.inquiry_date ? inRangeYMD(l.inquiry_date) : inRangeTs(l.created_at),
   )
   /* leadsClosed: any lead with a closed_at in range (D24 — closing
      covers converted + not_relevant + ghost). Field is maintained by
      the leads API reconcileClosedAt() shim. */
-  const closedLeads = liveLeads.filter((l) => inRangeTs(l.closed_at))
-  const convertedLeads = liveLeads.filter((l) => isConvertedLead(l) && inRangeTs(l.converted_at))
+  const closedLeads = allLeads.filter((l) => inRangeTs(l.closed_at))
+  const convertedLeads = allLeads.filter((l) => isConvertedLead(l) && inRangeTs(l.converted_at))
   const cohortConverted = newLeads.filter(isConvertedLead).length
   const conversionRate = newLeads.length > 0
     ? Math.round((cohortConverted / newLeads.length) * 100)
     : null
 
   /* ── Clients ── */
-  const liveClients = live(clients)
-  const newClients = liveClients.filter((c) => inRangeTs(c.created_at))
+  const allClients = all(clients)
+  const newClients = allClients.filter((c) => inRangeTs(c.created_at))
   const activeAtEnd = activeClientsAsOf(clients, end)
 
-  /* Churn: left mid-process / total ended in range. */
-  const liveMembers = live(groupMembers)
+  /* Churn: left mid-process / total ended in range. Both halves are flow —
+     an ending that happened stays in the denominator, so deleting the
+     client afterwards can't move the percentage. */
   let leftCount = 0
   let totalEnded = 0
-  liveMembers.forEach((m) => {
+  all(groupMembers).forEach((m) => {
     if (!m.left_at) return
     if (!inRangeTs(m.left_at)) return
     totalEnded++
     if (m.left_mid_process) leftCount++
   })
-  liveClients.forEach((c) => {
+  allClients.forEach((c) => {
     if ((c.status_meta || c.status) !== 'past') return
     if (!((c.sessions || 0) > 0)) return
     if (!inRangeTs(c.last_status_changed_at)) return
@@ -228,11 +257,13 @@ export function computeReportForRange(start: Date, end: Date, data: ReportData =
   const leftMidProcessPct = totalEnded > 0 ? Math.round((leftCount / totalEnded) * 100) : null
 
   /* ── Sessions ── */
-  const sessionsInRange = live(sessions).filter((s) => inRangeTs(s.date)).length
+  const sessionsInRange = all(sessions).filter((s) => inRangeTs(s.date)).length
 
   /* ── Finance ── */
-  const confirmed = (transactions || []).filter(
-    (f) => !f.deleted_at && isConfirmedTx(f) && inRangeTs(f.date),
+  /* isConfirmedTx still gates: a pending/draft row was never money. What no
+     longer gates is deleted_at — see the note on `all` above. */
+  const confirmed = all(transactions).filter(
+    (f) => isConfirmedTx(f) && inRangeTs(f.date),
   )
   const income = confirmed
     .filter((f) => f.type === 'income')
@@ -429,35 +460,47 @@ export function getDrillRecords(metricId: string, start: Date, end: Date, data: 
   } = data
 
   const out: DrillRecord[] = []
-  const liveLeads = live(leads)
-  const liveClients = live(clients)
-  const liveSessions = live(sessions)
+  /* Raw, to match the metrics — a drill list that omitted what the number
+     counted would be the same bug one layer down. */
+  const allLeads = all(leads)
+  const allClients = all(clients)
+  const allSessions = all(sessions)
 
-  const leadRow = (l: RLead, secondary: string): DrillRecord => ({
+  /* A drilled row whose record was deleted says where it went and links to
+     the trash: sending it to /leads or /clients/:id would open a screen it
+     is no longer on. The marker is a place, not a verb, so it agrees with
+     every noun — Hebrew "נמחק/נמחקה" would have to know the entity's
+     gender, and gets it wrong for half of them. */
+  const trashed = <T extends { deleted_at?: string | null }>(rec: DrillRecord, row: T): DrillRecord =>
+    row.deleted_at
+      ? { ...rec, secondary: `${rec.secondary} • ${i18n.t('reports:drill.deleted')}`, navigateTo: '/trash' }
+      : rec
+
+  const leadRow = (l: RLead, secondary: string): DrillRecord => trashed({
     icon: 'leaf',
     primary: l.name || i18n.t('reports:drill.noName'),
     secondary,
     navigateTo: '/leads',
-  })
-  const clientRow = (c: RClient, secondary: string, icon = 'user'): DrillRecord => ({
+  }, l)
+  const clientRow = (c: RClient, secondary: string, icon = 'user'): DrillRecord => trashed({
     icon,
     primary: c.name || i18n.t('reports:drill.noName'),
     secondary,
     // Deep-link to the client's own drawer (/clients/:id) instead of the bare
     // list, so drilling a report row opens that specific record.
     navigateTo: c.id ? `/clients/${c.id}` : '/clients',
-  })
+  }, c)
 
   switch (metricId) {
     case 'newInquiries': {
-      liveLeads.forEach((l) => {
+      allLeads.forEach((l) => {
         const ok = l.inquiry_date ? inRangeYMD(l.inquiry_date) : inRangeTs(l.created_at)
         if (ok) out.push(leadRow(l, fmtDay(l.inquiry_date || l.created_at)))
       })
       break
     }
     case 'leadsClosed': {
-      liveLeads.forEach((l) => {
+      allLeads.forEach((l) => {
         if (!inRangeTs(l.closed_at)) return
         const meta = l.status_meta || 'in_process'
         const label = meta === 'converted' ? i18n.t('reports:drill.converted')
@@ -468,7 +511,7 @@ export function getDrillRecords(metricId: string, start: Date, end: Date, data: 
       break
     }
     case 'leadsConverted': {
-      liveLeads.forEach((l) => {
+      allLeads.forEach((l) => {
         if (!isConvertedLead(l) || !inRangeTs(l.converted_at)) return
         out.push({ ...leadRow(l, `${i18n.t('reports:drill.converted')} • ${fmtDay(l.converted_at)}`), icon: 'arrow' })
       })
@@ -476,7 +519,7 @@ export function getDrillRecords(metricId: string, start: Date, end: Date, data: 
     }
     case 'conversionRate': {
       /* Cohort = leads with inquiry in range; show all + mark converted. */
-      liveLeads.forEach((l) => {
+      allLeads.forEach((l) => {
         const inCohort = l.inquiry_date ? inRangeYMD(l.inquiry_date) : inRangeTs(l.created_at)
         if (!inCohort) return
         const converted = isConvertedLead(l)
@@ -489,15 +532,19 @@ export function getDrillRecords(metricId: string, start: Date, end: Date, data: 
       break
     }
     case 'newClients': {
-      liveClients.forEach((c) => {
+      allClients.forEach((c) => {
         if (!inRangeTs(c.created_at)) return
         out.push(clientRow(c, fmtDay(c.created_at), 'users'))
       })
       break
     }
     case 'activeClientsAtEnd': {
+      /* Snapshot, so the "as of" rule applies here exactly as it does in
+         activeClientsAsOf — a client deleted DURING the period was not
+         active at its end and must not be listed. */
       const t = end.getTime()
-      liveClients.forEach((c) => {
+      allClients.forEach((c) => {
+        if (!existedAsOf(c, end)) return
         if ((c.status_meta || c.status || 'no_status') !== 'active') return
         const created = c.created_at ? new Date(c.created_at).getTime() : 0
         if (created > t) return
@@ -506,20 +553,22 @@ export function getDrillRecords(metricId: string, start: Date, end: Date, data: 
       break
     }
     case 'leftMidProcessPct': {
-      live(groupMembers).forEach((m) => {
+      all(groupMembers).forEach((m) => {
         if (!m.left_mid_process || !m.left_at) return
         if (!inRangeTs(m.left_at)) return
-        const cli = liveClients.find((x) => x.id === m.client_id)
+        const cli = allClients.find((x) => x.id === m.client_id)
         const grp = groups.find((x) => x.id === m.group_id)
         const name = (cli?.name || i18n.t('reports:drill.unknownClient')) + (grp ? ` · ${grp.name}` : '')
-        out.push({
+        /* Marked on the CLIENT, not the membership row: the link goes to the
+           client, so that is the record the user would fail to find. */
+        out.push(trashed({
           icon: 'x',
           primary: name,
           secondary: i18n.t('reports:drill.leftGroup', { date: fmtDay(m.left_at) }),
           navigateTo: cli?.id ? `/clients/${cli.id}` : '/clients',
-        })
+        }, cli || {}))
       })
-      liveClients.forEach((c) => {
+      allClients.forEach((c) => {
         if ((c.status_meta || c.status) !== 'past') return
         if (!c.left_mid_process || !((c.sessions || 0) > 0)) return
         if (!inRangeTs(c.last_status_changed_at)) return
@@ -528,22 +577,22 @@ export function getDrillRecords(metricId: string, start: Date, end: Date, data: 
       break
     }
     case 'sessions': {
-      liveSessions.forEach((s) => {
+      allSessions.forEach((s) => {
         if (!inRangeTs(s.date)) return
         let label = i18n.t('reports:drill.session')
         if (s.client_id) {
-          const c = liveClients.find((x) => x.id === s.client_id)
+          const c = allClients.find((x) => x.id === s.client_id)
           if (c) label = c.name || label
         } else if (s.group_id) {
           const g = groups.find((x) => x.id === s.group_id)
           if (g) label = i18n.t('reports:drill.groupLabel', { name: g.name })
         }
-        out.push({
+        out.push(trashed({
           icon: 'calendar',
           primary: label + (s.num ? ` · ${i18n.t('reports:drill.sessionNum', { num: s.num })}` : ''),
           secondary: fmtDay(s.date),
           navigateTo: '/calendar',
-        })
+        }, s))
       })
       break
     }
@@ -553,18 +602,17 @@ export function getDrillRecords(metricId: string, start: Date, end: Date, data: 
       const types = metricId === 'income' ? ['income']
         : metricId === 'expense' ? ['expense']
           : ['income', 'expense']
-      ;(transactions || []).forEach((f) => {
-        if (f.deleted_at) return
+      all(transactions).forEach((f) => {
         if (!isConfirmedTx(f)) return
         if (!f.type || !types.includes(f.type)) return
         if (!inRangeTs(f.date)) return
         const sign = f.type === 'income' ? '+' : '−'
-        out.push({
+        out.push(trashed({
           icon: f.type === 'income' ? 'arrowDown' : 'arrowUp',
           primary: f.desc || i18n.t('reports:drill.noDesc'),
           secondary: `${sign}${isr(f.amount)} • ${fmtDay(f.date)}`,
           navigateTo: '/finance',
-        })
+        }, f))
       })
       break
     }
@@ -572,16 +620,14 @@ export function getDrillRecords(metricId: string, start: Date, end: Date, data: 
       /* Raw list, to match the metric — see computeReportForRange. A row for a
          deleted task says so and points at the trash: sending it to /tasks
          would open a screen the task is no longer on. */
-      ;(tasks || []).forEach((t) => {
+      all(tasks).forEach((t) => {
         if (!inRangeTs(t.completed_at)) return
-        const gone = !!t.deleted_at
-        out.push({
+        out.push(trashed({
           icon: 'check',
           primary: t.title || i18n.t('reports:drill.noTitle'),
-          secondary: i18n.t('reports:drill.completedOn', { date: fmtDay(t.completed_at) })
-            + (gone ? ` • ${i18n.t('reports:drill.deleted')}` : ''),
-          navigateTo: gone ? '/trash' : '/tasks',
-        })
+          secondary: i18n.t('reports:drill.completedOn', { date: fmtDay(t.completed_at) }),
+          navigateTo: '/tasks',
+        }, t))
       })
       break
     }

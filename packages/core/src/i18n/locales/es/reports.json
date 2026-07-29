@@ -53,7 +53,7 @@
     "completedOn": "Completada • {{date}}",
     "openAtEnd": "Abierta el {{date}}",
     "urgent": "Urgente",
-    "deleted": "eliminada"
+    "deleted": "en la papelera"
   },
   "metrics": {
     "newInquiries": "Consultas nuevas",

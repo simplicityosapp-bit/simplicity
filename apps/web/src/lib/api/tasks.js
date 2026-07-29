@@ -34,21 +34,6 @@ export async function listTasks() {
     .order('created_at', { ascending: false }))
 }
 
-/* Reports only. Same rows as listTasks() PLUS the soft-deleted ones, because
-   a task completed in June still counts for June after the user tidies it off
-   the tasks screen (feedback acbbeaa5). Deliberately separate from listTasks:
-   that one feeds the tasks screen and the home widgets, which must keep
-   showing live rows only.
-
-   No 30-day window, unlike listDeletedTasks() — the trash offers restore for
-   30 days, but reports look back a year and nothing ever purges these rows. */
-export async function listTasksForReports() {
-  return selectAllRows(() => supabase
-    .from('tasks')
-    .select('*')
-    .order('created_at', { ascending: false }))
-}
-
 export async function insertTask(input) {
   const { data: { session } } = await supabase.auth.getSession()
   if (!session) throw new Error('אין חיבור פעיל — התחבר/י מחדש')

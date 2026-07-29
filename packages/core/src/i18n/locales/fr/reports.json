@@ -53,7 +53,7 @@
     "completedOn": "Terminée • {{date}}",
     "openAtEnd": "Ouverte le {{date}}",
     "urgent": "Urgent",
-    "deleted": "supprimée"
+    "deleted": "dans la corbeille"
   },
   "metrics": {
     "newInquiries": "Nouvelles demandes",

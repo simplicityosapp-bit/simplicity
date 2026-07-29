@@ -62,15 +62,15 @@
     "all": "הכל",
     "manage": "סטטוסים וקטגוריות"
   },
-  "clearAll": "מחק הכל",
+  "clearAll": "מחיקת שהושלמו",
   "doneGroup": "הושלמו",
   "loading": {
     "tasks": "טוען משימות…",
     "reminders": "טוען תזכורות…"
   },
   "loadError": {
-    "tasks": "שגיאה בטעינת המשימות: {{error}}",
-    "reminders": "שגיאה בטעינת התזכורות: {{error}}"
+    "tasks": "לא הצלחנו לטעון את המשימות. אפשר לרענן את הדף ולנסות שוב.",
+    "reminders": "לא הצלחנו לטעון את התזכורות. אפשר לרענן את הדף ולנסות שוב."
   },
   "empty": {
     "tasksDone": "עוד לא הושלמו משימות.",
@@ -90,7 +90,7 @@
     "remindersTitle": "מחיקת תזכורות שהושלמו",
     "remindersMessageOne": "למחוק תזכורת שהושלמה? אפשר לשחזר אותה מסל המיחזור עד 30 יום.",
     "remindersMessageMany": "למחוק {{count}} תזכורות שהושלמו? אפשר לשחזר אותן מסל המיחזור עד 30 יום.",
-    "confirm": "מחק הכל"
+    "confirm": "מחק"
   },
   "item": {
     "uncheck": "בטל סימון",
@@ -103,6 +103,7 @@
     "renameAria": "עריכת כותרת",
     "renameSave": "שמירה",
     "renameHint": "Enter לשמירה · Esc לביטול",
+    "renameStartHint": "לחיצה כפולה לשינוי השם",
     "repeatDaily": "כל יום",
     "repeatWeekly": "כל יום {{day}}",
     "repeatMonthly": "כל {{dom}} בחודש",

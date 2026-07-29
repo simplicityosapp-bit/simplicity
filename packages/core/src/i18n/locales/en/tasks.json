@@ -60,15 +60,15 @@
     "all": "All",
     "manage": "Statuses & categories"
   },
-  "clearAll": "Clear all",
+  "clearAll": "Delete completed",
   "doneGroup": "Done",
   "loading": {
     "tasks": "Loading tasks…",
     "reminders": "Loading reminders…"
   },
   "loadError": {
-    "tasks": "Couldn't load tasks: {{error}}",
-    "reminders": "Couldn't load reminders: {{error}}"
+    "tasks": "We couldn't load your tasks. Try refreshing the page.",
+    "reminders": "We couldn't load your reminders. Try refreshing the page."
   },
   "empty": {
     "tasksDone": "No tasks completed yet.",
@@ -86,7 +86,7 @@
     "remindersTitle": "Delete completed reminders",
     "remindersMessageOne": "Delete this completed reminder? You can restore it from the recycle bin within 30 days.",
     "remindersMessageMany": "Delete {{count}} completed reminders? You can restore them from the recycle bin within 30 days.",
-    "confirm": "Clear all"
+    "confirm": "Delete"
   },
   "item": {
     "uncheck": "Clear completion",
@@ -103,7 +103,8 @@
     "repeatEveryX": "Every {{x}} days",
     "repeatGeneric": "Repeats",
     "renameSave": "Save",
-    "renameHint": "Enter to save · Esc to cancel"
+    "renameHint": "Enter to save · Esc to cancel",
+    "renameStartHint": "Double-click to rename"
   },
   "groupBy": {
     "aria": "Group tasks",

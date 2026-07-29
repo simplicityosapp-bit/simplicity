@@ -121,7 +121,11 @@ export default function InlineTitle({ title, onRename, className = '', children 
       onPointerMove={onPointerMove}
       onPointerUp={onPointerEnd}
       onPointerCancel={onPointerEnd}
-      title={onRename ? t('item.renameHint') : undefined}
+      /* The hint has to say the gesture EXISTS, not how to finish it: this
+         tooltip used to read "Enter לשמירה · Esc לביטול", which explains
+         saving to someone who has no way of knowing they can start. The
+         save/cancel hint still sits on the ✓ button, where it applies. */
+      title={onRename ? t('item.renameStartHint') : undefined}
     >
       {title}
       {children}

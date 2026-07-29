@@ -60,15 +60,15 @@
     "all": "Todas",
     "manage": "Estados y categorías"
   },
-  "clearAll": "Borrar todo",
+  "clearAll": "Eliminar completadas",
   "doneGroup": "Hechas",
   "loading": {
     "tasks": "Cargando tareas…",
     "reminders": "Cargando recordatorios…"
   },
   "loadError": {
-    "tasks": "No se pudieron cargar las tareas: {{error}}",
-    "reminders": "No se pudieron cargar los recordatorios: {{error}}"
+    "tasks": "No pudimos cargar tus tareas. Prueba a actualizar la página.",
+    "reminders": "No pudimos cargar tus recordatorios. Prueba a actualizar la página."
   },
   "empty": {
     "tasksDone": "Aún no hay tareas completadas.",
@@ -86,7 +86,7 @@
     "remindersTitle": "Eliminar recordatorios completados",
     "remindersMessageOne": "¿Eliminar este recordatorio completado? Puedes restaurarlo desde la papelera durante 30 días.",
     "remindersMessageMany": "¿Eliminar {{count}} recordatorios completados? Puedes restaurarlos desde la papelera durante 30 días.",
-    "confirm": "Borrar todo"
+    "confirm": "Eliminar"
   },
   "item": {
     "uncheck": "Quitar la marca de hecho",
@@ -103,7 +103,8 @@
     "repeatEveryX": "Cada {{x}} días",
     "repeatGeneric": "Se repite",
     "renameSave": "Guardar",
-    "renameHint": "Enter para guardar · Esc para cancelar"
+    "renameHint": "Enter para guardar · Esc para cancelar",
+    "renameStartHint": "Doble clic para renombrar"
   },
   "groupBy": {
     "aria": "Agrupar tareas",

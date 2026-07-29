@@ -35,8 +35,11 @@ const FILTERS = ['todo', 'done', 'all']
    re-slice the same tasks. */
 const GROUP_BY = ['priority', 'project', 'category']
 const GROUP_FALLBACK_COLOR = 'var(--mist)'
-/* Reminders get their own tabs: open, the recurring schedule, and completed. */
-const REM_FILTERS = ['todo', 'recurring', 'done']
+/* Reminders get their own tabs: open, completed, and the recurring schedule.
+   "הושלמו" deliberately holds the SAME second slot it holds for tasks — it used
+   to sit third here and second there, so flipping the entity toggle moved the
+   tab under your finger and the muscle-memory tap landed on the wrong one. */
+const REM_FILTERS = ['todo', 'done', 'recurring']
 
 /* Date buckets used to group reminders the same way tasks are grouped
    by priority — keeps the visual rhythm identical between the two
@@ -380,11 +383,16 @@ export default function TasksScreen() {
         {filters.map((f) => (
           <Btn
             key={f}
+            id={`t-filter-${f}`}
             type="button"
             className={`mg-toggle-btn${filter === f ? ' on' : ''}`}
             onClick={() => setFilter(f)}
             role="tab"
             aria-selected={filter === f}
+            /* These were tabs with no panel: a screen reader announced
+               "tab, 1 of 3" and had nothing to move into. The list below is
+               that panel now. */
+            aria-controls="t-list"
           >
             {t(`filter.${f}`)}
           </Btn>
@@ -466,11 +474,22 @@ export default function TasksScreen() {
         </Box>
       )}
 
-      <Box as="section" className="t-list">
+      <Box
+        as="section"
+        className="t-list"
+        id="t-list"
+        role="tabpanel"
+        aria-labelledby={`t-filter-${filter}`}
+      >
         {loading ? (
           <Box className="empty"><Txt as="p" className="empty-text">{isTasks ? t('loading.tasks') : t('loading.reminders')}</Txt></Box>
         ) : error ? (
-          <Box className="empty"><Txt as="p" className="empty-text">{isTasks ? t('loadError.tasks', { error }) : t('loadError.reminders', { error })}</Txt></Box>
+          /* The raw Supabase message ("JWT expired", "FetchError: …") used to
+             be printed straight at the user. It says nothing to a coach and
+             frightens the ones this app is for — the sentence tells them what
+             to do, and the technical text stays on the title for a support
+             conversation. */
+          <Box className="empty"><Txt as="p" className="empty-text" title={error}>{isTasks ? t('loadError.tasks') : t('loadError.reminders')}</Txt></Box>
         ) : isTasks ? (
           filteredTasks.length === 0 ? (
             tasks.length === 0 ? (

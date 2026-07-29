@@ -97,6 +97,11 @@
     "editReminder": "Edit reminder",
     "pendingOccurrences": "{{n}} occurrences still pending",
     "renameAria": "Edit title",
+    "repeatDaily": "Every day",
+    "repeatWeekly": "Every {{day}}",
+    "repeatMonthly": "Every month on the {{dom}}",
+    "repeatEveryX": "Every {{x}} days",
+    "repeatGeneric": "Repeats",
     "renameSave": "Save",
     "renameHint": "Enter to save · Esc to cancel"
   },

@@ -102,7 +102,12 @@
     "pendingOccurrences": "{{n}} מופעים שטרם בוצעו",
     "renameAria": "עריכת כותרת",
     "renameSave": "שמירה",
-    "renameHint": "Enter לשמירה · Esc לביטול"
+    "renameHint": "Enter לשמירה · Esc לביטול",
+    "repeatDaily": "כל יום",
+    "repeatWeekly": "כל יום {{day}}",
+    "repeatMonthly": "כל {{dom}} בחודש",
+    "repeatEveryX": "כל {{x}} ימים",
+    "repeatGeneric": "חוזרת"
   },
   "groupBy": {
     "aria": "קיבוץ משימות",

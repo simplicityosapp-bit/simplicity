@@ -97,6 +97,11 @@
     "editReminder": "Editar recordatorio",
     "pendingOccurrences": "{{n}} repeticiones aún pendientes",
     "renameAria": "Editar título",
+    "repeatDaily": "Cada día",
+    "repeatWeekly": "Cada {{day}}",
+    "repeatMonthly": "Cada mes el {{dom}}",
+    "repeatEveryX": "Cada {{x}} días",
+    "repeatGeneric": "Se repite",
     "renameSave": "Guardar",
     "renameHint": "Enter para guardar · Esc para cancelar"
   },

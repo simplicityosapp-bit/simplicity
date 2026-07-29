@@ -97,6 +97,11 @@
     "editReminder": "Modifier le rappel",
     "pendingOccurrences": "{{n}} occurrences encore en attente",
     "renameAria": "Modifier le titre",
+    "repeatDaily": "Chaque jour",
+    "repeatWeekly": "Chaque {{day}}",
+    "repeatMonthly": "Chaque mois le {{dom}}",
+    "repeatEveryX": "Tous les {{x}} jours",
+    "repeatGeneric": "Récurrent",
     "renameSave": "Enregistrer",
     "renameHint": "Entrée pour enregistrer · Échap pour annuler"
   },

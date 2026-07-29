@@ -275,12 +275,10 @@ export default function CommunityChatScreen() {
   return (
     <Box className="screen cmt-chat-screen">
       <Box as="header" className="screen-head cmt-head">
-        <Box>
-          <Txt as="p" className="t-screen">
-            <MessagesSquare size={20} strokeWidth={1.6} aria-hidden="true" /> {t('chat.title')}
-          </Txt>
-          <Txt as="p" className="lbl-sm">{t('chat.subtitle')}</Txt>
-        </Box>
+        <Txt as="p" className="t-screen">
+          <MessagesSquare size={20} strokeWidth={1.6} aria-hidden="true" />
+          {t('chat.title')}
+        </Txt>
         {gateOpen && (
           <Btn
             type="button"

@@ -39,15 +39,10 @@ export default function SubscriptionScreen() {
     <Box className="screen">
       <Box className="screen-top">
         <Box as="header" className="screen-head">
-          <Box>
-            <Box className="screen-head-meta">
-              <Txt as="p" className="lbl">{t('screen.metaA')}</Txt>
-              <Txt className="lbl dot">·</Txt>
-              <Txt as="p" className="lbl">{t('screen.metaB')}</Txt>
-            </Box>
-            <Txt as="p" className="lbl-sm">{t('screen.tagline')}</Txt>
-          </Box>
-          <Txt as="p" className="t-screen">{t('screen.title')}</Txt>
+          <Txt as="p" className="t-screen">
+            <Gem size={20} strokeWidth={1.6} aria-hidden="true" />
+            {t('screen.title')}
+          </Txt>
         </Box>
       </Box>
 

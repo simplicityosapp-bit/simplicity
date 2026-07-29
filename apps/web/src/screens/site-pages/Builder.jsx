@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useParams, useNavigate, useLocation, Navigate } from 'react-router-dom'
-import { ArrowRight, Plus, Pencil, Trash2, ExternalLink, Copy, Check, LayoutTemplate, Files } from 'lucide-react'
+import { ArrowRight, Plus, Pencil, Trash2, ExternalLink, Copy, Check, LayoutTemplate, Files, ClipboardList } from 'lucide-react'
 import { useSitePages } from '../../hooks/useSitePages'
 import { useSubscription } from '../../hooks/useSubscription'
 import { useUpgradeNav } from '../../hooks/useUpgradeNav'
@@ -91,12 +91,18 @@ export default function SitePagesBuilder() {
   }
 
   const kindLabel = t('kinds.' + kind, { defaultValue: KIND_LABEL[kind] })
+  /* The same glyph the kind wears on its hub tile — every title in the app
+     carries its icon now, and this one's "menu" is the /pages hub. */
+  const KindIcon = kind === 'lead' ? ClipboardList : LayoutTemplate
 
   return (
     <Box className="screen" data-screen="sitePages">
       <Box className="spg-builder-top">
         <Btn className="spe-icon-btn" onClick={() => navigate(ROUTES.SITE_PAGES)} title={t('hub.back')} aria-label={t('hub.back')}><ArrowRight size={18} /></Btn>
-        <Txt as="h1" className="t-screen">{kindLabel}</Txt>
+        <Txt as="h1" className="t-screen">
+          <KindIcon size={20} strokeWidth={1.6} aria-hidden="true" />
+          {kindLabel}
+        </Txt>
       </Box>
 
       <Box className="spg-toolbar">

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Sparkles, Check, ChevronDown, ChevronUp, RotateCcw, Plus, Pencil, Trash2 } from 'lucide-react'
+import { Sparkles, Check, ChevronDown, ChevronUp, RotateCcw, Plus, Pencil, Trash2, Activity } from 'lucide-react'
 import { useUserQuestions } from '../../hooks/useUserQuestions'
 import { useDailyAnswers } from '../../hooks/useDailyAnswers'
 import { useUserPreferences } from '../../hooks/useUserPreferences'
@@ -300,15 +300,10 @@ export default function InsightsScreen() {
     <Box className="screen">
       <Box className="screen-top">
         <Box as="header" className="screen-head">
-          <Box>
-            <Box className="screen-head-meta">
-              <Txt as="p" className="lbl">{t('activeCount', { count: (questions || []).filter((q) => q.active).length })}</Txt>
-              <Txt className="lbl dot">·</Txt>
-              <Txt as="p" className="lbl">{t('dailyInsights')}</Txt>
-            </Box>
-            <Txt as="p" className="lbl-sm">{t('tagline')}</Txt>
-          </Box>
-          <Txt as="p" className="t-screen">{t('title')}</Txt>
+          <Txt as="p" className="t-screen">
+            <Activity size={20} strokeWidth={1.6} aria-hidden="true" />
+            {t('title')}
+          </Txt>
         </Box>
         <Btn
           className="cta-add"

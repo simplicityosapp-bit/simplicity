@@ -14,15 +14,27 @@
   border-radius: 50%;
   background: var(--sage);
   color: var(--on-accent);
-  vertical-align: -6px;
+  flex: 0 0 auto;
 }
 
-/* The explanatory line sits under the title; allow it to wrap to a few
-   lines and breathe rather than render as a single muted caption. */
+/* The explanatory line now sits below the header card rather than inside it
+   (headers carry name + icon only), so it owns its own type instead of
+   borrowing .lbl-sm's 11px caption. Allowed to wrap to a few lines and
+   breathe rather than render as a single muted caption. */
 .wa-subtitle {
   max-width: 52ch;
+  margin: 14px 0 0;
+  padding: 12px 16px;
+  border-radius: var(--mg-card-radius);
+  border: var(--mg-card-border);
+  background: var(--mg-card-bg);
+  box-shadow: var(--mg-card-shadow);
+  backdrop-filter: var(--mg-card-blur);
+  font-family: var(--mg-font);
+  font-size: calc(12px * var(--text-scale));
+  font-weight: 500;
   line-height: 1.5;
-  margin-top: 4px;
+  color: var(--stone);
 }
 
 .wa-fields {

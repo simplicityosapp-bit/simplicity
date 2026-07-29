@@ -20,6 +20,27 @@
   gap: 18px;
 }
 
+/* "נשמרים 30 יום · כל מחיקה כאן עוד הפיכה." — moved out of the header when
+   that became name-and-icon only. A quiet line above the groups, in the
+   secondary voice: it is a reassurance, not a heading.
+   It needs the glass chip, not bare text: this screen paints on the forest
+   photo, and 12px of stone over leaves is unreadable. align-self keeps the
+   chip hugging its words inside .trash-groups' column. */
+.trash-retention {
+  align-self: flex-start;
+  margin: 0;
+  padding: 8px 14px;
+  border-radius: var(--mg-chip-radius);
+  border: var(--mg-card-border);
+  background: var(--mg-card-bg);
+  box-shadow: var(--mg-card-shadow);
+  backdrop-filter: var(--mg-card-blur);
+  font-family: var(--mg-font);
+  font-size: calc(12px * var(--text-scale));
+  font-weight: 500;
+  color: var(--stone);
+}
+
 .trash-group {
   border-radius: var(--mg-card-radius);
   border: var(--mg-card-border);

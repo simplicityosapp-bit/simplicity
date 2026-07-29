@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { ListTodo, Plus, Trash2, Tags, ChevronDown, SlidersHorizontal } from 'lucide-react'
+import { ListTodo, Plus, Trash2, Tags, ChevronDown, SlidersHorizontal, ClipboardList } from 'lucide-react'
 import { usePopoverSide } from '../../hooks/usePopoverSide'
 import { useTasks } from '../../hooks/useTasks'
 import { useReminders } from '../../hooks/useReminders'
@@ -177,28 +177,39 @@ export default function TasksScreen() {
   const loading = isTasks ? tasksLoading : remindersLoading
   const error = isTasks ? tasksError : remindersError
 
+  /* The category pills are a SCOPE, not a view: everything the header and the
+     hero report is counted inside them. They used to be counted over the whole
+     table, so picking a category shrank the list while the summary above it
+     went on describing the practice as a whole — two different answers to one
+     question, on the same screen.
+     The status TABS are deliberately not applied: the hero shows open and done
+     side by side, so filtering by the active tab would zero out one of them. */
+  const inCategoryScope = (row) => !categoryFilters.size || categoryFilters.has(row.category_id)
+  const scopedTasks = useMemo(() => tasks.filter(inCategoryScope), [tasks, categoryFilters]) // eslint-disable-line react-hooks/exhaustive-deps -- inCategoryScope is derived from categoryFilters, already a dep
+  const scopedReminders = useMemo(() => reminders.filter(inCategoryScope), [reminders, categoryFilters]) // eslint-disable-line react-hooks/exhaustive-deps -- same
+
   /* Counts for the header + hero ─ both entities share a pending/done
      contract so we can derive them with a single .status check. */
   const openCount  = isTasks
-    ? tasks.filter((t) => t.status !== 'done').length
-    : reminders.filter((r) => r.status !== 'completed').length
+    ? scopedTasks.filter((t) => t.status !== 'done').length
+    : scopedReminders.filter((r) => r.status !== 'completed').length
   const doneCount  = isTasks
-    ? tasks.filter((t) => t.status === 'done').length
-    : reminders.filter((r) => r.status === 'completed').length
+    ? scopedTasks.filter((t) => t.status === 'done').length
+    : scopedReminders.filter((r) => r.status === 'completed').length
   const now = useMemo(() => new Date(), [reminders, tasks, filter, view]) // eslint-disable-line react-hooks/exhaustive-deps -- deps intentionally refresh "now" when the list re-renders on data/filter/view change
   /* "Urgent" tile re-labels per entity: tasks use priority=high, while
      reminders use overdue (past due AND still pending). */
   const urgentCount = isTasks
-    ? tasks.filter((t) => t.status !== 'done' && t.priority === 'high').length
-    : reminders.filter((r) => r.status !== 'completed' && new Date(r.scheduled_at) < now).length
+    ? scopedTasks.filter((t) => t.status !== 'done' && t.priority === 'high').length
+    : scopedReminders.filter((r) => r.status !== 'completed' && new Date(r.scheduled_at) < now).length
 
+  /* Built on the same scoped set the counts use, so the list and the numbers
+     above it can't drift apart; only the status tab is applied on top. */
   const filteredTasks = useMemo(() => {
-    let list = tasks
-    if (filter === 'todo') list = list.filter((t) => t.status !== 'done')
-    else if (filter === 'done') list = list.filter((t) => t.status === 'done')
-    if (categoryFilters.size) list = list.filter((t) => categoryFilters.has(t.category_id))
-    return list
-  }, [tasks, filter, categoryFilters])
+    if (filter === 'todo') return scopedTasks.filter((t) => t.status !== 'done')
+    if (filter === 'done') return scopedTasks.filter((t) => t.status === 'done')
+    return scopedTasks
+  }, [scopedTasks, filter])
 
   /* Build collapsible groups for the filtered tasks per the chosen groupBy.
      Priority keeps the original fixed order; project/category order follows
@@ -240,11 +251,9 @@ export default function TasksScreen() {
       .filter((g) => g.items.length)
   }, [groupBy, filteredTasks, projects, taskCategories, t])
 
+  /* Same scoped set as the reminder counts — the category pills drive both. */
   const filteredReminders = useMemo(() => {
-    /* The shared category-filter pills apply to reminders too (a reminder
-       shows if its category is in the set; empty set = all). */
-    const inCategory = (r) => !categoryFilters.size || categoryFilters.has(r.category_id)
-    if (filter === 'done') return reminders.filter((r) => r.status === 'completed' && inCategory(r))
+    if (filter === 'done') return scopedReminders.filter((r) => r.status === 'completed')
     /* "פתוחות" = everything still owed, one-off and recurring alike, bucketed
        by its next occurrence (a recurring reminder's scheduled_at IS that
        occurrence). Recurring ones used to be gated on dueOccurrenceCount >= 1,
@@ -252,24 +261,25 @@ export default function TasksScreen() {
        identical-looking one-off for the very same day appeared under
        "מאוחר יותר". Same-looking rows now behave the same; "חוזרות" stays the
        schedule view. */
-    return reminders.filter((r) => isActiveReminder(r) && inCategory(r))
-  }, [reminders, filter, categoryFilters])
+    return scopedReminders.filter(isActiveReminder)
+  }, [scopedReminders, filter])
 
   /* Dated tasks that "pop" onto the reminders view — open tasks with a due_at,
-     shown only on the open ("פתוחות") tab, bucketed by their due date. The
-     shared category filter applies here as well. */
+     shown only on the open ("פתוחות") tab, bucketed by their due date. They
+     ride the same category scope as everything else on the screen. */
   const datedTasks = useMemo(() => (
     (view === 'reminders' && filter === 'todo')
-      ? tasks.filter((task) => task.due_at && task.status !== 'done'
-          && (!categoryFilters.size || categoryFilters.has(task.category_id)))
+      ? scopedTasks.filter((task) => task.due_at && task.status !== 'done')
       : []
-  ), [view, filter, tasks, categoryFilters])
+  ), [view, filter, scopedTasks])
 
   /* "חוזרות" tab — all active recurring reminders, grouped: weekly by
-     day-of-week, monthly together, every-X-days together. */
+     day-of-week, monthly together, every-X-days together. Scoped like every
+     other tab: the pills stay on screen here, so ignoring them on this one tab
+     read as the filter having silently stopped working. */
   const recurringGroups = useMemo(() => {
     if (isTasks) return []
-    const rec = reminders.filter((r) => isRecurring(r) && isActiveReminder(r))
+    const rec = scopedReminders.filter((r) => isRecurring(r) && isActiveReminder(r))
     const groups = []
     for (let d = 0; d < 7; d++) {
       const items = rec.filter((r) => r.recurrence_type === 'weekly' && r.recurrence_pattern?.dayOfWeek === d)
@@ -280,7 +290,7 @@ export default function TasksScreen() {
     const everyX = rec.filter((r) => r.recurrence_type === 'every_x_days')
     if (everyX.length) groups.push({ key: 'everyx', label: t('recurring.everyXDays'), color: 'var(--clay)', items: everyX })
     return groups
-  }, [reminders, isTasks, t])
+  }, [scopedReminders, isTasks, t])
 
   const projOf = (id) => projects.find((p) => p.id === id)
   const clientNameOf = (id) => clients.find((c) => c.id === id)?.name
@@ -297,16 +307,18 @@ export default function TasksScreen() {
   return (
     <Box className="screen tk-screen">
       <Box className="screen-top">
+        {/* Just the name of the screen, wearing its menu icon. The open/done
+            counts that used to sit here were the same two numbers the summary
+            card repeats a few pixels below, and the tagline went with them —
+            the card now owns every number, and the header says where you are.
+            The icon stays ClipboardList in both views: the toggle underneath
+            says which of the two you are looking at, and a header that
+            reshuffled its own icon would fight it. */}
         <Box as="header" className="screen-head">
-          <Box>
-            <Box className="screen-head-meta">
-              <Txt as="p" className="lbl">{isTasks ? t('meta.open', { n: openCount }) : t('meta.openReminders', { n: openCount })}</Txt>
-              <Txt className="lbl dot">·</Txt>
-              <Txt as="p" className="lbl">{t('meta.done', { n: doneCount })}</Txt>
-            </Box>
-            <Txt as="p" className="lbl-sm">{t('tagline')}</Txt>
-          </Box>
-          <Txt as="p" className="t-screen">{isTasks ? t('tasks') : t('reminders')}</Txt>
+          <Txt as="p" className="t-screen">
+            <ClipboardList size={20} strokeWidth={1.6} aria-hidden="true" />
+            {isTasks ? t('tasks') : t('reminders')}
+          </Txt>
         </Box>
         <Coachmark id="add-task" radius="50%">
           <Btn

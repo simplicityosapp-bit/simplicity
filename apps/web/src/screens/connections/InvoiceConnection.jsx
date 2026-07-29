@@ -24,10 +24,10 @@ export default function InvoiceConnectionScreen() {
         <Btn type="button" className="conn-back" onClick={() => navigate(-1)} aria-label={t('invoiceScreen.back')}>
           <ChevronRight size={20} strokeWidth={1.6} aria-hidden="true" />
         </Btn>
-        <Box>
-          <Txt as="p" className="t-screen"><FileText size={20} strokeWidth={1.6} aria-hidden="true" /> {t('invoiceScreen.title')}</Txt>
-          <Txt as="p" className="lbl-sm">{t('invoiceScreen.subtitle')}</Txt>
-        </Box>
+        <Txt as="p" className="t-screen">
+          <FileText size={20} strokeWidth={1.6} aria-hidden="true" />
+          {t('invoiceScreen.title')}
+        </Txt>
       </Box>
 
       <InvoiceCard />

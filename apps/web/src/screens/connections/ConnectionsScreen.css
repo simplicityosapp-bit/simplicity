@@ -664,7 +664,10 @@
 }
 
 /* Detail-screen header with a back button (calendar / invoices sub-screens). */
-.conn-detail-head { display: flex; align-items: flex-start; gap: 10px; }
+/* Back button + the screen's name. flex-start was for the two-line block this
+   header used to hold (title over subtitle) — it is one line now, so the
+   button centers against it like .screen-head's own row. */
+.conn-detail-head { display: flex; align-items: center; gap: 10px; }
 .conn-back {
   flex-shrink: 0;
   display: inline-flex;
@@ -672,7 +675,6 @@
   justify-content: center;
   width: 36px;
   height: 36px;
-  margin-top: 2px;
   border-radius: 50%;
   border: var(--mg-card-border);
   background: var(--mg-card-bg);

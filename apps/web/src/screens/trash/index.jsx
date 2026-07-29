@@ -39,15 +39,10 @@ export default function TrashScreen() {
     <Box className="screen trash-screen">
       <Box className="screen-top">
         <Box as="header" className="screen-head">
-          <Box>
-            <Box className="screen-head-meta">
-              <Txt as="p" className="lbl">{t('itemCount', { count: totalCount })}</Txt>
-              <Txt className="lbl dot">·</Txt>
-              <Txt as="p" className="lbl">{t('keptDays')}</Txt>
-            </Box>
-            <Txt as="p" className="lbl-sm">{t('stillReversible')}</Txt>
-          </Box>
-          <Txt as="p" className="t-screen">{t('title')}</Txt>
+          <Txt as="p" className="t-screen">
+            <Trash2 size={20} strokeWidth={1.6} aria-hidden="true" />
+            {t('title')}
+          </Txt>
         </Box>
       </Box>
 
@@ -64,6 +59,14 @@ export default function TrashScreen() {
         </Box>
       ) : (
         <Box as="section" className="trash-groups">
+          {/* The retention promise used to ride along in the header's meta
+              line. The header now carries only the screen's name, but this
+              sentence is the one thing a full bin has to keep saying — the
+              empty state says it too, and it is the only place a user is
+              told deletion here is not yet final. */}
+          <Txt as="p" className="trash-retention">
+            {t('keptDays')} · {t('stillReversible')}
+          </Txt>
           {TRASH_ENTITY_TYPES.map((type) => {
             const items = trash[type]
             if (!items || items.length === 0) return null

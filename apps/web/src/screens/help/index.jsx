@@ -46,15 +46,10 @@ export default function HelpScreen() {
     <Box className="screen">
       <Box className="screen-top">
         <Box as="header" className="screen-head">
-          <Box>
-            <Box className="screen-head-meta">
-              <Txt as="p" className="lbl">{t('help.screens', { count: GUIDE_ORDER.length })}</Txt>
-              <Txt className="lbl dot">·</Txt>
-              <Txt as="p" className="lbl">{t('help.meta')}</Txt>
-            </Box>
-            <Txt as="p" className="lbl-sm">{t('help.tagline')}</Txt>
-          </Box>
-          <Txt as="p" className="t-screen">{t('help.title')}</Txt>
+          <Txt as="p" className="t-screen">
+            <BookOpen size={20} strokeWidth={1.6} aria-hidden="true" />
+            {t('help.title')}
+          </Txt>
         </Box>
       </Box>
 

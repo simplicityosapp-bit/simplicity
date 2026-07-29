@@ -45,15 +45,34 @@
 .moon-head {
   position: relative;
 }
-/* Docked into a screen's header card (portaled there) — pinned to its
-   top-left corner (RTL: inline-end). Scrolls with the card. */
+/* Docked into a screen's header card (portaled there) — pinned to its far
+   corner (RTL: inline-end). Scrolls with the card.
+   Vertically CENTERED, not top-pinned: since the header cards were cut down
+   to name-and-icon (2026-07-29) they are one line tall, and a 40px button
+   held 12px from the top of a ~54px card sat visibly high in it. 50% keeps
+   it centered in the taller cards too (moon-glance, which stacks a link
+   under its title). The transform is part of the centering, so the shared
+   hover/press transforms below have to re-state it. */
 .help-fab.in-header {
-  top: 12px;
+  top: 50%;
   bottom: auto;
   left: auto;
   inset-inline-start: auto;
-  inset-inline-end: 12px;
+  inset-inline-end: 10px;
+  /* Smaller than the free-floating one: 40px was a comfortable tap target
+     hovering over a screen, but inside a ~54px header card it reads as a
+     second subject competing with the name. */
+  width: 32px;
+  height: 32px;
+  transform: translateY(-50%);
   z-index: 3;
+}
+.help-fab.in-header:hover { transform: translateY(-50%); }
+.help-fab.in-header:active { transform: translateY(-50%) scale(0.92); }
+/* Reserve the button's corner so the screen's name never runs under it — the
+   two share one line now, where the old stacked header kept them apart. */
+.screen-head:has(> .help-fab.in-header) {
+  padding-inline-end: 48px;
 }
 /* Desktop: the app becomes a sidebar + screen flex; the fallback button (when
    not docked in a header) keeps the bottom corner. */

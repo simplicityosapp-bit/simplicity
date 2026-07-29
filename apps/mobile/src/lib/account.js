@@ -30,6 +30,12 @@ export async function resetAllUserData() {
     const { error } = await ALL_ROWS(supabase.from(table).update({ deleted_at: now }).is('deleted_at', null))
     if (error) failed.push(`${table}: ${error.message}`)
   }
+  // The reports ledger. Everything above is a SOFT delete, and soft delete is a
+  // deliberate no-op for report_tallies (migration 0100) — so without this the
+  // account starts from zero while the reports screen still shows its old
+  // numbers. Web does the same; keep the two in step.
+  const { error: tallyErr } = await supabase.rpc('report_tallies_reset_own')
+  if (tallyErr) failed.push(`report_tallies: ${tallyErr.message}`)
   if (failed.length) throw new Error(`חלק מהנתונים לא נמחקו — ${failed.join(' · ')}`)
 }
 

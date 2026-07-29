@@ -163,3 +163,9 @@ WHERE user_id IS NOT NULL AND period IS NOT NULL
 GROUP BY user_id, period, metric;
 
 SELECT public.report_snapshot_backfill();
+
+-- ── AMENDED 2026-07-29 (see 0103) ───────────────────────────────────────────
+-- The trigger above also stamped on INSERT. That was wrong: onboardingImport
+-- creates clients directly as 'past' with a session count from the file, so
+-- every already-finished client a coach imported would have registered as an
+-- ENDING in the import month. Superseded by 0103 — UPDATE only.

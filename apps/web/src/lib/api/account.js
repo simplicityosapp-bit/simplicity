@@ -76,6 +76,15 @@ export async function resetAllUserData() {
     if (error) failed.push(`${table}: ${error.message}`)
   }
 
+  /* The reports ledger. Every wipe above is a SOFT delete, and soft delete is
+     a deliberate no-op for report_tallies — that is what keeps a completed
+     task counted after it is tidied away (migration 0100). So without this the
+     account "starts from zero" while the reports screen still shows the old
+     numbers. Its own SECURITY DEFINER function because the table is
+     SELECT-only to users; it is scoped to auth.uid() server-side. */
+  const { error: tallyErr } = await supabase.rpc('report_tallies_reset_own')
+  if (tallyErr) failed.push(`report_tallies: ${tallyErr.message}`)
+
   if (failed.length) throw new Error(`חלק מהנתונים לא נמחקו — ${failed.join(' · ')}`)
 }
 

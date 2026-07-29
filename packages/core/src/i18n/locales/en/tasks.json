@@ -60,7 +60,9 @@
   },
   "taxonomy": {
     "all": "All",
-    "manage": "Statuses & categories"
+    "manage": "Statuses & categories",
+    "heading": "Categories",
+    "nSelected": "{{n}} categories"
   },
   "clearAll": "Delete completed",
   "doneGroup": "Done",

@@ -60,7 +60,9 @@
   },
   "taxonomy": {
     "all": "Todas",
-    "manage": "Estados y categorías"
+    "manage": "Estados y categorías",
+    "heading": "Categorías",
+    "nSelected": "{{n}} categorías"
   },
   "clearAll": "Eliminar completadas",
   "doneGroup": "Hechas",

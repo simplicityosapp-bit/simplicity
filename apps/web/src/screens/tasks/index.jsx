@@ -397,6 +397,15 @@ export default function TasksScreen() {
   const renameTask = (id, title) => editTask(id, { title })
   const renameReminder = (id, title) => editReminder(id, { title })
 
+  /* What the closed "תצוגה" pill admits to: a non-default grouping, an active
+     category filter, or both. One category names itself; several just count. */
+  const viewEcho = [
+    isTasks && groupBy !== 'priority' ? t(`groupBy.${groupBy}`) : null,
+    categoryFilters.size === 1
+      ? (taskCategories.find((c) => categoryFilters.has(c.id))?.name || null)
+      : (categoryFilters.size > 1 ? t('taxonomy.nSelected', { n: categoryFilters.size }) : null),
+  ].filter(Boolean).join(' · ')
+
   const emptyMsg = isTasks
     ? (filter === 'done' ? t('empty.tasksDone') : t('empty.tasksTodo'))
     : (filter === 'done' ? t('empty.remindersDone') : t('empty.remindersTodo'))
@@ -477,91 +486,118 @@ export default function TasksScreen() {
         </Box>
       </Box>
 
-      <Box className="mg-toggle t-filter" role="tablist" aria-label={t('filter.aria')}>
-        {filters.map((f) => (
-          <Btn
-            key={f}
-            id={`t-filter-${f}`}
-            type="button"
-            className={`mg-toggle-btn${filter === f ? ' on' : ''}`}
-            onClick={() => setFilter(f)}
-            role="tab"
-            aria-selected={filter === f}
-            /* These were tabs with no panel: a screen reader announced
-               "tab, 1 of 3" and had nothing to move into. The list below is
-               that panel now. */
-            aria-controls="t-list"
-          >
-            {t(`filter.${f}`)}
-          </Btn>
-        ))}
-      </Box>
+      {/* One row for every control left above the list: the status tabs held in
+          the centre by an empty first column, and the "תצוגה" menu on the end.
+          Everything that used to occupy the taxonomy bar — the category pills,
+          the statuses-and-categories link — lives inside that menu now, so the
+          row it needed is gone. */}
+      <Box className="t-controls">
+        <Box className="mg-toggle t-filter" role="tablist" aria-label={t('filter.aria')}>
+          {filters.map((f) => (
+            <Btn
+              key={f}
+              id={`t-filter-${f}`}
+              type="button"
+              className={`mg-toggle-btn${filter === f ? ' on' : ''}`}
+              onClick={() => setFilter(f)}
+              role="tab"
+              aria-selected={filter === f}
+              /* These were tabs with no panel: a screen reader announced
+                 "tab, 1 of 3" and had nothing to move into. The list below is
+                 that panel now. */
+              aria-controls="t-list"
+            >
+              {t(`filter.${f}`)}
+            </Btn>
+          ))}
+        </Box>
 
-      {/* Category filter + the view/taxonomy actions — shared across tasks AND
-          reminders so the same categories/filter drive both views. Grouping
-          joins the actions here instead of taking a row of its own. */}
-      {(
-        <Box className="t-tax-bar">
-          {taskCategories.length > 0 ? (
-            <Box className="t-cat-filter">
-              <Btn type="button" className={`t-cat-pill${categoryFilters.size === 0 ? ' on' : ''}`} aria-pressed={categoryFilters.size === 0} onClick={() => setCategoryFilters(new Set())}>{t('taxonomy.all')}</Btn>
-              {taskCategories.map((c) => (
-                <Btn
-                  key={c.id}
-                  type="button"
-                  className={`t-cat-pill${categoryFilters.has(c.id) ? ' on' : ''}`}
-                  aria-pressed={categoryFilters.has(c.id)}
-                  onClick={() => toggleCategoryFilter(c.id)}
-                >
-                  <Txt className="t-cat-dot" style={{ background: c.color || 'var(--stone)' }} />
-                  {c.name}
-                </Btn>
-              ))}
-            </Box>
-          ) : <Txt />}
-          <Box className="t-tax-actions">
-            {/* Grouping is a tasks-only idea, exactly as the old tab row was. */}
-            {isTasks && (
-              <Box className="mg-menu-wrap" ref={viewAnchorRef}>
-                <Btn
-                  type="button"
-                  className="mg-menu-btn"
-                  onClick={() => setViewOpen((v) => !v)}
-                  aria-expanded={viewOpen}
-                  aria-haspopup="menu"
-                >
-                  <SlidersHorizontal size={14} strokeWidth={1.7} aria-hidden="true" />
-                  {t('groupBy.label')}
-                  {/* The chosen grouping echoed on the trigger, so a non-default
-                      one isn't hidden inside the closed menu. */}
-                  {groupBy !== 'priority' && <Txt className="mg-menu-active">· {t(`groupBy.${groupBy}`)}</Txt>}
-                </Btn>
-                {viewOpen && (
-                  <Box className="mg-menu-pop" role="menu" style={{ [viewSide]: 0 }}>
-                    <Txt as="p" className="mg-menu-h">{t('groupBy.heading')}</Txt>
-                    {GROUP_BY.map((gb) => (
+        <Box className="mg-menu-wrap" ref={viewAnchorRef}>
+          <Btn
+            type="button"
+            className="mg-menu-btn"
+            onClick={() => setViewOpen((v) => !v)}
+            aria-expanded={viewOpen}
+            aria-haspopup="menu"
+          >
+            <SlidersHorizontal size={14} strokeWidth={1.7} aria-hidden="true" />
+            {t('groupBy.label')}
+            {/* Whatever is active, echoed on the trigger — a grouping that isn't
+                the default, a category filter, or both. A filter hiding inside a
+                closed menu is the failure this line exists to prevent, and it
+                matters more now that the pills are in there too. */}
+            {viewEcho && <Txt className="mg-menu-active">· {viewEcho}</Txt>}
+          </Btn>
+          {viewOpen && (
+            <Box className="mg-menu-pop mg-menu-pop-wide" role="menu" style={{ [viewSide]: 0 }}>
+              {/* Grouping is a tasks-only idea — reminders and the mixed list
+                  are grouped by date, which isn't a choice. */}
+              {isTasks && (
+                <>
+                  <Txt as="p" className="mg-menu-h">{t('groupBy.heading')}</Txt>
+                  {GROUP_BY.map((gb) => (
+                    <Btn
+                      key={gb}
+                      type="button"
+                      role="menuitemradio"
+                      aria-checked={groupBy === gb}
+                      className={`mg-menu-opt${groupBy === gb ? ' on' : ''}`}
+                      onClick={() => { setGroupBy(gb); setViewOpen(false) }}
+                    >
+                      {t(`groupBy.${gb}`)}
+                    </Btn>
+                  ))}
+                  <Box className="mg-menu-divider" />
+                </>
+              )}
+
+              {/* Categories are a MULTI-select filter, so unlike the grouping
+                  rows above they don't close the menu — you're usually picking
+                  more than one, and a menu that shut after each tap would make
+                  that four round trips. */}
+              {taskCategories.length > 0 && (
+                <>
+                  <Txt as="p" className="mg-menu-h">{t('taxonomy.heading')}</Txt>
+                  <Box className="t-cat-filter">
+                    <Btn
+                      type="button"
+                      className={`t-cat-pill${categoryFilters.size === 0 ? ' on' : ''}`}
+                      aria-pressed={categoryFilters.size === 0}
+                      onClick={() => setCategoryFilters(new Set())}
+                    >
+                      {t('taxonomy.all')}
+                    </Btn>
+                    {taskCategories.map((c) => (
                       <Btn
-                        key={gb}
+                        key={c.id}
                         type="button"
-                        role="menuitemradio"
-                        aria-checked={groupBy === gb}
-                        className={`mg-menu-opt${groupBy === gb ? ' on' : ''}`}
-                        onClick={() => { setGroupBy(gb); setViewOpen(false) }}
+                        className={`t-cat-pill${categoryFilters.has(c.id) ? ' on' : ''}`}
+                        aria-pressed={categoryFilters.has(c.id)}
+                        onClick={() => toggleCategoryFilter(c.id)}
                       >
-                        {t(`groupBy.${gb}`)}
+                        <Txt className="t-cat-dot" style={{ background: c.color || 'var(--stone)' }} />
+                        {c.name}
                       </Btn>
                     ))}
                   </Box>
-                )}
-              </Box>
-            )}
-            <Btn type="button" className="t-manage-btn" onClick={() => setShowTaxonomy(true)}>
-              <Tags size={14} strokeWidth={1.5} aria-hidden="true" />
-              {t('taxonomy.manage')}
-            </Btn>
-          </Box>
+                  <Box className="mg-menu-divider" />
+                </>
+              )}
+
+              {/* Editing the vocabulary itself, rather than choosing from it —
+                  so it sits below the divider and closes on the way out. */}
+              <Btn
+                type="button"
+                className="mg-menu-opt mg-menu-opt-icon"
+                onClick={() => { setShowTaxonomy(true); setViewOpen(false) }}
+              >
+                <Tags size={14} strokeWidth={1.6} aria-hidden="true" />
+                {t('taxonomy.manage')}
+              </Btn>
+            </Box>
+          )}
         </Box>
-      )}
+      </Box>
 
       {filter === 'done' && doneCount > 0 && (
         <Box className="t-clear-row">

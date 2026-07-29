@@ -60,7 +60,9 @@
   },
   "taxonomy": {
     "all": "Tous",
-    "manage": "Statuts et catégories"
+    "manage": "Statuts et catégories",
+    "heading": "Catégories",
+    "nSelected": "{{n}} catégories"
   },
   "clearAll": "Supprimer les terminées",
   "doneGroup": "Terminées",

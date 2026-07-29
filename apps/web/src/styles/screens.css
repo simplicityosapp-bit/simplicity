@@ -455,6 +455,23 @@
   cursor: pointer;
 }
 .mg-menu-opt:hover { background: rgba(42, 37, 32, 0.04); }
+/* A row that acts rather than selects (opening an editor, say) — the glyph
+   marks it as different in kind from the choices above it. */
+.mg-menu-opt-icon {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.mg-menu-divider {
+  height: 1px;
+  margin: 6px 0;
+  background: var(--divider);
+}
+/* For a menu holding more than a list of choices — sections, a wrap of filter
+   pills — where the 160px default would force one pill per line. */
+.mg-menu-pop-wide {
+  min-width: 232px;
+}
 /* Selected — the same opaque terracotta fill as .mg-toggle-btn.on, so
    "selected" reads identically wherever it appears. */
 .mg-menu-opt.on {

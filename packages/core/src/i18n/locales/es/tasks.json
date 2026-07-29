@@ -32,7 +32,8 @@
     "overdue": "Atrasadas",
     "today": "Hoy",
     "week": "Esta semana",
-    "later": "Más tarde"
+    "later": "Más tarde",
+    "undated": "Sin fecha"
   },
   "recurring": {
     "weekday": "{{day}}",
@@ -54,7 +55,8 @@
     "open": "Abiertas",
     "urgentTasks": "Urgentes",
     "overdueReminders": "Atrasados",
-    "done": "Hechas"
+    "done": "Hechas",
+    "allTitle": "Resumen"
   },
   "taxonomy": {
     "all": "Todas",
@@ -77,7 +79,9 @@
     "remindersTodo": "No hay recordatorios abiertos. Todo en calma.",
     "firstTask": "Aún no hay tareas. Tu primera tarea empieza aquí.",
     "addTask": "Añadir tarea",
-    "noRecurring": "Aún no hay recordatorios recurrentes."
+    "noRecurring": "Aún no hay recordatorios recurrentes.",
+    "allTodo": "Nada abierto ahora mismo. Todo en calma.",
+    "allDone": "Aún no se ha completado nada."
   },
   "clearConfirm": {
     "tasksTitle": "Eliminar tareas completadas",
@@ -115,5 +119,6 @@
     "category": "Categoría",
     "noProject": "Sin proyecto",
     "noCategory": "Sin categoría"
-  }
+  },
+  "all": "Todo"
 }

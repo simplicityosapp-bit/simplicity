@@ -32,7 +32,8 @@
     "overdue": "Overdue",
     "today": "Today",
     "week": "This week",
-    "later": "Later"
+    "later": "Later",
+    "undated": "No date"
   },
   "recurring": {
     "weekday": "{{day}}",
@@ -54,7 +55,8 @@
     "open": "Open",
     "urgentTasks": "Urgent",
     "overdueReminders": "Overdue",
-    "done": "Done"
+    "done": "Done",
+    "allTitle": "Summary"
   },
   "taxonomy": {
     "all": "All",
@@ -77,7 +79,9 @@
     "remindersTodo": "No open reminders. All calm.",
     "firstTask": "No tasks yet. Your first task starts here.",
     "addTask": "Add task",
-    "noRecurring": "No recurring reminders yet."
+    "noRecurring": "No recurring reminders yet.",
+    "allTodo": "Nothing open right now. All calm.",
+    "allDone": "Nothing completed yet."
   },
   "clearConfirm": {
     "tasksTitle": "Delete completed tasks",
@@ -115,5 +119,6 @@
     "category": "Category",
     "noProject": "No project",
     "noCategory": "No category"
-  }
+  },
+  "all": "All"
 }

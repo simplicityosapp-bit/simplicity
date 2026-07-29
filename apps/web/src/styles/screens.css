@@ -179,6 +179,7 @@
   backdrop-filter: var(--mg-card-blur);
 }
 .mg-toggle-btn {
+  position: relative;
   border: none;
   background: transparent;
   cursor: pointer;
@@ -189,6 +190,21 @@
   font-weight: 500;
   color: var(--stone);
   transition: background 0.15s, color 0.15s;
+}
+/* Touch target. A segment paints ~25px tall — over the 24px floor, nowhere near
+   the ~44px a finger actually wants, and these toggles are the most-tapped
+   control in the app. Rather than inflate the pill (it sits inside tight card
+   headers on a dozen screens), the HIT area grows and the paint does not — the
+   same separation of what you SEE from what you HIT that .tc-chk and .tc-edit
+   already use on the tasks screen.
+   VERTICAL ONLY, deliberately: the segments are contiguous horizontally, so
+   growing sideways would make neighbouring targets overlap and steal each
+   other's taps — the opposite of the fix. */
+.mg-toggle-btn::after {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  inset-block: -10px;
 }
 /* Active segment — canonical terracotta fill (generic toggle, not moon sub-theme). */
 .mg-toggle-btn.on {
@@ -376,6 +392,16 @@
 .mg-menu-btn:hover {
   background: rgba(255, 250, 240, 0.78);
   box-shadow: 0 6px 18px rgba(42, 37, 32, 0.12);
+}
+/* Same grown-target treatment as .mg-toggle-btn — the pill paints ~32px and the
+   target reaches ~44. Vertical only: it shares a row with the taxonomy link and
+   sits 10px under the category pills when that row wraps, so a sideways or
+   larger grow would start eating its neighbours' taps. */
+.mg-menu-btn::after {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  inset-block: -6px;
 }
 [data-theme="dark"] .mg-menu-btn {
   border-color: rgba(240, 235, 224, 0.20);

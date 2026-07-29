@@ -198,6 +198,18 @@
   transition: background 0.15s;
 }
 .t-manage-btn:hover { background: color-mix(in srgb, var(--terracotta) 6%, var(--mg-card-bg)); }
+/* Grown target, paint unchanged — see .mg-toggle-btn::after in screens.css.
+   ~28px painted, ~44px tappable. Vertical only: it shares its row with the
+   "תצוגה" pill (8px apart) and the category pills can wrap directly above it. */
+.t-manage-btn {
+  position: relative;
+}
+.t-manage-btn::after {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  inset-block: -8px;
+}
 /* The trailing actions of the taxonomy bar — the "תצוגה" menu and the
    taxonomy link. They stay together on the end edge while the category pills
    wrap freely on the start side. */

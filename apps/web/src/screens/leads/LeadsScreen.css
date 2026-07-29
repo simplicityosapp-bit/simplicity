@@ -3,13 +3,41 @@
    Shared primitives (.cta-add, .t-screen…) live in styles/screens.css.
    ════════════════════════════════════════════════════════════════ */
 
+/* ── Screen proportion (per-screen override) ─────────────────────
+   Sixth screen to take the home proportion, after clients, projects, tasks,
+   finance and reports. Declared on the screen root so unconverted screens
+   keep the 20px / 24×28 app default. Proportion only — the cream glass is
+   untouched.
+
+   The two halves are named separately for the same reason finance names
+   them: --mg-card-pad is a SHORTHAND, so a rule wanting only the horizontal
+   half cannot get at it, and writing `34px var(--mg-card-pad)` silently
+   expands to THREE values instead of two. .l-firstrun below carried exactly
+   that bug — it was the only other instance in the app.
+
+   Note this override does NOT reach the lead-page BUILDER (.lpe-*), which is
+   a separate route with its own file and a standing rule that its glass must
+   match the --mg-card-* tokens exactly. */
+.l-screen {
+  --mg-card-radius: 14px;
+  --l-pad-y:        16px;
+  --l-pad-x:        18px;
+  --mg-card-pad:    var(--l-pad-y) var(--l-pad-x);
+}
+
 /* ── Monthly stats strip ───────────────────────────────────────── */
 /* ── First run ─────────────────────────────────────────────────
    Before the first lead exists the screen is one invitation, not three
    empty columns above a row of zeroes. */
 .l-firstrun {
   margin-bottom: 18px;
-  padding: 34px var(--mg-card-pad);
+  /* Was `34px var(--mg-card-pad)`, which reads as "34 top and bottom, the
+     card's padding on the sides" but is not: the shorthand expanded it to
+     three values — 34 top, 24 sides, 28 bottom — so a card built around
+     generous vertical breathing room was quietly missing it underneath.
+     --l-pad-x is the horizontal half on its own, so the two-value form now
+     means what it says. Same fix as .f-firstrun on the finance screen. */
+  padding: 34px var(--l-pad-x);
   border-radius: var(--mg-card-radius);
   border: var(--mg-card-border);
   background: var(--mg-card-bg);
@@ -388,6 +416,7 @@
   color: var(--stone);
 }
 .fu-done {
+  position: relative;
   width: 34px;
   height: 34px;
   flex-shrink: 0;
@@ -399,6 +428,16 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
+}
+/* Grown pointer target — 34px circle, 44px target, no layout movement. This
+   one sits inside a bar that is itself clickable, so it grows only into
+   space the bar is not using: 5px into the bar's own 12px vertical padding,
+   and 5px to each side — half the 10px flex gap on the inner side, and well
+   inside the 16px padding on the outer one. */
+.fu-done::after {
+  content: '';
+  position: absolute;
+  inset: -5px;
 }
 .fu-done:hover { background: color-mix(in srgb, var(--sage) 12%, transparent); border-color: var(--sage); }
 
@@ -642,6 +681,27 @@
   cursor: pointer;
   opacity: 0.55;
   transition: opacity 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+/* Grown pointer target — but the most constrained one in this rollout, and
+   the only one where the goal is NOT simply "make it bigger".
+
+   Everywhere else the grown control is the consequential one you want to
+   hit. Here it is the opposite: this deletes a lead, it sits ON a card whose
+   own click opens the editor, and the card is also a drag handle. Growing it
+   evenly would take the target INTO the card and turn a mis-tap meant for
+   "open" into "delete".
+
+   So it grows only where the card has nothing else: 8px up and 8px outward,
+   which is exactly the corner inset it already sits at, reaching the card's
+   own edge. It stays flush on the two sides facing the name and the body.
+   22px becomes 30x30 — short of 44, and deliberately so. */
+.lead-del-btn::after {
+  content: '';
+  position: absolute;
+  inset-block-start: -8px;
+  inset-inline-end: -8px;
+  inset-block-end: 0;
+  inset-inline-start: 0;
 }
 .lead-card:hover .lead-del-btn,
 .lead-del-btn:focus-visible { opacity: 1; }

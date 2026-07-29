@@ -41,7 +41,12 @@
 //  Deploy:    supabase functions deploy purge-trash --no-verify-jwt
 //             The flag is required: pg_cron posts with the shared secret
 //             and no JWT, so the gateway would 401 before this runs.
-//  Secret:    supabase secrets set CRON_SECRET=<random-long-string>
+//  Secret:    supabase secrets set PURGE_TRASH_SECRET=<random-long-string>
+//             Its own secret, not the account purge's CRON_SECRET — the
+//             CLI only ever shows a digest, so a shared secret cannot be
+//             read back to verify a run, and rotating one job's key would
+//             silently break the other's schedule. Same reasoning as
+//             MEETINGS_CRON_SECRET.
 // ════════════════════════════════════════════════════════════════
 import { createClient } from 'jsr:@supabase/supabase-js@2'
 
@@ -81,8 +86,8 @@ function lastClosedMonth(now: Date): string {
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors })
 
-  const secret = Deno.env.get('CRON_SECRET')
-  if (!secret) return json({ error: 'CRON_SECRET not configured' }, 500)
+  const secret = Deno.env.get('PURGE_TRASH_SECRET')
+  if (!secret) return json({ error: 'PURGE_TRASH_SECRET not configured' }, 500)
   const given = req.headers.get('x-cron-secret') ?? ''
   if (!timingSafeEqual(given, secret)) return json({ error: 'unauthorized' }, 401)
 

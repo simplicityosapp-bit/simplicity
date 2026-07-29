@@ -6,6 +6,34 @@
    the cog. Cells/rows are click-through to a drill-down modal.
    ════════════════════════════════════════════════════════════════ */
 
+/* ── Screen proportion (per-screen override) ─────────────────────
+   Fifth screen to take the home proportion, after clients, projects, tasks
+   and finance. Declared on the screen root so unconverted screens keep the
+   20px / 24×28 app default. Proportion only — the material is untouched.
+
+   Reached here: the corner on .rep-head, .rep-cust, .rep-group, .rep-empty
+   and .rep-table-wrap, plus the padding on .rep-cust and .rep-empty. Both
+   read `padding: var(--mg-card-pad)` on its own, which is the safe form —
+   see the finance screen for what happens when a rule tries to use only
+   half of that shorthand.
+
+   Two things this screen already had, so they are deliberately left alone:
+
+     • .rep-head's padding is 16px 18px 14px, hard-coded — the proportion
+       this rollout is spreading, arrived at independently here.
+     • .rep-row-wrap already separates rows with a hairline and resets the
+       last one. That is home's list pattern, mirrored (border-bottom +
+       :last-child rather than border-top + :first-child) and equivalent.
+       Flipping the direction would be churn for no visible gain.
+
+   .rep-groups sits at gap 10px, TIGHTER than the 12px tile rhythm rather
+   than looser, so unlike the clients and projects grids there is nothing
+   to bring down. */
+.rep-screen {
+  --mg-card-radius: 14px;
+  --mg-card-pad:    16px 18px;
+}
+
 /* ── Head + intra-screen link ── */
 /* Same glass treatment as .screen-head — title flush right (RTL
    start), the "מבט על" link tucked underneath. */
@@ -89,9 +117,15 @@
   color: var(--espresso);
 }
 .rep-cog {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  /* A flex item with no flex-shrink is shrinkable, and this one was being
+     squeezed: measured 30x34 against its declared 34x34 once the view toggle
+     beside it took the width it wanted. With border-radius:999px that is not
+     a smaller circle, it is an oval. Hold the declared size. */
+  flex-shrink: 0;
   width: 34px;
   height: 34px;
   border-radius: 999px;
@@ -100,6 +134,20 @@
   border: var(--mg-card-border);
   color: var(--stone);
   cursor: pointer;
+}
+/* Grown pointer target, as on the other converted screens: 34px circle,
+   44px target, no layout movement. This one is the easiest case in the
+   rollout — .rep-controls is space-between, so the cog sits alone at the
+   trailing end with the row's own margins above and below it and nothing
+   to collide with. It still stays to half the 8px flex gap on the side
+   facing the view toggle, which is the only side that closes up when the
+   row gets narrow. */
+.rep-cog::after {
+  content: '';
+  position: absolute;
+  inset-block: -5px;
+  inset-inline-start: -4px;
+  inset-inline-end: -8px;
 }
 .rep-cog:disabled { opacity: 0.4; cursor: not-allowed; }
 .rep-cog:not(:disabled):hover { color: var(--espresso); }

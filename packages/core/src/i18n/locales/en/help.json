@@ -1226,7 +1226,7 @@
     },
     "trash": {
       "title": "Trash",
-      "intro": "Here you can view and restore items you've deleted — clients, transactions, sessions, tasks, leads, goals and more — before they're gone for good.",
+      "intro": "Here you can view and restore items you've deleted — clients, transactions, sessions, tasks, leads, goals and more — for 30 days from the moment you deleted them.",
       "features": [
         {
           "title": "Every deletion here is still reversible",
@@ -1246,7 +1246,7 @@
         },
         {
           "title": "Kept for 30 days",
-          "body": "The Trash only shows items deleted in the last 30 days. An item deleted more than 30 days ago no longer appears here and is on its way to being permanently removed from the system — so restore it in time."
+          "body": "The Trash only shows items deleted in the last 30 days. After 30 days an item drops off the list and can no longer be restored from here — so restore it in time. It is not wiped from the server: reports that already summed the month it belongs to keep counting it. A full, irreversible deletion of everything happens only when you delete the account itself, from Settings."
         },
         {
           "title": "Empty trash",
@@ -1262,7 +1262,7 @@
       "faq": [
         {
           "q": "How do I permanently delete an item from the Trash?",
-          "a": "There is no permanent-delete button here — the only action is \"Restore\". Items are permanently deleted automatically after 30 days, and there's no way to speed that up manually from here."
+          "a": "There is no permanent-delete button here — the only action is \"Restore\". After 30 days an item drops off the list and can no longer be restored, but it is not wiped from the server. Permanent deletion happens only for the whole account at once, in Settings → Reset and delete."
         },
         {
           "q": "I can't find an item I deleted?",

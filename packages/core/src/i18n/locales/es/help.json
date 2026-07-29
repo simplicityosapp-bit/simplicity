@@ -1226,7 +1226,7 @@
     },
     "trash": {
       "title": "Papelera",
-      "intro": "Aquí puedes ver y restaurar elementos que has eliminado —clientes, transacciones, sesiones, tareas, prospectos, objetivos y más— antes de que desaparezcan para siempre.",
+      "intro": "Aquí puedes ver y restaurar elementos que has eliminado —clientes, transacciones, sesiones, tareas, prospectos, objetivos y más— durante 30 días desde el momento en que los eliminaste.",
       "features": [
         {
           "title": "Toda eliminación aquí es aún reversible",
@@ -1245,8 +1245,8 @@
           "body": "Debajo del nombre de cada elemento muestra «Eliminado» y hace cuánto ocurrió (por ejemplo «Eliminado hace 3 días»). Esto facilita saber cuánto tiempo queda antes de que desaparezca de la Papelera."
         },
         {
-          "title": "Se conserva durante 30 días",
-          "body": "La Papelera solo muestra los elementos eliminados en los últimos 30 días. Un elemento eliminado hace más de 30 días ya no aparece aquí y está en camino de eliminarse de forma permanente del sistema, así que restáuralo a tiempo."
+          "title": "Se conservan durante 30 días",
+          "body": "La Papelera solo muestra los elementos eliminados en los últimos 30 días. Pasados 30 días el elemento sale de la lista y ya no se puede restaurar desde aquí, así que restáuralo a tiempo. No se borra del servidor: los informes que ya sumaron el mes al que pertenece siguen contándolo. La eliminación completa e irreversible de todo ocurre solo cuando eliminas la cuenta, desde Ajustes."
         },
         {
           "title": "Papelera vacía",
@@ -1262,7 +1262,7 @@
       "faq": [
         {
           "q": "¿Cómo elimino un elemento de la Papelera de forma permanente?",
-          "a": "Aquí no hay un botón de eliminación permanente: la única acción es «Restaurar». Los elementos se eliminan de forma permanente automáticamente tras 30 días, y no hay forma de acelerar eso manualmente desde aquí."
+          "a": "Aquí no hay botón de eliminación definitiva: la única acción es «Restaurar». Pasados 30 días el elemento sale de la lista y ya no se puede restaurar, pero no se borra del servidor. La eliminación definitiva solo se hace de toda la cuenta a la vez, en Ajustes → Restablecer y eliminar."
         },
         {
           "q": "No encuentro un elemento que eliminé, ¿qué pasa?",

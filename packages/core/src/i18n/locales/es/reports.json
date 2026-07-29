@@ -53,7 +53,9 @@
     "completedOn": "Completada • {{date}}",
     "openAtEnd": "Abierta el {{date}}",
     "urgent": "Urgente",
-    "deleted": "en la papelera"
+    "deleted": "en la papelera",
+    "purged_one": "1 registro se eliminó de forma definitiva y ya no puede mostrarse.",
+    "purged_other": "{{count}} registros se eliminaron de forma definitiva y ya no pueden mostrarse."
   },
   "metrics": {
     "newInquiries": "Consultas nuevas",

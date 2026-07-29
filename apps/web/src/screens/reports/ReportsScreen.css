@@ -236,6 +236,15 @@
   font-weight: 500;
   color: var(--stone);
 }
+/* Explains a list shorter than its count, once the 30-day purge has removed
+   an old month's rows. Quieter than an error — nothing is wrong. */
+.rep-drill-purged {
+  margin: -4px 0 10px;
+  font-family: var(--mg-font);
+  font-size: calc(11.5px * var(--text-scale));
+  line-height: 1.5;
+  color: var(--mist);
+}
 .rep-drill-empty {
   padding: 24px 12px;
   text-align: center;

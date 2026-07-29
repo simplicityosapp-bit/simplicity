@@ -53,7 +53,9 @@
     "completedOn": "Terminée • {{date}}",
     "openAtEnd": "Ouverte le {{date}}",
     "urgent": "Urgent",
-    "deleted": "dans la corbeille"
+    "deleted": "dans la corbeille",
+    "purged_one": "1 enregistrement a été définitivement supprimé et ne peut plus être affiché.",
+    "purged_other": "{{count}} enregistrements ont été définitivement supprimés et ne peuvent plus être affichés."
   },
   "metrics": {
     "newInquiries": "Nouvelles demandes",

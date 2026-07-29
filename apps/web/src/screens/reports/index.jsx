@@ -488,12 +488,27 @@ function DrillModal({ open, onClose, drill, data, onNavigate }) {
   const metric = drill ? REPORT_METRICS.find((m) => m.id === drill.metricId) : null
   const title = metric && drill ? `${t(`metrics.${metric.id}`)} · ${drill.period.label}` : t('drill.title')
 
+  /* The number comes from the ledger, the list from the rows — so once the
+     30-day purge removes an old month's rows, a count of 47 can sit above 12
+     listed records. Say so rather than letting the gap read as a bug or, at
+     zero rows, as "nothing happened". Counts only; a percentage has no
+     records behind it. */
+  const counted = useMemo(() => {
+    if (!drill || !metric || metric.format !== 'count') return null
+    const v = computeReportForRange(drill.period.start, drill.period.end, data).metrics[drill.metricId]
+    return typeof v === 'number' ? v : null
+  }, [drill, metric, data])
+  const missing = counted !== null ? counted - records.length : 0
+
   return (
     <Modal open={open} onClose={onClose} title={title}>
       <Txt as="p" className="rep-drill-count">
-        {t('drill.count', { count: records.length })}
+        {t('drill.count', { count: counted ?? records.length })}
       </Txt>
-      {records.length === 0 ? (
+      {missing > 0 && (
+        <Txt as="p" className="rep-drill-purged">{t('drill.purged', { count: missing })}</Txt>
+      )}
+      {records.length === 0 && missing <= 0 ? (
         <Box className="rep-drill-empty">{t('drill.empty')}</Box>
       ) : (
         <Box className="rep-drill-list">

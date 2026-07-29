@@ -53,7 +53,9 @@
     "completedOn": "Completed • {{date}}",
     "openAtEnd": "Open at {{date}}",
     "urgent": "Urgent",
-    "deleted": "in the trash"
+    "deleted": "in the trash",
+    "purged_one": "1 record has been permanently deleted and can no longer be shown.",
+    "purged_other": "{{count}} records have been permanently deleted and can no longer be shown."
   },
   "metrics": {
     "newInquiries": "New inquiries",

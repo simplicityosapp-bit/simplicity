@@ -1226,7 +1226,7 @@
     },
     "trash": {
       "title": "Corbeille",
-      "intro": "Ici, vous pouvez consulter et restaurer les éléments que vous avez supprimés — clients, transactions, séances, tâches, prospects, objectifs et plus — avant qu'ils ne disparaissent pour de bon.",
+      "intro": "Ici, vous pouvez consulter et restaurer les éléments que vous avez supprimés — clients, transactions, séances, tâches, prospects, objectifs et plus — pendant 30 jours à compter de la suppression.",
       "features": [
         {
           "title": "Toute suppression ici est encore réversible",
@@ -1246,7 +1246,7 @@
         },
         {
           "title": "Conservés 30 jours",
-          "body": "La Corbeille n'affiche que les éléments supprimés au cours des 30 derniers jours. Un élément supprimé il y a plus de 30 jours n'apparaît plus ici et est en voie d'être définitivement retiré du système — restaurez-le donc à temps."
+          "body": "La Corbeille n'affiche que les éléments supprimés au cours des 30 derniers jours. Passé ce délai, l'élément quitte la liste et ne peut plus être restauré d'ici — restaurez-le donc à temps. Il n'est pas effacé du serveur : les rapports qui ont déjà totalisé le mois auquel il appartient continuent de le compter. Une suppression complète et irréversible de tout n'a lieu que si vous supprimez le compte lui-même, depuis les réglages."
         },
         {
           "title": "Corbeille vide",
@@ -1262,7 +1262,7 @@
       "faq": [
         {
           "q": "Comment supprimer définitivement un élément de la Corbeille ?",
-          "a": "Il n'y a pas de bouton de suppression définitive ici — la seule action est « Restaurer ». Les éléments sont définitivement supprimés automatiquement après 30 jours, et il n'y a aucun moyen d'accélérer cela manuellement d'ici."
+          "a": "Il n'y a pas de bouton de suppression définitive ici — la seule action est « Restaurer ». Passé 30 jours, l'élément quitte la liste et ne peut plus être restauré, mais il n'est pas effacé du serveur. La suppression définitive ne concerne que le compte entier, dans Paramètres → Réinitialiser et supprimer."
         },
         {
           "q": "Je ne trouve pas un élément que j'ai supprimé ?",

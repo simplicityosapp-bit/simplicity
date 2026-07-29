@@ -979,7 +979,7 @@
         },
         {
           "title": "Los registros eliminados siguen contando",
-          "body": "Eliminar ordena tus pantallas; no deshace lo que ocurrió. Un mes ya pasado sigue mostrando las consultas que llegaron, las sesiones que se realizaron y las tareas que terminaste, incluso después de eliminarlas. En el detalle el registro aparece marcado «en la papelera». Dos excepciones: en el dinero, una transacción eliminada sale de los ingresos, los gastos y el neto — una transacción suele eliminarse porque era errónea, no por orden. Y en los números «al final», un cliente o una tarea eliminados durante el mes no se cuentan al cierre, porque ya no estaban."
+          "body": "Eliminar ordena tus pantallas; no deshace lo que ocurrió. Un mes ya pasado sigue mostrando las consultas que llegaron, las sesiones que se realizaron y las tareas que terminaste, después de eliminarlas y también después de que se borren del servidor definitivamente: las cifras se contaron en el momento en que ocurrieron las cosas. En el detalle, un registro eliminado hace poco aparece marcado «en la papelera»; uno ya borrado definitivamente no aparece, y en su lugar se indica cuántos registros ya no pueden mostrarse. Dos excepciones: en el dinero, una transacción eliminada sale de los ingresos, los gastos y el neto — una transacción suele eliminarse porque era errónea, no por orden. Y en los números «al final», un cliente o una tarea eliminados durante el mes no se cuentan al cierre, porque ya no estaban."
         },
         {
           "title": "Navegar del desglose a la pantalla",
@@ -1041,7 +1041,7 @@
         },
         {
           "q": "Eliminé un registro y el número no bajó, ¿por qué?",
-          "a": "Así debe funcionar. El informe cuenta lo que pasó en el mes, y eliminar algo después no lo deshace; de lo contrario, cada limpieza de tu pantalla de clientes o tareas encogería meses ya cerrados. En el detalle los reconoces por la marca «en la papelera». La excepción: las transacciones eliminadas sí salen de las cifras de dinero."
+          "a": "Así debe funcionar. El informe cuenta lo que pasó en el mes, y eliminar algo después no lo deshace; de lo contrario, cada limpieza de tu pantalla de clientes o tareas encogería meses ya cerrados. Esto vale incluso después de que el registro se borre del servidor definitivamente, porque la cifra se contó cuando ocurrió y no depende del registro. En el detalle reconoces un registro eliminado hace poco por «en la papelera», y si ya se han borrado definitivamente se te indica cuántos no pueden mostrarse. La excepción: las transacciones eliminadas sí salen de las cifras de dinero."
         }
       ]
     },
@@ -1245,8 +1245,8 @@
           "body": "Debajo del nombre de cada elemento muestra «Eliminado» y hace cuánto ocurrió (por ejemplo «Eliminado hace 3 días»). Esto facilita saber cuánto tiempo queda antes de que desaparezca de la Papelera."
         },
         {
-          "title": "Se conservan durante 30 días",
-          "body": "La Papelera solo muestra los elementos eliminados en los últimos 30 días. Pasados 30 días el elemento sale de la lista y ya no se puede restaurar desde aquí, así que restáuralo a tiempo. No se borra del servidor: los informes que ya sumaron el mes al que pertenece siguen contándolo. La eliminación completa e irreversible de todo ocurre solo cuando eliminas la cuenta, desde Ajustes."
+          "title": "Se conservan 30 días y luego se eliminan",
+          "body": "La Papelera solo muestra los elementos eliminados en los últimos 30 días, y desde ahí puedes restaurarlos. Pasados 30 días, un barrido nocturno los borra del servidor definitivamente: no solo salen de la lista, desaparecen de verdad y nada puede recuperarlos. Así que si hay algo que quizá quieras, restáuralo a tiempo. Los informes no se ven afectados: las cifras se contaron cuando ocurrieron las cosas y se mantienen aunque los registros ya no existan."
         },
         {
           "title": "Papelera vacía",
@@ -1256,13 +1256,13 @@
       "tips": [
         "Restaurar devuelve el elemento exactamente al lugar del que se eliminó (clientes, transacciones, objetivos, etc.) con todos sus datos. No hace falta volver a introducir nada.",
         "Si acabas de eliminar algo por error, es más rápido hacer clic en «Deshacer» en la breve notificación que aparece tras la eliminación (durante unos 6 segundos). La Papelera es tu red de seguridad para cuando esa notificación ya ha desaparecido.",
-        "Los elementos que quieres conservar, restáuralos dentro de los 30 días de la eliminación. Después de eso desaparecen de la Papelera y no se pueden recuperar.",
+        "Si crees que puedes querer un elemento de vuelta, restáuralo dentro de los 30 días siguientes a eliminarlo. Después se borra del servidor de forma definitiva y no se puede recuperar de ninguna manera.",
         "Antes de eliminar tu cuenta o hacer una limpieza importante, haz una copia de seguridad de tus datos en Ajustes → Datos → Exportar datos."
       ],
       "faq": [
         {
-          "q": "¿Cómo elimino un elemento de la Papelera de forma permanente?",
-          "a": "Aquí no hay botón de eliminación definitiva: la única acción es «Restaurar». Pasados 30 días el elemento sale de la lista y ya no se puede restaurar, pero no se borra del servidor. La eliminación definitiva solo se hace de toda la cuenta a la vez, en Ajustes → Restablecer y eliminar."
+          "q": "¿Cómo elimino un elemento de la Papelera definitivamente?",
+          "a": "Aquí no hay botón de eliminación definitiva, y tampoco hace falta: la única acción es «Restaurar». Los elementos se borran solos: un barrido nocturno elimina todo lo que se eliminó hace más de 30 días. Si quieres vaciarlo todo de una vez en lugar de esperar, está en Ajustes → Restablecer y eliminar."
         },
         {
           "q": "No encuentro un elemento que eliminé, ¿qué pasa?",

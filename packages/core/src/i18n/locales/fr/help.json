@@ -979,7 +979,7 @@
         },
         {
           "title": "Les enregistrements supprimés comptent toujours",
-          "body": "Supprimer range vos écrans — cela n'annule pas ce qui s'est passé. Un mois écoulé continue d'afficher les demandes reçues, les séances qui ont eu lieu et les tâches que vous avez terminées, même après les avoir supprimées. Dans le détail, l'enregistrement apparaît avec la mention « dans la corbeille ». Deux exceptions : pour l'argent, une transaction supprimée quitte les recettes, les dépenses et le net — une transaction est généralement supprimée parce qu'elle était erronée, pas par rangement. Et pour les chiffres « à la fin », un client ou une tâche supprimés en cours de mois ne comptent pas à sa clôture, puisqu'ils n'y étaient plus."
+          "body": "Supprimer range vos écrans — cela n'annule pas ce qui s'est passé. Un mois écoulé continue d'afficher les demandes reçues, les séances qui ont eu lieu et les tâches terminées, après leur suppression et même après leur effacement définitif du serveur : les chiffres ont été comptés au moment où les choses se sont produites. Dans le détail, un enregistrement supprimé récemment porte la mention « dans la corbeille » ; un enregistrement déjà effacé définitivement n'apparaît pas, et à la place vous voyez combien d'enregistrements ne peuvent plus être affichés. Deux exceptions : pour l'argent, une transaction supprimée quitte les recettes, les dépenses et le net — une transaction est généralement supprimée parce qu'elle était erronée, pas par rangement. Et pour les chiffres « à la fin », un client ou une tâche supprimés en cours de mois ne comptent pas à la clôture, puisqu'ils n'y étaient plus."
         },
         {
           "title": "Naviguer du détail vers l'écran",
@@ -1041,7 +1041,7 @@
         },
         {
           "q": "J'ai supprimé un enregistrement et le chiffre n'a pas baissé — pourquoi ?",
-          "a": "C'est le fonctionnement prévu. Le rapport dit ce qui s'est passé dans le mois, et une suppression ultérieure ne l'annule pas — sinon chaque rangement de votre écran clients ou tâches réduirait des mois déjà clos. Dans le détail, repérez-les à la mention « dans la corbeille ». L'exception : les transactions supprimées quittent bien les chiffres de l'argent."
+          "a": "C'est le fonctionnement prévu. Le rapport dit ce qui s'est passé dans le mois, et une suppression ultérieure ne l'annule pas — sinon chaque rangement de votre écran clients ou tâches réduirait des mois déjà clos. Cela vaut même après l'effacement définitif de l'enregistrement, car le chiffre a été compté au moment des faits et ne dépend pas de l'enregistrement. Dans le détail, un enregistrement supprimé récemment porte « dans la corbeille » ; si des enregistrements ont déjà été effacés définitivement, on vous indique combien ne peuvent pas être affichés. L'exception : les transactions supprimées quittent bien les chiffres de l'argent."
         }
       ]
     },
@@ -1245,8 +1245,8 @@
           "body": "Sous le nom de chaque élément s'affiche « Supprimé » et il y a combien de temps cela s'est produit (par ex. « Supprimé il y a 3 jours »). Cela permet de savoir facilement combien de temps il reste avant qu'il ne disparaisse de la Corbeille."
         },
         {
-          "title": "Conservés 30 jours",
-          "body": "La Corbeille n'affiche que les éléments supprimés au cours des 30 derniers jours. Passé ce délai, l'élément quitte la liste et ne peut plus être restauré d'ici — restaurez-le donc à temps. Il n'est pas effacé du serveur : les rapports qui ont déjà totalisé le mois auquel il appartient continuent de le compter. Une suppression complète et irréversible de tout n'a lieu que si vous supprimez le compte lui-même, depuis les réglages."
+          "title": "Conservés 30 jours, puis supprimés",
+          "body": "La Corbeille n'affiche que les éléments supprimés au cours des 30 derniers jours, et vous pouvez les y restaurer. Passé ce délai, un balayage nocturne les efface définitivement du serveur : ils ne quittent pas seulement la liste, ils disparaissent vraiment, et rien ne peut les ramener. Si un élément pourrait vous resservir, restaurez-le à temps. Les rapports ne changent pas : les chiffres ont été comptés au moment où les choses se sont produites, et ils restent après la suppression des enregistrements."
         },
         {
           "title": "Corbeille vide",
@@ -1256,13 +1256,13 @@
       "tips": [
         "Restaurer renvoie l'élément exactement à l'endroit d'où il a été supprimé (clients, transactions, objectifs, etc.) avec toutes ses données. Pas besoin de ressaisir quoi que ce soit.",
         "Si vous venez de supprimer quelque chose par erreur, il est plus rapide de cliquer sur « Annuler » sur la brève notification qui apparaît après la suppression (pendant environ 6 secondes). La Corbeille est votre filet de sécurité une fois cette notification disparue.",
-        "Les éléments que vous voulez conserver — restaurez-les dans les 30 jours suivant la suppression. Après cela, ils disparaissent de la Corbeille et ne peuvent pas être récupérés.",
+        "Si un élément pourrait vous resservir, restaurez-le dans les 30 jours suivant sa suppression. Ensuite il est définitivement effacé du serveur et ne peut être récupéré d'aucune manière.",
         "Avant de supprimer votre compte ou de faire un grand ménage, sauvegardez vos données via Paramètres → Données → Exporter les données."
       ],
       "faq": [
         {
           "q": "Comment supprimer définitivement un élément de la Corbeille ?",
-          "a": "Il n'y a pas de bouton de suppression définitive ici — la seule action est « Restaurer ». Passé 30 jours, l'élément quitte la liste et ne peut plus être restauré, mais il n'est pas effacé du serveur. La suppression définitive ne concerne que le compte entier, dans Paramètres → Réinitialiser et supprimer."
+          "a": "Il n'y a pas de bouton de suppression définitive ici, et ce n'est pas nécessaire : la seule action est « Restaurer ». Les éléments partent d'eux-mêmes : un balayage nocturne efface tout ce qui a été supprimé il y a plus de 30 jours. Si vous voulez tout vider d'un coup plutôt qu'attendre, c'est dans Paramètres → Réinitialiser et supprimer."
         },
         {
           "q": "Je ne trouve pas un élément que j'ai supprimé ?",

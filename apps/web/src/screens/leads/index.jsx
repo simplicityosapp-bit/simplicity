@@ -243,7 +243,7 @@ export default function LeadsScreen() {
   const leadDnd = usePointerDnd({ onDrop: handleDropLead })
 
   return (
-    <Box className="screen">
+    <Box className="screen l-screen">
       <Box className="screen-top">
         <Box as="header" className="screen-head">
           <Box>

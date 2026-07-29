@@ -141,7 +141,7 @@ export default function FinanceScreen() {
   const clearSearch = () => { setSearchQuery(''); setSearchType('all') }
 
   return (
-    <Box className="screen">
+    <Box className="screen f-screen">
       <Box className="screen-top">
         <Box as="header" className="screen-head">
           <Box>

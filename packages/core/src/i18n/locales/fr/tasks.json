@@ -92,7 +92,10 @@
     "remindersTitle": "Supprimer les rappels terminés",
     "remindersMessageOne": "Supprimer ce rappel terminé ? Vous pouvez le restaurer depuis la corbeille pendant 30 jours.",
     "remindersMessageMany": "Supprimer {{count}} rappels terminés ? Vous pouvez les restaurer depuis la corbeille pendant 30 jours.",
-    "confirm": "Supprimer"
+    "confirm": "Supprimer",
+    "allTitle": "Supprimer les éléments terminés",
+    "allMessageOne": "Supprimer cet élément terminé ? Vous pourrez le restaurer depuis la corbeille pendant 30 jours.",
+    "allMessageMany": "Supprimer {{count}} éléments terminés ? Vous pourrez les restaurer depuis la corbeille pendant 30 jours."
   },
   "item": {
     "uncheck": "Annuler l'achèvement",

@@ -300,3 +300,50 @@ describe('the ledger and the row count agree', () => {
     expect(metrics({ clients: rows.clients, tallies: noise }).activeClientsAtEnd).toBe(1)
   })
 })
+
+describe('snapshots are frozen per closed month', () => {
+  /* "Active at the end of June" is state on a date, so it cannot come from an
+     event counter — migration 0101 freezes one value per CLOSED month, and
+     that stored value is what survives the purge. */
+  const JUNE = '2026-06-01'
+  const client = { id: 'c', name: 'c', status_meta: 'active', created_at: '2026-05-01T00:00:00.000Z' }
+  const task = { id: 'k', title: 'k', status: 'todo', created_at: '2026-05-01T00:00:00.000Z', completed_at: null }
+
+  it('prefers the frozen value over the rows', () => {
+    const tallies = [
+      { period: JUNE, metric: 'active_clients_at_end', count: 8 },
+      { period: JUNE, metric: 'open_tasks_at_end', count: 3 },
+    ]
+    const m = metrics({ clients: [client], tasks: [task], tallies })
+    expect(m.activeClientsAtEnd).toBe(8)
+    expect(m.openTasksAtEnd).toBe(3)
+  })
+
+  it('survives a month whose rows are gone entirely', () => {
+    /* The shape of a purged month: no rows at all, numbers intact. */
+    const tallies = [
+      { period: JUNE, metric: 'active_clients_at_end', count: 8 },
+      { period: JUNE, metric: 'open_tasks_at_end', count: 3 },
+    ]
+    expect(metrics({ tallies }).activeClientsAtEnd).toBe(8)
+    expect(metrics({ tallies }).openTasksAtEnd).toBe(3)
+  })
+
+  it('keeps a frozen zero rather than falling through to the rows', () => {
+    /* 0 is a real answer. Nullish coalescing, not ||, is what makes this
+       work — and it is the easy thing to get wrong here. */
+    const tallies = [{ period: JUNE, metric: 'active_clients_at_end', count: 0 }]
+    expect(metrics({ clients: [client], tallies }).activeClientsAtEnd).toBe(0)
+  })
+
+  it('falls back to live rows when the month has no snapshot', () => {
+    /* The current month is deliberately never frozen — it is still moving. */
+    const other = [{ period: '2026-05-01', metric: 'active_clients_at_end', count: 99 }]
+    expect(metrics({ clients: [client], tallies: other }).activeClientsAtEnd).toBe(1)
+  })
+
+  it('does not let a flow tally answer a snapshot question', () => {
+    const wrong = [{ period: JUNE, metric: 'new_clients', count: 42 }]
+    expect(metrics({ clients: [client], tallies: wrong }).activeClientsAtEnd).toBe(1)
+  })
+})

@@ -229,6 +229,20 @@ function tallyIn(tallies: RTally[], metric: string, start: Date, end: Date): num
   return n
 }
 
+/* Snapshots are a VALUE AT a date, not a running total, so they are looked up
+   rather than summed — and the date that matters is the END of the range. For
+   a single month that is its own bucket; for a 3/6/12-month span it is the
+   last month in it, which is exactly what "active at the end" means.
+
+   Only CLOSED months are stored (migration 0101), so the current month misses
+   and falls back to counting live rows — correct, because it is still moving.
+   Returns null when there is nothing to use. */
+function snapshotAt(tallies: RTally[], metric: string, end: Date): number | null {
+  const period = `${end.getFullYear()}-${String(end.getMonth() + 1).padStart(2, '0')}-01`
+  const hit = tallies.find((t) => t.metric === metric && t.period === period)
+  return hit && typeof hit.count === 'number' ? hit.count : null
+}
+
 /* ── Core per-range aggregator ─────────────────────────────────── */
 
 /* FLOW METRICS COME FROM THE LEDGER WHEN IT IS SUPPLIED.
@@ -297,7 +311,10 @@ export function computeReportForRange(start: Date, end: Date, data: ReportData =
   const allClients = all(clients)
   const newClientRows = allClients.filter((c) => inRangeTs(c.created_at))
   const newClients = led ? led('new_clients') : newClientRows.length
-  const activeAtEnd = activeClientsAsOf(clients, end)
+  /* Frozen value first, live count as the fallback — the two agree while the
+     rows are still there, and only the frozen one survives the purge. */
+  const activeAtEnd = (tallies && snapshotAt(tallies, 'active_clients_at_end', end))
+    ?? activeClientsAsOf(clients, end)
 
   /* Churn: left mid-process / total ended in range. Both halves are flow —
      an ending that happened stays in the denominator, so deleting the
@@ -363,7 +380,8 @@ export function computeReportForRange(start: Date, end: Date, data: ReportData =
   const tasksCompleted = led
     ? led('tasks_completed')
     : all(tasks).filter((t) => inRangeTs(t.completed_at)).length
-  const openAtEnd = openTasksAsOf(tasks, end)
+  const openAtEnd = (tallies && snapshotAt(tallies, 'open_tasks_at_end', end))
+    ?? openTasksAsOf(tasks, end)
 
   return {
     period: { start, end },

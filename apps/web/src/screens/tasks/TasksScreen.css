@@ -401,6 +401,12 @@
   border-radius: 50%;
   flex-shrink: 0;
 }
+/* Recurrence chip — same chip as the category one (no per-chip hierarchy per
+   the design language); the Repeat glyph stands in for the colour dot. */
+.tc-tag-repeat svg {
+  flex-shrink: 0;
+  opacity: 0.75;
+}
 .tc-dot {
   width: 8px;
   height: 8px;

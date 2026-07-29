@@ -1,9 +1,30 @@
 import { memo } from 'react'
-import { Check, Pencil } from 'lucide-react'
-import { formatWhen } from '@simplicity/core'
+import { Check, Pencil, Repeat } from 'lucide-react'
+import { formatWhen, isRecurring } from '@simplicity/core'
 import { useT } from '../../i18n/useT'
 import InlineTitle from './InlineTitle'
 import { Box, Txt, Btn } from '../../components/ui'
+
+/* The recurrence, in words. On the open list a recurring reminder is otherwise
+   indistinguishable from a one-off — same row, same single date — so the
+   schedule it belongs to only showed up if you went looking in "חוזרות".
+   Falls back to a bare "חוזרת" if the pattern is missing or unrecognised, so a
+   half-written row still admits that it repeats. */
+function repeatLabel(reminder, t) {
+  if (!isRecurring(reminder)) return null
+  const p = reminder.recurrence_pattern || {}
+  if (reminder.recurrence_type === 'weekly' && p.dayOfWeek != null) {
+    return t('item.repeatWeekly', { day: t(`days.${p.dayOfWeek}`) })
+  }
+  if (reminder.recurrence_type === 'monthly_date' && p.dayOfMonth != null) {
+    return t('item.repeatMonthly', { dom: p.dayOfMonth })
+  }
+  if (reminder.recurrence_type === 'every_x_days') {
+    const x = Number(p.x) || 1
+    return x === 1 ? t('item.repeatDaily') : t('item.repeatEveryX', { x })
+  }
+  return t('item.repeatGeneric')
+}
 
 /* Mirrors TaskItem visually so the Tasks ↔ Reminders toggle keeps a
    single look. Status is "pending" → unchecked, "completed" → checked.
@@ -14,6 +35,7 @@ function ReminderItem({ reminder, clientName, dotColor, onComplete, onEdit, onRe
   const { t } = useT('tasks')
   const isDone = reminder.status === 'completed'
   const meta = [clientName, formatWhen(reminder.scheduled_at)].filter(Boolean).join(' · ')
+  const repeat = repeatLabel(reminder, t)
 
   return (
     <Box className={`tc anim${isDone ? ' is-done' : ''}`} style={{ animationDelay: `${index * 0.04}s` }}>
@@ -35,12 +57,20 @@ function ReminderItem({ reminder, clientName, dotColor, onComplete, onEdit, onRe
           {count > 1 && <Txt className="tc-recur-count" title={t('item.pendingOccurrences', { n: count })}>×{count}</Txt>}
         </InlineTitle>
         {meta && <Txt as="p" className="tc-meta">{meta}</Txt>}
-        {category && (
+        {(repeat || category) && (
           <Box className="tc-tags">
-            <Txt className="tc-tag">
-              <Txt className="tc-tag-dot" style={{ background: category.color || 'var(--stone)' }} />
-              {category.name}
-            </Txt>
+            {repeat && (
+              <Txt className="tc-tag tc-tag-repeat">
+                <Repeat size={10} strokeWidth={1.8} aria-hidden="true" />
+                {repeat}
+              </Txt>
+            )}
+            {category && (
+              <Txt className="tc-tag">
+                <Txt className="tc-tag-dot" style={{ background: category.color || 'var(--stone)' }} />
+                {category.name}
+              </Txt>
+            )}
           </Box>
         )}
       </Box>

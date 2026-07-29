@@ -980,8 +980,11 @@ html[data-bg="blank"][data-card-style="flat"] .home-screen {
   white-space: nowrap;
   flex-shrink: 0;
 }
+/* Danger TEXT, so it reads --clay-on-dark: that token aliases to --clay in
+   light mode and lifts in dark, where raw --clay is the deep wine that
+   tokens.css warns is unreadable as text. */
 .h-task-due.is-overdue {
-  color: var(--clay);
+  color: var(--clay-on-dark);
   font-weight: 500;
 }
 .h-task-dot {

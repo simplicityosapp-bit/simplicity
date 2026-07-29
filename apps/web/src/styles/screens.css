@@ -18,54 +18,43 @@
 }
 
 /* ── Screen header ─────────────────────────────────────────────── */
-/* Glass card matching the rest of the screen's chrome. Main title
-   (.t-screen) pins to the top-right (RTL start); secondary block
-   (eyebrow + meta + tagline) stacks underneath it. column-reverse
-   lets us keep the JSX order intact (secondary first, title last)
-   while painting the title on top. */
+/* Glass card matching the rest of the screen's chrome. It holds ONE
+   thing: the screen's name, wearing the same icon it wears in the menu.
+   (Owner rule 2026-07-29.) The counts, meta pairs and taglines that used
+   to stack underneath were either repeated by the first card a few pixels
+   below or pure slogan — the header's job is to say where you are, and
+   the screen itself owns every number. The tasks screen had already made
+   this move on its own; this is that shape, app-wide.
+   One line, so the card is a plain centered row — the old column-reverse
+   stack (secondary block first in JSX, title painted on top) is gone. */
 .screen-head {
   display: flex;
-  flex-direction: column-reverse;
-  align-items: flex-start;        /* RTL: flush against the start edge */
-  gap: 6px;
-  flex: 0 0 62%;
+  align-items: center;
+  gap: 8px;
+  /* Fill the row up to 280px rather than taking a flat 62% of it. On desktop
+     these are the same number (62% of the content cap is already wider than
+     280). On a phone 62% came to ~185px, and once the docked "?" reserves its
+     corner a two-word name like "סל מיחזור" had nowhere to go and wrapped. The
+     "+" keeps its own 72px slot either way — .cta-add never shrinks. */
+  flex: 1 1 auto;
   max-width: 280px;
-  padding: 16px 18px 14px;
+  padding: 14px 18px;
   border-radius: var(--mg-card-radius);
   border: var(--mg-card-border);
   background: var(--mg-card-bg);
   box-shadow: var(--mg-card-shadow);
   backdrop-filter: var(--mg-card-blur);
 }
-.screen-head-eyebrow {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 4px;
-  color: var(--stone);
-}
-.screen-head-eyebrow p {
-  margin: 0;
-  font-family: var(--mg-font);
-  font-weight: 400;
-  font-size: calc(13px * var(--text-scale));
-  color: var(--stone);
-}
-.screen-head-mark {
-  display: inline-flex;
-  color: var(--stone);
-  opacity: 0.75;
-}
-.screen-head-meta {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.screen-head-meta .dot {
-  opacity: 0.4;
-}
 
+/* Screen title + its menu icon. The icon is a sibling of the text inside
+   the title itself (not a separate slot) so the two travel together when a
+   screen puts something else in the header row — e.g. the connections
+   sub-screens, which lead with a back button. */
 .t-screen {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
   margin: 0;
   font-family: 'Assistant', sans-serif;
   font-weight: 700;
@@ -73,6 +62,9 @@
   letter-spacing: -0.02em;
   line-height: 1.1;
   color: var(--espresso);
+}
+.t-screen > svg {
+  flex: 0 0 auto;
 }
 .lbl {
   margin: 0;

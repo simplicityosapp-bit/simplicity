@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Leaf, ArrowLeft, TrendingUp, ChevronLeft, Bell, SlidersHorizontal, Search } from 'lucide-react'
+import { Leaf, ArrowLeft, TrendingUp, ChevronLeft, Bell, SlidersHorizontal, Search, Magnet } from 'lucide-react'
 import { ROUTES } from '../../lib/routes'
 import { useLeads } from '../../hooks/useLeads'
 import { useLeadPages } from '../../hooks/useLeadPages'
@@ -178,7 +178,6 @@ export default function LeadsScreen() {
   /* Approve = move into the official list; reject = soft-delete (undoable). */
   const approveLead = useCallback((id) => updateLead(id, { pending_review: false }).catch(() => {}), [updateLead])
   const rejectLead = useCallback((id) => removeLead(id), [removeLead])
-  const total = LEAD_META.reduce((s, m) => s + (buckets[m.key]?.length || 0), 0)
 
   /* Commit a column move (+ optional sub-status). status_id is always set
      to a sub-status that BELONGS to the target column (or null) — this
@@ -246,20 +245,10 @@ export default function LeadsScreen() {
     <Box className="screen l-screen">
       <Box className="screen-top">
         <Box as="header" className="screen-head">
-          <Box>
-            <Box className="screen-head-meta">
-              {/* One line that earns its place: what needs doing if anything
-                  does, otherwise the board's size. The old second line was a
-                  slogan, and the old first line repeated the view toggle
-                  sitting directly beneath it. */}
-              <Txt as="p" className="lbl">
-                {dueFollowups.length > 0
-                  ? t('followups.dueCount', { count: dueFollowups.length })
-                  : t('countLabel', { count: total })}
-              </Txt>
-            </Box>
-          </Box>
-          <Txt as="p" className="t-screen">{t('title')}</Txt>
+          <Txt as="p" className="t-screen">
+            <Magnet size={20} strokeWidth={1.6} aria-hidden="true" />
+            {t('title')}
+          </Txt>
         </Box>
         {view === 'kanban' && (
           <Coachmark id="add-lead" radius="50%">

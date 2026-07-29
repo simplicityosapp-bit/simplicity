@@ -22,10 +22,10 @@ export default function GrowConnectionScreen() {
         <Btn type="button" className="conn-back" onClick={() => navigate(-1)} aria-label={t('growScreen.back')}>
           <ChevronRight size={20} strokeWidth={1.6} aria-hidden="true" />
         </Btn>
-        <Box>
-          <Txt as="p" className="t-screen"><CreditCard size={20} strokeWidth={1.6} aria-hidden="true" /> {t('growScreen.title')}</Txt>
-          <Txt as="p" className="lbl-sm">{t('growScreen.subtitle')}</Txt>
-        </Box>
+        <Txt as="p" className="t-screen">
+          <CreditCard size={20} strokeWidth={1.6} aria-hidden="true" />
+          {t('growScreen.title')}
+        </Txt>
       </Box>
 
       <GrowCard />

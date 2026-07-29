@@ -110,12 +110,10 @@ export default function CommunityEventsScreen() {
   return (
     <Box className="screen cmt-events-screen">
       <Box as="header" className="screen-head cmt-head">
-        <Box>
-          <Txt as="p" className="t-screen">
-            <CalendarDays size={20} strokeWidth={1.6} aria-hidden="true" /> {t('events.title')}
-          </Txt>
-          <Txt as="p" className="lbl-sm">{t('events.subtitle')}</Txt>
-        </Box>
+        <Txt as="p" className="t-screen">
+          <CalendarDays size={20} strokeWidth={1.6} aria-hidden="true" />
+          {t('events.title')}
+        </Txt>
         <Btn type="button" className="cmt-head-back" onClick={() => navigate(ROUTES.COMMUNITY_CHAT)}>
           <ArrowLeft size={16} strokeWidth={1.7} aria-hidden="true" /> {t('events.toChat')}
         </Btn>

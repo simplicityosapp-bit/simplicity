@@ -19,14 +19,10 @@
    any more. */
 
 /* The head is a single title block (no back button, no CTA), so it stands on
-   its own rather than inside .screen-top. */
+   its own rather than inside .screen-top. The title's own icon row is
+   .t-screen's job now (screens.css) — every screen wears one. */
 .cmt-head {
   margin: 14px 0 16px;
-}
-.cmt-head .t-screen {
-  display: flex;
-  align-items: center;
-  gap: 8px;
 }
 
 .cmt-card {
@@ -104,12 +100,16 @@
      zeroed this and hardcoded 84px on the composer, which left 84px of dead
      space on desktop where the bottom nav is hidden (display:none ≥768px). */
 }
-/* .screen-head carries `flex: 0 0 62%` for .screen-top, which is a flex ROW —
-   there 62% is a WIDTH. Turning .screen into a flex COLUMN silently re-reads
-   that basis as 62% of the HEIGHT, and the header balloons to two thirds of
-   the viewport with the feed crushed underneath. Re-state the basis for this
-   axis; the 280px max-width from screens.css still applies. */
-.cmt-chat-screen .cmt-head {
+/* .screen-head's flex shorthand is written for .screen-top, a flex ROW, where
+   it means "fill the row, up to 280px". These three screens are flex COLUMNS,
+   so the same shorthand is read against the HEIGHT: the old `0 0 62%` made the
+   header two thirds of the viewport with the feed crushed underneath, and
+   today's `1 1 auto` would let it grow into whatever height is going spare.
+   Pin it to its content on this axis; max-width from screens.css still applies
+   (and is itself lifted just below). */
+.cmt-chat-screen .cmt-head,
+.cmt-events-screen .cmt-head,
+.cmt-profile-screen .cmt-head {
   flex: 0 0 auto;
 }
 /* .screen-head caps at 280px (a card sized for the narrow home tier). The
@@ -120,13 +120,10 @@
 .cmt-chat-screen .cmt-head,
 .cmt-events-screen .cmt-head,
 .cmt-profile-screen .cmt-head { max-width: none; }
-/* Events/profile carry an in-flow "back" button; row layout puts title + back
-   on one line instead of .screen-head's column-reverse (which stacked the back
-   button on top of the title). */
+/* Events/profile carry an in-flow "back" button; push it to the far end of
+   .screen-head's row so it doesn't sit glued to the title. */
 .cmt-events-screen .cmt-head,
 .cmt-profile-screen .cmt-head {
-  flex-direction: row;
-  align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
 }

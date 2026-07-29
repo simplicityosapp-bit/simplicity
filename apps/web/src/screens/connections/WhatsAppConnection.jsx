@@ -87,11 +87,16 @@ export default function WhatsAppConnectionScreen() {
         <Btn type="button" className="conn-back" onClick={() => navigate(-1)} aria-label={t('whatsappScreen.back')}>
           <ChevronRight size={20} strokeWidth={1.6} aria-hidden="true" />
         </Btn>
-        <Box>
-          <Txt as="p" className="t-screen"><span className="wa-title-glyph" aria-hidden="true"><MessageCircle size={14} strokeWidth={2} /></span> {t('whatsappScreen.title')}</Txt>
-          <Txt as="p" className="lbl-sm wa-subtitle">{t('whatsappScreen.subtitle')}</Txt>
-        </Box>
+        <Txt as="p" className="t-screen">
+          <span className="wa-title-glyph" aria-hidden="true"><MessageCircle size={14} strokeWidth={2} /></span>
+          {t('whatsappScreen.title')}
+        </Txt>
       </Box>
+
+      {/* Out of the header (name + icon only now) and down here, where it is
+          read right before the templates it explains — it is an instruction,
+          not a strapline. */}
+      <Txt as="p" className="wa-subtitle">{t('whatsappScreen.subtitle')}</Txt>
 
       <Box className="wa-fields">
         {FIELDS.map((f) => (

@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { FolderOpen, FolderPlus } from 'lucide-react'
+import { FolderOpen, FolderPlus, Folder } from 'lucide-react'
 import { financeQuery, isr, currentMonthRange } from '@simplicity/core'
 import { useProjects } from '../../hooks/useProjects'
 import { useClients } from '../../hooks/useClients'
@@ -67,15 +67,10 @@ export default function ProjectsScreen() {
     <Box className="screen p-screen">
       <Box className="screen-top">
         <Box as="header" className="screen-head">
-          <Box>
-            <Box className="screen-head-meta">
-              <Txt as="p" className="lbl">{t('count', { count: projects.length })}</Txt>
-              <Txt className="lbl dot">·</Txt>
-              <Txt as="p" className="lbl">{t('phase')}</Txt>
-            </Box>
-            <Txt as="p" className="lbl-sm">{t('tagline')}</Txt>
-          </Box>
-          <Txt as="p" className="t-screen">{t('title')}</Txt>
+          <Txt as="p" className="t-screen">
+            <Folder size={20} strokeWidth={1.6} aria-hidden="true" />
+            {t('title')}
+          </Txt>
         </Box>
         <Coachmark id="add-project" radius="50%">
           <Btn className="cta-add" aria-label={t('newAria')} onClick={() => (atProjectLimit ? goUpgrade() : setShowAdd(true))}>{t('new')}</Btn>

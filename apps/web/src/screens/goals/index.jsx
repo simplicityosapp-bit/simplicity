@@ -86,15 +86,10 @@ export default function GoalsScreen() {
     <Box className="screen">
       <Box className="screen-top">
         <Box as="header" className="screen-head">
-          <Box>
-            <Box className="screen-head-meta">
-              <Txt as="p" className="lbl">{t('countLabel', { count: totalGoals })}</Txt>
-              <Txt className="lbl dot">·</Txt>
-              <Txt as="p" className="lbl">{t('movement')}</Txt>
-            </Box>
-            <Txt as="p" className="lbl-sm">{t('tagline')}</Txt>
-          </Box>
-          <Txt as="p" className="t-screen">{t('title')}</Txt>
+          <Txt as="p" className="t-screen">
+            <Target size={20} strokeWidth={1.6} aria-hidden="true" />
+            {t('title')}
+          </Txt>
         </Box>
         <Coachmark id="add-goal" radius="50%">
           <Btn className="cta-add" aria-label={t('newGoalAria')} onClick={() => (atGoalLimit ? goUpgrade() : setShowAddGoal(true))}>

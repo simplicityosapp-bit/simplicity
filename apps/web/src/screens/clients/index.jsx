@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { Search, SlidersHorizontal, X, UserPlus, Wallet, ChevronLeft, AlertTriangle, Tags } from 'lucide-react'
+import { Search, SlidersHorizontal, X, UserPlus, Wallet, ChevronLeft, AlertTriangle, Tags, Users } from 'lucide-react'
 import { ROUTES } from '../../lib/routes'
 import { effectiveClientMeta, paidForClients, sessionsCountForClients, clientBalance, currentMonthRange, isr, financeQuery } from '@simplicity/core'
 import { useClients } from '../../hooks/useClients'
@@ -346,15 +346,10 @@ export default function ClientsScreen() {
     <Box className={`screen c-screen${selectMode ? ' has-bulk-bar' : ''}`}>
       <Box className="screen-top">
         <Box as="header" className="screen-head">
-          <Box>
-            <Box className="screen-head-meta">
-              <Txt as="p" className="lbl">{t('countLabel', { count: total })}</Txt>
-              <Txt className="lbl dot">·</Txt>
-              <Txt as="p" className="lbl">{t('summary')}</Txt>
-            </Box>
-            <Txt as="p" className="lbl-sm">{t('tagline')}</Txt>
-          </Box>
-          <Txt as="p" className="t-screen">{t('title')}</Txt>
+          <Txt as="p" className="t-screen">
+            <Users size={20} strokeWidth={1.6} aria-hidden="true" />
+            {t('title')}
+          </Txt>
         </Box>
         <Btn className="cta-add" type="button" aria-label={t('addClientAria')} onClick={() => (atClientLimit ? goUpgrade() : setShowAdd(true))}>+ <MG word="client_new" /></Btn>
       </Box>

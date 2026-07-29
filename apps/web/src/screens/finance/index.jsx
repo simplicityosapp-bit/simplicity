@@ -29,7 +29,7 @@ import RecurringModal from '../../modals/RecurringModal'
 import ConfirmModal from '../../modals/ConfirmModal'
 import Coachmark from '../../components/Coachmark'
 import CollapsibleSection from '../../components/CollapsibleSection'
-import { Repeat, Tag } from 'lucide-react'
+import { Repeat, Tag, Wallet } from 'lucide-react'
 import { useT } from '../../i18n/useT'
 import './FinanceScreen.css'
 import '../../components/CollapsibleSection.css'
@@ -144,19 +144,10 @@ export default function FinanceScreen() {
     <Box className="screen f-screen">
       <Box className="screen-top">
         <Box as="header" className="screen-head">
-          <Box>
-            <Box className="screen-head-meta">
-              {/* One line that earns its place: what needs doing if anything
-                  does, otherwise the month's size. The old second line was a
-                  slogan and the old "תמונת מצב" said nothing. */}
-              <Txt as="p" className="lbl">
-                {pendingTxs.length > 0
-                  ? t('pending.count', { count: pendingTxs.length })
-                  : t('countLabel', { count: monthTxs.length })}
-              </Txt>
-            </Box>
-          </Box>
-          <Txt as="p" className="t-screen">{t('title')}</Txt>
+          <Txt as="p" className="t-screen">
+            <Wallet size={20} strokeWidth={1.6} aria-hidden="true" />
+            {t('title')}
+          </Txt>
         </Box>
         <Coachmark id="add-transaction" radius="50%">
           <Btn className="cta-add" type="button" aria-label={t('newTxAria')} onClick={() => openAdd()}>{t('newTx')}</Btn>

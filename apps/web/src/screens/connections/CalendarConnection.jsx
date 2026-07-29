@@ -188,10 +188,10 @@ export default function CalendarConnectionScreen() {
         <Btn type="button" className="conn-back" onClick={() => navigate(-1)} aria-label={t('calendar.back')}>
           <ChevronRight size={20} strokeWidth={1.6} aria-hidden="true" />
         </Btn>
-        <Box>
-          <Txt as="p" className="t-screen"><Calendar size={20} strokeWidth={1.6} aria-hidden="true" /> Google Calendar</Txt>
-          <Txt as="p" className="lbl-sm">{t('calendar.subtitle')}</Txt>
-        </Box>
+        <Txt as="p" className="t-screen">
+          <Calendar size={20} strokeWidth={1.6} aria-hidden="true" />
+          Google Calendar
+        </Txt>
       </Box>
 
       <Box as="section" className="conn-card">

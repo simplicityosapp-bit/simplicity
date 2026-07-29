@@ -71,13 +71,10 @@ export default function BookingPagesScreen() {
     <Box className="screen bk-screen">
       <Box className="screen-top">
         <Box as="header" className="screen-head">
-          <Box>
-            <Box className="screen-head-meta">
-              <Txt as="p" className="lbl">{t('pages.headCount', { count: pages.length })}</Txt>
-            </Box>
-            <Txt as="p" className="lbl-sm">{t('pages.headSubtitle')}</Txt>
-          </Box>
-          <Txt as="p" className="t-screen">{t('pages.screenTitle')}</Txt>
+          <Txt as="p" className="t-screen">
+            <CalendarClock size={20} strokeWidth={1.6} aria-hidden="true" />
+            {t('pages.screenTitle')}
+          </Txt>
         </Box>
         <Coachmark id="add-booking-page" radius="50%">
           <Btn className="cta-add" type="button" onClick={() => (atLimit ? goUpgrade() : setEditingId('new'))}>{t('pages.newPage')}</Btn>

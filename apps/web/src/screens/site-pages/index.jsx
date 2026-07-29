@@ -28,10 +28,10 @@ export default function SitePagesScreen() {
   return (
     <Box className="screen" data-screen="sitePages">
       <Box as="header" className="screen-head spg-hub-head">
-        <Box>
-          <Txt as="p" className="t-screen"><LayoutTemplate size={20} strokeWidth={1.6} aria-hidden="true" /> {t('hub.title')}</Txt>
-          <Txt as="p" className="lbl-sm">{t('hub.subtitle')}</Txt>
-        </Box>
+        <Txt as="p" className="t-screen">
+          <LayoutTemplate size={20} strokeWidth={1.6} aria-hidden="true" />
+          {t('hub.title')}
+        </Txt>
       </Box>
 
       <Box className="spg-tiles">

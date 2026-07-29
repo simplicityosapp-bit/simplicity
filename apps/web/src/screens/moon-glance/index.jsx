@@ -1,7 +1,11 @@
 import { useMemo, useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Trans } from 'react-i18next'
-import { Moon, BarChart3 } from 'lucide-react'
+/* Eye, not Moon: the screen wears the icon it wears in the menu, and the
+   drawer swapped the crescent for an eye on 2026-07-27 (it competed with the
+   theme toggle's own moon). The lunar palette below stays — the name and the
+   look are still מבט על's; only the glyph follows the menu. */
+import { Eye, BarChart3 } from 'lucide-react'
 import { ROUTES } from '../../lib/routes'
 import { moonGetData, moonGetCategories, moonTrend, moonReflection, questionText, buildOverviewTrend, buildOverviewCorrelations, OVERVIEW_METRICS } from '@simplicity/core'
 import { upsertMoonSnapshot } from '../../lib/api/moonSnapshots'
@@ -192,7 +196,7 @@ export default function MoonGlanceScreen() {
     return (
       <Box className="screen moon-screen">
         <Box className="moon-head">
-          <Box className="moon-head-title"><Moon size={20} strokeWidth={1.5} aria-hidden="true" /> {t('title')}</Box>
+          <Box className="moon-head-title"><Eye size={20} strokeWidth={1.5} aria-hidden="true" /> {t('title')}</Box>
         </Box>
         <Box className="empty">
           <Txt as="p" className="empty-text">{t('empty.noGoals', { action: t('empty.action') })}</Txt>
@@ -206,7 +210,7 @@ export default function MoonGlanceScreen() {
   return (
     <Box className="screen moon-screen">
       <Box className="moon-head">
-        <Box className="moon-head-title"><Moon size={20} strokeWidth={1.5} aria-hidden="true" /> {t('title')}</Box>
+        <Box className="moon-head-title"><Eye size={20} strokeWidth={1.5} aria-hidden="true" /> {t('title')}</Box>
         <Btn className="moon-head-link" onClick={() => navigate(ROUTES.REPORTS)}>
           <BarChart3 size={16} strokeWidth={1.6} aria-hidden="true" /> {t('reports')}
         </Btn>

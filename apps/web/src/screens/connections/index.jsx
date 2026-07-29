@@ -133,10 +133,10 @@ export default function ConnectionsScreen() {
   return (
     <Box className="screen">
       <Box as="header" className="screen-head conn-head">
-        <Box>
-          <Txt as="p" className="t-screen"><Plug size={20} strokeWidth={1.6} aria-hidden="true" /> {t('list.title')}</Txt>
-          <Txt as="p" className="lbl-sm">{t('list.subtitle')}</Txt>
-        </Box>
+        <Txt as="p" className="t-screen">
+          <Plug size={20} strokeWidth={1.6} aria-hidden="true" />
+          {t('list.title')}
+        </Txt>
       </Box>
 
       {connecting && <Txt as="p" className="conn-note" role="status" aria-live="polite">{t('list.connecting')}</Txt>}

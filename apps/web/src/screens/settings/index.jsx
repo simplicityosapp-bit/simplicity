@@ -3,7 +3,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import { useNavigate, useLocation } from 'react-router-dom'
 import {
   ChevronDown, ChevronUp, ChevronLeft, Target, Sparkles,
-  Plus, Trash2, CalendarDays, Download, Upload, Search, X,
+  Plus, Trash2, CalendarDays, Download, Upload, Search, X, Settings,
 } from 'lucide-react'
 import { SECTION_DEFS, SECTION_GROUPS, groupOfSection, soleSectionOf } from './sections'
 import { searchTree } from './searchSettings'
@@ -1031,15 +1031,10 @@ export default function SettingsScreen() {
     <Box className="screen">
       <Box className="screen-top">
         <Box as="header" className="screen-head">
-          <Box>
-            <Box className="screen-head-meta">
-              <Txt as="p" className="lbl">{t('header.areas', { count: SECTION_GROUPS.length })}</Txt>
-              <Txt className="lbl dot">·</Txt>
-              <Txt as="p" className="lbl">{t('header.customization')}</Txt>
-            </Box>
-            <Txt as="p" className="lbl-sm">{t('header.tagline')}</Txt>
-          </Box>
-          <Txt as="p" className="t-screen">{t('header.title')}</Txt>
+          <Txt as="p" className="t-screen">
+            <Settings size={20} strokeWidth={1.6} aria-hidden="true" />
+            {t('header.title')}
+          </Txt>
         </Box>
       </Box>
 

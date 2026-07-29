@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
-  BarChart3, Moon, List, Table2, Settings, X, GripVertical, RotateCcw,
+  BarChart3, Eye, List, Table2, Settings, X, GripVertical, RotateCcw,
   Leaf, ArrowRight, TrendingUp, Users, CircleCheck, XCircle,
   Calendar, ArrowDownCircle, ArrowUpCircle, Coins,
   Check, CircleAlert, ChevronLeft,
@@ -68,7 +68,7 @@ export default function ReportsScreen() {
           <BarChart3 size={20} strokeWidth={1.5} aria-hidden="true" /> {t('title')}
         </Box>
         <Btn type="button" className="rep-head-link" onClick={() => navigate(ROUTES.MOON_GLANCE)}>
-          <Moon size={16} strokeWidth={1.6} aria-hidden="true" /> {t('moonGlance')}
+          <Eye size={16} strokeWidth={1.6} aria-hidden="true" /> {t('moonGlance')}
         </Btn>
       </Box>
 

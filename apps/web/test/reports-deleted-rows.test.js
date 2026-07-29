@@ -10,13 +10,16 @@
    Two shapes, and the split is the thing most likely to be lost:
 
      · FLOW metrics count events on a date — inquiries, closes,
-       conversions, new clients, sessions, money, completed tasks. A
-       deleted row still counts, forever.
+       conversions, new clients, sessions, completed tasks. A deleted row
+       still counts, forever.
      · SNAPSHOT metrics answer "how many, as of this date" — active
        clients / open tasks at the end. A row deleted DURING the period
        was already gone by then; one deleted afterwards was not. That is
        arithmetic, not preference, and blanket-counting deleted rows here
        would be a new bug wearing the fix's clothes.
+     · MONEY is carved out entirely and keeps the old behaviour: a
+       deleted transaction leaves the figures. See its own block below
+       for why.
 
    The drill-down list must agree with its number in both shapes,
    otherwise the user taps a count of 5 and sees 3 rows.
@@ -66,14 +69,9 @@ const FLOW = [
     id: 'sessions', key: 'sessions',
     row: (d) => ({ id: 's1', date: IN, deleted_at: d }),
   },
-  {
-    id: 'income', key: 'transactions',
-    row: (d) => ({ id: 't1', type: 'income', amount: 100, date: IN, desc: 'paid', status: 'confirmed', deleted_at: d }),
-  },
-  {
-    id: 'expense', key: 'transactions',
-    row: (d) => ({ id: 't2', type: 'expense', amount: 40, date: IN, desc: 'rent', status: 'confirmed', deleted_at: d }),
-  },
+  /* income/expense/net are NOT here — money is the exception, covered
+     below. Adding them to this table is the likely way the carve-out gets
+     undone by someone making the list "complete". */
   {
     id: 'tasksCompleted', key: 'tasks',
     row: (d) => ({ id: 'k1', title: 'task', status: 'done', created_at: IN, completed_at: IN, deleted_at: d }),
@@ -109,24 +107,54 @@ describe('flow metrics survive deletion', () => {
   })
 })
 
-describe('net follows income and expense', () => {
-  it('is unchanged by deleting either side', () => {
+describe('money is the exception: a deleted transaction is gone', () => {
+  /* The rest of this suite exists because deletion means "I'm done looking
+     at this". A transaction is deleted because it was WRONG — a typo, a
+     duplicate, a charge that never landed — and the trash only offers
+     restore, so a figure that kept counting it could never be corrected.
+     Owner's call, 2026-07-29, reversing this one metric group only. */
+  const tx = (d, over = {}) => ({
+    id: 't', type: 'income', amount: 500, date: IN, desc: 'paid',
+    status: 'confirmed', deleted_at: d, ...over,
+  })
+
+  it('drops it from income', () => {
+    expect(metrics({ transactions: [tx(null)] }).income).toBe(500)
+    expect(metrics({ transactions: [tx(AFTER)] }).income).toBe(0)
+  })
+
+  it('drops it from expense', () => {
+    const e = (d) => tx(d, { type: 'expense', amount: 200 })
+    expect(metrics({ transactions: [e(null)] }).expense).toBe(200)
+    expect(metrics({ transactions: [e(AFTER)] }).expense).toBe(0)
+  })
+
+  it('net follows both sides down', () => {
     const data = (d) => ({
       transactions: [
-        { id: 'a', type: 'income', amount: 500, date: IN, status: 'confirmed', deleted_at: d },
-        { id: 'b', type: 'expense', amount: 200, date: IN, status: 'confirmed', deleted_at: null },
+        tx(d),
+        tx(null, { id: 'b', type: 'expense', amount: 200 }),
       ],
     })
     expect(metrics(data(null)).net).toBe(300)
-    expect(metrics(data(AFTER)).net).toBe(300)
+    expect(metrics(data(AFTER)).net).toBe(-200)
+  })
+
+  it('leaves it out of the drill list too', () => {
+    /* A number that excludes it and a list that shows it is the same
+       count-vs-list mismatch this suite guards everywhere else. */
+    expect(drill('income', { transactions: [tx(AFTER)] })).toHaveLength(0)
+    expect(drill('net', { transactions: [tx(AFTER)] })).toHaveLength(0)
+    const [row] = drill('income', { transactions: [tx(null)] })
+    expect(row.secondary).not.toContain(marker())
   })
 
   it('still excludes a transaction that was never confirmed', () => {
-    /* Deletion stopped gating; confirmation did not. A pending row was
-       never money, deleted or otherwise. */
-    const tx = { id: 'p', type: 'income', amount: 900, date: IN, status: 'pending' }
-    expect(metrics({ transactions: [tx] }).income).toBe(0)
-    expect(metrics({ transactions: [{ ...tx, deleted_at: AFTER }] }).income).toBe(0)
+    /* Confirmation gates independently of deletion — a pending row was
+       never money either way. */
+    const p = tx(null, { status: 'pending' })
+    expect(metrics({ transactions: [p] }).income).toBe(0)
+    expect(metrics({ transactions: [{ ...p, deleted_at: AFTER }] }).income).toBe(0)
   })
 })
 

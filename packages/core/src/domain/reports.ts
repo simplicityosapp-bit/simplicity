@@ -110,15 +110,22 @@ export interface DrillRecord {
    owner 2026-07-28).
 
    So FLOW metrics — things that happened on a date: inquiries, closes,
-   conversions, new clients, sessions, money, completed tasks — count
-   from the raw list and ignore deleted_at entirely. `all()` names that
-   intent, so a bare `(rows || [])` never reads like an oversight.
+   conversions, new clients, sessions, completed tasks — count from the
+   raw list and ignore deleted_at entirely. `all()` names that intent, so
+   a bare `(rows || [])` never reads like an oversight.
 
    SNAPSHOT metrics are different, and the difference is not a product
    choice but arithmetic: "active clients at the end of June" is a
    question about June. A client deleted in June was already gone by the
    30th; one deleted in July was still there. Those use `existedAsOf`,
    the rule openTasksAsOf has always applied.
+
+   MONEY is the exception, and it is the one to remember when this file
+   is next tidied: income/expense/net still drop deleted rows. The rule
+   above rests on deletion meaning "I'm done looking at this", which is
+   false for a transaction — that gets deleted because it was WRONG, and
+   an uncorrectable wrong number is worse than a forgotten right one.
+   Owner's call, 2026-07-29; see the Finance block below.
 
    The trash never purges — it only offers restore — so these rows stay
    available to count indefinitely. */
@@ -260,10 +267,19 @@ export function computeReportForRange(start: Date, end: Date, data: ReportData =
   const sessionsInRange = all(sessions).filter((s) => inRangeTs(s.date)).length
 
   /* ── Finance ── */
-  /* isConfirmedTx still gates: a pending/draft row was never money. What no
-     longer gates is deleted_at — see the note on `all` above. */
+  /* THE EXCEPTION to the rule above: money still drops deleted rows.
+
+     Everywhere else, deleting is housekeeping — the user tidying a screen
+     they have finished with. Nobody deletes a transaction for tidiness;
+     they delete it because it was wrong (a typo, a duplicate, a charge
+     that never landed). Keeping it would leave an income figure the user
+     can SEE is wrong with no way to correct it, since the trash only
+     offers restore.
+
+     So `!f.deleted_at` stays, alongside isConfirmedTx — a pending row was
+     never money either. Owner's call, 2026-07-29. */
   const confirmed = all(transactions).filter(
-    (f) => isConfirmedTx(f) && inRangeTs(f.date),
+    (f) => !f.deleted_at && isConfirmedTx(f) && inRangeTs(f.date),
   )
   const income = confirmed
     .filter((f) => f.type === 'income')
@@ -602,17 +618,21 @@ export function getDrillRecords(metricId: string, start: Date, end: Date, data: 
       const types = metricId === 'income' ? ['income']
         : metricId === 'expense' ? ['expense']
           : ['income', 'expense']
+      /* Money is the one exception — deleted transactions are excluded from
+         the figure, so they must be absent from the list too, and no row
+         here can ever need the trashed() marker. See computeReportForRange. */
       all(transactions).forEach((f) => {
+        if (f.deleted_at) return
         if (!isConfirmedTx(f)) return
         if (!f.type || !types.includes(f.type)) return
         if (!inRangeTs(f.date)) return
         const sign = f.type === 'income' ? '+' : '−'
-        out.push(trashed({
+        out.push({
           icon: f.type === 'income' ? 'arrowDown' : 'arrowUp',
           primary: f.desc || i18n.t('reports:drill.noDesc'),
           secondary: `${sign}${isr(f.amount)} • ${fmtDay(f.date)}`,
           navigateTo: '/finance',
-        }, f))
+        })
       })
       break
     }

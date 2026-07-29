@@ -1675,8 +1675,10 @@ CREATE TRIGGER trg_user_subscriptions_updated BEFORE UPDATE ON public.user_subsc
 --   report_contrib_task(t tasks)            -> TABLE(period date, metric text)
 --   report_contrib_member(m group_members)  -> TABLE(period date, metric text)
 --   report_sync_lead/client/session/task/member() -> trigger  [SECURITY DEFINER] search_path=public
---   report_snapshot_month(p_user uuid, p_period date) -> void  [SECURITY DEFINER] search_path=public
---   report_snapshot_backfill() -> integer  [SECURITY DEFINER] search_path=public
+--   report_snapshot_month(p_user uuid, p_period date, p_overwrite boolean DEFAULT false)
+--       -> void  [SECURITY DEFINER] search_path=public   -- WRITE-ONCE by default (0103)
+--   report_snapshot_backfill(p_overwrite boolean DEFAULT false) -> integer  [SECURITY DEFINER] search_path=public
+--   report_tallies_reset_own() -> integer  [SECURITY DEFINER] search_path=public  -- GRANTed to authenticated (0103)
 --   purge_trash(p_dry_run boolean DEFAULT true, p_days integer DEFAULT 30)
 --       -> TABLE(table_name text, purged int, skipped int)  [SECURITY DEFINER] search_path=public
 --   purge_trash_guard(p_table text) -> text  search_path=public

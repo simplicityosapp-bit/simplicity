@@ -62,7 +62,7 @@ export default function ReportsScreen() {
   const openDrill = (metricId, period) => setDrill({ metricId, period })
 
   return (
-    <Box className="screen">
+    <Box className="screen rep-screen">
       <Box className="rep-head">
         <Box className="rep-head-title">
           <BarChart3 size={20} strokeWidth={1.5} aria-hidden="true" /> {t('title')}

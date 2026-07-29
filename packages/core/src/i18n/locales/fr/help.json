@@ -978,8 +978,12 @@
           "body": "Cliquez sur un chiffre en vue liste, ou sur une cellule non vide en vue tableau, et un panneau s'ouvre vous montrant les enregistrements réels qui le composent — prospects, clients, séances, transactions ou tâches — avec leur nombre total."
         },
         {
+          "title": "Les enregistrements supprimés comptent toujours",
+          "body": "Supprimer range vos écrans — cela n'annule pas ce qui s'est passé. Un mois écoulé continue d'afficher les demandes reçues, les séances qui ont eu lieu et les tâches que vous avez terminées, même après les avoir supprimées. Dans le détail, l'enregistrement apparaît avec la mention « dans la corbeille ». Deux exceptions : pour l'argent, une transaction supprimée quitte les recettes, les dépenses et le net — une transaction est généralement supprimée parce qu'elle était erronée, pas par rangement. Et pour les chiffres « à la fin », un client ou une tâche supprimés en cours de mois ne comptent pas à sa clôture, puisqu'ils n'y étaient plus."
+        },
+        {
           "title": "Naviguer du détail vers l'écran",
-          "body": "Chaque ligne du panneau de détail est un lien. Cliquer dessus vous mène à l'écran concerné — Prospects, Clients, Calendrier, Argent ou Tâches. Note : le lien vous mène à l'écran, pas toujours à l'enregistrement précis."
+          "body": "Chaque ligne de la fenêtre de détail est un lien. Un appui vous amène à l'écran correspondant — prospects, clients, agenda, argent ou tâches. Une ligne marquée « dans la corbeille » mène à la corbeille, car l'enregistrement n'est plus sur l'écran d'où il a été supprimé. À noter : le lien vous amène à l'écran, pas toujours à l'enregistrement précis."
         },
         {
           "title": "Choisir les chiffres et l'ordre",
@@ -1003,7 +1007,7 @@
         }
       ],
       "tips": [
-        "Le revenu, les dépenses et le net ne comptent que les transactions que vous avez confirmées. Une transaction non confirmée n'apparaîtra pas dans le rapport.",
+        "Les recettes, les dépenses et le net ne comptent que les transactions que vous avez confirmées. Une transaction non confirmée n'apparaît pas dans le rapport, et une transaction supprimée quitte elle aussi les chiffres — l'argent est le seul à se comporter ainsi.",
         "La colonne Résumé du tableau n'est pas toujours une simple somme : les chiffres « en fin de mois » sont des moyennes, et les pourcentages sont recalculés. Ne vous attendez donc pas à ce que le résumé soit exactement la somme des colonnes.",
         "Une cellule ou un chiffre égal à 0 ne peut pas être cliqué. Vous ne pouvez explorer que les chiffres qui ont quelque chose derrière eux.",
         "Utilisez le bouton engrenage pour masquer les chiffres qui ne vous intéressent pas et garder le rapport ciblé. Masquer ne supprime rien — cela le retire seulement de la vue. Et si vous masquez tout, le tableau vous indiquera qu'il n'y a aucun chiffre actif.",
@@ -1021,7 +1025,7 @@
         },
         {
           "q": "Quelle est la différence entre « Prospects clôturés » et « Convertis en clients » ?",
-          "a": "« Prospects clôturés » compte chaque prospect qui a quitté le processus — converti en client, marqué comme non pertinent ou supprimé. « Convertis en clients » ne compte que ceux qui sont réellement devenus clients, c'est donc généralement un chiffre plus faible."
+          "a": "« Prospects clôturés » compte tout prospect sorti du processus — converti ou marqué non pertinent. « Convertis » ne compte que ceux devenus réellement clients, il est donc généralement plus bas. Supprimer un prospect ne le clôture pas : un prospect supprimé alors qu'il était en cours n'est pas compté comme clôturé."
         },
         {
           "q": "Pourquoi le résumé du tableau n'est-il pas égal à la somme des colonnes ?",
@@ -1034,6 +1038,10 @@
         {
           "q": "Que se passe-t-il lorsque je clique sur un chiffre dans le rapport ?",
           "a": "Un panneau s'ouvre vous montrant les enregistrements réels derrière le chiffre, avec leur nombre. Cliquer sur une ligne du panneau vous mène à l'écran concerné — Prospects, Clients, Calendrier, Argent ou Tâches."
+        },
+        {
+          "q": "J'ai supprimé un enregistrement et le chiffre n'a pas baissé — pourquoi ?",
+          "a": "C'est le fonctionnement prévu. Le rapport dit ce qui s'est passé dans le mois, et une suppression ultérieure ne l'annule pas — sinon chaque rangement de votre écran clients ou tâches réduirait des mois déjà clos. Dans le détail, repérez-les à la mention « dans la corbeille ». L'exception : les transactions supprimées quittent bien les chiffres de l'argent."
         }
       ]
     },

@@ -107,6 +107,8 @@
   },
   "groupBy": {
     "aria": "Group tasks",
+    "label": "View",
+    "heading": "Group by",
     "priority": "Priority",
     "project": "Project",
     "category": "Category",

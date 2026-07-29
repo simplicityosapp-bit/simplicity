@@ -111,6 +111,8 @@
   },
   "groupBy": {
     "aria": "קיבוץ משימות",
+    "label": "תצוגה",
+    "heading": "קיבוץ",
     "priority": "עדיפות",
     "project": "פרויקט",
     "category": "קטגוריה",

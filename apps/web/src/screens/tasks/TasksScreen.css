@@ -116,6 +116,10 @@
   justify-content: space-between;
   gap: 10px;
   margin: 0 2px 14px;
+  /* The actions block doesn't shrink, so on a narrow screen with several
+     categories it would squeeze the pills into a one-word-per-line column.
+     Let it drop to its own line instead — same as the clients action row. */
+  flex-wrap: wrap;
 }
 .t-cat-filter {
   display: flex;
@@ -170,6 +174,15 @@
   transition: background 0.15s;
 }
 .t-manage-btn:hover { background: color-mix(in srgb, var(--terracotta) 6%, var(--mg-card-bg)); }
+/* The trailing actions of the taxonomy bar — the "תצוגה" menu and the
+   taxonomy link. They stay together on the end edge while the category pills
+   wrap freely on the start side. */
+.t-tax-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
 
 /* ── Priority groups ───────────────────────────────────────────── */
 .t-group {
@@ -257,14 +270,10 @@
 .t-group-body .tc:last-child {
   margin-bottom: 0;
 }
-/* Group-by selector sits tight under the filter tabs. The three
-   segments share the toggle width equally instead of bunching at the
-   RTL start edge. */
-.t-groupby { margin-bottom: 10px; }
-.t-groupby .mg-toggle-btn {
-  flex: 1;
-  text-align: center;
-}
+/* The group-by selector used to be a third row of segmented tabs here,
+   directly under the filter tabs and visually identical to them. It now
+   lives behind the "תצוגה" pill in the taxonomy bar (.mg-menu-* in
+   screens.css), which returns a whole row to the list. */
 
 /* ── Task card ─────────────────────────────────────────────────── */
 .tc {

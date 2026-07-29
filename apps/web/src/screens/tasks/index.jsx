@@ -1,5 +1,6 @@
-import { useMemo, useState } from 'react'
-import { ListTodo, Plus, Trash2, Tags, ChevronDown } from 'lucide-react'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { ListTodo, Plus, Trash2, Tags, ChevronDown, SlidersHorizontal } from 'lucide-react'
+import { usePopoverSide } from '../../hooks/usePopoverSide'
 import { useTasks } from '../../hooks/useTasks'
 import { useReminders } from '../../hooks/useReminders'
 import { useProjects } from '../../hooks/useProjects'
@@ -123,12 +124,29 @@ export default function TasksScreen() {
     return next
   })
   const [groupBy, setGroupBy] = useState('priority')
+  /* Grouping lives behind the "תצוגה" pill rather than a third row of tabs.
+     Two identical-looking segmented controls stacked (filter, then grouping)
+     gave no clue which did what; this is the shape the clients screen already
+     uses for the same job. */
+  const [viewOpen, setViewOpen] = useState(false)
+  const viewAnchorRef = useRef(null)
+  const viewSide = usePopoverSide(viewAnchorRef, viewOpen)
   const [collapsed, setCollapsed] = useState(() => new Set()) /* collapsed group keys */
   const toggleGroup = (key) => setCollapsed((prev) => {
     const next = new Set(prev)
     if (next.has(key)) next.delete(key); else next.add(key)
     return next
   })
+
+  /* Close the view popover when tapping outside — same dismissal as clients. */
+  useEffect(() => {
+    if (!viewOpen) return undefined
+    const onDoc = (e) => {
+      if (!viewAnchorRef.current?.contains(e.target)) setViewOpen(false)
+    }
+    document.addEventListener('mousedown', onDoc)
+    return () => document.removeEventListener('mousedown', onDoc)
+  }, [viewOpen])
 
   const statusById = useMemo(() => {
     const m = new Map(); taskStatuses.forEach((s) => m.set(s.id, s)); return m
@@ -361,30 +379,14 @@ export default function TasksScreen() {
         ))}
       </Box>
 
-      {isTasks && (
-        <Box className="mg-toggle t-groupby" role="tablist" aria-label={t('groupBy.aria')}>
-          {GROUP_BY.map((gb) => (
-            <Btn
-              key={gb}
-              type="button"
-              className={`mg-toggle-btn${groupBy === gb ? ' on' : ''}`}
-              onClick={() => setGroupBy(gb)}
-              role="tab"
-              aria-selected={groupBy === gb}
-            >
-              {t(`groupBy.${gb}`)}
-            </Btn>
-          ))}
-        </Box>
-      )}
-
-      {/* Category filter + manage — shared across tasks AND reminders so the
-          same categories/filter drive both views. */}
+      {/* Category filter + the view/taxonomy actions — shared across tasks AND
+          reminders so the same categories/filter drive both views. Grouping
+          joins the actions here instead of taking a row of its own. */}
       {(
         <Box className="t-tax-bar">
           {taskCategories.length > 0 ? (
             <Box className="t-cat-filter">
-              <Btn type="button" className={`t-cat-pill${categoryFilters.size === 0 ? ' on' : ''}`} onClick={() => setCategoryFilters(new Set())}>{t('taxonomy.all')}</Btn>
+              <Btn type="button" className={`t-cat-pill${categoryFilters.size === 0 ? ' on' : ''}`} aria-pressed={categoryFilters.size === 0} onClick={() => setCategoryFilters(new Set())}>{t('taxonomy.all')}</Btn>
               {taskCategories.map((c) => (
                 <Btn
                   key={c.id}
@@ -399,10 +401,47 @@ export default function TasksScreen() {
               ))}
             </Box>
           ) : <Txt />}
-          <Btn type="button" className="t-manage-btn" onClick={() => setShowTaxonomy(true)}>
-            <Tags size={14} strokeWidth={1.5} aria-hidden="true" />
-            {t('taxonomy.manage')}
-          </Btn>
+          <Box className="t-tax-actions">
+            {/* Grouping is a tasks-only idea, exactly as the old tab row was. */}
+            {isTasks && (
+              <Box className="mg-menu-wrap" ref={viewAnchorRef}>
+                <Btn
+                  type="button"
+                  className="mg-menu-btn"
+                  onClick={() => setViewOpen((v) => !v)}
+                  aria-expanded={viewOpen}
+                  aria-haspopup="menu"
+                >
+                  <SlidersHorizontal size={14} strokeWidth={1.7} aria-hidden="true" />
+                  {t('groupBy.label')}
+                  {/* The chosen grouping echoed on the trigger, so a non-default
+                      one isn't hidden inside the closed menu. */}
+                  {groupBy !== 'priority' && <Txt className="mg-menu-active">· {t(`groupBy.${groupBy}`)}</Txt>}
+                </Btn>
+                {viewOpen && (
+                  <Box className="mg-menu-pop" role="menu" style={{ [viewSide]: 0 }}>
+                    <Txt as="p" className="mg-menu-h">{t('groupBy.heading')}</Txt>
+                    {GROUP_BY.map((gb) => (
+                      <Btn
+                        key={gb}
+                        type="button"
+                        role="menuitemradio"
+                        aria-checked={groupBy === gb}
+                        className={`mg-menu-opt${groupBy === gb ? ' on' : ''}`}
+                        onClick={() => { setGroupBy(gb); setViewOpen(false) }}
+                      >
+                        {t(`groupBy.${gb}`)}
+                      </Btn>
+                    ))}
+                  </Box>
+                )}
+              </Box>
+            )}
+            <Btn type="button" className="t-manage-btn" onClick={() => setShowTaxonomy(true)}>
+              <Tags size={14} strokeWidth={1.5} aria-hidden="true" />
+              {t('taxonomy.manage')}
+            </Btn>
+          </Box>
         </Box>
       )}
 

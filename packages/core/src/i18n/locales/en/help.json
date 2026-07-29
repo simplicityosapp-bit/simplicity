@@ -979,7 +979,7 @@
         },
         {
           "title": "Deleted records still count",
-          "body": "Deleting tidies your screens — it does not undo what happened. A month that has passed keeps showing the inquiries it received, the sessions that took place and the tasks you finished, even after you delete them. In the drill-down the record appears marked \"in the trash\". Two exceptions: for money, a deleted transaction leaves income, expense and net — a transaction is usually deleted because it was wrong, not for tidiness. And for the \"at the end\" numbers, a client or task deleted during the month is not counted at its end, because it was no longer there."
+          "body": "Deleting tidies your screens — it does not undo what happened. A month that has passed keeps showing the inquiries it received, the sessions that took place and the tasks you finished, after you delete them and after they are permanently removed from the server: the numbers were counted the moment the things happened. In the drill-down a recently deleted record is marked \"in the trash\"; one that has already been permanently deleted is not listed at all, and instead you see how many records can no longer be shown. Two exceptions: for money, a deleted transaction leaves income, expense and net — a transaction is usually deleted because it was wrong, not for tidiness. And for the \"at the end\" numbers, a client or task deleted during the month is not counted at its end, because it was no longer there."
         },
         {
           "title": "Navigating from the Drill-Down to the Screen",
@@ -1041,7 +1041,7 @@
         },
         {
           "q": "I deleted a record and the number did not drop — why?",
-          "a": "That is how it is meant to work. The report says what happened in the month, and deleting something later does not undo it — otherwise every tidy-up of your clients or tasks screen would shrink closed months. In the drill-down you can spot these by the \"in the trash\" mark. The exception: deleted transactions do leave the money figures."
+          "a": "That is how it is meant to work. The report says what happened in the month, and deleting something later does not undo it — otherwise every tidy-up of your clients or tasks screen would shrink closed months. That holds even after the record is permanently removed from the server, because the number was counted when it happened and does not depend on the record. In the drill-down a recently deleted record shows as \"in the trash\", and if records have already been permanently deleted you are told how many cannot be shown. The exception: deleted transactions do leave the money figures."
         }
       ]
     },
@@ -1245,8 +1245,8 @@
           "body": "Below each item's name it shows \"Deleted\" and how long ago that happened (e.g. \"Deleted 3 days ago\"). This makes it easy to know how much time is left before it disappears from the Trash."
         },
         {
-          "title": "Kept for 30 days",
-          "body": "The Trash only shows items deleted in the last 30 days. After 30 days an item drops off the list and can no longer be restored from here — so restore it in time. It is not wiped from the server: reports that already summed the month it belongs to keep counting it. A full, irreversible deletion of everything happens only when you delete the account itself, from Settings."
+          "title": "Kept for 30 days, then deleted",
+          "body": "The Trash shows only items deleted in the last 30 days, and you can restore them from there. After 30 days a nightly sweep removes them from the server for good — they do not just drop off the list, they are really gone, and nothing can bring them back. So if there is something you might want, restore it in time. Reports are unaffected: the numbers were counted when the things happened, and they stay after the records themselves are deleted."
         },
         {
           "title": "Empty trash",
@@ -1256,13 +1256,13 @@
       "tips": [
         "Restoring returns the item exactly to the place it was deleted from (clients, transactions, goals, etc.) with all its data. No need to re-enter anything.",
         "If you just deleted something by mistake, it's faster to click \"Undo\" on the brief notification that pops up after the deletion (for about 6 seconds). The Trash is your safety net for when that notification is already gone.",
-        "Items you want to keep — restore them within 30 days of deletion. After that they disappear from the Trash and cannot be recovered.",
+        "If you might want an item back, restore it within 30 days of deleting it. After that it is permanently removed from the server and cannot be recovered by any means.",
         "Before deleting your account or doing a major cleanup, back up your data via Settings → Data → Export Data."
       ],
       "faq": [
         {
-          "q": "How do I permanently delete an item from the Trash?",
-          "a": "There is no permanent-delete button here — the only action is \"Restore\". After 30 days an item drops off the list and can no longer be restored, but it is not wiped from the server. Permanent deletion happens only for the whole account at once, in Settings → Reset and delete."
+          "q": "How do I delete an item from the Trash for good?",
+          "a": "There is no permanent-delete button here, and no need for one — the only action is \"Restore\". Items are removed on their own: a nightly sweep deletes everything that was deleted more than 30 days ago. If you want to clear everything at once instead of waiting, that is in Settings → Reset and delete."
         },
         {
           "q": "I can't find an item I deleted?",

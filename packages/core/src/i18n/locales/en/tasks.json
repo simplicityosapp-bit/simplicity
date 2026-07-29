@@ -83,7 +83,8 @@
     "addTask": "Add task",
     "noRecurring": "No recurring reminders yet.",
     "allTodo": "Nothing open right now. All calm.",
-    "allDone": "Nothing completed yet."
+    "allDone": "Nothing completed yet.",
+    "noSearchResults": "No results for \"{{query}}\"."
   },
   "clearConfirm": {
     "tasksTitle": "Delete completed tasks",
@@ -125,5 +126,6 @@
     "noProject": "No project",
     "noCategory": "No category"
   },
-  "all": "All"
+  "all": "All",
+  "search": "Search a task or reminder…"
 }

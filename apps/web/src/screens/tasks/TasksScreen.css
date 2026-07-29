@@ -89,6 +89,43 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* ── Search ─────────────────────────────────────────────────────
+   Mirrors the clients search field, which is where the pattern already lives.
+   Its own row: a text field is a different kind of control from a tab strip
+   and a menu pill, and squeezing it into the controls grid beside them leaves
+   it too narrow on a phone to read what you typed. */
+.t-search-row {
+  display: flex;
+  align-items: stretch;
+  margin-bottom: 12px;
+}
+.t-search {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 14px;
+  height: 42px;
+  border-radius: var(--mg-btn-radius);
+  border: 0.5px solid rgba(42, 37, 32, 0.1);
+  background: var(--mg-card-bg);
+  -webkit-backdrop-filter: var(--mg-card-blur);
+  backdrop-filter: var(--mg-card-blur);
+  color: var(--stone);
+}
+.t-search input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: none;
+  outline: none;
+  font-family: var(--mg-font);
+  font-size: calc(14px * var(--text-scale));
+  color: var(--espresso);
+}
+.t-search input::placeholder { color: var(--mist); }
+
 /* ── Controls row — status tabs + the "תצוגה" menu ──────────────
    Three columns so the tabs stay optically centred on the screen no matter how
    wide the menu pill grows (an echoed grouping or category makes it grow): the

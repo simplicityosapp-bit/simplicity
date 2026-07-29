@@ -83,7 +83,8 @@
     "addTask": "Añadir tarea",
     "noRecurring": "Aún no hay recordatorios recurrentes.",
     "allTodo": "Nada abierto ahora mismo. Todo en calma.",
-    "allDone": "Aún no se ha completado nada."
+    "allDone": "Aún no se ha completado nada.",
+    "noSearchResults": "Sin resultados para \"{{query}}\"."
   },
   "clearConfirm": {
     "tasksTitle": "Eliminar tareas completadas",
@@ -125,5 +126,6 @@
     "noProject": "Sin proyecto",
     "noCategory": "Sin categoría"
   },
-  "all": "Todo"
+  "all": "Todo",
+  "search": "Buscar una tarea o recordatorio…"
 }

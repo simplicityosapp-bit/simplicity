@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { ListTodo, Plus, Trash2, Tags, ChevronDown, SlidersHorizontal, ClipboardList } from 'lucide-react'
+import { ListTodo, Plus, Trash2, Tags, ChevronDown, SlidersHorizontal, ClipboardList, Search } from 'lucide-react'
 import { usePopoverSide } from '../../hooks/usePopoverSide'
 import { useTasks } from '../../hooks/useTasks'
 import { useReminders } from '../../hooks/useReminders'
@@ -19,7 +19,7 @@ import { formatWhen, isRecurring, isActiveReminder, dueOccurrenceCount } from '@
 import { reassignTasksStatus } from '../../lib/api/taskStatuses'
 import { reassignTasksCategory } from '../../lib/api/taskCategories'
 import './TasksScreen.css'
-import { Box, Txt, Btn } from '../../components/ui'
+import { Box, Txt, Btn, Input } from '../../components/ui'
 
 const PRIORITY_COLOR = {
   high: 'var(--clay)',
@@ -168,6 +168,24 @@ export default function TasksScreen() {
     if (next.has(id)) next.delete(id); else next.add(id)
     return next
   })
+  /* Free-text find across whatever the active view lists. Deliberately NOT
+     folded into the category scope that feeds the hero: a scope you set once
+     and forget deserves to be counted (see inCategoryScope), but a search you
+     are actively typing would make every number on the screen jump per
+     keystroke. The query sits in the box in front of you, so unlike a pill it
+     explains its own effect. */
+  const [query, setQuery] = useState('')
+  const q = query.trim().toLowerCase()
+
+  /* Defined up here because the list builders below need them: a search that
+     only read titles would miss "everything for דנה", and the client and
+     project are already printed on the card the user is looking for. */
+  const projOf = (id) => projects.find((p) => p.id === id)
+  const clientNameOf = (id) => clients.find((c) => c.id === id)?.name
+  const hit = (...parts) => !q || parts.some((p) => (p || '').toLowerCase().includes(q))
+  const taskHit = (task) => hit(task.title, clientNameOf(task.client_id), projOf(task.project_id)?.name)
+  const remHit = (r) => hit(r.title, r.description, clientNameOf(r.client_id))
+
   const [groupBy, setGroupBy] = useState('priority')
   /* Grouping lives behind the "תצוגה" pill rather than a third row of tabs.
      Two identical-looking segmented controls stacked (filter, then grouping)
@@ -259,9 +277,9 @@ export default function TasksScreen() {
      above it can't drift apart; only the status tab is applied on top. */
   const filteredTasks = useMemo(() => (
     filter === 'done'
-      ? scopedTasks.filter((t) => t.status === 'done')
-      : scopedTasks.filter((t) => t.status !== 'done')
-  ), [scopedTasks, filter])
+      ? scopedTasks.filter((t) => t.status === 'done' && taskHit(t))
+      : scopedTasks.filter((t) => t.status !== 'done' && taskHit(t))
+  ), [scopedTasks, filter, q]) // eslint-disable-line react-hooks/exhaustive-deps -- taskHit is derived from q + the client/project lists
 
   /* Build collapsible groups for the filtered tasks per the chosen groupBy.
      Priority keeps the original fixed order; project/category order follows
@@ -305,7 +323,7 @@ export default function TasksScreen() {
 
   /* Same scoped set as the reminder counts — the category pills drive both. */
   const filteredReminders = useMemo(() => {
-    if (filter === 'done') return scopedReminders.filter((r) => r.status === 'completed')
+    if (filter === 'done') return scopedReminders.filter((r) => r.status === 'completed' && remHit(r))
     /* "פתוחות" = everything still owed, one-off and recurring alike, bucketed
        by its next occurrence (a recurring reminder's scheduled_at IS that
        occurrence). Recurring ones used to be gated on dueOccurrenceCount >= 1,
@@ -313,8 +331,8 @@ export default function TasksScreen() {
        identical-looking one-off for the very same day appeared under
        "מאוחר יותר". Same-looking rows now behave the same; "חוזרות" stays the
        schedule view. */
-    return scopedReminders.filter(isActiveReminder)
-  }, [scopedReminders, filter])
+    return scopedReminders.filter((r) => isActiveReminder(r) && remHit(r))
+  }, [scopedReminders, filter, q]) // eslint-disable-line react-hooks/exhaustive-deps -- remHit is derived from q + the client list
 
   /* "הכל" — both kinds in one list, which is the answer the home widget has
      always given and this screen never did: tasks alone can't tell you what is
@@ -327,17 +345,18 @@ export default function TasksScreen() {
     const wantDone = filter === 'done'
     const items = []
     scopedTasks.forEach((task) => {
-      if ((task.status === 'done') !== wantDone) return
+      if ((task.status === 'done') !== wantDone || !taskHit(task)) return
       items.push({ key: `task-${task.id}`, kind: 'task', task, when: task.due_at || null })
     })
     scopedReminders.forEach((r) => {
+      if (!remHit(r)) return
       const done = r.status === 'completed'
       if (done !== wantDone) return
       if (!wantDone && !isActiveReminder(r)) return
       items.push({ key: `rem-${r.id}`, kind: 'reminder', reminder: r, when: r.scheduled_at || null })
     })
     return items
-  }, [isAll, filter, scopedTasks, scopedReminders])
+  }, [isAll, filter, scopedTasks, scopedReminders, q]) // eslint-disable-line react-hooks/exhaustive-deps -- the hit helpers derive from q + the client/project lists
 
   /* Soonest first. Undated work (and a tie) falls back to urgency, then to a
      task ahead of a reminder — you act on a task, a reminder only tells you
@@ -392,9 +411,6 @@ export default function TasksScreen() {
     if (everyX.length) groups.push({ key: 'everyx', label: t('recurring.everyXDays'), color: 'var(--clay)', items: everyX })
     return groups
   }, [scopedReminders, isTasks, t])
-
-  const projOf = (id) => projects.find((p) => p.id === id)
-  const clientNameOf = (id) => clients.find((c) => c.id === id)?.name
 
   /* Inline rename — a double-click / long-press on a card title saves just
      the title via the existing optimistic editTask/editReminder, no modal. */
@@ -495,6 +511,22 @@ export default function TasksScreen() {
           Everything that used to occupy the taxonomy bar — the category pills,
           the statuses-and-categories link — lives inside that menu now, so the
           row it needed is gone. */}
+      {/* Its own row rather than a third cell in the controls grid below: on a
+          375px phone the tabs and the pill already claim ~256px of ~327px, so a
+          search box squeezed beside them would be ~67px wide — a field you
+          can't read what you typed in. Same shape as the clients search. */}
+      <Box className="t-search-row">
+        <Box className="t-search">
+          <Search size={16} strokeWidth={1.6} aria-hidden="true" />
+          <Input
+            type="search"
+            placeholder={t('search')}
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
+        </Box>
+      </Box>
+
       <Box className="t-controls">
         <Box className="mg-toggle t-filter" role="tablist" aria-label={t('filter.aria')}>
           {filters.map((f) => (
@@ -630,7 +662,12 @@ export default function TasksScreen() {
           <Box className="empty"><Txt as="p" className="empty-text" title={error}>{isTasks || isAll ? t('loadError.tasks') : t('loadError.reminders')}</Txt></Box>
         ) : isAll ? (
           allGroups.length === 0 ? (
-            /* "הכל" is where the screen opens, so it inherits the first-run
+            /* A fruitless search outranks every other empty message: "אין כלום
+               פתוח" would be a lie about the practice when it is only true of
+               the three letters you just typed. */
+            q ? (
+              <Box className="empty"><Txt as="p" className="empty-text">{t('empty.noSearchResults', { query: query.trim() })}</Txt></Box>
+            ) : /* "הכל" is where the screen opens, so it inherits the first-run
                welcome the tasks view used to give: an account with nothing in
                it at all needs a way in, not the "all calm" line that belongs to
                someone who has cleared their plate. */
@@ -693,7 +730,9 @@ export default function TasksScreen() {
           )
         ) : isTasks ? (
           filteredTasks.length === 0 ? (
-            tasks.length === 0 ? (
+            q ? (
+              <Box className="empty"><Txt as="p" className="empty-text">{t('empty.noSearchResults', { query: query.trim() })}</Txt></Box>
+            ) : tasks.length === 0 ? (
               <Box className="empty">
                 <Txt className="empty-icon"><ListTodo size={28} strokeWidth={1.5} aria-hidden="true" /></Txt>
                 <Txt as="p" className="empty-text">{t('empty.firstTask')}</Txt>
@@ -779,7 +818,7 @@ export default function TasksScreen() {
               ))
             )
           ) : filteredReminders.length === 0 ? (
-            <Box className="empty"><Txt as="p" className="empty-text">{filter === 'done' ? t('empty.remindersDone') : t('empty.remindersTodo')}</Txt></Box>
+            <Box className="empty"><Txt as="p" className="empty-text">{q ? t('empty.noSearchResults', { query: query.trim() }) : (filter === 'done' ? t('empty.remindersDone') : t('empty.remindersTodo'))}</Txt></Box>
           ) : filter === 'done' ? (
             <GroupPanel
               groupKey="rem-done"

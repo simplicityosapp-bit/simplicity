@@ -193,6 +193,7 @@
 
 /* Round action buttons — shared with TransactionCard on the finance screen. */
 .f-tx-btn {
+  position: relative;
   width: 30px;
   height: 30px;
   border-radius: 50%;
@@ -204,6 +205,30 @@
   border: 0.5px solid transparent;
   backdrop-filter: var(--mg-card-blur);
   transition: background 0.15s, transform 0.12s;
+}
+/* Grown pointer target — home's separation of the visual control from the
+   thing a finger aims at. The circle stays 30px, the target becomes 36x44,
+   and no layout moves.
+
+   These sit inside .f-tx, which is ITSELF a button (tapping the row opens
+   the transaction for editing), and what they do is consequential in a way
+   editing is not: approve books the money, delete removes it. So the target
+   grows only into space that belongs to nobody — 7px up and down, inside the
+   row's own 12px vertical padding, and 3px to each side, exactly half the
+   6px gap between siblings so neighbouring targets meet at the midpoint and
+   never overlap.
+
+   Deliberately NOT extended outward to the card edge for whichever button
+   happens to be last: the set is built conditionally (approve/skip, or
+   restore/receipt/delete), and the receipt button comes from WhatsAppButton
+   via triggerClassName, so a :last-child rule would be anchoring geometry to
+   a position that changes with the transaction's state. A uniform target is
+   worth more here than the extra 11px. */
+.f-tx-btn::after {
+  content: '';
+  position: absolute;
+  inset-block: -7px;
+  inset-inline: -3px;
 }
 .f-tx-btn:active {
   transform: scale(0.88);

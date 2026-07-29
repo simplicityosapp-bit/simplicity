@@ -3,6 +3,42 @@
    Shared primitives (.cta-add, .t-screen, .empty…) live in screens.css.
    ════════════════════════════════════════════════════════════════ */
 
+/* ── Screen proportion (per-screen override) ─────────────────────
+   Fourth screen to take the home proportion, after clients, projects and
+   tasks: a tighter corner and less padding than the app default, declared
+   on the screen root so unconverted screens keep 20px / 24×28. Proportion
+   only — the cream glass is untouched.
+
+   This is the first converted screen where --mg-card-pad is genuinely
+   load-bearing rather than decorative. .f-overview owns the padding for the
+   whole overview card SO THAT the chart's plot area lines up with the
+   numbers above it (see the note on that rule); its children carry vertical
+   spacing only and inherit the alignment. Narrowing the horizontal half
+   therefore does not break that agreement — it just gives the chart ~20px
+   more width, which it picks up on its own: FinanceChart measures the
+   rendered container and maps the viewBox 1:1 to pixels rather than
+   assuming a fixed width.
+
+   Reached here: .f-overview, .f-firstrun, .f-breakdown, .f-tx (corner only —
+   its padding is hard-coded), plus PendingSection and InvoiceImports, which
+   render inside this screen and read the same corner token.
+
+   .f-tx-group's desktop grid already sat at 12px, so unlike the clients and
+   projects grids there is no gap to bring down.
+
+   The two halves are named separately because --mg-card-pad is a SHORTHAND,
+   and a rule that wants only the horizontal half cannot get at it: writing
+   `padding: 34px var(--mg-card-pad)` silently expands to THREE values
+   (top / horizontal / bottom) rather than the two it looks like. That is
+   exactly the bug .f-firstrun carried. --f-pad-x gives such rules the one
+   value they actually want, from the same source of truth. */
+.f-screen {
+  --mg-card-radius: 14px;
+  --f-pad-y:        16px;
+  --f-pad-x:        18px;
+  --mg-card-pad:    var(--f-pad-y) var(--f-pad-x);
+}
+
 /* ── Overview card (summary + chart) ───────────────────────────
    The month's numbers and the line that draws them are one card, in
    layers: month nav → net → income/expenses → chart. They used to be
@@ -35,7 +71,13 @@
    not six cards apologising for being empty. */
 .f-firstrun {
   margin-bottom: 18px;
-  padding: 34px var(--mg-card-pad);
+  /* Was `34px var(--mg-card-pad)`, which reads as "34 top and bottom, the
+     card's padding on the sides" but is not: --mg-card-pad is a two-value
+     shorthand, so it expanded to three values — 34 top, 24 sides, 28 bottom.
+     The generous vertical breathing room this card is built around was
+     silently missing from its underside. --f-pad-x is the horizontal half on
+     its own, so the two-value form now means what it says. */
+  padding: 34px var(--f-pad-x);
   border-radius: var(--mg-card-radius);
   border: var(--mg-card-border);
   background: var(--mg-card-bg);

@@ -365,6 +365,16 @@
   font-size: calc(11px * var(--text-scale));
   color: var(--mist);
 }
+/* Deadline inside the meta line. Mirrors home's .h-task-due — the date the
+   list is ordered by, said out loud, with a passed one in danger colour.
+   Danger TEXT uses --clay-on-dark (aliases to --clay in light mode and lifts
+   in dark, where deep wine is unreadable), per tokens.css. */
+.tc-due {
+  font-weight: 500;
+}
+.tc-due.is-overdue {
+  color: var(--clay-on-dark);
+}
 /* Custom-status + category chips under the task title. */
 .tc-tags {
   display: flex;

@@ -112,43 +112,54 @@ curl -X POST 'https://<PROJECT_REF>.functions.supabase.co/purge-trash' \
 `days` is clamped to a minimum of 30 — below that it would delete something a
 user can still see and restore.
 
-## 4. Schedule it daily (pg_cron + pg_net)
+## 4. The schedule — ALREADY LIVE, and it does not use this function
 
-Run once in the SQL editor. `03:45` UTC keeps it clear of the three existing
-jobs (`invoice-poll` 03:00, `purge-deleted-accounts` 03:15,
-`scheduled-meetings` 03:30) and puts it **after** them — an account purged at
-03:15 takes its rows with it, so there is nothing left here to sweep.
+`purge-trash-daily` runs at **03:45 UTC** and calls the SQL directly:
 
 ```sql
-create extension if not exists pg_cron;
-create extension if not exists pg_net;
-
 select cron.schedule(
   'purge-trash-daily',
   '45 3 * * *',
   $$
-  select net.http_post(
-    url     := 'https://<PROJECT_REF>.functions.supabase.co/purge-trash',
-    headers := jsonb_build_object(
-      'Content-Type', 'application/json',
-      'x-cron-secret', '<secret>'
-    ),
-    body    := '{"dryRun":false}'::jsonb
-  );
+  select public.report_snapshot_backfill();
+  select public.purge_trash(p_dry_run => false, p_days => 30);
   $$
 );
 ```
 
-> `"dryRun":false` is what makes the schedule actually delete. Leave it out
-> while you want the job to run harmlessly — it will still keep the monthly
-> snapshots fresh, which is worth having on its own.
+The logic already lives in the database, so posting to the edge function would
+only add an HTTP hop, a secret to rotate, a deploy step, and three more ways to
+fail silently at 03:45. Steps 1–2 above are therefore **optional** — the
+schedule works without deploying anything.
 
-Check or change it later:
+`03:45` keeps it clear of the three existing jobs and puts it **after** them
+(`invoice-poll` 03:00, `purge-deleted-accounts` 03:15, `scheduled-meetings`
+03:30): an account purged at 03:15 takes its rows with it, so there is nothing
+left here to sweep.
+
+Verified when scheduled: the job runs as `postgres`, which holds EXECUTE on
+both functions (they are `SECURITY DEFINER` with EXECUTE revoked from
+`anon`/`authenticated`), and the exact command string above was run by hand
+first — 0 purged, 13 correctly skipped.
+
+Check, pause or remove it:
 
 ```sql
 select jobname, schedule, active from cron.job order by schedule;
-select cron.unschedule('purge-trash-daily');
+select * from cron.job_run_details where jobid =
+  (select jobid from cron.job where jobname='purge-trash-daily')
+  order by start_time desc limit 5;
+
+update cron.job set active = false where jobname = 'purge-trash-daily';  -- pause
+select cron.unschedule('purge-trash-daily');                             -- remove
 ```
+
+### When the edge function is still worth deploying
+
+Only if you want to trigger or inspect a sweep from outside the database — an
+ops dashboard, a manual "clean up now" button, a monitored HTTP check. It
+returns the same per-table report as JSON and defaults to a dry run. Nothing
+depends on it.
 
 ## Running it by hand
 

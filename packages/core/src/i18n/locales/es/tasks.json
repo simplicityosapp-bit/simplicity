@@ -114,7 +114,9 @@
     "repeatGeneric": "Se repite",
     "renameSave": "Guardar",
     "renameHint": "Enter para guardar · Esc para cancelar",
-    "renameStartHint": "Doble clic para renombrar"
+    "renameStartHint": "Doble clic para renombrar",
+    "snooze": "Posponer a mañana",
+    "snoozed": "Pospuesto a mañana"
   },
   "groupBy": {
     "aria": "Agrupar tareas",

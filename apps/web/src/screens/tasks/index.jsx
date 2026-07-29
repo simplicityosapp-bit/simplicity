@@ -16,6 +16,7 @@ import ConfirmModal from '../../modals/ConfirmModal'
 import TaskTaxonomyModal from '../../modals/TaskTaxonomyModal'
 import Coachmark from '../../components/Coachmark'
 import { formatWhen, isRecurring, isActiveReminder, dueOccurrenceCount } from '@simplicity/core'
+import { pushUndo } from '../../lib/undo'
 import { reassignTasksStatus } from '../../lib/api/taskStatuses'
 import { reassignTasksCategory } from '../../lib/api/taskCategories'
 import './TasksScreen.css'
@@ -84,6 +85,28 @@ function dateToBucket(due, now) {
 function reminderBucket(rem, now) {
   if (rem.status === 'completed') return null
   return dateToBucket(new Date(rem.scheduled_at), now)
+}
+
+/* Tomorrow, keeping the item's own time of day. Deliberately measured from
+   TODAY rather than from the item's own date: a reminder three weeks overdue
+   pushed "one day on" from its own stale date would still be overdue, which is
+   not what anyone means by "דחה למחר". */
+function tomorrowAt(iso) {
+  const src = new Date(iso)
+  if (Number.isNaN(+src)) return null
+  const n = new Date()
+  return new Date(n.getFullYear(), n.getMonth(), n.getDate() + 1, src.getHours(), src.getMinutes(), 0, 0).toISOString()
+}
+
+/* Postponing only makes sense while the date is today or already behind you.
+   On something scheduled for next month "tomorrow" would drag it FORWARD —
+   the opposite of postponing — so the control isn't offered there. */
+function canPostpone(iso) {
+  if (!iso) return false
+  const d = new Date(iso)
+  if (Number.isNaN(+d)) return false
+  const n = new Date()
+  return d < new Date(n.getFullYear(), n.getMonth(), n.getDate() + 1)
 }
 
 /* A task's deadline as a timestamp, or null when it has none / is unparsable.
@@ -417,6 +440,26 @@ export default function TasksScreen() {
   const renameTask = (id, title) => editTask(id, { title })
   const renameReminder = (id, title) => editReminder(id, { title })
 
+  /* Postpone by one tap, undoable — a mis-tap on a row you meant to tick
+     shouldn't cost you the date. Mirrors how toggleTask/completeReminder
+     already register their own undo. */
+  const postponeTask = (task) => {
+    const next = tomorrowAt(task.due_at)
+    if (!next) return
+    const prev = task.due_at
+    const apply = (due_at) => editTask(task.id, { due_at })
+    apply(next)
+    pushUndo({ label: t('item.snoozed'), undo: () => apply(prev), redo: () => apply(next) })
+  }
+  const postponeReminder = (r) => {
+    const next = tomorrowAt(r.scheduled_at)
+    if (!next) return
+    const prev = r.scheduled_at
+    const apply = (scheduled_at) => editReminder(r.id, { scheduled_at })
+    apply(next)
+    pushUndo({ label: t('item.snoozed'), undo: () => apply(prev), redo: () => apply(next) })
+  }
+
   /* What the closed "תצוגה" pill admits to: a non-default grouping, an active
      category filter, or both. One category names itself; several just count. */
   const viewEcho = [
@@ -707,6 +750,7 @@ export default function TasksScreen() {
                     onToggle={() => toggleTask(it.task)}
                     onEdit={setEditDatedTask}
                     onRename={renameTask}
+                    onPostpone={canPostpone(it.task.due_at) ? postponeTask : undefined}
                     index={i}
                     taskStatus={it.task.status_id ? statusById.get(it.task.status_id) : null}
                     category={it.task.category_id ? categoryById.get(it.task.category_id) : null}
@@ -721,6 +765,7 @@ export default function TasksScreen() {
                     onComplete={completeReminder}
                     onEdit={setEditMixedReminder}
                     onRename={renameReminder}
+                    onPostpone={canPostpone(it.reminder.scheduled_at) ? postponeReminder : undefined}
                     count={dueOccurrenceCount(it.reminder, now)}
                     index={i}
                   />
@@ -777,6 +822,7 @@ export default function TasksScreen() {
                           onToggle={() => toggleTask(task)}
                           onEdit={setEditItem}
                           onRename={renameTask}
+                          onPostpone={canPostpone(task.due_at) ? postponeTask : undefined}
                           index={i}
                           taskStatus={task.status_id ? statusById.get(task.status_id) : null}
                           category={task.category_id ? categoryById.get(task.category_id) : null}
@@ -866,6 +912,7 @@ export default function TasksScreen() {
                       onComplete={completeReminder}
                       onEdit={setEditItem}
                       onRename={renameReminder}
+                      onPostpone={canPostpone(r.scheduled_at) ? postponeReminder : undefined}
                       count={dueOccurrenceCount(r, now)}
                       index={i}
                     />

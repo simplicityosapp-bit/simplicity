@@ -118,7 +118,9 @@
     "repeatWeekly": "כל יום {{day}}",
     "repeatMonthly": "כל {{dom}} בחודש",
     "repeatEveryX": "כל {{x}} ימים",
-    "repeatGeneric": "חוזרת"
+    "repeatGeneric": "חוזרת",
+    "snooze": "דחה למחר",
+    "snoozed": "נדחה למחר"
   },
   "groupBy": {
     "aria": "קיבוץ משימות",

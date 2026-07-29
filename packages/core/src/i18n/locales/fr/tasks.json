@@ -114,7 +114,9 @@
     "repeatGeneric": "Récurrent",
     "renameSave": "Enregistrer",
     "renameHint": "Entrée pour enregistrer · Échap pour annuler",
-    "renameStartHint": "Double-cliquez pour renommer"
+    "renameStartHint": "Double-cliquez pour renommer",
+    "snooze": "Reporter à demain",
+    "snoozed": "Reporté à demain"
   },
   "groupBy": {
     "aria": "Grouper les tâches",

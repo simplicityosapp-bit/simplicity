@@ -114,7 +114,9 @@
     "repeatGeneric": "Repeats",
     "renameSave": "Save",
     "renameHint": "Enter to save · Esc to cancel",
-    "renameStartHint": "Double-click to rename"
+    "renameStartHint": "Double-click to rename",
+    "snooze": "Postpone to tomorrow",
+    "snoozed": "Postponed to tomorrow"
   },
   "groupBy": {
     "aria": "Group tasks",

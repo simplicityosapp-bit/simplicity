@@ -535,6 +535,10 @@
   inset-block: -10px;
   inset-inline: -6px;
 }
+/* "דחה למחר" wears the same quiet icon-button as the pencil beside it — two
+   row actions of equal weight, neither shouting. It only appears on a dated
+   row whose day has arrived or passed, so it is rare enough not to crowd. */
+.tc-postpone:hover { color: var(--clay-on-dark); }
 .tc-edit:hover { color: var(--espresso); opacity: 1; }
 .tc-edit:active { transform: scale(0.9); }
 

@@ -10,8 +10,13 @@ import { selectAll } from '../lib/paginate'
 // Web reaches the same place from the other direction: its hooks filter
 // deleted_at server-side, so the reports screen there needs the dedicated
 // listTasksForReports() to see them at all.
-const EMPTY = { leads: [], clients: [], sessions: [], transactions: [], tasks: [], groupMembers: [], groups: [] }
-const TABLES = { leads: 'leads', clients: 'clients', sessions: 'sessions', transactions: 'transactions', tasks: 'tasks', groupMembers: 'group_members', groups: 'groups' }
+// tallies = public.report_tallies, the event ledger (migration 0100). Core
+// reads the flow metrics from it instead of counting the rows, so a number
+// survives its row being deleted — and, once the 30-day purge runs, removed.
+// The rows still load: the drill-down lists them, and money plus the two
+// "as of" snapshots are not in the ledger.
+const EMPTY = { leads: [], clients: [], sessions: [], transactions: [], tasks: [], groupMembers: [], groups: [], tallies: [] }
+const TABLES = { leads: 'leads', clients: 'clients', sessions: 'sessions', transactions: 'transactions', tasks: 'tasks', groupMembers: 'group_members', groups: 'groups', tallies: 'report_tallies' }
 
 // Reports aggregate the ENTIRE history, so a plain read (1000-row cap) would
 // silently under-count totals. Paginate the full set (matches web selectAllRows).

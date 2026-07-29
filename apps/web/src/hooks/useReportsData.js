@@ -39,6 +39,12 @@ const TABLES = {
   tasks: 'tasks',
   groupMembers: 'group_members',
   groups: 'groups',
+  /* The event ledger (migration 0100). The flow metrics are read from here
+     rather than counted off the rows above, so a number survives the row
+     being deleted — and, once the 30-day purge runs, being removed outright.
+     The rows are still loaded: the drill-down lists them, and money and the
+     two "as of" snapshots are not in the ledger. */
+  tallies: 'report_tallies',
 }
 
 const EMPTY = Object.fromEntries(Object.keys(TABLES).map((k) => [k, []]))

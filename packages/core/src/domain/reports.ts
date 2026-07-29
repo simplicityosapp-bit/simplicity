@@ -63,6 +63,15 @@ interface RMember {
 }
 interface RGroup { id?: string; name?: string }
 
+/* One row of public.report_tallies — a per-month event counter maintained by
+   database triggers (migration 0100). `period` is the first day of the month
+   in Asia/Jerusalem, as 'YYYY-MM-DD'. */
+export interface RTally {
+  period?: string | null
+  metric?: string | null
+  count?: number | null
+}
+
 export interface ReportData {
   leads?: RLead[]
   clients?: RClient[]
@@ -71,6 +80,11 @@ export interface ReportData {
   tasks?: RTask[]
   groupMembers?: RMember[]
   groups?: RGroup[]
+  /* When present, the flow metrics are read from here instead of counted off
+     the rows — see the note above computeReportForRange. Omit it and the
+     function behaves exactly as it always did, which is what keeps it usable
+     as a pure function in tests with synthetic rows. */
+  tallies?: RTally[]
 }
 
 export interface ReportPeriod {
@@ -199,8 +213,39 @@ function openTasksAsOf(tasks: RTask[] | undefined, end: Date): number {
   return count
 }
 
+/* Sum the month buckets that fall inside [start, end] for one metric.
+   Report ranges are always whole months (getPeriodsForMonths), so a bucket is
+   either wholly in or wholly out and summing is exact — for a single month in
+   the list view and for a 3/6/12-month span in the table alike. */
+function tallyIn(tallies: RTally[], metric: string, start: Date, end: Date): number {
+  const s = toISODate(start)
+  const e = toISODate(end)
+  let n = 0
+  tallies.forEach((t) => {
+    if (t.metric !== metric) return
+    if (!t.period || t.period < s || t.period > e) return
+    n += t.count || 0
+  })
+  return n
+}
+
 /* ── Core per-range aggregator ─────────────────────────────────── */
 
+/* FLOW METRICS COME FROM THE LEDGER WHEN IT IS SUPPLIED.
+   Counting them off the rows makes a number only as durable as its rows, so
+   deleting a finished task shrank a closed month (acbbeaa5) and the 30-day
+   purge would rewrite history wholesale. report_tallies (migration 0100)
+   records each event as it happens; passing it in makes the count independent
+   of whether the row still exists.
+
+   Without `tallies` this falls back to counting rows, unchanged. That keeps
+   the function pure and testable with synthetic data, and it is why the two
+   paths must stay numerically identical — the suite pins them against each
+   other.
+
+   Money and the two "as of" snapshots are NOT in the ledger and always read
+   rows: money deliberately excludes deleted rows, and "how many, as of this
+   date" cannot be derived from an event count. */
 export function computeReportForRange(start: Date, end: Date, data: ReportData = {}): ReportResult {
   const {
     leads = [],
@@ -209,7 +254,9 @@ export function computeReportForRange(start: Date, end: Date, data: ReportData =
     transactions = [],
     tasks = [],
     groupMembers = [],
+    tallies,
   } = data
+  const led = tallies ? (m: string) => tallyIn(tallies, m, start, end) : null
 
   const startMs = start.getTime()
   const endMs = end.getTime()
@@ -233,14 +280,23 @@ export function computeReportForRange(start: Date, end: Date, data: ReportData =
      the leads API reconcileClosedAt() shim. */
   const closedLeads = allLeads.filter((l) => inRangeTs(l.closed_at))
   const convertedLeads = allLeads.filter((l) => isConvertedLead(l) && inRangeTs(l.converted_at))
-  const cohortConverted = newLeads.filter(isConvertedLead).length
-  const conversionRate = newLeads.length > 0
-    ? Math.round((cohortConverted / newLeads.length) * 100)
+
+  const newInquiries = led ? led('new_inquiries') : newLeads.length
+  const leadsClosed = led ? led('leads_closed') : closedLeads.length
+  const leadsConverted = led ? led('leads_converted') : convertedLeads.length
+
+  /* Cohort ratio: of the leads that enquired in this range, how many ever
+     converted — which is why the ledger files cohort_converted under the
+     INQUIRY month even when the conversion came later. */
+  const cohortConverted = led ? led('cohort_converted') : newLeads.filter(isConvertedLead).length
+  const conversionRate = newInquiries > 0
+    ? Math.round((cohortConverted / newInquiries) * 100)
     : null
 
   /* ── Clients ── */
   const allClients = all(clients)
-  const newClients = allClients.filter((c) => inRangeTs(c.created_at))
+  const newClientRows = allClients.filter((c) => inRangeTs(c.created_at))
+  const newClients = led ? led('new_clients') : newClientRows.length
   const activeAtEnd = activeClientsAsOf(clients, end)
 
   /* Churn: left mid-process / total ended in range. Both halves are flow —
@@ -254,6 +310,12 @@ export function computeReportForRange(start: Date, end: Date, data: ReportData =
     totalEnded++
     if (m.left_mid_process) leftCount++
   })
+  /* ⚠ This branch never fires: clients has no last_status_changed_at column
+     (only leads does), so inRangeTs() always sees undefined. That means a
+     PERSONAL client who ended mid-process has never reached this metric —
+     only group members do. Found while building the ledger, which mirrors
+     the behaviour rather than the intent so the two agree; fixing it moves a
+     live business figure and is the owner's call. */
   allClients.forEach((c) => {
     if ((c.status_meta || c.status) !== 'past') return
     if (!((c.sessions || 0) > 0)) return
@@ -261,10 +323,14 @@ export function computeReportForRange(start: Date, end: Date, data: ReportData =
     totalEnded++
     if (c.left_mid_process) leftCount++
   })
-  const leftMidProcessPct = totalEnded > 0 ? Math.round((leftCount / totalEnded) * 100) : null
+  const endedTotal = led ? led('ended_total') : totalEnded
+  const endedLeftMid = led ? led('ended_left_mid') : leftCount
+  const leftMidProcessPct = endedTotal > 0 ? Math.round((endedLeftMid / endedTotal) * 100) : null
 
   /* ── Sessions ── */
-  const sessionsInRange = all(sessions).filter((s) => inRangeTs(s.date)).length
+  const sessionsInRange = led
+    ? led('sessions_held')
+    : all(sessions).filter((s) => inRangeTs(s.date)).length
 
   /* ── Finance ── */
   /* THE EXCEPTION to the rule above: money still drops deleted rows.
@@ -290,25 +356,23 @@ export function computeReportForRange(start: Date, end: Date, data: ReportData =
   const net = income - expense
 
   /* ── Tasks ── */
-  /* Counted from the RAW list, not live(): completing a task is an event that
-     happened, and deleting the task afterwards does not un-happen it. Filtering
-     by deleted_at made a finished month quietly lose work as the user tidied
-     up their task list — reported by a beta user (acbbeaa5).
-
-     openTasksAsOf below already worked this way; this was the one tasks metric
-     that didn't. Nothing purges the trash (it only offers restore), so the
-     soft-deleted row stays available to count indefinitely. */
-  const tasksCompleted = (tasks || []).filter((t) => inRangeTs(t.completed_at)).length
+  /* Completing a task is an event that happened; deleting the task afterwards
+     does not un-happen it (acbbeaa5). The ledger makes that permanent — the
+     row-based fallback below reads the RAW list for the same reason, and the
+     two must agree. */
+  const tasksCompleted = led
+    ? led('tasks_completed')
+    : all(tasks).filter((t) => inRangeTs(t.completed_at)).length
   const openAtEnd = openTasksAsOf(tasks, end)
 
   return {
     period: { start, end },
     metrics: {
-      newInquiries: newLeads.length,
-      leadsClosed: closedLeads.length,
-      leadsConverted: convertedLeads.length,
+      newInquiries,
+      leadsClosed,
+      leadsConverted,
       conversionRate,
-      newClients: newClients.length,
+      newClients,
       activeClientsAtEnd: activeAtEnd,
       leftMidProcessPct,
       sessions: sessionsInRange,

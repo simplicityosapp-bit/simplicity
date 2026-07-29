@@ -24,14 +24,14 @@ const METRIC_ICONS = {
 // report engine computes every metric for that range, grouped by domain. The
 // customize / drill-down / table-view are deferred; this shows all metrics.
 export default function ReportsScreen() {
-  const { leads, clients, sessions, transactions, tasks, groupMembers, groups, loading, error, refetch } = useReportsData()
+  const { leads, clients, sessions, transactions, tasks, groupMembers, groups, tallies, loading, error, refetch } = useReportsData()
   const periods = useMemo(() => getLast12Months(new Date(), i18n.language), [])
   const [idx, setIdx] = useState(periods.length - 1) // current month
   const period = periods[idx]
 
   const data = useMemo(
-    () => ({ leads, clients, sessions, transactions, tasks, groupMembers, groups }),
-    [leads, clients, sessions, transactions, tasks, groupMembers, groups],
+    () => ({ leads, clients, sessions, transactions, tasks, groupMembers, groups, tallies }),
+    [leads, clients, sessions, transactions, tasks, groupMembers, groups, tallies],
   )
   const report = useMemo(() => computeReportForRange(period.start, period.end, data), [period, data])
   const metricVal = (id) => report?.metrics?.[id]

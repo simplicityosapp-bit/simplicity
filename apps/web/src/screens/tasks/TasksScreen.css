@@ -103,6 +103,91 @@
   font-size: var(--mg-caption);
 }
 
+/* ── Multi-select ───────────────────────────────────────────────
+   The bar floats over the list so the actions stay reachable however far you
+   have scrolled to pick things — same shape as the clients bulk bar. The
+   screen gains bottom padding while it is up so the last row is never left
+   underneath it. */
+.screen.has-bulk-bar {
+  padding-bottom: 80px;
+}
+.t-bulk-bar {
+  position: fixed;
+  inset-inline: 12px;
+  bottom: 16px;
+  z-index: 80;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--divider);
+  background: var(--mg-card-bg);
+  -webkit-backdrop-filter: var(--mg-card-blur);
+  backdrop-filter: var(--mg-card-blur);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.16);
+}
+@media (min-width: 768px) {
+  .t-bulk-bar {
+    inset-inline: auto;
+    inset-inline-end: 32px;
+    inset-inline-start: 280px;
+  }
+}
+.t-bulk-count {
+  font-family: var(--mg-font);
+  font-size: var(--mg-caption);
+  font-weight: 600;
+  color: var(--espresso);
+  white-space: nowrap;
+}
+.t-bulk-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.t-bulk-btn {
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--divider);
+  background: transparent;
+  font-family: var(--mg-font);
+  font-size: var(--mg-caption);
+  font-weight: 500;
+  color: var(--espresso);
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s, opacity 0.15s;
+}
+.t-bulk-btn:hover:not(:disabled) { border-color: var(--espresso); }
+.t-bulk-btn:disabled { opacity: 0.4; cursor: default; }
+/* Danger TEXT reads --clay-on-dark: it aliases to --clay in light mode and
+   lifts in dark, where the deep wine is unreadable. */
+.t-bulk-btn.danger { color: var(--clay-on-dark); }
+.t-bulk-btn.danger:hover:not(:disabled) { border-color: var(--clay-on-dark); }
+.t-bulk-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border: none;
+  background: none;
+  color: var(--stone);
+  cursor: pointer;
+}
+.t-bulk-close:hover { color: var(--espresso); }
+/* Opens UPWARD — the bar is pinned to the bottom of the viewport. */
+.t-bulk-pop {
+  inset-block-end: calc(100% + 8px);
+}
+/* A selectable row reads as pickable, and a picked one is filled. Uses the
+   same terracotta the checked state already uses, so nothing new is learned. */
+.tc.is-selectable { cursor: pointer; }
+.tc.is-selected {
+  border-color: color-mix(in srgb, var(--terracotta) 45%, transparent);
+  background: color-mix(in srgb, var(--terracotta) 8%, var(--mg-card-bg));
+}
+
 /* ── Search — a glyph that becomes the row ──────────────────────
    Closed it is one round button between the status tabs and the "תצוגה" pill.
    Open it takes the whole controls row and the other two step aside: three

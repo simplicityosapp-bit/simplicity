@@ -130,5 +130,21 @@
   },
   "all": "Tout",
   "search": "Rechercher une tâche ou un rappel…",
-  "searchClose": "Fermer la recherche"
+  "searchClose": "Fermer la recherche",
+  "select": {
+    "enter": "Sélection multiple",
+    "cancel": "Annuler la sélection"
+  },
+  "bulk": {
+    "selected": "{{count}} sélectionnés",
+    "markDone": "Marquer terminé",
+    "category": "Catégorie",
+    "categoryNone": "Aucune catégorie",
+    "delete": "Supprimer",
+    "closeAria": "Fermer le mode sélection",
+    "deleteTitle": "Supprimer les éléments sélectionnés",
+    "deleteMessage": "Supprimer {{count}} éléments ? Vous pourrez les restaurer depuis la corbeille pendant 30 jours.",
+    "doneUndo": "{{count}} marqués comme terminés",
+    "categoryUndo": "Catégorie mise à jour sur {{count}} éléments"
+  }
 }

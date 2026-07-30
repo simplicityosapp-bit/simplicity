@@ -4,7 +4,7 @@ import { useT } from '../../i18n/useT'
 import InlineTitle from './InlineTitle'
 import { Box, Txt, Btn } from '../../components/ui'
 
-function TaskItem({ task, project, clientName, dotColor, onToggle, onEdit, onRename, onPostpone, index, taskStatus, category, dueLabel, urgentTag = false }) {
+function TaskItem({ task, project, clientName, dotColor, onToggle, onEdit, onRename, onPostpone, index, taskStatus, category, dueLabel, urgentTag = false, selectMode = false, selected = false, onSelect }) {
   const { t } = useT('tasks')
   const isDone = task.status === 'done'
   /* The deadline is split out of the joined meta line so a passed one can be
@@ -14,15 +14,18 @@ function TaskItem({ task, project, clientName, dotColor, onToggle, onEdit, onRen
   const meta = [clientName, project?.name].filter(Boolean).join(' · ')
 
   return (
-    <Box className={`tc anim${isDone ? ' is-done' : ''}`} style={{ animationDelay: `${index * 0.04}s` }}>
+    <Box className={`tc anim${isDone ? ' is-done' : ''}${selectMode ? ' is-selectable' : ''}${selected ? ' is-selected' : ''}`} style={{ animationDelay: `${index * 0.04}s` }}>
+      {/* In select mode the circle means SELECTED, not done — one control, one
+          meaning at a time. Two circles on a row would be a coin toss, and
+          marking done in bulk is what the action bar is for. */}
       <Btn
         type="button"
-        className={`tc-chk${isDone ? ' on' : ''}`}
-        onClick={() => onToggle(task.id)}
-        aria-pressed={isDone}
-        aria-label={isDone ? t('item.uncheck') : t('item.checkTask')}
+        className={`tc-chk${(selectMode ? selected : isDone) ? ' on' : ''}`}
+        onClick={() => (selectMode ? onSelect?.() : onToggle(task.id))}
+        aria-pressed={selectMode ? selected : isDone}
+        aria-label={selectMode ? task.title : (isDone ? t('item.uncheck') : t('item.checkTask'))}
       >
-        {isDone && <Check size={13} strokeWidth={2.5} aria-hidden="true" />}
+        {(selectMode ? selected : isDone) && <Check size={13} strokeWidth={2.5} aria-hidden="true" />}
       </Btn>
       <Box className="tc-body">
         <InlineTitle

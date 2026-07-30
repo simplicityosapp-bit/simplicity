@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { ListTodo, Plus, Trash2, Tags, ChevronDown, SlidersHorizontal, ClipboardList, Search, X } from 'lucide-react'
+import { ListTodo, Plus, Trash2, Tags, ChevronDown, SlidersHorizontal, ClipboardList, Search, X, CheckSquare } from 'lucide-react'
 import { usePopoverSide } from '../../hooks/usePopoverSide'
 import { useTasks } from '../../hooks/useTasks'
 import { useReminders } from '../../hooks/useReminders'
@@ -220,6 +220,22 @@ export default function TasksScreen() {
   const taskHit = (task) => hit(task.title, task.description, clientNameOf(task.client_id), projOf(task.project_id)?.name)
   const remHit = (r) => hit(r.title, r.description, clientNameOf(r.client_id))
 
+  /* Multi-select. Entered from the "תצוגה" menu, exactly where the clients
+     screen keeps its own. Selection is keyed by row id across BOTH kinds — the
+     mixed list can hand you a task and a reminder in one sweep — so each id
+     carries its kind rather than the bar guessing later. */
+  const [selectMode, setSelectMode] = useState(false)
+  const [selectedIds, setSelectedIds] = useState(() => new Set())
+  const [bulkCatOpen, setBulkCatOpen] = useState(false)
+  const bulkCatRef = useRef(null)
+  const bulkCatSide = usePopoverSide(bulkCatRef, bulkCatOpen)
+  const [confirmBulkDelete, setConfirmBulkDelete] = useState(false)
+  const toggleSelect = (id) => setSelectedIds((prev) => {
+    const next = new Set(prev)
+    if (next.has(id)) next.delete(id); else next.add(id)
+    return next
+  })
+
   const [groupBy, setGroupBy] = useState('priority')
   /* Grouping lives behind the "תצוגה" pill rather than a third row of tabs.
      Two identical-looking segmented controls stacked (filter, then grouping)
@@ -244,6 +260,16 @@ export default function TasksScreen() {
     document.addEventListener('mousedown', onDoc)
     return () => document.removeEventListener('mousedown', onDoc)
   }, [viewOpen])
+
+  /* Same dismissal for the bulk-category popover in the action bar. */
+  useEffect(() => {
+    if (!bulkCatOpen) return undefined
+    const onDoc = (e) => {
+      if (!bulkCatRef.current?.contains(e.target)) setBulkCatOpen(false)
+    }
+    document.addEventListener('mousedown', onDoc)
+    return () => document.removeEventListener('mousedown', onDoc)
+  }, [bulkCatOpen])
 
   const statusById = useMemo(() => {
     const m = new Map(); taskStatuses.forEach((s) => m.set(s.id, s)); return m
@@ -451,6 +477,83 @@ export default function TasksScreen() {
   const renameTask = (id, title) => editTask(id, { title })
   const renameReminder = (id, title) => editReminder(id, { title })
 
+  /* Drop the selection whenever the visible set changes underneath it, or on
+     leaving select mode. Adjusted during render rather than in an effect, to
+     avoid a cascading set-state-in-effect — the pattern the clients screen
+     settled on. Without it you could delete rows you can no longer see. */
+  const selScope = `${view}|${filter}|${selectMode}`
+  const [prevSelScope, setPrevSelScope] = useState(selScope)
+  if (selScope !== prevSelScope) {
+    setPrevSelScope(selScope)
+    setSelectedIds(new Set())
+  }
+
+  /* The selected rows, resolved back to real records. Ids are prefixed by kind
+     so one Set can hold both tables without collision. */
+  const selectedTasks = useMemo(
+    () => tasks.filter((x) => selectedIds.has(`task-${x.id}`)),
+    [tasks, selectedIds],
+  )
+  const selectedReminders = useMemo(
+    () => reminders.filter((r) => selectedIds.has(`rem-${r.id}`)),
+    [reminders, selectedIds],
+  )
+  const selectedCount = selectedTasks.length + selectedReminders.length
+
+  /* Mark every selected row done, undoably. Reminders go through
+     completeReminder so a RECURRING one advances to its next occurrence
+     instead of being stopped — the same asymmetry the single ✓ respects. */
+  const bulkMarkDone = async () => {
+    const openTasksSel = selectedTasks.filter((x) => x.status !== 'done')
+    const snapshots = openTasksSel.map((x) => ({ id: x.id, status: x.status, completed_at: x.completed_at ?? null, status_id: x.status_id ?? null }))
+    await Promise.all([
+      ...openTasksSel.map((x) => editTask(x.id, { status: 'done', completed_at: new Date().toISOString(), status_id: null })),
+      ...selectedReminders.filter((r) => r.status !== 'completed').map((r) => completeReminder(r)),
+    ])
+    const n = openTasksSel.length + selectedReminders.filter((r) => r.status !== 'completed').length
+    if (!n) return
+    setSelectMode(false)
+    /* Only the tasks are reversible here: a recurring reminder that advanced
+       has no single prior state worth restoring, and completeReminder already
+       pushed its own undo for the one-offs. */
+    if (snapshots.length) {
+      pushUndo({
+        label: t('bulk.doneUndo', { count: n }),
+        undo: () => Promise.all(snapshots.map((s) => editTask(s.id, { status: s.status, completed_at: s.completed_at, status_id: s.status_id }))),
+        redo: () => Promise.all(snapshots.map((s) => editTask(s.id, { status: 'done', completed_at: new Date().toISOString(), status_id: null }))),
+      })
+    }
+  }
+
+  const bulkSetCategory = async (categoryId) => {
+    setBulkCatOpen(false)
+    const snaps = [
+      ...selectedTasks.map((x) => ({ kind: 'task', id: x.id, prev: x.category_id ?? null })),
+      ...selectedReminders.map((r) => ({ kind: 'rem', id: r.id, prev: r.category_id ?? null })),
+    ]
+    if (!snaps.length) return
+    const apply = (get) => Promise.all(snaps.map((s) => (s.kind === 'task'
+      ? editTask(s.id, { category_id: get(s) })
+      : editReminder(s.id, { category_id: get(s) }))))
+    await apply(() => categoryId)
+    setSelectMode(false)
+    pushUndo({
+      label: t('bulk.categoryUndo', { count: snaps.length }),
+      undo: () => apply((s) => s.prev),
+      redo: () => apply(() => categoryId),
+    })
+  }
+
+  /* Soft-delete → Trash, restorable 30 days. That IS the safety net here, as
+     with "מחיקת שהושלמו" — a per-row undo toast for a batch would be noise. */
+  const bulkDelete = async () => {
+    await Promise.all([
+      ...selectedTasks.map((x) => removeTask(x.id)),
+      ...selectedReminders.map((r) => removeReminder(r.id)),
+    ])
+    setSelectMode(false)
+  }
+
   /* Postpone by one tap, undoable — a mis-tap on a row you meant to tick
      shouldn't cost you the date. Mirrors how toggleTask/completeReminder
      already register their own undo. */
@@ -485,7 +588,7 @@ export default function TasksScreen() {
     : (filter === 'done' ? t('empty.remindersDone') : t('empty.remindersTodo'))
 
   return (
-    <Box className="screen tk-screen">
+    <Box className={`screen tk-screen${selectMode ? ' has-bulk-bar' : ''}`}>
       <Box className="screen-top">
         {/* Just the name of the screen, wearing its menu icon. The open/done
             counts that used to sit here were the same two numbers the summary
@@ -690,8 +793,18 @@ export default function TasksScreen() {
                 </>
               )}
 
-              {/* Editing the vocabulary itself, rather than choosing from it —
-                  so it sits below the divider and closes on the way out. */}
+              {/* Acting on many rows at once, and editing the vocabulary
+                  itself — both below the divider, because neither is choosing
+                  from what the menu offers above. Same place the clients view
+                  menu keeps its own multi-select. */}
+              <Btn
+                type="button"
+                className={`mg-menu-opt mg-menu-opt-icon${selectMode ? ' on' : ''}`}
+                onClick={() => { setSelectMode((v) => !v); setViewOpen(false) }}
+              >
+                <CheckSquare size={14} strokeWidth={1.6} aria-hidden="true" />
+                {selectMode ? t('select.cancel') : t('select.enter')}
+              </Btn>
               <Btn
                 type="button"
                 className="mg-menu-opt mg-menu-opt-icon"
@@ -707,7 +820,10 @@ export default function TasksScreen() {
         )}
       </Box>
 
-      {filter === 'done' && doneCount > 0 && (
+      {/* Hidden while selecting: "מחיקת שהושלמו" sweeps a set the checkboxes
+          have nothing to do with, and two delete affordances on one screen at
+          the same time is how you delete the wrong thing. */}
+      {!selectMode && filter === 'done' && doneCount > 0 && (
         <Box className="t-clear-row">
           <Btn type="button" className="t-clear-btn" onClick={() => setConfirmClear(true)}>
             <Trash2 size={14} strokeWidth={1.5} aria-hidden="true" />
@@ -779,6 +895,9 @@ export default function TasksScreen() {
                     onToggle={() => toggleTask(it.task)}
                     onEdit={setEditDatedTask}
                     onRename={renameTask}
+                    selectMode={selectMode}
+                    selected={selectedIds.has(`task-${it.task.id}`)}
+                    onSelect={() => toggleSelect(`task-${it.task.id}`)}
                     onPostpone={canPostpone(it.task.due_at) ? postponeTask : undefined}
                     index={i}
                     taskStatus={it.task.status_id ? statusById.get(it.task.status_id) : null}
@@ -794,6 +913,9 @@ export default function TasksScreen() {
                     onComplete={completeReminder}
                     onEdit={setEditMixedReminder}
                     onRename={renameReminder}
+                    selectMode={selectMode}
+                    selected={selectedIds.has(`rem-${it.reminder.id}`)}
+                    onSelect={() => toggleSelect(`rem-${it.reminder.id}`)}
                     onPostpone={canPostpone(it.reminder.scheduled_at) ? postponeReminder : undefined}
                     count={dueOccurrenceCount(it.reminder, now)}
                     index={i}
@@ -851,6 +973,9 @@ export default function TasksScreen() {
                           onToggle={() => toggleTask(task)}
                           onEdit={setEditItem}
                           onRename={renameTask}
+                          selectMode={selectMode}
+                          selected={selectedIds.has(`task-${task.id}`)}
+                          onSelect={() => toggleSelect(`task-${task.id}`)}
                           onPostpone={canPostpone(task.due_at) ? postponeTask : undefined}
                           index={i}
                           taskStatus={task.status_id ? statusById.get(task.status_id) : null}
@@ -886,6 +1011,9 @@ export default function TasksScreen() {
                       onComplete={completeReminder}
                       onEdit={setEditItem}
                       onRename={renameReminder}
+                      selectMode={selectMode}
+                      selected={selectedIds.has(`rem-${r.id}`)}
+                      onSelect={() => toggleSelect(`rem-${r.id}`)}
                       index={i}
                     />
                   ))}
@@ -913,6 +1041,9 @@ export default function TasksScreen() {
                   onComplete={completeReminder}
                   onEdit={setEditItem}
                   onRename={renameReminder}
+                  selectMode={selectMode}
+                  selected={selectedIds.has(`rem-${r.id}`)}
+                  onSelect={() => toggleSelect(`rem-${r.id}`)}
                   index={i}
                 />
               ))}
@@ -941,6 +1072,9 @@ export default function TasksScreen() {
                       onComplete={completeReminder}
                       onEdit={setEditItem}
                       onRename={renameReminder}
+                      selectMode={selectMode}
+                      selected={selectedIds.has(`rem-${r.id}`)}
+                      onSelect={() => toggleSelect(`rem-${r.id}`)}
                       onPostpone={canPostpone(r.scheduled_at) ? postponeReminder : undefined}
                       count={dueOccurrenceCount(r, now)}
                       index={i}
@@ -952,6 +1086,70 @@ export default function TasksScreen() {
           )
         )}
       </Box>
+
+      {/* Bulk action bar — floats over the list while selecting, the way the
+          clients screen's does, so the actions stay reachable however far down
+          you have scrolled to pick things. */}
+      {selectMode && (
+        <Box className="t-bulk-bar">
+          <Txt className="t-bulk-count">{t('bulk.selected', { count: selectedCount })}</Txt>
+          <Box className="t-bulk-actions">
+            <Btn
+              type="button"
+              className="t-bulk-btn"
+              onClick={bulkMarkDone}
+              disabled={selectedCount === 0}
+            >{t('bulk.markDone')}</Btn>
+
+            {taskCategories.length > 0 && (
+              <Box className="mg-menu-wrap" ref={bulkCatRef}>
+                <Btn
+                  type="button"
+                  className="t-bulk-btn"
+                  onClick={() => setBulkCatOpen((v) => !v)}
+                  disabled={selectedCount === 0}
+                  aria-expanded={bulkCatOpen}
+                  aria-haspopup="menu"
+                >{t('bulk.category')}</Btn>
+                {bulkCatOpen && (
+                  <Box className="mg-menu-pop t-bulk-pop" role="menu" style={{ [bulkCatSide]: 0 }}>
+                    <Txt as="p" className="mg-menu-h">{t('taxonomy.heading')}</Txt>
+                    {taskCategories.map((c) => (
+                      <Btn key={c.id} type="button" className="mg-menu-opt" onClick={() => bulkSetCategory(c.id)}>
+                        {c.name}
+                      </Btn>
+                    ))}
+                    <Box className="mg-menu-divider" />
+                    <Btn type="button" className="mg-menu-opt" onClick={() => bulkSetCategory(null)}>
+                      {t('bulk.categoryNone')}
+                    </Btn>
+                  </Box>
+                )}
+              </Box>
+            )}
+
+            <Btn
+              type="button"
+              className="t-bulk-btn danger"
+              onClick={() => setConfirmBulkDelete(true)}
+              disabled={selectedCount === 0}
+            >{t('bulk.delete')}</Btn>
+            <Btn type="button" className="t-bulk-close" onClick={() => setSelectMode(false)} aria-label={t('bulk.closeAria')}>
+              <X size={16} strokeWidth={1.7} aria-hidden="true" />
+            </Btn>
+          </Box>
+        </Box>
+      )}
+
+      <ConfirmModal
+        open={confirmBulkDelete}
+        onClose={() => setConfirmBulkDelete(false)}
+        title={t('bulk.deleteTitle')}
+        message={t('bulk.deleteMessage', { count: selectedCount })}
+        confirmLabel={t('clearConfirm.confirm')}
+        danger
+        onConfirm={bulkDelete}
+      />
 
       {/* The mixed "הכל" list can hand you either kind, so both editors are
           mounted regardless of the active view — the toggle decides what the

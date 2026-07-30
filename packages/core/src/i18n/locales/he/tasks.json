@@ -134,5 +134,21 @@
   },
   "all": "הכל",
   "search": "חיפוש משימה או תזכורת…",
-  "searchClose": "סגירת חיפוש"
+  "searchClose": "סגירת חיפוש",
+  "select": {
+    "enter": "בחירה מרובה",
+    "cancel": "ביטול בחירה"
+  },
+  "bulk": {
+    "selected": "{{count}} נבחרו",
+    "markDone": "סמן כבוצע",
+    "category": "קטגוריה",
+    "categoryNone": "ללא קטגוריה",
+    "delete": "מחיקה",
+    "closeAria": "סגירת מצב בחירה",
+    "deleteTitle": "מחיקת פריטים שנבחרו",
+    "deleteMessage": "למחוק {{count}} פריטים? אפשר לשחזר אותם מסל המיחזור עד 30 יום.",
+    "doneUndo": "{{count}} סומנו כבוצעו",
+    "categoryUndo": "הקטגוריה עודכנה ל-{{count}} פריטים"
+  }
 }

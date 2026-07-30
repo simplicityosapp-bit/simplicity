@@ -72,6 +72,6 @@
   transition: color 0.15s, background 0.15s;
 }
 .qsm-row-del:hover {
-  color: var(--clay);
+  color: var(--clay-on-dark);
   background: rgba(181, 99, 78, 0.08);
 }

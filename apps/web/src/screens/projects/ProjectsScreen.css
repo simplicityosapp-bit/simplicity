@@ -205,7 +205,7 @@
 .pc-edit:hover { color: var(--espresso); background: color-mix(in srgb, var(--espresso) 6%, transparent); }
 .pc-del:hover {
   background: color-mix(in srgb, var(--clay) 12%, transparent);
-  color: var(--clay);
+  color: var(--clay-on-dark);
 }
 .pc-divider {
   height: 1px;

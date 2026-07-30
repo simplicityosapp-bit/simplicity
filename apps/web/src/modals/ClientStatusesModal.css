@@ -73,8 +73,8 @@
   cursor: pointer;
 }
 .cst-icon-btn:hover { background: var(--mg-row-hover-bg); color: var(--espresso); }
-.cst-del { color: var(--clay); }
-.cst-del:hover { color: var(--clay); }
+.cst-del { color: var(--clay-on-dark); }
+.cst-del:hover { color: var(--clay-on-dark); }
 
 .cst-add {
   display: flex;

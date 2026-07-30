@@ -128,7 +128,7 @@
   color: var(--mist);
   font-size: var(--mg-body);
 }
-.admin-state.err { color: var(--clay); }
+.admin-state.err { color: var(--clay-on-dark); }
 
 /* ── Card primitive ────────────────────────────────────────────── */
 .admin-card {
@@ -388,7 +388,7 @@
   border: 1px solid rgba(181, 99, 78, 0.4);
   border-radius: var(--mg-btn-radius);
   background: transparent;
-  color: var(--clay);
+  color: var(--clay-on-dark);
   font-family: var(--mg-font);
   font-size: var(--mg-caption);
   font-weight: 600;
@@ -407,7 +407,7 @@
   font-family: var(--mg-font);
   font-size: var(--mg-body);
 }
-.admin-del-err { margin: 0; font-size: var(--mg-caption); color: var(--clay); }
+.admin-del-err { margin: 0; font-size: var(--mg-caption); color: var(--clay-on-dark); }
 .admin-del-actions { display: flex; gap: 8px; }
 .admin-del-cancel {
   padding: 8px 16px;
@@ -484,7 +484,7 @@
 .admin-role-go:not(:disabled):hover { filter: brightness(.95); }
 .admin-role-revoke {
   padding: 8px 16px; border: 1px solid rgba(181, 99, 78, .4); border-radius: var(--mg-btn-radius);
-  background: transparent; color: var(--clay);
+  background: transparent; color: var(--clay-on-dark);
   font-family: var(--mg-font); font-size: var(--mg-caption); font-weight: 600; cursor: pointer;
 }
 .admin-role-revoke:not(:disabled):hover { background: rgba(181, 99, 78, .1); }
@@ -496,7 +496,7 @@
 }
 .admin-role-confirm { display: flex; flex-direction: column; gap: 8px; }
 .admin-role-warn { margin: 0; font-size: var(--mg-caption); color: var(--espresso); line-height: 1.6; }
-.admin-role-err { margin: 0; font-size: var(--mg-caption); color: var(--clay); }
+.admin-role-err { margin: 0; font-size: var(--mg-caption); color: var(--clay-on-dark); }
 .admin-role-summary { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 5px; }
 .admin-role-summary li { display: flex; align-items: center; gap: 6px; font-size: var(--mg-caption); }
 .admin-role-summary li.on { color: var(--sage); }
@@ -517,7 +517,7 @@
   font-size: var(--mg-micro); font-weight: 500;
   background: var(--mg-row-active-bg); color: var(--stone);
 }
-.admin-chip.type-bug { background: rgba(181, 99, 78, .16); color: var(--clay); }
+.admin-chip.type-bug { background: rgba(181, 99, 78, .16); color: var(--clay-on-dark); }
 .admin-chip.type-idea { background: rgba(212, 165, 116, .18); color: var(--amber-warn); }
 .admin-chip.type-praise { background: rgba(139, 168, 136, .18); color: var(--sage); }
 
@@ -581,7 +581,7 @@
   width: 30px; height: 30px; border-radius: 8px; border: none; background: transparent;
   color: var(--mist); cursor: pointer; flex-shrink: 0;
 }
-.admin-fb-del:hover { background: rgba(181, 99, 78, .14); color: var(--clay); }
+.admin-fb-del:hover { background: rgba(181, 99, 78, .14); color: var(--clay-on-dark); }
 /* Layout only — the surface comes from .admin-card on the element itself.
    It used to hand-copy just --mg-card-bg and --mg-card-border and skip the
    BLUR and the shadow, which is what actually makes the glass read as a

@@ -91,7 +91,7 @@
   font-size: calc(13px * var(--text-scale));
   font-weight: 600;
   line-height: 1.5;
-  color: var(--clay);
+  color: var(--clay-on-dark);
 }
 
 .set-group {
@@ -266,7 +266,7 @@
   border-radius: 50%;
   border: none;
   background: transparent;
-  color: var(--clay);
+  color: var(--clay-on-dark);
   cursor: pointer;
 }
 .set-q-add {
@@ -1180,7 +1180,7 @@ html[dir="ltr"] .set-profile-body .m-pills.has-more {
    read but produced nothing), error (it wasn't read at all). */
 .set-import-msg { font-weight: 600; }
 .set-import-msg.ok { color: var(--sage); }
-.set-import-msg.error { color: var(--clay); }
+.set-import-msg.error { color: var(--clay-on-dark); }
 .set-import-msg.info { color: var(--stone); }
 
 /* Danger zone — visually separated block at the bottom of the data tab. */
@@ -1204,7 +1204,7 @@ html[dir="ltr"] .set-profile-body .m-pills.has-more {
   font-size: calc(12px * var(--text-scale));
   font-weight: 600;
   letter-spacing: 0.04em;
-  color: var(--clay);
+  color: var(--clay-on-dark);
 }
 .set-data-hint {
   margin: 0;

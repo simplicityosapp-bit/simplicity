@@ -267,5 +267,5 @@
   flex-shrink: 0;
   transition: color 0.15s, opacity 0.15s;
 }
-.g-card-del:hover { color: var(--clay); opacity: 1; }
+.g-card-del:hover { color: var(--clay-on-dark); opacity: 1; }
 .g-card-del:active { transform: scale(0.9); }

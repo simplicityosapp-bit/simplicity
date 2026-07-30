@@ -734,7 +734,7 @@ html:has(.lp-root)::-webkit-scrollbar { width: 0; height: 0; display: none; }
 }
 .lp-row-dot.amber { background: color-mix(in srgb, var(--amber-warn) 22%, transparent); color: var(--amber-warn); }
 .lp-row-dot.sage  { background: color-mix(in srgb, var(--sage) 22%, transparent); color: var(--sage); }
-.lp-row-dot.clay  { background: color-mix(in srgb, var(--clay) 18%, transparent); color: var(--clay); }
+.lp-row-dot.clay  { background: color-mix(in srgb, var(--clay) 18%, transparent); color: var(--clay-on-dark); }
 .lp-row-body { flex: 1; min-width: 0; }
 .lp-row-t {
   margin: 0;

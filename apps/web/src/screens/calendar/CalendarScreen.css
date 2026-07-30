@@ -41,7 +41,7 @@
   border: 1px solid color-mix(in srgb, var(--clay) 45%, var(--divider));
   background: var(--mg-card-bg);
   backdrop-filter: var(--mg-card-blur);
-  color: var(--clay);
+  color: var(--clay-on-dark);
   cursor: pointer;
   text-align: start;
   font-family: var(--mg-font);

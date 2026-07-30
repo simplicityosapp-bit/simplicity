@@ -75,7 +75,7 @@
 }
 .cdup-btn:hover {
   border-color: var(--clay);
-  color: var(--clay);
+  color: var(--clay-on-dark);
 }
 .cdup-note {
   display: flex;

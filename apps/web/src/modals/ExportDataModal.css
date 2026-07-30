@@ -60,6 +60,6 @@
 .export-err {
   margin: 10px 0 0;
   font-size: calc(12px * var(--text-scale));
-  color: var(--clay);
+  color: var(--clay-on-dark);
   text-align: center;
 }

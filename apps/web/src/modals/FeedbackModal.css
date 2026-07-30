@@ -36,7 +36,7 @@
   margin: 0;
   font-family: var(--mg-font);
   font-size: calc(12px * var(--text-scale));
-  color: var(--clay);
+  color: var(--clay-on-dark);
 }
 
 .fb-submit {

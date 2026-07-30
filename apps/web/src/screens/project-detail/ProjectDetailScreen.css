@@ -443,7 +443,7 @@
 }
 .pd-rem-btn.danger:hover {
   background: color-mix(in srgb, var(--clay) 14%, transparent);
-  color: var(--clay);
+  color: var(--clay-on-dark);
 }
 
 /* ── Delete-group cascade modal rows ──────────────────── */
@@ -568,7 +568,7 @@
   color: var(--stone);
   cursor: pointer;
 }
-.gc-chip-x:hover { color: var(--clay); }
+.gc-chip-x:hover { color: var(--clay-on-dark); }
 .gc-actions { display: flex; gap: 6px; padding-top: 10px; border-top: 1px solid var(--divider); }
 .gc-btn {
   display: inline-flex;

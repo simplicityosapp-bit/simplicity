@@ -194,7 +194,7 @@
   transition: background 0.15s, color 0.15s;
 }
 .ins-q-icon-btn:hover { background: var(--mg-card-bg); color: var(--espresso); }
-.ins-q-icon-btn.danger:hover { color: var(--clay); }
+.ins-q-icon-btn.danger:hover { color: var(--clay-on-dark); }
 
 /* Off questions stay visible but greyed; the toggle is still tappable. */
 .ins-q-card.inactive { opacity: 0.62; }
@@ -334,7 +334,7 @@
   font-weight: 500;
 }
 .ins-delta.pos { background: rgba(139, 168, 136, 0.16); color: var(--sage); }
-.ins-delta.neg { background: rgba(181, 99, 78, 0.16); color: var(--clay); }
+.ins-delta.neg { background: rgba(181, 99, 78, 0.16); color: var(--clay-on-dark); }
 .ins-trend-svg {
   display: block;
   width: 100%;

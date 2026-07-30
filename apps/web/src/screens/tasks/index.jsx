@@ -504,6 +504,24 @@ export default function TasksScreen() {
         </Coachmark>
       </Box>
 
+      {/* Above the summary, directly under the header: finding a specific row is
+          a different job from reading the numbers, and it is the first thing you
+          reach for when you arrived knowing what you wanted. Its own row rather
+          than a cell in the controls grid below — on a 375px phone the tabs and
+          the pill already claim most of the width, and a field squeezed beside
+          them would be too narrow to read what you typed. */}
+      <Box className="t-search-row">
+        <Box className="t-search">
+          <Search size={16} strokeWidth={1.6} aria-hidden="true" />
+          <Input
+            type="search"
+            placeholder={t('search')}
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
+        </Box>
+      </Box>
+
       <Box as="section" className="t-hero">
         <Box className="s-hero">
           {/* The entity toggle used to be a standalone centred pill on a band
@@ -551,27 +569,10 @@ export default function TasksScreen() {
         </Box>
       </Box>
 
-      {/* One row for every control left above the list: the status tabs held in
-          the centre by an empty first column, and the "תצוגה" menu on the end.
-          Everything that used to occupy the taxonomy bar — the category pills,
-          the statuses-and-categories link — lives inside that menu now, so the
-          row it needed is gone. */}
-      {/* Its own row rather than a third cell in the controls grid below: on a
-          375px phone the tabs and the pill already claim ~256px of ~327px, so a
-          search box squeezed beside them would be ~67px wide — a field you
-          can't read what you typed in. Same shape as the clients search. */}
-      <Box className="t-search-row">
-        <Box className="t-search">
-          <Search size={16} strokeWidth={1.6} aria-hidden="true" />
-          <Input
-            type="search"
-            placeholder={t('search')}
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-          />
-        </Box>
-      </Box>
-
+      {/* One row for every control left above the list: the status tabs and the
+          "תצוגה" menu, each anchored to an edge. Everything that used to occupy
+          the taxonomy bar — the category pills, the statuses-and-categories
+          link — lives inside that menu now, so the row it needed is gone. */}
       <Box className="t-controls">
         <Box className="mg-toggle t-filter" role="tablist" aria-label={t('filter.aria')}>
           {filters.map((f) => (

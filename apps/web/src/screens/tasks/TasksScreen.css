@@ -43,6 +43,7 @@
 .t-hero-head {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 10px;
   flex-wrap: wrap;
   margin-bottom: 14px;

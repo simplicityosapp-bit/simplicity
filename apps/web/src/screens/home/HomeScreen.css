@@ -1230,7 +1230,10 @@ html[data-bg="blank"][data-card-style="flat"] .home-screen {
   border-color: rgba(120, 120, 120, 0.28);
 }
 .mtg-confirm-btn.delete {
-  color: var(--clay);
+  /* Danger TEXT reads --clay-on-dark — it aliases to --clay in light mode and
+     lifts in dark, where raw clay is the deep wine tokens.css flags as
+     unreadable as text. The tint and border stay as they are: those are fills. */
+  color: var(--clay-on-dark);
   background: rgba(181, 99, 78, 0.1);
   border-color: rgba(181, 99, 78, 0.28);
 }

@@ -1,7 +1,6 @@
 {
   "hub": {
     "title": "Public pages",
-    "subtitle": "Build landing pages, forms and booking pages — by dragging, with sections, backgrounds and icons.",
     "newLanding": "New landing page",
     "newLead": "New lead page",
     "loading": "Loading…",
@@ -17,14 +16,17 @@
     "copyFailed": "Couldn't copy automatically — select and copy the link manually.",
     "open": "Open",
     "delete": "Delete",
-    "legacyText": "The new-engine builder for «{{kind}}» is coming soon.",
-    "legacyLink": "Go to the current builder →",
     "duplicate": "Duplicate",
     "copySuffix": "(copy)",
     "back": "Back",
     "descLanding": "A full marketing page with sections, backgrounds and icons",
     "descLead": "A focused form that captures inquiries directly",
-    "descBooking": "A page to pick an appointment time from your calendar"
+    "descBooking": "A page to pick an appointment time from your calendar",
+    "stateEmpty": "No pages yet",
+    "statePages_one": "{{count}} page",
+    "statePages_other": "{{count}} pages",
+    "stateLive_one": "{{count}} published",
+    "stateLive_other": "{{count}} published"
   },
   "templates": {
     "choose": "Choose a template to start",
@@ -56,8 +58,6 @@
     "exitFocus": "Back to editing",
     "publish": "Publish",
     "saving": "Saving…",
-    "save": "Save",
-    "saved": "Saved",
     "saveError": "Save failed — that page address may already be taken. Try another one.",
     "slugInvalid": "Invalid address — English only, no spaces, 3 to 40 characters (digits and hyphens are fine).",
     "sections": "Sections",
@@ -70,9 +70,7 @@
     "done": "Done",
     "designPage": "Page design",
     "leaveTitle": "Leave without saving?",
-
     "leaveBody": "You have changes that were never saved. Leaving now discards them.",
-
     "leaveDiscard": "Leave without saving",
     "moveUp": "Move up",
     "moveDown": "Move down",
@@ -83,7 +81,6 @@
     "statusUnpublished": "Unpublished changes",
     "unpublish": "Unpublish",
     "more": "More",
-
     "dismiss": "Dismiss",
     "publishedToast": "Page published!"
   },
@@ -106,7 +103,7 @@
     "bgImage": "Upload",
     "bgFlatColor": "Background color",
     "cardOpacity": "Card opacity",
-    "cardBlur": "Glass blur",
+    "cardBlur": "Card blur",
     "cardRadius": "Corner radius",
     "textLight": "Light text (for dark backgrounds)",
     "bold": "Bold",
@@ -115,7 +112,6 @@
     "width": "Width",
     "grpSize": "Size & position",
     "grpLayout": "Layout",
-
     "grpAdvanced": "Advanced",
     "freeLayout": "Free positioning (beta)",
     "freeLayoutHint": "Drag blocks freely. Switch to mobile view (phone icon) to arrange the phone layout separately.",

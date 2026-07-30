@@ -214,7 +214,10 @@ export default function TasksScreen() {
   const projOf = (id) => projects.find((p) => p.id === id)
   const clientNameOf = (id) => clients.find((c) => c.id === id)?.name
   const hit = (...parts) => !q || parts.some((p) => (p || '').toLowerCase().includes(q))
-  const taskHit = (task) => hit(task.title, clientNameOf(task.client_id), projOf(task.project_id)?.name)
+  /* The details text is searchable for the same reason the reminder's is: it
+     never appears on the card, so search is the only way back to what you
+     wrote there. */
+  const taskHit = (task) => hit(task.title, task.description, clientNameOf(task.client_id), projOf(task.project_id)?.name)
   const remHit = (r) => hit(r.title, r.description, clientNameOf(r.client_id))
 
   const [groupBy, setGroupBy] = useState('priority')

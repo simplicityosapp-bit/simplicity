@@ -30,7 +30,9 @@
     "delete": "Eliminar tarea",
     "deleteTitle": "Eliminar tarea",
     "deleteMessage": "¿Eliminar \"{{title}}\"? Puedes restaurarla desde la papelera durante 30 días.",
-    "deleteConfirm": "Eliminar"
+    "deleteConfirm": "Eliminar",
+    "details": "Detalles (opcional)",
+    "detailsPlaceholder": "¿Qué hay que hacer exactamente?"
   },
   "reminder": {
     "titleEdit": "Editar recordatorio",

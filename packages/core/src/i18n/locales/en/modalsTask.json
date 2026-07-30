@@ -30,7 +30,9 @@
     "delete": "Delete task",
     "deleteTitle": "Delete task",
     "deleteMessage": "Delete \"{{title}}\"? You can restore it from the trash for 30 days.",
-    "deleteConfirm": "Delete"
+    "deleteConfirm": "Delete",
+    "details": "Details (optional)",
+    "detailsPlaceholder": "What exactly needs doing?"
   },
   "reminder": {
     "titleEdit": "Edit reminder",

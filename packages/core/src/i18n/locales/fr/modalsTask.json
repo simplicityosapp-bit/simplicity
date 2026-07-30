@@ -30,7 +30,9 @@
     "delete": "Supprimer la tâche",
     "deleteTitle": "Supprimer la tâche",
     "deleteMessage": "Supprimer « {{title}} » ? Vous pourrez la restaurer depuis la corbeille pendant 30 jours.",
-    "deleteConfirm": "Supprimer"
+    "deleteConfirm": "Supprimer",
+    "details": "Détails (facultatif)",
+    "detailsPlaceholder": "Que faut-il faire exactement ?"
   },
   "reminder": {
     "titleEdit": "Modifier le rappel",

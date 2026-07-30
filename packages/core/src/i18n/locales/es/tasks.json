@@ -129,5 +129,6 @@
     "noCategory": "Sin categoría"
   },
   "all": "Todo",
-  "search": "Buscar una tarea o recordatorio…"
+  "search": "Buscar una tarea o recordatorio…",
+  "searchClose": "Cerrar búsqueda"
 }

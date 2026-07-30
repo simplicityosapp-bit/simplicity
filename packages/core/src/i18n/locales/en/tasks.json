@@ -129,5 +129,6 @@
     "noCategory": "No category"
   },
   "all": "All",
-  "search": "Search a task or reminder…"
+  "search": "Search a task or reminder…",
+  "searchClose": "Close search"
 }

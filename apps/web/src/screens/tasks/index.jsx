@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { ListTodo, Plus, Trash2, Tags, ChevronDown, SlidersHorizontal, ClipboardList, Search } from 'lucide-react'
+import { ListTodo, Plus, Trash2, Tags, ChevronDown, SlidersHorizontal, ClipboardList, Search, X } from 'lucide-react'
 import { usePopoverSide } from '../../hooks/usePopoverSide'
 import { useTasks } from '../../hooks/useTasks'
 import { useReminders } from '../../hooks/useReminders'
@@ -199,6 +199,14 @@ export default function TasksScreen() {
      explains its own effect. */
   const [query, setQuery] = useState('')
   const q = query.trim().toLowerCase()
+  /* The field is a glyph until you want it. Closing CLEARS the query rather
+     than hiding it: a filter still narrowing the list from behind a collapsed
+     icon is the invisible-filter problem this screen has been chasing all
+     along — the category pills earned their trigger echo for exactly that. */
+  const [searchOpen, setSearchOpen] = useState(false)
+  const searchRef = useRef(null)
+  const closeSearch = () => { setSearchOpen(false); setQuery('') }
+  useEffect(() => { if (searchOpen) searchRef.current?.focus() }, [searchOpen])
 
   /* Defined up here because the list builders below need them: a search that
      only read titles would miss "everything for דנה", and the client and
@@ -504,24 +512,6 @@ export default function TasksScreen() {
         </Coachmark>
       </Box>
 
-      {/* Above the summary, directly under the header: finding a specific row is
-          a different job from reading the numbers, and it is the first thing you
-          reach for when you arrived knowing what you wanted. Its own row rather
-          than a cell in the controls grid below — on a 375px phone the tabs and
-          the pill already claim most of the width, and a field squeezed beside
-          them would be too narrow to read what you typed. */}
-      <Box className="t-search-row">
-        <Box className="t-search">
-          <Search size={16} strokeWidth={1.6} aria-hidden="true" />
-          <Input
-            type="search"
-            placeholder={t('search')}
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-          />
-        </Box>
-      </Box>
-
       <Box as="section" className="t-hero">
         <Box className="s-hero">
           {/* The entity toggle used to be a standalone centred pill on a band
@@ -573,7 +563,28 @@ export default function TasksScreen() {
           "תצוגה" menu, each anchored to an edge. Everything that used to occupy
           the taxonomy bar — the category pills, the statuses-and-categories
           link — lives inside that menu now, so the row it needed is gone. */}
-      <Box className="t-controls">
+      <Box className={`t-controls${searchOpen ? ' searching' : ''}`}>
+        {/* Open, the field takes the whole row and the other two step aside:
+            three controls fighting for a phone's width is what made the search
+            a full band of its own before, and the moment you are typing a name
+            you are not also reaching for a status tab. */}
+        {searchOpen ? (
+          <Box className="t-search">
+            <Search size={16} strokeWidth={1.6} aria-hidden="true" />
+            <Input
+              ref={searchRef}
+              type="search"
+              placeholder={t('search')}
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Escape') closeSearch() }}
+            />
+            <Btn type="button" className="t-search-close" onClick={closeSearch} aria-label={t('searchClose')}>
+              <X size={15} strokeWidth={1.8} aria-hidden="true" />
+            </Btn>
+          </Box>
+        ) : (
+        <>
         <Box className="mg-toggle t-filter" role="tablist" aria-label={t('filter.aria')}>
           {filters.map((f) => (
             <Btn
@@ -593,6 +604,16 @@ export default function TasksScreen() {
             </Btn>
           ))}
         </Box>
+
+        <Btn
+          type="button"
+          className="t-search-open"
+          onClick={() => setSearchOpen(true)}
+          aria-label={t('search')}
+          aria-expanded={false}
+        >
+          <Search size={16} strokeWidth={1.7} aria-hidden="true" />
+        </Btn>
 
         <Box className="mg-menu-wrap" ref={viewAnchorRef}>
           <Btn
@@ -679,6 +700,8 @@ export default function TasksScreen() {
             </Box>
           )}
         </Box>
+        </>
+        )}
       </Box>
 
       {filter === 'done' && doneCount > 0 && (

@@ -103,15 +103,36 @@
   font-size: var(--mg-caption);
 }
 
-/* ── Search ─────────────────────────────────────────────────────
-   Mirrors the clients search field, which is where the pattern already lives.
-   Its own row: a text field is a different kind of control from a tab strip
-   and a menu pill, and squeezing it into the controls grid beside them leaves
-   it too narrow on a phone to read what you typed. */
-.t-search-row {
-  display: flex;
-  align-items: stretch;
-  margin-bottom: 12px;
+/* ── Search — a glyph that becomes the row ──────────────────────
+   Closed it is one round button between the status tabs and the "תצוגה" pill.
+   Open it takes the whole controls row and the other two step aside: three
+   controls plus a text field will not share a phone's width, and while you are
+   typing a name you are not also reaching for a status tab. */
+.t-search-open {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid var(--divider);
+  background: var(--mg-card-bg);
+  -webkit-backdrop-filter: var(--mg-card-blur);
+  backdrop-filter: var(--mg-card-blur);
+  color: var(--stone);
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+.t-search-open:hover { border-color: var(--espresso); color: var(--espresso); }
+/* Grown target like every other control in this row — the circle paints 32px. */
+.t-search-open { position: relative; }
+.t-search-open::after {
+  content: '';
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
 }
 .t-search {
   flex: 1;
@@ -120,7 +141,9 @@
   align-items: center;
   gap: 8px;
   padding: 0 14px;
-  height: 42px;
+  /* Matches the closed row's height so opening the field doesn't jolt the
+     list underneath it. */
+  height: 36px;
   border-radius: var(--mg-btn-radius);
   border: 0.5px solid rgba(42, 37, 32, 0.1);
   background: var(--mg-card-bg);
@@ -128,6 +151,18 @@
   backdrop-filter: var(--mg-card-blur);
   color: var(--stone);
 }
+.t-search-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  padding: 4px;
+  border: none;
+  background: none;
+  color: var(--stone);
+  cursor: pointer;
+}
+.t-search-close:hover { color: var(--espresso); }
 .t-search input {
   flex: 1;
   min-width: 0;

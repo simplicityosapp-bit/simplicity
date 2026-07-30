@@ -129,5 +129,6 @@
     "noCategory": "Aucune catégorie"
   },
   "all": "Tout",
-  "search": "Rechercher une tâche ou un rappel…"
+  "search": "Rechercher une tâche ou un rappel…",
+  "searchClose": "Fermer la recherche"
 }

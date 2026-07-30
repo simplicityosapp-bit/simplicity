@@ -34,7 +34,9 @@
     "delete": "מחיקת המשימה",
     "deleteTitle": "מחיקת משימה",
     "deleteMessage": "למחוק את \"{{title}}\"? אפשר לשחזר אותה מסל המיחזור עד 30 יום.",
-    "deleteConfirm": "מחק"
+    "deleteConfirm": "מחק",
+    "details": "פרטים (אופציונלי)",
+    "detailsPlaceholder": "מה בדיוק צריך לעשות?"
   },
   "reminder": {
     "titleEdit": "עריכת תזכורת",

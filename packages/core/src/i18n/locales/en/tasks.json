@@ -130,5 +130,21 @@
   },
   "all": "All",
   "search": "Search a task or reminder…",
-  "searchClose": "Close search"
+  "searchClose": "Close search",
+  "select": {
+    "enter": "Select multiple",
+    "cancel": "Cancel selection"
+  },
+  "bulk": {
+    "selected": "{{count}} selected",
+    "markDone": "Mark done",
+    "category": "Category",
+    "categoryNone": "No category",
+    "delete": "Delete",
+    "closeAria": "Close selection mode",
+    "deleteTitle": "Delete selected items",
+    "deleteMessage": "Delete {{count}} items? You can restore them from the recycle bin within 30 days.",
+    "doneUndo": "{{count}} marked done",
+    "categoryUndo": "Category updated on {{count}} items"
+  }
 }

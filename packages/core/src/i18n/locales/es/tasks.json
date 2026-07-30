@@ -130,5 +130,21 @@
   },
   "all": "Todo",
   "search": "Buscar una tarea o recordatorio…",
-  "searchClose": "Cerrar búsqueda"
+  "searchClose": "Cerrar búsqueda",
+  "select": {
+    "enter": "Selección múltiple",
+    "cancel": "Cancelar selección"
+  },
+  "bulk": {
+    "selected": "{{count}} seleccionados",
+    "markDone": "Marcar como hecho",
+    "category": "Categoría",
+    "categoryNone": "Sin categoría",
+    "delete": "Eliminar",
+    "closeAria": "Cerrar modo de selección",
+    "deleteTitle": "Eliminar elementos seleccionados",
+    "deleteMessage": "¿Eliminar {{count}} elementos? Puedes restaurarlos desde la papelera durante 30 días.",
+    "doneUndo": "{{count}} marcados como hechos",
+    "categoryUndo": "Categoría actualizada en {{count}} elementos"
+  }
 }

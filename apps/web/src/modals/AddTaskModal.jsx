@@ -5,7 +5,7 @@ import ConfirmModal from './ConfirmModal'
 import DateField from '../components/DateField'
 import { useT } from '../i18n/useT'
 import { useUserPreferences } from '../hooks/useUserPreferences'
-import { Box, Txt, Btn, Input } from '../components/ui'
+import { Box, Txt, Btn, Input, Textarea } from '../components/ui'
 
 const PRIORITIES = [
   { k: 'high', l: 'priorityHigh' },
@@ -27,9 +27,9 @@ const dueParts = (iso) => {
    is derived at render from prefs.tasks.default_priority (set in
    TaskTaxonomyModal). Deriving rather than seeding state means a late-arriving
    preference is picked up without an effect that writes back into the form. */
-const blank = () => ({ title: '', priority: null, project_id: '', client_id: '', status_id: '', category_id: '', due_date: '', due_time: '' })
+const blank = () => ({ title: '', description: '', priority: null, project_id: '', client_id: '', status_id: '', category_id: '', due_date: '', due_time: '' })
 const fromTask = (t) => (t
-  ? { title: t.title || '', priority: t.priority || null, project_id: t.project_id || '', client_id: t.client_id || '', status_id: t.status_id || '', category_id: t.category_id || '', ...dueParts(t.due_at) }
+  ? { title: t.title || '', description: t.description || '', priority: t.priority || null, project_id: t.project_id || '', client_id: t.client_id || '', status_id: t.status_id || '', category_id: t.category_id || '', ...dueParts(t.due_at) }
   : blank())
 
 /* onSave is async (Supabase insert/update). Pass `task` to edit an existing one.
@@ -69,6 +69,10 @@ export default function AddTaskModal({ open, onClose, onSave, onDelete, projects
         : null
       await onSave({
         title: form.title.trim(),
+        /* null rather than '' for an empty box, so "no details" reads the same
+           in the database as it does on every task written before the column
+           existed. */
+        description: form.description.trim() || null,
         priority,
         project_id: form.project_id || null,
         client_id: form.client_id || null,
@@ -180,6 +184,19 @@ export default function AddTaskModal({ open, onClose, onSave, onDelete, projects
           )}
         </Box>
       )}
+
+      {/* Last field, where the reminder form puts its own — a task has had
+          nowhere to say what "להתקשר לדנה" is actually about, while a reminder
+          has carried a details box since it was built. */}
+      <Box className="m-field">
+        <Box as="label" className="m-label">{t('task.details')}</Box>
+        <Textarea
+          className="m-textarea"
+          value={form.description}
+          onChange={(e) => set('description', e.target.value)}
+          placeholder={t('task.detailsPlaceholder')}
+        />
+      </Box>
 
       {err && <Txt as="p" className="m-error">{err}</Txt>}
 

@@ -2,6 +2,32 @@
    CALENDAR SCREEN — schedule list (upcoming meetings + reminders).
    ════════════════════════════════════════════════════════════════ */
 
+/* ── Screen proportion (per-screen override) ─────────────────────
+   Seventh screen to take the home proportion, after clients, projects,
+   tasks, finance, reports and leads. Proportion only — the cream glass is
+   untouched. The three-line form is the one tokens.css documents: the halves
+   AND the shorthand, because a custom property inherits its value with the
+   var()s already substituted, so setting only the halves would leave an
+   inherited --mg-card-pad unchanged.
+
+   The corner is the whole of it here — nothing on this screen reads
+   --mg-card-pad. The event rows and the gate options hard-code their padding
+   (.cal-item is 13px 14px), and .screen-head and .empty carry their own. The
+   halves are still declared so a converted screen states its proportion in
+   ONE place and anything added later inherits it.
+
+   Unusually for this rollout the corner lands on structural CONTAINERS as
+   well as cards — .cal-month, .cal-week-col, .cal-day-grid, .cal-day-edge,
+   .cal-day-allday and the month-picker panel all read the token. A tighter
+   corner suits a large grid at least as well as it suits a tile, so they are
+   deliberately left to follow rather than pinned at 20px. */
+.cal-screen {
+  --mg-card-radius: 14px;
+  --mg-card-pad-y:  16px;
+  --mg-card-pad-x:  18px;
+  --mg-card-pad:    var(--mg-card-pad-y) var(--mg-card-pad-x);
+}
+
 /* Duplicate-detection banner: app recurring meeting collides with a synced
    Google event. Opens the resolver modal. Clay-tinted to read as "attention". */
 .cal-dup-banner {
@@ -226,6 +252,7 @@
   gap: 6px;
 }
 .cal-nav-btn {
+  position: relative;
   width: 30px;
   height: 30px;
   border-radius: 50%;
@@ -237,6 +264,26 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
+}
+/* Grown pointer target — 30px circle, 36x40 target, no layout movement.
+   These are the month steppers and the filter, pressed repeatedly, and they
+   were the smallest repeatedly-pressed controls left on the screen.
+
+   Bounded by the two gaps around them rather than by the 44px ideal:
+     • 3px per side, half the 6px gap inside .cal-nav, so the prev and next
+       targets meet at the midpoint and never overlap;
+     • 5px top and bottom, half .cal-header's 10px gap — and that one is a
+       ROW gap, because the header is flex-wrap:wrap. On a narrow phone the
+       nav and the filter sit on different lines, so growing the full 7px to
+       reach 44 would have the two rows' targets overlap by 4px. 40px is what
+       the layout actually has room for.
+   The same rule covers the filter button, which shares this class outside
+   .cal-nav; 3px is inside the header's gap there too. */
+.cal-nav-btn::after {
+  content: '';
+  position: absolute;
+  inset-block: -5px;
+  inset-inline: -3px;
 }
 .cal-nav-btn:hover {
   background: rgba(42, 37, 32, 0.05);

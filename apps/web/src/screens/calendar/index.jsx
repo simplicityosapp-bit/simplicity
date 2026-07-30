@@ -317,7 +317,7 @@ export default function CalendarScreen() {
   }
 
   return (
-    <Box className="screen">
+    <Box className="screen cal-screen">
       <Box className="screen-top">
         <Box as="header" className="screen-head">
           <Txt as="p" className="t-screen">

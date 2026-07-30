@@ -535,7 +535,7 @@
   cursor: pointer;
   flex-shrink: 0;
 }
-.ob-pc-group-x:hover { color: var(--clay); }
+.ob-pc-group-x:hover { color: var(--clay-on-dark); }
 .ob-pc-add {
   display: inline-flex;
   align-items: center;

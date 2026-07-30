@@ -293,7 +293,7 @@
   transition: color 0.15s;
 }
 .cmt-row-action:hover { color: var(--terracotta); }
-.cmt-msg-del:hover { color: var(--clay); }
+.cmt-msg-del:hover { color: var(--clay-on-dark); }
 
 /* ── Reply threads ─────────────────────────────────────────────── */
 /* A thread is a single indented column (Facebook-style), regardless of the
@@ -373,7 +373,7 @@
   cursor: pointer;
   transition: color 0.15s;
 }
-.cmt-reply-cancel:hover { color: var(--clay); }
+.cmt-reply-cancel:hover { color: var(--clay-on-dark); }
 
 /* ── @-mentions ────────────────────────────────────────────────── */
 .cmt-mention-picker {
@@ -578,7 +578,7 @@
   color: var(--stone);
   cursor: pointer;
 }
-.cmt-pinned-unpin:hover { color: var(--clay); }
+.cmt-pinned-unpin:hover { color: var(--clay-on-dark); }
 /* pin action lit when the message is pinned */
 .cmt-row-action.on { color: var(--terracotta); }
 
@@ -644,7 +644,7 @@
   cursor: pointer;
 }
 .cmt-mod-btn:hover { border-color: var(--terracotta); color: var(--terracotta); }
-.cmt-mod-btn.danger { color: var(--clay); border-color: rgba(181, 99, 78, 0.4); }
+.cmt-mod-btn.danger { color: var(--clay-on-dark); border-color: rgba(181, 99, 78, 0.4); }
 .cmt-mod-btn.danger:hover { background: var(--clay); color: #fff; border-color: var(--clay); }
 
 /* ── Clickable author (opens the member card) ──────────────────── */
@@ -830,7 +830,7 @@
   color: var(--stone);
   cursor: pointer;
 }
-.cmt-pc-close:hover { color: var(--clay); }
+.cmt-pc-close:hover { color: var(--clay-on-dark); }
 
 /* ── Profile editor: live business card + form ─────────────────── */
 /* Column with an inner-scrolling editor (like the chat/events): the header
@@ -916,7 +916,7 @@
   padding: 3px 10px;
   border-radius: 999px;
   background: rgba(201, 123, 94, 0.14);
-  color: var(--clay);
+  color: var(--clay-on-dark);
   font-family: var(--mg-font);
   font-size: calc(11.5px * var(--text-scale));
   font-weight: 500;
@@ -1030,7 +1030,7 @@
   color: var(--stone);
   cursor: pointer;
 }
-.cmt-search-close:hover { color: var(--clay); }
+.cmt-search-close:hover { color: var(--clay-on-dark); }
 .cmt-search-count {
   margin: 0 2px 8px;
   font-family: var(--mg-font);
@@ -1155,7 +1155,7 @@
   font-weight: 600;
   cursor: pointer;
 }
-.cme-form-cancel:hover { color: var(--clay); }
+.cme-form-cancel:hover { color: var(--clay-on-dark); }
 
 .cme-list { display: flex; flex-direction: column; gap: 10px; }
 /* Vertical stack, not a 3-column row: on a phone the date + actions columns
@@ -1246,7 +1246,7 @@
   border-radius: 999px;
   border: 1px solid rgba(181, 99, 78, 0.35);
   background: none;
-  color: var(--clay);
+  color: var(--clay-on-dark);
   cursor: pointer;
 }
 .cme-del:hover { background: var(--clay); color: #fff; border-color: var(--clay); }

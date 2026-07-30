@@ -315,7 +315,7 @@
   border: var(--mg-card-border);
   background: var(--mg-card-bg);
   backdrop-filter: var(--mg-card-blur);
-  color: var(--clay);
+  color: var(--clay-on-dark);
   font-family: var(--mg-font);
   font-size: calc(12px * var(--text-scale));
   font-weight: 500;

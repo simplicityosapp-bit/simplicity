@@ -548,7 +548,7 @@
   line-height: 1;
 }
 .lead-statuses-chip-x:hover {
-  color: var(--clay);
+  color: var(--clay-on-dark);
 }
 .lead-statuses-add {
   display: flex;
@@ -719,7 +719,7 @@
 .lead-del-btn:focus-visible { opacity: 1; }
 .lead-del-btn:hover {
   background: color-mix(in srgb, var(--clay) 14%, transparent);
-  color: var(--clay);
+  color: var(--clay-on-dark);
 }
 /* drop-target sub-status picker */
 .lead-drop-picker { display: flex; flex-direction: column; gap: 8px; }
@@ -793,7 +793,7 @@
   color: var(--stone);
 }
 .lead-fu.overdue {
-  color: var(--clay);
+  color: var(--clay-on-dark);
   font-weight: 500;
 }
 .lead-converted {

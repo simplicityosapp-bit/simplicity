@@ -249,7 +249,7 @@
   border-color: color-mix(in srgb, var(--stone) 28%, transparent);
 }
 .f-tx-btn.delete {
-  color: var(--clay);
+  color: var(--clay-on-dark);
   background: rgba(181, 99, 78, 0.1);
   border-color: rgba(181, 99, 78, 0.28);
 }

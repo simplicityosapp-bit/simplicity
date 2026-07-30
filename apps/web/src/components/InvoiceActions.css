@@ -88,7 +88,7 @@
   padding: 2px 4px;
   font-family: var(--mg-font);
   font-size: calc(12px * var(--text-scale));
-  color: var(--clay);
+  color: var(--clay-on-dark);
   cursor: pointer;
   text-decoration: underline;
   white-space: nowrap;
@@ -96,7 +96,7 @@
 .inv-act-credited {
   margin-inline-start: auto;
   font-size: calc(12px * var(--text-scale));
-  color: var(--clay);
+  color: var(--clay-on-dark);
   white-space: nowrap;
 }
 
@@ -115,7 +115,7 @@
   gap: 5px;
   margin: 8px 0 0;
   font-size: calc(12px * var(--text-scale));
-  color: var(--clay);
+  color: var(--clay-on-dark);
 }
 
 /* Selected document type. */

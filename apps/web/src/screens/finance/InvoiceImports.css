@@ -67,7 +67,7 @@
 }
 .inv-import-link { color: var(--terracotta); text-decoration: none; }
 .inv-import-link:hover { text-decoration: underline; }
-.inv-import-dup { display: inline-flex; align-items: center; gap: 3px; color: var(--clay); font-weight: 500; }
+.inv-import-dup { display: inline-flex; align-items: center; gap: 3px; color: var(--clay-on-dark); font-weight: 500; }
 .inv-import-amt {
   flex-shrink: 0;
   padding: 4px 11px;
@@ -103,7 +103,7 @@
 .inv-import-btn.approve { color: var(--sage); }
 .inv-import-btn.approve:hover { background: color-mix(in srgb, var(--sage) 14%, transparent); }
 .inv-import-btn.dismiss { color: var(--stone); }
-.inv-import-btn.dismiss:hover { background: color-mix(in srgb, var(--clay) 12%, transparent); color: var(--clay); }
+.inv-import-btn.dismiss:hover { background: color-mix(in srgb, var(--clay) 12%, transparent); color: var(--clay-on-dark); }
 .inv-import-btn:disabled { opacity: 0.5; cursor: default; }
 
 .inv-import-spin { animation: inv-import-spin 1s linear infinite; }

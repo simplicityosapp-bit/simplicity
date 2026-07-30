@@ -177,7 +177,7 @@
   margin: 6px 0 0;
   font-family: var(--mg-font);
   font-size: calc(11px * var(--text-scale));
-  color: var(--clay);
+  color: var(--clay-on-dark);
 }
 /* Shared native checkbox — tints the control to the brand accent so modal
    checkboxes match the language instead of rendering the OS default blue. */
@@ -221,7 +221,7 @@
   cursor: pointer;
 }
 .m-clear-link:hover {
-  color: var(--clay);
+  color: var(--clay-on-dark);
   text-decoration: underline;
 }
 
@@ -344,7 +344,7 @@
   color: var(--stone);
   cursor: pointer;
 }
-.m-tax-x:hover { background: color-mix(in srgb, var(--clay) 14%, transparent); color: var(--clay); }
+.m-tax-x:hover { background: color-mix(in srgb, var(--clay) 14%, transparent); color: var(--clay-on-dark); }
 .m-tax-add {
   display: flex;
   align-items: center;
@@ -380,7 +380,7 @@
   font-family: var(--mg-font);
   font-size: calc(12px * var(--text-scale));
   line-height: 1.45;
-  color: var(--clay);
+  color: var(--clay-on-dark);
 }
 .m-sched-warn svg { flex-shrink: 0; margin-top: 1px; }
 
@@ -400,7 +400,7 @@
   text-align: center;
 }
 .td-num.neg {
-  color: var(--clay);
+  color: var(--clay-on-dark);
 }
 .td-num-lbl {
   margin: -4px 0 4px;
@@ -594,7 +594,7 @@
   color: var(--stone);
 }
 .td-list-meta.priority-high {
-  color: var(--clay);
+  color: var(--clay-on-dark);
 }
 .td-list-meta.priority-medium {
   color: var(--amber-warn);
@@ -863,7 +863,7 @@
   font-family: var(--mg-font);
   font-size: calc(13px * var(--text-scale));
   font-weight: 500;
-  color: var(--clay);
+  color: var(--clay-on-dark);
   cursor: pointer;
 }
 .m-btn-delete:active {
@@ -889,7 +889,7 @@
   border-radius: var(--mg-card-radius);
   border: 1px solid color-mix(in srgb, var(--clay) 35%, transparent);
   background: color-mix(in srgb, var(--clay) 8%, var(--mg-card-bg));
-  color: var(--clay);
+  color: var(--clay-on-dark);
 }
 .ig-warn-body { display: flex; flex-direction: column; gap: 6px; }
 .ig-warn-reason {
@@ -958,7 +958,7 @@
   padding: 0 4px;
   font-family: var(--mg-font);
   font-size: calc(13px * var(--text-scale));
-  color: var(--clay);
+  color: var(--clay-on-dark);
   cursor: pointer;
 }
 .m-btn-delete-inline:hover { text-decoration: underline; }

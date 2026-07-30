@@ -9,7 +9,7 @@
   padding: 10px 14px;
   border-radius: 12px;
   background: rgba(180, 70, 60, 0.08);
-  color: var(--clay);
+  color: var(--clay-on-dark);
   font-family: var(--mg-font);
   font-size: calc(13px * var(--text-scale));
 }

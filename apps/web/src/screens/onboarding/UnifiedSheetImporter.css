@@ -27,7 +27,7 @@
 .usi-name { margin: 0; font-family: var(--mg-font); font-size: calc(14px * var(--text-scale)); font-weight: 700; color: var(--espresso); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .usi-file { margin: 1px 0 0; font-family: var(--mg-font); font-size: calc(11px * var(--text-scale)); color: var(--stone); }
 .usi-x { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%; border: none; background: transparent; color: var(--stone); cursor: pointer; flex-shrink: 0; }
-.usi-x:hover { color: var(--clay); }
+.usi-x:hover { color: var(--clay-on-dark); }
 
 .usi-field { margin-top: 12px; }
 .usi-label { display: block; margin-bottom: 5px; font-family: var(--mg-font); font-size: calc(12px * var(--text-scale)); font-weight: 600; color: var(--stone); }

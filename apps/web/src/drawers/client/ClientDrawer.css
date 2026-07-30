@@ -75,7 +75,7 @@
   transform: scale(0.92);
 }
 .cd-top-btn.danger {
-  color: var(--clay);
+  color: var(--clay-on-dark);
 }
 
 /* ── Scroll area ───────────────────────────────────────────────── */

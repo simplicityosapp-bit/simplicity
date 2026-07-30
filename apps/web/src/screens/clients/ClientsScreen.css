@@ -670,7 +670,7 @@
   cursor: default;
 }
 .c-bulk-btn.danger {
-  color: var(--clay);
+  color: var(--clay-on-dark);
   border-color: rgba(181, 99, 78, 0.35);
 }
 .c-bulk-btn.danger:hover:not(:disabled) {
@@ -736,7 +736,7 @@
   background: rgba(42, 37, 32, 0.04);
 }
 .dcm-choice.cascade {
-  color: var(--clay);
+  color: var(--clay-on-dark);
 }
 .dcm-choice.cascade:hover:not(:disabled) {
   background: rgba(181, 99, 78, 0.06);
@@ -747,7 +747,7 @@
   font-weight: 600;
   color: var(--espresso);
 }
-.dcm-choice.cascade .dcm-choice-title { color: var(--clay); }
+.dcm-choice.cascade .dcm-choice-title { color: var(--clay-on-dark); }
 .dcm-choice-sub {
   font-size: calc(11.5px * var(--text-scale));
   color: var(--stone);

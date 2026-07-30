@@ -88,7 +88,7 @@
   border: none;
   cursor: pointer;
 }
-.pp-del:hover { color: var(--clay); }
+.pp-del:hover { color: var(--clay-on-dark); }
 .pp-del-confirm {
   display: flex;
   align-items: center;

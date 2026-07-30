@@ -1,10 +1,10 @@
 import { memo } from 'react'
-import { Check, Pencil } from 'lucide-react'
+import { Check, Pencil, CalendarClock } from 'lucide-react'
 import { useT } from '../../i18n/useT'
 import InlineTitle from './InlineTitle'
 import { Box, Txt, Btn } from '../../components/ui'
 
-function TaskItem({ task, project, clientName, dotColor, onToggle, onEdit, onRename, index, taskStatus, category, dueLabel, urgentTag = false }) {
+function TaskItem({ task, project, clientName, dotColor, onToggle, onEdit, onRename, onPostpone, index, taskStatus, category, dueLabel, urgentTag = false }) {
   const { t } = useT('tasks')
   const isDone = task.status === 'done'
   /* The deadline is split out of the joined meta line so a passed one can be
@@ -58,6 +58,13 @@ function TaskItem({ task, project, clientName, dotColor, onToggle, onEdit, onRen
           </Box>
         )}
       </Box>
+      {/* Offered only where the parent says postponing means something — a
+          dated task whose day has come or gone. Undone from the toast. */}
+      {onPostpone && !isDone && (
+        <Btn type="button" className="tc-edit tc-postpone" onClick={() => onPostpone(task)} aria-label={t('item.snooze')} title={t('item.snooze')}>
+          <CalendarClock size={13} strokeWidth={1.5} aria-hidden="true" />
+        </Btn>
+      )}
       {onEdit && (
         <Btn type="button" className="tc-edit" onClick={() => onEdit(task)} aria-label={t('item.editTask')}>
           <Pencil size={13} strokeWidth={1.5} aria-hidden="true" />

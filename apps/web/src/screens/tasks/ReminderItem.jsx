@@ -1,5 +1,5 @@
 import { memo } from 'react'
-import { Check, Pencil, Repeat } from 'lucide-react'
+import { Check, Pencil, Repeat, CalendarClock } from 'lucide-react'
 import { formatWhen, isRecurring } from '@simplicity/core'
 import { useT } from '../../i18n/useT'
 import InlineTitle from './InlineTitle'
@@ -31,7 +31,7 @@ function repeatLabel(reminder, t) {
    The meta line shows the scheduled date/time and (optional) linked
    client. Dot color signals urgency: clay if overdue, amber if today,
    sage otherwise. */
-function ReminderItem({ reminder, clientName, dotColor, onComplete, onEdit, onRename, count = 1, index, category }) {
+function ReminderItem({ reminder, clientName, dotColor, onComplete, onEdit, onRename, onPostpone, count = 1, index, category }) {
   const { t } = useT('tasks')
   const isDone = reminder.status === 'completed'
   const meta = [clientName, formatWhen(reminder.scheduled_at)].filter(Boolean).join(' · ')
@@ -74,6 +74,12 @@ function ReminderItem({ reminder, clientName, dotColor, onComplete, onEdit, onRe
           </Box>
         )}
       </Box>
+      {/* Only where the parent says postponing means something — see TaskItem. */}
+      {onPostpone && !isDone && (
+        <Btn type="button" className="tc-edit tc-postpone" onClick={() => onPostpone(reminder)} aria-label={t('item.snooze')} title={t('item.snooze')}>
+          <CalendarClock size={13} strokeWidth={1.5} aria-hidden="true" />
+        </Btn>
+      )}
       {onEdit && (
         <Btn type="button" className="tc-edit" onClick={() => onEdit(reminder)} aria-label={t('item.editReminder')}>
           <Pencil size={13} strokeWidth={1.5} aria-hidden="true" />

@@ -83,7 +83,8 @@
     "addTask": "Ajouter une tâche",
     "noRecurring": "Aucun rappel récurrent pour l'instant.",
     "allTodo": "Rien d'ouvert pour l'instant. Tout est calme.",
-    "allDone": "Rien de terminé pour l'instant."
+    "allDone": "Rien de terminé pour l'instant.",
+    "noSearchResults": "Aucun résultat pour « {{query}} »."
   },
   "clearConfirm": {
     "tasksTitle": "Supprimer les tâches terminées",
@@ -113,7 +114,9 @@
     "repeatGeneric": "Récurrent",
     "renameSave": "Enregistrer",
     "renameHint": "Entrée pour enregistrer · Échap pour annuler",
-    "renameStartHint": "Double-cliquez pour renommer"
+    "renameStartHint": "Double-cliquez pour renommer",
+    "snooze": "Reporter à demain",
+    "snoozed": "Reporté à demain"
   },
   "groupBy": {
     "aria": "Grouper les tâches",
@@ -125,5 +128,7 @@
     "noProject": "Aucun projet",
     "noCategory": "Aucune catégorie"
   },
-  "all": "Tout"
+  "all": "Tout",
+  "search": "Rechercher une tâche ou un rappel…",
+  "searchClose": "Fermer la recherche"
 }

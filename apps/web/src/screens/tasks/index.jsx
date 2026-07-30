@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { ListTodo, Plus, Trash2, Tags, ChevronDown, SlidersHorizontal, ClipboardList } from 'lucide-react'
+import { ListTodo, Plus, Trash2, Tags, ChevronDown, SlidersHorizontal, ClipboardList, Search, X } from 'lucide-react'
 import { usePopoverSide } from '../../hooks/usePopoverSide'
 import { useTasks } from '../../hooks/useTasks'
 import { useReminders } from '../../hooks/useReminders'
@@ -16,10 +16,11 @@ import ConfirmModal from '../../modals/ConfirmModal'
 import TaskTaxonomyModal from '../../modals/TaskTaxonomyModal'
 import Coachmark from '../../components/Coachmark'
 import { formatWhen, isRecurring, isActiveReminder, dueOccurrenceCount } from '@simplicity/core'
+import { pushUndo } from '../../lib/undo'
 import { reassignTasksStatus } from '../../lib/api/taskStatuses'
 import { reassignTasksCategory } from '../../lib/api/taskCategories'
 import './TasksScreen.css'
-import { Box, Txt, Btn } from '../../components/ui'
+import { Box, Txt, Btn, Input } from '../../components/ui'
 
 const PRIORITY_COLOR = {
   high: 'var(--clay)',
@@ -84,6 +85,28 @@ function dateToBucket(due, now) {
 function reminderBucket(rem, now) {
   if (rem.status === 'completed') return null
   return dateToBucket(new Date(rem.scheduled_at), now)
+}
+
+/* Tomorrow, keeping the item's own time of day. Deliberately measured from
+   TODAY rather than from the item's own date: a reminder three weeks overdue
+   pushed "one day on" from its own stale date would still be overdue, which is
+   not what anyone means by "דחה למחר". */
+function tomorrowAt(iso) {
+  const src = new Date(iso)
+  if (Number.isNaN(+src)) return null
+  const n = new Date()
+  return new Date(n.getFullYear(), n.getMonth(), n.getDate() + 1, src.getHours(), src.getMinutes(), 0, 0).toISOString()
+}
+
+/* Postponing only makes sense while the date is today or already behind you.
+   On something scheduled for next month "tomorrow" would drag it FORWARD —
+   the opposite of postponing — so the control isn't offered there. */
+function canPostpone(iso) {
+  if (!iso) return false
+  const d = new Date(iso)
+  if (Number.isNaN(+d)) return false
+  const n = new Date()
+  return d < new Date(n.getFullYear(), n.getMonth(), n.getDate() + 1)
 }
 
 /* A task's deadline as a timestamp, or null when it has none / is unparsable.
@@ -168,6 +191,32 @@ export default function TasksScreen() {
     if (next.has(id)) next.delete(id); else next.add(id)
     return next
   })
+  /* Free-text find across whatever the active view lists. Deliberately NOT
+     folded into the category scope that feeds the hero: a scope you set once
+     and forget deserves to be counted (see inCategoryScope), but a search you
+     are actively typing would make every number on the screen jump per
+     keystroke. The query sits in the box in front of you, so unlike a pill it
+     explains its own effect. */
+  const [query, setQuery] = useState('')
+  const q = query.trim().toLowerCase()
+  /* The field is a glyph until you want it. Closing CLEARS the query rather
+     than hiding it: a filter still narrowing the list from behind a collapsed
+     icon is the invisible-filter problem this screen has been chasing all
+     along — the category pills earned their trigger echo for exactly that. */
+  const [searchOpen, setSearchOpen] = useState(false)
+  const searchRef = useRef(null)
+  const closeSearch = () => { setSearchOpen(false); setQuery('') }
+  useEffect(() => { if (searchOpen) searchRef.current?.focus() }, [searchOpen])
+
+  /* Defined up here because the list builders below need them: a search that
+     only read titles would miss "everything for דנה", and the client and
+     project are already printed on the card the user is looking for. */
+  const projOf = (id) => projects.find((p) => p.id === id)
+  const clientNameOf = (id) => clients.find((c) => c.id === id)?.name
+  const hit = (...parts) => !q || parts.some((p) => (p || '').toLowerCase().includes(q))
+  const taskHit = (task) => hit(task.title, clientNameOf(task.client_id), projOf(task.project_id)?.name)
+  const remHit = (r) => hit(r.title, r.description, clientNameOf(r.client_id))
+
   const [groupBy, setGroupBy] = useState('priority')
   /* Grouping lives behind the "תצוגה" pill rather than a third row of tabs.
      Two identical-looking segmented controls stacked (filter, then grouping)
@@ -259,9 +308,9 @@ export default function TasksScreen() {
      above it can't drift apart; only the status tab is applied on top. */
   const filteredTasks = useMemo(() => (
     filter === 'done'
-      ? scopedTasks.filter((t) => t.status === 'done')
-      : scopedTasks.filter((t) => t.status !== 'done')
-  ), [scopedTasks, filter])
+      ? scopedTasks.filter((t) => t.status === 'done' && taskHit(t))
+      : scopedTasks.filter((t) => t.status !== 'done' && taskHit(t))
+  ), [scopedTasks, filter, q]) // eslint-disable-line react-hooks/exhaustive-deps -- taskHit is derived from q + the client/project lists
 
   /* Build collapsible groups for the filtered tasks per the chosen groupBy.
      Priority keeps the original fixed order; project/category order follows
@@ -305,7 +354,7 @@ export default function TasksScreen() {
 
   /* Same scoped set as the reminder counts — the category pills drive both. */
   const filteredReminders = useMemo(() => {
-    if (filter === 'done') return scopedReminders.filter((r) => r.status === 'completed')
+    if (filter === 'done') return scopedReminders.filter((r) => r.status === 'completed' && remHit(r))
     /* "פתוחות" = everything still owed, one-off and recurring alike, bucketed
        by its next occurrence (a recurring reminder's scheduled_at IS that
        occurrence). Recurring ones used to be gated on dueOccurrenceCount >= 1,
@@ -313,8 +362,8 @@ export default function TasksScreen() {
        identical-looking one-off for the very same day appeared under
        "מאוחר יותר". Same-looking rows now behave the same; "חוזרות" stays the
        schedule view. */
-    return scopedReminders.filter(isActiveReminder)
-  }, [scopedReminders, filter])
+    return scopedReminders.filter((r) => isActiveReminder(r) && remHit(r))
+  }, [scopedReminders, filter, q]) // eslint-disable-line react-hooks/exhaustive-deps -- remHit is derived from q + the client list
 
   /* "הכל" — both kinds in one list, which is the answer the home widget has
      always given and this screen never did: tasks alone can't tell you what is
@@ -327,17 +376,18 @@ export default function TasksScreen() {
     const wantDone = filter === 'done'
     const items = []
     scopedTasks.forEach((task) => {
-      if ((task.status === 'done') !== wantDone) return
+      if ((task.status === 'done') !== wantDone || !taskHit(task)) return
       items.push({ key: `task-${task.id}`, kind: 'task', task, when: task.due_at || null })
     })
     scopedReminders.forEach((r) => {
+      if (!remHit(r)) return
       const done = r.status === 'completed'
       if (done !== wantDone) return
       if (!wantDone && !isActiveReminder(r)) return
       items.push({ key: `rem-${r.id}`, kind: 'reminder', reminder: r, when: r.scheduled_at || null })
     })
     return items
-  }, [isAll, filter, scopedTasks, scopedReminders])
+  }, [isAll, filter, scopedTasks, scopedReminders, q]) // eslint-disable-line react-hooks/exhaustive-deps -- the hit helpers derive from q + the client/project lists
 
   /* Soonest first. Undated work (and a tie) falls back to urgency, then to a
      task ahead of a reminder — you act on a task, a reminder only tells you
@@ -393,13 +443,30 @@ export default function TasksScreen() {
     return groups
   }, [scopedReminders, isTasks, t])
 
-  const projOf = (id) => projects.find((p) => p.id === id)
-  const clientNameOf = (id) => clients.find((c) => c.id === id)?.name
-
   /* Inline rename — a double-click / long-press on a card title saves just
      the title via the existing optimistic editTask/editReminder, no modal. */
   const renameTask = (id, title) => editTask(id, { title })
   const renameReminder = (id, title) => editReminder(id, { title })
+
+  /* Postpone by one tap, undoable — a mis-tap on a row you meant to tick
+     shouldn't cost you the date. Mirrors how toggleTask/completeReminder
+     already register their own undo. */
+  const postponeTask = (task) => {
+    const next = tomorrowAt(task.due_at)
+    if (!next) return
+    const prev = task.due_at
+    const apply = (due_at) => editTask(task.id, { due_at })
+    apply(next)
+    pushUndo({ label: t('item.snoozed'), undo: () => apply(prev), redo: () => apply(next) })
+  }
+  const postponeReminder = (r) => {
+    const next = tomorrowAt(r.scheduled_at)
+    if (!next) return
+    const prev = r.scheduled_at
+    const apply = (scheduled_at) => editReminder(r.id, { scheduled_at })
+    apply(next)
+    pushUndo({ label: t('item.snoozed'), undo: () => apply(prev), redo: () => apply(next) })
+  }
 
   /* What the closed "תצוגה" pill admits to: a non-default grouping, an active
      category filter, or both. One category names itself; several just count. */
@@ -453,9 +520,11 @@ export default function TasksScreen() {
               rides the card's top line, opposite the title, and the screen
               loses another full row of chrome. */}
           <Box className="t-hero-head">
-            <Txt as="p" className="t-hero-title">
-              {isAll ? t('hero.allTitle') : (isTasks ? t('hero.tasksTitle') : t('hero.remindersTitle'))}
-            </Txt>
+            {/* No "סיכום כללי" heading. It titled three numbers that are each
+                already labelled, inside a card whose whole content is visibly a
+                summary — and being 11px it read at exactly the weight of the
+                toggle beside it, so a heading and a control were
+                indistinguishable. The toggle owns this line now. */}
             <Box className="mg-toggle t-view" role="tablist" aria-label={t('view.aria')}>
               {VIEWS.map((v) => (
                 <Btn
@@ -490,12 +559,32 @@ export default function TasksScreen() {
         </Box>
       </Box>
 
-      {/* One row for every control left above the list: the status tabs held in
-          the centre by an empty first column, and the "תצוגה" menu on the end.
-          Everything that used to occupy the taxonomy bar — the category pills,
-          the statuses-and-categories link — lives inside that menu now, so the
-          row it needed is gone. */}
-      <Box className="t-controls">
+      {/* One row for every control left above the list: the status tabs and the
+          "תצוגה" menu, each anchored to an edge. Everything that used to occupy
+          the taxonomy bar — the category pills, the statuses-and-categories
+          link — lives inside that menu now, so the row it needed is gone. */}
+      <Box className={`t-controls${searchOpen ? ' searching' : ''}`}>
+        {/* Open, the field takes the whole row and the other two step aside:
+            three controls fighting for a phone's width is what made the search
+            a full band of its own before, and the moment you are typing a name
+            you are not also reaching for a status tab. */}
+        {searchOpen ? (
+          <Box className="t-search">
+            <Search size={16} strokeWidth={1.6} aria-hidden="true" />
+            <Input
+              ref={searchRef}
+              type="search"
+              placeholder={t('search')}
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              onKeyDown={(e) => { if (e.key === 'Escape') closeSearch() }}
+            />
+            <Btn type="button" className="t-search-close" onClick={closeSearch} aria-label={t('searchClose')}>
+              <X size={15} strokeWidth={1.8} aria-hidden="true" />
+            </Btn>
+          </Box>
+        ) : (
+        <>
         <Box className="mg-toggle t-filter" role="tablist" aria-label={t('filter.aria')}>
           {filters.map((f) => (
             <Btn
@@ -515,6 +604,16 @@ export default function TasksScreen() {
             </Btn>
           ))}
         </Box>
+
+        <Btn
+          type="button"
+          className="t-search-open"
+          onClick={() => setSearchOpen(true)}
+          aria-label={t('search')}
+          aria-expanded={false}
+        >
+          <Search size={16} strokeWidth={1.7} aria-hidden="true" />
+        </Btn>
 
         <Box className="mg-menu-wrap" ref={viewAnchorRef}>
           <Btn
@@ -601,6 +700,8 @@ export default function TasksScreen() {
             </Box>
           )}
         </Box>
+        </>
+        )}
       </Box>
 
       {filter === 'done' && doneCount > 0 && (
@@ -630,7 +731,12 @@ export default function TasksScreen() {
           <Box className="empty"><Txt as="p" className="empty-text" title={error}>{isTasks || isAll ? t('loadError.tasks') : t('loadError.reminders')}</Txt></Box>
         ) : isAll ? (
           allGroups.length === 0 ? (
-            /* "הכל" is where the screen opens, so it inherits the first-run
+            /* A fruitless search outranks every other empty message: "אין כלום
+               פתוח" would be a lie about the practice when it is only true of
+               the three letters you just typed. */
+            q ? (
+              <Box className="empty"><Txt as="p" className="empty-text">{t('empty.noSearchResults', { query: query.trim() })}</Txt></Box>
+            ) : /* "הכל" is where the screen opens, so it inherits the first-run
                welcome the tasks view used to give: an account with nothing in
                it at all needs a way in, not the "all calm" line that belongs to
                someone who has cleared their plate. */
@@ -670,6 +776,7 @@ export default function TasksScreen() {
                     onToggle={() => toggleTask(it.task)}
                     onEdit={setEditDatedTask}
                     onRename={renameTask}
+                    onPostpone={canPostpone(it.task.due_at) ? postponeTask : undefined}
                     index={i}
                     taskStatus={it.task.status_id ? statusById.get(it.task.status_id) : null}
                     category={it.task.category_id ? categoryById.get(it.task.category_id) : null}
@@ -684,6 +791,7 @@ export default function TasksScreen() {
                     onComplete={completeReminder}
                     onEdit={setEditMixedReminder}
                     onRename={renameReminder}
+                    onPostpone={canPostpone(it.reminder.scheduled_at) ? postponeReminder : undefined}
                     count={dueOccurrenceCount(it.reminder, now)}
                     index={i}
                   />
@@ -693,7 +801,9 @@ export default function TasksScreen() {
           )
         ) : isTasks ? (
           filteredTasks.length === 0 ? (
-            tasks.length === 0 ? (
+            q ? (
+              <Box className="empty"><Txt as="p" className="empty-text">{t('empty.noSearchResults', { query: query.trim() })}</Txt></Box>
+            ) : tasks.length === 0 ? (
               <Box className="empty">
                 <Txt className="empty-icon"><ListTodo size={28} strokeWidth={1.5} aria-hidden="true" /></Txt>
                 <Txt as="p" className="empty-text">{t('empty.firstTask')}</Txt>
@@ -738,6 +848,7 @@ export default function TasksScreen() {
                           onToggle={() => toggleTask(task)}
                           onEdit={setEditItem}
                           onRename={renameTask}
+                          onPostpone={canPostpone(task.due_at) ? postponeTask : undefined}
                           index={i}
                           taskStatus={task.status_id ? statusById.get(task.status_id) : null}
                           category={task.category_id ? categoryById.get(task.category_id) : null}
@@ -779,7 +890,7 @@ export default function TasksScreen() {
               ))
             )
           ) : filteredReminders.length === 0 ? (
-            <Box className="empty"><Txt as="p" className="empty-text">{filter === 'done' ? t('empty.remindersDone') : t('empty.remindersTodo')}</Txt></Box>
+            <Box className="empty"><Txt as="p" className="empty-text">{q ? t('empty.noSearchResults', { query: query.trim() }) : (filter === 'done' ? t('empty.remindersDone') : t('empty.remindersTodo'))}</Txt></Box>
           ) : filter === 'done' ? (
             <GroupPanel
               groupKey="rem-done"
@@ -827,6 +938,7 @@ export default function TasksScreen() {
                       onComplete={completeReminder}
                       onEdit={setEditItem}
                       onRename={renameReminder}
+                      onPostpone={canPostpone(r.scheduled_at) ? postponeReminder : undefined}
                       count={dueOccurrenceCount(r, now)}
                       index={i}
                     />

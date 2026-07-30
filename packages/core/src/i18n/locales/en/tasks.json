@@ -83,7 +83,8 @@
     "addTask": "Add task",
     "noRecurring": "No recurring reminders yet.",
     "allTodo": "Nothing open right now. All calm.",
-    "allDone": "Nothing completed yet."
+    "allDone": "Nothing completed yet.",
+    "noSearchResults": "No results for \"{{query}}\"."
   },
   "clearConfirm": {
     "tasksTitle": "Delete completed tasks",
@@ -113,7 +114,9 @@
     "repeatGeneric": "Repeats",
     "renameSave": "Save",
     "renameHint": "Enter to save · Esc to cancel",
-    "renameStartHint": "Double-click to rename"
+    "renameStartHint": "Double-click to rename",
+    "snooze": "Postpone to tomorrow",
+    "snoozed": "Postponed to tomorrow"
   },
   "groupBy": {
     "aria": "Group tasks",
@@ -125,5 +128,7 @@
     "noProject": "No project",
     "noCategory": "No category"
   },
-  "all": "All"
+  "all": "All",
+  "search": "Search a task or reminder…",
+  "searchClose": "Close search"
 }

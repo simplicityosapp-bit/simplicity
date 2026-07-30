@@ -87,7 +87,8 @@
     "addTask_female": "הוסיפי משימה",
     "noRecurring": "אין תזכורות חוזרות עדיין.",
     "allTodo": "אין כלום פתוח כרגע. הכל רגוע.",
-    "allDone": "עוד לא הושלם כלום."
+    "allDone": "עוד לא הושלם כלום.",
+    "noSearchResults": "לא נמצאו תוצאות ל\"{{query}}\"."
   },
   "clearConfirm": {
     "tasksTitle": "מחיקת משימות שהושלמו",
@@ -117,7 +118,9 @@
     "repeatWeekly": "כל יום {{day}}",
     "repeatMonthly": "כל {{dom}} בחודש",
     "repeatEveryX": "כל {{x}} ימים",
-    "repeatGeneric": "חוזרת"
+    "repeatGeneric": "חוזרת",
+    "snooze": "דחה למחר",
+    "snoozed": "נדחה למחר"
   },
   "groupBy": {
     "aria": "קיבוץ משימות",
@@ -129,5 +132,7 @@
     "noProject": "ללא פרויקט",
     "noCategory": "ללא קטגוריה"
   },
-  "all": "הכל"
+  "all": "הכל",
+  "search": "חיפוש משימה או תזכורת…",
+  "searchClose": "סגירת חיפוש"
 }

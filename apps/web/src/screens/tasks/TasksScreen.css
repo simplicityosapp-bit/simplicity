@@ -35,25 +35,18 @@
 .t-hero {
   margin-bottom: 14px;
 }
-/* Title on the start edge, entity toggle opposite it on the end — the toggle
-   decides what the three numbers underneath count, so it belongs to this card
-   rather than to a centred band of its own above it. Wraps on a narrow screen
-   instead of squeezing the title. */
+/* The entity toggle leads the card: it decides what the numbers underneath
+   count, so it belongs to them rather than to a band of its own above.
+   It used to share this line with a "סיכום כללי" heading at the same 11px,
+   which made a heading and a control weigh exactly the same. The heading is
+   gone — the numbers are each labelled and the card is visibly a summary. */
 .t-hero-head {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   gap: 10px;
   flex-wrap: wrap;
   margin-bottom: 14px;
-}
-.t-hero-title {
-  margin: 0;
-  font-family: var(--mg-font);
-  font-size: calc(11px * var(--text-scale));
-  font-weight: 500;
-  color: var(--stone);
-  letter-spacing: 0.04em;
 }
 .t-hero-grid {
   display: grid;
@@ -67,10 +60,10 @@
   border-inline-start: 1px solid var(--divider);
   border-inline-end: 1px solid var(--divider);
 }
-/* --mg-micro (11px) is the floor of the type scale in tokens.css — this label
-   sat at 9px, two steps under the smallest size the design system defines, and
-   uppercase Hebrew at that size is the hardest thing on the screen to read for
-   the people the app is for. */
+/* --mg-micro (11px) is the floor of the scale in tokens.css — this label sat at
+   9px, two steps under the smallest size the design system defines.
+   The uppercase went with it: Hebrew has no capitals, so it did nothing here
+   while cramping the Latin locales. */
 .t-hero-stat-l {
   margin: 0 0 4px;
   font-family: var(--mg-font);
@@ -78,50 +71,141 @@
   font-weight: 500;
   color: var(--stone);
   letter-spacing: 0.04em;
-  text-transform: uppercase;
 }
+/* Was a hard-coded 22px — not a step on the scale at all, and within 2px of the
+   24px SCREEN TITLE. Three counts, often three zeroes, were the loudest thing
+   on the screen after its name, while the task titles they sit above are 15px.
+   --mg-heading puts the glance below the content it summarises. */
 .t-hero-stat-v {
   margin: 0;
   font-family: var(--mg-font-num);
   font-weight: 500;
-  font-size: calc(22px * var(--text-scale));
+  font-size: var(--mg-heading);
   color: var(--espresso);
   font-variant-numeric: tabular-nums;
 }
 
-/* ── Controls row — status tabs + the "תצוגה" menu ──────────────
-   Three columns so the tabs stay optically centred on the screen no matter how
-   wide the menu pill grows (an echoed grouping or category makes it grow): the
-   empty first column mirrors the third. A plain space-between would have let
-   the pill shove the tabs off-centre.
-   Wraps on a narrow screen rather than crushing either one. */
-.t-controls {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
+/* ── One size for everything you press ──────────────────────────
+   The controls on this screen were spread across three sizes for no reason:
+   the entity toggle and the status tabs at 11px (the scale's FLOOR, meant for
+   labels under numbers), the "תצוגה" pill at 12px (not a step at all). Three
+   controls of equal rank, three weights, and the two toggles tying with the
+   stat labels beside them.
+   They all sit at --mg-caption now — one size for "things you press", clearly
+   under the 15px content and clearly over the 11px labels.
+   Scoped to this screen: .mg-toggle is shared with clients and projects, and
+   resizing their toolbars is their own call, not a side effect of this one. */
+.tk-screen .mg-toggle-btn,
+.tk-screen .mg-menu-btn,
+.tk-screen .mg-menu-opt,
+.tk-screen .t-cat-pill,
+.tk-screen .t-clear-btn {
+  font-size: var(--mg-caption);
+}
+
+/* ── Search — a glyph that becomes the row ──────────────────────
+   Closed it is one round button between the status tabs and the "תצוגה" pill.
+   Open it takes the whole controls row and the other two step aside: three
+   controls plus a text field will not share a phone's width, and while you are
+   typing a name you are not also reaching for a status tab. */
+.t-search-open {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid var(--divider);
+  background: var(--mg-card-bg);
+  -webkit-backdrop-filter: var(--mg-card-blur);
+  backdrop-filter: var(--mg-card-blur);
+  color: var(--stone);
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+.t-search-open:hover { border-color: var(--espresso); color: var(--espresso); }
+/* Grown target like every other control in this row — the circle paints 32px. */
+.t-search-open { position: relative; }
+.t-search-open::after {
+  content: '';
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+}
+.t-search {
+  flex: 1;
+  min-width: 0;
+  display: flex;
   align-items: center;
   gap: 8px;
-  margin: 0 2px 14px;
+  padding: 0 14px;
+  /* Matches the closed row's height so opening the field doesn't jolt the
+     list underneath it. */
+  height: 36px;
+  border-radius: var(--mg-btn-radius);
+  border: 0.5px solid rgba(42, 37, 32, 0.1);
+  background: var(--mg-card-bg);
+  -webkit-backdrop-filter: var(--mg-card-blur);
+  backdrop-filter: var(--mg-card-blur);
+  color: var(--stone);
+}
+.t-search-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  padding: 4px;
+  border: none;
+  background: none;
+  color: var(--stone);
+  cursor: pointer;
+}
+.t-search-close:hover { color: var(--espresso); }
+.t-search input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: none;
+  outline: none;
+  font-family: var(--mg-font);
+  /* --mg-body, not the 14px the clients field uses: you type CONTENT in here,
+     so it belongs at the size the task titles it searches are set in — and 14
+     is not a step on the scale. */
+  font-size: var(--mg-body);
+  color: var(--espresso);
+}
+.t-search input::placeholder { color: var(--mist); }
+
+/* ── Controls row — status tabs + the "תצוגה" menu ──────────────
+   Both controls anchored to an edge, the way the leads toolbar does it with
+   the same pair: tabs where reading starts, the menu opposite.
+
+   This was a 1fr/auto/1fr grid meant to hold the tabs optically centred. It
+   did neither thing well. `1fr` will not shrink below its content, so the
+   pill's column claimed 75.7px against the empty column's 64.7 and the tabs
+   sat 5.5px off centre anyway — and centring them stranded ~73px of dead
+   space opposite the pill, a control on one side and a void on the other.
+   Two anchored edges have no void to balance.
+
+   flex-wrap replaces the old ≤330px media query: if the pair genuinely
+   cannot share a line, the pill drops to the next one on its own. */
+.t-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+  /* No horizontal inset. It carried `0 2px` from the taxonomy bar it replaced,
+     which left this the only band on the screen NOT sharing the summary card's
+     edges — 26/314 against everything else's 24/316. Two pixels, but it is the
+     reason the stack read as four loose strips instead of one column. */
+  margin: 0 0 14px;
 }
 .t-filter {
-  grid-column: 2;
   width: fit-content;
   margin: 0;
-}
-.t-controls .mg-menu-wrap {
-  grid-column: 3;
-  justify-self: end;
-}
-/* Stacking is a last resort, not the phone layout: three tabs plus the pill
-   measure ~256px against ~327px of content width on a 375px phone, so one row
-   is right there. Only the narrowest devices fall back. */
-@media (max-width: 330px) {
-  .t-controls {
-    grid-template-columns: 1fr;
-    justify-items: center;
-    gap: 10px;
-  }
-  .t-filter { grid-column: 1; }
-  .t-controls .mg-menu-wrap { grid-column: 1; justify-self: center; }
 }
 /* Entity toggle (משימות / תזכורות / הכל) — now a member of the summary card's
    top line (.t-hero-head), not a centred band of its own. */
@@ -220,13 +304,18 @@
 .t-group {
   margin-bottom: 18px;
 }
+/* The one true heading inside the content — it names the section you are
+   reading. It sat at 11px, the same size as a stat label and a toggle segment,
+   so the structure of the list weighed no more than the chrome around it.
+   --mg-caption with 600 keeps it under the 15px task titles it introduces
+   while still reading as their heading. */
 .t-group-lbl {
   display: inline-flex;
   align-items: center;
   gap: 7px;
   margin: 0 2px 8px;
   font-family: var(--mg-font);
-  font-size: calc(11px * var(--text-scale));
+  font-size: var(--mg-caption);
   font-weight: 600;
   color: var(--stone);
   letter-spacing: 0.04em;
@@ -245,9 +334,11 @@
   border-radius: 50%;
   flex-shrink: 0;
 }
+/* Stays at the floor: it is an aside to the heading, not part of it. The two
+   were the same size, which is why the heading never read as one. */
 .t-group-count {
   font-family: var(--mg-font-num);
-  font-size: calc(11px * var(--text-scale));
+  font-size: var(--mg-micro);
   font-weight: 500;
   color: var(--mist);
 }
@@ -498,6 +589,10 @@
   inset-block: -10px;
   inset-inline: -6px;
 }
+/* "דחה למחר" wears the same quiet icon-button as the pencil beside it — two
+   row actions of equal weight, neither shouting. It only appears on a dated
+   row whose day has arrived or passed, so it is rare enough not to crowd. */
+.tc-postpone:hover { color: var(--clay-on-dark); }
 .tc-edit:hover { color: var(--espresso); opacity: 1; }
 .tc-edit:active { transform: scale(0.9); }
 

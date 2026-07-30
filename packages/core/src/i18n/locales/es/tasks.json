@@ -83,7 +83,8 @@
     "addTask": "Añadir tarea",
     "noRecurring": "Aún no hay recordatorios recurrentes.",
     "allTodo": "Nada abierto ahora mismo. Todo en calma.",
-    "allDone": "Aún no se ha completado nada."
+    "allDone": "Aún no se ha completado nada.",
+    "noSearchResults": "Sin resultados para \"{{query}}\"."
   },
   "clearConfirm": {
     "tasksTitle": "Eliminar tareas completadas",
@@ -113,7 +114,9 @@
     "repeatGeneric": "Se repite",
     "renameSave": "Guardar",
     "renameHint": "Enter para guardar · Esc para cancelar",
-    "renameStartHint": "Doble clic para renombrar"
+    "renameStartHint": "Doble clic para renombrar",
+    "snooze": "Posponer a mañana",
+    "snoozed": "Pospuesto a mañana"
   },
   "groupBy": {
     "aria": "Agrupar tareas",
@@ -125,5 +128,7 @@
     "noProject": "Sin proyecto",
     "noCategory": "Sin categoría"
   },
-  "all": "Todo"
+  "all": "Todo",
+  "search": "Buscar una tarea o recordatorio…",
+  "searchClose": "Cerrar búsqueda"
 }

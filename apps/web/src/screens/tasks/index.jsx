@@ -512,9 +512,11 @@ export default function TasksScreen() {
               rides the card's top line, opposite the title, and the screen
               loses another full row of chrome. */}
           <Box className="t-hero-head">
-            <Txt as="p" className="t-hero-title">
-              {isAll ? t('hero.allTitle') : (isTasks ? t('hero.tasksTitle') : t('hero.remindersTitle'))}
-            </Txt>
+            {/* No "סיכום כללי" heading. It titled three numbers that are each
+                already labelled, inside a card whose whole content is visibly a
+                summary — and being 11px it read at exactly the weight of the
+                toggle beside it, so a heading and a control were
+                indistinguishable. The toggle owns this line now. */}
             <Box className="mg-toggle t-view" role="tablist" aria-label={t('view.aria')}>
               {VIEWS.map((v) => (
                 <Btn

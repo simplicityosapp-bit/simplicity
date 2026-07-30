@@ -35,25 +35,17 @@
 .t-hero {
   margin-bottom: 14px;
 }
-/* Title on the start edge, entity toggle opposite it on the end — the toggle
-   decides what the three numbers underneath count, so it belongs to this card
-   rather than to a centred band of its own above it. Wraps on a narrow screen
-   instead of squeezing the title. */
+/* The entity toggle leads the card: it decides what the numbers underneath
+   count, so it belongs to them rather than to a band of its own above.
+   It used to share this line with a "סיכום כללי" heading at the same 11px,
+   which made a heading and a control weigh exactly the same. The heading is
+   gone — the numbers are each labelled and the card is visibly a summary. */
 .t-hero-head {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: 10px;
   flex-wrap: wrap;
   margin-bottom: 14px;
-}
-.t-hero-title {
-  margin: 0;
-  font-family: var(--mg-font);
-  font-size: calc(11px * var(--text-scale));
-  font-weight: 500;
-  color: var(--stone);
-  letter-spacing: 0.04em;
 }
 .t-hero-grid {
   display: grid;
@@ -67,10 +59,10 @@
   border-inline-start: 1px solid var(--divider);
   border-inline-end: 1px solid var(--divider);
 }
-/* --mg-micro (11px) is the floor of the type scale in tokens.css — this label
-   sat at 9px, two steps under the smallest size the design system defines, and
-   uppercase Hebrew at that size is the hardest thing on the screen to read for
-   the people the app is for. */
+/* --mg-micro (11px) is the floor of the scale in tokens.css — this label sat at
+   9px, two steps under the smallest size the design system defines.
+   The uppercase went with it: Hebrew has no capitals, so it did nothing here
+   while cramping the Latin locales. */
 .t-hero-stat-l {
   margin: 0 0 4px;
   font-family: var(--mg-font);
@@ -78,15 +70,36 @@
   font-weight: 500;
   color: var(--stone);
   letter-spacing: 0.04em;
-  text-transform: uppercase;
 }
+/* Was a hard-coded 22px — not a step on the scale at all, and within 2px of the
+   24px SCREEN TITLE. Three counts, often three zeroes, were the loudest thing
+   on the screen after its name, while the task titles they sit above are 15px.
+   --mg-heading puts the glance below the content it summarises. */
 .t-hero-stat-v {
   margin: 0;
   font-family: var(--mg-font-num);
   font-weight: 500;
-  font-size: calc(22px * var(--text-scale));
+  font-size: var(--mg-heading);
   color: var(--espresso);
   font-variant-numeric: tabular-nums;
+}
+
+/* ── One size for everything you press ──────────────────────────
+   The controls on this screen were spread across three sizes for no reason:
+   the entity toggle and the status tabs at 11px (the scale's FLOOR, meant for
+   labels under numbers), the "תצוגה" pill at 12px (not a step at all). Three
+   controls of equal rank, three weights, and the two toggles tying with the
+   stat labels beside them.
+   They all sit at --mg-caption now — one size for "things you press", clearly
+   under the 15px content and clearly over the 11px labels.
+   Scoped to this screen: .mg-toggle is shared with clients and projects, and
+   resizing their toolbars is their own call, not a side effect of this one. */
+.tk-screen .mg-toggle-btn,
+.tk-screen .mg-menu-btn,
+.tk-screen .mg-menu-opt,
+.tk-screen .t-cat-pill,
+.tk-screen .t-clear-btn {
+  font-size: var(--mg-caption);
 }
 
 /* ── Search ─────────────────────────────────────────────────────
@@ -121,7 +134,10 @@
   background: none;
   outline: none;
   font-family: var(--mg-font);
-  font-size: calc(14px * var(--text-scale));
+  /* --mg-body, not the 14px the clients field uses: you type CONTENT in here,
+     so it belongs at the size the task titles it searches are set in — and 14
+     is not a step on the scale. */
+  font-size: var(--mg-body);
   color: var(--espresso);
 }
 .t-search input::placeholder { color: var(--mist); }
@@ -257,13 +273,18 @@
 .t-group {
   margin-bottom: 18px;
 }
+/* The one true heading inside the content — it names the section you are
+   reading. It sat at 11px, the same size as a stat label and a toggle segment,
+   so the structure of the list weighed no more than the chrome around it.
+   --mg-caption with 600 keeps it under the 15px task titles it introduces
+   while still reading as their heading. */
 .t-group-lbl {
   display: inline-flex;
   align-items: center;
   gap: 7px;
   margin: 0 2px 8px;
   font-family: var(--mg-font);
-  font-size: calc(11px * var(--text-scale));
+  font-size: var(--mg-caption);
   font-weight: 600;
   color: var(--stone);
   letter-spacing: 0.04em;
@@ -282,9 +303,11 @@
   border-radius: 50%;
   flex-shrink: 0;
 }
+/* Stays at the floor: it is an aside to the heading, not part of it. The two
+   were the same size, which is why the heading never read as one. */
 .t-group-count {
   font-family: var(--mg-font-num);
-  font-size: calc(11px * var(--text-scale));
+  font-size: var(--mg-micro);
   font-weight: 500;
   color: var(--mist);
 }

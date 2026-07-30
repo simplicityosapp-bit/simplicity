@@ -6,6 +6,7 @@ import {
   MessagesSquare, Gem,
 } from 'lucide-react'
 import { DRAWER_NAV } from '../lib/nav'
+import { confirmLeave } from '../lib/leaveGuard'
 import { ROUTES } from '../lib/routes'
 import { COMMUNITY_ENABLED } from '../lib/community'
 import { SUBSCRIPTION_NAV_ENABLED } from '../lib/subscriptionNav'
@@ -118,7 +119,7 @@ export default function Sidebar({ screen, isDark, onToggleTheme, onOpenFeedback 
               className={`mg-sidebar-link${active ? ' on' : ''}`}
               aria-current={active ? 'page' : undefined}
               data-screen={item.key}
-              onClick={() => navigate(item.to)}
+              onClick={() => { if (confirmLeave(() => navigate(item.to))) navigate(item.to) }}
               title={t(`items.${item.key}`)}
             >
               <Txt className="mg-sidebar-link-chip" aria-hidden="true">
@@ -176,7 +177,10 @@ export default function Sidebar({ screen, isDark, onToggleTheme, onOpenFeedback 
                 type="button"
                 className={`mg-sidebar-link mg-sidebar-sub${active ? ' on' : ''}`}
                 data-screen={item.key}
-                onClick={() => { setExtrasOpen(false); navigate(item.to) }}
+                onClick={() => {
+                  const go = () => { setExtrasOpen(false); navigate(item.to) }
+                  if (confirmLeave(go)) go()
+                }}
                 title={t(item.labelKey)}
               >
                 <Txt className="mg-sidebar-link-chip" aria-hidden="true">

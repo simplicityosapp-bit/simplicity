@@ -142,7 +142,15 @@
 
 .spg-muted { color: var(--spb-text-2, var(--stone)); }
 
-.spg-grid { list-style: none; margin: 0; padding: 0; display: grid; gap: 16px; grid-template-columns: repeat(auto-fill, 248px); justify-content: start; }
+/* Cards stretch to fill the row instead of sitting at a fixed 248px: on a phone
+   the fixed track left a ~79px dead strip beside every card, and the thumbnail
+   — the whole point of the card — was smaller than it needed to be. */
+.spg-grid { list-style: none; margin: 0; padding: 0; display: grid; gap: 16px; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); justify-content: start; }
+@media (min-width: 768px) {
+  /* On a wide monitor an unbounded 1fr would stretch three cards to 400px each;
+     cap the track so the grid keeps its card-wall shape. */
+  .spg-grid { grid-template-columns: repeat(auto-fill, minmax(220px, 264px)); }
+}
 .spg-card {
   background: var(--mg-card-bg); -webkit-backdrop-filter: var(--mg-card-blur); backdrop-filter: var(--mg-card-blur);
   border: var(--mg-card-border); border-radius: var(--mg-card-radius); box-shadow: var(--mg-card-shadow), var(--spb-hairline);
@@ -151,8 +159,12 @@
 }
 .spg-card:hover { transform: translateY(-4px); box-shadow: var(--spb-elev-panel), var(--spb-hairline); }
 /* Live miniature of the page — same renderer as the editor, so it can't drift. */
-.spg-card-thumb { position: relative; height: 150px; overflow: hidden; background: var(--bone); border-bottom: 1px solid var(--divider); cursor: pointer; }
-.spg-card-thumb-scale { position: absolute; top: 0; left: 0; width: 760px; transform: scale(0.326); transform-origin: top left; pointer-events: none; }
+.spg-card-thumb { position: relative; height: 150px; overflow: hidden; background: var(--bone); border-bottom: 1px solid var(--divider); cursor: pointer; container-type: inline-size; }
+/* The miniature is a 760px-wide page shrunk to the card. That ratio used to be
+   hard-coded to the old fixed 248px card (760 × 0.326); now the card flexes, so
+   the scale is derived from the card's own width. The literal stays first as the
+   fallback for anything without container queries. */
+.spg-card-thumb-scale { position: absolute; top: 0; left: 0; width: 760px; transform: scale(0.326); transform: scale(calc(100cqw / 760)); transform-origin: top left; pointer-events: none; }
 .spg-card-thumb-scale .sp-root { min-height: 0; }
 .spg-card-thumb-empty { height: 100%; display: grid; place-items: center; color: var(--spb-text-3, var(--mist)); }
 .spg-card-thumb:focus-visible { outline: none; box-shadow: inset 0 0 0 3px color-mix(in srgb, var(--terracotta) 40%, transparent); }
@@ -391,10 +403,10 @@
 /* Focus view — hide the work panels AND let the page fill the screen at its true
    full-desktop size (bg full-bleed, content in its column), still fully editable
    (no scaling, so drag + inline edit keep working). Toggle back from the top bar. */
-.spe.is-focus .spe-rail,
-.spe.is-focus .spe-inspector { display: none; }
-.spe.is-focus .spe-canvas-wrap { padding: 0; }
-.spe.is-focus .spe-frame-desktop { max-width: none; border-radius: 0; box-shadow: none; }
+.spe.is-preview .spe-rail,
+.spe.is-preview .spe-inspector { display: none; }
+.spe.is-preview .spe-canvas-wrap { padding: 0; }
+.spe.is-preview .spe-frame-desktop { max-width: none; border-radius: 0; box-shadow: none; }
 /* Literal white icon on the saturated terracotta (NOT --pure-white, which is
    remapped to a dark control surface in the builder's dark mode). */
 .spe-focus-btn.is-on { background: var(--terracotta); color: #fff; }
@@ -404,6 +416,20 @@
 /* Grouping inside the design panel — a hairline + caption per cluster. */
 .spe-group { display: flex; flex-direction: column; gap: 12px; padding-top: 14px; border-top: 1px solid var(--divider); }
 .spe-group-lbl { margin: 0; font-size: var(--mg-micro); font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; color: var(--spb-text-3, var(--mist)); }
+/* Collapsible variant — the caption becomes the toggle. Same chevron behaviour
+   as .spe-palette-cat so both panels fold the same way. */
+.spe-group-fold { gap: 0; }
+.spe-group-toggle {
+  display: flex; align-items: center; gap: 6px; width: 100%;
+  font: inherit; text-align: start; background: transparent; border: none;
+  padding: 2px 2px 0; cursor: pointer;
+}
+.spe-group-toggle:hover .spe-group-lbl { color: var(--spb-text-2, var(--stone)); }
+.spe-group-chev { flex: none; color: var(--spb-text-3, var(--mist)); transition: transform 0.18s ease; }
+.spe-group-fold:not(.is-open) .spe-group-chev { transform: rotate(-90deg); }
+/* Grown target: the caption paints ~14px, and it is now a control. */
+.spe-group-toggle { position: relative; min-height: 32px; }
+.spe-group-body { display: flex; flex-direction: column; gap: 12px; padding-top: 12px; }
 .spe-f { display: flex; flex-direction: column; gap: 6px; font-size: var(--mg-caption); color: var(--spb-text-2, var(--stone)); }
 .spe-f > span { font-weight: 500; }
 .spe-f-row { flex-direction: row; align-items: center; justify-content: space-between; }
@@ -416,6 +442,23 @@
 .spe-f textarea { resize: vertical; }
 .spe-f input[type=range] { width: 100%; accent-color: var(--terracotta); }
 .spe-f input[type=color] { width: 44px; height: 30px; padding: 2px; border-radius: 8px; border: 1px solid var(--divider); background: var(--pure-white); cursor: pointer; }
+/* Public-address row: a muted, non-editable prefix welded to the slug input, so
+   the field reads as one URL instead of a bare box next to the word "slug".
+   Always LTR (set on the element in JSX) — a URL in RTL reads backwards. */
+.spe-url { display: flex; align-items: stretch; min-width: 0; }
+.spe-url-prefix {
+  display: flex; align-items: center; flex: none; max-width: 55%;
+  padding: 0 8px; font-size: var(--mg-caption); color: var(--spb-text-3, var(--mist));
+  background: color-mix(in srgb, var(--espresso) 5%, transparent);
+  border: 1px solid var(--divider); border-inline-end: none;
+  border-start-start-radius: 9px; border-end-start-radius: 9px;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; direction: ltr;
+}
+.spe-url .spe-url-prefix + input {
+  flex: 1 1 auto; min-width: 0; direction: ltr;
+  border-start-start-radius: 0; border-end-start-radius: 0;
+}
+
 .spe-note, .spe-err { font-size: var(--mg-micro); color: var(--spb-text-3, var(--mist)); margin: 0; }
 .spe-err { color: var(--clay-on-dark); }
 
@@ -505,13 +548,26 @@
    up as a sheet OVER the canvas — you edit while seeing the page react live. */
 @media (max-width: 767px) {
   .spe-top { flex-wrap: wrap; height: auto; padding: 8px 12px; gap: 8px; }
-  /* Stack the zones: nav (title) on its own row, tools + actions share the next. */
-  .spe-top-nav { order: -1; flex-basis: 100%; }
-  .spe-top-tools { flex: 1 1 auto; justify-content: flex-start; }
-  .spe-top-actions { flex: 1 1 auto; }
+  /* Two rows, not three: back + title + the small tools share the first, and the
+     publish cluster takes the second. The title row had a phone's width to itself
+     and the tools sat alone on a row of their own — 40px of a 812px screen spent
+     on nothing, before the canvas even starts. */
+  /* basis 150 (not auto): an <input>'s natural size is ~200px, so on `auto` the
+     row's hypothetical width overflowed by a hair and wrapped anyway. */
+  .spe-top-nav { order: -1; flex: 1 1 150px; }
+  .spe-top-tools { flex: 0 0 auto; justify-content: flex-start; }
+  .spe-top-actions { flex: 1 1 100%; }
+  /* The device switch is dead weight on a phone: the frame is ~347px wide either
+     way, so "desktop" renders the desktop layout squeezed into a phone — a
+     preview that lies. Hiding it also frees the row, letting the tools and the
+     publish actions share ONE line instead of taking two (~40px back). */
+  .spe-device { display: none; }
   .spe-body { flex-direction: column; }
   .spe-rail { width: auto; flex: none; border-inline-end: none; border-bottom: 1px solid var(--divider); }
   .spe-canvas-wrap { padding: 14px; }
+  /* No phone bezel drawn on a phone — it would be a picture of a phone inside a
+     phone, spending 16px of the only width there is. */
+  .spe-frame-mobile { max-width: 100%; border: none; border-radius: 16px; }
 
   /* Light scrim — keeps the canvas above the sheet visible so edits read live.
      z above the app's bottom bar (z 200) so the sheet covers it while editing. */

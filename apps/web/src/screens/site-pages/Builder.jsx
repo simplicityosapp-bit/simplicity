@@ -7,6 +7,7 @@ import { useUpgradeNav } from '../../hooks/useUpgradeNav'
 import { newSitePageDraft, publicSitePageUrl, KIND_LABEL } from '../../lib/sitePageSchema'
 import { ROUTES } from '../../lib/routes'
 import { showError } from '../../lib/toast'
+import { copyText } from '../../lib/clipboard'
 import { useT } from '../../i18n/useT'
 import './siteBuilderI18n'
 import Editor from './Editor'
@@ -61,10 +62,14 @@ export default function SitePagesBuilder() {
     try { const row = await addPage(draft); if (row?.id) setEditingId(row.id) } catch { showError(t('hub.actionFailed')) }
   }
 
-  const copyLink = (p) => {
+  /* Only a PUBLISHED page has a link worth sharing — an unpublished one resolves
+     to "הדף לא נמצא", and the old button handed that dead link out cheerfully.
+     copyText (not a bare navigator.clipboard call) so a blocked clipboard says so
+     instead of flashing the same ✓ as a success. */
+  const copyLink = async (p) => {
     const url = publicSitePageUrl(p.kind, p.slug || p.id)
-    navigator.clipboard?.writeText(url)
-    setCopied(p.id); setTimeout(() => setCopied(null), 1500)
+    if (await copyText(url)) { setCopied(p.id); setTimeout(() => setCopied(null), 1500) }
+    else showError(t('hub.copyFailed'))
   }
 
   /* Clone a page as a fresh draft (new slug, unpublished) to use as a start. */
@@ -159,8 +164,12 @@ export default function SitePagesBuilder() {
                 <Box className="spg-card-actions">
                   <Btn onClick={() => setEditingId(p.id)} title={t('hub.edit')} aria-label={t('hub.edit')}><Pencil size={15} /></Btn>
                   <Btn onClick={() => duplicatePage(p)} title={t('hub.duplicate')} aria-label={t('hub.duplicate')}><Files size={15} /></Btn>
-                  <Btn onClick={() => copyLink(p)} title={t('hub.copyLink')} aria-label={t('hub.copyLink')}>{copied === p.id ? <Check size={15} /> : <Copy size={15} />}</Btn>
-                  {p.published ? <Lnk href={publicSitePageUrl(p.kind, p.slug || p.id)} target="_blank" rel="noopener noreferrer" title={t('hub.open')} aria-label={t('hub.open')}><ExternalLink size={15} /></Lnk> : null}
+                  {p.published ? (
+                    <>
+                      <Btn onClick={() => copyLink(p)} title={t('hub.copyLink')} aria-label={t('hub.copyLink')}>{copied === p.id ? <Check size={15} /> : <Copy size={15} />}</Btn>
+                      <Lnk href={publicSitePageUrl(p.kind, p.slug || p.id)} target="_blank" rel="noopener noreferrer" title={t('hub.open')} aria-label={t('hub.open')}><ExternalLink size={15} /></Lnk>
+                    </>
+                  ) : null}
                   <Btn onClick={() => setPendingDel(p)} title={t('hub.delete')} aria-label={t('hub.delete')}><Trash2 size={15} /></Btn>
                 </Box>
               </Box>

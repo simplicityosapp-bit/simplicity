@@ -93,7 +93,9 @@
     "errAddTypeFailed": "Échec de l'ajout du type : {{error}}",
     "leaveTitle": "Quitter sans enregistrer ?",
     "leaveBody": "Vous avez des modifications non enregistrées. Si vous quittez maintenant, elles seront perdues.",
-    "leaveDiscard": "Quitter sans enregistrer"
+    "leaveDiscard": "Quitter sans enregistrer",
+    "publishNow": "Publier",
+    "errWindowShorterThanMeeting": "{{day}}, la plage la plus longue est de {{window}} min, moins que le rendez-vous le plus court proposé ({{minutes}} min) — aucun créneau ne sera proposé. Élargissez la plage ou raccourcissez le rendez-vous."
   },
   "publicPage": {
     "loading": "Chargement…",

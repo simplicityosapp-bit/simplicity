@@ -15,6 +15,7 @@ import InfoPopover from '../../components/InfoPopover'
 import {
   DEFAULT_CONTENT, DEFAULT_AVAILABILITY, newBookingPageDraft, weekdayLabels,
   publicBookingPageUrl, normalizeSlug, isValidSlug, slugifyInput, leadPageSurface,
+  findUnbookableDay,
   sanitizeAvailability, findInvalidWindow,
 } from '../../lib/bookingPageSchema'
 import { GROW_ENABLED } from '../../lib/grow'
@@ -255,6 +256,22 @@ function BookingPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }
     return { ...d, meeting_type_durations: next }
   })
 
+  /* Every meeting length this page can offer, resolved exactly the way
+     booking-intake resolves it: a per-page override wins, then the type's own
+     default, then the page default — and with no types picked the page offers a
+     single synthetic meeting at the page default. */
+  const offeredDurations = () => {
+    const def = Number(draft.availability.defaultDurationMinutes) || 0
+    const ids = draft.meeting_type_ids
+    if (!ids.length) return [def]
+    return ids.map((id) => {
+      const override = Number(draft.meeting_type_durations[id])
+      if (override > 0) return override
+      const mt = availTypes.find((x) => x.id === id)
+      return Number(mt?.duration_minutes) > 0 ? Number(mt.duration_minutes) : def
+    })
+  }
+
   const dayWindows = (day) => {
     const w = draft.availability.weekly?.[day]
     return Array.isArray(w) ? w : []
@@ -277,8 +294,13 @@ function BookingPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }
     finally { setAddingType(false) }
   }
 
-  const save = async () => {
+  /* `publishNow` = the top-bar publish action: it saves AND takes the page live
+     in one press, so publishing isn't a checkbox you can tick and forget to save.
+     Everything that must hold for a LIVE page is checked against that intent, not
+     against the state the draft happens to be in. */
+  const save = async ({ publishNow = false } = {}) => {
     if (busy) return // guard against a fast double-click across the two save buttons
+    const willPublish = publishNow || draft.published
     setErr('')
     if (!draft.title.trim()) { setShowSettings(true); setErr(t('pages.errInternalName')); return }
     const slug = normalizeSlug(draft.slug)
@@ -289,16 +311,30 @@ function BookingPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }
     }
     // Sanity: an active page with no availability has no slots to offer.
     const anyAvail = weekdayLabels().some((_, d) => dayWindows(d).length > 0)
-    if (draft.published && !anyAvail) { setErr(t('pages.errNoAvailability')); return }
+    if (willPublish && !anyAvail) { setErr(t('pages.errNoAvailability')); return }
 
     // Reject reversed/empty windows (e.g. 17:00–09:00) — they yield no slots.
     const bad = findInvalidWindow(draft.availability)
     if (bad) { setErr(t('pages.errInvalidWindow', { day: weekdayLabels()[bad.day] })); return }
 
+    /* …and a day whose windows are all shorter than the shortest meeting on
+       offer. That day produces nothing, silently — the whole page can end up
+       live with an empty calendar behind it. Only blocks going LIVE: while it is
+       a draft the windows and the durations are still being typed, in whichever
+       order suits the person typing them. */
+    const shortest = Math.min(...offeredDurations())
+    const unbookable = willPublish ? findUnbookableDay(draft.availability, shortest) : null
+    if (unbookable) {
+      setErr(t('pages.errWindowShorterThanMeeting', {
+        day: weekdayLabels()[unbookable.day], minutes: shortest, window: unbookable.longest,
+      }))
+      return
+    }
+
     setBusy(true)
     const payload = {
       title: draft.title.trim(),
-      published: draft.published,
+      published: willPublish,
       auto_confirm: draft.auto_confirm,
       require_payment: !!draft.require_payment,
       write_to_google: draft.write_to_google,
@@ -355,10 +391,20 @@ function BookingPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }
         </Btn>
         <Txt className="lpe-topbar-title">{draft.title.trim() || (isNew ? t('pages.newPageTitle') : t('pages.editPageTitle'))}</Txt>
         <Box className="lpe-topbar-actions">
+          {/* Whether the page is live was only knowable by opening "הגדרות" and
+              reading a checkbox. It is the first thing about a page, so it says
+              itself — and the publish action next to it saves and goes live in
+              one press, instead of a tick that does nothing until you also save. */}
+          <Txt className={`lpm-badge bk-live-badge${draft.published ? ' is-live' : ''}`}>
+            {draft.published ? t('pages.statusLive') : t('pages.statusDraft')}
+          </Txt>
           <Btn type="button" className={`lpe-settings-btn${showSettings ? ' is-on' : ''}`} onClick={() => setShowSettings((v) => !v)}>
             <Settings size={16} strokeWidth={1.7} aria-hidden="true" /> {t('pages.settings')}
           </Btn>
-          <Btn type="button" className="m-btn-save" onClick={save} disabled={busy}>{busy ? t('pages.saving') : t('pages.save')}</Btn>
+          <Btn type="button" className="m-btn-cancel bk-save-draft" onClick={() => save()} disabled={busy}>{busy ? t('pages.saving') : t('pages.save')}</Btn>
+          {!draft.published && (
+            <Btn type="button" className="m-btn-save" onClick={() => save({ publishNow: true })} disabled={busy}>{t('pages.publishNow')}</Btn>
+          )}
         </Box>
       </Box>
 
@@ -623,7 +669,11 @@ function BookingPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }
       {err && <Txt as="p" className="m-error lpe-err lpe-err-bottom">{err}</Txt>}
       <Box className="lpe-bottom-actions">
         <Btn type="button" className="m-btn-cancel" onClick={leave}>{t('pages.cancel')}</Btn>
-        <Btn type="button" className="m-btn-save" onClick={save} disabled={busy}>{busy ? t('pages.saving') : t('pages.save')}</Btn>
+        {/* Bare `save` as a handler would hand the click event to it as options. */}
+        <Btn type="button" className="m-btn-save" onClick={() => save()} disabled={busy}>{busy ? t('pages.saving') : t('pages.save')}</Btn>
+        {!draft.published && (
+          <Btn type="button" className="m-btn-save" onClick={() => save({ publishNow: true })} disabled={busy}>{t('pages.publishNow')}</Btn>
+        )}
       </Box>
 
       {newTypeOpen && (

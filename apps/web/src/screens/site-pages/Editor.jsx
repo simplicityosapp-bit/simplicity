@@ -1,7 +1,7 @@
 import { createContext, createElement, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import {
   ArrowRight, Plus, Trash2, Monitor, Smartphone, GripVertical,
-  Palette, Upload, X, ChevronUp, ChevronDown, Maximize2, Minimize2,
+  Palette, Upload, X, ChevronUp, ChevronDown, Eye, EyeOff,
   LayoutTemplate, Type, Image as ImageIcon, Sparkles, Quote,
   MousePointerClick, ClipboardList, CalendarClock, Minus,
   LayoutGrid, Smile, Images, Video, HelpCircle, SeparatorHorizontal, Copy,
@@ -11,7 +11,7 @@ import {
 } from 'lucide-react'
 import {
   BLOCK_TYPES, BLOCK_PALETTE, BLOCK_CATEGORIES, newSection, newSectionId,
-  SITE_FONTS, LEAD_PAGE_BACKGROUNDS, DEFAULT_THEME, slugifyInput, isValidSlug,
+  SITE_FONTS, LEAD_PAGE_BACKGROUNDS, DEFAULT_THEME, slugifyInput, isValidSlug, publicSitePageUrl,
   FIELD_TYPES, isChoiceType, isConsentType, defaultChoiceOptions, freeFieldKey,
 } from '../../lib/sitePageSchema'
 
@@ -52,11 +52,13 @@ const BLOCK_ICON = {
 }
 import { ICON_NAMES, iconByName } from '../../lib/pageIcons'
 import { uploadPageAsset, assetPathFromUrl, removePageAsset } from '../../lib/pageAssets'
+import { setLeaveGuard, clearLeaveGuard, confirmLeave } from '../../lib/leaveGuard'
 import { useProjects } from '../../hooks/useProjects'
 import { useBookingPages } from '../../hooks/useBookingPages'
 import { useT } from '../../i18n/useT'
 import './siteBuilderI18n'
 import SiteRenderer from '../site-page/SiteRenderer'
+import ConfirmModal from '../../modals/ConfirmModal'
 import './SitePagesScreen.css'
 import { Box, Txt, Btn, Input, Textarea } from '../../components/ui'
 
@@ -85,7 +87,13 @@ export default function Editor({ page, onSave, onBack }) {
   }))
   const [selectedId, setSelectedId] = useState(null)
   const [device, setDevice] = useState('desktop')
-  const [focusMode, setFocusMode] = useState(false) // hide rail+inspector → full-size page view
+  /* Preview: hide the rails AND render the page the way a VISITOR gets it —
+     no click-to-select, no inline editing, and rich text rendered rather than
+     shown as raw markdown. Until now the only way to see the real page was to
+     publish it, which is a strange thing to ask of someone still drafting.
+     (This replaces the old "full view", which hid the rails but left the canvas
+     in edit mode — the same editor, only wider.) */
+  const [preview, setPreview] = useState(false)
   const [paletteOpen, setPaletteOpen] = useState(false)
   const [paletteQuery, setPaletteQuery] = useState('') // "add section" search filter
   // Collapsible palette categories — the two most-used groups start open, the rest
@@ -111,6 +119,11 @@ export default function Editor({ page, onSave, onBack }) {
   const [dragging, setDragging] = useState(null)   // index being dragged
   const [dragOver, setDragOver] = useState(null)   // index hovered as drop target
   const [pendingDel, setPendingDel] = useState(null) // { section, index } awaiting undo
+  /* A navigation the leave-guard intercepted, held until the user answers the
+     "unsaved changes" modal. Wrapped in an object, not stored bare: a function in
+     state would be taken for an updater and called, and a null retry (the editor's
+     own back arrow) has to still read as "the modal is open". */
+  const [pendingLeave, setPendingLeave] = useState(null)
   const delTimer = useRef(null)
   const okTimer = useRef(null)                     // "published ✓" toast auto-dismiss
   const draftRef = useRef(draft)                   // latest draft for deferred asset cleanup
@@ -203,6 +216,12 @@ export default function Editor({ page, onSave, onBack }) {
     return () => clearTimeout(id)
   }, [selectedId])
 
+  /* On a phone the canvas is ~347px wide whatever the switch says, so a "desktop"
+     preview there was the desktop layout squeezed into a phone — it showed a page
+     nobody will ever see. Below the breakpoint the canvas always frames mobile
+     (and the switch itself is hidden); on desktop the choice is the user's. */
+  const shownDevice = isMobileView ? 'mobile' : device
+
   const selected = useMemo(
     () => draft.sections.find((s) => s.id === selectedId) || null,
     [draft.sections, selectedId],
@@ -219,9 +238,21 @@ export default function Editor({ page, onSave, onBack }) {
     return () => window.removeEventListener('beforeunload', onBeforeUnload)
   }, [dirty])
 
-  /* Back arrow — confirm if there are unsaved edits. */
+  /* …and the same warning for navigation INSIDE the app. beforeunload is silent
+     on a route change, so until now a tap on the sidebar / bottom bar — both of
+     which stay on screen throughout the edit — threw the whole draft away
+     without a word. The app chrome asks this guard before it navigates; we block
+     it, ask in the app's own modal, and replay the navigation on confirm. */
+  useEffect(() => {
+    if (!dirty) return undefined
+    const ask = (retry) => { setPendingLeave({ retry: retry || null }); return false }
+    setLeaveGuard(ask)
+    return () => clearLeaveGuard(ask)
+  }, [dirty])
+
+  /* Back arrow — one source of truth with the guard above. */
   const handleBack = () => {
-    if (dirty && !window.confirm(t('editor.confirmDiscard'))) return
+    if (!confirmLeave(onBack)) return
     onBack()
   }
 
@@ -467,15 +498,17 @@ export default function Editor({ page, onSave, onBack }) {
     } catch { setSaveError(t('editor.saveError')) } finally { setSaving(false) }
   }
 
-  /* Canvas click → select the clicked section (reads the nearest [data-sid]). */
+  /* Canvas click → select the clicked section (reads the nearest [data-sid]).
+     Inert while previewing: there is nothing to select when nothing can be edited. */
   const onCanvasClick = (e) => {
+    if (preview) return
     const el = e.target.closest('[data-sid]')
     if (el) { setSelectedId(el.getAttribute('data-sid')); setMobileSheet(true) }
   }
 
   return (
     <AssetSinkContext.Provider value={registerAsset}>
-    <Box className={`spe${focusMode ? ' is-focus' : ''}`}>
+    <Box className={`spe${preview ? ' is-preview' : ''}`}>
       {/* ── Top bar ─────────────────────────────────────────────── */}
       <Box className="spe-top">
         {/* nav */}
@@ -499,13 +532,13 @@ export default function Editor({ page, onSave, onBack }) {
             <Btn className={device === 'mobile' ? 'is-on' : ''} aria-pressed={device === 'mobile'} onClick={() => setDevice('mobile')} title={t('editor.mobile')} aria-label={t('editor.mobile')}><Smartphone size={16} /></Btn>
           </Box>
           <Btn
-            className={`spe-icon-btn spe-focus-btn${focusMode ? ' is-on' : ''}`}
-            aria-pressed={focusMode}
-            onClick={() => setFocusMode((v) => !v)}
-            title={focusMode ? t('editor.exitFocus') : t('editor.focusView')}
-            aria-label={focusMode ? t('editor.exitFocus') : t('editor.focusView')}
+            className={`spe-icon-btn spe-focus-btn${preview ? ' is-on' : ''}`}
+            aria-pressed={preview}
+            onClick={() => setPreview((v) => !v)}
+            title={preview ? t('editor.exitFocus') : t('editor.preview', { defaultValue: 'תצוגה מקדימה' })}
+            aria-label={preview ? t('editor.exitFocus') : t('editor.preview', { defaultValue: 'תצוגה מקדימה' })}
           >
-            {focusMode ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
+            {preview ? <EyeOff size={16} /> : <Eye size={16} />}
           </Btn>
         </Box>
         {/* publish */}
@@ -545,8 +578,8 @@ export default function Editor({ page, onSave, onBack }) {
               <Box className="spe-palette-search">
                 <Search size={14} />
                 <Input autoFocus value={paletteQuery} onChange={(e) => setPaletteQuery(e.target.value)}
-                  placeholder={t('palette.search', { defaultValue: 'חיפוש סקשן…' })}
-                  aria-label={t('palette.search', { defaultValue: 'חיפוש סקשן' })} />
+                  placeholder={t('palette.search', { defaultValue: 'חיפוש חלק…' })}
+                  aria-label={t('palette.search', { defaultValue: 'חיפוש חלק' })} />
               </Box>
               {(() => {
                 const q = paletteQuery.trim().toLowerCase()
@@ -566,7 +599,7 @@ export default function Editor({ page, onSave, onBack }) {
                     type.toLowerCase().includes(q) || t('blocks.' + type, { defaultValue: BLOCK_TYPES[type].label }).toLowerCase().includes(q))
                   return hits.length
                     ? <Box className="spe-palette-grid">{hits.map(item)}</Box>
-                    : <Txt as="p" className="spe-palette-empty">{t('palette.noResults', { defaultValue: 'לא נמצאו סקשנים' })}</Txt>
+                    : <Txt as="p" className="spe-palette-empty">{t('palette.noResults', { defaultValue: 'לא נמצאו חלקים' })}</Txt>
                 }
                 return BLOCK_CATEGORIES.map((cat) => {
                   const open = !!openCats[cat.key]
@@ -624,9 +657,12 @@ export default function Editor({ page, onSave, onBack }) {
 
         {/* ── Canvas ────────────────────────────────────────────── */}
         <Box className="spe-canvas-wrap">
-          <Box className={`spe-frame spe-frame-${device}`} onClick={onCanvasClick}>
-            <SiteRenderer theme={draft.theme} sections={draft.sections} interactive={false} selectedId={selectedId} device={device}
-              onEdit={(id, key, value) => updateProps(id, { [key]: value })} />
+          <Box className={`spe-frame spe-frame-${shownDevice}`} onClick={onCanvasClick}>
+            {/* No onEdit / no selectedId in preview — that pair is what turns the
+                renderer into an editor (inline fields, raw markdown, outlines). */}
+            <SiteRenderer theme={draft.theme} sections={draft.sections} interactive={false} device={shownDevice}
+              selectedId={preview ? null : selectedId}
+              onEdit={preview ? undefined : (id, key, value) => updateProps(id, { [key]: value })} />
           </Box>
         </Box>
 
@@ -653,7 +689,9 @@ export default function Editor({ page, onSave, onBack }) {
       {pendingDel ? (
         <Box className="spe-toast" role="status">
           <Txt>{t('editor.sectionDeleted')}</Txt>
-          <Btn onClick={undoDelete}>{t('editor.undo')}</Btn>
+          {/* NOT editor.undo — that reads as "dismiss this notice" next to a
+              message about something already deleted. This one restores it. */}
+          <Btn onClick={undoDelete}>{t('editor.undoDelete', { defaultValue: 'החזרה' })}</Btn>
         </Box>
       ) : null}
 
@@ -662,6 +700,26 @@ export default function Editor({ page, onSave, onBack }) {
           <CheckCircle2 size={17} />
           <Txt>{t('editor.publishedToast', { defaultValue: 'הדף פורסם!' })}</Txt>
         </Box>
+      ) : null}
+
+      {/* Unsaved-changes gate. The app's own modal, not window.confirm — that one
+          arrives in browser chrome, ignores the app's RTL, and phrases the stakes
+          in whatever wording the browser ships with. */}
+      {pendingLeave ? (
+        <ConfirmModal
+          open
+          onClose={() => setPendingLeave(null)}
+          title={t('editor.leaveTitle', { defaultValue: 'לצאת בלי לשמור?' })}
+          message={t('editor.leaveBody', { defaultValue: 'יש שינויים שעדיין לא נשמרו. אם תצאו עכשיו הם יאבדו.' })}
+          confirmLabel={t('editor.leaveDiscard', { defaultValue: 'צאו בלי לשמור' })}
+          onConfirm={() => {
+            const retry = pendingLeave.retry
+            setDirty(false)            // drop the guard first, or the replay re-triggers it
+            setPendingLeave(null)
+            if (retry) retry()
+            else onBack()
+          }}
+        />
       ) : null}
     </Box>
     </AssetSinkContext.Provider>
@@ -674,27 +732,34 @@ export default function Editor({ page, onSave, onBack }) {
 function DesignPanel({ theme, setTheme, slug, onSlug, projects, projectId, onProject, kind, config, setConfig }) {
   const { t } = useT('siteBuilder')
   const bg = theme.background || DEFAULT_THEME.background
+  /* "https://simplicity-os.com/p/" — everything up to the part they type. */
+  const urlPrefix = publicSitePageUrl(kind, '').replace(/^https?:\/\//, '')
   const seo = (config && config.seo) || {}
   const setSeo = (patch) => setConfig({ seo: { ...seo, ...patch } })
+  /* Every cluster used to be open at once — sixteen controls in one column, with
+     an experimental layout switch sitting at the very top where it caught the
+     first click. Now they fold (the block palette's own pattern), and only the
+     two a coach actually opens a page to change start open. A lead page adds its
+     form settings to that set, since that is the point of a lead page. */
+  const [open, setOpen] = useState(() => ({ address: true, background: true, form: kind === 'lead' }))
+  const toggle = (key) => setOpen((s) => ({ ...s, [key]: !s[key] }))
   return (
     <Box className="spe-panel">
       <Txt as="h3" className="spe-panel-title">{t('design.title')}</Txt>
 
-      <Box className="spe-group">
-        <Txt as="p" className="spe-group-lbl">{t('design.grpLayout')}</Txt>
-        <Box as="label" className="spe-f spe-f-row"><Txt>{t('design.freeLayout')}</Txt>
-          <Input type="checkbox" checked={theme.layoutMode === 'free'} onChange={(e) => setTheme({ layoutMode: e.target.checked ? 'free' : 'stack' })} />
-        </Box>
-        {theme.layoutMode === 'free'
-          ? <Txt as="p" style={{ fontSize: 'var(--mg-caption)', color: 'var(--stone)', margin: 0, lineHeight: 1.4 }}>{t('design.freeLayoutHint')}</Txt>
-          : null}
-      </Box>
-
-      <Box className="spe-group">
-        <Txt as="p" className="spe-group-lbl">{t('design.grpAddress')}</Txt>
+      <PanelGroup label={t('design.grpAddress')} open={open.address} onToggle={() => toggle('address')}>
         <Box as="label" className="spe-f">
           <Txt>{t('design.publicUrl')}</Txt>
-          <Input value={slug || ''} placeholder="my-page" onChange={(e) => onSlug(slugifyInput(e.target.value))} />
+          {/* The address is shown as the REAL link, not as "(/p/…)". A coach who
+              has never met the word "slug" can see what they are actually
+              building — the prefix comes from publicSitePageUrl, so it can't
+              drift from the route the page really answers on. The row is LTR
+              even in Hebrew: a URL reads left-to-right or it reads wrong. */}
+          <Box className="spe-url" dir="ltr">
+            <Txt className="spe-url-prefix">{urlPrefix}</Txt>
+            <Input value={slug || ''} placeholder="my-page" onChange={(e) => onSlug(slugifyInput(e.target.value))} />
+          </Box>
+          <Txt as="p" className="spe-note">{t('design.publicUrlHint')}</Txt>
         </Box>
         <Box as="label" className="spe-f">
           <Txt>{t('design.project')}</Txt>
@@ -703,38 +768,9 @@ function DesignPanel({ theme, setTheme, slug, onSlug, projects, projectId, onPro
             {(projects || []).map((p) => <option key={p.id} value={p.id}>{p.name || p.title}</option>)}
           </select>
         </Box>
-      </Box>
+      </PanelGroup>
 
-      <Box className="spe-group">
-        <Txt as="p" className="spe-group-lbl">{t('seo.group')}</Txt>
-        <Box as="label" className="spe-f"><Txt>{t('seo.title')}</Txt>
-          <Input value={seo.title || ''} onChange={(e) => setSeo({ title: e.target.value })} />
-        </Box>
-        <Box as="label" className="spe-f"><Txt>{t('seo.description')}</Txt>
-          <Textarea rows={2} value={seo.description || ''} onChange={(e) => setSeo({ description: e.target.value })} />
-        </Box>
-        <Box className="spe-f"><Txt>{t('seo.image')}</Txt>
-          <ImageField value={seo.image} onChange={(url) => setSeo({ image: url })} />
-        </Box>
-        <Txt as="p" className="spe-note">{t('seo.hint')}</Txt>
-      </Box>
-
-      <Box className="spe-group">
-        <Txt as="p" className="spe-group-lbl">{t('design.grpTypography')}</Txt>
-        <Box as="label" className="spe-f">
-          <Txt>{t('design.font')}</Txt>
-          <select value={theme.font} onChange={(e) => setTheme({ font: e.target.value })}>
-            {SITE_FONTS.map((f) => <option key={f.key} value={f.key}>{f.label}</option>)}
-          </select>
-        </Box>
-        <Box as="label" className="spe-f spe-f-row">
-          <Txt>{t('design.brandColor')}</Txt>
-          <Input type="color" value={theme.brandColor} onChange={(e) => setTheme({ brandColor: e.target.value })} />
-        </Box>
-      </Box>
-
-      <Box className="spe-group">
-        <Txt as="p" className="spe-group-lbl">{t('design.grpBackground')}</Txt>
+      <PanelGroup label={t('design.grpBackground')} open={open.background} onToggle={() => toggle('background')}>
         <Box className="spe-seg">
           {[['scene', t('design.bgScene')], ['flat', t('design.bgFlat')], ['image', t('design.bgImage')]].map(([k, lbl]) => (
             <Btn key={k} className={bg.type === k ? 'is-on' : ''} aria-pressed={bg.type === k}
@@ -783,27 +819,78 @@ function DesignPanel({ theme, setTheme, slug, onSlug, projects, projectId, onPro
             <Txt as="p" className="spe-note">{t('design.mobileBgHint')}</Txt>
           </>
         ) : null}
-      </Box>
+      </PanelGroup>
 
-      <Box className="spe-group">
-        <Txt as="p" className="spe-group-lbl">{t('design.grpCards')}</Txt>
+      <PanelGroup label={t('design.grpTypography')} open={open.type} onToggle={() => toggle('type')}>
+        <Box as="label" className="spe-f">
+          <Txt>{t('design.font')}</Txt>
+          <select value={theme.font} onChange={(e) => setTheme({ font: e.target.value })}>
+            {SITE_FONTS.map((f) => <option key={f.key} value={f.key}>{f.label}</option>)}
+          </select>
+        </Box>
+        <Box as="label" className="spe-f spe-f-row">
+          <Txt>{t('design.brandColor')}</Txt>
+          <Input type="color" value={theme.brandColor} onChange={(e) => setTheme({ brandColor: e.target.value })} />
+        </Box>
+      </PanelGroup>
+
+      <PanelGroup label={t('design.grpCards')} open={open.cards} onToggle={() => toggle('cards')}>
         <Slider label={t('design.cardOpacity')} min={0} max={100} value={theme.cardOpacity} onChange={(v) => setTheme({ cardOpacity: v })} />
         <Slider label={t('design.cardBlur')} min={0} max={40} value={theme.cardBlur} onChange={(v) => setTheme({ cardBlur: v })} />
         <Slider label={t('design.cardRadius')} min={8} max={40} value={theme.cardRadius} onChange={(v) => setTheme({ cardRadius: v })} />
-      </Box>
+      </PanelGroup>
 
-      <Box className="spe-group">
-        <Txt as="p" className="spe-group-lbl">{t('design.grpText')}</Txt>
+      <PanelGroup label={t('design.grpText')} open={open.text} onToggle={() => toggle('text')}>
         <Box as="label" className="spe-f spe-f-row"><Txt>{t('design.bold')}</Txt>
           <Input type="checkbox" checked={!!theme.bold} onChange={(e) => setTheme({ bold: e.target.checked })} />
         </Box>
         <Box as="label" className="spe-f spe-f-row"><Txt>{t('design.center')}</Txt>
           <Input type="checkbox" checked={theme.textAlign === 'center'} onChange={(e) => setTheme({ textAlign: e.target.checked ? 'center' : 'start' })} />
         </Box>
-      </Box>
+      </PanelGroup>
+
+      <PanelGroup label={t('seo.group')} open={open.seo} onToggle={() => toggle('seo')}>
+        <Box as="label" className="spe-f"><Txt>{t('seo.title')}</Txt>
+          <Input value={seo.title || ''} onChange={(e) => setSeo({ title: e.target.value })} />
+        </Box>
+        <Box as="label" className="spe-f"><Txt>{t('seo.description')}</Txt>
+          <Textarea rows={2} value={seo.description || ''} onChange={(e) => setSeo({ description: e.target.value })} />
+        </Box>
+        <Box className="spe-f"><Txt>{t('seo.image')}</Txt>
+          <ImageField value={seo.image} onChange={(url) => setSeo({ image: url })} />
+        </Box>
+        <Txt as="p" className="spe-note">{t('seo.hint')}</Txt>
+      </PanelGroup>
 
       {/* Lead-capture settings (config) — pages with a form section. */}
-      {kind === 'lead' ? <Box className="spe-group"><LeadSettings config={config || {}} setConfig={setConfig} /></Box> : null}
+      {kind === 'lead' ? (
+        <PanelGroup label={t('settings.title')} open={open.form} onToggle={() => toggle('form')}>
+          <LeadSettings config={config || {}} setConfig={setConfig} />
+        </PanelGroup>
+      ) : null}
+
+      {/* Last, and folded: an experimental switch that changes how the whole page
+          is laid out has no business being the first thing in the panel. */}
+      <PanelGroup label={t('design.grpAdvanced', { defaultValue: 'מתקדם' })} open={open.advanced} onToggle={() => toggle('advanced')}>
+        <Box as="label" className="spe-f spe-f-row"><Txt>{t('design.freeLayout')}</Txt>
+          <Input type="checkbox" checked={theme.layoutMode === 'free'} onChange={(e) => setTheme({ layoutMode: e.target.checked ? 'free' : 'stack' })} />
+        </Box>
+        {theme.layoutMode === 'free' ? <Txt as="p" className="spe-note">{t('design.freeLayoutHint')}</Txt> : null}
+      </PanelGroup>
+    </Box>
+  )
+}
+
+/* A collapsible cluster in the design panel — same fold-with-a-chevron shape the
+   block palette uses for its categories, so the two panels behave alike. */
+function PanelGroup({ label, open, onToggle, children }) {
+  return (
+    <Box className={`spe-group spe-group-fold${open ? ' is-open' : ''}`}>
+      <Btn type="button" className="spe-group-toggle" aria-expanded={!!open} onClick={onToggle}>
+        <ChevronDown size={14} className="spe-group-chev" aria-hidden="true" />
+        <Txt className="spe-group-lbl">{label}</Txt>
+      </Btn>
+      {open ? <Box className="spe-group-body">{children}</Box> : null}
     </Box>
   )
 }
@@ -816,7 +903,7 @@ function LeadSettings({ config, setConfig }) {
   const setTy = (patch) => setConfig({ thankYou: { ...ty, ...patch } })
   return (
     <>
-      <Txt as="h3" className="spe-panel-title" style={{ marginTop: 8 }}>{t('settings.title')}</Txt>
+      {/* No heading of its own — the collapsible group above already names it. */}
       <Box as="label" className="spe-f spe-f-row"><Txt>{t('settings.autoApprove')}</Txt>
         <Input type="checkbox" checked={!!config.autoApprove} onChange={(e) => setConfig({ autoApprove: e.target.checked })} />
       </Box>
@@ -875,8 +962,8 @@ function SectionDesign({ style, onStyle }) {
   const bg = st.bg || 'none'
   return (
     <Box className="spe-group">
-      <Txt as="p" className="spe-group-lbl">{t('section.group', { defaultValue: 'עיצוב הסקשן' })}</Txt>
-      <Box as="label" className="spe-f"><Txt>{t('section.bg', { defaultValue: 'רקע הסקשן' })}</Txt>
+      <Txt as="p" className="spe-group-lbl">{t('section.group', { defaultValue: 'עיצוב החלק' })}</Txt>
+      <Box as="label" className="spe-f"><Txt>{t('section.bg', { defaultValue: 'רקע החלק' })}</Txt>
         <select value={bg} onChange={(e) => onStyle({ bg: e.target.value })}>
           <option value="none">{t('section.bgNone', { defaultValue: 'ללא (שקוף)' })}</option>
           <option value="tint">{t('section.bgTint', { defaultValue: 'גוון עדין' })}</option>
@@ -1023,6 +1110,17 @@ function Descriptor({ d, value, targets, onChange }) {
   }
 }
 
+/* One button on the rich-text toolbar. Module-scoped on purpose: defined inside
+   RichTextField it was named `Btn` and rendered `<Btn>`, which resolved to
+   ITSELF rather than the shared primitive — an infinite render that froze the
+   tab the moment a text/split block was selected. Keeping it out here also
+   stops it being a brand-new component type on every keystroke. */
+function RichBtn({ on, icon: Ic, label }) {
+  return (
+    <Btn type="button" className="spe-rich-btn" onMouseDown={(ev) => ev.preventDefault()} onClick={on} title={label} aria-label={label}><Ic size={14} /></Btn>
+  )
+}
+
 /* Rich-text field — a markdown-lite toolbar over a textarea. Buttons wrap the
    current selection (or insert a sample) with markdown markers; the canvas shows
    the rendered result live. Stored as plain markdown, rendered via renderRichText. */
@@ -1057,18 +1155,15 @@ function RichTextField({ d, value, onChange }) {
     const next = block.split('\n').map((l) => mark + l).join('\n')
     onChange(v.slice(0, lineStart) + next + v.slice(Math.max(e, lineStart)))
   }
-  const Btn = ({ on, icon: Ic, label: lbl }) => (
-    <Btn type="button" className="spe-rich-btn" onMouseDown={(ev) => ev.preventDefault()} onClick={on} title={lbl} aria-label={lbl}><Ic size={14} /></Btn>
-  )
   return (
     <Box className="spe-f spe-rich">
       <Txt>{t('labels.' + d.key, { defaultValue: d.label })}</Txt>
       <Box className="spe-rich-bar">
-        <Btn on={() => wrap('**')} icon={Bold} label={t('rich.bold')} />
-        <Btn on={() => wrap('*')} icon={Italic} label={t('rich.italic')} />
-        <Btn on={link} icon={LinkIcon} label={t('rich.link')} />
-        <Btn on={() => prefix('- ')} icon={List} label={t('rich.list')} />
-        <Btn on={() => prefix('## ')} icon={Heading} label={t('rich.heading')} />
+        <RichBtn on={() => wrap('**')} icon={Bold} label={t('rich.bold')} />
+        <RichBtn on={() => wrap('*')} icon={Italic} label={t('rich.italic')} />
+        <RichBtn on={link} icon={LinkIcon} label={t('rich.link')} />
+        <RichBtn on={() => prefix('- ')} icon={List} label={t('rich.list')} />
+        <RichBtn on={() => prefix('## ')} icon={Heading} label={t('rich.heading')} />
       </Box>
       <Textarea ref={ref} rows={6} value={v} onChange={(e) => onChange(e.target.value)} />
       <Txt as="p" className="spe-rich-hint">{t('rich.hint')}</Txt>

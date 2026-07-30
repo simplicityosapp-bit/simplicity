@@ -2,6 +2,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { Users, ClipboardList, Home, Wallet, Menu } from 'lucide-react'
 import { BOTTOM_NAV } from '../lib/nav'
 import { screenKeyFromPath } from '../lib/nav'
+import { confirmLeave } from '../lib/leaveGuard'
 import { useT } from '../i18n/useT'
 import './BottomNav.css'
 import { Box, Txt, Btn } from './ui'
@@ -33,7 +34,7 @@ export default function BottomNav({ onOpenMenu }) {
             className="mg-bottombar-item"
             data-screen={item.key}
             aria-current={active ? 'page' : undefined}
-            onClick={() => navigate(item.to)}
+            onClick={() => { if (confirmLeave(() => navigate(item.to))) navigate(item.to) }}
           >
             <Txt className="mg-bottombar-chip" aria-hidden="true">
               <Icon size={22} strokeWidth={1.5} />

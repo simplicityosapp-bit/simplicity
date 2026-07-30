@@ -6,6 +6,7 @@ import {
   MessagesSquare, Gem, BookOpen,
 } from 'lucide-react'
 import { DRAWER_NAV } from '../lib/nav'
+import { confirmLeave } from '../lib/leaveGuard'
 import { ROUTES } from '../lib/routes'
 import { COMMUNITY_ENABLED } from '../lib/community'
 import { SUBSCRIPTION_NAV_ENABLED } from '../lib/subscriptionNav'
@@ -45,16 +46,18 @@ export default function MenuDrawer({ open, onClose, screen, isDark, onToggleThem
     return () => window.removeEventListener('keydown', onKey)
   }, [open, onClose])
 
+  /* A screen holding unsaved work gets to ask first; it replays `go` if the user
+     confirms, so the drawer closes only when the navigation actually happens. */
   const goTo = (to) => {
-    navigate(to)
-    onClose()
+    const go = () => { navigate(to); onClose() }
+    if (confirmLeave(go)) go()
   }
 
   /* Navigate with optional router state (e.g. settings → open profile
      section), then close the drawer. Used by the profile-health rows. */
   const navTo = (to, state) => {
-    navigate(to, state ? { state } : undefined)
-    onClose()
+    const go = () => { navigate(to, state ? { state } : undefined); onClose() }
+    if (confirmLeave(go)) go()
   }
 
   const isAdmin = isAdminUser(user)

@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import {
   ArrowRight, Plus, Trash2, Copy, Check, ExternalLink, Settings, Link2, X,
@@ -21,6 +21,8 @@ import { GROW_ENABLED } from '../../lib/grow'
 import DesignToolbox from '../../components/DesignToolbox'
 import { ROUTES } from '../../lib/routes'
 import { copyText } from '../../lib/clipboard'
+import { setLeaveGuard, clearLeaveGuard, confirmLeave } from '../../lib/leaveGuard'
+import ConfirmModal from '../../modals/ConfirmModal'
 import { showError } from '../../lib/toast'
 import { useT } from '../../i18n/useT'
 import './bookingI18n'                     // self-registers the 'booking' namespace
@@ -161,25 +163,30 @@ function PageCard({ page, onEdit, onDelete }) {
 }
 
 /* ── Builder ─────────────────────────────────────────────────────────── */
+/* The builder's starting draft. Module-scoped so the unsaved-work guard can take
+   its own snapshot of exactly the same starting point (see `baseline` below)
+   without the two definitions drifting apart. */
+function draftFromPage(page, isNew) {
+  if (isNew || !page) return newBookingPageDraft()
+  return {
+    title: page.title ?? '',
+    published: !!page.published,
+    auto_confirm: !!page.auto_confirm,
+    require_payment: !!page.require_payment,
+    write_to_google: !!page.write_to_google,
+    invite_client: !!page.invite_client,
+    project_id: page.project_id ?? '',
+    slug: page.slug ?? '',
+    content: { ...DEFAULT_CONTENT, ...(page.content || {}), thankYou: { ...DEFAULT_CONTENT.thankYou, ...(page.content?.thankYou || {}) } },
+    availability: { ...DEFAULT_AVAILABILITY, ...(page.availability || {}), weekly: { ...DEFAULT_AVAILABILITY.weekly, ...((page.availability || {}).weekly || {}) } },
+    meeting_type_ids: Array.isArray(page.meeting_type_ids) ? page.meeting_type_ids : [],
+    meeting_type_durations: (page.meeting_type_durations && typeof page.meeting_type_durations === 'object') ? page.meeting_type_durations : {},
+  }
+}
+
 function BookingPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }) {
   const { t } = useT('booking')
-  const [draft, setDraft] = useState(() => {
-    if (isNew || !page) return newBookingPageDraft()
-    return {
-      title: page.title ?? '',
-      published: !!page.published,
-      auto_confirm: !!page.auto_confirm,
-      require_payment: !!page.require_payment,
-      write_to_google: !!page.write_to_google,
-      invite_client: !!page.invite_client,
-      project_id: page.project_id ?? '',
-      slug: page.slug ?? '',
-      content: { ...DEFAULT_CONTENT, ...(page.content || {}), thankYou: { ...DEFAULT_CONTENT.thankYou, ...(page.content?.thankYou || {}) } },
-      availability: { ...DEFAULT_AVAILABILITY, ...(page.availability || {}), weekly: { ...DEFAULT_AVAILABILITY.weekly, ...((page.availability || {}).weekly || {}) } },
-      meeting_type_ids: Array.isArray(page.meeting_type_ids) ? page.meeting_type_ids : [],
-      meeting_type_durations: (page.meeting_type_durations && typeof page.meeting_type_durations === 'object') ? page.meeting_type_durations : {},
-    }
-  })
+  const [draft, setDraft] = useState(() => draftFromPage(page, isNew))
   const { projects } = useProjects()
   const { types, addType } = useMeetingTypes()
   const { status: gcalStatus } = useGoogleCalendar()
@@ -188,10 +195,43 @@ function BookingPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }
   const [err, setErr] = useState('')
   const [copied, setCopied] = useState(false)
   const [showSettings, setShowSettings] = useState(isNew)
+  /* Unsaved-work guard. This builder holds the whole page in local state and had
+     nothing protecting it: no beforeunload, no route guard, and "ביטול"/"חזרה"
+     dropped the draft without a word — the same hole the pages builder had. There
+     is no per-edit dirty flag here (every field writes straight into `draft`), so
+     dirtiness is the draft measured against the snapshot it started from.
+
+     State, not a ref: `dirty` is read during render, and a ref read there would
+     never trigger the re-render that turns the guard on. The component is keyed
+     by the page being edited, so this initialiser runs once per page. */
+  const [baseline, setBaseline] = useState(() => JSON.stringify(draftFromPage(page, isNew)))
+  const [pendingLeave, setPendingLeave] = useState(null)
+  const draftJson = useMemo(() => JSON.stringify(draft), [draft])
+  const dirty = draftJson !== baseline
   // In-app "new meeting type" dialog (replaces window.prompt, blocked on mobile).
   const [newTypeOpen, setNewTypeOpen] = useState(false)
   const [newTypeName, setNewTypeName] = useState('')
   const [addingType, setAddingType] = useState(false)
+
+  /* Browser refresh / tab close. */
+  useEffect(() => {
+    if (!dirty) return undefined
+    const onBeforeUnload = (e) => { e.preventDefault(); e.returnValue = '' }
+    window.addEventListener('beforeunload', onBeforeUnload)
+    return () => window.removeEventListener('beforeunload', onBeforeUnload)
+  }, [dirty])
+
+  /* …and navigation inside the app, which beforeunload never sees. The chrome
+     asks this guard first; we block, ask in the app's modal, and replay. */
+  useEffect(() => {
+    if (!dirty) return undefined
+    const ask = (retry) => { setPendingLeave({ retry: retry || null }); return false }
+    setLeaveGuard(ask)
+    return () => clearLeaveGuard(ask)
+  }, [dirty])
+
+  /* Every way out of the builder that isn't "save" goes through the guard. */
+  const leave = () => { if (confirmLeave(onBack)) onBack() }
 
   const set = (patch) => setDraft((d) => ({ ...d, ...patch }))
   const setContent = (patch) => setDraft((d) => ({ ...d, content: { ...d.content, ...patch } }))
@@ -310,7 +350,7 @@ function BookingPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }
     <Box className="screen lpe-screen bk-screen">
       <DesignToolbox content={draft.content} onChange={setContent} />
       <Box className="lpe-topbar">
-        <Btn type="button" className="lp-back-link" onClick={onBack}>
+        <Btn type="button" className="lp-back-link" onClick={leave}>
           <ArrowRight size={16} strokeWidth={1.7} aria-hidden="true" /> {t('pages.back')}
         </Btn>
         <Txt className="lpe-topbar-title">{draft.title.trim() || (isNew ? t('pages.newPageTitle') : t('pages.editPageTitle'))}</Txt>
@@ -563,9 +603,26 @@ function BookingPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }
         </Box>
       </Box>
 
+      {pendingLeave ? (
+        <ConfirmModal
+          open
+          onClose={() => setPendingLeave(null)}
+          title={t('pages.leaveTitle')}
+          message={t('pages.leaveBody')}
+          confirmLabel={t('pages.leaveDiscard')}
+          onConfirm={() => {
+            const retry = pendingLeave.retry
+            setBaseline(draftJson)   // drop the guard before replaying, or it re-fires
+            setPendingLeave(null)
+            if (retry) retry()
+            else onBack()
+          }}
+        />
+      ) : null}
+
       {err && <Txt as="p" className="m-error lpe-err lpe-err-bottom">{err}</Txt>}
       <Box className="lpe-bottom-actions">
-        <Btn type="button" className="m-btn-cancel" onClick={onBack}>{t('pages.cancel')}</Btn>
+        <Btn type="button" className="m-btn-cancel" onClick={leave}>{t('pages.cancel')}</Btn>
         <Btn type="button" className="m-btn-save" onClick={save} disabled={busy}>{busy ? t('pages.saving') : t('pages.save')}</Btn>
       </Box>
 

@@ -90,7 +90,10 @@
     "errSlugTaken": "Ce lien court est déjà pris — veuillez en choisir un autre.",
     "errSaveFailed": "Échec de l'enregistrement : {{error}}",
     "errSaveRetry": "Veuillez réessayer",
-    "errAddTypeFailed": "Échec de l'ajout du type : {{error}}"
+    "errAddTypeFailed": "Échec de l'ajout du type : {{error}}",
+    "leaveTitle": "Quitter sans enregistrer ?",
+    "leaveBody": "Vous avez des modifications non enregistrées. Si vous quittez maintenant, elles seront perdues.",
+    "leaveDiscard": "Quitter sans enregistrer"
   },
   "publicPage": {
     "loading": "Chargement…",

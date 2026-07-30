@@ -96,7 +96,10 @@
     "errSlugTaken_female": "הקישור הקצר הזה כבר תפוס — בחרי אחר.",
     "errSaveFailed": "שמירה נכשלה: {{error}}",
     "errSaveRetry": "נסו שוב",
-    "errAddTypeFailed": "הוספת סוג נכשלה: {{error}}"
+    "errAddTypeFailed": "הוספת סוג נכשלה: {{error}}",
+    "leaveTitle": "לצאת בלי לשמור?",
+    "leaveBody": "יש שינויים שעדיין לא נשמרו. אם תצאו עכשיו הם יאבדו.",
+    "leaveDiscard": "צאו בלי לשמור"
   },
   "publicPage": {
     "loading": "טוען…",

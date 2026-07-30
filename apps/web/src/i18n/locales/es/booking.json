@@ -90,7 +90,10 @@
     "errSlugTaken": "Ese enlace corto ya está en uso — elige otro.",
     "errSaveFailed": "Error al guardar: {{error}}",
     "errSaveRetry": "Inténtalo de nuevo",
-    "errAddTypeFailed": "Error al agregar el tipo: {{error}}"
+    "errAddTypeFailed": "Error al agregar el tipo: {{error}}",
+    "leaveTitle": "¿Salir sin guardar?",
+    "leaveBody": "Tienes cambios sin guardar. Si sales ahora, se perderán.",
+    "leaveDiscard": "Salir sin guardar"
   },
   "publicPage": {
     "loading": "Cargando…",

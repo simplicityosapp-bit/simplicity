@@ -3,6 +3,32 @@
    Shared screen-top primitives live in styles/screens.css.
    ════════════════════════════════════════════════════════════════ */
 
+/* ── Screen proportion (per-screen override) ─────────────────────
+   Eighth and last screen of the rollout, after clients, projects, tasks,
+   finance, reports, leads and calendar. Proportion only — the cream glass is
+   untouched. The three-line form is the one tokens.css documents: the halves
+   AND the shorthand, because a custom property inherits its value with the
+   var()s already substituted.
+
+   Reached here: .ins-mirror and .ins-q-card take both the corner and the
+   padding; .ins-history-list takes the corner.
+
+   Two things left alone on purpose:
+
+     • .ins-history-row already separates rows with a hairline and resets the
+       first. That is home's list pattern, already here — same as the reports
+       screen.
+     • .ins-q-grid stays at gap 16px. The 16→12 change on clients and
+       projects was about GUTTERS between tiles in a grid; this is a vertical
+       stack of full-width cards, where 16px is the band rhythm
+       (--mg-row-gap) and is the right value for what it is. */
+.ins-screen {
+  --mg-card-radius: 14px;
+  --mg-card-pad-y:  16px;
+  --mg-card-pad-x:  18px;
+  --mg-card-pad:    var(--mg-card-pad-y) var(--mg-card-pad-x);
+}
+
 /* ── Mirror reflection card ─────────────────────────────────── */
 .ins-mirror {
   margin-bottom: 18px;
@@ -111,6 +137,33 @@
 [data-theme="dark"] .ins-q-toggle { background: rgba(255, 255, 255, 0.15); }
 .ins-q-toggle.on { background: var(--moon-deep); }
 [data-theme="dark"] .ins-q-toggle.on { background: var(--moon-hi); }
+/* Grown pointer targets for the three controls in the card head — the
+   on/off switch and the edit / delete buttons. Visuals unchanged (36x20 and
+   28x28), targets 44x40 and 36x48, no layout movement.
+
+   The switch was the smallest control anywhere in this rollout at 20px tall.
+
+   This is also the freest geometry in it: .ins-q-card is a plain <section>
+   with no click handler of its own, so unlike the leads card — where the
+   card opens an editor and a grown delete target would have turned a
+   mis-tap into a deletion — there is no competing action to steal from.
+   The growth is bounded only by the controls' own neighbours: 4px per side,
+   half the head's 8px gap, so adjacent targets meet at the midpoint and
+   never overlap; 10px above and below, which is the head's own bottom
+   margin and sits inside the card's 16px top padding.
+
+   .ins-save is deliberately NOT grown. It sits immediately beside
+   .ins-slider, and a range input is a DRAG surface — widening the button's
+   target inward would swallow drags near the track's end, which is exactly
+   where you go to answer at the top of the scale. At 34px it is the least
+   pressing case on the screen anyway. */
+.ins-q-toggle::after,
+.ins-q-icon-btn::after {
+  content: '';
+  position: absolute;
+  inset-block: -10px;
+  inset-inline: -4px;
+}
 .ins-q-toggle-knob {
   position: absolute;
   top: 2px;
@@ -126,6 +179,7 @@
 
 /* Edit / delete icon buttons in the card head. */
 .ins-q-icon-btn {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;

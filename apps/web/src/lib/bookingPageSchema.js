@@ -124,6 +124,30 @@ export const findInvalidWindow = (av) => {
   return null
 }
 
+/* Find the first weekday whose windows are ALL too short to hold the shortest
+   meeting the page offers — a day that will produce no bookable time at all.
+   booking-intake only offers a start time when the whole meeting fits inside one
+   window (`min + duration <= windowEnd`), so a 09:00–09:30 window offers nothing
+   against a 60-minute meeting. Nothing said so: the page published, the visitor
+   met an empty calendar, and the owner had no way to know.
+
+   A day with SOME short windows is fine — the others still produce slots — so
+   only a day that cannot produce a single one is reported. Returns
+   { day, longest } (longest = that day's best window, for the message), or null.
+   `shortestMeeting` comes from offeredDurations() in the builder. */
+export const findUnbookableDay = (av, shortestMeeting) => {
+  const weekly = av?.weekly || {}
+  if (!Number.isFinite(shortestMeeting) || shortestMeeting <= 0) return null
+  for (let day = 0; day < 7; day += 1) {
+    const windows = Array.isArray(weekly[day]) ? weekly[day] : []
+    if (!windows.length) continue                    // a closed day is a choice, not a fault
+    const lengths = windows.map((w) => hmToMinutes(w.end) - hmToMinutes(w.start))
+    const longest = Math.max(...lengths)
+    if (longest < shortestMeeting) return { day, longest }
+  }
+  return null
+}
+
 /* The duration (minutes) of a meeting type, falling back to the page default. */
 export const durationFor = (meetingType, availability) => {
   const d = meetingType?.duration_minutes

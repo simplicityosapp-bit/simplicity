@@ -93,7 +93,9 @@
     "errAddTypeFailed": "Error al agregar el tipo: {{error}}",
     "leaveTitle": "¿Salir sin guardar?",
     "leaveBody": "Tienes cambios sin guardar. Si sales ahora, se perderán.",
-    "leaveDiscard": "Salir sin guardar"
+    "leaveDiscard": "Salir sin guardar",
+    "publishNow": "Publicar",
+    "errWindowShorterThanMeeting": "El {{day}} la ventana más larga es de {{window}} min, menos que la reunión más corta que ofrece la página ({{minutes}} min) — no habrá ningún horario. Amplía la ventana o acorta la reunión."
   },
   "publicPage": {
     "loading": "Cargando…",

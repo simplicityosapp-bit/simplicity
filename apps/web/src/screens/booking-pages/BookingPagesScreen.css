@@ -94,6 +94,14 @@
 
 /* Validation message above the bottom save button — aligned to the card column
    so it's visible right where the save action is. */
+/* Live/draft state in the builder's top bar. Same badge the list cards wear, so
+   "פעיל" means one thing in both places; it sits before the actions, never
+   shrinking, because it is a label rather than a control. */
+.bk-live-badge { flex: none; align-self: center; }
+/* The plain save sits next to the publish action, so it reads as the secondary
+   of the pair rather than as a second primary. */
+.bk-save-draft { flex: none; }
+
 .lpe-err-bottom {
   max-width: 720px;
   margin: 16px auto 0;

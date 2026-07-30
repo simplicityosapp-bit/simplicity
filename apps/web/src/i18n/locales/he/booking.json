@@ -99,7 +99,9 @@
     "errAddTypeFailed": "הוספת סוג נכשלה: {{error}}",
     "leaveTitle": "לצאת בלי לשמור?",
     "leaveBody": "יש שינויים שעדיין לא נשמרו. אם תצאו עכשיו הם יאבדו.",
-    "leaveDiscard": "צאו בלי לשמור"
+    "leaveDiscard": "צאו בלי לשמור",
+    "publishNow": "פרסום",
+    "errWindowShorterThanMeeting": "ב{{day}} החלון הארוך ביותר הוא {{window}} דק׳, קצר מהפגישה הקצרה שהדף מציע ({{minutes}} דק׳) — לא ייווצר אף מועד. הרחיבו את החלון או קצרו את הפגישה."
   },
   "publicPage": {
     "loading": "טוען…",

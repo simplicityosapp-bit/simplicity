@@ -93,7 +93,9 @@
     "errAddTypeFailed": "Adding type failed: {{error}}",
     "leaveTitle": "Leave without saving?",
     "leaveBody": "You have changes that were never saved. Leaving now discards them.",
-    "leaveDiscard": "Leave without saving"
+    "leaveDiscard": "Leave without saving",
+    "publishNow": "Publish",
+    "errWindowShorterThanMeeting": "On {{day}} the longest window is {{window}} min, shorter than the shortest meeting this page offers ({{minutes}} min) — no time can be offered. Widen the window or shorten the meeting."
   },
   "publicPage": {
     "loading": "Loading…",

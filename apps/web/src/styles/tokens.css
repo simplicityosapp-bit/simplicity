@@ -68,7 +68,22 @@
   --mg-card-border:     1px solid rgba(255, 255, 255, 0.5);
   --mg-card-radius:     20px;
   --mg-card-shadow:     0 1px 2px rgba(42, 37, 32, 0.04), 0 8px 24px rgba(42, 37, 32, 0.06);
-  --mg-card-pad:        24px 28px;
+  /* Card padding is published as its two HALVES plus the shorthand composed
+     from them. A rule that needs only the horizontal half cannot take it out
+     of a shorthand: `padding: 34px var(--mg-card-pad)` reads as "34 top and
+     bottom, card padding on the sides" but expands to THREE values
+     (top / horizontal / bottom). Two first-run cards silently lost their
+     bottom padding to exactly that before the halves existed.
+
+     ⚠️ Anything overriding the proportion must set the HALVES *and* restate
+     the shorthand. A custom property's computed value has its var()s already
+     substituted, and it is that substituted string which inherits — so a
+     descendant that redefines only --mg-card-pad-y/-x does NOT recompute an
+     inherited --mg-card-pad; the two would silently disagree. Every override
+     site in the app follows the three-line form below. */
+  --mg-card-pad-y:      24px;
+  --mg-card-pad-x:      28px;
+  --mg-card-pad:        var(--mg-card-pad-y) var(--mg-card-pad-x);
   /* ── Simplicity list rows (clickable rows + dividers) ──────────────
      Spec: vertical padding 14-16px, hit area = whole row, terracotta
      hover/active bg, divider only between rows (not above first). */
@@ -305,9 +320,21 @@
 
 /* Density tunes the shared card padding token, so every card that uses
    --mg-card-pad breathes (or tightens) with the setting. Comfortable is
-   the base token (no override). */
-[data-density="compact"]  { --mg-card-pad: 16px 18px; }
-[data-density="spacious"] { --mg-card-pad: 30px 34px; }
+   the base token (no override).
+
+   These land on <html>, the same element as :root, so restating the shorthand
+   here is not optional bookkeeping — without it the halves would move and the
+   composed value, already substituted on :root, would not follow. */
+[data-density="compact"] {
+  --mg-card-pad-y: 16px;
+  --mg-card-pad-x: 18px;
+  --mg-card-pad:   var(--mg-card-pad-y) var(--mg-card-pad-x);
+}
+[data-density="spacious"] {
+  --mg-card-pad-y: 30px;
+  --mg-card-pad-x: 34px;
+  --mg-card-pad:   var(--mg-card-pad-y) var(--mg-card-pad-x);
+}
 
 /* Text strength — a gentle global base-weight bump for "bold". Per-screen
    emphasis (e.g. Home titles) can still layer on top. */

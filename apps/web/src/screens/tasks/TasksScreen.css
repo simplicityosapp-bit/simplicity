@@ -21,7 +21,9 @@
    collapsible panels were built. It now reads the token instead. */
 .tk-screen {
   --mg-card-radius: 14px;
-  --mg-card-pad:    16px 18px;
+  --mg-card-pad-y:  16px;
+  --mg-card-pad-x:  18px;
+  --mg-card-pad:    var(--mg-card-pad-y) var(--mg-card-pad-x);
 }
 
 /* This screen's header was the first to hold nothing but the screen name, and

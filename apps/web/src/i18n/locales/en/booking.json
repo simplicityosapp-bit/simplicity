@@ -90,7 +90,10 @@
     "errSlugTaken": "This short link is already taken — please choose another.",
     "errSaveFailed": "Save failed: {{error}}",
     "errSaveRetry": "Please try again",
-    "errAddTypeFailed": "Adding type failed: {{error}}"
+    "errAddTypeFailed": "Adding type failed: {{error}}",
+    "leaveTitle": "Leave without saving?",
+    "leaveBody": "You have changes that were never saved. Leaving now discards them.",
+    "leaveDiscard": "Leave without saving"
   },
   "publicPage": {
     "loading": "Loading…",

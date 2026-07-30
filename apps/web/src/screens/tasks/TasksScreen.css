@@ -570,7 +570,10 @@
   padding: 1px 7px;
   border-radius: 999px;
   background: color-mix(in srgb, var(--clay) 16%, transparent);
-  color: var(--clay);
+  /* Danger TEXT reads --clay-on-dark: it aliases to --clay in light mode and
+     lifts in dark, where the deep wine is unreadable. The TINT behind it stays
+     raw --clay — that is a fill, and fills are what the base token is for. */
+  color: var(--clay-on-dark);
   font-family: var(--mg-font-num);
   font-size: calc(11px * var(--text-scale));
   font-weight: 600;

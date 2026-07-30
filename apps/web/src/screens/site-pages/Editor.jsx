@@ -94,6 +94,7 @@ export default function Editor({ page, onSave, onBack }) {
      (This replaces the old "full view", which hid the rails but left the canvas
      in edit mode — the same editor, only wider.) */
   const [preview, setPreview] = useState(false)
+  const [railOpen, setRailOpen] = useState(false)   // the sections list, folded on a phone
   const [paletteOpen, setPaletteOpen] = useState(false)
   const [paletteQuery, setPaletteQuery] = useState('') // "add section" search filter
   // Collapsible palette categories — the two most-used groups start open, the rest
@@ -221,6 +222,9 @@ export default function Editor({ page, onSave, onBack }) {
      nobody will ever see. Below the breakpoint the canvas always frames mobile
      (and the switch itself is hidden); on desktop the choice is the user's. */
   const shownDevice = isMobileView ? 'mobile' : device
+  /* The fold is a phone affordance only — on desktop the rail is a column of its
+     own and has all the height it needs. */
+  const railBodyOpen = !isMobileView || railOpen
 
   const selected = useMemo(
     () => draft.sections.find((s) => s.id === selectedId) || null,
@@ -572,12 +576,25 @@ export default function Editor({ page, onSave, onBack }) {
 
       <Box className="spe-body">
         {/* ── Sections rail ─────────────────────────────────────── */}
-        <Box as="aside" className="spe-rail">
+        <Box as="aside" className={`spe-rail${railOpen ? ' is-open' : ''}`}>
           <Box className="spe-rail-head">
-            <Txt>{t('editor.sections')}</Txt>
-            <Btn className="spe-add" aria-expanded={paletteOpen} onClick={() => { setPaletteOpen((v) => !v); setPaletteQuery('') }}><Plus size={15} /> {t('editor.add')}</Btn>
+            {/* On a phone the rail stacks ABOVE the canvas, so its list pushed the
+                page down — and kept pushing as sections were added. Folded, the
+                header still names the count and "הוסף" still works; the list is a
+                tap away. On desktop the rail is a permanent column and never folds. */}
+            {isMobileView ? (
+              <Btn type="button" className="spe-rail-toggle" aria-expanded={railOpen} onClick={() => setRailOpen((v) => !v)}>
+                <ChevronDown size={14} className="spe-rail-chev" aria-hidden="true" />
+                <Txt>{t('editor.sections')}</Txt>
+                <Txt className="spe-rail-count">{draft.sections.length}</Txt>
+              </Btn>
+            ) : <Txt>{t('editor.sections')}</Txt>}
+            <Btn className="spe-add" aria-expanded={paletteOpen}
+              onClick={() => { setPaletteOpen((v) => !v); setPaletteQuery(''); setRailOpen(true) }}>
+              <Plus size={15} /> {t('editor.add')}
+            </Btn>
           </Box>
-          {paletteOpen ? (
+          {railBodyOpen && paletteOpen ? (
             <Box className="spe-palette">
               <Box className="spe-palette-search">
                 <Search size={14} />
@@ -622,6 +639,10 @@ export default function Editor({ page, onSave, onBack }) {
               })()}
             </Box>
           ) : null}
+          {/* Unmounted, not [hidden]: .spe-seclist sets display:flex, and an author
+              rule beats the UA's [hidden]{display:none} — the list stayed on screen
+              at full height with the attribute dutifully set. */}
+          {railBodyOpen ? (
           <Box as="ul" className="spe-seclist">
             {draft.sections.map((s, i) => {
               const Ico = BLOCK_ICON[s.type] || Sparkles
@@ -654,6 +675,9 @@ export default function Editor({ page, onSave, onBack }) {
             })}
             {draft.sections.length === 0 ? <Box as="li" className="spe-rail-empty">{t('editor.railEmpty')}</Box> : null}
           </Box>
+          ) : null}
+          {/* Stays put whether the list is folded or not — it is the only way into
+              the page-design panel on a phone. */}
           <Btn className={`spe-design-btn${!selected ? ' is-on' : ''}`} onClick={() => { setSelectedId(null); setMobileSheet(true) }}>
             <Palette size={15} /> {t('editor.designPage')}
           </Btn>

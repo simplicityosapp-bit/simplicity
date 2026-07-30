@@ -262,6 +262,21 @@
 /* Sections rail */
 .spe-rail { width: 240px; flex: none; border-inline-end: 1px solid var(--divider); background: var(--mg-card-bg); -webkit-backdrop-filter: var(--mg-card-blur); backdrop-filter: var(--mg-card-blur); padding: 14px; overflow: auto; display: flex; flex-direction: column; gap: 10px; }
 .spe-rail-head { display: flex; align-items: center; justify-content: space-between; font-size: var(--mg-caption); font-weight: 600; color: var(--spb-text-2, var(--stone)); }
+/* Fold toggle — phone only (the button isn't rendered on desktop). Same chevron
+   behaviour as the palette categories, so everything in this rail folds alike. */
+.spe-rail-toggle {
+  display: inline-flex; align-items: center; gap: 6px; min-height: 34px;
+  font: inherit; font-size: var(--mg-caption); font-weight: 600;
+  color: var(--spb-text-2, var(--stone)); background: transparent; border: none;
+  padding: 0 2px; cursor: pointer;
+}
+.spe-rail-chev { flex: none; transition: transform 0.18s ease; }
+.spe-rail:not(.is-open) .spe-rail-chev { transform: rotate(-90deg); }
+.spe-rail-count {
+  font-weight: 500; letter-spacing: 0; color: var(--spb-text-3, var(--mist));
+  background: color-mix(in srgb, var(--espresso) 7%, transparent);
+  border-radius: 999px; padding: 1px 7px;
+}
 .spe-add { display: inline-flex; align-items: center; gap: 4px; font: inherit; font-size: var(--mg-caption); color: var(--terracotta); background: transparent; border: 1px solid var(--terracotta); border-radius: 8px; padding: 5px 10px; cursor: pointer; transition: background 0.15s, transform 0.12s; }
 .spe-add:hover { background: color-mix(in srgb, var(--terracotta) 8%, transparent); }
 .spe-add:active { transform: scale(0.97); }

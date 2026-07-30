@@ -143,38 +143,33 @@
 .t-search input::placeholder { color: var(--mist); }
 
 /* ── Controls row — status tabs + the "תצוגה" menu ──────────────
-   Three columns so the tabs stay optically centred on the screen no matter how
-   wide the menu pill grows (an echoed grouping or category makes it grow): the
-   empty first column mirrors the third. A plain space-between would have let
-   the pill shove the tabs off-centre.
-   Wraps on a narrow screen rather than crushing either one. */
+   Both controls anchored to an edge, the way the leads toolbar does it with
+   the same pair: tabs where reading starts, the menu opposite.
+
+   This was a 1fr/auto/1fr grid meant to hold the tabs optically centred. It
+   did neither thing well. `1fr` will not shrink below its content, so the
+   pill's column claimed 75.7px against the empty column's 64.7 and the tabs
+   sat 5.5px off centre anyway — and centring them stranded ~73px of dead
+   space opposite the pill, a control on one side and a void on the other.
+   Two anchored edges have no void to balance.
+
+   flex-wrap replaces the old ≤330px media query: if the pair genuinely
+   cannot share a line, the pill drops to the next one on its own. */
 .t-controls {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
+  display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 8px;
-  margin: 0 2px 14px;
+  flex-wrap: wrap;
+  /* No horizontal inset. It carried `0 2px` from the taxonomy bar it replaced,
+     which left this the only band on the screen NOT sharing the summary card's
+     edges — 26/314 against everything else's 24/316. Two pixels, but it is the
+     reason the stack read as four loose strips instead of one column. */
+  margin: 0 0 14px;
 }
 .t-filter {
-  grid-column: 2;
   width: fit-content;
   margin: 0;
-}
-.t-controls .mg-menu-wrap {
-  grid-column: 3;
-  justify-self: end;
-}
-/* Stacking is a last resort, not the phone layout: three tabs plus the pill
-   measure ~256px against ~327px of content width on a 375px phone, so one row
-   is right there. Only the narrowest devices fall back. */
-@media (max-width: 330px) {
-  .t-controls {
-    grid-template-columns: 1fr;
-    justify-items: center;
-    gap: 10px;
-  }
-  .t-filter { grid-column: 1; }
-  .t-controls .mg-menu-wrap { grid-column: 1; justify-self: center; }
 }
 /* Entity toggle (משימות / תזכורות / הכל) — now a member of the summary card's
    top line (.t-hero-head), not a centred band of its own. */

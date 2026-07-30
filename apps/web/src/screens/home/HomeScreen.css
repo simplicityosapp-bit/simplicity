@@ -212,7 +212,9 @@
      over the widgets beneath it is unreadable. */
   --home-card-solid:  var(--cream);
   --mg-card-radius:   14px;
-  --mg-card-pad:      16px 18px;
+  --mg-card-pad-y:    16px;
+  --mg-card-pad-x:    18px;
+  --mg-card-pad:      var(--mg-card-pad-y) var(--mg-card-pad-x);
 }
 [data-theme="dark"] .home-screen {
   --home-card-solid: #1A1F26;

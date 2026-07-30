@@ -9,20 +9,20 @@
    keep the 20px / 24×28 app default. Proportion only — the cream glass is
    untouched.
 
-   The two halves are named separately for the same reason finance names
-   them: --mg-card-pad is a SHORTHAND, so a rule wanting only the horizontal
-   half cannot get at it, and writing `34px var(--mg-card-pad)` silently
-   expands to THREE values instead of two. .l-firstrun below carried exactly
-   that bug — it was the only other instance in the app.
+   The halves are set as well as the shorthand, and the shorthand is restated
+   rather than inherited — see the note in tokens.css: a custom property's
+   computed value has its var()s already substituted, so overriding only the
+   halves here would leave --mg-card-pad still reading 24×28. .l-firstrun
+   below is why the halves exist at all.
 
    Note this override does NOT reach the lead-page BUILDER (.lpe-*), which is
    a separate route with its own file and a standing rule that its glass must
    match the --mg-card-* tokens exactly. */
 .l-screen {
   --mg-card-radius: 14px;
-  --l-pad-y:        16px;
-  --l-pad-x:        18px;
-  --mg-card-pad:    var(--l-pad-y) var(--l-pad-x);
+  --mg-card-pad-y:  16px;
+  --mg-card-pad-x:  18px;
+  --mg-card-pad:    var(--mg-card-pad-y) var(--mg-card-pad-x);
 }
 
 /* ── Monthly stats strip ───────────────────────────────────────── */
@@ -35,9 +35,9 @@
      card's padding on the sides" but is not: the shorthand expanded it to
      three values — 34 top, 24 sides, 28 bottom — so a card built around
      generous vertical breathing room was quietly missing it underneath.
-     --l-pad-x is the horizontal half on its own, so the two-value form now
-     means what it says. Same fix as .f-firstrun on the finance screen. */
-  padding: 34px var(--l-pad-x);
+     --mg-card-pad-x is the horizontal half on its own, so the two-value form
+     now means what it says. Same fix as .f-firstrun on the finance screen. */
+  padding: 34px var(--mg-card-pad-x);
   border-radius: var(--mg-card-radius);
   border: var(--mg-card-border);
   background: var(--mg-card-bg);

@@ -26,17 +26,15 @@
    .f-tx-group's desktop grid already sat at 12px, so unlike the clients and
    projects grids there is no gap to bring down.
 
-   The two halves are named separately because --mg-card-pad is a SHORTHAND,
-   and a rule that wants only the horizontal half cannot get at it: writing
-   `padding: 34px var(--mg-card-pad)` silently expands to THREE values
-   (top / horizontal / bottom) rather than the two it looks like. That is
-   exactly the bug .f-firstrun carried. --f-pad-x gives such rules the one
-   value they actually want, from the same source of truth. */
+   The halves are set as well as the shorthand, and the shorthand is restated
+   rather than inherited — see the note in tokens.css: a custom property's
+   computed value has its var()s already substituted, so overriding only the
+   halves here would leave --mg-card-pad still reading 24×28. */
 .f-screen {
   --mg-card-radius: 14px;
-  --f-pad-y:        16px;
-  --f-pad-x:        18px;
-  --mg-card-pad:    var(--f-pad-y) var(--f-pad-x);
+  --mg-card-pad-y:  16px;
+  --mg-card-pad-x:  18px;
+  --mg-card-pad:    var(--mg-card-pad-y) var(--mg-card-pad-x);
 }
 
 /* ── Overview card (summary + chart) ───────────────────────────
@@ -75,9 +73,9 @@
      card's padding on the sides" but is not: --mg-card-pad is a two-value
      shorthand, so it expanded to three values — 34 top, 24 sides, 28 bottom.
      The generous vertical breathing room this card is built around was
-     silently missing from its underside. --f-pad-x is the horizontal half on
-     its own, so the two-value form now means what it says. */
-  padding: 34px var(--f-pad-x);
+     silently missing from its underside. --mg-card-pad-x is the horizontal
+     half on its own, so the two-value form now means what it says. */
+  padding: 34px var(--mg-card-pad-x);
   border-radius: var(--mg-card-radius);
   border: var(--mg-card-border);
   background: var(--mg-card-bg);

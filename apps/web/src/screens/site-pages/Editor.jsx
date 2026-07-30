@@ -858,8 +858,8 @@ function DesignPanel({ theme, setTheme, slug, onSlug, projects, projectId, onPro
 
       <PanelGroup label={t('design.grpCards')} open={open.cards} onToggle={() => toggle('cards')}>
         <Slider label={t('design.cardOpacity')} min={0} max={100} value={theme.cardOpacity} onChange={(v) => setTheme({ cardOpacity: v })} />
-        <Slider label={t('design.cardBlur')} min={0} max={40} value={theme.cardBlur} onChange={(v) => setTheme({ cardBlur: v })} />
-        <Slider label={t('design.cardRadius')} min={8} max={40} value={theme.cardRadius} onChange={(v) => setTheme({ cardRadius: v })} />
+        <Slider label={t('design.cardBlur')} min={0} max={40} unit="px" value={theme.cardBlur} onChange={(v) => setTheme({ cardBlur: v })} />
+        <Slider label={t('design.cardRadius')} min={8} max={40} unit="px" value={theme.cardRadius} onChange={(v) => setTheme({ cardRadius: v })} />
       </PanelGroup>
 
       <PanelGroup label={t('design.grpText')} open={open.text} onToggle={() => toggle('text')}>
@@ -942,10 +942,13 @@ function LeadSettings({ config, setConfig }) {
   )
 }
 
-function Slider({ label, min, max, value, onChange }) {
+/* `unit` defaults to % because most of these are percentages — the same
+   assumption the block-level `range` descriptor makes. A bare "24" next to
+   "עיגול פינות" tells you nothing about what moving it does. */
+function Slider({ label, min, max, value, onChange, unit = '%' }) {
   return (
     <Box as="label" className="spe-f">
-      <Txt>{label} · {value}</Txt>
+      <Txt>{label} · {value}{unit}</Txt>
       <Input type="range" min={min} max={max} value={value} onChange={(e) => onChange(Number(e.target.value))} />
     </Box>
   )

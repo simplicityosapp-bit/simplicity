@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useParams, useNavigate, useLocation, Navigate } from 'react-router-dom'
-import { ArrowRight, Plus, Pencil, Trash2, ExternalLink, Copy, Check, LayoutTemplate, Files, ClipboardList } from 'lucide-react'
+import { ChevronRight, Plus, Pencil, Trash2, ExternalLink, Copy, Check, LayoutTemplate, Files, ClipboardList } from 'lucide-react'
 import { useSitePages } from '../../hooks/useSitePages'
 import { useSubscription } from '../../hooks/useSubscription'
 import { useUpgradeNav } from '../../hooks/useUpgradeNav'
@@ -58,7 +58,13 @@ export default function SitePagesBuilder() {
   const createFrom = async (tpl) => {
     setPicking(false)
     const draft = newSitePageDraft(kind)
-    if (tpl) { draft.theme = structuredClone(tpl.theme); draft.sections = structuredClone(tpl.sections) }
+    if (tpl) {
+      draft.theme = structuredClone(tpl.theme); draft.sections = structuredClone(tpl.sections)
+      /* Name it after the template it came from. The title is the page's INTERNAL
+         name — nothing a visitor sees — and leaving it empty meant a list where
+         every card read "דף ללא שם", including the one you just made. */
+      draft.title = t('templates.' + tpl.id, { defaultValue: '' })
+    }
     try { const row = await addPage(draft); if (row?.id) setEditingId(row.id) } catch { showError(t('hub.actionFailed')) }
   }
 
@@ -102,8 +108,14 @@ export default function SitePagesBuilder() {
 
   return (
     <Box className="screen" data-screen="sitePages">
-      <Box className="spg-builder-top">
-        <Btn className="spe-icon-btn" onClick={() => navigate(ROUTES.SITE_PAGES)} title={t('hub.back')} aria-label={t('hub.back')}><ArrowRight size={18} /></Btn>
+      {/* The glass header card every screen wears, in the back-button shape the
+          connections sub-screens already use. It was a bare title before — the
+          only screen in the app without the card, and the "?" has nowhere to
+          dock without it (HelpFab portals into .screen-head). */}
+      <Box as="header" className="screen-head spg-hub-head spg-builder-head">
+        <Btn type="button" className="spg-back" onClick={() => navigate(ROUTES.SITE_PAGES)} title={t('hub.back')} aria-label={t('hub.back')}>
+          <ChevronRight size={20} strokeWidth={1.6} aria-hidden="true" />
+        </Btn>
         <Txt as="h1" className="t-screen">
           <KindIcon size={20} strokeWidth={1.6} aria-hidden="true" />
           {kindLabel}

@@ -1,7 +1,6 @@
 {
   "hub": {
     "title": "Pages publiques",
-    "subtitle": "Créez des pages d'atterrissage, des formulaires et des pages de réservation — par glisser-déposer, avec sections, arrière-plans et icônes.",
     "newLanding": "Nouvelle page d'atterrissage",
     "newLead": "Nouvelle page de contact",
     "loading": "Chargement…",
@@ -17,14 +16,17 @@
     "copyFailed": "Impossible de copier automatiquement — sélectionnez et copiez le lien manuellement.",
     "open": "Ouvrir",
     "delete": "Supprimer",
-    "legacyText": "Le créateur de «{{kind}}» sur le nouveau moteur arrive bientôt.",
-    "legacyLink": "Aller au créateur actuel →",
     "duplicate": "Dupliquer",
     "copySuffix": "(copie)",
     "back": "Retour",
     "descLanding": "Une page marketing complète avec sections, arrière-plans et icônes",
     "descLead": "Un formulaire ciblé qui capte les demandes directement",
-    "descBooking": "Une page pour choisir un rendez-vous depuis votre agenda"
+    "descBooking": "Une page pour choisir un rendez-vous depuis votre agenda",
+    "stateEmpty": "Aucune page pour le moment",
+    "statePages_one": "{{count}} page",
+    "statePages_other": "{{count}} pages",
+    "stateLive_one": "{{count}} publiée",
+    "stateLive_other": "{{count}} publiées"
   },
   "templates": {
     "choose": "Choisissez un modèle pour commencer",
@@ -56,8 +58,6 @@
     "exitFocus": "Retour à l'édition",
     "publish": "Publier",
     "saving": "Enregistrement…",
-    "save": "Enregistrer",
-    "saved": "Enregistré",
     "saveError": "Échec de l'enregistrement — cette adresse de page est peut-être déjà prise. Essayez-en une autre.",
     "slugInvalid": "Adresse invalide — en anglais uniquement, sans espaces, de 3 à 40 caractères (chiffres et tirets acceptés).",
     "sections": "Sections",
@@ -70,9 +70,7 @@
     "done": "Terminé",
     "designPage": "Design de la page",
     "leaveTitle": "Quitter sans enregistrer ?",
-
     "leaveBody": "Vous avez des modifications non enregistrées. Si vous quittez maintenant, elles seront perdues.",
-
     "leaveDiscard": "Quitter sans enregistrer",
     "moveUp": "Monter",
     "moveDown": "Descendre",
@@ -83,7 +81,6 @@
     "statusUnpublished": "Modifications non publiées",
     "unpublish": "Dépublier",
     "more": "Plus",
-
     "dismiss": "Fermer",
     "publishedToast": "Page publiée !"
   },
@@ -106,7 +103,7 @@
     "bgImage": "Téléverser",
     "bgFlatColor": "Couleur d'arrière-plan",
     "cardOpacity": "Opacité de la carte",
-    "cardBlur": "Flou de verre",
+    "cardBlur": "Flou de la carte",
     "cardRadius": "Arrondi des coins",
     "textLight": "Texte clair (pour arrière-plans sombres)",
     "bold": "Gras",
@@ -115,7 +112,6 @@
     "width": "Largeur",
     "grpSize": "Taille et position",
     "grpLayout": "Disposition",
-
     "grpAdvanced": "Avancé",
     "freeLayout": "Position libre (bêta)",
     "freeLayoutHint": "Glissez les blocs librement. Passez en vue mobile (icône téléphone) pour organiser le téléphone séparément.",

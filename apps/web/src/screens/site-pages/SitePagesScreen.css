@@ -11,7 +11,7 @@
    The builder UI restores a 3-step hierarchy with its OWN mid-grays (the values
    --stone/--mist had BEFORE that change). Scoped to the builder trees only — the
    rendered page content stays on the global tokens. */
-.spe, .spg-builder-top, .spg-grid, .spg-tiles, .spg-hub-head, .tpl-modal,
+.spe, .spg-builder-head, .spg-grid, .spg-tiles, .spg-hub-head, .tpl-modal,
 .screen[data-screen="sitePages"] {
   --spb-text-2: #6B6358;   /* secondary — field labels, section captions */
   --spb-text-3: #9B9388;   /* tertiary — hints, placeholders, faint icons */
@@ -42,13 +42,12 @@
      on purpose, like a Figma artboard). Text tokens already lighten in dark. */
   --pure-white: #262c36;
 }
-[data-theme="dark"] :is(.spe, .spg-builder-top, .spg-grid, .spg-tiles, .spg-hub-head, .tpl-modal, .screen[data-screen="sitePages"]) {
+[data-theme="dark"] :is(.spe, .spg-builder-head, .spg-grid, .spg-tiles, .spg-hub-head, .tpl-modal, .screen[data-screen="sitePages"]) {
   --spb-text-2: #B8B0A4;
   --spb-text-3: #8A8278;
 }
 
 /* ── Hub ─────────────────────────────────────────────────────────────────── */
-.s-sub { color: var(--spb-text-2, var(--stone)); font-size: var(--mg-body); margin-top: 6px; }
 
 /* The hub renders its header bare (no .screen-top wrapper, like Connections),
    so give it the standard screen-header spacing — otherwise the title card
@@ -84,12 +83,35 @@
   font-size: var(--mg-caption); font-weight: 500; line-height: 1.35;
   color: color-mix(in srgb, var(--espresso) 90%, transparent);
 }
+/* A 999px pill is drawn for one line. On a phone the longest description wraps
+   to two, and a fully-round lozenge around two lines reads as a mistake — so
+   below the breakpoint it relaxes into a rounded rectangle that wraps on
+   purpose. */
+@media (max-width: 767px) {
+  .spg-tile-desc { border-radius: 12px; padding: 4px 10px; }
+}
+/* Live state under the description — the same shape the connections rows use
+   for "מחובר": a caption line that turns sage the moment something is online. */
+.spg-tile-state {
+  display: inline-flex; align-items: center; gap: 4px; min-height: 1.2em;
+  font-size: var(--mg-caption); font-weight: 500; color: var(--spb-text-2, var(--stone));
+}
+.spg-tile-state.is-live { color: var(--sage); }
 .spg-tile-chevron { color: var(--spb-text-3, var(--mist)); flex: none; }
 .spg-tile:focus-visible { outline: none; box-shadow: 0 0 0 3px color-mix(in srgb, var(--terracotta) 24%, transparent); }
 
-/* Builder sub-screen header — back arrow + the kind's title. */
-.spg-builder-top { display: flex; align-items: center; gap: 8px; margin: 14px 0 8px; }
-.spg-builder-top .t-screen { margin: 0; }
+/* Builder sub-screen header — the shared .screen-head card holding a back
+   button plus the kind's title, the same shape the connections sub-screens
+   use. Wider than the 280px default: that cap is sized for a title alone, and
+   this row also carries the button. */
+.spg-builder-head { gap: 10px; max-width: 340px; }
+.spg-builder-head .t-screen { margin: 0; min-width: 0; }
+.spg-back {
+  flex-shrink: 0; display: inline-flex; align-items: center; justify-content: center;
+  width: 36px; height: 36px; border-radius: 50%;
+  border: var(--mg-card-border); background: var(--mg-card-bg); color: var(--espresso); cursor: pointer;
+}
+.spg-back:hover { background: color-mix(in srgb, var(--terracotta) 8%, var(--mg-card-bg)); }
 
 /* ── Template picker (modal) ─────────────────────────────────────────────── */
 .tpl-overlay {
@@ -116,18 +138,6 @@
 .tpl-name { font-size: var(--mg-caption); font-weight: 500; color: var(--espresso); padding-inline: 2px; }
 .tpl-card:focus-visible .tpl-thumb { outline: none; box-shadow: 0 0 0 3px color-mix(in srgb, var(--terracotta) 24%, transparent); }
 
-.spg-tabs { display: flex; gap: 8px; margin: 18px 0 6px; flex-wrap: wrap; }
-.spg-tab {
-  font: inherit; font-size: var(--mg-caption); font-weight: 500; color: var(--spb-text-2, var(--stone));
-  background: var(--mg-card-bg); -webkit-backdrop-filter: var(--mg-card-blur); backdrop-filter: var(--mg-card-blur);
-  border: 0.5px solid var(--divider); border-radius: 999px; padding: 8px 18px; cursor: pointer;
-  transition: color 0.15s, background 0.15s, border-color 0.15s, transform 0.12s;
-}
-.spg-tab:hover { color: var(--espresso); }
-.spg-tab.is-on { color: var(--on-accent); background: var(--terracotta); border-color: transparent; }
-[data-theme="dark"] .spg-tab.is-on { color: var(--ink-on-accent); }
-.spg-tab:active { transform: scale(0.97); }
-
 .spg-toolbar { margin: 16px 0; }
 .spg-new {
   display: inline-flex; align-items: center; gap: 8px; min-height: 44px;
@@ -139,8 +149,6 @@
 .spg-new:hover { background: var(--spb-primary-grad-hover); transform: translateY(-1px); box-shadow: var(--spb-primary-glow-hover); }
 .spg-new:active { transform: translateY(0) scale(0.975); box-shadow: var(--spb-primary-glow); }
 [data-theme="dark"] .spg-new { color: var(--ink-on-accent); }
-
-.spg-muted { color: var(--spb-text-2, var(--stone)); }
 
 /* Cards stretch to fill the row instead of sitting at a fixed 248px: on a phone
    the fixed track left a ~79px dead strip beside every card, and the thumbnail
@@ -191,10 +199,6 @@
 }
 .spg-card-actions button:hover, .spg-card-actions a:hover { background: var(--mg-row-active-bg); color: var(--espresso); }
 
-.spg-legacy { padding: 32px 0; color: var(--spb-text-2, var(--stone)); display: flex; flex-direction: column; gap: 10px; align-items: flex-start; }
-.spg-legacy-link { color: var(--terracotta); font-weight: 600; text-decoration: none; }
-.spg-legacy-link:hover { text-decoration: underline; }
-
 /* ── Editor shell ────────────────────────────────────────────────────────── */
 /* In the editor, blank out the app's decorative nature background (painted on
    .app::before) so the focus is purely the page being built — not the scene
@@ -223,7 +227,6 @@
 .spe-top-actions { display: flex; align-items: center; gap: 8px; flex: 1 1 0; min-width: 0; justify-content: flex-end; }
 .spe-toolgroup { display: flex; align-items: center; gap: 2px; background: color-mix(in srgb, var(--espresso) 6%, transparent); border-radius: var(--mg-chip-radius); padding: 3px; }
 .spe-toolgroup .spe-icon-btn { width: 30px; height: 28px; }
-.spe-top-spacer { flex: 1; }
 /* "⋯" overflow menu (unpublish, …) */
 .spe-overflow { position: relative; }
 .spe-overflow-menu {
@@ -241,7 +244,6 @@
 .spe-device { display: flex; gap: 2px; background: color-mix(in srgb, var(--espresso) 6%, transparent); border-radius: var(--mg-chip-radius); padding: 3px; }
 .spe-device button { display: grid; place-items: center; width: 32px; height: 28px; border: none; background: transparent; color: var(--spb-text-2, var(--stone)); border-radius: 7px; cursor: pointer; transition: background 0.15s, color 0.15s; }
 .spe-device button.is-on { background: var(--pure-white); color: var(--terracotta); box-shadow: var(--mg-card-shadow); }
-.spe-pub { display: flex; align-items: center; gap: 6px; font-size: var(--mg-caption); color: var(--spb-text-2, var(--stone)); cursor: pointer; }
 .spe-save { font: inherit; font-size: var(--mg-caption); font-weight: 600; color: var(--pure-white); background: var(--spb-primary-grad); border: none; border-radius: 11px; padding: 9px 22px; cursor: pointer; box-shadow: var(--spb-primary-glow); transition: background 0.18s var(--spb-ease), transform 0.14s var(--spb-ease), box-shadow 0.2s var(--spb-ease); }
 .spe-save:hover:not(:disabled) { background: var(--spb-primary-grad-hover); transform: translateY(-1px); box-shadow: var(--spb-primary-glow-hover); }
 .spe-save:active:not(:disabled) { transform: translateY(0) scale(0.975); box-shadow: var(--spb-primary-glow); }
@@ -254,8 +256,6 @@
 .spe-save-draft:hover:not(:disabled) { transform: translateY(-1px); box-shadow: var(--spb-hairline), 0 5px 14px rgba(42, 37, 32, 0.09); border-color: color-mix(in srgb, var(--terracotta) 32%, var(--divider)); }
 .spe-save-draft:active:not(:disabled) { transform: translateY(0) scale(0.98); }
 .spe-save-draft:disabled { opacity: 0.5; cursor: default; }
-.spe-unpub { font: inherit; font-size: var(--mg-caption); color: var(--spb-text-2, var(--stone)); background: transparent; border: none; cursor: pointer; padding: 6px 8px; border-radius: var(--mg-chip-radius); transition: color 0.15s, background 0.15s; }
-.spe-unpub:hover:not(:disabled) { color: var(--clay); background: color-mix(in srgb, var(--clay) 8%, transparent); }
 
 .spe-body { flex: 1; display: flex; min-height: 0; }
 
@@ -556,7 +556,7 @@
 
 /* Shared focus-visible ring — keyboard operability across the whole editor. */
 .spe :is(button, a, input, select, textarea):focus-visible,
-.spg-tab:focus-visible, .spg-new:focus-visible, .spg-card-actions :is(button, a):focus-visible {
+.spg-new:focus-visible, .spg-card-actions :is(button, a):focus-visible {
   outline: none;
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--terracotta) 24%, transparent);
 }

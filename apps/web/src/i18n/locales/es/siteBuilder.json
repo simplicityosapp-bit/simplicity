@@ -1,7 +1,6 @@
 {
   "hub": {
     "title": "Páginas públicas",
-    "subtitle": "Crea páginas de aterrizaje, formularios y páginas de reserva — arrastrando, con secciones, fondos e iconos.",
     "newLanding": "Nueva página de aterrizaje",
     "newLead": "Nueva página de contacto",
     "loading": "Cargando…",
@@ -17,14 +16,17 @@
     "copyFailed": "No se pudo copiar automáticamente — selecciona y copia el enlace manualmente.",
     "open": "Abrir",
     "delete": "Eliminar",
-    "legacyText": "El creador de «{{kind}}» en el nuevo motor llegará pronto.",
-    "legacyLink": "Ir al creador actual →",
     "duplicate": "Duplicar",
     "copySuffix": "(copia)",
     "back": "Volver",
     "descLanding": "Una página de marketing completa con secciones, fondos e iconos",
     "descLead": "Un formulario centrado que capta consultas directamente",
-    "descBooking": "Una página para elegir una cita desde tu calendario"
+    "descBooking": "Una página para elegir una cita desde tu calendario",
+    "stateEmpty": "Aún no hay páginas",
+    "statePages_one": "{{count}} página",
+    "statePages_other": "{{count}} páginas",
+    "stateLive_one": "{{count}} publicada",
+    "stateLive_other": "{{count}} publicadas"
   },
   "templates": {
     "choose": "Elige una plantilla para empezar",
@@ -56,8 +58,6 @@
     "exitFocus": "Volver a editar",
     "publish": "Publicar",
     "saving": "Guardando…",
-    "save": "Guardar",
-    "saved": "Guardado",
     "saveError": "Error al guardar — esa dirección de página puede estar ocupada. Prueba con otra.",
     "slugInvalid": "Dirección no válida — solo en inglés, sin espacios, de 3 a 40 caracteres (se permiten dígitos y guiones).",
     "sections": "Secciones",
@@ -70,9 +70,7 @@
     "done": "Hecho",
     "designPage": "Diseño de la página",
     "leaveTitle": "¿Salir sin guardar?",
-
     "leaveBody": "Tienes cambios sin guardar. Si sales ahora, se perderán.",
-
     "leaveDiscard": "Salir sin guardar",
     "moveUp": "Subir",
     "moveDown": "Bajar",
@@ -83,7 +81,6 @@
     "statusUnpublished": "Cambios sin publicar",
     "unpublish": "Despublicar",
     "more": "Más",
-
     "dismiss": "Cerrar",
     "publishedToast": "¡Página publicada!"
   },
@@ -106,7 +103,7 @@
     "bgImage": "Subir",
     "bgFlatColor": "Color de fondo",
     "cardOpacity": "Opacidad de la tarjeta",
-    "cardBlur": "Desenfoque de cristal",
+    "cardBlur": "Desenfoque de la tarjeta",
     "cardRadius": "Redondeo de esquinas",
     "textLight": "Texto claro (para fondos oscuros)",
     "bold": "Negrita",
@@ -115,7 +112,6 @@
     "width": "Ancho",
     "grpSize": "Tamaño y posición",
     "grpLayout": "Disposición",
-
     "grpAdvanced": "Avanzado",
     "freeLayout": "Posición libre (beta)",
     "freeLayoutHint": "Arrastra bloques libremente. Cambia a vista móvil (icono del teléfono) para organizar el móvil por separado.",

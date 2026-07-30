@@ -7,7 +7,7 @@ import {
   LayoutGrid, Smile, Images, Video, HelpCircle, SeparatorHorizontal, Copy,
   Bold, Italic, List, Heading, Link as LinkIcon, Undo2, Redo2, Search,
   Columns2, BarChart3, Tag, Building2, ListOrdered, Megaphone, Share2, Mail, Map as MapIcon, Flag, Timer,
-  MoreHorizontal, CheckCircle2,
+  MoreHorizontal, CheckCircle2, AlertTriangle,
 } from 'lucide-react'
 import {
   BLOCK_TYPES, BLOCK_PALETTE, BLOCK_CATEGORIES, newSection, newSectionId,
@@ -543,7 +543,11 @@ export default function Editor({ page, onSave, onBack }) {
         </Box>
         {/* publish */}
         <Box className="spe-top-actions">
-          {saveError ? <Txt className="spe-save-err" title={saveError}>{saveError}</Txt> : null}
+          {/* The failure itself is a toast now (see .spe-toasts below). It used to
+              live here as an 11px nowrap line capped at 240px, wedged between the
+              status pill and the buttons — "כתובת לא תקינה — באנגלית בלבד…" showed
+              up as three words and an ellipsis, and on a phone it wrapped out of
+              sight entirely. Reported as "לא רואים כלום". */}
           <Txt className={`spe-status${draft.published ? (hasUnpublishedChanges ? ' is-pending' : ' is-live') : ''}`}>
             {!draft.published ? t('editor.statusDraft') : hasUnpublishedChanges ? t('editor.statusUnpublished') : t('editor.statusPublished')}
           </Txt>
@@ -686,21 +690,39 @@ export default function Editor({ page, onSave, onBack }) {
         </Box>
       </Box>
 
-      {pendingDel ? (
-        <Box className="spe-toast" role="status">
-          <Txt>{t('editor.sectionDeleted')}</Txt>
-          {/* NOT editor.undo — that reads as "dismiss this notice" next to a
-              message about something already deleted. This one restores it. */}
-          <Btn onClick={undoDelete}>{t('editor.undoDelete', { defaultValue: 'החזרה' })}</Btn>
-        </Box>
-      ) : null}
+      {/* One stack, so a delete-undo and a failed publish can't land on top of
+          each other at the same fixed spot. */}
+      <Box className="spe-toasts">
+        {pendingDel ? (
+          <Box className="spe-toast" role="status">
+            <Txt>{t('editor.sectionDeleted')}</Txt>
+            {/* NOT editor.undo — that reads as "dismiss this notice" next to a
+                message about something already deleted. This one restores it. */}
+            <Btn onClick={undoDelete}>{t('editor.undoDelete', { defaultValue: 'החזרה' })}</Btn>
+          </Box>
+        ) : null}
 
-      {publishOk ? (
-        <Box className="spe-toast spe-toast-ok" role="status">
-          <CheckCircle2 size={17} />
-          <Txt>{t('editor.publishedToast', { defaultValue: 'הדף פורסם!' })}</Txt>
-        </Box>
-      ) : null}
+        {publishOk ? (
+          <Box className="spe-toast spe-toast-ok" role="status">
+            <CheckCircle2 size={17} />
+            <Txt>{t('editor.publishedToast', { defaultValue: 'הדף פורסם!' })}</Txt>
+          </Box>
+        ) : null}
+
+        {/* Stays until dismissed or until the next save/publish clears it — a
+            message explaining why publishing failed is the one thing here that
+            must not vanish on a timer while it is being read. */}
+        {saveError ? (
+          <Box className="spe-toast spe-toast-err" role="alert">
+            <AlertTriangle size={17} className="spe-toast-ico" />
+            <Txt>{saveError}</Txt>
+            <Btn className="spe-toast-x" onClick={() => setSaveError(null)}
+              title={t('editor.dismiss', { defaultValue: 'סגירה' })} aria-label={t('editor.dismiss', { defaultValue: 'סגירה' })}>
+              <X size={14} />
+            </Btn>
+          </Box>
+        ) : null}
+      </Box>
 
       {/* Unsaved-changes gate. The app's own modal, not window.confirm — that one
           arrives in browser chrome, ignores the app's RTL, and phrases the stakes

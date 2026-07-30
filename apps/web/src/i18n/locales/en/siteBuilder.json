@@ -83,6 +83,8 @@
     "statusUnpublished": "Unpublished changes",
     "unpublish": "Unpublish",
     "more": "More",
+
+    "dismiss": "Dismiss",
     "publishedToast": "Page published!"
   },
   "seo": {

@@ -247,7 +247,6 @@
 .spe-save:active:not(:disabled) { transform: translateY(0) scale(0.975); box-shadow: var(--spb-primary-glow); }
 .spe-save:disabled { opacity: 0.45; cursor: default; box-shadow: none; }
 [data-theme="dark"] .spe-save { color: var(--ink-on-accent); }
-.spe-save-err { font-size: var(--mg-micro); color: var(--clay-on-dark); max-width: 240px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .spe-status { font-size: var(--mg-micro); font-weight: 600; padding: 4px 10px; border-radius: 999px; background: color-mix(in srgb, var(--stone) 10%, transparent); color: var(--spb-text-2, var(--stone)); white-space: nowrap; }
 .spe-status.is-live { background: color-mix(in srgb, var(--sage) 16%, transparent); color: var(--sage); }
 .spe-status.is-pending { background: color-mix(in srgb, var(--amber-warn) 20%, transparent); color: var(--amber-warn); }
@@ -336,13 +335,24 @@
 .spe-layer-btn { flex: 1; display: inline-flex; align-items: center; justify-content: center; gap: 5px; font: inherit; font-size: var(--mg-caption); color: var(--espresso); background: var(--pure-white); border: 1px solid var(--divider); border-radius: var(--mg-chip-radius); padding: 7px 8px; cursor: pointer; transition: border-color 0.15s, color 0.15s, background 0.15s; }
 .spe-layer-btn:hover { border-color: var(--terracotta); color: var(--terracotta); }
 
-/* Undo toast (section delete) */
+/* Toasts (delete-undo, published, save/publish failure). The stack owns the
+   fixed position so two of them queue instead of covering each other; the
+   column is click-through, each toast takes its own pointer events back. */
+/* Spans the viewport and centres its children rather than sitting at left:50%
+   with a translate: a shrink-to-fit fixed box anchored at 50% only ever gets
+   HALF the width to lay out in, so on a phone a full-sentence toast folded into
+   a 188px tower. The short undo toast never revealed it. */
+.spe-toasts {
+  position: fixed; inset-inline: 16px; bottom: 24px;
+  z-index: 90; display: flex; flex-direction: column; align-items: center; gap: 8px;
+  pointer-events: none;
+}
 .spe-toast {
-  position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%);
-  display: inline-flex; align-items: center; gap: 14px;
+  display: inline-flex; align-items: center; gap: 14px; pointer-events: auto;
+  max-width: min(560px, 100%);
   background: var(--espresso); color: var(--cream);
   padding-block: 10px; padding-inline: 18px 14px; border-radius: var(--mg-chip-radius);
-  box-shadow: var(--elev-3); font-size: var(--mg-caption); z-index: 90;
+  box-shadow: var(--elev-3); font-size: var(--mg-caption);
   animation: mgFadeUp 0.2s ease;
 }
 .spe-toast button { font: inherit; font-weight: 600; color: var(--cream); background: transparent; border: 1px solid color-mix(in srgb, var(--cream) 45%, transparent); border-radius: var(--mg-chip-radius); padding: 5px 12px; cursor: pointer; transition: background 0.15s; }
@@ -350,6 +360,21 @@
 /* Success variant — brief "published!" confirmation. */
 .spe-toast-ok { gap: 9px; background: var(--sage); color: #fff; }
 [data-theme="dark"] .spe-toast-ok { color: var(--espresso); }
+/* Failure variant — keeps the dark toast surface rather than filling with clay:
+   white on light clay is ~3.5:1, under AA for a message people have to read.
+   The danger reads from the icon and the clay edge, both of which only need 3:1.
+   Wraps (the base toast is one line) because these run to a full sentence. */
+.spe-toast-err {
+  gap: 10px; align-items: flex-start; text-align: start;
+  box-shadow: var(--elev-3), inset 0 0 0 1.5px color-mix(in srgb, var(--clay-on-dark) 55%, transparent);
+}
+.spe-toast-err .spe-toast-ico { flex: none; margin-top: 1px; color: var(--clay-on-dark); }
+.spe-toast-err > span { line-height: 1.45; }
+.spe-toast-x {
+  flex: none; display: grid; place-items: center; width: 24px; height: 24px; padding: 0;
+  border: none; border-radius: 6px; background: transparent; color: var(--cream); cursor: pointer;
+}
+.spe-toast-x:hover { background: color-mix(in srgb, var(--cream) 16%, transparent); }
 
 /* Canvas */
 .spe-canvas-wrap { flex: 1; overflow: auto; background: radial-gradient(120% 78% at 50% -6%, color-mix(in srgb, #ffffff 58%, var(--bone)), var(--bone) 68%); padding: 24px; display: flex; justify-content: center; }

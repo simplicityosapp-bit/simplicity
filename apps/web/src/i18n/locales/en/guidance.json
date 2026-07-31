@@ -27,6 +27,10 @@
     "add-meeting": {
       "bubble": "Schedule your first meeting",
       "detail": "Calendar meetings sync with your clients and show up in the reminders on your home screen."
+    },
+    "add-booking-page": {
+      "bubble": "Create a booking page",
+      "detail": "A public page where clients pick a day and time from the hours you set — the meeting lands in your calendar without the back and forth."
     }
   },
   "tour": {

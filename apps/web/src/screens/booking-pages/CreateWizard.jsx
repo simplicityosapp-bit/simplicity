@@ -1,7 +1,8 @@
 import { useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import {
   ArrowRight, ArrowLeft, Check, CalendarClock, Clock, Palette, BellRing, Globe,
-  Plus, Link2, Copy, ExternalLink, Sparkles,
+  Link2, Copy, ExternalLink, Sparkles,
 } from 'lucide-react'
 import DesignToolbox from '../../components/DesignToolbox'
 import SelectMenu from '../../components/SelectMenu'
@@ -9,6 +10,7 @@ import { useMeetingTypes } from '../../hooks/useMeetingTypes'
 import { useProjects } from '../../hooks/useProjects'
 import { useGoogleCalendar } from '../../hooks/useGoogleCalendar'
 import AvailabilityEditor from './AvailabilityEditor'
+import MeetingTypesPicker from './MeetingTypesPicker'
 import {
   newBookingPageDraft, leadPageSurface, publicBookingPageUrl,
   normalizeSlug, isValidSlug, slugifyInput, sanitizeAvailability, findInvalidWindow,
@@ -18,6 +20,7 @@ import {
   WIZARD_STEPS, stepIndex, stepBlocker, nextStep, prevStep, isLastStep,
   provisionalTitle, isProvisionalTitle,
 } from '../../lib/bookingWizard'
+import { ROUTES } from '../../lib/routes'
 import { copyText } from '../../lib/clipboard'
 import { showError } from '../../lib/toast'
 import { useT } from '../../i18n/useT'
@@ -44,6 +47,7 @@ const STEP_ICONS = { offer: CalendarClock, when: Clock, look: Palette, after: Be
    ════════════════════════════════════════════════════════════════ */
 export default function BookingCreateWizard({ takenTitles, onAdd, onUpdate, onExit, onOpenBuilder }) {
   const { t } = useT('booking')
+  const navigate = useNavigate()
   const { types: meetingTypes, addType: onAddType } = useMeetingTypes()
   const { projects } = useProjects()
   const { status: gcalStatus } = useGoogleCalendar()
@@ -56,8 +60,6 @@ export default function BookingCreateWizard({ takenTitles, onAdd, onUpdate, onEx
   const [err, setErr] = useState('')
   const [done, setDone] = useState(false)
   const [copied, setCopied] = useState(false)
-  const [newTypeName, setNewTypeName] = useState('')
-  const [addingType, setAddingType] = useState(false)
 
   const baseTitle = t('pages.provisionalTitle')
   const availTypes = useMemo(() => (meetingTypes || []).filter((x) => !x.deleted_at), [meetingTypes])
@@ -140,18 +142,6 @@ export default function BookingCreateWizard({ takenTitles, onAdd, onUpdate, onEx
 
   const goBack = () => { setErr(''); setStep(prevStep(step)) }
 
-  const submitNewType = async () => {
-    const name = newTypeName.trim()
-    if (!name || addingType) return
-    setAddingType(true)
-    try {
-      const row = await onAddType(name)
-      if (row?.id) toggleType(row.id)
-      setNewTypeName('')
-    } catch (e) { setErr(t('pages.errAddTypeFailed', { error: e.message || '' })) }
-    finally { setAddingType(false) }
-  }
-
   const url = saved?.id ? publicBookingPageUrl(saved.slug || saved.id) : null
   const copyLink = async () => {
     if (!url) return
@@ -231,49 +221,16 @@ export default function BookingCreateWizard({ takenTitles, onAdd, onUpdate, onEx
         <Txt as="p" className="bk-wiz-sub">{t(`wizard.sub.${step}`)}</Txt>
 
         {step === 'offer' && (
-          <>
-            {availTypes.length === 0 ? (
-              <Txt as="p" className="bk-empty-note">{t('wizard.noTypes')}</Txt>
-            ) : (
-              <Box className="bk-type-list">
-                {availTypes.map((mt) => {
-                  const on = draft.meeting_type_ids.includes(mt.id)
-                  return (
-                    <Box key={mt.id} className={`bk-type-row${on ? ' on' : ''}`}>
-                      <Box as="label" className="bk-type-pick">
-                        <Input type="checkbox" checked={on} onChange={() => toggleType(mt.id)} />
-                        <Txt className="bk-type-name">{mt.name}</Txt>
-                      </Box>
-                      <Box className="bk-type-dur">
-                        <Clock size={14} strokeWidth={1.6} aria-hidden="true" />
-                        <Input
-                          type="number" min="5" step="5" className="bk-dur-input"
-                          value={draft.meeting_type_durations[mt.id] ?? ''}
-                          placeholder={String(mt.duration_minutes || draft.availability.defaultDurationMinutes)}
-                          onChange={(e) => setTypeDuration(mt.id, e.target.value)}
-                          aria-label={t('pages.typeDurationAria', { name: mt.name })}
-                        />
-                        <Txt className="bk-dur-unit">{t('pages.durationUnit')}</Txt>
-                      </Box>
-                    </Box>
-                  )
-                })}
-              </Box>
-            )}
-            <Box className="bk-wiz-newtype">
-              <Input
-                className="m-input" type="text" maxLength={60}
-                value={newTypeName}
-                placeholder={t('pages.newTypeNamePlaceholder')}
-                onChange={(e) => setNewTypeName(e.target.value)}
-                onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); submitNewType() } }}
-                aria-label={t('pages.newTypeDialogTitle')}
-              />
-              <Btn type="button" className="bk-mini-btn" onClick={submitNewType} disabled={addingType || !newTypeName.trim()}>
-                <Plus size={14} strokeWidth={1.9} /> {addingType ? t('pages.adding') : t('pages.add')}
-              </Btn>
-            </Box>
-          </>
+          <MeetingTypesPicker
+            meetingTypes={availTypes}
+            selectedIds={draft.meeting_type_ids}
+            durations={draft.meeting_type_durations}
+            defaultDuration={draft.availability.defaultDurationMinutes}
+            onToggle={toggleType}
+            onSetDuration={setTypeDuration}
+            onSetDefaultDuration={(minutes) => setDraft((d) => ({ ...d, availability: { ...d.availability, defaultDurationMinutes: minutes } }))}
+            onAddType={onAddType}
+          />
         )}
 
         {step === 'when' && (
@@ -310,6 +267,13 @@ export default function BookingCreateWizard({ takenTitles, onAdd, onUpdate, onEx
                 <em>{gcalConnected ? t('pages.writeToGoogleHintConnected') : t('pages.writeToGoogleHintDisconnected')}</em>
               </Txt>
             </Box>
+            {/* Naming the obstacle without offering the way round it is half an
+                answer. Leaving mid-wizard is safe — the draft is already saved. */}
+            {!gcalConnected && (
+              <Btn type="button" className="bk-connect-link" onClick={() => navigate(ROUTES.CONNECTION_CALENDAR)}>
+                {t('pages.connectGoogle')}
+              </Btn>
+            )}
             {gcalConnected && draft.write_to_google && (
               <Box as="label" className="lpb-toggle">
                 <Input type="checkbox" checked={draft.invite_client} onChange={(e) => set({ invite_client: e.target.checked })} />

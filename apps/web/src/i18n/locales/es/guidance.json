@@ -27,6 +27,10 @@
     "add-meeting": {
       "bubble": "Programa tu primera cita",
       "detail": "Las citas del calendario se sincronizan con tus clientes y aparecen en los recordatorios de tu pantalla de inicio."
+    },
+    "add-booking-page": {
+      "bubble": "Crea una página de reservas",
+      "detail": "Una página pública donde los clientes eligen día y hora dentro de tu disponibilidad — la reunión entra en tu calendario sin idas y venidas."
     }
   },
   "tour": {

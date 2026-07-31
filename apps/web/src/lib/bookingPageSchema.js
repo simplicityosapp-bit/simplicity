@@ -148,6 +148,39 @@ export const findUnbookableDay = (av, shortestMeeting) => {
   return null
 }
 
+/* ── Builder preview ────────────────────────────────────────────────────────
+   The times a given weekday CAN offer, for the builder's preview only.
+
+   Deliberately clock-arithmetic, never absolute instants: the edge function owns
+   real slot generation (timezones, DST, existing bookings, calendar busy time),
+   and a second implementation of that would be a second source of truth waiting
+   to disagree. This answers the narrower question the builder actually needs —
+   "given these hours and this meeting length, what start times exist at all?" —
+   using the same fit rule the edge applies (`start + duration <= windowEnd`).
+
+   What it therefore does NOT know: which of those times are already taken. The
+   preview says so on screen. */
+export const previewDayTimes = (av, durationMinutes, weekday) => {
+  const weekly = av?.weekly || {}
+  const windows = Array.isArray(weekly[weekday]) ? weekly[weekday]
+    : (Array.isArray(weekly[String(weekday)]) ? weekly[String(weekday)] : [])
+  const dur = Number(durationMinutes) > 0 ? Number(durationMinutes) : 0
+  const step = clampInt(av?.slotMinutes, 5, DEFAULT_AVAILABILITY.slotMinutes)
+  if (!dur || !windows.length) return []
+  const out = []
+  for (const w of windows) {
+    const start = hmToMinutes(w?.start)
+    const end = hmToMinutes(w?.end)
+    if (!(end > start)) continue
+    for (let m = start; m + dur <= end; m += step) {
+      const hh = String(Math.floor(m / 60)).padStart(2, '0')
+      const mm = String(m % 60).padStart(2, '0')
+      out.push(`${hh}:${mm}`)
+    }
+  }
+  return [...new Set(out)].sort()
+}
+
 /* The duration (minutes) of a meeting type, falling back to the page default. */
 export const durationFor = (meetingType, availability) => {
   const d = meetingType?.duration_minutes

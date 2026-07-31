@@ -153,5 +153,12 @@
     "alignStart": "Début",
     "alignCenter": "Centre",
     "cardOpacity": "Opacité de la carte"
+  },
+  "preview": {
+    "toggle": "Aperçu",
+    "exit": "Revenir à l’édition",
+    "defaultType": "Rendez-vous",
+    "noTimes": "Aucun créneau ne sera proposé — aucune plage n’est assez longue pour un rendez-vous de {{minutes}} min. Élargissez une plage ou raccourcissez le rendez-vous.",
+    "note": "Voici ce que verra la personne qui ouvre le lien. Les horaires viennent de vos disponibilités hebdomadaires — sur la vraie page, les créneaux déjà réservés et le temps occupé dans votre agenda connecté ne sont pas affichés."
   }
 }

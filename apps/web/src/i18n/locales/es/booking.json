@@ -153,5 +153,12 @@
     "alignStart": "Inicio",
     "alignCenter": "Centro",
     "cardOpacity": "Opacidad de la tarjeta"
+  },
+  "preview": {
+    "toggle": "Vista previa",
+    "exit": "Volver a editar",
+    "defaultType": "Reunión",
+    "noTimes": "No habrá ningún horario — ningún rango es lo bastante largo para una reunión de {{minutes}} min. Amplía un rango o acorta la reunión.",
+    "note": "Así verá la página quien abra el enlace. Los horarios salen de tu disponibilidad semanal — en la página real no se muestran los ya reservados ni el tiempo ocupado en tu calendario conectado."
   }
 }

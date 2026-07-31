@@ -67,6 +67,24 @@ export const DEFAULT_AVAILABILITY = {
   },
 }
 
+/* No days open. A new page starts here.
+
+   DEFAULT_AVAILABILITY.weekly used to be handed to every new page, which meant
+   a page could go live offering Sunday–Thursday 09:00–17:00 that nobody had
+   ever agreed to: a coach who works Tuesday and Wednesday evenings published
+   hours invented for them, and only a client booking the wrong slot would find
+   out. So the work week stops being an assumption and becomes an offer —
+   WORKWEEK_WEEKLY is one press away in the editor, and taking it is a choice. */
+export const EMPTY_WEEKLY = { 0: [], 1: [], 2: [], 3: [], 4: [], 5: [], 6: [] }
+
+/* The Israeli work week, as a preset. Same shape the schema always shipped. */
+export const WORKWEEK_WEEKLY = DEFAULT_AVAILABILITY.weekly
+
+/* Apply the preset. Clones — WORKWEEK_WEEKLY is a reference to the module's own
+   constant, and handing it out live would let one page's edits rewrite the
+   preset for every page after it, in the same process. */
+export const applyWorkweek = (av) => ({ ...(av || {}), weekly: structuredClone(WORKWEEK_WEEKLY) })
+
 /* A fresh page's starting config (before the coach edits anything). */
 export const newBookingPageDraft = () => ({
   title: '',
@@ -78,7 +96,7 @@ export const newBookingPageDraft = () => ({
   write_to_google: false,
   invite_client: false,
   content: structuredClone(DEFAULT_CONTENT),
-  availability: structuredClone(DEFAULT_AVAILABILITY),
+  availability: { ...structuredClone(DEFAULT_AVAILABILITY), weekly: structuredClone(EMPTY_WEEKLY) },
   meeting_type_ids: [],
   meeting_type_durations: {},
 })

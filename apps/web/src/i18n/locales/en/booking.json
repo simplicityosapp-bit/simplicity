@@ -114,7 +114,11 @@
     "bufferInfo": "Time kept clear after every meeting, so appointments are never booked back to back.",
     "minNoticeInfo": "How far ahead someone must book. 12 = the next 12 hours cannot be taken.",
     "maxDaysInfo": "How far into the future booking is open. 60 = two months ahead.",
-    "requiredField": "Required field"
+    "requiredField": "Required field",
+    "provisionalTitle": "New page",
+    "presetPrompt": "Working the usual days?",
+    "presetWorkweek": "Sun–Thu 09:00–17:00",
+    "advancedTitle": "Advanced settings"
   },
   "publicPage": {
     "loading": "Loading…",
@@ -172,5 +176,45 @@
     "defaultType": "Meeting",
     "noTimes": "No time can be offered — no range is long enough to hold a {{minutes}} min meeting. Widen a range, or shorten the meeting.",
     "note": "This is what someone opening the link will see. The times come from your weekly hours — on the real page, slots already booked and time busy in your connected calendar are not shown."
+  },
+  "wizard": {
+    "leave": "Leave",
+    "back": "Back",
+    "next": "Next",
+    "finishStep": "Finish",
+    "finish": "Done",
+    "step": {
+      "offer": "What you offer",
+      "when": "When you’re free",
+      "look": "How it looks",
+      "after": "After booking",
+      "publish": "Publishing"
+    },
+    "title": {
+      "offer": "What meetings do you offer?",
+      "when": "When are you free?",
+      "look": "How should the page look?",
+      "after": "What happens once someone books?",
+      "publish": "Where should the page live?"
+    },
+    "sub": {
+      "offer": "Pick the meeting types visitors will see, and how long each one runs. You can skip this — the page will then offer one meeting at the usual length.",
+      "when": "Mark the days and hours people can book. Only what you mark here is offered.",
+      "look": "The heading and text on the page. Leaving it as is works fine — you can change it any time.",
+      "after": "What happens the moment someone books, and what they see straight after.",
+      "publish": "The name is for you alone. The address is what you send to clients."
+    },
+    "noTypes": "You have no meeting types yet. Add one here, or skip — the page will offer one meeting at the usual length.",
+    "needsHours": "No hours chosen yet. Without at least one open day, nobody can book.",
+    "needsName": "The page needs a name to finish. It is for you alone and is never shown.",
+    "publishQuestion": "Publish the page now?",
+    "publishYes": "Yes, make it reachable now",
+    "publishNo": "Not yet — save as a draft",
+    "doneLive": "Your page is live",
+    "doneDraft": "Your page is saved",
+    "doneLiveSub": "This is the address to send to clients. Everything stays editable.",
+    "doneDraftSub": "It is waiting as a draft. Publish it when you are ready and the address will work.",
+    "viewPage": "View page",
+    "advancedEdit": "Advanced editing"
   }
 }

@@ -573,3 +573,211 @@
   gap: 10px;
 }
 [data-theme="dark"] .bk-tm-input { background: rgba(255, 255, 255, 0.06); border-color: rgba(255, 255, 255, 0.14); }
+
+/* ════════════════════════════════════════════════════════════════
+   THE CREATION WIZARD — one question on screen at a time.
+   ════════════════════════════════════════════════════════════════
+   The builder is ~3,000px of everything at once. This is deliberately the
+   opposite: a narrow column, one card, and nothing else competing for the
+   answer being asked for. Same glass as every other card in the app — the
+   wizard is a different shape, not a different design language.
+   ════════════════════════════════════════════════════════════════ */
+.bk-wiz-screen {
+  max-width: var(--mg-content-narrow);
+  margin-inline: auto;
+}
+
+.bk-wiz-top {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+.bk-wiz-top .lp-back-link { margin-bottom: 0; align-self: flex-start; }
+
+/* The rail names the five steps rather than numbering them: "3 of 5" says how
+   long it is, "how it looks" says what it is about. Names are what let someone
+   see the shape of the whole job from the first screen. */
+.bk-wiz-rail {
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+}
+.bk-wiz-pip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  flex: 1 1 0;
+  min-width: 0;
+  text-align: center;
+}
+.bk-wiz-pip-dot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1px solid rgba(44, 38, 33, 0.14);
+  background: var(--mg-btn-secondary-bg);
+  transition: background 0.16s ease, border-color 0.16s ease, transform 0.16s ease;
+}
+.bk-wiz-pip-label {
+  font-size: var(--mg-caption);
+  line-height: 1.3;
+  opacity: 0.6;
+}
+.bk-wiz-pip.is-now .bk-wiz-pip-dot {
+  background: var(--sage);
+  border-color: var(--sage);
+  color: var(--ink-on-accent);
+  transform: scale(1.06);
+}
+.bk-wiz-pip.is-now .bk-wiz-pip-label { opacity: 1; font-weight: 600; }
+.bk-wiz-pip.is-done .bk-wiz-pip-dot {
+  /* Done reads as settled, not as loud as the step you are on. */
+  background: color-mix(in srgb, var(--sage) 26%, transparent);
+  border-color: color-mix(in srgb, var(--sage) 42%, transparent);
+}
+.bk-wiz-pip.is-done .bk-wiz-pip-label { opacity: 0.78; }
+
+.bk-wiz-card {
+  padding: 26px 26px 28px;
+  background: var(--mg-card-bg);
+  -webkit-backdrop-filter: var(--mg-card-blur);
+  backdrop-filter: var(--mg-card-blur);
+  border: var(--mg-card-border);
+  border-radius: var(--mg-card-radius);
+  box-shadow: var(--mg-card-shadow);
+}
+.bk-wiz-q {
+  font-size: var(--mg-display-l);
+  font-weight: 600;
+  line-height: 1.3;
+}
+.bk-wiz-sub {
+  margin-top: 8px;
+  margin-bottom: 20px;
+  font-size: var(--mg-caption);
+  line-height: 1.6;
+  opacity: 0.75;
+}
+/* The wizard's card already provides the surround, so the pieces borrowed from
+   the builder must not add their own outer frame on top of it. */
+.bk-wiz-card .bk-config-card,
+.bk-wiz-card .lpe-canvas { margin-top: 0; }
+
+.bk-wiz-newtype {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+}
+.bk-wiz-newtype .m-input { flex: 1 1 auto; min-width: 0; }
+
+.bk-wiz-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 20px;
+}
+.bk-wiz-actions .m-btn-cancel,
+.bk-wiz-actions .m-btn-save {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding-inline: 22px;
+}
+
+/* ── Offering the work week instead of assuming it ──────────────── */
+.bk-preset {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+  padding: 12px 14px;
+  border: 1px dashed rgba(44, 38, 33, 0.16);
+  border-radius: 14px;
+}
+.bk-preset-text { font-size: var(--mg-caption); opacity: 0.8; }
+
+/* ── The five numeric settings, folded ──────────────────────────── */
+.bk-advanced-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 14px;
+  padding: 4px 0;
+  border: 0;
+  background: none;
+  font-size: var(--mg-caption);
+  font-weight: 500;
+  color: inherit;
+  opacity: 0.68;
+  cursor: pointer;
+  transition: opacity 0.14s ease;
+}
+.bk-advanced-toggle:hover { opacity: 1; }
+
+/* ── The finish screen ──────────────────────────────────────────── */
+.bk-wiz-done {
+  max-width: 560px;
+  margin: 8vh auto 0;
+  padding: 32px 28px;
+  text-align: center;
+  background: var(--mg-card-bg);
+  -webkit-backdrop-filter: var(--mg-card-blur);
+  backdrop-filter: var(--mg-card-blur);
+  border: var(--mg-card-border);
+  border-radius: var(--mg-card-radius);
+  box-shadow: var(--mg-card-shadow);
+}
+.bk-wiz-done-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 58px;
+  height: 58px;
+  margin-bottom: 16px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--sage) 22%, transparent);
+  color: var(--sage);
+}
+.bk-wiz-done-title { font-size: var(--mg-display-l); font-weight: 600; }
+.bk-wiz-done-sub {
+  margin-top: 8px;
+  font-size: var(--mg-caption);
+  line-height: 1.6;
+  opacity: 0.75;
+}
+.bk-wiz-link { margin-top: 20px; }
+.bk-wiz-done-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 22px;
+}
+
+@media (max-width: 767px) {
+  /* Five names will not fit across a phone; the dots still show where you are
+     and the card's own heading says which step it is. */
+  .bk-wiz-pip-label { display: none; }
+  .bk-wiz-pip.is-now .bk-wiz-pip-label {
+    display: block;
+    position: absolute;
+    inset-inline: -12px;   /* the label is wider than its own 1/5 column */
+    top: 34px;
+  }
+  /* Room for two lines — "אחרי הקביעה" wraps at this width, and at 22px the
+     second line spilled onto the card below. */
+  .bk-wiz-pip { position: relative; padding-bottom: 40px; }
+  .bk-wiz-card { padding: 22px 18px 24px; }
+  .bk-wiz-actions .m-btn-cancel,
+  .bk-wiz-actions .m-btn-save { flex: 1 1 0; justify-content: center; }
+}

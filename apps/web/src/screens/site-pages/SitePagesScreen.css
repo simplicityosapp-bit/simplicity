@@ -499,8 +499,12 @@
   border-start-start-radius: 0; border-end-start-radius: 0;
 }
 
-.spe-note, .spe-err { font-size: var(--mg-micro); color: var(--spb-text-3, var(--mist)); margin: 0; }
-.spe-err { color: var(--clay-on-dark); }
+.spe-note { font-size: var(--mg-micro); color: var(--spb-text-3, var(--mist)); margin: 0; }
+/* .spe-err deliberately NOT grouped with .spe-note — it is the shared warning
+   pill and this rule's colour would paint over the fill it sits on. */
+.spe-err { margin: 0; }
+/* .spe-err is the shared warning pill (screens.css) — no colour here, or this
+   file's later load order would repaint the text over its own fill. */
 
 .spe-seg { display: flex; gap: 4px; }
 .spe-seg button { flex: 1; font: inherit; font-size: var(--mg-caption); color: var(--spb-text-2, var(--stone)); background: var(--pure-white); border: 1px solid var(--divider); border-radius: 8px; padding: 7px; cursor: pointer; transition: color 0.15s, background 0.15s; }

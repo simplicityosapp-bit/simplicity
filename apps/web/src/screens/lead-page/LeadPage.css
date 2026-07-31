@@ -109,7 +109,9 @@
 }
 .lp-textarea { resize: vertical; min-height: 96px; line-height: 1.6; }
 
-.lp-field-error { font-size: 13px; color: #c0432e; }
+/* Colour and size come from the shared warning pill in screens.css — this
+   file loads AFTER it at the same specificity, so a colour here would win and
+   leave clay text on a clay fill. */
 
 .lp-submit {
   width: 100%;
@@ -149,7 +151,7 @@
 }
 .lp-book-cta:hover { background: color-mix(in srgb, var(--lp-brand) 10%, transparent); }
 
-.lp-submit-error { margin: 16px 0 0; font-size: 14px; color: #c0432e; text-align: center; }
+.lp-submit-error { margin: 16px 0 0; }   /* the rest is the shared pill */
 
 .lp-muted { color: #6b6358; font-size: 16px; }
 

@@ -539,10 +539,23 @@
 /* The rail names the five steps rather than numbering them: "3 of 5" says how
    long it is, "how it looks" says what it is about. Names are what let someone
    see the shape of the whole job from the first screen. */
+/* The rail sits on the screen's photo, and it was sitting there bare: no
+   surface of its own, so the pips dissolved into the background and the labels
+   — caption-sized and dimmed to 0.6 for the steps you have not reached —
+   effectively vanished. It gets the SAME glass as every card on the screen, no
+   bespoke opacity or gradient, so it reads as one bar belonging to the panel
+   below it rather than as five icons floating on a forest. */
 .bk-wiz-rail {
   display: flex;
   align-items: flex-start;
   gap: 4px;
+  padding: 12px 14px;
+  background: var(--mg-card-bg);
+  -webkit-backdrop-filter: var(--mg-card-blur);
+  backdrop-filter: var(--mg-card-blur);
+  border: var(--mg-card-border);
+  border-radius: var(--mg-card-radius);
+  box-shadow: var(--mg-card-shadow);
 }
 .bk-wiz-pip {
   display: flex;

@@ -1,7 +1,7 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import {
-  ArrowRight, Plus, Trash2, Copy, Check, ExternalLink, Settings, Link2, X,
+  ArrowRight, Plus, Trash2, Copy, Check, ExternalLink, Settings, Link2, X, ChevronDown,
   Clock, CalendarClock,
 } from 'lucide-react'
 import { useBookingPages } from '../../hooks/useBookingPages'
@@ -87,8 +87,15 @@ export default function BookingPagesScreen() {
         <Btn type="button" className="sub-limit-note" onClick={goUpgrade}>{ts('limit.pages')} · {ts('limit.upgrade')}</Btn>
       )}
 
-      <Btn type="button" className="lp-back-link" onClick={() => navigate(ROUTES.CALENDAR)}>
-        <ArrowRight size={16} strokeWidth={1.7} aria-hidden="true" /> {t('pages.backToCalendar')}
+      {/* This screen has two doors: the calendar and the public-pages hub. The
+          link used to be hard-wired to the calendar, so arriving from the hub
+          and pressing "חזרה" put you somewhere you had never been. `location.key`
+          is 'default' only on a cold load (a bookmark, a refresh) — anywhere else
+          there is app history to step back into. */}
+      <Btn type="button" className="lp-back-link"
+        onClick={() => (location.key === 'default' ? navigate(ROUTES.CALENDAR) : navigate(-1))}>
+        <ArrowRight size={16} strokeWidth={1.7} aria-hidden="true" />
+        {location.key === 'default' ? t('pages.backToCalendar') : t('pages.back')}
       </Btn>
 
       {loading ? (
@@ -121,6 +128,7 @@ export default function BookingPagesScreen() {
 function PageCard({ page, onEdit, onDelete }) {
   const { t } = useT('booking')
   const [copied, setCopied] = useState(false)
+  const [confirmDel, setConfirmDel] = useState(false)
   const url = publicBookingPageUrl(page.slug || page.id)
   const copy = async () => {
     if (await copyText(url)) { setCopied(true); setTimeout(() => setCopied(false), 1600) }
@@ -155,10 +163,25 @@ function PageCard({ page, onEdit, onDelete }) {
           </>
         )}
         <Btn type="button" className="lpm-edit-btn" onClick={onEdit}>{t('pages.edit')}</Btn>
-        <Btn type="button" className="lpm-icon-btn danger" onClick={onDelete} aria-label={t('pages.deleteLabel')} title={t('pages.deleteLabel')}>
+        <Btn type="button" className="lpm-icon-btn danger" onClick={() => setConfirmDel(true)} aria-label={t('pages.deleteLabel')} title={t('pages.deleteLabel')}>
           <Trash2 size={16} strokeWidth={1.7} />
         </Btn>
       </Box>
+
+      {/* One tap used to delete it outright. There is an undo toast afterwards,
+          but a live page — the one clients are booking through — should not come
+          off the air on a mis-tap. The pages builder asks; so does this now. */}
+      {confirmDel ? (
+        <ConfirmModal
+          open
+          danger
+          onClose={() => setConfirmDel(false)}
+          title={t('pages.deleteConfirmTitle')}
+          message={page.published ? t('pages.deleteConfirmLive') : t('pages.deleteConfirmDraft')}
+          confirmLabel={t('pages.deleteLabel')}
+          onConfirm={onDelete}
+        />
+      ) : null}
     </Box>
   )
 }
@@ -194,8 +217,21 @@ function BookingPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }
   const gcalConnected = !!gcalStatus?.connected
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState('')
+  /* The message used to be printed twice — once under the top bar and once above
+     the bottom buttons — because save can be pressed at either end of a page
+     that runs to ~2,500px. One copy, brought to whoever pressed. */
+  const errRef = useRef(null)
+  useEffect(() => {
+    if (err) errRef.current?.scrollIntoView({ block: 'center', behavior: 'smooth' })
+  }, [err])
   const [copied, setCopied] = useState(false)
   const [showSettings, setShowSettings] = useState(isNew)
+  /* Creating a page is one ~2,500px form. Making it once, top to bottom, is the
+     job — so a NEW page opens with everything expanded. Coming back to an
+     existing page is almost always about one thing, so the two config cards
+     start folded and their headers carry the count that answers "is it still
+     set up right?" without opening anything. */
+  const [openCards, setOpenCards] = useState({ types: isNew, availability: isNew })
   /* Unsaved-work guard. This builder holds the whole page in local state and had
      nothing protecting it: no beforeunload, no route guard, and "ביטול"/"חזרה"
      dropped the draft without a word — the same hole the pages builder had. There
@@ -276,6 +312,7 @@ function BookingPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }
     const w = draft.availability.weekly?.[day]
     return Array.isArray(w) ? w : []
   }
+  const openDayCount = weekdayLabels().filter((_, d) => dayWindows(d).length > 0).length
   const addWindow = (day) => setWeekly(day, [...dayWindows(day), { start: '09:00', end: '17:00' }])
   const updateWindow = (day, i, patch) => setWeekly(day, dayWindows(day).map((w, idx) => (idx === i ? { ...w, ...patch } : w)))
   const removeWindow = (day, i) => setWeekly(day, dayWindows(day).filter((_, idx) => idx !== i))
@@ -364,7 +401,9 @@ function BookingPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }
       if (e?.code === '23505' || /duplicate|unique|idx_booking_pages_slug/i.test(e?.message || '')) {
         setErr(t('pages.errSlugTaken'))
       } else {
-        setErr(t('pages.errSaveFailed', { error: e.message || t('pages.errSaveRetry') }))
+        // The raw Postgres text means nothing to a coach; keep it for the console.
+        console.error('booking page save failed', e)
+        setErr(t('pages.errSaveFailed'))
       }
     } finally {
       setBusy(false)
@@ -401,6 +440,15 @@ function BookingPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }
           <Btn type="button" className={`lpe-settings-btn${showSettings ? ' is-on' : ''}`} onClick={() => setShowSettings((v) => !v)}>
             <Settings size={16} strokeWidth={1.7} aria-hidden="true" /> {t('pages.settings')}
           </Btn>
+          {/* Once it is live, the page itself is one press away — the builder's
+              canvas is a branding mock and never shows the slot picker, so this
+              is the only way to see what a visitor actually gets. */}
+          {draft.published && url && (
+            <Lnk className="lpm-icon-btn bk-open-live" href={url} target="_blank" rel="noreferrer"
+              aria-label={t('pages.openPageLabel')} title={t('pages.openPageLabel')}>
+              <ExternalLink size={16} strokeWidth={1.7} />
+            </Lnk>
+          )}
           <Btn type="button" className="m-btn-cancel bk-save-draft" onClick={() => save()} disabled={busy}>{busy ? t('pages.saving') : t('pages.save')}</Btn>
           {!draft.published && (
             <Btn type="button" className="m-btn-save" onClick={() => save({ publishNow: true })} disabled={busy}>{t('pages.publishNow')}</Btn>
@@ -519,7 +567,7 @@ function BookingPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }
         </Box>
       )}
 
-      {err && <Txt as="p" className="m-error lpe-err">{err}</Txt>}
+      {err && <Txt as="p" ref={errRef} className="m-error lpe-err">{err}</Txt>}
 
       {/* Branding preview canvas (logo / heading / body inline) */}
       <Box className={canvasClass} style={canvasStyle}>
@@ -554,11 +602,25 @@ function BookingPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }
       </Box>
 
       {/* Meeting types */}
-      <Box className="bk-config-card">
+      <Box className={`bk-config-card${openCards.types ? ' is-open' : ''}`}>
         <Box className="bk-config-head">
-          <Txt as="h3" className="bk-config-title"><CalendarClock size={17} strokeWidth={1.7} aria-hidden="true" /> {t('pages.meetingTypesTitle')}</Txt>
-          <Btn type="button" className="bk-mini-btn" onClick={openNewType}><Plus size={14} strokeWidth={1.9} /> {t('pages.newType')}</Btn>
+          {/* Heading WRAPS the button — a button may only contain phrasing
+              content, so an <h3> inside one is invalid; this is the shape the
+              accordion pattern calls for and it keeps the card its heading. */}
+          <Txt as="h3" className="bk-config-heading">
+            <Btn type="button" className="bk-config-toggle bk-config-title" aria-expanded={openCards.types}
+              onClick={() => setOpenCards((s) => ({ ...s, types: !s.types }))}>
+              <ChevronDown size={15} strokeWidth={1.9} className="bk-config-chev" aria-hidden="true" />
+              <CalendarClock size={17} strokeWidth={1.7} aria-hidden="true" /> {t('pages.meetingTypesTitle')}
+              <Txt className="bk-config-count">{draft.meeting_type_ids.length || availTypes.length}</Txt>
+            </Btn>
+          </Txt>
+          {openCards.types && (
+            <Btn type="button" className="bk-mini-btn" onClick={openNewType}><Plus size={14} strokeWidth={1.9} /> {t('pages.newType')}</Btn>
+          )}
         </Box>
+        {!openCards.types ? null : (
+        <>
         <Txt as="p" className="lbl-sm">{t('pages.meetingTypesHint')}</Txt>
         {availTypes.length === 0 ? (
           <Txt as="p" className="bk-empty-note">{t('pages.meetingTypesEmpty')}</Txt>
@@ -589,30 +651,46 @@ function BookingPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }
             })}
           </Box>
         )}
+        </>
+        )}
       </Box>
 
       {/* Availability */}
-      <Box className="bk-config-card">
-        <Txt as="h3" className="bk-config-title"><Clock size={17} strokeWidth={1.7} aria-hidden="true" /> {t('pages.availabilityTitle')}</Txt>
+      <Box className={`bk-config-card${openCards.availability ? ' is-open' : ''}`}>
+        <Box className="bk-config-head">
+          {/* Heading WRAPS the button — a button may only contain phrasing
+              content, so an <h3> inside one is invalid; this is the shape the
+              accordion pattern calls for and it keeps the card its heading. */}
+          <Txt as="h3" className="bk-config-heading">
+            <Btn type="button" className="bk-config-toggle bk-config-title" aria-expanded={openCards.availability}
+              onClick={() => setOpenCards((s) => ({ ...s, availability: !s.availability }))}>
+              <ChevronDown size={15} strokeWidth={1.9} className="bk-config-chev" aria-hidden="true" />
+              <Clock size={17} strokeWidth={1.7} aria-hidden="true" /> {t('pages.availabilityTitle')}
+              <Txt className="bk-config-count">{openDayCount}</Txt>
+            </Btn>
+          </Txt>
+        </Box>
+        {!openCards.availability ? null : (
+        <>
         <Box className="bk-settings-grid">
           <Box as="label" className="bk-num-field">
-            <Txt>{t('pages.slotIntervalLabel')}</Txt>
+            <Txt className="bk-num-label">{t('pages.slotIntervalLabel')}<InfoPopover label={t('pages.slotIntervalLabel')} text={t('pages.slotIntervalInfo')} /></Txt>
             <Input type="number" min="5" step="5" value={draft.availability.slotMinutes} onChange={(e) => setAvail({ slotMinutes: Number(e.target.value) })} />
           </Box>
           <Box as="label" className="bk-num-field">
-            <Txt>{t('pages.defaultDurationLabel')}</Txt>
+            <Txt className="bk-num-label">{t('pages.defaultDurationLabel')}<InfoPopover label={t('pages.defaultDurationLabel')} text={t('pages.defaultDurationInfo')} /></Txt>
             <Input type="number" min="5" step="5" value={draft.availability.defaultDurationMinutes} onChange={(e) => setAvail({ defaultDurationMinutes: Number(e.target.value) })} />
           </Box>
           <Box as="label" className="bk-num-field">
-            <Txt>{t('pages.bufferLabel')}</Txt>
+            <Txt className="bk-num-label">{t('pages.bufferLabel')}<InfoPopover label={t('pages.bufferLabel')} text={t('pages.bufferInfo')} /></Txt>
             <Input type="number" min="0" step="5" value={draft.availability.bufferMinutes} onChange={(e) => setAvail({ bufferMinutes: Number(e.target.value) })} />
           </Box>
           <Box as="label" className="bk-num-field">
-            <Txt>{t('pages.minNoticeLabel')}</Txt>
+            <Txt className="bk-num-label">{t('pages.minNoticeLabel')}<InfoPopover label={t('pages.minNoticeLabel')} text={t('pages.minNoticeInfo')} /></Txt>
             <Input type="number" min="0" step="1" value={draft.availability.minNoticeHours} onChange={(e) => setAvail({ minNoticeHours: Number(e.target.value) })} />
           </Box>
           <Box as="label" className="bk-num-field">
-            <Txt>{t('pages.maxDaysLabel')}</Txt>
+            <Txt className="bk-num-label">{t('pages.maxDaysLabel')}<InfoPopover label={t('pages.maxDaysLabel')} text={t('pages.maxDaysInfo')} /></Txt>
             <Input type="number" min="1" step="1" value={draft.availability.maxDaysAhead} onChange={(e) => setAvail({ maxDaysAhead: Number(e.target.value) })} />
           </Box>
         </Box>
@@ -647,6 +725,8 @@ function BookingPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }
             )
           })}
         </Box>
+        </>
+        )}
       </Box>
 
       {pendingLeave ? (
@@ -666,7 +746,6 @@ function BookingPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }
         />
       ) : null}
 
-      {err && <Txt as="p" className="m-error lpe-err lpe-err-bottom">{err}</Txt>}
       <Box className="lpe-bottom-actions">
         <Btn type="button" className="m-btn-cancel" onClick={leave}>{t('pages.cancel')}</Btn>
         {/* Bare `save` as a handler would hand the click event to it as options. */}

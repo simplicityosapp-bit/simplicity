@@ -1,5 +1,46 @@
 {
   "screens": {
+    "bookingPages": {
+      "title": "Booking pages",
+      "intro": "A public page where clients pick a time themselves. You decide which meeting types are on offer and when you are free — bookings land in your calendar, automatically or after you approve them.",
+      "features": [
+        {
+          "title": "Draft vs live",
+          "body": "The badge at the top of the builder says whether the page is up. \"Publish\" saves it and takes it live in one press; while it is a draft the link works for nobody. To take it down, switch off \"Publish page\" in settings and save."
+        },
+        {
+          "title": "Meeting types",
+          "body": "Choose which types the visitor sees, and give each one its own length here — that length belongs to this page alone and never changes the type on another page. With none chosen, the page offers a single meeting at the default length."
+        },
+        {
+          "title": "Weekly availability",
+          "body": "Add one or more time ranges to each day. The five numbers above set how often a start time is offered, how long a meeting runs, how much time is kept clear after it, how far ahead someone must book, and how far into the future booking is open — each has a \"?\" beside it."
+        },
+        {
+          "title": "Google Calendar",
+          "body": "With the calendar connected under \"Connections\", every approved booking is written to it as an event, and the client can be invited too if they left an email. Without a connection the switch is off — the bookings are still kept here."
+        }
+      ],
+      "tips": [
+        "A time range has to be at least as long as the meeting — a half-hour window against a 50-minute meeting produces no times at all, and the app stops you before publishing.",
+        "\"Needs approval\" holds the time while you decide, so the same slot cannot be taken twice in the meantime.",
+        "A short link in settings makes the address memorable — worth setting one before you send it to clients."
+      ],
+      "faq": [
+        {
+          "q": "Does the client need an account?",
+          "a": "No. The page is fully public, and the client leaves a name and contact details as they book."
+        },
+        {
+          "q": "Why does the calendar look empty to a client?",
+          "a": "Usually one of three: the page is still a draft, there are no time ranges on the coming days, or the minimum notice blocks them."
+        },
+        {
+          "q": "How is this different from a lead page?",
+          "a": "A lead page collects an enquiry for you to answer; a booking page takes a slot in your calendar right away."
+        }
+      ]
+    },
     "community": {
       "title": "Community",
       "intro": "One shared room for everyone using Simplicity. Before your first message you pick a display name — that is what members see beside you.",

@@ -1,5 +1,46 @@
 {
   "screens": {
+    "bookingPages": {
+      "title": "Pages de réservation",
+      "intro": "Une page publique où les clients choisissent eux-mêmes un créneau. Vous décidez quels types de rendez-vous sont proposés et quand vous êtes disponible — les réservations arrivent dans votre agenda, automatiquement ou après votre validation.",
+      "features": [
+        {
+          "title": "Brouillon ou en ligne",
+          "body": "Le badge en haut de l’éditeur indique si la page est en ligne. « Publier » l’enregistre et la met en ligne d’une seule pression ; tant qu’elle est un brouillon, le lien ne fonctionne pour personne. Pour la retirer, désactivez « Publier la page » dans les réglages et enregistrez."
+        },
+        {
+          "title": "Types de rendez-vous",
+          "body": "Choisissez les types que verra le visiteur et donnez à chacun sa propre durée ici — cette durée n’appartient qu’à cette page et ne change jamais le type ailleurs. Sans aucun choix, la page propose un seul rendez-vous à la durée par défaut."
+        },
+        {
+          "title": "Disponibilité hebdomadaire",
+          "body": "Ajoutez une ou plusieurs plages horaires à chaque jour. Les cinq nombres au-dessus fixent la fréquence des heures proposées, la durée d’un rendez-vous, le temps laissé libre après, le délai minimum pour réserver et jusqu’où l’on peut réserver — chacun a son « ? » à côté."
+        },
+        {
+          "title": "Google Agenda",
+          "body": "Avec l’agenda connecté dans « Connexions », chaque réservation validée y est écrite comme événement, et le client peut être invité s’il a laissé un e-mail. Sans connexion l’interrupteur est éteint — les réservations restent enregistrées ici."
+        }
+      ],
+      "tips": [
+        "Une plage horaire doit être au moins aussi longue que le rendez-vous — une fenêtre d’une demi-heure face à un rendez-vous de 50 minutes ne produit aucun créneau, et l’application vous arrête avant la publication.",
+        "« Validation requise » retient le créneau pendant que vous décidez, pour qu’il ne soit pas pris deux fois entre-temps.",
+        "Un lien court dans les réglages rend l’adresse mémorisable — à définir avant de l’envoyer aux clients."
+      ],
+      "faq": [
+        {
+          "q": "Le client a-t-il besoin d’un compte ?",
+          "a": "Non. La page est entièrement publique et le client laisse son nom et ses coordonnées au moment de réserver."
+        },
+        {
+          "q": "Pourquoi l’agenda paraît-il vide au client ?",
+          "a": "Le plus souvent l’une de trois raisons : la page est encore un brouillon, il n’y a pas de plages sur les jours à venir, ou le délai minimum les bloque."
+        },
+        {
+          "q": "Quelle différence avec une page de contact ?",
+          "a": "Une page de contact recueille une demande à laquelle vous répondez ; une page de réservation prend un créneau dans votre agenda tout de suite."
+        }
+      ]
+    },
     "community": {
       "title": "Communauté",
       "intro": "Un salon partagé pour toutes les personnes qui utilisent Simplicity. Avant votre premier message, vous choisissez un nom d'affichage : c'est ce que les membres verront à côté de vous.",

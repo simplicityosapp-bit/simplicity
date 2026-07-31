@@ -258,8 +258,12 @@
   padding: 11px 22px;
   border: none;
   border-radius: var(--mg-btn-radius);
-  background: var(--mg-btn-primary-bg);
-  color: var(--pure-white);
+  /* Sage, not the terracotta primary (owner call 2026-07-31). An empty state's
+     button is an invitation to start something, not the main action of a screen
+     full of work — the green says "go ahead" without competing with the
+     terracotta CTA that appears once the screen has content. */
+  background: var(--sage);
+  color: var(--ink-on-accent);
   font-family: var(--mg-font);
   font-size: calc(14px * var(--text-scale));
   font-weight: var(--mg-btn-weight);
@@ -267,10 +271,14 @@
   box-shadow: var(--mg-card-shadow);
   transition: background 0.18s, transform 0.12s;
 }
-.empty-action:hover { background: var(--mg-btn-primary-bg-hover); }
+.empty-action:hover { background: color-mix(in srgb, var(--sage) 88%, var(--ink)); }
 .empty-action:active { transform: scale(0.97); }
-/* Dark primary is a light "Moonglow" fill — needs dark text. */
-[data-theme="dark"] .empty-action { color: var(--espresso); }
+/* Near-black text in BOTH themes, from --ink-on-accent. The old rule asked for
+   --espresso "so the dark theme's light Moonglow fill gets dark text" — but that
+   token is itself remapped to near-white in dark mode (tokens.css), so it painted
+   light text on a light button: white on white, on all five screens sharing this
+   CTA. --ink-on-accent exists for exactly this and does not flip with the theme;
+   sage needs it in daylight too (white on sage is ~2.6:1, well under AA). */
 
 /* Expandable reminder — collapsed one-liner that opens to a fuller note. */
 .empty-reminder {

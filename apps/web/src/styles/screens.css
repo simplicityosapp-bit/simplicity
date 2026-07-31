@@ -534,3 +534,49 @@
     margin-inline: auto;
   }
 }
+
+/* ════════════════════════════════════════════════════════════════
+   WARNINGS THAT SURVIVE THE BACKGROUND.
+   ════════════════════════════════════════════════════════════════
+   Every warning across the public pages and their builders was clay TEXT, and
+   clay text is the one thing this palette cannot put on these screens: they
+   are photo-backed glass, and a mid-tone warm colour on a warm blurred photo
+   sinks straight into it. The message that most needs reading was the least
+   readable thing on screen.
+
+   So a filled pill instead of coloured text — the fill carries its own
+   background, which means it no longer depends on what is behind it. The pair
+   is the one tokens.css already defines for this: --on-accent ("light text on
+   a saturated accent") over --clay ("סכנה — אזהרות אמיתיות בלבד").
+
+   The fill is nudged 8% toward --ink because white on raw --clay measures
+   4.32:1 in light mode — just under AA — and 4.85:1 at 92%, still plainly
+   clay. Toward --ink and never --espresso: --espresso flips to near-white in
+   dark mode and would turn the pill inside out.
+
+   One definition, listed selectors, because these live in four stylesheets
+   that do not import one another. Add new warning classes here rather than
+   giving them a colour of their own.
+   ════════════════════════════════════════════════════════════════ */
+.bk-screen .m-error,          /* booking builder + creation wizard */
+.lpe-screen .m-error,         /* shared builder chrome */
+.spe-err,                     /* site/lead block-builder inspector */
+.lp-field-error,              /* public page — under a single field */
+.lp-submit-error {            /* public page — the submit failed */
+  display: block;
+  padding: 9px 13px;
+  border-radius: 11px;
+  background: color-mix(in srgb, var(--clay) 92%, var(--ink));
+  color: var(--on-accent);
+  font-size: var(--mg-caption);
+  font-weight: 500;
+  line-height: 1.5;
+}
+/* Under one field it is an aside, not an announcement. */
+.lp-field-error {
+  margin-top: 6px;
+  padding: 6px 10px;
+  border-radius: 9px;
+  font-size: var(--mg-micro);
+}
+.lp-submit-error { text-align: center; }

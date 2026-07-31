@@ -2,8 +2,9 @@ import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   ArrowRight, ArrowLeft, Check, CalendarClock, Clock, Palette, BellRing, Globe,
-  Link2, Copy, ExternalLink, Sparkles,
+  Link2, Copy, ExternalLink, Sparkles, Trash2,
 } from 'lucide-react'
+import Modal from '../../modals/Modal'
 import DesignToolbox from '../../components/DesignToolbox'
 import SelectMenu from '../../components/SelectMenu'
 import { useMeetingTypes } from '../../hooks/useMeetingTypes'
@@ -12,9 +13,10 @@ import { useGoogleCalendar } from '../../hooks/useGoogleCalendar'
 import AvailabilityEditor from './AvailabilityEditor'
 import MeetingTypesPicker from './MeetingTypesPicker'
 import {
-  newBookingPageDraft, leadPageSurface, publicBookingPageUrl,
+  leadPageSurface, publicBookingPageUrl,
   normalizeSlug, isValidSlug, slugifyInput, sanitizeAvailability, findInvalidWindow,
   weekdayLabels, publishBlocker, publishMessage,
+  draftFromPage, pausedAtStep, WIZARD_STEP_KEY,
 } from '../../lib/bookingPageSchema'
 import {
   WIZARD_STEPS, stepIndex, stepBlocker, nextStep, prevStep, isLastStep,
@@ -45,17 +47,19 @@ const STEP_ICONS = { offer: CalendarClock, when: Clock, look: Palette, after: Be
    Editing an existing page still opens the full builder: coming back is almost
    always about one thing, and a five-step walk to reach it would be worse.
    ════════════════════════════════════════════════════════════════ */
-export default function BookingCreateWizard({ takenTitles, onAdd, onUpdate, onExit, onOpenBuilder }) {
+export default function BookingCreateWizard({ resumePage, takenTitles, onAdd, onUpdate, onDiscard, onExit, onOpenBuilder }) {
   const { t } = useT('booking')
   const navigate = useNavigate()
   const { types: meetingTypes, addType: onAddType } = useMeetingTypes()
   const { projects } = useProjects()
   const { status: gcalStatus } = useGoogleCalendar()
   const gcalConnected = !!gcalStatus?.connected
-  const [step, setStep] = useState('offer')
-  const [draft, setDraft] = useState(() => newBookingPageDraft())
-  const [pageId, setPageId] = useState(null)
-  const [saved, setSaved] = useState(null)      // the row, once it exists
+  const [step, setStep] = useState(() => pausedAtStep(resumePage) || 'offer')
+  const [draft, setDraft] = useState(() => draftFromPage(resumePage))
+  const [pageId, setPageId] = useState(resumePage?.id ?? null)
+  const [saved, setSaved] = useState(resumePage ?? null)   // the row, once it exists
+  const [leaving, setLeaving] = useState(false)            // the two-doors dialog
+  const [discarding, setDiscarding] = useState(false)
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState('')
   const [done, setDone] = useState(false)
@@ -81,15 +85,22 @@ export default function BookingCreateWizard({ takenTitles, onAdd, onUpdate, onEx
     return { ...d, meeting_type_durations: next }
   })
 
-  const payloadFrom = (d, { title, publish }) => ({
+  /* `pausedAt` is the step to reopen at, or null once the wizard is done with
+     this page. It rides inside `content`, which both editors round-trip whole. */
+  const payloadFrom = (d, { title, publish, pausedAt }) => ({
     title,
     published: !!publish,
     auto_confirm: d.auto_confirm,
+    /* Carried through rather than dropped: a resumed page may already hold it,
+       and rebuilding the payload without it would quietly switch it off. */
+    require_payment: !!d.require_payment,
     write_to_google: d.write_to_google,
     invite_client: d.write_to_google && d.invite_client,
     project_id: d.project_id || null,
     slug: d.slug ? normalizeSlug(d.slug) : null,
-    content: d.content,
+    content: pausedAt
+      ? { ...d.content, [WIZARD_STEP_KEY]: pausedAt }
+      : (() => { const c = { ...d.content }; delete c[WIZARD_STEP_KEY]; return c })(),
     availability: sanitizeAvailability(d.availability),
     meeting_type_ids: d.meeting_type_ids,
     meeting_type_durations: Object.fromEntries(
@@ -99,9 +110,9 @@ export default function BookingCreateWizard({ takenTitles, onAdd, onUpdate, onEx
 
   /* Persist whatever the draft holds right now. The first call creates the row
      under a provisional name; every later one updates it. */
-  const persist = async ({ publish } = {}) => {
+  const persist = async ({ publish, pausedAt = null } = {}) => {
     const title = draft.title.trim() || provisionalTitle(baseTitle, takenTitles)
-    const payload = payloadFrom(draft, { title, publish: publish ?? draft.published })
+    const payload = payloadFrom(draft, { title, publish: publish ?? draft.published, pausedAt })
     if (pageId) {
       const row = (await onUpdate(pageId, payload)) || { ...payload, id: pageId }
       setSaved(row)
@@ -150,6 +161,43 @@ export default function BookingCreateWizard({ takenTitles, onAdd, onUpdate, onEx
   }
 
   const goBack = () => { setErr(''); setStep(prevStep(step)) }
+
+  /* ── Leaving before the end ──────────────────────────────────────
+     Walking out used to just… leave, quietly keeping whatever had been created
+     so far. That is the right default for not losing work, but it was never
+     offered as a choice, so a coach who changed their mind had no way to say so
+     and no way to know a half-built page was now sitting in their list.
+
+     Two doors, named for what they do. Nothing is asked before the page exists
+     — there is nothing to keep or throw away yet. */
+  const requestExit = () => { if (pageId) setLeaving(true); else onExit() }
+
+  const exitKeeping = async () => {
+    if (busy) return
+    setBusy(true)
+    try {
+      /* Remember the step, so coming back opens where they stopped. */
+      await persist({ pausedAt: step })
+      onExit()
+    } catch (e) {
+      console.error('booking wizard save-on-exit failed', e)
+      setErr(t('pages.errSaveFailed'))
+      setLeaving(false)
+    } finally { setBusy(false) }
+  }
+
+  const exitDiscarding = async () => {
+    if (discarding) return
+    setDiscarding(true)
+    try {
+      await onDiscard(pageId)
+      onExit()
+    } catch (e) {
+      console.error('booking wizard discard failed', e)
+      setErr(t('pages.errSaveFailed'))
+      setLeaving(false)
+    } finally { setDiscarding(false) }
+  }
 
   const url = saved?.id ? publicBookingPageUrl(saved.slug || saved.id) : null
   const copyLink = async () => {
@@ -205,7 +253,7 @@ export default function BookingCreateWizard({ takenTitles, onAdd, onUpdate, onEx
       {step === 'look' && <DesignToolbox content={draft.content} onChange={setContent} />}
 
       <Box className="bk-wiz-top">
-        <Btn type="button" className="lp-back-link" onClick={onExit}>
+        <Btn type="button" className="lp-back-link" onClick={requestExit}>
           <ArrowRight size={16} strokeWidth={1.7} aria-hidden="true" /> {t('wizard.leave')}
         </Btn>
         {/* The rail is the guiding hand: five names, where you are, what is
@@ -378,6 +426,26 @@ export default function BookingCreateWizard({ takenTitles, onAdd, onUpdate, onEx
           {!busy && !isLastStep(step) && <ArrowLeft size={15} strokeWidth={1.8} aria-hidden="true" />}
         </Btn>
       </Box>
+
+      {leaving ? (
+        <Modal open onClose={() => setLeaving(false)} title={t('wizard.leaveTitle')}>
+          <Txt as="p" className="bk-copy-hint">{t('wizard.leaveBody')}</Txt>
+          <Box className="bk-leave-actions">
+            <Btn type="button" className="m-btn-save" onClick={exitKeeping} disabled={busy || discarding}>
+              {busy ? t('pages.saving') : t('wizard.leaveKeep')}
+            </Btn>
+            {/* The destructive door is a plain button, not the primary one, and
+                it says what it destroys. */}
+            <Btn type="button" className="bk-leave-discard" onClick={exitDiscarding} disabled={busy || discarding}>
+              <Trash2 size={14} strokeWidth={1.8} aria-hidden="true" />
+              {discarding ? t('pages.saving') : t('wizard.leaveDiscard')}
+            </Btn>
+            <Btn type="button" className="m-btn-cancel" onClick={() => setLeaving(false)} disabled={busy || discarding}>
+              {t('wizard.leaveStay')}
+            </Btn>
+          </Box>
+        </Modal>
+      ) : null}
     </Box>
   )
 }

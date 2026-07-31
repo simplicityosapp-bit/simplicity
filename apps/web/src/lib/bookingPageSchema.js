@@ -105,6 +105,35 @@ export const newBookingPageDraft = () => ({
   meeting_type_durations: {},
 })
 
+/* A stored page as an editable draft. Shared, because three places need the
+   identical starting point and any drift between them shows up as phantom
+   unsaved changes: the builder, the builder's own dirty-check baseline, and the
+   wizard when it resumes a page someone walked away from. */
+export function draftFromPage(page) {
+  if (!page) return newBookingPageDraft()
+  return {
+    title: page.title ?? '',
+    published: !!page.published,
+    auto_confirm: !!page.auto_confirm,
+    require_payment: !!page.require_payment,
+    write_to_google: !!page.write_to_google,
+    invite_client: !!page.invite_client,
+    project_id: page.project_id ?? '',
+    slug: page.slug ?? '',
+    content: { ...DEFAULT_CONTENT, ...(page.content || {}), thankYou: { ...DEFAULT_CONTENT.thankYou, ...(page.content?.thankYou || {}) } },
+    availability: { ...DEFAULT_AVAILABILITY, ...(page.availability || {}), weekly: { ...DEFAULT_AVAILABILITY.weekly, ...((page.availability || {}).weekly || {}) } },
+    meeting_type_ids: Array.isArray(page.meeting_type_ids) ? page.meeting_type_ids : [],
+    meeting_type_durations: (page.meeting_type_durations && typeof page.meeting_type_durations === 'object') ? page.meeting_type_durations : {},
+  }
+}
+
+/* Where someone stopped, parked on the page itself so it survives closing the
+   tab. Lives in `content` — a jsonb blob both editors round-trip whole — so
+   remembering the step needs no column and no migration. Absent means the page
+   is finished with the wizard and opens in the builder. */
+export const WIZARD_STEP_KEY = 'wizardStep'
+export const pausedAtStep = (page) => page?.content?.[WIZARD_STEP_KEY] ?? null
+
 /* "HH:MM" → minutes since midnight (NaN-safe). */
 export const hmToMinutes = (hm) => {
   const [h, m] = String(hm || '').split(':').map((n) => parseInt(n, 10))

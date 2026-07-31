@@ -118,7 +118,9 @@
     "provisionalTitle": "Página nueva",
     "presetPrompt": "¿Trabajas los días habituales?",
     "presetWorkweek": "Dom–Jue 09:00–17:00",
-    "advancedTitle": "Ajustes avanzados"
+    "advancedTitle": "Ajustes avanzados",
+    "statusInSetup": "En configuración",
+    "resumeSetup": "Continuar configuración"
   },
   "publicPage": {
     "loading": "Cargando…",
@@ -215,6 +217,11 @@
     "doneLiveSub": "Esta es la dirección para enviar a tus clientes. Todo se puede seguir editando.",
     "doneDraftSub": "Está esperando como borrador. Publícala cuando quieras y la dirección funcionará.",
     "viewPage": "Ver página",
-    "advancedEdit": "Edición avanzada"
+    "advancedEdit": "Edición avanzada",
+    "leaveTitle": "¿Salir de la configuración?",
+    "leaveBody": "La página ya está guardada como borrador. Puedes parar aquí y volver justo a este punto, o eliminarla y empezar de nuevo la próxima vez.",
+    "leaveKeep": "Guardar y salir",
+    "leaveDiscard": "Eliminar la página",
+    "leaveStay": "Volver a la configuración"
   }
 }

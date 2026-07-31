@@ -14,7 +14,7 @@ import MeetingTypesPicker from './MeetingTypesPicker'
 import {
   newBookingPageDraft, leadPageSurface, publicBookingPageUrl,
   normalizeSlug, isValidSlug, slugifyInput, sanitizeAvailability, findInvalidWindow,
-  weekdayLabels,
+  weekdayLabels, publishBlocker, publishMessage,
 } from '../../lib/bookingPageSchema'
 import {
   WIZARD_STEPS, stepIndex, stepBlocker, nextStep, prevStep, isLastStep,
@@ -126,6 +126,15 @@ export default function BookingCreateWizard({ takenTitles, onAdd, onUpdate, onEx
     if (step === 'publish' && draft.slug.trim() && !isValidSlug(normalizeSlug(draft.slug))) {
       setErr(t('pages.errSlugFormat')); return
     }
+    /* The same question the builder asks before going live. Without it this
+       wizard would publish a page whose windows are all shorter than the
+       shortest meeting it offers — live, and offering nothing, with no way for
+       the owner to find out. Only asked when they actually chose to publish;
+       saving it as a draft is always allowed. */
+    if (step === 'publish' && draft.published) {
+      const problem = publishMessage(publishBlocker(draft, availTypes), t)
+      if (problem) { setErr(problem); return }
+    }
 
     setBusy(true)
     try {
@@ -230,6 +239,7 @@ export default function BookingCreateWizard({ takenTitles, onAdd, onUpdate, onEx
             onSetDuration={setTypeDuration}
             onSetDefaultDuration={(minutes) => setDraft((d) => ({ ...d, availability: { ...d.availability, defaultDurationMinutes: minutes } }))}
             onAddType={onAddType}
+            emptyKey="wizard.noTypes"
           />
         )}
 
@@ -317,7 +327,7 @@ export default function BookingCreateWizard({ takenTitles, onAdd, onUpdate, onEx
               <Box as="label" className="m-label">{t('pages.slugLabel')}</Box>
               <Box className="lpe-slug-row">
                 <Txt className="lpe-slug-prefix mono" dir="ltr">{slugPrefix}</Txt>
-                <Input className="m-input lpe-slug-input" dir="ltr" value={draft.slug} onChange={(e) => set({ slug: slugifyInput(e.target.value) })} placeholder="dana-coaching" maxLength={40} />
+                <Input className="m-input lpe-slug-input" dir="ltr" value={draft.slug} onChange={(e) => set({ slug: slugifyInput(e.target.value) })} placeholder={t('pages.slugPlaceholder')} maxLength={40} />
               </Box>
               <Txt as="p" className="lbl-sm">{t('pages.slugHint')}</Txt>
             </Box>

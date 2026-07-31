@@ -1,7 +1,6 @@
 {
   "minutes": "{{count}} min",
   "pages": {
-    "headCount": "{{count}} pages",
     "screenTitle": "Booking pages",
     "newPage": "New page",
     "backToCalendar": "Back to calendar",
@@ -23,7 +22,6 @@
     "edit": "Edit",
     "deleteLabel": "Delete",
     "copyFailed": "Couldn't copy automatically — select and copy the link manually.",
-    "newPageTitle": "New page",
     "editPageTitle": "Edit page",
     "back": "Back",
     "settings": "Settings",
@@ -93,7 +91,6 @@
     "copyDayApplyEmpty": "Choose days",
     "copyDayApply_one": "Copy to 1 day",
     "copyDayApply_other": "Copy to {{count}} days",
-    "newTypeDialogLabel": "New meeting type",
     "newTypeDialogTitle": "New meeting type",
     "newTypeNamePlaceholder": "e.g. Intro call",
     "adding": "Adding…",
@@ -114,7 +111,6 @@
     "deleteConfirmDraft": "The page will be deleted. You can restore it right after.",
     "deleteConfirmLive": "This page is live — deleting it takes it off the air, and anyone opening the link will not find it. You can restore it right after.",
     "slotIntervalInfo": "How often a start time is offered. 30 = 9:00, 9:30, 10:00…",
-    "defaultDurationInfo": "How long a meeting runs when it has no length of its own. Each meeting type above can set its own.",
     "bufferInfo": "Time kept clear after every meeting, so appointments are never booked back to back.",
     "minNoticeInfo": "How far ahead someone must book. 12 = the next 12 hours cannot be taken.",
     "maxDaysInfo": "How far into the future booking is open. 60 = two months ahead.",

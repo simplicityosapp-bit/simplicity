@@ -14,7 +14,7 @@
    ════════════════════════════════════════════════════════════════ */
 import { describe, it, expect } from 'vitest'
 import {
-  WIZARD_STEPS, stepBlocker, openDays, nextStep, prevStep, isLastStep, stepsDone,
+  WIZARD_STEPS, stepBlocker, openDays, nextStep, prevStep, isLastStep,
   provisionalTitle, isProvisionalTitle,
 } from '../src/lib/bookingWizard'
 import {
@@ -121,10 +121,6 @@ describe('moving between steps', () => {
     expect(prevStep('offer')).toBeNull()
   })
 
-  it('counts the steps behind you, and none on the first', () => {
-    expect(stepsDone('offer')).toEqual([])
-    expect(stepsDone('look')).toEqual(['offer', 'when'])
-  })
 })
 
 describe('the name a page carries before it is named', () => {

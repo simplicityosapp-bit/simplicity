@@ -18,6 +18,10 @@ import { Box, Txt, Btn, Input } from '../../components/ui'
 export default function MeetingTypesPicker({
   meetingTypes, selectedIds, durations, defaultDuration,
   onToggle, onSetDuration, onSetDefaultDuration, onAddType,
+  /* The empty state is the one thing the two hosts cannot share. The wizard can
+     say "or skip"; the builder has no steps to skip, and saying so there is a
+     small lie about where you are. */
+  emptyKey = 'pages.meetingTypesEmpty',
 }) {
   const { t } = useT('booking')
   const [newName, setNewName] = useState('')
@@ -48,7 +52,7 @@ export default function MeetingTypesPicker({
   return (
     <>
       {meetingTypes.length === 0 ? (
-        <Txt as="p" className="bk-empty-note">{t('wizard.noTypes')}</Txt>
+        <Txt as="p" className="bk-empty-note">{t(emptyKey)}</Txt>
       ) : (
         <Box className="bk-type-list">
           {meetingTypes.map((mt) => {

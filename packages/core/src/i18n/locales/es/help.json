@@ -1,5 +1,46 @@
 {
   "screens": {
+    "bookingPages": {
+      "title": "Páginas de reserva",
+      "intro": "Una página pública donde los clientes eligen su propia cita. Tú decides qué tipos de reunión se ofrecen y cuándo estás libre — las reservas entran en tu calendario, automáticamente o tras tu aprobación.",
+      "features": [
+        {
+          "title": "Borrador y activa",
+          "body": "La etiqueta en la parte superior del editor indica si la página está en línea. «Publicar» la guarda y la activa de una vez; mientras sea borrador el enlace no funciona para nadie. Para retirarla, desactiva «Publicar la página» en los ajustes y guarda."
+        },
+        {
+          "title": "Tipos de reunión",
+          "body": "Elige qué tipos verá el visitante y dale a cada uno su propia duración aquí — esa duración pertenece solo a esta página y nunca cambia el tipo en otras. Sin ninguno elegido, la página ofrece una sola reunión con la duración predeterminada."
+        },
+        {
+          "title": "Disponibilidad semanal",
+          "body": "Añade uno o varios rangos horarios a cada día. Los cinco números de arriba fijan cada cuánto se ofrece una hora de inicio, cuánto dura una reunión, cuánto tiempo queda libre después, con cuánta antelación hay que reservar y hasta cuándo se puede reservar — cada uno tiene su «?» al lado."
+        },
+        {
+          "title": "Google Calendar",
+          "body": "Con el calendario conectado en «Conexiones», cada reserva aprobada se escribe como evento, y se puede invitar al cliente si dejó un correo. Sin conexión el interruptor está apagado — las reservas se guardan igualmente aquí."
+        }
+      ],
+      "tips": [
+        "Un rango horario debe ser al menos tan largo como la reunión — una ventana de media hora frente a una reunión de 50 minutos no genera ningún horario, y la app te detiene antes de publicar.",
+        "«Requiere aprobación» retiene la hora mientras decides, para que ese hueco no se ocupe dos veces.",
+        "Un enlace corto en los ajustes hace la dirección memorable — conviene definirlo antes de enviarla a los clientes."
+      ],
+      "faq": [
+        {
+          "q": "¿El cliente necesita una cuenta?",
+          "a": "No. La página es totalmente pública y el cliente deja su nombre y datos de contacto al reservar."
+        },
+        {
+          "q": "¿Por qué el calendario se ve vacío para un cliente?",
+          "a": "Suele ser una de tres: la página sigue en borrador, no hay rangos horarios en los próximos días, o la antelación mínima los bloquea."
+        },
+        {
+          "q": "¿En qué se diferencia de una página de contacto?",
+          "a": "Una página de contacto recoge una consulta que tú respondes; una página de reserva ocupa un hueco en tu calendario de inmediato."
+        }
+      ]
+    },
     "community": {
       "title": "Comunidad",
       "intro": "Una sala compartida para todas las personas que usan Simplicity. Antes del primer mensaje eliges un nombre visible: es lo que los miembros verán junto a ti.",

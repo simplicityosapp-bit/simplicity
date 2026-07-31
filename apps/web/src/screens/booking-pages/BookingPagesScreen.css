@@ -62,6 +62,53 @@
 }
 .bk-config-title svg { color: var(--terracotta); }
 
+/* Fold toggle. Creating a page is one long form; coming back to it is usually
+   about one thing, so these cards close and their header answers "is it still
+   set up right?" with a count. */
+/* The heading is the wrapper; the button inside it is the whole row. */
+.bk-config-heading {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+}
+.bk-config-toggle {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  min-width: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: inherit;
+  text-align: start;
+  cursor: pointer;
+}
+.bk-config-toggle svg { flex: none; }
+.bk-config-chev {
+  flex: none;
+  color: var(--stone);
+  transition: transform 0.18s ease;
+}
+.bk-config-card:not(.is-open) .bk-config-chev { transform: rotate(-90deg); }
+.bk-config-count {
+  margin-inline-start: auto;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--espresso) 7%, transparent);
+  font-family: var(--mg-font-num);
+  font-size: var(--mg-caption);
+  color: var(--stone);
+}
+
+/* The "?" sits with the label it explains, not on its own line. */
+.bk-num-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+
 .bk-mini-btn,
 .bk-day-add {
   display: inline-flex;
@@ -85,6 +132,20 @@
 }
 .bk-mini-btn:active,
 .bk-day-add:active { transform: translateY(0); }
+/* Touch targets. These pills paint ~33px and the availability editor is nothing
+   but taps — a window added, a window removed, a day opened. The HIT area grows
+   and the paint does not, the same separation .mg-toggle-btn uses in screens.css.
+   Vertical only: they share rows with the day name and the time inputs, so
+   growing sideways would start stealing their neighbours' taps. */
+.bk-mini-btn,
+.bk-day-add { position: relative; }
+.bk-mini-btn::after,
+.bk-day-add::after {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  inset-block: -6px;
+}
 
 .bk-empty-note {
   margin: 12px 0 0;
@@ -246,6 +307,15 @@
   transition: border-color 0.14s ease, box-shadow 0.14s ease;
 }
 .bk-window-sep { opacity: 0.55; }
+/* Same grown target for the ✕ that removes a window (it paints 32px). Scoped to
+   the booking rows so the shared .lpe-ctrl-btn elsewhere is untouched. */
+.bk-window .lpe-ctrl-btn { position: relative; }
+.bk-window .lpe-ctrl-btn::after {
+  content: '';
+  position: absolute;
+  inset-inline: -4px;
+  inset-block: -6px;
+}
 
 /* ── Unified brand focus ring across every builder input ──────────── */
 .bk-dur-input:focus,

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { SlidersHorizontal, X } from 'lucide-react'
 import { LEAD_PAGE_BACKGROUNDS, leadPageBgUrl } from '../lib/leadPageSchema'
+import { useT } from '../i18n/useT'
 import './DesignToolbox.css'
 import { Box, Txt, Btn, Input } from './ui'
 
@@ -20,19 +21,22 @@ const BRAND_PRESETS = [
 
 /* Card-corner steps — named + precise. 24 = the original look (default). */
 const RADII = [
-  { v: 14, label: 'חד' },
-  { v: 24, label: 'רגיל' },
-  { v: 34, label: 'רך' },
+  { v: 14, key: 'sharp' },
+  { v: 24, key: 'regular' },
+  { v: 34, key: 'soft' },
 ]
 
 /* ════════════════════════════════════════════════════════════════
    DESIGN TOOLBOX — "ארגז כלים"
    ════════════════════════════════════════════════════════════════
-   A shared left-side slide-out panel that holds EVERY appearance control
-   for a public page (brand colour, background, card opacity, blur, bold,
-   text colour + alignment). Used by both the lead-pages and booking-pages
-   builders so the design model is identical and extensible — new tools
-   slot in here, not into the (now functional-only) settings panel.
+   A left-side slide-out panel that holds EVERY appearance control for a public
+   page (brand colour, background, card opacity, blur, bold, text colour +
+   alignment) — new tools slot in here, not into the (functional-only) settings
+   panel. Written for the lead-pages and booking-pages builders both; the
+   lead-pages route now redirects to the /pages hub, so booking is the only
+   caller left, and its `booking` namespace is where these strings live. They
+   used to be Hebrew literals in the JSX, which meant this panel stayed Hebrew
+   in all four languages.
 
    Props:
      • content  — the page's content object (brandColor, background,
@@ -42,6 +46,7 @@ const RADII = [
    Control styling (lpe-design*, lpe-bg-*, lpe-slider-*, lpe-seg*, lpb-color)
    is shared with the builders' CSS, already loaded on these screens. */
 export default function DesignToolbox({ content, onChange }) {
+  const { t } = useT('booking')
   const [open, setOpen] = useState(false)
   const c = content || {}
   const set = (patch) => onChange?.(patch)
@@ -55,24 +60,24 @@ export default function DesignToolbox({ content, onChange }) {
         className={`dtb-fab${open ? ' is-open' : ''}`}
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
-        aria-label="ארגז כלים — עיצוב הדף"
+        aria-label={`${t('toolbox.title')} — ${t('toolbox.aria')}`}
       >
         <SlidersHorizontal size={18} strokeWidth={1.7} aria-hidden="true" />
-        <Txt className="dtb-fab-label">ארגז כלים</Txt>
+        <Txt className="dtb-fab-label">{t('toolbox.title')}</Txt>
       </Btn>
 
       {open && <Box className="dtb-scrim" onClick={() => setOpen(false)} aria-hidden="true" />}
 
-      <Box as="aside" className={`dtb-panel${open ? ' open' : ''}`} dir="rtl" aria-label="ארגז כלים">
+      <Box as="aside" className={`dtb-panel${open ? ' open' : ''}`} dir="rtl" aria-label={t('toolbox.title')}>
         <Box as="header" className="dtb-head">
-          <Txt className="dtb-title"><SlidersHorizontal size={16} strokeWidth={1.7} aria-hidden="true" /> ארגז כלים</Txt>
-          <Btn type="button" className="dtb-close" onClick={() => setOpen(false)} aria-label="סגירה"><X size={18} strokeWidth={1.8} /></Btn>
+          <Txt className="dtb-title"><SlidersHorizontal size={16} strokeWidth={1.7} aria-hidden="true" /> {t('toolbox.title')}</Txt>
+          <Btn type="button" className="dtb-close" onClick={() => setOpen(false)} aria-label={t('toolbox.close')}><X size={18} strokeWidth={1.8} /></Btn>
         </Box>
 
         <Box className="dtb-body">
           <Box className="dtb-group">
-            <Txt as="p" className="dtb-group-lbl">צבע מותג</Txt>
-            <Box className="dtb-presets" role="group" aria-label="צבעים מוכנים">
+            <Txt as="p" className="dtb-group-lbl">{t('toolbox.brandColor')}</Txt>
+            <Box className="dtb-presets" role="group" aria-label={t('toolbox.presets')}>
               {BRAND_PRESETS.map((hex) => {
                 const on = curBrand === hex.toLowerCase()
                 return (
@@ -82,7 +87,7 @@ export default function DesignToolbox({ content, onChange }) {
                     className={`dtb-preset${on ? ' on' : ''}`}
                     style={{ '--sw': hex }}
                     onClick={() => set({ brandColor: hex })}
-                    aria-label={`צבע ${hex}`}
+                    aria-label={t('toolbox.colorSwatch', { hex })}
                     aria-pressed={on}
                     title={hex}
                   />
@@ -96,9 +101,9 @@ export default function DesignToolbox({ content, onChange }) {
           </Box>
 
           <Box className="dtb-group">
-            <Txt as="p" className="dtb-group-lbl">רקע</Txt>
+            <Txt as="p" className="dtb-group-lbl">{t('toolbox.background')}</Txt>
             <Box className="lpe-bg-grid">
-              <Btn type="button" className={`lpe-bg-swatch lpe-bg-none${!c.background ? ' on' : ''}`} onClick={() => set({ background: '' })}>ללא</Btn>
+              <Btn type="button" className={`lpe-bg-swatch lpe-bg-none${!c.background ? ' on' : ''}`} onClick={() => set({ background: '' })}>{t('toolbox.bgNone')}</Btn>
               {LEAD_PAGE_BACKGROUNDS.map((b) => (
                 <Btn
                   key={b.key}
@@ -115,12 +120,12 @@ export default function DesignToolbox({ content, onChange }) {
 
           <Box className="dtb-group">
             <Box className="lpe-slider-row">
-              <Txt className="lpe-design-lbl">שקיפות הכרטיס</Txt>
+              <Txt className="lpe-design-lbl">{t('toolbox.cardTransparency')}</Txt>
               <Input type="range" min="0" max="100" value={100 - (c.cardOpacity ?? 100)} onChange={(e) => set({ cardOpacity: 100 - Number(e.target.value) })} />
               <Txt className="lpe-slider-val mono">{100 - (c.cardOpacity ?? 100)}%</Txt>
             </Box>
             <Box className="lpe-slider-row">
-              <Txt className="lpe-design-lbl">טשטוש רקע</Txt>
+              <Txt className="lpe-design-lbl">{t('toolbox.cardBlur')}</Txt>
               <Input type="range" min="0" max="30" value={c.cardBlur ?? 14} onChange={(e) => set({ cardBlur: Number(e.target.value) })} />
               <Txt className="lpe-slider-val mono">{c.cardBlur ?? 14}px</Txt>
             </Box>
@@ -128,7 +133,7 @@ export default function DesignToolbox({ content, onChange }) {
 
           <Box className="dtb-group">
             <Box className="lpe-seg-row">
-              <Txt className="lpe-design-lbl">פינות הכרטיס</Txt>
+              <Txt className="lpe-design-lbl">{t('toolbox.cardCorners')}</Txt>
               <Box className="lpe-seg">
                 {RADII.map((r) => (
                   <Btn
@@ -137,7 +142,7 @@ export default function DesignToolbox({ content, onChange }) {
                     className={`lpe-seg-btn${curRadius === r.v ? ' on' : ''}`}
                     onClick={() => set({ cardRadius: r.v })}
                   >
-                    {r.label}
+                    {t('toolbox.radius_' + r.key)}
                   </Btn>
                 ))}
               </Box>
@@ -147,23 +152,23 @@ export default function DesignToolbox({ content, onChange }) {
           <Box className="dtb-group">
             <Box as="label" className="lpe-design-toggle">
               <Input type="checkbox" checked={!!c.bold} onChange={(e) => set({ bold: e.target.checked })} />
-              טקסט מודגש
+              {t('toolbox.boldText')}
             </Box>
           </Box>
 
           <Box className="dtb-group">
             <Box className="lpe-seg-row">
-              <Txt className="lpe-design-lbl">צבע טקסט</Txt>
+              <Txt className="lpe-design-lbl">{t('toolbox.textColor')}</Txt>
               <Box className="lpe-seg">
-                <Btn type="button" className={`lpe-seg-btn${c.textColor !== 'light' ? ' on' : ''}`} onClick={() => set({ textColor: 'dark' })}>כהה</Btn>
-                <Btn type="button" className={`lpe-seg-btn${c.textColor === 'light' ? ' on' : ''}`} onClick={() => set({ textColor: 'light' })}>בהיר</Btn>
+                <Btn type="button" className={`lpe-seg-btn${c.textColor !== 'light' ? ' on' : ''}`} onClick={() => set({ textColor: 'dark' })}>{t('toolbox.dark')}</Btn>
+                <Btn type="button" className={`lpe-seg-btn${c.textColor === 'light' ? ' on' : ''}`} onClick={() => set({ textColor: 'light' })}>{t('toolbox.light')}</Btn>
               </Box>
             </Box>
             <Box className="lpe-seg-row">
-              <Txt className="lpe-design-lbl">יישור טקסט</Txt>
+              <Txt className="lpe-design-lbl">{t('toolbox.textAlign')}</Txt>
               <Box className="lpe-seg">
-                <Btn type="button" className={`lpe-seg-btn${c.textAlign !== 'center' ? ' on' : ''}`} onClick={() => set({ textAlign: 'start' })}>ימין</Btn>
-                <Btn type="button" className={`lpe-seg-btn${c.textAlign === 'center' ? ' on' : ''}`} onClick={() => set({ textAlign: 'center' })}>מרכז</Btn>
+                <Btn type="button" className={`lpe-seg-btn${c.textAlign !== 'center' ? ' on' : ''}`} onClick={() => set({ textAlign: 'start' })}>{t('toolbox.alignStart')}</Btn>
+                <Btn type="button" className={`lpe-seg-btn${c.textAlign === 'center' ? ' on' : ''}`} onClick={() => set({ textAlign: 'center' })}>{t('toolbox.alignCenter')}</Btn>
               </Box>
             </Box>
           </Box>

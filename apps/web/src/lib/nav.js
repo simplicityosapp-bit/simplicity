@@ -57,10 +57,6 @@ export const NO_HELP_SCREENS = new Set([
   'help',        // the guide itself — a "?" would summarise the page you're on
   'onboarding',  // runs without app chrome, so no "?" is drawn anyway
   'leadPages',   // retired route; App redirects it to the /pages hub
-  /* The booking-page builder has no entry written yet. Until one exists it
-     stays silent rather than falling back to the home guide, which is about
-     widgets and tells a builder user nothing true. */
-  'bookingPages',
 ])
 
 /* Bottom tab bar — 4 quick screens + the menu button (handled separately).

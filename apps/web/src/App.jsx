@@ -25,6 +25,7 @@ import LoadingSplash from './components/LoadingSplash'
 import ErrorBoundary from './components/ErrorBoundary'
 import lazyWithRetry from './lib/lazyWithRetry'
 import FeedbackModal from './modals/FeedbackModal'
+import { reconcileModalLock } from './lib/modalLock'
 import UndoToast from './components/UndoToast'
 import Toast from './components/Toast'
 import AccountDeletionPending from './components/AccountDeletionPending'
@@ -102,6 +103,14 @@ function AppShell() {
   const { prefs, update: updatePrefs, loading: prefsLoading, error: prefsError } = useUserPreferences()
   const [menuOpen, setMenuOpen] = useState(false)
   const [feedbackOpen, setFeedbackOpen] = useState(false)
+
+  /* A screen that will not scroll is the worst kind of bug: nothing is broken
+     on screen, so there is nothing to press to fix it. The only rule that can
+     cause it is the modals' scroll-lock, and this is where a stray one dies —
+     on any route change with no modal actually open. The nav bars live outside
+     .screen, so navigating is still possible while frozen, which makes this the
+     one place a stuck user reliably passes through. */
+  useEffect(() => { reconcileModalLock() }, [location.pathname])
 
   /* Toggle theme on the local hook (fast) AND persist to prefs. */
   const handleToggleTheme = () => {

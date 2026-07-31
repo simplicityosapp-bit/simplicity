@@ -2,12 +2,10 @@ import { useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { X } from 'lucide-react'
 import { useT } from '../i18n/useT'
+import { acquireModalLock } from '../lib/modalLock'
 import './Modal.css'
 import { Box, Txt, Btn } from '../components/ui'
 
-/* Ref-count so stacked modals (e.g. a ConfirmModal opened over a form modal)
-   only release the background scroll-lock when the LAST one closes. */
-let modalOpenCount = 0
 const FOCUSABLE = 'button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
 
 /* Centered card modal — rendered into document.body via a portal so
@@ -38,15 +36,11 @@ export default function Modal({ open, onClose, title, titleLabel, children }) {
   }, [open, onClose])
 
   /* Lock the scrolling .screen behind the modal so the background can't
-     scroll on touch (ref-counted for stacked modals). */
+     scroll on touch. The lock is derived from the set of open modals, never
+     tallied — see lib/modalLock. */
   useEffect(() => {
     if (!open) return undefined
-    modalOpenCount += 1
-    document.body.classList.add('modal-open')
-    return () => {
-      modalOpenCount = Math.max(0, modalOpenCount - 1)
-      if (modalOpenCount === 0) document.body.classList.remove('modal-open')
-    }
+    return acquireModalLock()
   }, [open])
 
   /* Focus management: move focus into the dialog on open (preferring the

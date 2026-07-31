@@ -201,6 +201,34 @@
   white-space: nowrap;
 }
 .lpe-topbar-actions { display: flex; align-items: center; gap: 10px; flex: none; }
+
+/* ── The bar on a phone ────────────────────────────────────────────
+   This row never wrapped and its actions never shrank (`flex: none`), so at
+   375px it simply ran off the edge: save and publish sat ENTIRELY outside the
+   viewport, and nothing scrolled to reveal them — they were gone. The only way
+   to save was to scroll ~3,000px to the duplicate buttons at the foot of the
+   form, which is not a thing anyone would guess.
+
+   Below the app's mobile breakpoint the actions take their own line and may
+   wrap within it. That costs a row of height and returns every control with
+   its label intact — the alternative, dropping to icon-only, saves the space
+   by taking away the words, which is the wrong trade for someone who is not
+   sure what the buttons do. */
+@media (max-width: 767px) {
+  .lpe-topbar { flex-wrap: wrap; }
+  /* Its auto margin was what pushed the actions to the far end of one line;
+     on their own line it would only add a stray gap. */
+  .lpe-topbar-title { margin-inline-end: 0; }
+  .lpe-topbar-actions {
+    flex: 1 0 100%;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+  /* .m-btn-save carries `flex: 1` for a modal's footer, where two buttons split
+     the width. Wrapped onto its own line here it had nothing to split against
+     and grew to 264px beside a 53px neighbour. */
+  .lpe-topbar-actions .m-btn-save { flex: none; }
+}
 .lpe-settings-btn {
   display: inline-flex; align-items: center; gap: 6px;
   font: inherit; font-size: 14px; font-weight: 500;
@@ -211,7 +239,12 @@
      .lpe-settings panel below it), not flat transparency. */
   -webkit-backdrop-filter: var(--mg-card-blur);
   backdrop-filter: var(--mg-card-blur);
-  color: var(--ink); cursor: pointer;
+  /* `--ink` is a FIXED near-black (tokens.css calls it "deepest near-black
+     ink"), so it never followed the theme: in dark mode these pills painted
+     #181410 text on dark glass — 1.11:1, which is not low contrast, it is an
+     invisible button. Inheriting gives --espresso, which IS remapped per theme,
+     and matches what .bk-mini-btn / .bk-day-add already do. */
+  color: inherit; cursor: pointer;
 }
 .lpe-settings-btn:hover { background: var(--mg-btn-secondary-bg-hover); }
 .lpe-settings-btn.is-on {

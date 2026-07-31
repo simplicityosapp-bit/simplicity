@@ -803,3 +803,76 @@
   background: color-mix(in srgb, var(--terracotta) 20%, transparent);
   color: inherit;
 }
+
+/* ── Selection checkboxes, drawn rather than borrowed ────────────
+   These two DO mean "selected" — which meeting types the page offers, which
+   days to copy hours onto — so they stay checkboxes while the on/off rows
+   became switches. What changes is that the box is ours: the native control
+   accepted only a tint, leaving the square, the tick and the focus ring to the
+   browser, and the sizes had drifted apart (17px in the dialog, 18px in the
+   list). One shape, the app's corner radius, and a tick drawn with a rotated
+   border so it stays crisp at any zoom without shipping an asset. */
+.bk-type-pick input[type="checkbox"],
+.bk-copy-row input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  position: relative;
+  flex: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  /* currentColor, not the glass tokens: --mg-btn-secondary-bg is the same
+     surface these rows sit on, so an unchecked box drew itself invisible. A
+     tint of the text colour is legible on whatever the theme is. */
+  border: 1.5px solid color-mix(in srgb, currentColor 34%, transparent);
+  background: color-mix(in srgb, currentColor 8%, transparent);
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease, transform 0.12s ease;
+}
+.bk-type-pick input[type="checkbox"]:checked,
+.bk-copy-row input[type="checkbox"]:checked {
+  background: var(--mg-btn-primary-bg);
+  border-color: var(--mg-btn-primary-bg);
+}
+/* The tick: two borders of a rotated box. Positioned off-centre on purpose —
+   a checkmark's corner is not its middle. */
+.bk-type-pick input[type="checkbox"]::after,
+.bk-copy-row input[type="checkbox"]::after {
+  content: '';
+  position: absolute;
+  inset-inline-start: 6px;
+  top: 2px;
+  width: 5px;
+  height: 10px;
+  border: solid var(--on-accent);
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg) scale(0.4);
+  opacity: 0;
+  transition: opacity 0.12s ease, transform 0.14s cubic-bezier(0.2, 1.6, 0.4, 1);
+}
+.bk-type-pick input[type="checkbox"]:checked::after,
+.bk-copy-row input[type="checkbox"]:checked::after {
+  opacity: 1;
+  transform: rotate(45deg) scale(1);
+}
+.bk-type-pick input[type="checkbox"]:active,
+.bk-copy-row input[type="checkbox"]:active { transform: scale(0.92); }
+.bk-type-pick input[type="checkbox"]:focus-visible,
+.bk-copy-row input[type="checkbox"]:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--terracotta) 22%, transparent);
+}
+@media (prefers-reduced-motion: reduce) {
+  .bk-type-pick input[type="checkbox"],
+  .bk-copy-row input[type="checkbox"],
+  .bk-type-pick input[type="checkbox"]::after,
+  .bk-copy-row input[type="checkbox"]::after,
+  .lpb-toggle input[type="checkbox"],
+  .lpb-toggle input[type="checkbox"]::after { transition: none; }
+}
+/* Same flip as the switch knob and .m-btn-save: the accent is dark terracotta
+   in light mode and light Moonglow in dark, so the tick drawn on it inverts. */
+[data-theme="dark"] .bk-type-pick input[type="checkbox"]::after,
+[data-theme="dark"] .bk-copy-row input[type="checkbox"]::after {
+  border-color: var(--ink-on-accent);
+}

@@ -147,6 +147,14 @@
   inset-block: -6px;
 }
 
+/* Required-field mark. The app had no convention for one, so it stays quiet:
+   the danger token at caption size, not a shout. */
+.bk-req {
+  color: var(--clay-on-dark);
+  font-size: var(--mg-caption);
+  cursor: help;
+}
+
 .bk-empty-note {
   margin: 12px 0 0;
   font-size: var(--mg-caption);

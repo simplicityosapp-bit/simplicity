@@ -2,7 +2,6 @@
   "minutes": "{{count}} min",
   "pages": {
     "headCount": "{{count}} páginas",
-    "headSubtitle": "Páginas públicas de reserva, sincronizadas con tu calendario",
     "screenTitle": "Páginas de reserva",
     "newPage": "Página nueva",
     "backToCalendar": "Volver al calendario",
@@ -102,7 +101,8 @@
     "defaultDurationInfo": "Cuánto dura una reunión que no tiene duración propia. Cada tipo de reunión puede fijar la suya.",
     "bufferInfo": "Tiempo que queda libre después de cada reunión, para que no se reserven citas seguidas.",
     "minNoticeInfo": "Con cuánta antelación hay que reservar. 12 = las próximas 12 horas no se pueden ocupar.",
-    "maxDaysInfo": "Hasta cuándo se puede reservar. 60 = dos meses por delante."
+    "maxDaysInfo": "Hasta cuándo se puede reservar. 60 = dos meses por delante.",
+    "requiredField": "Campo obligatorio"
   },
   "publicPage": {
     "loading": "Cargando…",
@@ -140,7 +140,6 @@
     "colorSwatch": "Color {{hex}}",
     "background": "Fondo",
     "bgNone": "Ninguno",
-    "cardTransparency": "Transparencia de la tarjeta",
     "cardBlur": "Desenfoque del fondo",
     "cardCorners": "Esquinas de la tarjeta",
     "radius_sharp": "Rectas",
@@ -152,6 +151,7 @@
     "light": "Claro",
     "textAlign": "Alineación del texto",
     "alignStart": "Inicio",
-    "alignCenter": "Centro"
+    "alignCenter": "Centro",
+    "cardOpacity": "Opacidad de la tarjeta"
   }
 }

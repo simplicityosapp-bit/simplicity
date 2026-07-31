@@ -11,6 +11,8 @@
     "untitled": "Page sans titre",
     "statusLive": "En ligne",
     "statusDraft": "Brouillon",
+    "statusWillPublish": "sera publié à l’enregistrement",
+    "statusWillUnpublish": "sera masqué à l’enregistrement",
     "autoConfirmBadge": "Confirmation automatique",
     "manualConfirmBadge": "Approbation requise",
     "confirmInfoLabel": "Comment fonctionne l'approbation des rendez-vous",

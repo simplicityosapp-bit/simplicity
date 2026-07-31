@@ -11,6 +11,8 @@
     "untitled": "Página sin nombre",
     "statusLive": "Activa",
     "statusDraft": "Borrador",
+    "statusWillPublish": "se publicará al guardar",
+    "statusWillUnpublish": "se ocultará al guardar",
     "autoConfirmBadge": "Confirmación automática",
     "manualConfirmBadge": "Requiere aprobación",
     "confirmInfoLabel": "Cómo funciona la aprobación de citas",

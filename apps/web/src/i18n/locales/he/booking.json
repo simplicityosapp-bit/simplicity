@@ -11,6 +11,8 @@
     "untitled": "דף ללא שם",
     "statusLive": "פעיל",
     "statusDraft": "טיוטה",
+    "statusWillPublish": "יפורסם בשמירה",
+    "statusWillUnpublish": "יוסתר בשמירה",
     "autoConfirmBadge": "אישור אוטומטי",
     "manualConfirmBadge": "דורש אישור",
     "confirmInfoLabel": "הסבר על אופן אישור התורים",

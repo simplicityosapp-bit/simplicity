@@ -148,6 +148,37 @@ export const findUnbookableDay = (av, shortestMeeting) => {
   return null
 }
 
+/* ── Copying one day's hours onto others ────────────────────────────────────
+   A coach who works Sunday to Thursday sets the same hours five times, one
+   time field at a time. This is the shortcut.
+
+   One day's hours as a sentence — "09:00–17:00", or "09:00–12:00, 16:00–19:00"
+   for a split day. A closed day returns '' rather than a word, because only the
+   caller knows which language to say "closed" in. */
+export const describeWindows = (windows) =>
+  (Array.isArray(windows) ? windows : [])
+    .filter((w) => w?.start && w?.end)
+    .map((w) => `${w.start}–${w.end}`)
+    .join(', ')
+
+/* Copy fromDay's windows onto each of toDays, REPLACING whatever they held —
+   the dialog shows what is about to be replaced, so the destructive half is
+   the coach's decision, not a surprise.
+
+   Each target gets its OWN copy of each window. Handing them the same objects
+   would look right and then betray: editing Monday's start time would silently
+   move Sunday's too, because they would be one object wearing two names.
+   Returns a NEW weekly map; never mutates. */
+export const copyDayWindows = (weekly, fromDay, toDays) => {
+  const source = Array.isArray(weekly?.[fromDay]) ? weekly[fromDay] : []
+  const next = { ...(weekly || {}) }
+  for (const day of toDays || []) {
+    if (String(day) === String(fromDay)) continue     // copying onto itself is a no-op, not a wipe
+    next[day] = source.map((w) => ({ ...w }))
+  }
+  return next
+}
+
 /* ── Builder preview ────────────────────────────────────────────────────────
    The times a given weekday CAN offer, for the builder's preview only.
 

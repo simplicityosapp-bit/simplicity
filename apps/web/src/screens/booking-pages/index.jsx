@@ -17,7 +17,7 @@ import BookingPreview from './BookingPreview'
 import {
   DEFAULT_CONTENT, DEFAULT_AVAILABILITY, newBookingPageDraft, weekdayLabels,
   publicBookingPageUrl, normalizeSlug, isValidSlug, slugifyInput, leadPageSurface,
-  findUnbookableDay,
+  findUnbookableDay, copyDayWindows, describeWindows,
   sanitizeAvailability, findInvalidWindow,
 } from '../../lib/bookingPageSchema'
 import { GROW_ENABLED } from '../../lib/grow'
@@ -26,6 +26,7 @@ import { ROUTES } from '../../lib/routes'
 import { copyText } from '../../lib/clipboard'
 import { setLeaveGuard, clearLeaveGuard, confirmLeave } from '../../lib/leaveGuard'
 import ConfirmModal from '../../modals/ConfirmModal'
+import Modal from '../../modals/Modal'
 import PageSetupWizard from '../../modals/PageSetupWizard'
 import { needsSetupWizard } from '../../lib/pageSetup'
 import { showError } from '../../lib/toast'
@@ -343,6 +344,24 @@ function BookingPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }
   const addWindow = (day) => setWeekly(day, [...dayWindows(day), { start: '09:00', end: '17:00' }])
   const updateWindow = (day, i, patch) => setWeekly(day, dayWindows(day).map((w, idx) => (idx === i ? { ...w, ...patch } : w)))
   const removeWindow = (day, i) => setWeekly(day, dayWindows(day).filter((_, idx) => idx !== i))
+
+  /* Sunday to Thursday is one set of hours typed five times. The dialog opens
+     on the day being copied FROM, starts with nothing ticked (this replaces
+     hours, so it asks rather than assumes), and shows each day's current hours
+     so nothing is overwritten unseen. Applied to the draft only — the save
+     button is still the thing that commits it. */
+  const [copyFrom, setCopyFrom] = useState(null)
+  const [copyTo, setCopyTo] = useState([])
+  const openCopy = (day) => { setCopyTo([]); setCopyFrom(day) }
+  const closeCopy = () => setCopyFrom(null)
+  const toggleCopyTo = (day) => setCopyTo((s) => (s.includes(day) ? s.filter((d) => d !== day) : [...s, day]))
+  const applyCopy = () => {
+    setDraft((d) => ({
+      ...d,
+      availability: { ...d.availability, weekly: copyDayWindows(d.availability.weekly, copyFrom, copyTo) },
+    }))
+    closeCopy()
+  }
 
   const openNewType = () => { setNewTypeName(''); setNewTypeOpen(true) }
   const submitNewType = async () => {
@@ -753,6 +772,12 @@ function BookingPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }
                         <Btn type="button" className="lpe-ctrl-btn danger" onClick={() => removeWindow(day, i)} aria-label={t('pages.removeWindowLabel')}><X size={14} /></Btn>
                       </Box>
                     ))}
+                    {/* Sits under the hours it copies, not up in the day head:
+                        there is room for the whole sentence here, and no fight
+                        with the day name for taps on a narrow screen. */}
+                    <Btn type="button" className="bk-day-copy" onClick={() => openCopy(day)}>
+                      <Copy size={12} strokeWidth={1.9} aria-hidden="true" /> {t('pages.copyDayBtn')}
+                    </Btn>
                   </Box>
                 )}
               </Box>
@@ -790,6 +815,44 @@ function BookingPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }
           }}
           onClose={() => { const next = setupFor.next; setSetupFor(null); next?.() }}
         />
+      ) : null}
+
+      {copyFrom != null ? (
+        <Modal open onClose={closeCopy} title={t('pages.copyDayTitle', { day: weekdayLabels()[copyFrom] })}>
+          <Txt as="p" className="bk-copy-src">{describeWindows(dayWindows(copyFrom))}</Txt>
+          <Txt as="p" className="bk-copy-hint">{t('pages.copyDayHint')}</Txt>
+          <Box className="bk-copy-tools">
+            <Btn type="button" className="bk-copy-tool" onClick={() => setCopyTo(weekdayLabels().map((_, d) => d).filter((d) => d !== copyFrom))}>
+              {t('pages.copyDaySelectAll')}
+            </Btn>
+            <Btn type="button" className="bk-copy-tool" onClick={() => setCopyTo([])} disabled={!copyTo.length}>
+              {t('pages.copyDayClear')}
+            </Btn>
+          </Box>
+          <Box className="bk-copy-list">
+            {weekdayLabels().map((label, day) => {
+              if (day === copyFrom) return null
+              const current = describeWindows(dayWindows(day))
+              const checked = copyTo.includes(day)
+              return (
+                <Box as="label" key={day} className={`bk-copy-row${checked ? ' on' : ''}`}>
+                  <Input type="checkbox" checked={checked} onChange={() => toggleCopyTo(day)} />
+                  <Txt className="bk-copy-day">{label}</Txt>
+                  {/* What this day holds right now — so "replaced" is a thing
+                      the coach can see, not a warning they have to imagine. */}
+                  <Txt className="bk-copy-now">{current || t('pages.copyDayClosed')}</Txt>
+                  {checked && current ? <Txt className="bk-copy-warn">{t('pages.copyDayWillReplace')}</Txt> : null}
+                </Box>
+              )
+            })}
+          </Box>
+          <Box className="m-actions">
+            <Btn type="button" className="m-btn-cancel" onClick={closeCopy}>{t('pages.cancel')}</Btn>
+            <Btn type="button" className="m-btn-save" onClick={applyCopy} disabled={!copyTo.length}>
+              {copyTo.length ? t('pages.copyDayApply', { count: copyTo.length }) : t('pages.copyDayApplyEmpty')}
+            </Btn>
+          </Box>
+        </Modal>
       ) : null}
 
       {pendingLeave ? (

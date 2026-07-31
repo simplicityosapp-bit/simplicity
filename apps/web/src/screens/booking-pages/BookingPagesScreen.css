@@ -193,6 +193,16 @@
    "פעיל" means one thing in both places; it sits before the actions, never
    shrinking, because it is a label rather than a control. */
 .bk-live-badge { flex: none; align-self: center; }
+/* Sits beside the badge and says what SAVING would do. Deliberately quieter
+   than the badge — the badge is a fact about the page, this is only an
+   intention, and it must never be mistaken for the state itself. */
+.bk-pending-note {
+  flex: none;
+  align-self: center;
+  font-size: var(--mg-caption);
+  font-weight: 500;
+  opacity: 0.7;
+}
 /* The plain save sits next to the publish action, so it reads as the secondary
    of the pair rather than as a second primary. */
 .bk-save-draft { flex: none; }

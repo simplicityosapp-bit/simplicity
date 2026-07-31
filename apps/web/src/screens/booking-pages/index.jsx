@@ -446,6 +446,12 @@ function BookingPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }
     }
   }
 
+  /* What is true of the page as SAVED — never of the draft on screen. The badge
+     answers "can someone reach my page right now?", and only the saved row can
+     answer that. */
+  const livePublished = !!page?.published
+  const publishPending = !!draft.published !== livePublished
+
   const url = page?.id ? publicBookingPageUrl(page.slug || page.id) : null
   const copyLink = async () => {
     if (!url) return
@@ -472,10 +478,22 @@ function BookingPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }
           {/* Whether the page is live was only knowable by opening "הגדרות" and
               reading a checkbox. It is the first thing about a page, so it says
               itself — and the publish action next to it saves and goes live in
-              one press, instead of a tick that does nothing until you also save. */}
-          <Txt className={`lpm-badge bk-live-badge${draft.published ? ' is-live' : ''}`}>
-            {draft.published ? t('pages.statusLive') : t('pages.statusDraft')}
+              one press, instead of a tick that does nothing until you also save.
+
+              It reads the SAVED page, not the draft. Reading the draft meant
+              ticking the publish box flipped this to "פעיל" on the spot, while
+              nothing had been saved, the page had no address, and no visitor
+              could reach it — the one label whose whole job is to be trusted,
+              lying. What the draft would DO on save is a separate, smaller
+              sentence below: a promise, not a state. */}
+          <Txt className={`lpm-badge bk-live-badge${livePublished ? ' is-live' : ''}`}>
+            {livePublished ? t('pages.statusLive') : t('pages.statusDraft')}
           </Txt>
+          {publishPending && (
+            <Txt className="bk-pending-note">
+              {draft.published ? t('pages.statusWillPublish') : t('pages.statusWillUnpublish')}
+            </Txt>
+          )}
           {/* The canvas here is a branding mock — it never shows the slot picker,
               which is the page's whole point. This is the only way to see it
               without publishing first. */}
@@ -665,7 +683,13 @@ function BookingPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }
               onClick={() => setOpenCards((s) => ({ ...s, types: !s.types }))}>
               <ChevronDown size={15} strokeWidth={1.9} className="bk-config-chev" aria-hidden="true" />
               <CalendarClock size={17} strokeWidth={1.7} aria-hidden="true" /> {t('pages.meetingTypesTitle')}
-              <Txt className="bk-config-count">{draft.meeting_type_ids.length || availTypes.length}</Txt>
+              {/* The header counts what the page OFFERS. Falling back to
+                  availTypes.length claimed the opposite of the truth: with five
+                  types defined and none ticked it read "5", while the page
+                  actually offers a single generic meeting at the default length
+                  — see offeredDurations() and BookingPreview, which both resolve
+                  an empty selection to exactly one. */}
+              <Txt className="bk-config-count">{draft.meeting_type_ids.length || 1}</Txt>
             </Btn>
           </Txt>
           {openCards.types && (

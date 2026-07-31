@@ -11,6 +11,8 @@
     "untitled": "Untitled page",
     "statusLive": "Live",
     "statusDraft": "Draft",
+    "statusWillPublish": "goes live when you save",
+    "statusWillUnpublish": "hidden when you save",
     "autoConfirmBadge": "Auto-confirm",
     "manualConfirmBadge": "Needs approval",
     "confirmInfoLabel": "How appointment approval works",

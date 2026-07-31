@@ -12,6 +12,7 @@ import { useProjects } from '../../hooks/useProjects'
 import { useGoogleCalendar } from '../../hooks/useGoogleCalendar'
 import Coachmark from '../../components/Coachmark'
 import InfoPopover from '../../components/InfoPopover'
+import SelectMenu from '../../components/SelectMenu'
 import {
   DEFAULT_CONTENT, DEFAULT_AVAILABILITY, newBookingPageDraft, weekdayLabels,
   publicBookingPageUrl, normalizeSlug, isValidSlug, slugifyInput, leadPageSurface,
@@ -523,12 +524,15 @@ function BookingPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }
           </Box>
           <Box className="m-field">
             <Box as="label" className="m-label">{t('pages.projectLabel')}</Box>
-            <select className="m-select" value={draft.project_id} onChange={(e) => set({ project_id: e.target.value })}>
-              <option value="">{t('pages.projectNone')}</option>
-              {(projects || []).filter((p) => !p.deleted_at).map((p) => (
-                <option key={p.id} value={p.id}>{p.name}</option>
-              ))}
-            </select>
+            <SelectMenu
+              value={draft.project_id || ''}
+              onChange={(v) => set({ project_id: v })}
+              ariaLabel={t('pages.projectLabel')}
+              options={[
+                { value: '', label: t('pages.projectNone') },
+                ...(projects || []).filter((p) => !p.deleted_at).map((p) => ({ value: p.id, label: p.name })),
+              ]}
+            />
           </Box>
           <Box className="m-field">
             <Box as="label" className="m-label">{t('pages.slugLabel')}</Box>

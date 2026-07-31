@@ -57,6 +57,7 @@ import { useProjects } from '../../hooks/useProjects'
 import { useBookingPages } from '../../hooks/useBookingPages'
 import { useT } from '../../i18n/useT'
 import './siteBuilderI18n'
+import SelectMenu from '../../components/SelectMenu'
 import SiteRenderer from '../site-page/SiteRenderer'
 import ConfirmModal from '../../modals/ConfirmModal'
 import PageSetupWizard from '../../modals/PageSetupWizard'
@@ -857,12 +858,21 @@ function DesignPanel({ theme, setTheme, slug, onSlug, projects, projectId, onPro
           </Box>
           <Txt as="p" className="spe-note">{t('design.publicUrlHint')}</Txt>
         </Box>
-        <Box as="label" className="spe-f">
+        {/* Box, not label: SelectMenu's trigger is a <button>, and a button is
+            not a labelable element — wrapping one in a <label> buys nothing and
+            invites double activation. The name is passed as ariaLabel instead.
+            Same everywhere below. */}
+        <Box className="spe-f">
           <Txt>{t('design.project')}</Txt>
-          <select value={projectId || ''} onChange={(e) => onProject(e.target.value)}>
-            <option value="">{t('design.projectNone')}</option>
-            {(projects || []).map((p) => <option key={p.id} value={p.id}>{p.name || p.title}</option>)}
-          </select>
+          <SelectMenu
+            value={projectId || ''}
+            onChange={onProject}
+            ariaLabel={t('design.project')}
+            options={[
+              { value: '', label: t('design.projectNone') },
+              ...(projects || []).map((p) => ({ value: p.id, label: p.name || p.title })),
+            ]}
+          />
         </Box>
       </PanelGroup>
 
@@ -918,11 +928,14 @@ function DesignPanel({ theme, setTheme, slug, onSlug, projects, projectId, onPro
       </PanelGroup>
 
       <PanelGroup label={t('design.grpTypography')} open={open.type} onToggle={() => toggle('type')}>
-        <Box as="label" className="spe-f">
+        <Box className="spe-f">
           <Txt>{t('design.font')}</Txt>
-          <select value={theme.font} onChange={(e) => setTheme({ font: e.target.value })}>
-            {SITE_FONTS.map((f) => <option key={f.key} value={f.key}>{f.label}</option>)}
-          </select>
+          <SelectMenu
+            value={theme.font}
+            onChange={(v) => setTheme({ font: v })}
+            ariaLabel={t('design.font')}
+            options={SITE_FONTS.map((f) => ({ value: f.key, label: f.label }))}
+          />
         </Box>
         <Box as="label" className="spe-f spe-f-row">
           <Txt>{t('design.brandColor')}</Txt>
@@ -1003,11 +1016,16 @@ function LeadSettings({ config, setConfig }) {
       <Box as="label" className="spe-f spe-f-row"><Txt>{t('settings.autoApprove')}</Txt>
         <Input type="checkbox" checked={!!config.autoApprove} onChange={(e) => setConfig({ autoApprove: e.target.checked })} />
       </Box>
-      <Box as="label" className="spe-f"><Txt>{t('settings.afterSubmit')}</Txt>
-        <select value={ty.mode || 'message'} onChange={(e) => setTy({ mode: e.target.value })}>
-          <option value="message">{t('settings.modeMessage')}</option>
-          <option value="redirect">{t('settings.modeRedirect')}</option>
-        </select>
+      <Box className="spe-f"><Txt>{t('settings.afterSubmit')}</Txt>
+        <SelectMenu
+          value={ty.mode || 'message'}
+          onChange={(v) => setTy({ mode: v })}
+          ariaLabel={t('settings.afterSubmit')}
+          options={[
+            { value: 'message', label: t('settings.modeMessage') },
+            { value: 'redirect', label: t('settings.modeRedirect') },
+          ]}
+        />
       </Box>
       {ty.mode === 'redirect'
         ? <Box as="label" className="spe-f"><Txt>{t('settings.redirectUrl')}</Txt><Input placeholder="https://…" value={ty.url || ''} onChange={(e) => setTy({ url: e.target.value })} /></Box>
@@ -1062,14 +1080,19 @@ function SectionDesign({ style, onStyle }) {
   return (
     <Box className="spe-group">
       <Txt as="p" className="spe-group-lbl">{t('section.group', { defaultValue: 'עיצוב החלק' })}</Txt>
-      <Box as="label" className="spe-f"><Txt>{t('section.bg', { defaultValue: 'רקע החלק' })}</Txt>
-        <select value={bg} onChange={(e) => onStyle({ bg: e.target.value })}>
-          <option value="none">{t('section.bgNone', { defaultValue: 'ללא (שקוף)' })}</option>
-          <option value="tint">{t('section.bgTint', { defaultValue: 'גוון עדין' })}</option>
-          <option value="brand">{t('section.bgBrand', { defaultValue: 'גוון מותג' })}</option>
-          <option value="solid">{t('section.bgSolid', { defaultValue: 'צבע מלא' })}</option>
-          <option value="image">{t('section.bgImage', { defaultValue: 'תמונה' })}</option>
-        </select>
+      <Box className="spe-f"><Txt>{t('section.bg', { defaultValue: 'רקע החלק' })}</Txt>
+        <SelectMenu
+          value={bg}
+          onChange={(v) => onStyle({ bg: v })}
+          ariaLabel={t('section.bg', { defaultValue: 'רקע החלק' })}
+          options={[
+            { value: 'none', label: t('section.bgNone', { defaultValue: 'ללא (שקוף)' }) },
+            { value: 'tint', label: t('section.bgTint', { defaultValue: 'גוון עדין' }) },
+            { value: 'brand', label: t('section.bgBrand', { defaultValue: 'גוון מותג' }) },
+            { value: 'solid', label: t('section.bgSolid', { defaultValue: 'צבע מלא' }) },
+            { value: 'image', label: t('section.bgImage', { defaultValue: 'תמונה' }) },
+          ]}
+        />
       </Box>
       {bg === 'solid' ? (
         <Box as="label" className="spe-f spe-f-row"><Txt>{t('section.bgColor', { defaultValue: 'צבע' })}</Txt>
@@ -1090,12 +1113,15 @@ function SectionDesign({ style, onStyle }) {
           <Input type="checkbox" checked={!!st.fullBleed} onChange={(e) => onStyle({ fullBleed: e.target.checked })} />
         </Box>
       ) : null}
-      <Box as="label" className="spe-f"><Txt>{t('section.padY', { defaultValue: 'ריווח אנכי' })}</Txt>
-        <select value={st.padY || 'md'} onChange={(e) => onStyle({ padY: e.target.value })}>
-          {['none', 'sm', 'md', 'lg', 'xl'].map((p) => (
-            <option key={p} value={p}>{t('section.pad_' + p, { defaultValue: p })}</option>
-          ))}
-        </select>
+      <Box className="spe-f"><Txt>{t('section.padY', { defaultValue: 'ריווח אנכי' })}</Txt>
+        <SelectMenu
+          value={st.padY || 'md'}
+          onChange={(v) => onStyle({ padY: v })}
+          ariaLabel={t('section.padY', { defaultValue: 'ריווח אנכי' })}
+          options={['none', 'sm', 'md', 'lg', 'xl'].map((p) => ({
+            value: p, label: t('section.pad_' + p, { defaultValue: p }),
+          }))}
+        />
       </Box>
     </Box>
   )
@@ -1186,10 +1212,13 @@ function Descriptor({ d, value, targets, onChange }) {
       return <Box className="spe-f spe-f-row"><Txt>{label}</Txt><TextColorField value={value} onChange={onChange} /></Box>
     case 'select':
       return (
-        <Box as="label" className="spe-f"><Txt>{label}</Txt>
-          <select value={value || d.options[0]} onChange={(e) => onChange(e.target.value)}>
-            {d.options.map((o) => <option key={o} value={o}>{t('options.' + o, { defaultValue: o })}</option>)}
-          </select>
+        <Box className="spe-f"><Txt>{label}</Txt>
+          <SelectMenu
+            value={value || d.options[0]}
+            onChange={onChange}
+            ariaLabel={label}
+            options={d.options.map((o) => ({ value: o, label: t('options.' + o, { defaultValue: o }) }))}
+          />
         </Box>
       )
     case 'image':
@@ -1293,12 +1322,15 @@ function BookingPageField({ value, onChange }) {
   if (loading) return <Txt as="p" className="spe-note">{t('hub.loading')}</Txt>
   if (!published.length) return <Txt as="p" className="spe-note spe-err">{t('inspector.noBookingPages')}</Txt>
   return (
-    <select value={value || ''} onChange={(e) => onChange(e.target.value)}>
-      <option value="">{t('inspector.chooseBookingPage')}</option>
-      {published.map((p) => (
-        <option key={p.id} value={p.slug || p.id}>{p.title || p.slug || p.id}</option>
-      ))}
-    </select>
+    <SelectMenu
+      value={value || ''}
+      onChange={onChange}
+      /* The empty value is "nothing picked yet", not a choice you can make —
+         so it is the placeholder rather than a row in the list. */
+      placeholder={t('inspector.chooseBookingPage')}
+      ariaLabel={t('inspector.chooseBookingPage')}
+      options={published.map((p) => ({ value: p.slug || p.id, label: p.title || p.slug || p.id }))}
+    />
   )
 }
 
@@ -1426,11 +1458,16 @@ function ActionField({ value, targets, onChange }) {
     || (a.type === 'booking' && targets && !targets.booking)
   return (
     <Box className="spe-action">
-      <select value={a.type} onChange={(e) => onChange({ ...a, type: e.target.value })}>
-        <option value="link">{t('action.link')}</option>
-        <option value="scrollToForm">{t('action.scrollToForm')}</option>
-        <option value="booking">{t('action.booking')}</option>
-      </select>
+      <SelectMenu
+        value={a.type}
+        onChange={(v) => onChange({ ...a, type: v })}
+        ariaLabel={t('labels.ctaAction', { defaultValue: 'פעולת הכפתור' })}
+        options={[
+          { value: 'link', label: t('action.link') },
+          { value: 'scrollToForm', label: t('action.scrollToForm') },
+          { value: 'booking', label: t('action.booking') },
+        ]}
+      />
       {a.type === 'link' ? (
         <Input placeholder="https://…" value={a.url || ''} onChange={(e) => onChange({ ...a, url: e.target.value })} />
       ) : null}
@@ -1486,9 +1523,13 @@ function FormFieldsEditor({ value, onChange }) {
             {!f.builtin ? <Btn onClick={() => remove(i)}><Trash2 size={13} /></Btn> : null}
           </Box>
           <Box className="spe-field-row">
-            <select value={f.type} disabled={f.builtin} onChange={(e) => setField(i, { type: e.target.value, ...(isChoiceType(e.target.value) && !f.options ? { options: defaultChoiceOptions() } : {}) })}>
-              {FIELD_TYPES.map((ft) => <option key={ft} value={ft}>{t('fieldTypes.' + ft)}</option>)}
-            </select>
+            <SelectMenu
+              value={f.type}
+              disabled={f.builtin}
+              onChange={(v) => setField(i, { type: v, ...(isChoiceType(v) && !f.options ? { options: defaultChoiceOptions() } : {}) })}
+              ariaLabel={t('fields.formFields')}
+              options={FIELD_TYPES.map((ft) => ({ value: ft, label: t('fieldTypes.' + ft) }))}
+            />
             <Box as="label" className="spe-req-toggle"><Input type="checkbox" checked={!!f.required} onChange={(e) => setField(i, { required: e.target.checked })} /> {t('fields.required')}</Box>
           </Box>
           {isChoiceType(f.type) ? (

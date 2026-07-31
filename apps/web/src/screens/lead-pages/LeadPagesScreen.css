@@ -118,7 +118,68 @@
   padding: 10px 0;
   cursor: pointer;
 }
-.lpb-toggle input { margin-top: 3px; flex: none; width: 18px; height: 18px; accent-color: var(--mg-btn-primary-bg); }
+/* ── The on/off rows are switches, not checkboxes ────────────────
+   Every one of these turns a BEHAVIOUR on or off — publish the page, confirm
+   bookings automatically, write to Google — and their own hints say so out
+   loud: "כשכבוי — טיוטה, לא נגיש לציבור." A checkbox means "selected"; a switch
+   means "on". They were checkboxes, and native ones at that: `accent-color`
+   only tints the OS square, so the shape, the tick, the corner and the focus
+   ring all came from the browser and belonged to no design language at all.
+   Against photo-backed glass they read as pasted on.
+
+   `inset-inline-start` rather than left/right, so the knob travels the correct
+   way in Hebrew and in the LTR languages without a second rule. */
+.lpb-toggle input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  position: relative;
+  flex: none;
+  margin-top: 1px;
+  width: 42px;
+  height: 24px;
+  border-radius: 999px;
+  /* Derived from currentColor rather than the glass tokens on purpose. The
+     first attempt used --mg-btn-secondary-bg, which IS the panel behind it —
+     the off track vanished and left a lone white dot that read as a radio
+     button. currentColor is by definition the colour that is legible on this
+     surface, so a tint of it contrasts with the surface in either theme. */
+  border: 1px solid color-mix(in srgb, currentColor 28%, transparent);
+  background: color-mix(in srgb, currentColor 11%, transparent);
+  cursor: pointer;
+  transition: background 0.18s ease, border-color 0.18s ease;
+}
+.lpb-toggle input[type="checkbox"]::after {
+  content: '';
+  position: absolute;
+  inset-block: 2px;
+  inset-inline-start: 2px;
+  width: 18px;
+  border-radius: 50%;
+  /* Muted currentColor while off — a white knob is only right on a dark track,
+     and this one is a tint of whatever the theme reads as. */
+  background: color-mix(in srgb, currentColor 62%, transparent);
+  transition: inset-inline-start 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
+}
+.lpb-toggle input[type="checkbox"]:checked::after {
+  background: var(--on-accent);
+  box-shadow: 0 1px 3px rgba(42, 37, 32, 0.3);
+}
+.lpb-toggle input[type="checkbox"]:checked {
+  background: var(--mg-btn-primary-bg);
+  border-color: var(--mg-btn-primary-bg);
+}
+.lpb-toggle input[type="checkbox"]:checked::after { inset-inline-start: calc(100% - 22px); }
+/* The primary accent is a DARK terracotta in light mode and a LIGHT Moonglow
+   in dark mode, so what sits on top of it has to flip too — the same override
+   .m-btn-save carries. A white knob on Moonglow is very nearly invisible. */
+[data-theme="dark"] .lpb-toggle input[type="checkbox"]:checked::after {
+  background: var(--ink-on-accent);
+}
+.lpb-toggle input[type="checkbox"]:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--terracotta) 22%, transparent);
+}
+.lpb-toggle input[type="checkbox"]:disabled { cursor: default; opacity: 0.55; }
 .lpb-toggle span { display: flex; flex-direction: column; gap: 2px; }
 .lpb-toggle strong { font-weight: 600; font-size: 15px; }
 .lpb-toggle em { font-style: normal; font-size: 13px; color: var(--stone); line-height: 1.5; }

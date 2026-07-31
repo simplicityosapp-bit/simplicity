@@ -20,8 +20,10 @@ import { Box, Txt, Btn, Input } from '../components/ui'
    It asks for exactly three things and treats them differently:
      • the internal name is REQUIRED — the dialog will not close without it
      • the address is OFFERED, and "no thanks" is a real answer
-     • live-or-draft is a CHOICE, made explicitly by which button is pressed.
-       Nobody is pushed into publishing; they are pushed into deciding.
+     • live-or-draft is a CHOICE, made by which button is pressed. Nobody is
+       pushed into publishing — and leaving by the ✕, Escape or the backdrop is
+       read as the quieter answer: what was typed is saved, the page stays a
+       draft. Escaping a dialog is not how someone's work should disappear.
 
    Each builder keeps its own publish rules — a landing page needs a section, a
    booking page needs bookable availability — so `validatePublish` is passed in
@@ -43,11 +45,6 @@ export default function PageSetupWizard({
   const slugBad = !!slug.trim() && isValidSlug && !isValidSlug(slug.trim())
   const blocked = titleMissing || slugBad
 
-  /* The close routes — X, Escape, the backdrop — all land here, and all refuse
-     while something required is still empty. Everything else is optional, so
-     this is the only state that traps anyone, and it traps them on one field. */
-  const requestClose = () => { if (!blocked && !busy) onClose() }
-
   const submit = async (publish) => {
     if (blocked || busy) return
     setErr('')
@@ -66,6 +63,20 @@ export default function PageSetupWizard({
     } finally {
       setBusy(false)
     }
+  }
+
+  const dirty = title.trim() !== String(page?.title ?? '').trim()
+    || (slug.trim() || null) !== (String(page?.slug ?? '').trim() || null)
+
+  /* The close routes — X, Escape, the backdrop — all land here. They refuse
+     while something required is still empty (the one state that traps anyone,
+     and it traps them on one field), and otherwise they KEEP what was typed:
+     leaving is treated as "keep as draft", not as "throw the address away".
+     Escaping a dialog should never be how work disappears. */
+  const requestClose = () => {
+    if (blocked || busy) return
+    if (dirty) submit(false)
+    else onClose()
   }
 
   return (

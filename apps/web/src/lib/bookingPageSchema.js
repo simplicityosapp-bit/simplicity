@@ -23,7 +23,11 @@ export {
 
 /* Localized weekday labels, index 0=Sunday … 6=Saturday (JS getDay order).
    Resolves via the calendar namespace (weekdayLabels()) so the weekly editor
-   follows the active language; he keeps the original full names. */
+   follows the active language; he keeps the original full names.
+   Imported as well as re-exported — a bare `export … from` never binds the name
+   in this module's own scope, and publishMessage below needs it. */
+import { weekdayNamesLong } from '@simplicity/core'
+
 export { weekdayNamesLong as weekdayLabels } from '@simplicity/core'
 
 /* Branding + copy — same contract as lead_pages.content. */
@@ -228,6 +232,76 @@ export const previewDayTimes = (av, durationMinutes, weekday) => {
     }
   }
   return [...new Set(out)].sort()
+}
+
+/* ── Fitness to face the public ─────────────────────────────────────────────
+   Every meeting length this page can offer, resolved exactly the way
+   booking-intake resolves it: a per-page override wins, then the type's own
+   default, then the page default — and with no types picked the page offers a
+   single synthetic meeting at the page default. */
+export const offeredDurations = (draft, meetingTypes) => {
+  const def = Number(draft?.availability?.defaultDurationMinutes) || 0
+  const ids = draft?.meeting_type_ids || []
+  if (!ids.length) return [def]
+  return ids.map((id) => {
+    const override = Number(draft?.meeting_type_durations?.[id])
+    if (override > 0) return override
+    const mt = (meetingTypes || []).find((x) => x.id === id)
+    return Number(mt?.duration_minutes) > 0 ? Number(mt.duration_minutes) : def
+  })
+}
+
+/* What stops this page going live — the single answer both the builder and the
+   creation wizard ask.
+
+   It did not used to be shared, and the wizard simply never asked: it checked
+   the name, the address and reversed windows, and would happily publish a page
+   whose every window was shorter than the shortest meeting it offered. That
+   page goes live offering NOTHING, the visitor meets an empty calendar, and the
+   owner has no way to know. The builder had refused to publish exactly that
+   since the day findUnbookableDay was written.
+
+   Returns null when the page is fit, else { code, params } — a key and its
+   numbers, never a sentence, so the wording stays in the locale files and both
+   hosts say the same thing. `params.day` is a weekday INDEX; the caller
+   localises it. */
+export const publishBlocker = (draft, meetingTypes) => {
+  const weekly = draft?.availability?.weekly || {}
+  const anyAvail = Object.values(weekly).some((w) => Array.isArray(w) && w.length > 0)
+  if (!anyAvail) return { code: 'errNoAvailability' }
+  /* Checked only against going live: while it is a draft the windows and the
+     durations are still being typed, in whichever order suits the typist. */
+  const shortest = Math.min(...offeredDurations(draft, meetingTypes))
+  const unbookable = findUnbookableDay(draft.availability, shortest)
+  if (unbookable) {
+    return {
+      code: 'errWindowShorterThanMeeting',
+      params: { day: unbookable.day, minutes: shortest, window: unbookable.longest },
+    }
+  }
+  return null
+}
+
+/* The blocker as a sentence, in the caller's language. Lives beside the rule so
+   the builder and the wizard cannot end up describing the same fault two ways.
+   Pass the `booking` namespace's own `t`. */
+export const publishMessage = (blocker, t) => {
+  if (!blocker) return null
+  if (blocker.code === 'errNoAvailability') return t('pages.errNoAvailability')
+  const { day, minutes, window: longest } = blocker.params
+  return t('pages.errWindowShorterThanMeeting', {
+    day: weekdayLabel(day), minutes, window: longest,
+  })
+}
+
+/* weekdayNamesLong() resolves through i18n, and the app loads languages lazily
+   — ask before the calendar namespace is in and it hands back the key string
+   rather than an array. Indexing that gives undefined; indexing an undefined
+   throws. Either way the page's one useful warning would turn into a crash, so
+   this degrades to the number instead. */
+const weekdayLabel = (day) => {
+  const names = weekdayNamesLong()
+  return Array.isArray(names) && names[day] ? names[day] : String(day)
 }
 
 /* The duration (minutes) of a meeting type, falling back to the page default. */

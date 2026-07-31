@@ -1,7 +1,6 @@
 {
   "minutes": "{{count}} min",
   "pages": {
-    "headCount": "{{count}} páginas",
     "screenTitle": "Páginas de reserva",
     "newPage": "Página nueva",
     "backToCalendar": "Volver al calendario",
@@ -23,7 +22,6 @@
     "edit": "Editar",
     "deleteLabel": "Eliminar",
     "copyFailed": "No se pudo copiar automáticamente — selecciona y copia el enlace manualmente.",
-    "newPageTitle": "Página nueva",
     "editPageTitle": "Editar página",
     "back": "Volver",
     "settings": "Ajustes",
@@ -93,7 +91,6 @@
     "copyDayApplyEmpty": "Elige días",
     "copyDayApply_one": "Copiar a 1 día",
     "copyDayApply_other": "Copiar a {{count}} días",
-    "newTypeDialogLabel": "Tipo de reunión nuevo",
     "newTypeDialogTitle": "Tipo de reunión nuevo",
     "newTypeNamePlaceholder": "p. ej.: Llamada de presentación",
     "adding": "Agregando…",
@@ -114,7 +111,6 @@
     "deleteConfirmDraft": "La página se eliminará. Puedes restaurarla justo después.",
     "deleteConfirmLive": "Esta página está activa — al eliminarla deja de estar en línea y quien abra el enlace no la encontrará. Puedes restaurarla justo después.",
     "slotIntervalInfo": "Cada cuánto se ofrece una hora de inicio. 30 = 9:00, 9:30, 10:00…",
-    "defaultDurationInfo": "Cuánto dura una reunión que no tiene duración propia. Cada tipo de reunión puede fijar la suya.",
     "bufferInfo": "Tiempo que queda libre después de cada reunión, para que no se reserven citas seguidas.",
     "minNoticeInfo": "Con cuánta antelación hay que reservar. 12 = las próximas 12 horas no se pueden ocupar.",
     "maxDaysInfo": "Hasta cuándo se puede reservar. 60 = dos meses por delante.",

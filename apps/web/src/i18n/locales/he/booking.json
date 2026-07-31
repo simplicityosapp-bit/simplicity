@@ -1,7 +1,6 @@
 {
   "minutes": "{{count}} דק׳",
   "pages": {
-    "headCount": "{{count}} דפים",
     "screenTitle": "דפי קביעת פגישות",
     "newPage": "דף חדש",
     "backToCalendar": "חזרה ליומן",
@@ -25,7 +24,6 @@
     "edit": "עריכה",
     "deleteLabel": "מחיקה",
     "copyFailed": "לא ניתן להעתיק אוטומטית — סמנו והעתיקו את הקישור ידנית.",
-    "newPageTitle": "דף חדש",
     "editPageTitle": "עריכת דף",
     "back": "חזרה",
     "settings": "הגדרות",
@@ -99,7 +97,6 @@
     "copyDayApply_two": "העתקה לשני ימים",
     "copyDayApply_many": "העתקה ל־{{count}} ימים",
     "copyDayApply_other": "העתקה ל־{{count}} ימים",
-    "newTypeDialogLabel": "סוג פגישה חדש",
     "newTypeDialogTitle": "סוג פגישה חדש",
     "newTypeNamePlaceholder": "לדוגמה: שיחת היכרות",
     "adding": "מוסיף…",
@@ -122,7 +119,6 @@
     "deleteConfirmDraft": "הדף יימחק. אפשר לשחזר מיד אחרי המחיקה.",
     "deleteConfirmLive": "הדף פעיל — מחיקה מורידה אותו מהאוויר ומי שיפתח את הקישור לא ימצא אותו. אפשר לשחזר מיד אחרי המחיקה.",
     "slotIntervalInfo": "כל כמה דקות מוצעת שעת התחלה. 30 = 9:00, 9:30, 10:00…",
-    "defaultDurationInfo": "כמה זמן נמשכת פגישה שאין לה משך משלה. אפשר לקבוע משך אחר לכל סוג פגישה ברשימה למעלה.",
     "bufferInfo": "זמן שנשמר פנוי אחרי כל פגישה, כדי שלא ייקבע תור צמוד לתור.",
     "minNoticeInfo": "כמה זמן מראש חייבים להזמין. 12 = אי אפשר לתפוס תור ל-12 השעות הקרובות.",
     "maxDaysInfo": "עד כמה רחוק קדימה אפשר לקבוע. 60 = חודשיים קדימה.",

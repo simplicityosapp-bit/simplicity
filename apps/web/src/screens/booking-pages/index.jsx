@@ -20,7 +20,7 @@ import MeetingTypesPicker from './MeetingTypesPicker'
 import {
   DEFAULT_CONTENT, DEFAULT_AVAILABILITY, newBookingPageDraft, weekdayLabels,
   publicBookingPageUrl, normalizeSlug, isValidSlug, slugifyInput, leadPageSurface,
-  findUnbookableDay,
+  publishBlocker, publishMessage,
   sanitizeAvailability, findInvalidWindow,
 } from '../../lib/bookingPageSchema'
 import { GROW_ENABLED } from '../../lib/grow'
@@ -315,46 +315,14 @@ function BookingPageBuilder({ page, onUpdate, onBack }) {
     return { ...d, meeting_type_durations: next }
   })
 
-  /* Every meeting length this page can offer, resolved exactly the way
-     booking-intake resolves it: a per-page override wins, then the type's own
-     default, then the page default — and with no types picked the page offers a
-     single synthetic meeting at the page default. */
-  const offeredDurations = () => {
-    const def = Number(draft.availability.defaultDurationMinutes) || 0
-    const ids = draft.meeting_type_ids
-    if (!ids.length) return [def]
-    return ids.map((id) => {
-      const override = Number(draft.meeting_type_durations[id])
-      if (override > 0) return override
-      const mt = availTypes.find((x) => x.id === id)
-      return Number(mt?.duration_minutes) > 0 ? Number(mt.duration_minutes) : def
-    })
-  }
-
   const dayWindows = (day) => {
     const w = draft.availability.weekly?.[day]
     return Array.isArray(w) ? w : []
   }
-  /* Everything that must hold before this page may face the public, in one place
-     — the save path and the setup wizard's publish button ask the same question
-     and get the same sentence back. Returns a message, or null when it is fit
-     to go live. */
-  const publishProblem = () => {
-    const anyAvail = weekdayLabels().some((_, d) => dayWindows(d).length > 0)
-    if (!anyAvail) return t('pages.errNoAvailability')
-    /* A day whose windows are all shorter than the shortest meeting on offer
-       produces nothing, silently — see findUnbookableDay. Checked only against
-       going live: while it is a draft the windows and the durations are still
-       being typed, in whichever order suits the person typing them. */
-    const shortest = Math.min(...offeredDurations())
-    const unbookable = findUnbookableDay(draft.availability, shortest)
-    if (unbookable) {
-      return t('pages.errWindowShorterThanMeeting', {
-        day: weekdayLabels()[unbookable.day], minutes: shortest, window: unbookable.longest,
-      })
-    }
-    return null
-  }
+  /* Everything that must hold before this page may face the public — the rule
+     itself lives in bookingPageSchema so the creation wizard asks the identical
+     question. All that happens here is turning its answer into a sentence. */
+  const publishProblem = () => publishMessage(publishBlocker(draft, availTypes), t)
 
   const openDayCount = weekdayLabels().filter((_, d) => dayWindows(d).length > 0).length
 
@@ -575,7 +543,7 @@ function BookingPageBuilder({ page, onUpdate, onBack }) {
                 dir="ltr"
                 value={draft.slug}
                 onChange={(e) => set({ slug: slugifyInput(e.target.value) })}
-                placeholder="dana-coaching"
+                placeholder={t('pages.slugPlaceholder')}
                 maxLength={40}
               />
             </Box>

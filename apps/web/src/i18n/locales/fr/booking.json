@@ -1,7 +1,6 @@
 {
   "minutes": "{{count}} min",
   "pages": {
-    "headCount": "{{count}} pages",
     "screenTitle": "Pages de réservation",
     "newPage": "Nouvelle page",
     "backToCalendar": "Retour au calendrier",
@@ -23,7 +22,6 @@
     "edit": "Modifier",
     "deleteLabel": "Supprimer",
     "copyFailed": "Impossible de copier automatiquement — sélectionnez et copiez le lien manuellement.",
-    "newPageTitle": "Nouvelle page",
     "editPageTitle": "Modifier la page",
     "back": "Retour",
     "settings": "Paramètres",
@@ -93,7 +91,6 @@
     "copyDayApplyEmpty": "Choisissez des jours",
     "copyDayApply_one": "Copier vers 1 jour",
     "copyDayApply_other": "Copier vers {{count}} jours",
-    "newTypeDialogLabel": "Nouveau type de réunion",
     "newTypeDialogTitle": "Nouveau type de réunion",
     "newTypeNamePlaceholder": "ex. : Appel de présentation",
     "adding": "Ajout…",
@@ -114,7 +111,6 @@
     "deleteConfirmDraft": "La page sera supprimée. Vous pourrez la restaurer juste après.",
     "deleteConfirmLive": "Cette page est active — la supprimer la retire du web, et quiconque ouvre le lien ne la trouvera pas. Vous pourrez la restaurer juste après.",
     "slotIntervalInfo": "À quelle fréquence une heure de début est proposée. 30 = 9:00, 9:30, 10:00…",
-    "defaultDurationInfo": "Durée d'un rendez-vous qui n'a pas la sienne. Chaque type ci-dessus peut définir la sienne.",
     "bufferInfo": "Temps laissé libre après chaque rendez-vous, pour ne jamais enchaîner deux réservations.",
     "minNoticeInfo": "Combien de temps à l'avance il faut réserver. 12 = les 12 prochaines heures sont bloquées.",
     "maxDaysInfo": "Jusqu'où l'on peut réserver. 60 = deux mois à l'avance.",

@@ -77,9 +77,3 @@ export const isProvisionalTitle = (title, base) => {
   if (!s) return true
   return s === base || new RegExp(`^${base.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')} \\d+$`).test(s)
 }
-
-/* Which steps are behind you — for the progress rail. A step counts as done
-   once you have moved past it, never by guessing from its contents: a coach who
-   deliberately offers no meeting types has finished step 1, and a rail that
-   argued otherwise would be nagging about a decision they already made. */
-export const stepsDone = (current) => WIZARD_STEPS.slice(0, Math.max(0, stepIndex(current)))

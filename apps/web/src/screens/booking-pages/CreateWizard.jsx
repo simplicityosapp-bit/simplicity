@@ -311,6 +311,7 @@ export default function BookingCreateWizard({ takenTitles, onAdd, onUpdate, onEx
                 onChange={(e) => set({ title: e.target.value })}
                 placeholder={t('pages.internalNamePlaceholder')}
               />
+              <Txt as="p" className="lbl-sm">{t('pages.internalNameHint')}</Txt>
             </Box>
             <Box className="m-field">
               <Box as="label" className="m-label">{t('pages.slugLabel')}</Box>

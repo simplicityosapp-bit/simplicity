@@ -228,6 +228,19 @@
      the width. Wrapped onto its own line here it had nothing to split against
      and grew to 264px beside a 53px neighbour. */
   .lpe-topbar-actions .m-btn-save { flex: none; }
+
+  /* Save and publish exist twice — here, and again at the foot of the form.
+     That was worth a row of header back when the builder ran to 3,000px and the
+     two ends were far apart. It no longer does: with the config cards folded it
+     is about 920px, so the copies at the bottom are a short scroll away, while
+     this row was costing 138px of a 495px phone screen — over a quarter of it,
+     permanently, on every builder visit.
+
+     The pair at the foot of the form is the one that stays: the end of a form
+     is where people look for its save button. Desktop keeps both — there the
+     header is a single line and costs nothing. */
+  .lpe-topbar-actions .bk-save-draft,
+  .lpe-topbar-actions .m-btn-save { display: none; }
 }
 .lpe-settings-btn {
   display: inline-flex; align-items: center; gap: 6px;

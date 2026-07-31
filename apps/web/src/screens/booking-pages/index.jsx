@@ -502,6 +502,7 @@ function BookingPageBuilder({ page, onUpdate, onBack }) {
           <Box className="m-field">
             <Box as="label" className="m-label">{t('pages.internalNameLabel')} <Txt className="bk-req" title={t('pages.requiredField')}>*</Txt></Box>
             <Input className="m-input" required aria-required="true" value={draft.title} onChange={(e) => set({ title: e.target.value })} placeholder={t('pages.internalNamePlaceholder')} />
+            <Txt as="p" className="lbl-sm">{t('pages.internalNameHint')}</Txt>
           </Box>
           <Box className="lpe-settings-row">
             <Box as="label" className="lpb-toggle">

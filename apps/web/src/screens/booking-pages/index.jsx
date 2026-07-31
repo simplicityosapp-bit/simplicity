@@ -417,6 +417,9 @@ function BookingPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }
     else showError(t('pages.copyFailed'))
   }
 
+  /* Everything before the part they type — taken from publicBookingPageUrl so
+     it cannot drift from the route the page actually answers on. */
+  const slugPrefix = publicBookingPageUrl('').replace(/^https?:\/\//, '')
   const c = draft.content
   const { style: canvasStyle, cls: surfaceCls } = leadPageSurface(c)
   const canvasClass = `lpe-canvas lp-surface${surfaceCls ? ` ${surfaceCls}` : ''}`
@@ -459,8 +462,8 @@ function BookingPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }
       {showSettings && (
         <Box className="lpe-settings">
           <Box className="m-field">
-            <Box as="label" className="m-label">{t('pages.internalNameLabel')}</Box>
-            <Input className="m-input" value={draft.title} onChange={(e) => set({ title: e.target.value })} placeholder={t('pages.internalNamePlaceholder')} />
+            <Box as="label" className="m-label">{t('pages.internalNameLabel')} <Txt className="bk-req" title={t('pages.requiredField')}>*</Txt></Box>
+            <Input className="m-input" required aria-required="true" value={draft.title} onChange={(e) => set({ title: e.target.value })} placeholder={t('pages.internalNamePlaceholder')} />
           </Box>
           <Box className="lpe-settings-row">
             <Box as="label" className="lpb-toggle">
@@ -516,7 +519,7 @@ function BookingPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }
           <Box className="m-field">
             <Box as="label" className="m-label">{t('pages.slugLabel')}</Box>
             <Box className="lpe-slug-row">
-              <Txt className="lpe-slug-prefix mono" dir="ltr">{window.location.host}/book/</Txt>
+              <Txt className="lpe-slug-prefix mono" dir="ltr">{slugPrefix}</Txt>
               <Input
                 className="m-input lpe-slug-input"
                 dir="ltr"

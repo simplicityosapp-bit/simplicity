@@ -2,7 +2,6 @@
   "minutes": "{{count}} min",
   "pages": {
     "headCount": "{{count}} pages",
-    "headSubtitle": "Pages de réservation publiques, synchronisées avec votre calendrier",
     "screenTitle": "Pages de réservation",
     "newPage": "Nouvelle page",
     "backToCalendar": "Retour au calendrier",
@@ -102,7 +101,8 @@
     "defaultDurationInfo": "Durée d'un rendez-vous qui n'a pas la sienne. Chaque type ci-dessus peut définir la sienne.",
     "bufferInfo": "Temps laissé libre après chaque rendez-vous, pour ne jamais enchaîner deux réservations.",
     "minNoticeInfo": "Combien de temps à l'avance il faut réserver. 12 = les 12 prochaines heures sont bloquées.",
-    "maxDaysInfo": "Jusqu'où l'on peut réserver. 60 = deux mois à l'avance."
+    "maxDaysInfo": "Jusqu'où l'on peut réserver. 60 = deux mois à l'avance.",
+    "requiredField": "Champ obligatoire"
   },
   "publicPage": {
     "loading": "Chargement…",
@@ -140,7 +140,6 @@
     "colorSwatch": "Couleur {{hex}}",
     "background": "Arrière-plan",
     "bgNone": "Aucun",
-    "cardTransparency": "Transparence de la carte",
     "cardBlur": "Flou de l'arrière-plan",
     "cardCorners": "Coins de la carte",
     "radius_sharp": "Nets",
@@ -152,6 +151,7 @@
     "light": "Clair",
     "textAlign": "Alignement du texte",
     "alignStart": "Début",
-    "alignCenter": "Centre"
+    "alignCenter": "Centre",
+    "cardOpacity": "Opacité de la carte"
   }
 }

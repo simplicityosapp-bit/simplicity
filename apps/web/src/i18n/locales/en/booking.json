@@ -2,7 +2,6 @@
   "minutes": "{{count}} min",
   "pages": {
     "headCount": "{{count}} pages",
-    "headSubtitle": "Public booking pages, synced to your calendar",
     "screenTitle": "Booking pages",
     "newPage": "New page",
     "backToCalendar": "Back to calendar",
@@ -102,7 +101,8 @@
     "defaultDurationInfo": "How long a meeting runs when it has no length of its own. Each meeting type above can set its own.",
     "bufferInfo": "Time kept clear after every meeting, so appointments are never booked back to back.",
     "minNoticeInfo": "How far ahead someone must book. 12 = the next 12 hours cannot be taken.",
-    "maxDaysInfo": "How far into the future booking is open. 60 = two months ahead."
+    "maxDaysInfo": "How far into the future booking is open. 60 = two months ahead.",
+    "requiredField": "Required field"
   },
   "publicPage": {
     "loading": "Loading…",
@@ -140,7 +140,6 @@
     "colorSwatch": "Colour {{hex}}",
     "background": "Background",
     "bgNone": "None",
-    "cardTransparency": "Card transparency",
     "cardBlur": "Background blur",
     "cardCorners": "Card corners",
     "radius_sharp": "Sharp",
@@ -152,6 +151,7 @@
     "light": "Light",
     "textAlign": "Text alignment",
     "alignStart": "Start",
-    "alignCenter": "Centre"
+    "alignCenter": "Centre",
+    "cardOpacity": "Card opacity"
   }
 }

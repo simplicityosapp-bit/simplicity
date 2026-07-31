@@ -120,9 +120,12 @@ export default function DesignToolbox({ content, onChange }) {
 
           <Box className="dtb-group">
             <Box className="lpe-slider-row">
-              <Txt className="lpe-design-lbl">{t('toolbox.cardTransparency')}</Txt>
-              <Input type="range" min="0" max="100" value={100 - (c.cardOpacity ?? 100)} onChange={(e) => set({ cardOpacity: 100 - Number(e.target.value) })} />
-              <Txt className="lpe-slider-val mono">{100 - (c.cardOpacity ?? 100)}%</Txt>
+              {/* Opacity, said as opacity. It used to be labelled "שקיפות" over an
+                  inverted value — true, but the pages builder calls the same control
+                  "אטימות", and one idea should not have two words across two builders. */}
+              <Txt className="lpe-design-lbl">{t('toolbox.cardOpacity')}</Txt>
+              <Input type="range" min="0" max="100" value={c.cardOpacity ?? 100} onChange={(e) => set({ cardOpacity: Number(e.target.value) })} />
+              <Txt className="lpe-slider-val mono">{c.cardOpacity ?? 100}%</Txt>
             </Box>
             <Box className="lpe-slider-row">
               <Txt className="lpe-design-lbl">{t('toolbox.cardBlur')}</Txt>

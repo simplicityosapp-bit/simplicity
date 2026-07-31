@@ -118,7 +118,9 @@
     "provisionalTitle": "New page",
     "presetPrompt": "Working the usual days?",
     "presetWorkweek": "Sun–Thu 09:00–17:00",
-    "advancedTitle": "Advanced settings"
+    "advancedTitle": "Advanced settings",
+    "statusInSetup": "In setup",
+    "resumeSetup": "Continue setup"
   },
   "publicPage": {
     "loading": "Loading…",
@@ -215,6 +217,11 @@
     "doneLiveSub": "This is the address to send to clients. Everything stays editable.",
     "doneDraftSub": "It is waiting as a draft. Publish it when you are ready and the address will work.",
     "viewPage": "View page",
-    "advancedEdit": "Advanced editing"
+    "advancedEdit": "Advanced editing",
+    "leaveTitle": "Leave the setup?",
+    "leaveBody": "The page is already saved as a draft. You can stop here and come back to exactly this point, or delete it and start fresh next time.",
+    "leaveKeep": "Save and leave",
+    "leaveDiscard": "Delete the page",
+    "leaveStay": "Back to setup"
   }
 }

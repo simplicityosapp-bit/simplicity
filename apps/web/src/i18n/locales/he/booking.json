@@ -126,7 +126,9 @@
     "provisionalTitle": "דף חדש",
     "presetPrompt": "עובדים בימים הרגילים?",
     "presetWorkweek": "א׳–ה׳ 09:00–17:00",
-    "advancedTitle": "הגדרות מתקדמות"
+    "advancedTitle": "הגדרות מתקדמות",
+    "statusInSetup": "בהגדרה",
+    "resumeSetup": "המשך הגדרה"
   },
   "publicPage": {
     "loading": "טוען…",
@@ -223,6 +225,11 @@
     "doneLiveSub": "זו הכתובת לשלוח ללקוחות. אפשר לשנות הכל בכל רגע.",
     "doneDraftSub": "הוא מחכה כטיוטה. כשתהיו מוכנים — פרסמו אותו והכתובת תעבוד.",
     "viewPage": "צפייה בדף",
-    "advancedEdit": "עריכה מתקדמת"
+    "advancedEdit": "עריכה מתקדמת",
+    "leaveTitle": "לצאת מההגדרה?",
+    "leaveBody": "הדף כבר נשמר כטיוטה. אפשר לעצור כאן ולחזור בדיוק לאותו מקום, או למחוק אותו ולהתחיל מחדש בפעם הבאה.",
+    "leaveKeep": "שמירה ויציאה",
+    "leaveDiscard": "מחיקת הדף",
+    "leaveStay": "חזרה להגדרה"
   }
 }

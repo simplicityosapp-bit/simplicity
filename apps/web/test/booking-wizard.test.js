@@ -19,6 +19,7 @@ import {
 } from '../src/lib/bookingWizard'
 import {
   newBookingPageDraft, EMPTY_WEEKLY, WORKWEEK_WEEKLY, applyWorkweek,
+  draftFromPage, pausedAtStep, WIZARD_STEP_KEY,
 } from '../src/lib/bookingPageSchema'
 
 const HOURS = [{ start: '09:00', end: '17:00' }]
@@ -149,5 +150,44 @@ describe('the name a page carries before it is named', () => {
   it('leaves a real name alone', () => {
     expect(isProvisionalTitle('פגישות היכרות', 'דף חדש')).toBe(false)
     expect(isProvisionalTitle('דף חדש לגמרי', 'דף חדש')).toBe(false)
+  })
+})
+
+describe('parking a page mid-setup', () => {
+  it('reports no step for a page nobody paused', () => {
+    expect(pausedAtStep({ content: {} })).toBeNull()
+    expect(pausedAtStep({})).toBeNull()
+    expect(pausedAtStep(null)).toBeNull()
+  })
+
+  it('reads back the step it was parked at', () => {
+    expect(pausedAtStep({ content: { [WIZARD_STEP_KEY]: 'after' } })).toBe('after')
+  })
+
+  it('rebuilds the draft from the parked page, so nothing is retyped', () => {
+    const page = {
+      title: 'פגישות היכרות',
+      auto_confirm: true,
+      meeting_type_ids: ['a'],
+      availability: { weekly: { ...EMPTY_WEEKLY, 1: [{ start: '10:00', end: '14:00' }] } },
+      content: { heading: 'שלום', [WIZARD_STEP_KEY]: 'look' },
+    }
+    const draft = draftFromPage(page)
+    expect(draft.title).toBe('פגישות היכרות')
+    expect(draft.auto_confirm).toBe(true)
+    expect(draft.meeting_type_ids).toEqual(['a'])
+    expect(openDays(draft.availability.weekly)).toBe(1)
+    expect(draft.content.heading).toBe('שלום')
+  })
+
+  it('keeps the parked step inside content, where the round-trip preserves it', () => {
+    /* content is a jsonb blob both editors write back whole — that is the only
+       reason this needs no column and no migration. If draftFromPage ever
+       stopped spreading page.content, resuming would silently forget. */
+    expect(draftFromPage({ content: { [WIZARD_STEP_KEY]: 'when' } }).content[WIZARD_STEP_KEY]).toBe('when')
+  })
+
+  it('gives a fresh page no parked step', () => {
+    expect(pausedAtStep({ content: newBookingPageDraft().content })).toBeNull()
   })
 })

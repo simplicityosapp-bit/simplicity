@@ -118,7 +118,9 @@
     "provisionalTitle": "Nouvelle page",
     "presetPrompt": "Vous travaillez les jours habituels ?",
     "presetWorkweek": "Dim–Jeu 09:00–17:00",
-    "advancedTitle": "Réglages avancés"
+    "advancedTitle": "Réglages avancés",
+    "statusInSetup": "En configuration",
+    "resumeSetup": "Continuer la configuration"
   },
   "publicPage": {
     "loading": "Chargement…",
@@ -215,6 +217,11 @@
     "doneLiveSub": "Voici l’adresse à envoyer à vos clients. Tout reste modifiable.",
     "doneDraftSub": "Elle attend en brouillon. Publiez-la quand vous voulez et l’adresse fonctionnera.",
     "viewPage": "Voir la page",
-    "advancedEdit": "Édition avancée"
+    "advancedEdit": "Édition avancée",
+    "leaveTitle": "Quitter la configuration ?",
+    "leaveBody": "La page est déjà enregistrée comme brouillon. Vous pouvez vous arrêter ici et revenir exactement à ce point, ou la supprimer et repartir de zéro la prochaine fois.",
+    "leaveKeep": "Enregistrer et quitter",
+    "leaveDiscard": "Supprimer la page",
+    "leaveStay": "Revenir à la configuration"
   }
 }

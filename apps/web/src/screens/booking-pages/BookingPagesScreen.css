@@ -763,3 +763,43 @@
   text-align: start;
 }
 .bk-connect-link:hover { text-decoration: underline; }
+
+/* ── Leaving the wizard: two doors, named ───────────────────────── */
+.bk-leave-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  margin-top: 20px;
+}
+.bk-leave-actions .m-btn-save,
+.bk-leave-actions .m-btn-cancel { flex: none; width: 100%; }
+/* The destructive door: clay, but as an outline rather than a fill, so it is
+   findable without competing with the one most people want. */
+.bk-leave-discard {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  width: 100%;
+  height: var(--mg-btn-h);
+  border-radius: var(--mg-btn-radius);
+  border: 1px solid color-mix(in srgb, var(--clay) 45%, transparent);
+  background: none;
+  font-family: var(--mg-font);
+  font-size: calc(15px * var(--text-scale));
+  font-weight: 500;
+  color: var(--clay-on-dark);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.bk-leave-discard:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--clay) 10%, transparent);
+  border-color: color-mix(in srgb, var(--clay) 70%, transparent);
+}
+.bk-leave-discard:disabled { opacity: 0.5; cursor: default; }
+
+/* A page parked mid-setup, in the list. */
+.lpm-badge.is-paused {
+  background: color-mix(in srgb, var(--terracotta) 20%, transparent);
+  color: inherit;
+}

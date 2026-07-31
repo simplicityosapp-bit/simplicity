@@ -18,9 +18,9 @@ import BookingCreateWizard from './CreateWizard'
 import AvailabilityEditor from './AvailabilityEditor'
 import MeetingTypesPicker from './MeetingTypesPicker'
 import {
-  DEFAULT_CONTENT, DEFAULT_AVAILABILITY, newBookingPageDraft, weekdayLabels,
+  weekdayLabels,
   publicBookingPageUrl, normalizeSlug, isValidSlug, slugifyInput, leadPageSurface,
-  publishBlocker, publishMessage,
+  publishBlocker, publishMessage, draftFromPage, pausedAtStep,
   sanitizeAvailability, findInvalidWindow,
 } from '../../lib/bookingPageSchema'
 import { GROW_ENABLED } from '../../lib/grow'
@@ -66,13 +66,20 @@ export default function BookingPagesScreen() {
   /* Creating and editing are different jobs. Creating is one pass through
      decisions nobody has made yet — that gets the wizard. Editing is almost
      always about one thing, so it opens the whole builder where that one thing
-     is reachable without walking five steps to it. */
-  if (editingId === 'new') {
+     is reachable without walking five steps to it.
+
+     A page someone walked out of mid-wizard is neither: it goes back to the
+     wizard, at the step they left, until they finish it. */
+  const resuming = editingId && editingId !== 'new' ? editing : null
+  if (editingId === 'new' || pausedAtStep(resuming)) {
     return (
       <BookingCreateWizard
+        key={editingId}
+        resumePage={resuming}
         takenTitles={(pages || []).map((p) => p.title)}
         onAdd={addPage}
         onUpdate={updatePage}
+        onDiscard={removePage}
         onExit={() => setEditingId(null)}
         onOpenBuilder={(row) => setEditingId(row?.id ?? null)}
       />
@@ -149,6 +156,7 @@ function PageCard({ page, onEdit, onDelete }) {
   const { t } = useT('booking')
   const [copied, setCopied] = useState(false)
   const [confirmDel, setConfirmDel] = useState(false)
+  const paused = !!pausedAtStep(page)
   const url = publicBookingPageUrl(page.slug || page.id)
   const copy = async () => {
     if (await copyText(url)) { setCopied(true); setTimeout(() => setCopied(false), 1600) }
@@ -159,7 +167,11 @@ function PageCard({ page, onEdit, onDelete }) {
       <Box className="lpm-card-main">
         <Txt as="p" className="lpm-card-title">{page.title?.trim() || t('pages.untitled')}</Txt>
         <Box className="lpm-badges">
-          <Txt className={`lpm-badge${page.published ? ' is-live' : ''}`}>{page.published ? t('pages.statusLive') : t('pages.statusDraft')}</Txt>
+          {/* A page left mid-setup says so, otherwise it sits in the list looking
+              like any other draft and the way back into it is invisible. */}
+          {paused
+            ? <Txt className="lpm-badge is-paused">{t('pages.statusInSetup')}</Txt>
+            : <Txt className={`lpm-badge${page.published ? ' is-live' : ''}`}>{page.published ? t('pages.statusLive') : t('pages.statusDraft')}</Txt>}
           {page.auto_confirm
             ? <Txt className="lpm-badge is-auto">{t('pages.autoConfirmBadge')}</Txt>
             : <Txt className="lpm-badge">{t('pages.manualConfirmBadge')}</Txt>}
@@ -182,7 +194,7 @@ function PageCard({ page, onEdit, onDelete }) {
             </Lnk>
           </>
         )}
-        <Btn type="button" className="lpm-edit-btn" onClick={onEdit}>{t('pages.edit')}</Btn>
+        <Btn type="button" className="lpm-edit-btn" onClick={onEdit}>{paused ? t('pages.resumeSetup') : t('pages.edit')}</Btn>
         <Btn type="button" className="lpm-icon-btn danger" onClick={() => setConfirmDel(true)} aria-label={t('pages.deleteLabel')} title={t('pages.deleteLabel')}>
           <Trash2 size={16} strokeWidth={1.7} />
         </Btn>
@@ -207,27 +219,6 @@ function PageCard({ page, onEdit, onDelete }) {
 }
 
 /* ── Builder ─────────────────────────────────────────────────────────── */
-/* The builder's starting draft. Module-scoped so the unsaved-work guard can take
-   its own snapshot of exactly the same starting point (see `baseline` below)
-   without the two definitions drifting apart. */
-function draftFromPage(page) {
-  if (!page) return newBookingPageDraft()
-  return {
-    title: page.title ?? '',
-    published: !!page.published,
-    auto_confirm: !!page.auto_confirm,
-    require_payment: !!page.require_payment,
-    write_to_google: !!page.write_to_google,
-    invite_client: !!page.invite_client,
-    project_id: page.project_id ?? '',
-    slug: page.slug ?? '',
-    content: { ...DEFAULT_CONTENT, ...(page.content || {}), thankYou: { ...DEFAULT_CONTENT.thankYou, ...(page.content?.thankYou || {}) } },
-    availability: { ...DEFAULT_AVAILABILITY, ...(page.availability || {}), weekly: { ...DEFAULT_AVAILABILITY.weekly, ...((page.availability || {}).weekly || {}) } },
-    meeting_type_ids: Array.isArray(page.meeting_type_ids) ? page.meeting_type_ids : [],
-    meeting_type_durations: (page.meeting_type_durations && typeof page.meeting_type_durations === 'object') ? page.meeting_type_durations : {},
-  }
-}
-
 function BookingPageBuilder({ page, onUpdate, onBack }) {
   const { t } = useT('booking')
   const navigate = useNavigate()

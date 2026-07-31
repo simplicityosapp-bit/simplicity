@@ -781,3 +781,39 @@
   .bk-wiz-actions .m-btn-cancel,
   .bk-wiz-actions .m-btn-save { flex: 1 1 0; justify-content: center; }
 }
+
+/* ── The fallback meeting length, said in place ─────────────────── */
+.bk-fallback-dur {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(44, 38, 33, 0.08);
+}
+.bk-fallback-text { font-size: var(--mg-caption); opacity: 0.78; }
+
+.bk-newtype-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+}
+.bk-newtype-row .m-input { flex: 1 1 auto; min-width: 0; }
+
+/* The way out of the Google Calendar dead end. Quiet — it is an aside to a
+   switch someone cannot use yet, not an action competing with the page. */
+.bk-connect-link {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 2px 0;
+  border: 0;
+  background: none;
+  font-size: var(--mg-caption);
+  font-weight: 500;
+  color: var(--sage);
+  cursor: pointer;
+  text-align: start;
+}
+.bk-connect-link:hover { text-decoration: underline; }

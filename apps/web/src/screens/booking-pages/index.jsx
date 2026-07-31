@@ -16,6 +16,7 @@ import SelectMenu from '../../components/SelectMenu'
 import BookingPreview from './BookingPreview'
 import BookingCreateWizard from './CreateWizard'
 import AvailabilityEditor from './AvailabilityEditor'
+import MeetingTypesPicker from './MeetingTypesPicker'
 import {
   DEFAULT_CONTENT, DEFAULT_AVAILABILITY, newBookingPageDraft, weekdayLabels,
   publicBookingPageUrl, normalizeSlug, isValidSlug, slugifyInput, leadPageSurface,
@@ -83,11 +84,8 @@ export default function BookingPagesScreen() {
       <BookingPageBuilder
         key={editingId}
         page={editing}
-        isNew={editingId === 'new'}
-        onAdd={addPage}
         onUpdate={updatePage}
         onBack={() => setEditingId(null)}
-        onSavedNew={(row) => setEditingId(row.id)}
       />
     )
   }
@@ -212,8 +210,8 @@ function PageCard({ page, onEdit, onDelete }) {
 /* The builder's starting draft. Module-scoped so the unsaved-work guard can take
    its own snapshot of exactly the same starting point (see `baseline` below)
    without the two definitions drifting apart. */
-function draftFromPage(page, isNew) {
-  if (isNew || !page) return newBookingPageDraft()
+function draftFromPage(page) {
+  if (!page) return newBookingPageDraft()
   return {
     title: page.title ?? '',
     published: !!page.published,
@@ -230,9 +228,10 @@ function draftFromPage(page, isNew) {
   }
 }
 
-function BookingPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }) {
+function BookingPageBuilder({ page, onUpdate, onBack }) {
   const { t } = useT('booking')
-  const [draft, setDraft] = useState(() => draftFromPage(page, isNew))
+  const navigate = useNavigate()
+  const [draft, setDraft] = useState(() => draftFromPage(page))
   const { projects } = useProjects()
   const { types, addType } = useMeetingTypes()
   const { status: gcalStatus } = useGoogleCalendar()
@@ -247,13 +246,13 @@ function BookingPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }
     if (err) errRef.current?.scrollIntoView({ block: 'center', behavior: 'smooth' })
   }, [err])
   const [copied, setCopied] = useState(false)
-  const [showSettings, setShowSettings] = useState(isNew)
+  const [showSettings, setShowSettings] = useState(false)
   /* Creating a page is one ~2,500px form. Making it once, top to bottom, is the
      job — so a NEW page opens with everything expanded. Coming back to an
      existing page is almost always about one thing, so the two config cards
      start folded and their headers carry the count that answers "is it still
      set up right?" without opening anything. */
-  const [openCards, setOpenCards] = useState({ types: isNew, availability: isNew })
+  const [openCards, setOpenCards] = useState({ types: false, availability: false })
   /* Unsaved-work guard. This builder holds the whole page in local state and had
      nothing protecting it: no beforeunload, no route guard, and "ביטול"/"חזרה"
      dropped the draft without a word — the same hole the pages builder had. There
@@ -263,16 +262,12 @@ function BookingPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }
      State, not a ref: `dirty` is read during render, and a ref read there would
      never trigger the re-render that turns the guard on. The component is keyed
      by the page being edited, so this initialiser runs once per page. */
-  const [baseline, setBaseline] = useState(() => JSON.stringify(draftFromPage(page, isNew)))
+  const [baseline, setBaseline] = useState(() => JSON.stringify(draftFromPage(page)))
   const [pendingLeave, setPendingLeave] = useState(null)
   const [preview, setPreview] = useState(false)   // the visitor's view, from the draft
   const [setupFor, setSetupFor] = useState(null)   // { row, next } — the setup wizard, after a save
   const draftJson = useMemo(() => JSON.stringify(draft), [draft])
   const dirty = draftJson !== baseline
-  // In-app "new meeting type" dialog (replaces window.prompt, blocked on mobile).
-  const [newTypeOpen, setNewTypeOpen] = useState(false)
-  const [newTypeName, setNewTypeName] = useState('')
-  const [addingType, setAddingType] = useState(false)
 
   /* Browser refresh / tab close. */
   useEffect(() => {
@@ -293,6 +288,12 @@ function BookingPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }
 
   /* Every way out of the builder that isn't "save" goes through the guard. */
   const leave = () => { if (confirmLeave(onBack)) onBack() }
+  /* Including this one: the guard hooks the nav bars, not navigate() itself, so
+     a raw call here would walk out with the draft still unsaved and say nothing. */
+  const goConnectCalendar = () => {
+    const go = () => navigate(ROUTES.CONNECTION_CALENDAR)
+    if (confirmLeave(go)) go()
+  }
 
   const set = (patch) => setDraft((d) => ({ ...d, ...patch }))
   const setContent = (patch) => setDraft((d) => ({ ...d, content: { ...d.content, ...patch } }))
@@ -357,19 +358,6 @@ function BookingPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }
 
   const openDayCount = weekdayLabels().filter((_, d) => dayWindows(d).length > 0).length
 
-  const openNewType = () => { setNewTypeName(''); setNewTypeOpen(true) }
-  const submitNewType = async () => {
-    if (addingType) return
-    const name = newTypeName.trim()
-    if (!name) return
-    setAddingType(true)
-    try {
-      const row = await addType({ name, sort_order: availTypes.length, duration_minutes: draft.availability.defaultDurationMinutes })
-      toggleType(row.id)
-      setNewTypeOpen(false)
-    } catch (e) { setErr(t('pages.errAddTypeFailed', { error: e.message || '' })) }
-    finally { setAddingType(false) }
-  }
 
   /* `publishNow` = the top-bar publish action: it saves AND takes the page live
      in one press, so publishing isn't a checkbox you can tick and forget to save.
@@ -414,18 +402,13 @@ function BookingPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }
       ),
     }
     try {
-      /* A page that has just been stored still may not be set up: no address, so
-         the link is a uuid — and on the block-engine side, no name either. The
-         wizard asks once, here, before the builder hands the screen back. */
-      if (isNew) {
-        const row = await onAdd(payload)
-        if (needsSetupWizard(row, { firstSave: true })) setSetupFor({ row, next: () => onSavedNew(row) })
-        else onSavedNew(row)
-      } else {
-        const row = (await onUpdate(page.id, payload)) || { ...payload, id: page.id }
-        if (needsSetupWizard(row)) setSetupFor({ row, next: onBack })
-        else onBack()
-      }
+      /* The builder only ever edits an existing page now — creating one goes
+         through the wizard, which asks for the name and the address as its own
+         last step. What remains is the older page that never got either: the
+         setup prompt still catches it on the way out. */
+      const row = (await onUpdate(page.id, payload)) || { ...payload, id: page.id }
+      if (needsSetupWizard(row)) setSetupFor({ row, next: onBack })
+      else onBack()
     } catch (e) {
       setShowSettings(true)
       if (e?.code === '23505' || /duplicate|unique|idx_booking_pages_slug/i.test(e?.message || '')) {
@@ -467,7 +450,7 @@ function BookingPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }
         <Btn type="button" className="lp-back-link" onClick={leave}>
           <ArrowRight size={16} strokeWidth={1.7} aria-hidden="true" /> {t('pages.back')}
         </Btn>
-        <Txt className="lpe-topbar-title">{draft.title.trim() || (isNew ? t('pages.newPageTitle') : t('pages.editPageTitle'))}</Txt>
+        <Txt className="lpe-topbar-title">{draft.title.trim() || t('pages.editPageTitle')}</Txt>
         <Box className="lpe-topbar-actions">
           {/* Whether the page is live was only knowable by opening "הגדרות" and
               reading a checkbox. It is the first thing about a page, so it says
@@ -555,6 +538,14 @@ function BookingPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }
                   : t('pages.writeToGoogleHintDisconnected')}</em>
               </Txt>
             </Box>
+            {/* A disabled tick and a sentence saying why is only half an answer:
+                it named the obstacle and left the coach to find the way round it
+                from memory. */}
+            {!gcalConnected && (
+              <Btn type="button" className="bk-connect-link" onClick={goConnectCalendar}>
+                {t('pages.connectGoogle')}
+              </Btn>
+            )}
             {gcalConnected && draft.write_to_google && (
               <Box as="label" className="lpb-toggle">
                 <Input type="checkbox" checked={draft.invite_client} onChange={(e) => set({ invite_client: e.target.checked })} />
@@ -686,43 +677,21 @@ function BookingPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }
               <Txt className="bk-config-count">{draft.meeting_type_ids.length || 1}</Txt>
             </Btn>
           </Txt>
-          {openCards.types && (
-            <Btn type="button" className="bk-mini-btn" onClick={openNewType}><Plus size={14} strokeWidth={1.9} /> {t('pages.newType')}</Btn>
-          )}
         </Box>
         {!openCards.types ? null : (
-        <>
-        <Txt as="p" className="lbl-sm">{t('pages.meetingTypesHint')}</Txt>
-        {availTypes.length === 0 ? (
-          <Txt as="p" className="bk-empty-note">{t('pages.meetingTypesEmpty')}</Txt>
-        ) : (
-          <Box className="bk-type-list">
-            {availTypes.map((mt) => {
-              const on = draft.meeting_type_ids.includes(mt.id)
-              return (
-                <Box key={mt.id} className={`bk-type-row${on ? ' on' : ''}`}>
-                  <Box as="label" className="bk-type-pick">
-                    <Input type="checkbox" checked={on} onChange={() => toggleType(mt.id)} />
-                    <Txt className="bk-type-name">{mt.name}</Txt>
-                  </Box>
-                  <Box className="bk-type-dur">
-                    <Clock size={14} strokeWidth={1.6} aria-hidden="true" />
-                    <Input
-                      type="number" min="5" step="5"
-                      className="bk-dur-input"
-                      value={draft.meeting_type_durations[mt.id] ?? ''}
-                      placeholder={String(mt.duration_minutes || draft.availability.defaultDurationMinutes)}
-                      onChange={(e) => setTypeDuration(mt.id, e.target.value)}
-                      aria-label={t('pages.typeDurationAria', { name: mt.name })}
-                    />
-                    <Txt className="bk-dur-unit">{t('pages.durationUnit')}</Txt>
-                  </Box>
-                </Box>
-              )
-            })}
-          </Box>
-        )}
-        </>
+          <>
+            <Txt as="p" className="lbl-sm">{t('pages.meetingTypesHint')}</Txt>
+            <MeetingTypesPicker
+              meetingTypes={availTypes}
+              selectedIds={draft.meeting_type_ids}
+              durations={draft.meeting_type_durations}
+              defaultDuration={draft.availability.defaultDurationMinutes}
+              onToggle={toggleType}
+              onSetDuration={setTypeDuration}
+              onSetDefaultDuration={(minutes) => setDraft((d) => ({ ...d, availability: { ...d.availability, defaultDurationMinutes: minutes } }))}
+              onAddType={addType}
+            />
+          </>
         )}
       </Box>
 
@@ -803,40 +772,6 @@ function BookingPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }
           <Btn type="button" className="m-btn-save" onClick={() => save({ publishNow: true })} disabled={busy}>{t('pages.publishNow')}</Btn>
         )}
       </Box>
-
-      {newTypeOpen && (
-        <Box
-          className="bk-tm-overlay"
-          dir="rtl"
-          role="dialog"
-          aria-modal="true"
-          aria-label={t('pages.newTypeDialogLabel')}
-          onClick={(e) => { if (e.target === e.currentTarget && !addingType) setNewTypeOpen(false) }}
-        >
-          <Box className="bk-tm-card">
-            <Txt as="h3" className="bk-tm-title">{t('pages.newTypeDialogTitle')}</Txt>
-            <Input
-              className="bk-tm-input"
-              type="text"
-              value={newTypeName}
-              autoFocus
-              maxLength={60}
-              placeholder={t('pages.newTypeNamePlaceholder')}
-              onChange={(e) => setNewTypeName(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') { e.preventDefault(); submitNewType() }
-                if (e.key === 'Escape' && !addingType) setNewTypeOpen(false)
-              }}
-            />
-            <Box className="bk-tm-actions">
-              <Btn type="button" className="m-btn-cancel" onClick={() => setNewTypeOpen(false)} disabled={addingType}>{t('pages.cancel')}</Btn>
-              <Btn type="button" className="m-btn-save" onClick={submitNewType} disabled={addingType || !newTypeName.trim()}>
-                {addingType ? t('pages.adding') : t('pages.add')}
-              </Btn>
-            </Box>
-          </Box>
-        </Box>
-      )}
     </Box>
   )
 }

@@ -27,6 +27,10 @@
     "add-meeting": {
       "bubble": "Planifiez votre premier rendez-vous",
       "detail": "Les rendez-vous du calendrier se synchronisent avec vos clients et apparaissent dans les rappels de votre écran d'accueil."
+    },
+    "add-booking-page": {
+      "bubble": "Créez une page de rendez-vous",
+      "detail": "Une page publique où vos clients choisissent le jour et l’heure parmi vos disponibilités — le rendez-vous arrive dans votre agenda sans échanges inutiles."
     }
   },
   "tour": {

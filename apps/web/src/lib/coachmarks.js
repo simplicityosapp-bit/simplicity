@@ -29,7 +29,11 @@ i18n.addResourceBundle('en', 'guidance', enGuidance, true, false)
 i18n.addResourceBundle('es', 'guidance', esGuidance, true, false)
 i18n.addResourceBundle('fr', 'guidance', frGuidance, true, false)
 
-const COACHMARK_IDS = ['add-task', 'add-lead', 'add-lead-page', 'add-project', 'add-goal', 'add-transaction', 'add-meeting']
+/* An id absent from here resolves to empty strings, and <Coachmark> renders the
+   glow but suppresses the bubble — which is how the booking screen ended up
+   with a button that beckoned and then said nothing. If you wrap a button in a
+   Coachmark, its id belongs in this list and its copy in guidance.json. */
+const COACHMARK_IDS = ['add-task', 'add-lead', 'add-lead-page', 'add-booking-page', 'add-project', 'add-goal', 'add-transaction', 'add-meeting']
 
 export function coachmarkText(id, gender) {
   if (!COACHMARK_IDS.includes(id)) return { bubble: '', detail: '' }

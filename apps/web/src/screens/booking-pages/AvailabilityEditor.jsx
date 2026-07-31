@@ -49,9 +49,11 @@ export default function AvailabilityEditor({ availability, onChange }) {
 
   const nothingOpen = openDays(av.weekly) === 0
 
+  /* defaultDurationMinutes is deliberately absent: it moved to the meeting-types
+     list, which is the only place its value is visible. It stays part of
+     `availability` in the data — only the control moved. */
   const NUMBERS = [
     { key: 'slotMinutes', label: 'slotIntervalLabel', info: 'slotIntervalInfo', min: 5, step: 5 },
-    { key: 'defaultDurationMinutes', label: 'defaultDurationLabel', info: 'defaultDurationInfo', min: 5, step: 5 },
     { key: 'bufferMinutes', label: 'bufferLabel', info: 'bufferInfo', min: 0, step: 5 },
     { key: 'minNoticeHours', label: 'minNoticeLabel', info: 'minNoticeInfo', min: 0, step: 1 },
     { key: 'maxDaysAhead', label: 'maxDaysLabel', info: 'maxDaysInfo', min: 1, step: 1 },

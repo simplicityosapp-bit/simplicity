@@ -341,6 +341,110 @@
   transition: border-color 0.14s ease, box-shadow 0.14s ease;
 }
 .bk-window-sep { opacity: 0.55; }
+
+/* ── Copy this day's hours to other days ──────────────────────────
+   A quiet offer, not a fourth button competing with the day's own controls:
+   it repeats on every open day, so it stays caption-sized and muted until
+   hovered. Same grown hit area as its neighbours — it paints small on
+   purpose, but it is still a tap target on a phone. */
+.bk-day-copy {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  position: relative;
+  margin-top: 2px;
+  padding: 2px 0;
+  border: 0;
+  background: none;
+  font-size: var(--mg-caption);
+  font-weight: 500;
+  color: inherit;
+  opacity: 0.62;
+  cursor: pointer;
+  transition: opacity 0.14s ease;
+}
+.bk-day-copy:hover { opacity: 1; }
+.bk-day-copy::after {
+  content: '';
+  position: absolute;
+  inset-inline: -8px;
+  inset-block: -8px;
+}
+
+/* The dialog. Every row answers "what does this day hold now?", because the
+   copy REPLACES it — the sentence in the hint and the hours in each row are
+   the same promise said twice, once in words and once in the data. */
+.bk-copy-src {
+  font-family: var(--mg-font-num);
+  font-size: var(--mg-body);
+  font-weight: 600;
+}
+.bk-copy-hint {
+  margin-top: 4px;
+  font-size: var(--mg-caption);
+  opacity: 0.7;
+  line-height: 1.5;
+}
+.bk-copy-tools {
+  display: flex;
+  gap: 14px;
+  margin-top: 12px;
+}
+.bk-copy-tool {
+  padding: 2px 0;
+  border: 0;
+  background: none;
+  font-size: var(--mg-caption);
+  font-weight: 500;
+  color: inherit;
+  opacity: 0.72;
+  cursor: pointer;
+  transition: opacity 0.14s ease;
+}
+.bk-copy-tool:hover:not(:disabled) { opacity: 1; }
+.bk-copy-tool:disabled { opacity: 0.3; cursor: default; }
+
+.bk-copy-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: 10px;
+}
+/* A whole row is the target, not just the box — the day name and its hours are
+   the parts a finger aims for. */
+.bk-copy-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background 0.14s ease;
+}
+.bk-copy-row:hover { background: var(--mg-btn-secondary-bg); }
+.bk-copy-row.on { background: var(--mg-btn-secondary-bg-hover); }
+.bk-copy-row input[type="checkbox"] {
+  width: 17px;
+  height: 17px;
+  flex: 0 0 auto;
+  accent-color: var(--sage);
+  cursor: pointer;
+}
+.bk-copy-day { font-size: var(--mg-body); font-weight: 500; }
+.bk-copy-now {
+  margin-inline-start: auto;
+  font-family: var(--mg-font-num);
+  font-size: var(--mg-caption);
+  opacity: 0.62;
+  text-align: end;
+}
+.bk-copy-warn {
+  flex: 0 0 auto;
+  font-size: var(--mg-caption);
+  font-weight: 500;
+  color: var(--clay-on-dark);
+}
 /* Same grown target for the ✕ that removes a window (it paints 32px). Scoped to
    the booking rows so the shared .lpe-ctrl-btn elsewhere is untouched. */
 .bk-window .lpe-ctrl-btn { position: relative; }

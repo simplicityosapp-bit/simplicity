@@ -114,7 +114,11 @@
     "bufferInfo": "Temps laissé libre après chaque rendez-vous, pour ne jamais enchaîner deux réservations.",
     "minNoticeInfo": "Combien de temps à l'avance il faut réserver. 12 = les 12 prochaines heures sont bloquées.",
     "maxDaysInfo": "Jusqu'où l'on peut réserver. 60 = deux mois à l'avance.",
-    "requiredField": "Champ obligatoire"
+    "requiredField": "Champ obligatoire",
+    "provisionalTitle": "Nouvelle page",
+    "presetPrompt": "Vous travaillez les jours habituels ?",
+    "presetWorkweek": "Dim–Jeu 09:00–17:00",
+    "advancedTitle": "Réglages avancés"
   },
   "publicPage": {
     "loading": "Chargement…",
@@ -172,5 +176,45 @@
     "defaultType": "Rendez-vous",
     "noTimes": "Aucun créneau ne sera proposé — aucune plage n’est assez longue pour un rendez-vous de {{minutes}} min. Élargissez une plage ou raccourcissez le rendez-vous.",
     "note": "Voici ce que verra la personne qui ouvre le lien. Les horaires viennent de vos disponibilités hebdomadaires — sur la vraie page, les créneaux déjà réservés et le temps occupé dans votre agenda connecté ne sont pas affichés."
+  },
+  "wizard": {
+    "leave": "Quitter",
+    "back": "Retour",
+    "next": "Suivant",
+    "finishStep": "Terminer",
+    "finish": "Terminé",
+    "step": {
+      "offer": "Ce que vous proposez",
+      "when": "Vos disponibilités",
+      "look": "L’apparence",
+      "after": "Après la réservation",
+      "publish": "Publication"
+    },
+    "title": {
+      "offer": "Quels rendez-vous proposez-vous ?",
+      "when": "Quand êtes-vous disponible ?",
+      "look": "À quoi ressemblera la page ?",
+      "after": "Que se passe-t-il après une réservation ?",
+      "publish": "Où la page vivra-t-elle ?"
+    },
+    "sub": {
+      "offer": "Choisissez les types de rendez-vous visibles par les visiteurs et leur durée. Vous pouvez passer : la page proposera alors un rendez-vous de durée habituelle.",
+      "when": "Indiquez les jours et heures où l’on peut réserver. Seul ce que vous cochez ici est proposé.",
+      "look": "Le titre et le texte de la page. Vous pouvez tout laisser tel quel et le modifier plus tard.",
+      "after": "Ce qui se passe au moment de la réservation, et ce que la personne voit juste après.",
+      "publish": "Le nom est pour vous seul. L’adresse est ce que vous envoyez à vos clients."
+    },
+    "noTypes": "Vous n’avez pas encore de types de rendez-vous. Ajoutez-en un ici, ou passez : la page proposera un rendez-vous de durée habituelle.",
+    "needsHours": "Aucune heure choisie pour l’instant. Sans au moins une journée ouverte, personne ne pourra réserver.",
+    "needsName": "La page a besoin d’un nom pour terminer. Il est pour vous seul et n’est jamais affiché.",
+    "publishQuestion": "Publier la page maintenant ?",
+    "publishYes": "Oui, la rendre accessible tout de suite",
+    "publishNo": "Pas encore — enregistrer comme brouillon",
+    "doneLive": "Votre page est en ligne",
+    "doneDraft": "Votre page est enregistrée",
+    "doneLiveSub": "Voici l’adresse à envoyer à vos clients. Tout reste modifiable.",
+    "doneDraftSub": "Elle attend en brouillon. Publiez-la quand vous voulez et l’adresse fonctionnera.",
+    "viewPage": "Voir la page",
+    "advancedEdit": "Édition avancée"
   }
 }

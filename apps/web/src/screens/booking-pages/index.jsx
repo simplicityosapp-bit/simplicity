@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import {
-  ArrowRight, Plus, Trash2, Copy, Check, ExternalLink, Settings, Link2, X, ChevronDown, Eye, EyeOff,
+  ArrowRight, Plus, Trash2, Copy, Check, ExternalLink, Settings, Link2, ChevronDown, Eye, EyeOff,
   Clock, CalendarClock,
 } from 'lucide-react'
 import { useBookingPages } from '../../hooks/useBookingPages'
@@ -14,10 +14,12 @@ import Coachmark from '../../components/Coachmark'
 import InfoPopover from '../../components/InfoPopover'
 import SelectMenu from '../../components/SelectMenu'
 import BookingPreview from './BookingPreview'
+import BookingCreateWizard from './CreateWizard'
+import AvailabilityEditor from './AvailabilityEditor'
 import {
   DEFAULT_CONTENT, DEFAULT_AVAILABILITY, newBookingPageDraft, weekdayLabels,
   publicBookingPageUrl, normalizeSlug, isValidSlug, slugifyInput, leadPageSurface,
-  findUnbookableDay, copyDayWindows, describeWindows,
+  findUnbookableDay,
   sanitizeAvailability, findInvalidWindow,
 } from '../../lib/bookingPageSchema'
 import { GROW_ENABLED } from '../../lib/grow'
@@ -26,7 +28,6 @@ import { ROUTES } from '../../lib/routes'
 import { copyText } from '../../lib/clipboard'
 import { setLeaveGuard, clearLeaveGuard, confirmLeave } from '../../lib/leaveGuard'
 import ConfirmModal from '../../modals/ConfirmModal'
-import Modal from '../../modals/Modal'
 import PageSetupWizard from '../../modals/PageSetupWizard'
 import { needsSetupWizard } from '../../lib/pageSetup'
 import { showError } from '../../lib/toast'
@@ -60,6 +61,22 @@ export default function BookingPagesScreen() {
   /* Free tier gets ONE booking page — manage it freely, but creating a second
      is gated. Infinity while billing isn't enforced → never blocks. */
   const atLimit = (pages?.length || 0) >= limits.bookingPages
+
+  /* Creating and editing are different jobs. Creating is one pass through
+     decisions nobody has made yet — that gets the wizard. Editing is almost
+     always about one thing, so it opens the whole builder where that one thing
+     is reachable without walking five steps to it. */
+  if (editingId === 'new') {
+    return (
+      <BookingCreateWizard
+        takenTitles={(pages || []).map((p) => p.title)}
+        onAdd={addPage}
+        onUpdate={updatePage}
+        onExit={() => setEditingId(null)}
+        onOpenBuilder={(row) => setEditingId(row?.id ?? null)}
+      />
+    )
+  }
 
   if (editingId) {
     return (
@@ -280,8 +297,6 @@ function BookingPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }
   const set = (patch) => setDraft((d) => ({ ...d, ...patch }))
   const setContent = (patch) => setDraft((d) => ({ ...d, content: { ...d.content, ...patch } }))
   const setThankYou = (patch) => setDraft((d) => ({ ...d, content: { ...d.content, thankYou: { ...d.content.thankYou, ...patch } } }))
-  const setAvail = (patch) => setDraft((d) => ({ ...d, availability: { ...d.availability, ...patch } }))
-  const setWeekly = (day, windows) => setDraft((d) => ({ ...d, availability: { ...d.availability, weekly: { ...d.availability.weekly, [day]: windows } } }))
 
   const availTypes = (types || []).filter((t) => !t.deleted_at)
   const toggleType = (id) => setDraft((d) => {
@@ -341,27 +356,6 @@ function BookingPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }
   }
 
   const openDayCount = weekdayLabels().filter((_, d) => dayWindows(d).length > 0).length
-  const addWindow = (day) => setWeekly(day, [...dayWindows(day), { start: '09:00', end: '17:00' }])
-  const updateWindow = (day, i, patch) => setWeekly(day, dayWindows(day).map((w, idx) => (idx === i ? { ...w, ...patch } : w)))
-  const removeWindow = (day, i) => setWeekly(day, dayWindows(day).filter((_, idx) => idx !== i))
-
-  /* Sunday to Thursday is one set of hours typed five times. The dialog opens
-     on the day being copied FROM, starts with nothing ticked (this replaces
-     hours, so it asks rather than assumes), and shows each day's current hours
-     so nothing is overwritten unseen. Applied to the draft only — the save
-     button is still the thing that commits it. */
-  const [copyFrom, setCopyFrom] = useState(null)
-  const [copyTo, setCopyTo] = useState([])
-  const openCopy = (day) => { setCopyTo([]); setCopyFrom(day) }
-  const closeCopy = () => setCopyFrom(null)
-  const toggleCopyTo = (day) => setCopyTo((s) => (s.includes(day) ? s.filter((d) => d !== day) : [...s, day]))
-  const applyCopy = () => {
-    setDraft((d) => ({
-      ...d,
-      availability: { ...d.availability, weekly: copyDayWindows(d.availability.weekly, copyFrom, copyTo) },
-    }))
-    closeCopy()
-  }
 
   const openNewType = () => { setNewTypeName(''); setNewTypeOpen(true) }
   const submitNewType = async () => {
@@ -748,67 +742,10 @@ function BookingPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }
           </Txt>
         </Box>
         {!openCards.availability ? null : (
-        <>
-        <Box className="bk-settings-grid">
-          <Box as="label" className="bk-num-field">
-            <Txt className="bk-num-label">{t('pages.slotIntervalLabel')}<InfoPopover label={t('pages.slotIntervalLabel')} text={t('pages.slotIntervalInfo')} /></Txt>
-            <Input type="number" min="5" step="5" value={draft.availability.slotMinutes} onChange={(e) => setAvail({ slotMinutes: Number(e.target.value) })} />
-          </Box>
-          <Box as="label" className="bk-num-field">
-            <Txt className="bk-num-label">{t('pages.defaultDurationLabel')}<InfoPopover label={t('pages.defaultDurationLabel')} text={t('pages.defaultDurationInfo')} /></Txt>
-            <Input type="number" min="5" step="5" value={draft.availability.defaultDurationMinutes} onChange={(e) => setAvail({ defaultDurationMinutes: Number(e.target.value) })} />
-          </Box>
-          <Box as="label" className="bk-num-field">
-            <Txt className="bk-num-label">{t('pages.bufferLabel')}<InfoPopover label={t('pages.bufferLabel')} text={t('pages.bufferInfo')} /></Txt>
-            <Input type="number" min="0" step="5" value={draft.availability.bufferMinutes} onChange={(e) => setAvail({ bufferMinutes: Number(e.target.value) })} />
-          </Box>
-          <Box as="label" className="bk-num-field">
-            <Txt className="bk-num-label">{t('pages.minNoticeLabel')}<InfoPopover label={t('pages.minNoticeLabel')} text={t('pages.minNoticeInfo')} /></Txt>
-            <Input type="number" min="0" step="1" value={draft.availability.minNoticeHours} onChange={(e) => setAvail({ minNoticeHours: Number(e.target.value) })} />
-          </Box>
-          <Box as="label" className="bk-num-field">
-            <Txt className="bk-num-label">{t('pages.maxDaysLabel')}<InfoPopover label={t('pages.maxDaysLabel')} text={t('pages.maxDaysInfo')} /></Txt>
-            <Input type="number" min="1" step="1" value={draft.availability.maxDaysAhead} onChange={(e) => setAvail({ maxDaysAhead: Number(e.target.value) })} />
-          </Box>
-        </Box>
-
-        <Box className="bk-week">
-          {weekdayLabels().map((label, day) => {
-            const windows = dayWindows(day)
-            const open = windows.length > 0
-            return (
-              <Box key={day} className={`bk-day${open ? ' open' : ''}`}>
-                <Box className="bk-day-head">
-                  <Txt className="bk-day-name">{label}</Txt>
-                  {open ? (
-                    <Btn type="button" className="bk-mini-btn" onClick={() => addWindow(day)}><Plus size={13} strokeWidth={1.9} /> {t('pages.addWindow')}</Btn>
-                  ) : (
-                    <Btn type="button" className="bk-day-add" onClick={() => addWindow(day)}>{t('pages.addAvailability')}</Btn>
-                  )}
-                </Box>
-                {open && (
-                  <Box className="bk-windows">
-                    {windows.map((w, i) => (
-                      <Box className="bk-window" key={i}>
-                        <Input type="time" value={w.start} onChange={(e) => updateWindow(day, i, { start: e.target.value })} />
-                        <Txt className="bk-window-sep">–</Txt>
-                        <Input type="time" value={w.end} onChange={(e) => updateWindow(day, i, { end: e.target.value })} />
-                        <Btn type="button" className="lpe-ctrl-btn danger" onClick={() => removeWindow(day, i)} aria-label={t('pages.removeWindowLabel')}><X size={14} /></Btn>
-                      </Box>
-                    ))}
-                    {/* Sits under the hours it copies, not up in the day head:
-                        there is room for the whole sentence here, and no fight
-                        with the day name for taps on a narrow screen. */}
-                    <Btn type="button" className="bk-day-copy" onClick={() => openCopy(day)}>
-                      <Copy size={12} strokeWidth={1.9} aria-hidden="true" /> {t('pages.copyDayBtn')}
-                    </Btn>
-                  </Box>
-                )}
-              </Box>
-            )
-          })}
-        </Box>
-        </>
+          <AvailabilityEditor
+            availability={draft.availability}
+            onChange={(availability) => setDraft((d) => ({ ...d, availability }))}
+          />
         )}
       </Box>
 
@@ -839,44 +776,6 @@ function BookingPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }
           }}
           onClose={() => { const next = setupFor.next; setSetupFor(null); next?.() }}
         />
-      ) : null}
-
-      {copyFrom != null ? (
-        <Modal open onClose={closeCopy} title={t('pages.copyDayTitle', { day: weekdayLabels()[copyFrom] })}>
-          <Txt as="p" className="bk-copy-src">{describeWindows(dayWindows(copyFrom))}</Txt>
-          <Txt as="p" className="bk-copy-hint">{t('pages.copyDayHint')}</Txt>
-          <Box className="bk-copy-tools">
-            <Btn type="button" className="bk-copy-tool" onClick={() => setCopyTo(weekdayLabels().map((_, d) => d).filter((d) => d !== copyFrom))}>
-              {t('pages.copyDaySelectAll')}
-            </Btn>
-            <Btn type="button" className="bk-copy-tool" onClick={() => setCopyTo([])} disabled={!copyTo.length}>
-              {t('pages.copyDayClear')}
-            </Btn>
-          </Box>
-          <Box className="bk-copy-list">
-            {weekdayLabels().map((label, day) => {
-              if (day === copyFrom) return null
-              const current = describeWindows(dayWindows(day))
-              const checked = copyTo.includes(day)
-              return (
-                <Box as="label" key={day} className={`bk-copy-row${checked ? ' on' : ''}`}>
-                  <Input type="checkbox" checked={checked} onChange={() => toggleCopyTo(day)} />
-                  <Txt className="bk-copy-day">{label}</Txt>
-                  {/* What this day holds right now — so "replaced" is a thing
-                      the coach can see, not a warning they have to imagine. */}
-                  <Txt className="bk-copy-now">{current || t('pages.copyDayClosed')}</Txt>
-                  {checked && current ? <Txt className="bk-copy-warn">{t('pages.copyDayWillReplace')}</Txt> : null}
-                </Box>
-              )
-            })}
-          </Box>
-          <Box className="m-actions">
-            <Btn type="button" className="m-btn-cancel" onClick={closeCopy}>{t('pages.cancel')}</Btn>
-            <Btn type="button" className="m-btn-save" onClick={applyCopy} disabled={!copyTo.length}>
-              {copyTo.length ? t('pages.copyDayApply', { count: copyTo.length }) : t('pages.copyDayApplyEmpty')}
-            </Btn>
-          </Box>
-        </Modal>
       ) : null}
 
       {pendingLeave ? (

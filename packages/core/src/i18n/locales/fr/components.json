@@ -116,5 +116,22 @@
       "lead": "Bonjour {{name}}, ",
       "payment": "Bonjour {{name}}, il reste un solde impayé de {{balance}}. Nous vous serions reconnaissants de le régler — merci !"
     }
+  },
+  "pageSetup": {
+    "title": "Presque prêt",
+    "intro": "Deux détails qui évitent des confusions plus tard — puis vous déciderez de la mettre en ligne ou non.",
+    "nameLabel": "Nom de la page (interne)",
+    "namePlaceholder": "ex. Premier rendez-vous",
+    "nameHint": "Uniquement pour la reconnaître dans la liste. Les clients ne le voient pas.",
+    "addressLabel": "Adresse de la page",
+    "addressHint": "C’est le lien que vous partagerez. Laissé vide, le lien restera long et aléatoire.",
+    "addressInvalid": "Adresse invalide — en anglais uniquement, sans espaces, de 3 à 40 caractères.",
+    "required": "Champ obligatoire",
+    "blocked": "La page a besoin d’un nom pour continuer.",
+    "keepDraft": "Garder en brouillon",
+    "publish": "Publier",
+    "save": "Enregistrer",
+    "saving": "Enregistrement…",
+    "saveFailed": "Échec de l’enregistrement. Réessayez."
   }
 }

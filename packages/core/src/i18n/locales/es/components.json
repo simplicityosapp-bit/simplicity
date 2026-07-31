@@ -116,5 +116,22 @@
       "lead": "Hola {{name}}, ",
       "payment": "Hola {{name}}, hay un saldo pendiente de {{balance}}. Te agradeceríamos que lo liquidaras — ¡gracias!"
     }
+  },
+  "pageSetup": {
+    "title": "Casi listo",
+    "intro": "Dos detalles que evitan confusiones más adelante — y luego decides si publicarla.",
+    "nameLabel": "Nombre de la página (interno)",
+    "namePlaceholder": "p. ej. Llamada inicial",
+    "nameHint": "Solo para distinguirla en la lista. Los clientes no lo ven.",
+    "addressLabel": "Dirección de la página",
+    "addressHint": "Es el enlace que compartirás. Si lo dejas vacío, el enlace será largo y aleatorio.",
+    "addressInvalid": "Dirección no válida — solo en inglés, sin espacios, de 3 a 40 caracteres.",
+    "required": "Campo obligatorio",
+    "blocked": "La página necesita un nombre para continuar.",
+    "keepDraft": "Dejar como borrador",
+    "publish": "Publicar",
+    "save": "Guardar",
+    "saving": "Guardando…",
+    "saveFailed": "Error al guardar. Inténtalo de nuevo."
   }
 }

@@ -24,6 +24,8 @@ import { ROUTES } from '../../lib/routes'
 import { copyText } from '../../lib/clipboard'
 import { setLeaveGuard, clearLeaveGuard, confirmLeave } from '../../lib/leaveGuard'
 import ConfirmModal from '../../modals/ConfirmModal'
+import PageSetupWizard from '../../modals/PageSetupWizard'
+import { needsSetupWizard } from '../../lib/pageSetup'
 import { showError } from '../../lib/toast'
 import { useT } from '../../i18n/useT'
 import './bookingI18n'                     // self-registers the 'booking' namespace
@@ -243,6 +245,7 @@ function BookingPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }
      by the page being edited, so this initialiser runs once per page. */
   const [baseline, setBaseline] = useState(() => JSON.stringify(draftFromPage(page, isNew)))
   const [pendingLeave, setPendingLeave] = useState(null)
+  const [setupFor, setSetupFor] = useState(null)   // { row, next } — the setup wizard, after a save
   const draftJson = useMemo(() => JSON.stringify(draft), [draft])
   const dirty = draftJson !== baseline
   // In-app "new meeting type" dialog (replaces window.prompt, blocked on mobile).
@@ -312,6 +315,27 @@ function BookingPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }
     const w = draft.availability.weekly?.[day]
     return Array.isArray(w) ? w : []
   }
+  /* Everything that must hold before this page may face the public, in one place
+     — the save path and the setup wizard's publish button ask the same question
+     and get the same sentence back. Returns a message, or null when it is fit
+     to go live. */
+  const publishProblem = () => {
+    const anyAvail = weekdayLabels().some((_, d) => dayWindows(d).length > 0)
+    if (!anyAvail) return t('pages.errNoAvailability')
+    /* A day whose windows are all shorter than the shortest meeting on offer
+       produces nothing, silently — see findUnbookableDay. Checked only against
+       going live: while it is a draft the windows and the durations are still
+       being typed, in whichever order suits the person typing them. */
+    const shortest = Math.min(...offeredDurations())
+    const unbookable = findUnbookableDay(draft.availability, shortest)
+    if (unbookable) {
+      return t('pages.errWindowShorterThanMeeting', {
+        day: weekdayLabels()[unbookable.day], minutes: shortest, window: unbookable.longest,
+      })
+    }
+    return null
+  }
+
   const openDayCount = weekdayLabels().filter((_, d) => dayWindows(d).length > 0).length
   const addWindow = (day) => setWeekly(day, [...dayWindows(day), { start: '09:00', end: '17:00' }])
   const updateWindow = (day, i, patch) => setWeekly(day, dayWindows(day).map((w, idx) => (idx === i ? { ...w, ...patch } : w)))
@@ -346,27 +370,12 @@ function BookingPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }
       setErr(t('pages.errSlugFormat'))
       return
     }
-    // Sanity: an active page with no availability has no slots to offer.
-    const anyAvail = weekdayLabels().some((_, d) => dayWindows(d).length > 0)
-    if (willPublish && !anyAvail) { setErr(t('pages.errNoAvailability')); return }
-
     // Reject reversed/empty windows (e.g. 17:00–09:00) — they yield no slots.
     const bad = findInvalidWindow(draft.availability)
     if (bad) { setErr(t('pages.errInvalidWindow', { day: weekdayLabels()[bad.day] })); return }
 
-    /* …and a day whose windows are all shorter than the shortest meeting on
-       offer. That day produces nothing, silently — the whole page can end up
-       live with an empty calendar behind it. Only blocks going LIVE: while it is
-       a draft the windows and the durations are still being typed, in whichever
-       order suits the person typing them. */
-    const shortest = Math.min(...offeredDurations())
-    const unbookable = willPublish ? findUnbookableDay(draft.availability, shortest) : null
-    if (unbookable) {
-      setErr(t('pages.errWindowShorterThanMeeting', {
-        day: weekdayLabels()[unbookable.day], minutes: shortest, window: unbookable.longest,
-      }))
-      return
-    }
+    const problem = willPublish ? publishProblem() : null
+    if (problem) { setErr(problem); return }
 
     setBusy(true)
     const payload = {
@@ -389,12 +398,17 @@ function BookingPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }
       ),
     }
     try {
+      /* A page that has just been stored still may not be set up: no address, so
+         the link is a uuid — and on the block-engine side, no name either. The
+         wizard asks once, here, before the builder hands the screen back. */
       if (isNew) {
         const row = await onAdd(payload)
-        onSavedNew(row)
+        if (needsSetupWizard(row, { firstSave: true })) setSetupFor({ row, next: () => onSavedNew(row) })
+        else onSavedNew(row)
       } else {
-        await onUpdate(page.id, payload)
-        onBack()
+        const row = (await onUpdate(page.id, payload)) || { ...payload, id: page.id }
+        if (needsSetupWizard(row)) setSetupFor({ row, next: onBack })
+        else onBack()
       }
     } catch (e) {
       setShowSettings(true)
@@ -731,6 +745,35 @@ function BookingPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }
         </>
         )}
       </Box>
+
+      {setupFor ? (
+        <PageSetupWizard
+          open
+          page={setupFor.row}
+          urlPrefix={slugPrefix}
+          slugify={slugifyInput}
+          isValidSlug={(v) => isValidSlug(normalizeSlug(v))}
+          validatePublish={publishProblem}
+          onSubmit={async ({ title, slug, publish }) => {
+            try {
+              await onUpdate(setupFor.row.id, {
+                title,
+                slug: slug ? normalizeSlug(slug) : null,
+                published: publish || !!setupFor.row.published,
+              })
+            } catch (e) {
+              /* The one failure worth repeating in the coach's own words. */
+              if (e?.code === '23505' || /duplicate|unique|idx_booking_pages_slug/i.test(e?.message || '')) {
+                const friendly = new Error('slug taken')
+                friendly.userMessage = t('pages.errSlugTaken')
+                throw friendly
+              }
+              throw e
+            }
+          }}
+          onClose={() => { const next = setupFor.next; setSetupFor(null); next?.() }}
+        />
+      ) : null}
 
       {pendingLeave ? (
         <ConfirmModal

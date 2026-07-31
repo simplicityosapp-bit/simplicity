@@ -116,5 +116,22 @@
       "lead": "Hi {{name}}, ",
       "payment": "Hi {{name}}, there's an outstanding balance of {{balance}}. We'd appreciate settling it — thank you!"
     }
+  },
+  "pageSetup": {
+    "title": "Almost ready",
+    "intro": "Two details that save confusion later — then decide whether to put it online.",
+    "nameLabel": "Page name (internal)",
+    "namePlaceholder": "e.g. Intro call",
+    "nameHint": "Only so you can tell it apart in the list. Clients never see it.",
+    "addressLabel": "Page address",
+    "addressHint": "This is the link you will share. Leave it empty and the link stays long and random.",
+    "addressInvalid": "Invalid address — English only, no spaces, 3 to 40 characters.",
+    "required": "Required field",
+    "blocked": "The page needs a name to continue.",
+    "keepDraft": "Keep as draft",
+    "publish": "Publish",
+    "save": "Save",
+    "saving": "Saving…",
+    "saveFailed": "Save failed. Please try again."
   }
 }

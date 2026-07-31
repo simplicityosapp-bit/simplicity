@@ -59,6 +59,8 @@ import { useT } from '../../i18n/useT'
 import './siteBuilderI18n'
 import SiteRenderer from '../site-page/SiteRenderer'
 import ConfirmModal from '../../modals/ConfirmModal'
+import PageSetupWizard from '../../modals/PageSetupWizard'
+import { needsSetupWizard } from '../../lib/pageSetup'
 import './SitePagesScreen.css'
 import { Box, Txt, Btn, Input, Textarea } from '../../components/ui'
 
@@ -95,6 +97,11 @@ export default function Editor({ page, onSave, onBack }) {
      in edit mode — the same editor, only wider.) */
   const [preview, setPreview] = useState(false)
   const [railOpen, setRailOpen] = useState(false)   // the sections list, folded on a phone
+  const [setupOpen, setSetupOpen] = useState(false) // the post-save setup wizard
+  /* The first save/publish of this editing session always gets the wizard's
+     offer (address, live-or-draft); after that it only appears when something
+     required is actually missing. */
+  const firstSaveRef = useRef(true)
   const [paletteOpen, setPaletteOpen] = useState(false)
   const [paletteQuery, setPaletteQuery] = useState('') // "add section" search filter
   // Collapsible palette categories — the two most-used groups start open, the rest
@@ -225,6 +232,9 @@ export default function Editor({ page, onSave, onBack }) {
   /* The fold is a phone affordance only — on desktop the rail is a column of its
      own and has all the height it needs. */
   const railBodyOpen = !isMobileView || railOpen
+  /* "simplicity-os.com/p/" — the wizard shows the same live prefix the design
+     panel does, from the same helper, so neither can drift from the route. */
+  const urlPrefix = publicSitePageUrl(draft.kind, '').replace(/^https?:\/\//, '')
 
   const selected = useMemo(
     () => draft.sections.find((s) => s.id === selectedId) || null,
@@ -471,6 +481,13 @@ export default function Editor({ page, onSave, onBack }) {
       await onSave(baseFields())
       setDirty(false)
       reconcileAssets()                 // GC uploads orphaned since the last save
+      /* A page can be saved with no name and no address — the list then reads
+         "דף ללא שם" and the link you hand a client is a raw uuid. Ask once, here,
+         rather than never. */
+      if (needsSetupWizard({ title: draft.title, slug: draft.slug, published: draft.published }, { firstSave: firstSaveRef.current })) {
+        setSetupOpen(true)
+      }
+      firstSaveRef.current = false
     } catch { setSaveError(t('editor.saveError')) } finally { setSaving(false) }
   }
 
@@ -490,6 +507,12 @@ export default function Editor({ page, onSave, onBack }) {
       setPublishOk(true)
       if (okTimer.current) clearTimeout(okTimer.current)
       okTimer.current = setTimeout(() => { setPublishOk(false); okTimer.current = null }, 2600)
+      /* Live with no name still leaves a list of "דף ללא שם", and live on a uuid
+         is a link nobody can read out loud. Same ask, same moment. */
+      if (needsSetupWizard({ title: draft.title, slug: draft.slug, published: true }, { firstSave: firstSaveRef.current })) {
+        setSetupOpen(true)
+      }
+      firstSaveRef.current = false
     } catch { setSaveError(t('editor.saveError')) } finally { setSaving(false) }
   }
 
@@ -747,6 +770,33 @@ export default function Editor({ page, onSave, onBack }) {
           </Box>
         ) : null}
       </Box>
+
+      {setupOpen ? (
+        <PageSetupWizard
+          open
+          page={{ title: draft.title, slug: draft.slug, published: draft.published }}
+          urlPrefix={urlPrefix}
+          slugify={slugifyInput}
+          isValidSlug={isValidSlug}
+          /* The engine's own rule for going live: a page with no sections is a
+             blank sheet, and publishing one helps nobody. */
+          validatePublish={() => (draft.sections.length ? null : t('editor.publishEmpty'))}
+          onSubmit={async ({ title, slug, publish }) => {
+            const patch = { title, slug: slug || null }
+            if (publish) {
+              const snapshot = { theme: draft.theme, sections: draft.sections, config: draft.config }
+              await onSave({ ...baseFields(), ...patch, published: true, published_snapshot: snapshot })
+              setPublishedSnapshot(snapshot)
+              snapshotRef.current = snapshot
+            } else {
+              await onSave({ ...baseFields(), ...patch })
+            }
+            setDraft((d) => ({ ...d, ...patch, published: publish || d.published }))
+            setDirty(false)
+          }}
+          onClose={() => setSetupOpen(false)}
+        />
+      ) : null}
 
       {/* Unsaved-changes gate. The app's own modal, not window.confirm — that one
           arrives in browser chrome, ignores the app's RTL, and phrases the stakes

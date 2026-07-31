@@ -153,5 +153,12 @@
     "alignStart": "Start",
     "alignCenter": "Centre",
     "cardOpacity": "Card opacity"
+  },
+  "preview": {
+    "toggle": "Preview",
+    "exit": "Back to editing",
+    "defaultType": "Meeting",
+    "noTimes": "No time can be offered — no range is long enough to hold a {{minutes}} min meeting. Widen a range, or shorten the meeting.",
+    "note": "This is what someone opening the link will see. The times come from your weekly hours — on the real page, slots already booked and time busy in your connected calendar are not shown."
   }
 }

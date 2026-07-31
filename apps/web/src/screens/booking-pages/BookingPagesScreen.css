@@ -30,6 +30,32 @@
 }
 .bk-preview-hint svg { color: var(--terracotta); }
 
+/* ── Visitor preview ──────────────────────────────────────────────────
+   Wears the public page's own classes (lp-* / bk2-*); only the differences
+   from the real thing live here, and each is a difference that has to READ
+   as one — nothing should look clickable that will not respond. */
+.bkp-root {
+  max-width: 720px;
+  margin: 20px auto 0;
+  border-radius: var(--mg-card-radius);
+  overflow: hidden;
+}
+/* Times are shown, not offered — no pointer, no hover lift. */
+.bkp-slot { cursor: default; }
+.bkp-submit { cursor: default; opacity: 0.75; }
+.bkp-empty { line-height: 1.6; }
+/* What the preview cannot know, said plainly under it rather than left for a
+   coach to discover when a client books a slot the preview showed as free. */
+.bkp-note {
+  max-width: 720px;
+  margin: 10px auto 0;
+  padding: 0 4px;
+  font-size: var(--mg-micro);
+  line-height: 1.55;
+  color: var(--stone);
+  text-align: center;
+}
+
 /* ── Config cards (meeting types + availability) ──────────────────── */
 .bk-config-card {
   max-width: 720px;

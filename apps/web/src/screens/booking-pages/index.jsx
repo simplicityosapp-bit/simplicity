@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import {
-  ArrowRight, Plus, Trash2, Copy, Check, ExternalLink, Settings, Link2, X, ChevronDown,
+  ArrowRight, Plus, Trash2, Copy, Check, ExternalLink, Settings, Link2, X, ChevronDown, Eye, EyeOff,
   Clock, CalendarClock,
 } from 'lucide-react'
 import { useBookingPages } from '../../hooks/useBookingPages'
@@ -13,6 +13,7 @@ import { useGoogleCalendar } from '../../hooks/useGoogleCalendar'
 import Coachmark from '../../components/Coachmark'
 import InfoPopover from '../../components/InfoPopover'
 import SelectMenu from '../../components/SelectMenu'
+import BookingPreview from './BookingPreview'
 import {
   DEFAULT_CONTENT, DEFAULT_AVAILABILITY, newBookingPageDraft, weekdayLabels,
   publicBookingPageUrl, normalizeSlug, isValidSlug, slugifyInput, leadPageSurface,
@@ -246,6 +247,7 @@ function BookingPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }
      by the page being edited, so this initialiser runs once per page. */
   const [baseline, setBaseline] = useState(() => JSON.stringify(draftFromPage(page, isNew)))
   const [pendingLeave, setPendingLeave] = useState(null)
+  const [preview, setPreview] = useState(false)   // the visitor's view, from the draft
   const [setupFor, setSetupFor] = useState(null)   // { row, next } — the setup wizard, after a save
   const draftJson = useMemo(() => JSON.stringify(draft), [draft])
   const dirty = draftJson !== baseline
@@ -455,6 +457,13 @@ function BookingPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }
           <Txt className={`lpm-badge bk-live-badge${draft.published ? ' is-live' : ''}`}>
             {draft.published ? t('pages.statusLive') : t('pages.statusDraft')}
           </Txt>
+          {/* The canvas here is a branding mock — it never shows the slot picker,
+              which is the page's whole point. This is the only way to see it
+              without publishing first. */}
+          <Btn type="button" className={`lpe-settings-btn${preview ? ' is-on' : ''}`} onClick={() => setPreview((v) => !v)}>
+            {preview ? <EyeOff size={16} strokeWidth={1.7} aria-hidden="true" /> : <Eye size={16} strokeWidth={1.7} aria-hidden="true" />}
+            {preview ? t('preview.exit') : t('preview.toggle')}
+          </Btn>
           <Btn type="button" className={`lpe-settings-btn${showSettings ? ' is-on' : ''}`} onClick={() => setShowSettings((v) => !v)}>
             <Settings size={16} strokeWidth={1.7} aria-hidden="true" /> {t('pages.settings')}
           </Btn>
@@ -590,7 +599,10 @@ function BookingPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }
 
       {err && <Txt as="p" ref={errRef} className="m-error lpe-err">{err}</Txt>}
 
-      {/* Branding preview canvas (logo / heading / body inline) */}
+      {/* Preview replaces the editable canvas rather than sitting beside it: the
+          two show the same page, and side by side they would only compete. */}
+      {preview ? <BookingPreview draft={draft} meetingTypes={availTypes} /> : (
+      /* Branding preview canvas (logo / heading / body inline) */
       <Box className={canvasClass} style={canvasStyle}>
         <Box className="lp-card">
           <Input
@@ -621,6 +633,7 @@ function BookingPageBuilder({ page, isNew, onAdd, onUpdate, onBack, onSavedNew }
           <Box className="lp-submit lpe-submit-preview" aria-hidden="true">{t('pages.submitPreview')}</Box>
         </Box>
       </Box>
+      )}
 
       {/* Meeting types */}
       <Box className={`bk-config-card${openCards.types ? ' is-open' : ''}`}>

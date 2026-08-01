@@ -148,6 +148,10 @@
 .usi-rt.on.income { background: var(--sage); border-color: var(--sage); color: var(--on-accent); }
 .usi-rt.on.expense { background: var(--clay); border-color: var(--clay); color: var(--on-accent); }
 .usi-rt.on.skip { background: var(--stone); border-color: var(--stone); color: var(--on-accent); }
+/* --stone is a near-black TEXT colour in light mode but lightens to #B8C1B5 at
+   night, so using it as a FILL flips which label reads: white on it is 1.85:1.
+   The income/expense siblings are safe — sage and clay stay dark enough. */
+[data-theme="dark"] .usi-rt.on.skip { color: var(--ink-on-accent); }
 
 .usi-summary {
   padding: 14px 16px;

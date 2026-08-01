@@ -26,7 +26,11 @@
 }
 [data-theme="dark"] .app-toast { color: var(--ink-on-accent); }
 .app-toast.error { background: var(--clay); color: var(--on-accent); }
-[data-theme="dark"] .app-toast.error { color: var(--ink-on-accent); }
+/* The base toast goes dark-on-light at night because --sage LIGHTENS. The error
+   variant is the opposite case: --clay DARKENS to Deep Wine (#6E3D49), so it
+   kept needing white — inheriting the base's ink put near-black on deep wine at
+   2.12:1. White here is 8.66:1. */
+[data-theme="dark"] .app-toast.error { color: var(--on-accent); }
 .app-toast svg { flex-shrink: 0; }
 
 @keyframes app-toast-in {

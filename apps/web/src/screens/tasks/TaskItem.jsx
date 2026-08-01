@@ -40,6 +40,15 @@ function TaskItem({ task, project, clientName, dotColor, onToggle, onEdit, onRen
             {meta}
           </Txt>
         )}
+        {/* The details box has been saved and searched since it was added but
+            never shown anywhere, so what you typed vanished the moment you
+            closed the modal. Clamped to two lines: it's supporting text, not
+            the row's headline, and the modal holds the full version. Sits
+            AFTER the meta line on purpose — a task with no details renders
+            byte-identically to before, so no existing card moves. */}
+        {task.description && (
+          <Txt as="p" className="tc-desc">{task.description}</Txt>
+        )}
         {(urgentTag || taskStatus || category) && (
           <Box className="tc-tags">
             {/* Priority in words. The row's dot mirrors whatever the list is

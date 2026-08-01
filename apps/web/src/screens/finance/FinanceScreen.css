@@ -899,18 +899,25 @@
 }
 .f-search-x:hover { background: var(--mg-row-hover-bg); color: var(--espresso); }
 .f-search-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+/* The unselected chips sat on `transparent` with a --divider hairline, one
+   level below the search row's own card fill — over the photo background they
+   read as floating text with no pill at all (beta 01/08). Same --val-chip-bg
+   lift the coloured values use, plus a border with enough stone in it to draw
+   the edge; only the ACTIVE chip goes terracotta, so the group still shows
+   which filter is on. */
 .f-search-chip {
   padding: 5px 14px;
   border-radius: 999px;
-  border: 1px solid var(--divider);
-  background: transparent;
+  border: 1px solid color-mix(in srgb, var(--stone) 22%, transparent);
+  background: var(--val-chip-bg);
+  backdrop-filter: var(--mg-card-blur);
   font-family: var(--mg-font);
   font-size: calc(12px * var(--text-scale));
   color: var(--stone);
   cursor: pointer;
   transition: background 0.15s, color 0.15s, border-color 0.15s;
 }
-.f-search-chip:hover { background: var(--mg-row-hover-bg); }
+.f-search-chip:hover { background: color-mix(in srgb, var(--stone) 10%, var(--val-chip-bg)); }
 .f-search-chip.on {
   background: var(--terracotta);
   border-color: transparent;

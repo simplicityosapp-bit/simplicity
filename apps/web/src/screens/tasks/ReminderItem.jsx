@@ -58,6 +58,12 @@ function ReminderItem({ reminder, clientName, dotColor, onComplete, onEdit, onRe
           {count > 1 && <Txt className="tc-recur-count" title={t('item.pendingOccurrences', { n: count })}>×{count}</Txt>}
         </InlineTitle>
         {meta && <Txt as="p" className="tc-meta">{meta}</Txt>}
+        {/* Same details box, same two-line clamp as TaskItem — this row exists
+            to mirror that one, and a reminder has carried the field for even
+            longer without ever showing it. */}
+        {reminder.description && (
+          <Txt as="p" className="tc-desc">{reminder.description}</Txt>
+        )}
         {(repeat || category) && (
           <Box className="tc-tags">
             {repeat && (

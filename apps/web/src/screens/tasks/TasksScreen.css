@@ -595,6 +595,25 @@
 .tc-due.is-overdue {
   color: var(--clay-on-dark);
 }
+/* The task's own details box, rendered on the card at last. --stone, not the
+   meta line's --mist: this is what the task is ABOUT, so it outranks the
+   due/client line above it. Two lines then clipped — the edit modal holds the
+   rest, and visual clamping doesn't hide anything from a screen reader.
+   `pre-line` because the field is a textarea and people put line breaks in it;
+   `anywhere` so one pasted URL can't stretch the row. */
+.tc-desc {
+  margin: 4px 0 0;
+  font-family: var(--mg-font);
+  font-size: calc(12px * var(--text-scale));
+  line-height: 1.45;
+  color: var(--stone);
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
 /* Custom-status + category chips under the task title. */
 .tc-tags {
   display: flex;

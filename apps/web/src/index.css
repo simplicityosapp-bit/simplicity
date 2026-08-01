@@ -154,6 +154,13 @@ textarea:focus-visible,
   transition: background 0.4s ease;
   z-index: 1;
 }
+/* --bone is never remapped for dark mode, so any screen WITHOUT a per-screen
+   tint below kept a cream frame at night while its text turned near-white —
+   the Help Center was reported as unreadable this way (beta 31/07). Same
+   fallback `body` already uses. Deliberately placed BEFORE the per-screen
+   tints: this selector and `.app[data-screen="…"]` have equal specificity, so
+   source order decides, and each screen's own night colour has to win. */
+[data-theme="dark"] .app { background: var(--bg); }
 .app::before {
   content: '';
   position: absolute;
@@ -179,6 +186,10 @@ textarea:focus-visible,
   background: var(--bone);
   z-index: 200;
 }
+/* The logo swaps to its white-on-dark variant at night (.splash-logo.dark
+   below) but the frame stayed --bone, so the white logo vanished into a cream
+   screen (beta 31/07). Same night background the app frame and body use. */
+[data-theme="dark"] .splash { background: var(--bg); }
 /* Emblem = the ensō ring with the heartbeat logo nested in its centre. */
 .splash-emblem {
   position: relative;
@@ -282,7 +293,11 @@ textarea:focus-visible,
 }
 .splash-retry:hover { background: var(--mg-btn-primary-bg-hover); }
 .splash-retry:active { transform: scale(0.97); }
-[data-theme="dark"] .splash-retry { color: var(--espresso); }
+/* --mg-btn-primary-bg is LIGHT in dark mode (Moonglow #D9D2C0), so the label
+   has to go dark, not light. --espresso is near-WHITE at night, which put
+   white-on-white here at 1.27:1 (beta 31/07). --ink-on-accent exists for
+   exactly this pairing. */
+[data-theme="dark"] .splash-retry { color: var(--ink-on-accent); }
 
 /* ── InfoPopover — small "?" tooltip used across screens ─────── */
 .info-pop {

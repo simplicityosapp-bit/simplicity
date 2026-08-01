@@ -110,7 +110,10 @@
 .adp-btn-cancel:active:not(:disabled) { transform: scale(0.98); }
 .adp-btn-cancel:disabled { opacity: 0.6; cursor: default; }
 /* Dark primary is a light "Moonglow" fill — needs dark text. */
-[data-theme="dark"] .adp-btn-cancel { color: var(--espresso); }
+/* --mg-btn-primary-bg is LIGHT at night, so this label must go dark.
+   --espresso is near-white in dark mode — it read 1.27:1 here (beta 31/07).
+   This is the button that CANCELS account deletion; it cannot be invisible. */
+[data-theme="dark"] .adp-btn-cancel { color: var(--ink-on-accent); }
 
 .adp-btn-logout {
   display: inline-flex;

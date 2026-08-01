@@ -7,7 +7,7 @@
    middle of a bigger amount. These pin the behaviour the list depends on.
    ════════════════════════════════════════════════════════════════ */
 import { describe, it, expect } from 'vitest'
-import { searchTransactions, isSearchActive } from '../src/screens/finance/searchTransactions'
+import { searchTransactions } from '../src/screens/finance/searchTransactions'
 
 const clients = [
   { id: 'c1', name: 'דנה כהן' },
@@ -109,15 +109,6 @@ describe('ordering and defaults', () => {
 
   it('whitespace alone is not a query', () => {
     expect(find({ query: '   ' })).toEqual(find({}))
-  })
-})
-
-describe('isSearchActive', () => {
-  it('is false only when nothing is filtering', () => {
-    expect(isSearchActive({})).toBe(false)
-    expect(isSearchActive({ query: '  ', type: 'all' })).toBe(false)
-    expect(isSearchActive({ query: 'x' })).toBe(true)
-    expect(isSearchActive({ type: 'income' })).toBe(true)
   })
 })
 

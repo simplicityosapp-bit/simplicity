@@ -168,11 +168,16 @@
   transition: background 0.15s, transform 0.12s;
 }
 .f-pending-act:active { transform: scale(0.94); }
+/* "אשר" is the one control on this card the user is meant to reach for, and a
+   sage glyph on the white chip lost to the glass behind it (beta 01/08). It
+   goes solid: filled green, white ✓ and label. The skip pill stays a quiet
+   chip, so the pair now reads primary/secondary at a glance. */
 .f-pending-act.yes {
-  color: var(--sage);
-  border-color: rgba(139, 168, 136, 0.32);
+  color: var(--on-accent);
+  background: var(--sage-solid);
+  border-color: var(--sage-solid);
 }
-.f-pending-act.yes:hover { background: color-mix(in srgb, var(--sage) 16%, var(--val-chip-bg)); }
+.f-pending-act.yes:hover { background: color-mix(in srgb, var(--sage-solid) 88%, var(--ink)); }
 /* Stone, never clay — "לא קרה" is a normal answer, not a deletion. */
 .f-pending-act.no {
   color: var(--stone);
@@ -233,11 +238,14 @@
 .f-tx-btn:active {
   transform: scale(0.88);
 }
+/* Solid, not a tint — same call as .f-pending-act.yes above: this is the row's
+   primary action and the faint sage ✓ vanished into the card. */
 .f-tx-btn.approve {
-  color: var(--sage);
-  background: rgba(139, 168, 136, 0.12);
-  border-color: rgba(139, 168, 136, 0.32);
+  color: var(--on-accent);
+  background: var(--sage-solid);
+  border-color: var(--sage-solid);
 }
+.f-tx-btn.approve:hover { background: color-mix(in srgb, var(--sage-solid) 88%, var(--ink)); }
 .f-tx-btn.skip {
   color: var(--mist);
   background: color-mix(in srgb, var(--stone) 10%, transparent);
@@ -259,11 +267,12 @@
   background: var(--val-chip-bg);
   border-color: rgba(139, 168, 136, 0.32);
 }
-/* The coloured action icons (✓ approve, ✕ skip/delete) were faint tints over
+/* The coloured action icons (✕ skip/delete, ↺ restore) were faint tints over
    the photo and blended in. Lift them onto the white .val-chip backdrop so the
-   icon colour pops; the coloured border keeps the approve/delete identity
-   (beta 10/06). */
-.f-tx-btn.approve,
+   icon colour pops; the coloured border keeps the delete identity (beta 10/06).
+   `.approve` is deliberately NOT in this list any more — the white chip wasn't
+   enough for it either, so it went to a solid sage fill above (beta 01/08).
+   Putting it back here would silently paint over that fill. */
 .f-tx-btn.skip,
 .f-tx-btn.restore,
 .f-tx-btn.delete {

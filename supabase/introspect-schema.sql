@@ -114,7 +114,18 @@ SELECT schema_line FROM (
                              WHERE cfg LIKE 'search_path%'), ''))
   FROM pg_proc p
   JOIN pg_namespace n ON n.oid = p.pronamespace
+  /* Extension-owned functions are excluded (added 2026-08-01). pg_net and
+     btree_gist are installed INTO public here — deliberately, see the security
+     review — and they bring 188 internal functions with them against the app's
+     own 36. Emitting all 224 buried the functions that actually encode
+     behaviour under six times their number in extension plumbing, which is the
+     opposite of what this file is for. deptype 'e' is the extension-membership
+     link, so this drops exactly what an extension owns and nothing else. */
   WHERE n.nspname = 'public' AND p.prokind = 'f'
+    AND NOT EXISTS (
+      SELECT 1 FROM pg_depend d
+      WHERE d.objid = p.oid AND d.deptype = 'e'
+    )
 ) x
 ORDER BY s1, s2, s3;
 

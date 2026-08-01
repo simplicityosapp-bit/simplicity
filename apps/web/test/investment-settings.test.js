@@ -241,6 +241,40 @@ describe('computeInvestment — the target must not eat itself', () => {
   })
 })
 
+describe('computeInvestment — the basis month has closed', () => {
+  /* The target always comes from last month. When THIS month has taken nothing
+     in yet, a figure sitting above a ₪0 month reads as a bug unless the row
+     says where it came from. NOW is 5 Aug 2026 → basis July, current August. */
+  it('flags a target drawn from last month while this one is still empty', () => {
+    const r = computeInvestment([tx('2026-07-10', 5000)], { base: 'income', percent: 10 }, NOW)
+    expect(r.targetAmount).toBe(500)
+    expect(r.currentMonthIncome).toBe(0)
+    expect(r.basisIsStale).toBe(true)
+  })
+
+  it('drops the flag as soon as this month has income', () => {
+    const rows = [tx('2026-07-10', 5000), tx('2026-08-02', 120)]
+    const r = computeInvestment(rows, { base: 'income', percent: 10 }, NOW)
+    expect(r.currentMonthIncome).toBe(120)
+    expect(r.basisIsStale).toBe(false)
+  })
+
+  it('does not flag when there is no target to explain', () => {
+    /* Nothing last month either — that is the "no data" state, which has its
+       own wording; two notes saying different things would just be noise. */
+    const r = computeInvestment([], { base: 'income', percent: 10 }, NOW)
+    expect(r.targetAmount).toBe(0)
+    expect(r.basisIsStale).toBe(false)
+  })
+
+  it('counts only income toward the current month, not expenses', () => {
+    const rows = [tx('2026-07-10', 5000), tx('2026-08-02', 900, 'expense')]
+    const r = computeInvestment(rows, { base: 'income', percent: 10 }, NOW)
+    expect(r.currentMonthIncome).toBe(0)
+    expect(r.basisIsStale).toBe(true)
+  })
+})
+
 describe('computeInvestment — nothing to report', () => {
   it('separates "no data" from a real zero', () => {
     const empty = computeInvestment([], { base: 'income', percent: 10 }, NOW)

@@ -194,6 +194,8 @@
     "undoLabel": "Investissement supprimé",
     "remindMe": "Me le rappeler",
     "reminderTitle": "Mettre de côté {{percent}}% des revenus",
-    "reminderBody": "D'après {{month}}, cela représente {{amount}}. Si vous modifiez le pourcentage ou ajoutez des transactions, le montant réel suivra sur l'écran des finances."
+    "reminderBody": "D'après {{month}}, cela représente {{amount}}. Si vous modifiez le pourcentage ou ajoutez des transactions, le montant réel suivra sur l'écran des finances.",
+    "reminderSetOn": "Rappel pour le {{date}}",
+    "staleBasis": "Aucun revenu ce mois-ci pour l'instant — le montant se base sur {{month}}."
   }
 }

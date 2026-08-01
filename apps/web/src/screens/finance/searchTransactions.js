@@ -75,8 +75,3 @@ export function searchTransactions(transactions, { query = '', type = 'all', cli
      "most recent" is the only ordering that makes sense for a lookup. */
   return matched.sort((a, b) => toLocalDate(b.date) - toLocalDate(a.date))
 }
-
-/** Is any filter actually narrowing the list? Drives the "searching" mode. */
-export function isSearchActive({ query = '', type = 'all' } = {}) {
-  return norm(query).length > 0 || type !== 'all'
-}

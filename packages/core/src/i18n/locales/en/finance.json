@@ -194,6 +194,8 @@
     "undoLabel": "Investment deleted",
     "remindMe": "Remind me",
     "reminderTitle": "Set aside {{percent}}% of income",
-    "reminderBody": "Based on {{month}} that comes to {{amount}}. Change the percentage or add transactions and the live figure on the finance screen will follow."
+    "reminderBody": "Based on {{month}} that comes to {{amount}}. Change the percentage or add transactions and the live figure on the finance screen will follow.",
+    "reminderSetOn": "Reminder for {{date}}",
+    "staleBasis": "No income recorded this month yet — the figure is based on {{month}}."
   }
 }

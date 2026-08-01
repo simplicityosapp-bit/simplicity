@@ -100,6 +100,15 @@ export function computeInvestment(transactions, settings, now = new Date(), inve
   const net = income - expenses
   const baseAmount = cfg.base === 'net' ? net : income
 
+  /* Income booked so far in the month IN PROGRESS. Not part of the maths —
+     the target is always last month — but the row needs it to warn when the
+     figure it prints is drawn from a month the user has already left behind
+     while the current one is still empty. Without that, a target sitting above
+     a ₪0 month reads as a bug. */
+  const cur = currentMonthRange(now)
+  const currentMonthIncome = financeQuery({ type: 'income', from: cur.from, to: cur.to, source })
+    .reduce((s, f) => s + (f.amount || 0), 0)
+
   /* A losing month yields a negative base, and "invest −₪800" is not a thing.
      Floor the target at zero and hand the UI a flag so the row can say WHY it
      reads ₪0 instead of looking broken. */
@@ -113,7 +122,7 @@ export function computeInvestment(transactions, settings, now = new Date(), inve
   const investmentsKnown = Array.isArray(investments)
   const total = (list) => list.reduce((s, r) => s + (Number(r?.amount) || 0), 0)
 
-  const thisMonth = currentMonthRange(now)
+  const thisMonth = cur
   const investedThisMonth = total(rows.filter((r) => {
     if (!r?.invested_on) return false
     /* toLocalDate, not new Date — invested_on is a DATE column, and reading it
@@ -128,6 +137,10 @@ export function computeInvestment(transactions, settings, now = new Date(), inve
     income,
     expenses,
     net,
+    currentMonthIncome,
+    /* The figure is drawn from a closed month while the current one has taken
+       nothing in yet — true and worth saying out loud, not an error. */
+    basisIsStale: currentMonthIncome === 0 && targetAmount > 0,
     baseAmount,
     baseWasNegative,
     /* The widget's own number — what to invest. Always shown. */

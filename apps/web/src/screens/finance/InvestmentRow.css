@@ -49,6 +49,16 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+/* Header markers — glyph only, because the resting row is one line by
+   contract. The full sentence lives in the drawer and in the title/SR text. */
+.inv-flag {
+  display: inline-flex;
+  align-items: center;
+  flex: 0 0 auto;
+}
+.inv-flag.rem { color: var(--sage); }
+.inv-flag.warn { color: var(--terracotta); }
+
 .inv-amount {
   flex: 0 0 auto;
   font-family: var(--mg-font-num);
@@ -168,6 +178,7 @@
   line-height: 1.5;
   color: var(--stone);
 }
+.inv-note.warn { color: var(--terracotta); }
 
 .inv-divider {
   height: 1px;
@@ -213,6 +224,12 @@
   transition: color 0.15s;
 }
 .inv-remind:hover { color: var(--espresso); }
+/* A reminder is already waiting — tinted, not filled: it is a state, not a
+   second call to action competing with the terracotta confirm beside it. */
+.inv-remind.on {
+  color: var(--sage);
+  border-color: var(--sage);
+}
 .inv-remind:focus-visible {
   outline: 2px solid var(--terracotta);
   outline-offset: 1px;

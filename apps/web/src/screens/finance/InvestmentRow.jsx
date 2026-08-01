@@ -1,6 +1,6 @@
-import { useRef, useState } from 'react'
-import { ChevronDown, Sprout, Check, Bell } from 'lucide-react'
-import { isr, fmtMonthYear, previousMonthRange } from '@simplicity/core'
+import { useMemo, useRef, useState } from 'react'
+import { ChevronDown, Sprout, Check, Bell, BellRing, Info } from 'lucide-react'
+import { isr, fmtMonthYear, fmtShortDate, previousMonthRange } from '@simplicity/core'
 import { useInvestmentSettings } from '../../hooks/useInvestmentSettings'
 import { useReminders } from '../../hooks/useReminders'
 import AddReminderModal from '../../modals/AddReminderModal'
@@ -44,11 +44,20 @@ export default function InvestmentRow() {
   const [editing, setEditing] = useState(false)
   const [remindOpen, setRemindOpen] = useState(false)
   const investingRef = useRef(false)
-  const { addReminder } = useReminders()
+  const { reminders, addReminder } = useReminders()
+
+  /* An investment reminder that is still owed. Completed and soft-deleted ones
+     drop out — a reminder the user already acted on is not "set". Recurring
+     ones never sit in 'completed' (they advance), so they stay listed, which
+     is right: the next occurrence is still coming. */
+  const activeReminder = useMemo(() => (reminders || [])
+    .filter((r) => r.linked_to_type === 'investment' && !r.deleted_at && r.status !== 'completed')
+    .sort((a, b) => new Date(a.scheduled_at) - new Date(b.scheduled_at))[0] || null,
+  [reminders])
   const {
     settings, setBase, setPercent, setView,
     baseAmount, targetAmount, investedAmount, baseWasNegative, hasData,
-    recordInvestment,
+    basisIsStale, recordInvestment,
   } = useInvestmentSettings()
 
   const shownPct = sliding ?? settings.percent
@@ -115,6 +124,21 @@ export default function InvestmentRow() {
       >
         <Txt className="inv-ic" aria-hidden="true"><Sprout size={15} strokeWidth={1.8} /></Txt>
         <Txt className="inv-title">{t('investment.title')}</Txt>
+        {/* Both markers stay glyph-only so the resting state is still ONE line:
+            a set reminder, and a figure drawn from a month that has already
+            closed while this one is still empty. */}
+        {activeReminder && (
+          <Txt className="inv-flag rem" title={t('investment.reminderSetOn', { date: fmtShortDate(activeReminder.scheduled_at) })}>
+            <BellRing size={13} strokeWidth={1.8} aria-hidden="true" />
+            <Txt className="sr-only">{t('investment.reminderSetOn', { date: fmtShortDate(activeReminder.scheduled_at) })}</Txt>
+          </Txt>
+        )}
+        {basisIsStale && (
+          <Txt className="inv-flag warn" title={t('investment.staleBasis', { month: lastMonth })}>
+            <Info size={13} strokeWidth={1.8} aria-hidden="true" />
+            <Txt className="sr-only">{t('investment.staleBasis', { month: lastMonth })}</Txt>
+          </Txt>
+        )}
         <Txt className="inv-amount mono">{isr(liveTarget)}</Txt>
         <ChevronDown size={15} strokeWidth={1.8} className="inv-chev" aria-hidden="true" />
       </Btn>
@@ -207,6 +231,11 @@ export default function InvestmentRow() {
               like a broken widget rather than a quiet month. */}
           {baseWasNegative && <Txt as="p" className="inv-note">{t('investment.negativeBase')}</Txt>}
           {!hasData && !baseWasNegative && <Txt as="p" className="inv-note">{t('investment.noData')}</Txt>}
+          {/* Spelled out here, where there is room for the reason rather than
+              just the glyph in the header. */}
+          {basisIsStale && (
+            <Txt as="p" className="inv-note warn">{t('investment.staleBasis', { month: lastMonth })}</Txt>
+          )}
 
           <Box className="inv-divider" />
 
@@ -242,13 +271,19 @@ export default function InvestmentRow() {
           <Box className="inv-invested">
             <Txt className="inv-invested-v mono">{isr(investedAmount)}</Txt>
             <Box className="inv-actions">
+              {/* Says which state it is in rather than offering "remind me" to
+                  someone who already has one waiting. */}
               <Btn
                 type="button"
-                className="inv-remind"
+                className={`inv-remind${activeReminder ? ' on' : ''}`}
                 onClick={() => setRemindOpen(true)}
               >
-                <Bell size={14} strokeWidth={1.8} aria-hidden="true" />
-                {t('investment.remindMe')}
+                {activeReminder
+                  ? <BellRing size={14} strokeWidth={1.8} aria-hidden="true" />
+                  : <Bell size={14} strokeWidth={1.8} aria-hidden="true" />}
+                {activeReminder
+                  ? t('investment.reminderSetOn', { date: fmtShortDate(activeReminder.scheduled_at) })
+                  : t('investment.remindMe')}
               </Btn>
               <Btn
                 type="button"

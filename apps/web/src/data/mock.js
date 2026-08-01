@@ -438,6 +438,9 @@ export const MOCK_DB = {
   client_adjustments,
   categories,
   transactions,
+  /* Investment history — empty so the widget renders its first-run state
+     (invested ₪0) and pressing "השקעתי" in preview actually appends here. */
+  investments: [],
   recurring_templates,
   tasks,
   lead_sources,

@@ -158,6 +158,10 @@ export function defaultPreferences() {
     },
     widgets: defaultWidgetsConfig(),
     reports: null,
+    /* Investment-percentage widget (finance screen). Shaped by
+       useInvestmentSettings — null here means "never configured", so the
+       hook applies its own defaults and existing users need no migration. */
+    investment: null,
     onboarding: defaultOnboarding(),
     /* First-touch coachmarks. Map of coachmark id → true once the user
        has interacted with that button. Empty/absent map = every button
@@ -306,6 +310,7 @@ export function migratePreferences(input) {
     design:  { ...base.design,  ...(cur.design  || {}) },
     widgets: migrateWidgets(cur.widgets),
     reports: cur.reports || null,   /* shaped by useReportsConfig */
+    investment: cur.investment || null, /* shaped by useInvestmentSettings */
     onboarding: migrateOnboarding(cur.onboarding),
     coachmarks: (cur.coachmarks && typeof cur.coachmarks === 'object' && !Array.isArray(cur.coachmarks))
       ? cur.coachmarks

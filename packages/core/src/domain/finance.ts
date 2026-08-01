@@ -70,6 +70,18 @@ export function currentMonthRange(now: Date = new Date()): { from: Date; to: Dat
   }
 }
 
+/* Inclusive bounds for the PREVIOUS calendar month — the last month that
+   actually closed. Used by anything that reports on a finished period rather
+   than the one in progress (the investment widget bases its percentage on it).
+   Day 0 of the current month is the last day of the previous one, and month
+   −1 rolls the year back on its own, so January reads December correctly. */
+export function previousMonthRange(now: Date = new Date()): { from: Date; to: Date } {
+  return {
+    from: new Date(now.getFullYear(), now.getMonth() - 1, 1, 0, 0, 0, 0),
+    to: new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59, 999),
+  }
+}
+
 /* Filter transactions by an options bag — the canonical way to read finance data.
    `source` is the array to filter (real Supabase rows a screen has loaded);
    defaults to an empty array when a caller omits it. */

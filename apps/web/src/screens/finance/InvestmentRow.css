@@ -178,7 +178,20 @@
   line-height: 1.5;
   color: var(--stone);
 }
-.inv-note.warn { color: var(--terracotta); }
+/* The plain terracotta text was disappearing against the glass. As a filled
+   pill it reads at a glance — which is the point, since it explains why the
+   figure above it comes from a month that has already closed.
+   The fill is terracotta mixed 55% toward --ink: white on raw --terracotta is
+   only 3.24:1 and fails AA. --ink and not --espresso, because --espresso
+   flips light in dark mode and would take the pill with it. */
+.inv-note.warn {
+  align-self: flex-start;
+  padding: 5px 10px;
+  border-radius: var(--mg-chip-radius);
+  background: color-mix(in srgb, var(--terracotta) 45%, var(--ink));
+  color: #FFFFFF;
+  font-weight: 500;
+}
 
 .inv-divider {
   height: 1px;

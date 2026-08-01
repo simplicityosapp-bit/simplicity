@@ -104,7 +104,9 @@
 }
 .tour-btn-next:hover { background: var(--mg-btn-primary-bg-hover); }
 .tour-btn-next:active { transform: scale(0.96); }
-[data-theme="dark"] .tour-btn-next { color: var(--espresso); }
+/* --mg-btn-primary-bg is LIGHT at night, so this label must go dark.
+   --espresso is near-white in dark mode — it read 1.27:1 here (beta 31/07). */
+[data-theme="dark"] .tour-btn-next { color: var(--ink-on-accent); }
 
 /* Secondary button beside "הבנתי", not a faint link below it. It was 11.5px
    --mist underlined text with a ~20px tap target — the smallest, palest,

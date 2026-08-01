@@ -11,8 +11,12 @@ const todayStr = () => {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
 }
 const now = () => new Date()
-const blank = (date, time) => ({
-  title: '', description: '',
+/* `prefill` seeds the wording of a NEW reminder (a caller that already knows
+   what it is for — e.g. the finance investment row). Deliberately separate
+   from the `reminder` prop: that one means "edit this existing row" and flips
+   the sheet into edit mode, which a prefilled new reminder must not do. */
+const blank = (date, time, prefill) => ({
+  title: prefill?.title || '', description: prefill?.description || '',
   date: date || todayStr(), time: time || '09:00',
   client_id: '',
   category_id: '',
@@ -58,8 +62,8 @@ function nextMonthly(dom, time) {
 }
 
 /* Reverse-map an existing reminder into the form shape (for editing). */
-function fromReminder(r, date, time) {
-  if (!r) return blank(date, time)
+function fromReminder(r, date, time, prefill) {
+  if (!r) return blank(date, time, prefill)
   const d = new Date(r.scheduled_at)
   const pad = (x) => String(x).padStart(2, '0')
   const rec = r.recurrence_type || 'none'
@@ -88,17 +92,17 @@ function fromReminder(r, date, time) {
    `onDelete(id)` is optional — supplied only where the caller owns a delete
    (the tasks screen); without it no delete action is shown. Soft-delete →
    Trash, so the confirm says so. */
-export default function AddReminderModal({ open, onClose, onSave, onDelete, clients = [], categories = [], defaultLinkedTo = null, linkedSubjectName = '', reminder = null, initialDate, initialTime }) {
+export default function AddReminderModal({ open, onClose, onSave, onDelete, clients = [], categories = [], defaultLinkedTo = null, linkedSubjectName = '', reminder = null, initialDate, initialTime, prefill = null }) {
   const isEdit = !!reminder
   const { t } = useT('modalsTask')
   /* initialDate/initialTime prefill a NEW one-off reminder when opened from a
      tapped calendar slot (parent remounts via key); ignored when editing. */
-  const [form, setForm] = useState(() => fromReminder(reminder, initialDate, initialTime))
+  const [form, setForm] = useState(() => fromReminder(reminder, initialDate, initialTime, prefill))
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }))
-  const close = () => { setForm(fromReminder(reminder, initialDate, initialTime)); setErr(''); setBusy(false); onClose() }
+  const close = () => { setForm(fromReminder(reminder, initialDate, initialTime, prefill)); setErr(''); setBusy(false); onClose() }
 
   const submit = async () => {
     if (!form.title.trim()) { setErr(t('reminder.titleRequired')); return }

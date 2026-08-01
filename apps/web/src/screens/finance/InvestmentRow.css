@@ -1,0 +1,242 @@
+/* ════════════════════════════════════════════════════════════════
+   INVESTMENT ROW — one line of the finance screen, expandable.
+   ════════════════════════════════════════════════════════════════
+   Deliberately NOT a card: it sits between the overview and the lists,
+   and its whole job is to answer one question in one line. Same glass
+   tokens as every other surface, but the compact padding of a row —
+   the 24×28 card padding would make a single line look like a section.
+   ════════════════════════════════════════════════════════════════ */
+
+.inv-row {
+  margin: 0 0 14px;
+  border-radius: var(--mg-card-radius);
+  background: var(--mg-card-bg);
+  border: var(--mg-card-border);
+  backdrop-filter: var(--mg-card-blur);
+  -webkit-backdrop-filter: var(--mg-card-blur);
+  box-shadow: var(--mg-card-shadow);
+  overflow: hidden;
+}
+
+/* ── The resting line ──────────────────────────────────────────── */
+.inv-head {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  padding: 12px 16px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  text-align: start;
+  font-family: var(--mg-font);
+}
+.inv-ic {
+  display: flex;
+  align-items: center;
+  color: var(--sage);
+  flex: 0 0 auto;
+}
+.inv-title {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: var(--mg-caption);
+  font-weight: 500;
+  color: var(--stone);
+  /* The label is long in Hebrew and this is a single line by contract —
+     truncate rather than let it wrap the row to two lines. */
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.inv-amount {
+  flex: 0 0 auto;
+  font-family: var(--mg-font-num);
+  font-size: var(--mg-heading);
+  font-weight: 600;
+  color: var(--espresso);
+}
+.inv-chev {
+  flex: 0 0 auto;
+  color: var(--stone);
+  opacity: 0.7;
+  transition: transform 0.18s ease;
+}
+.inv-row.open .inv-chev { transform: rotate(180deg); }
+
+/* ── The settings drawer ───────────────────────────────────────── */
+.inv-body {
+  padding: 2px 16px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.inv-field {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.inv-lbl {
+  margin: 0;
+  font-size: var(--mg-micro);
+  font-weight: 500;
+  color: var(--stone);
+}
+
+/* ── Percentage: a slider, with the number itself as the fallback ──
+   The slider is for "somewhere around a fifth"; the number is for the
+   people who want exactly 17%. Both edit the same value. */
+.inv-field-pct {
+  display: block;
+}
+.inv-pct-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 2px;
+}
+/* The value reads as text, not as a button — it only reveals itself as
+   editable on hover/focus. A framed control here would compete with the
+   figure in the header, which is the number that matters. */
+.inv-pct-val {
+  border: none;
+  background: transparent;
+  padding: 2px 6px;
+  border-radius: var(--mg-chip-radius);
+  font-family: var(--mg-font-num);
+  font-size: var(--mg-caption);
+  font-weight: 600;
+  color: var(--espresso);
+  cursor: text;
+  transition: background 0.15s;
+}
+.inv-pct-val:hover { background: var(--divider); }
+.inv-pct-val:focus-visible {
+  outline: 2px solid var(--terracotta);
+  outline-offset: 1px;
+}
+
+.inv-slider {
+  display: block;
+  width: 100%;
+  margin: 0;
+  accent-color: var(--mg-btn-primary-bg);
+  cursor: pointer;
+  /* The native track is ~4px and the thumb ~16px; the extra block height is
+     the touch target, matching the treatment .mg-toggle-btn uses. */
+  height: 28px;
+}
+.inv-slider:focus-visible {
+  outline: 2px solid var(--terracotta);
+  outline-offset: 2px;
+  border-radius: var(--mg-chip-radius);
+}
+
+.inv-pct-input {
+  width: 62px;
+  padding: 5px 8px;
+  border-radius: var(--mg-chip-radius);
+  border: 0.5px solid var(--divider);
+  background: var(--mg-card-bg);
+  font-family: var(--mg-font-num);
+  font-size: var(--mg-caption);
+  font-weight: 500;
+  color: var(--espresso);
+  text-align: center;
+}
+.inv-pct-input:focus-visible {
+  outline: 2px solid var(--terracotta);
+  outline-offset: 1px;
+}
+/* The spinners crowd a 62px field and the value is already clamped 0–100. */
+.inv-pct-input::-webkit-outer-spin-button,
+.inv-pct-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.inv-pct-input { -moz-appearance: textfield; appearance: textfield; }
+.inv-basis {
+  display: block;
+  font-size: var(--mg-micro);
+  color: var(--stone);
+  opacity: 0.8;
+}
+
+.inv-note {
+  margin: 0;
+  font-size: var(--mg-micro);
+  line-height: 1.5;
+  color: var(--stone);
+}
+
+.inv-divider {
+  height: 1px;
+  background: var(--divider);
+  margin: 2px 0;
+}
+
+/* ── The record + the confirm action ───────────────────────────── */
+.inv-invested {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.inv-invested-v {
+  font-family: var(--mg-font-num);
+  font-size: var(--mg-display-l);
+  font-weight: 500;
+  color: var(--espresso);
+}
+.inv-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+/* Secondary next to the terracotta confirm — glass, not a second fill, so the
+   pair reads as "the action" and "the other thing you can do". */
+.inv-remind {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border-radius: var(--mg-chip-radius);
+  background: var(--mg-btn-secondary-bg);
+  border: var(--mg-btn-secondary-border);
+  color: var(--stone);
+  font-family: var(--mg-font);
+  font-size: var(--mg-caption);
+  font-weight: 500;
+  cursor: pointer;
+  transition: color 0.15s;
+}
+.inv-remind:hover { color: var(--espresso); }
+.inv-remind:focus-visible {
+  outline: 2px solid var(--terracotta);
+  outline-offset: 1px;
+}
+
+.inv-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border: none;
+  border-radius: var(--mg-chip-radius);
+  background: var(--mg-btn-primary-bg);
+  color: var(--on-accent);
+  font-family: var(--mg-font);
+  font-size: var(--mg-caption);
+  font-weight: 500;
+  cursor: pointer;
+  box-shadow: var(--mg-card-shadow);
+  transition: opacity 0.15s;
+}
+/* In dark mode the primary fill is LIGHT, so white-on-accent would vanish. */
+[data-theme="dark"] .inv-cta { color: var(--ink-on-accent); }
+.inv-cta:disabled {
+  opacity: 0.45;
+  cursor: default;
+}

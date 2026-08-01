@@ -170,5 +170,30 @@
   },
   "exportCsv": "Export CSV",
   "snapshot": "Snapshot",
-  "tagline": "What you do adds up to good results."
+  "tagline": "What you do adds up to good results.",
+  "investment": {
+    "title": "Income percentage set aside for investing",
+    "settingsAria": "Investment calculation settings",
+    "baseLabel": "Calculate from",
+    "baseIncome": "Income",
+    "baseNet": "Net",
+    "percentLabel": "Percentage",
+    "percentAria": "Percentage of income to invest",
+    "basedOn": "of {{month}}",
+    "viewAria": "Invested — this month or all time",
+    "viewMonthly": "Monthly",
+    "viewCumulative": "Cumulative",
+    "investedMonthly": "Invested this month",
+    "investedCumulative": "Invested in total",
+    "didInvest": "I invested",
+    "negativeBase": "Last month's expenses exceeded income, so there's nothing to set aside.",
+    "noData": "No transactions from last month yet.",
+    "categoryName": "Investments",
+    "txDesc": "Set aside for investing",
+    "recordFailed": "Recording the investment failed — please try again",
+    "undoLabel": "Investment deleted",
+    "remindMe": "Remind me",
+    "reminderTitle": "Set aside {{percent}}% of income",
+    "reminderBody": "Based on {{month}} that comes to {{amount}}. Change the percentage or add transactions and the live figure on the finance screen will follow."
+  }
 }

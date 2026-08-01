@@ -170,5 +170,30 @@
   },
   "exportCsv": "Exporter en CSV",
   "snapshot": "Aperçu",
-  "tagline": "Ce que vous faites porte ses fruits."
+  "tagline": "Ce que vous faites porte ses fruits.",
+  "investment": {
+    "title": "Pourcentage des revenus consacré à l'investissement",
+    "settingsAria": "Paramètres du calcul d'investissement",
+    "baseLabel": "Calculer sur",
+    "baseIncome": "Revenus",
+    "baseNet": "Net",
+    "percentLabel": "Pourcentage",
+    "percentAria": "Pourcentage des revenus à investir",
+    "basedOn": "de {{month}}",
+    "viewAria": "Investi — ce mois-ci ou au total",
+    "viewMonthly": "Mensuel",
+    "viewCumulative": "Cumulé",
+    "investedMonthly": "Investi ce mois-ci",
+    "investedCumulative": "Investi au total",
+    "didInvest": "J'ai investi",
+    "negativeBase": "Le mois dernier, les dépenses ont dépassé les revenus : il n'y a rien à mettre de côté.",
+    "noData": "Aucune transaction du mois dernier pour l'instant.",
+    "categoryName": "Investissements",
+    "txDesc": "Mis de côté pour investir",
+    "recordFailed": "L'enregistrement de l'investissement a échoué — réessayez",
+    "undoLabel": "Investissement supprimé",
+    "remindMe": "Me le rappeler",
+    "reminderTitle": "Mettre de côté {{percent}}% des revenus",
+    "reminderBody": "D'après {{month}}, cela représente {{amount}}. Si vous modifiez le pourcentage ou ajoutez des transactions, le montant réel suivra sur l'écran des finances."
+  }
 }

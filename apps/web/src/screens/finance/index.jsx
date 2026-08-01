@@ -14,6 +14,7 @@ import { CATEGORY_COLORS } from '../../lib/api/categories'
 import { toLocalDate, fmtMonthYear } from '@simplicity/core'
 import MonthSummary from './MonthSummary'
 import FinanceChart from './FinanceChart'
+import InvestmentRow from './InvestmentRow'
 import PendingSection from './PendingSection'
 import InvoiceImports from './InvoiceImports'
 import TransactionList from './TransactionList'
@@ -203,6 +204,9 @@ export default function FinanceScreen() {
             />
             <FinanceChart month={month} />
           </Box>
+
+          {/* One line, directly under the numbers it is computed from. */}
+          <InvestmentRow />
 
           {/* Everything that wants a decision, directly under the summary —
               this used to sit below two management blocks, four screens down. */}

@@ -170,5 +170,30 @@
   },
   "exportCsv": "Exportar CSV",
   "snapshot": "Resumen",
-  "tagline": "Lo que haces se traduce en buenos resultados."
+  "tagline": "Lo que haces se traduce en buenos resultados.",
+  "investment": {
+    "title": "Porcentaje de ingresos destinado a inversión",
+    "settingsAria": "Ajustes del cálculo de inversión",
+    "baseLabel": "Calcular sobre",
+    "baseIncome": "Ingresos",
+    "baseNet": "Neto",
+    "percentLabel": "Porcentaje",
+    "percentAria": "Porcentaje de ingresos a invertir",
+    "basedOn": "de {{month}}",
+    "viewAria": "Invertido — este mes o en total",
+    "viewMonthly": "Mensual",
+    "viewCumulative": "Acumulado",
+    "investedMonthly": "Invertido este mes",
+    "investedCumulative": "Invertido en total",
+    "didInvest": "He invertido",
+    "negativeBase": "El mes pasado los gastos superaron los ingresos, así que no hay nada que destinar.",
+    "noData": "Aún no hay transacciones del mes pasado.",
+    "categoryName": "Inversiones",
+    "txDesc": "Destinado a inversión",
+    "recordFailed": "No se pudo registrar la inversión — inténtalo de nuevo",
+    "undoLabel": "Inversión eliminada",
+    "remindMe": "Recuérdamelo",
+    "reminderTitle": "Destinar el {{percent}}% de los ingresos",
+    "reminderBody": "Según {{month}} son {{amount}}. Si cambias el porcentaje o añades transacciones, la cifra real se actualizará en la pantalla de finanzas."
+  }
 }

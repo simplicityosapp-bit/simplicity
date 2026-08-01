@@ -20,6 +20,7 @@ import esExport from '../i18n/locales/es/export.json'
 import frExport from '../i18n/locales/fr/export.json'
 import { isEncrypted } from './crypto'
 import { questionText } from '@simplicity/core'
+import { fmtDate } from './exportDates'
 
 /* Self-register the 'export' namespace (he/en/es/fr). Idempotent — no central
    i18n init change needed. */
@@ -62,13 +63,9 @@ function fmtAmount(n) {
   return Number.isFinite(n) ? n.toFixed(2) : ''
 }
 
-function fmtDate(d) {
-  if (!d) return ''
-  const x = new Date(d)
-  const dd = String(x.getDate()).padStart(2, '0')
-  const mm = String(x.getMonth() + 1).padStart(2, '0')
-  return `${dd}/${mm}/${x.getFullYear()}`
-}
+/* Date formatting lives in ./exportDates so it can be tested without pulling
+   this module's i18n registration into the test runtime. See the note there
+   for why it must not use `new Date`. */
 
 function nameById(arr, id) {
   if (!id) return ''

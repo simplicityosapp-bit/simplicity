@@ -36,6 +36,13 @@
   --on-accent:     #FFFFFF;            /* light text on a saturated accent (sage/clay/terracotta) */
   --ink-on-accent: #181410;            /* dark text on a LIGHT accent (e.g. the primary button in dark mode) */
   --ink:           #181410;            /* deepest near-black ink — e.g. the dark-mode colour-swatch ring */
+  /* Sage deepened until a WHITE glyph on a SOLID fill actually reads: brand
+     --sage carries white at only 2.6:1, so a filled sage button with a white
+     ✓ washes out (beta 01/08 — "the approve button disappears"). 70% sage
+     puts it at 4.5:1 light / 5.4:1 dark while still reading as the same green.
+     Mixed toward --ink, never --espresso — espresso flips in dark mode.
+     Fills only; plain --sage stays the tint + text colour. */
+  --sage-solid:    color-mix(in srgb, var(--sage) 70%, var(--ink));
   /* ════════════════════════════════════════════════════════════════════ */
 
   /* Icon defaults (Lucide) — see scripts/icons.js */

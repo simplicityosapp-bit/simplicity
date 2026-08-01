@@ -100,8 +100,16 @@
   cursor: pointer;
   transition: background 0.15s, color 0.15s;
 }
-.inv-import-btn.approve { color: var(--sage); }
-.inv-import-btn.approve:hover { background: color-mix(in srgb, var(--sage) 14%, transparent); }
+/* Solid green, white ✓ — matching the pending-transaction approve. A sage glyph
+   on the card background was the same "where did the button go" problem here
+   (beta 01/08). The spinner state reuses .approve, so it inherits the fill and
+   the button doesn't change shape or colour mid-import. */
+.inv-import-btn.approve {
+  color: var(--on-accent);
+  background: var(--sage-solid);
+  border-color: var(--sage-solid);
+}
+.inv-import-btn.approve:hover { background: color-mix(in srgb, var(--sage-solid) 88%, var(--ink)); }
 .inv-import-btn.dismiss { color: var(--stone); }
 .inv-import-btn.dismiss:hover { background: color-mix(in srgb, var(--clay) 12%, transparent); color: var(--clay-on-dark); }
 .inv-import-btn:disabled { opacity: 0.5; cursor: default; }

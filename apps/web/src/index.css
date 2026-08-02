@@ -659,7 +659,7 @@ body.modal-open .screen {
      background-image set in Modal.css survives in dark mode regardless of
      stylesheet load order. */
   background-color: rgba(20, 18, 14, 0.55);
-  color: var(--cream);
+  color: var(--espresso);
 }
 [data-theme="dark"] .m-input::placeholder,
 [data-theme="dark"] .m-textarea::placeholder {

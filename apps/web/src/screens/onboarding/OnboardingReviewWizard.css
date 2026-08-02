@@ -89,7 +89,7 @@
   cursor: pointer;
   transition: background 0.15s, border-color 0.15s;
 }
-[data-theme="dark"] .obrw-tab { border-color: rgba(240, 235, 224, 0.18); color: var(--cream); }
+[data-theme="dark"] .obrw-tab { border-color: rgba(240, 235, 224, 0.18); color: var(--espresso); }
 .obrw-tab.on {
   background: color-mix(in srgb, var(--sage) 22%, transparent);
   backdrop-filter: var(--mg-card-blur);
@@ -236,7 +236,7 @@
   color: var(--espresso);
   cursor: pointer;
 }
-[data-theme="dark"] .obrw-more { border-color: rgba(240, 235, 224, 0.2); color: var(--cream); }
+[data-theme="dark"] .obrw-more { border-color: rgba(240, 235, 224, 0.2); color: var(--espresso); }
 .obrw-more:hover { background: rgba(42, 37, 32, 0.05); }
 [data-theme="dark"] .obrw-more:hover { background: rgba(240, 235, 224, 0.06); }
 
@@ -297,7 +297,7 @@
 [data-theme="dark"] .obrw-input {
   border-color: rgba(240, 235, 224, 0.18);
   background: rgba(28, 25, 21, 0.6);
-  color: var(--cream);
+  color: var(--espresso);
 }
 .obrw-input:focus {
   outline: none;

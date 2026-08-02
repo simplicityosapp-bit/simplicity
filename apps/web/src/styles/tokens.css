@@ -295,6 +295,15 @@
   --clay-on-dark: #D98C76;                   /* legible danger TEXT on dark glass (deep wine is unreadable as text) */
   --divider: rgba(240, 235, 224, 0.14);      /* מפריד — bumped from 0.06 so accordions/borders read */
   --val-chip-bg: rgba(255, 255, 255, 0.10);  /* coloured-value pill — subtle white lift on dark */
+  /* Surfaces. These two had NO dark mapping, so anything painting a surface with
+     them stayed near-white at night while its text flipped to near-white too —
+     48 usages, worst in the page builder (~1.19:1). Mapped to the night palette:
+     --cream takes the base colour of --mg-card-bg (26,31,38) so a cream surface
+     and a glass card read as the same material, and --pure-white goes one step
+     LIGHTER, not darker — elevation in a dark UI lifts toward light, so modals
+     and popovers still sit above cards. Same tone as --mg-btn-secondary-bg-hover. */
+  --cream: #1A1F26;                          /* משטח כרטיס — Night card */
+  --pure-white: #242A33;                     /* משטח מורם — Night elevated (modals, popovers) */
   --mg-card-bg: rgba(26, 31, 38, 0.48);      /* משטח כרטיס — bumped from 0.30 for content separation */
   --mg-card-border: 1px solid rgba(240, 235, 224, 0.14);
   --mg-card-shadow: 0 1px 2px rgba(0,0,0,0.30), 0 8px 24px rgba(0,0,0,0.42);

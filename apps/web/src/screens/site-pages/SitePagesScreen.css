@@ -142,7 +142,7 @@
 .spg-new {
   display: inline-flex; align-items: center; gap: 8px; min-height: 44px;
   font: inherit; font-size: var(--mg-body); font-weight: 600;
-  color: var(--pure-white); background: var(--spb-primary-grad); border: none;
+  color: var(--on-accent); background: var(--spb-primary-grad); border: none;
   border-radius: var(--mg-btn-radius); padding: 11px 24px; cursor: pointer;
   box-shadow: var(--spb-primary-glow); transition: background 0.18s var(--spb-ease), transform 0.14s var(--spb-ease), box-shadow 0.2s var(--spb-ease);
 }
@@ -244,7 +244,7 @@
 .spe-device { display: flex; gap: 2px; background: color-mix(in srgb, var(--espresso) 6%, transparent); border-radius: var(--mg-chip-radius); padding: 3px; }
 .spe-device button { display: grid; place-items: center; width: 32px; height: 28px; border: none; background: transparent; color: var(--spb-text-2, var(--stone)); border-radius: 7px; cursor: pointer; transition: background 0.15s, color 0.15s; }
 .spe-device button.is-on { background: var(--pure-white); color: var(--terracotta); box-shadow: var(--mg-card-shadow); }
-.spe-save { font: inherit; font-size: var(--mg-caption); font-weight: 600; color: var(--pure-white); background: var(--spb-primary-grad); border: none; border-radius: 11px; padding: 9px 22px; cursor: pointer; box-shadow: var(--spb-primary-glow); transition: background 0.18s var(--spb-ease), transform 0.14s var(--spb-ease), box-shadow 0.2s var(--spb-ease); }
+.spe-save { font: inherit; font-size: var(--mg-caption); font-weight: 600; color: var(--on-accent); background: var(--spb-primary-grad); border: none; border-radius: 11px; padding: 9px 22px; cursor: pointer; box-shadow: var(--spb-primary-glow); transition: background 0.18s var(--spb-ease), transform 0.14s var(--spb-ease), box-shadow 0.2s var(--spb-ease); }
 .spe-save:hover:not(:disabled) { background: var(--spb-primary-grad-hover); transform: translateY(-1px); box-shadow: var(--spb-primary-glow-hover); }
 .spe-save:active:not(:disabled) { transform: translateY(0) scale(0.975); box-shadow: var(--spb-primary-glow); }
 .spe-save:disabled { opacity: 0.45; cursor: default; box-shadow: none; }

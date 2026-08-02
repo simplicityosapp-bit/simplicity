@@ -127,7 +127,7 @@
 [data-theme="dark"] .rw-select {
   border-color: rgba(240, 235, 224, 0.18);
   background: rgba(20, 18, 14, 0.5);
-  color: var(--cream);
+  color: var(--espresso);
 }
 
 .rw-sheet-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 9px; }

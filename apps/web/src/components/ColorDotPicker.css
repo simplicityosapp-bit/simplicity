@@ -63,7 +63,7 @@ html[dir="ltr"] .cdp-pop { transform: translateX(-50%); }
 }
 .cdp-swatch:hover { transform: scale(1.12); }
 .cdp-swatch.on { border-color: var(--espresso); transform: scale(1.12); }
-[data-theme="dark"] .cdp-swatch.on { border-color: var(--cream); }
+[data-theme="dark"] .cdp-swatch.on { border-color: var(--espresso); }
 
 @media (max-width: 767px) {
   .cdp-swatch { width: 32px; height: 32px; }

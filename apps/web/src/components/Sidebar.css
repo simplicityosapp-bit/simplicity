@@ -36,7 +36,7 @@
       rgba(42, 37, 32, 0.42);
     backdrop-filter: blur(34px) saturate(150%);
     border-inline-start: 1px solid rgba(240, 235, 224, 0.10);
-    color: var(--cream);
+    color: var(--on-accent);
     box-shadow: -2px 0 20px rgba(42, 37, 32, 0.10);
     position: sticky;
     top: 0;
@@ -93,7 +93,7 @@
     font-family: 'Assistant', sans-serif;
     font-size: calc(20px * var(--text-scale));
     font-weight: 700;
-    color: var(--cream);
+    color: var(--on-accent);
     letter-spacing: -0.02em;
     white-space: nowrap;
     line-height: 1.05;
@@ -155,7 +155,7 @@
     border: 1px solid transparent;
     background: transparent;
     cursor: pointer;
-    color: var(--cream);
+    color: var(--on-accent);
     text-align: start;
     font-family: var(--mg-font);
     font-size: calc(14px * var(--text-scale));
@@ -177,7 +177,7 @@
     width: 52px;
     height: 44px;
     border-radius: 14px;
-    color: var(--cream);
+    color: var(--on-accent);
     background: color-mix(in srgb, var(--nav-accent) 36%, transparent);
     border: 1px solid color-mix(in srgb, var(--nav-accent) 60%, transparent);
     flex-shrink: 0;
@@ -277,7 +277,7 @@
     border-radius: 50%;
     border: 1px solid rgba(240, 235, 224, 0.15);
     background: transparent;
-    color: var(--cream);
+    color: var(--on-accent);
     cursor: pointer;
   }
   .mg-sidebar-extras-close:hover {
@@ -339,7 +339,7 @@
   .mg-sidebar:hover .mg-sidebar-util > span { opacity: 1; }
   .mg-sidebar-util:hover {
     background: rgba(240, 235, 224, 0.06);
-    color: var(--cream);
+    color: var(--on-accent);
   }
   .mg-sidebar:not(:hover) .mg-sidebar-util {
     justify-content: center;
@@ -360,7 +360,7 @@
     background: transparent;
     border-radius: 12px;
     cursor: pointer;
-    color: var(--cream);
+    color: var(--on-accent);
     text-align: start;
     transition: background 0.15s;
   }
@@ -428,7 +428,7 @@
     font-family: var(--mg-font);
     font-size: calc(13px * var(--text-scale));
     font-weight: 500;
-    color: var(--cream);
+    color: var(--on-accent);
     overflow: hidden;
     text-overflow: ellipsis;
   }

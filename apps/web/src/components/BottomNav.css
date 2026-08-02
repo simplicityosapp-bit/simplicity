@@ -44,7 +44,7 @@
   font-family: var(--mg-font);
   font-size: calc(10px * var(--text-scale));
   font-weight: 500;
-  color: var(--cream);                       /* labels always cream/white */
+  color: var(--on-accent);                       /* labels always cream/white */
   transition: color 0.18s, transform 0.12s;
 }
 

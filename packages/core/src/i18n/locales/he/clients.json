@@ -78,7 +78,8 @@
     "paid": "שולם",
     "balance": "יתרה",
     "deselect": "בטל בחירה",
-    "selectAria": "בחר"
+    "selectAria": "בחר",
+    "remindAria": "הוספת תזכורת"
   },
   "bulk": {
     "selected": "{{count}} נבחרו",

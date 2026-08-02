@@ -1,5 +1,5 @@
 import { memo } from 'react'
-import { Check } from 'lucide-react'
+import { Check, BellPlus } from 'lucide-react'
 import { clientBalance, effectiveClientMeta, isr } from '@simplicity/core'
 import MG from '../../components/MG'
 import { useT } from '../../i18n/useT'
@@ -21,7 +21,7 @@ const initials = (name) =>
     .toUpperCase()
 
 function ClientCard({
-  client, index, onOpen,
+  client, index, onOpen, onRemind,
   selectMode = false, selected = false, onToggleSelect,
   projects = [], txns, sessions, members, groups, statuses = [], bal,
 }) {
@@ -79,6 +79,21 @@ function ClientCard({
             {project && <Txt className="cc-proj">{project.name}</Txt>}
           </Box>
         </Box>
+        {/* Setting a reminder was a four-step trip: open the client, find the
+            panel, add, pick the client back. It is the one thing you reach for
+            with the card already in front of you, so it lives on the card.
+            Hidden in select mode, where every tap belongs to the selection. */}
+        {onRemind && !selectMode && (
+          <Btn
+            type="button"
+            className="cc-remind"
+            onClick={(e) => { e.stopPropagation(); onRemind(client) }}
+            aria-label={t('card.remindAria')}
+            title={t('card.remindAria')}
+          >
+            <BellPlus size={15} strokeWidth={1.7} aria-hidden="true" />
+          </Btn>
+        )}
       </Box>
 
       <Box className={`cc-stats${hasSetup ? '' : ' dim'}`}>

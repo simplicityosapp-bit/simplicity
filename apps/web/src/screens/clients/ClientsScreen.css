@@ -318,6 +318,30 @@
   flex: 1;
   min-width: 0;
 }
+/* Reminder shortcut, pinned to the end of the head row by .cc-id's flex:1.
+   Deliberately NOT given the grown ::after tap target the other icon buttons
+   carry: this one sits inside a card that is itself a button, so every pixel
+   the target gains is a pixel that stops opening the client. 32px is a
+   comfortable target on its own. */
+.cc-remind {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--divider);
+  background: var(--val-chip-bg);
+  color: var(--stone);
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s, background 0.15s, transform 0.12s;
+}
+.cc-remind:hover {
+  color: var(--terracotta);
+  border-color: color-mix(in srgb, var(--terracotta) 40%, transparent);
+}
+.cc-remind:active { transform: scale(0.92); }
 .cc-name {
   margin: 0;
   font-family: var(--mg-font);

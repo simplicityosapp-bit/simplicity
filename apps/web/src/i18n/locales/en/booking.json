@@ -120,7 +120,8 @@
     "presetWorkweek": "Sun–Thu 09:00–17:00",
     "advancedTitle": "Advanced settings",
     "statusInSetup": "In setup",
-    "resumeSetup": "Continue setup"
+    "resumeSetup": "Continue setup",
+    "fieldsLabel": "Form fields"
   },
   "publicPage": {
     "loading": "Loading…",
@@ -147,7 +148,8 @@
     "paidThankYou": "Payment received — your appointment is booked! See you then.",
     "cancelledTitle": "Payment cancelled",
     "cancelledBody": "The payment wasn't completed, so the appointment wasn't booked. The slot will be released automatically soon — you can try again.",
-    "cancelledRetry": "Back to booking"
+    "cancelledRetry": "Back to booking",
+    "consentLink": "Details"
   },
   "toolbox": {
     "title": "Toolbox",

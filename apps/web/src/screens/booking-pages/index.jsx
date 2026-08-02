@@ -13,6 +13,8 @@ import { useGoogleCalendar } from '../../hooks/useGoogleCalendar'
 import Coachmark from '../../components/Coachmark'
 import InfoPopover from '../../components/InfoPopover'
 import SelectMenu from '../../components/SelectMenu'
+import FormFieldsEditor from '../../components/FormFieldsEditor'
+import { resolveFields } from '../../lib/leadPageSchema'
 import BookingPreview from './BookingPreview'
 import BookingCreateWizard from './CreateWizard'
 import AvailabilityEditor from './AvailabilityEditor'
@@ -542,6 +544,16 @@ function BookingPageBuilder({ page, onUpdate, onBack }) {
           </Box>
           {/* Appearance (colour, background, opacity, blur, bold, text) lives in
               the left-side "ארגז כלים" toolbox — kept out of settings on purpose. */}
+          {/* The details step. Same editor the lead page uses, on the same field
+              model — the four builtins map to the booking's own columns and
+              can't change key or type; anything added rides in its `data`. */}
+          <Box className="m-field">
+            <Box as="label" className="m-label">{t('pages.fieldsLabel')}</Box>
+            <FormFieldsEditor
+              value={resolveFields(c.fields)}
+              onChange={(fields) => setContent({ fields })}
+            />
+          </Box>
           <Box className="m-field">
             <Box as="label" className="m-label">{t('pages.afterBookingLabel')}</Box>
             <Box className="lpb-radio-group">

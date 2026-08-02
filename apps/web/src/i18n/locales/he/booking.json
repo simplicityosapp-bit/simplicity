@@ -128,7 +128,8 @@
     "presetWorkweek": "א׳–ה׳ 09:00–17:00",
     "advancedTitle": "הגדרות מתקדמות",
     "statusInSetup": "בהגדרה",
-    "resumeSetup": "המשך הגדרה"
+    "resumeSetup": "המשך הגדרה",
+    "fieldsLabel": "שדות הטופס"
   },
   "publicPage": {
     "loading": "טוען…",
@@ -155,7 +156,8 @@
     "paidThankYou": "התשלום התקבל — הפגישה נקבעה! נתראה.",
     "cancelledTitle": "התשלום בוטל",
     "cancelledBody": "התשלום לא הושלם, כך שהפגישה לא נקבעה. הסלוט ישוחרר אוטומטית בקרוב — אפשר לנסות שוב.",
-    "cancelledRetry": "חזרה לקביעת פגישה"
+    "cancelledRetry": "חזרה לקביעת פגישה",
+    "consentLink": "לפרטים"
   },
   "toolbox": {
     "title": "ארגז כלים",

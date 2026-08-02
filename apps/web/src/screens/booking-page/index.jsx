@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { fetchBookingPageConfig, fetchBookingSlots, submitBooking } from '../../lib/api/bookingIntake'
 import { leadPageSurface, safeRedirectUrl } from '../../lib/bookingPageSchema'
+import { resolveFields, isChoiceType, isConsentType } from '../../lib/leadPageSchema'
 import { Box, Txt, Btn, Input, Textarea, Lnk } from '../../components/ui'
 import { useT } from '../../i18n/useT'
 import '../booking-pages/bookingI18n'      // self-registers the 'booking' namespace
@@ -43,7 +44,9 @@ export default function BookingPage() {
   const [slotsLoading, setSlotsLoading] = useState(false)
   const [dayKey, setDayKey] = useState(null)
   const [slot, setSlot] = useState(null)          // chosen { start, end }
-  const [values, setValues] = useState({ name: '', phone: '', email: '', note: '' })
+  /* Untyped bag rather than the four fixed keys — the page declares which
+     fields exist, and a free field's key is only known at runtime. */
+  const [values, setValues] = useState({})
   const [errors, setErrors] = useState({})
   const [submitting, setSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState(null)
@@ -53,6 +56,9 @@ export default function BookingPage() {
   const hp = useRef('')
 
   const content = config?.content ?? {}
+  /* Absent `fields` means a page saved before the editor existed — it keeps
+     collecting the four builtins, exactly as it always did. */
+  const fields = useMemo(() => resolveFields(content.fields), [content.fields])
   const tz = config?.availability?.timezone || 'Asia/Jerusalem'
   const types = useMemo(() => (Array.isArray(config?.meetingTypes) ? config.meetingTypes : []), [config])
   const chosenType = useMemo(() => types.find((t) => (t.id ?? '__d') === typeId) || null, [types, typeId])
@@ -142,21 +148,50 @@ export default function BookingPage() {
     setValues((prev) => ({ ...prev, [key]: v }))
     setErrors((prev) => (prev[key] ? { ...prev, [key]: false } : prev))
   }
+  const toggleChoice = (key, opt) => {
+    setValues((prev) => {
+      const arr = Array.isArray(prev[key]) ? prev[key] : []
+      return { ...prev, [key]: arr.includes(opt) ? arr.filter((o) => o !== opt) : [...arr, opt] }
+    })
+    setErrors((prev) => (prev[key] ? { ...prev, [key]: false } : prev))
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     setSubmitError(null)
     // The form is noValidate, so type="email" isn't enforced — validate here.
+    // Required comes from the page's own field list now, not from a fixed
+    // "name only" rule; the edge re-checks the same list, so a crafted POST
+    // can't skip a field the coach marked required.
     const nextErrors = {}
-    if (!str(values.name)) nextErrors.name = true
+    fields.forEach((f) => {
+      if (!f.required) return
+      const v = values[f.key]
+      /* 'select' is a single choice and arrives as a string; only 'checkbox'
+         is an array. Same emptiness rule the lead form applies. */
+      const empty = f.type === 'checkbox' ? !(Array.isArray(v) && v.length)
+        : f.type === 'consent' ? !v
+          : !str(v)
+      if (empty) nextErrors[f.key] = true
+    })
     if (str(values.email) && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email.trim())) nextErrors.email = true
     if (Object.keys(nextErrors).length) { setErrors(nextErrors); return }
     setSubmitting(true)
     try {
+      /* Flattened to strings the same way the lead form does it, so the edge
+         sees one shape whichever page sent it: a multi-choice joins, a consent
+         tick sends its own label as the record of what was agreed to. */
+      const answers = { _hp: hp.current }
+      fields.forEach((f) => {
+        const v = values[f.key]
+        answers[f.key] = f.type === 'checkbox' ? (Array.isArray(v) ? v.join(', ') : '')
+          : f.type === 'consent' ? (v ? str(f.label || f.key) : '')
+            : (v ?? '')
+      })
       const res = await submitBooking(pageId, {
         meetingTypeId: chosenType?.id || undefined,
         start: slot.start,
-        answers: { ...values, _hp: hp.current },
+        answers,
         origin: typeof window !== 'undefined' ? window.location.origin : undefined,
       })
       // Payment-required booking → Grow returns a hosted-payment URL; send the
@@ -314,25 +349,68 @@ export default function BookingPage() {
               {chosenType?.name ? `${chosenType.name} · ` : ''}{fmtDayLabel(slot.start, tz)} · {fmtTime(slot.start, tz)}
             </Txt>
             {needsPay ? <Txt as="p" className="bk2-pay-note">{t('publicPage.payNote', { amount: chosenType.default_price })}</Txt> : null}
+            {/* Driven by the page's own field list, so the coach can drop the
+                ones a booking doesn't need and require the ones it does. The
+                four builtins keep their labels and keys; free fields ride along
+                in the booking's `data`. */}
             <Box className="lp-fields">
-              <Box as="label" className="lp-field">
-                <Txt className="lp-label">{t('publicPage.fieldName')}<Txt className="lp-req" aria-hidden="true"> *</Txt></Txt>
-                <Input className={`lp-input${errors.name ? ' is-error' : ''}`} value={values.name} onChange={(e) => setField('name', e.target.value)} required />
-                {errors.name ? <Txt className="lp-field-error">{t('publicPage.requiredField')}</Txt> : null}
-              </Box>
-              <Box as="label" className="lp-field">
-                <Txt className="lp-label">{t('publicPage.fieldPhone')}</Txt>
-                <Input className="lp-input" type="tel" value={values.phone} onChange={(e) => setField('phone', e.target.value)} />
-              </Box>
-              <Box as="label" className="lp-field">
-                <Txt className="lp-label">{t('publicPage.fieldEmail')}</Txt>
-                <Input className={`lp-input${errors.email ? ' is-error' : ''}`} type="email" value={values.email} onChange={(e) => setField('email', e.target.value)} />
-                {errors.email ? <Txt className="lp-field-error">{t('publicPage.invalidEmail')}</Txt> : null}
-              </Box>
-              <Box as="label" className="lp-field">
-                <Txt className="lp-label">{t('publicPage.fieldNote')}</Txt>
-                <Textarea className="lp-input lp-textarea" rows={3} value={values.note} onChange={(e) => setField('note', e.target.value)} />
-              </Box>
+              {fields.map((f) => {
+                const label = f.label || f.key
+                const req = f.required ? <Txt className="lp-req" aria-hidden="true"> *</Txt> : null
+                const err = errors[f.key]
+                if (isConsentType(f.type)) {
+                  const href = safeRedirectUrl(f.link)
+                  return (
+                    <Box as="label" key={f.key} className={`lp-field lp-consent${err ? ' is-error' : ''}`}>
+                      <Input type="checkbox" checked={!!values[f.key]} onChange={(e) => setField(f.key, e.target.checked)} />
+                      <Txt className="lp-consent-text">
+                        {label}
+                        {href ? <>{' '}<Lnk href={href} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>{f.linkText || t('publicPage.consentLink')}</Lnk></> : null}
+                        {req}
+                      </Txt>
+                    </Box>
+                  )
+                }
+                if (isChoiceType(f.type)) {
+                  return (
+                    <Box key={f.key} className="lp-field" role="group" aria-label={label}>
+                      <Txt className="lp-label">{label}{req}</Txt>
+                      <Box className={`lp-choices${err ? ' is-error' : ''}`}>
+                        {(f.options || []).map((opt, oi) => (
+                          <Box as="label" className="lp-choice" key={oi}>
+                            <Input
+                              type={f.type === 'checkbox' ? 'checkbox' : 'radio'}
+                              name={f.key}
+                              checked={f.type === 'checkbox'
+                                ? (Array.isArray(values[f.key]) && values[f.key].includes(opt))
+                                : values[f.key] === opt}
+                              onChange={() => (f.type === 'checkbox' ? toggleChoice(f.key, opt) : setField(f.key, opt))}
+                            />
+                            {opt}
+                          </Box>
+                        ))}
+                      </Box>
+                      {err ? <Txt className="lp-field-error">{t('publicPage.requiredField')}</Txt> : null}
+                    </Box>
+                  )
+                }
+                return (
+                  <Box as="label" key={f.key} className="lp-field">
+                    <Txt className="lp-label">{label}{req}</Txt>
+                    {f.type === 'textarea' ? (
+                      <Textarea className="lp-input lp-textarea" rows={3} value={values[f.key] ?? ''} onChange={(e) => setField(f.key, e.target.value)} />
+                    ) : (
+                      <Input
+                        className={`lp-input${err ? ' is-error' : ''}`}
+                        type={f.type === 'tel' ? 'tel' : f.type === 'email' ? 'email' : 'text'}
+                        value={values[f.key] ?? ''}
+                        onChange={(e) => setField(f.key, e.target.value)}
+                      />
+                    )}
+                    {err ? <Txt className="lp-field-error">{f.key === 'email' && str(values.email) ? t('publicPage.invalidEmail') : t('publicPage.requiredField')}</Txt> : null}
+                  </Box>
+                )
+              })}
             </Box>
 
             <Input type="text" tabIndex={-1} autoComplete="off" className="lp-hp" aria-hidden="true" onChange={(e) => { hp.current = e.target.value }} />

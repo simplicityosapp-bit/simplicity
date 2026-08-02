@@ -120,7 +120,8 @@
     "presetWorkweek": "Dom–Jue 09:00–17:00",
     "advancedTitle": "Ajustes avanzados",
     "statusInSetup": "En configuración",
-    "resumeSetup": "Continuar configuración"
+    "resumeSetup": "Continuar configuración",
+    "fieldsLabel": "Campos del formulario"
   },
   "publicPage": {
     "loading": "Cargando…",
@@ -147,7 +148,8 @@
     "paidThankYou": "Pago recibido — ¡tu cita está reservada! Nos vemos.",
     "cancelledTitle": "Pago cancelado",
     "cancelledBody": "El pago no se completó, así que la cita no se reservó. La franja se liberará automáticamente pronto — puedes intentarlo de nuevo.",
-    "cancelledRetry": "Volver a reservar"
+    "cancelledRetry": "Volver a reservar",
+    "consentLink": "Detalles"
   },
   "toolbox": {
     "title": "Herramientas",

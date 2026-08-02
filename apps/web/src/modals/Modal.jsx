@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import { X } from 'lucide-react'
 import { useT } from '../i18n/useT'
-import { acquireModalLock } from '../lib/modalLock'
+import { acquireModalLock, acquireModalLayer, isTopModalLayer } from '../lib/modalLock'
 import './Modal.css'
 import { Box, Txt, Btn } from '../components/ui'
 
@@ -17,7 +17,34 @@ const FOCUSABLE = 'button:not([disabled]), a[href], input:not([disabled]), selec
 export default function Modal({ open, onClose, title, titleLabel, children }) {
   const { t } = useT('modalsSystem')
   const sheetRef = useRef(null)
+  const overlayRef = useRef(null)
   const restoreRef = useRef(null)
+  const layerRef = useRef(0)
+
+  /* Claim a stacking layer on open, release it on close — see lib/modalLock.
+     Written straight to the DOM rather than held in state: routing it through
+     setState would render once at the old layer and again at the new one, and
+     that first frame is exactly the one where a confirmation would flash
+     underneath the form it was opened from. Layer 0 reproduces the 500/510 in
+     Modal.css, so a lone modal is untouched. */
+  useEffect(() => {
+    if (!open) return undefined
+    const { layer, release } = acquireModalLayer()
+    layerRef.current = layer
+    /* Captured, not read again in cleanup: cleanup must clear the z-index off
+       the same two nodes it set it on, whatever the refs point at by then. */
+    const overlay = overlayRef.current
+    const sheet = sheetRef.current
+    const z = 500 + layer * 20
+    overlay?.style.setProperty('z-index', String(z))
+    sheet?.style.setProperty('z-index', String(z + 10))
+    return () => {
+      release()
+      layerRef.current = 0
+      overlay?.style.removeProperty('z-index')
+      sheet?.style.removeProperty('z-index')
+    }
+  }, [open])
 
   /* Escape closes. */
   useEffect(() => {
@@ -25,10 +52,10 @@ export default function Modal({ open, onClose, title, titleLabel, children }) {
     const onKey = (e) => {
       if (e.key !== 'Escape') return
       /* Only the TOP-most modal responds, so stacked modals (e.g. a picker over
-         a form) don't all close on one Escape. Portals mount in open order, so
-         the last .m-sheet.open in the DOM is the top one. */
-      const sheets = document.querySelectorAll('.m-sheet.open')
-      if (sheets.length && sheets[sheets.length - 1] !== sheetRef.current) return
+         a form) don't all close on one Escape. Asks the layer registry rather
+         than reading DOM order — a closed modal stays mounted, so the last
+         .m-sheet.open in the DOM was never reliably the top one. */
+      if (!isTopModalLayer(layerRef.current)) return
       onClose()
     }
     window.addEventListener('keydown', onKey)
@@ -84,7 +111,7 @@ export default function Modal({ open, onClose, title, titleLabel, children }) {
 
   return createPortal(
     <>
-      <Box className={`m-overlay${open ? ' open' : ''}`} onClick={onClose} aria-hidden="true" />
+      <Box ref={overlayRef} className={`m-overlay${open ? ' open' : ''}`} onClick={onClose} aria-hidden="true" />
       <Box ref={sheetRef} tabIndex={-1} className={`m-sheet${open ? ' open' : ''}`} role="dialog" aria-modal="true" aria-hidden={!open} aria-label={titleLabel || (typeof title === 'string' ? title : undefined)}>
         <Box className="m-head">
           <Txt as="p" className="m-title">{title}</Txt>

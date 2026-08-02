@@ -114,7 +114,9 @@
     "meetingConfirmed": "הפגישה סומנה כהתקיימה",
     "meetingSkipped": "הפגישה דולגה",
     "followupDone": "המעקב סומן כבוצע",
-    "actionFailed": "הפעולה נכשלה. נסו שוב."
+    "actionFailed": "הפעולה נכשלה. נסו שוב.",
+    "meetingRescheduled": "מועד הפגישה עודכן",
+    "meetingCanceled": "הפגישה בוטלה"
   },
   "kinds": {
     "followup": "מעקב",

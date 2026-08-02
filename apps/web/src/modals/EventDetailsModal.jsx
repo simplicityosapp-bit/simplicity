@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react'
-import { Check, X, CalendarDays, Clock, Pencil, Trash2 } from 'lucide-react'
+import { Check, X, CalendarDays, Clock, Pencil, Trash2, CalendarClock } from 'lucide-react'
 import Modal from './Modal'
+import DateField from '../components/DateField'
 import { formatWhen, fmtTime, isr } from '@simplicity/core'
 import { useT } from '../i18n/useT'
 import { Box, Txt, Btn, Input, Lnk } from '../components/ui'
@@ -13,6 +14,14 @@ const toLocalInput = (d) =>
   d instanceof Date && !Number.isNaN(d.getTime())
     ? `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`
     : ''
+/* The reschedule form splits the instant across the app's own two controls
+   (DateField + a time input), the pair ScheduleMeetingModal already uses to
+   pick a meeting's slot — rather than the raw datetime-local the Google-event
+   editor above keeps. */
+const toDatePart = (d) => (d instanceof Date && !Number.isNaN(d.getTime())
+  ? `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}` : '')
+const toTimePart = (d) => (d instanceof Date && !Number.isNaN(d.getTime())
+  ? `${pad(d.getHours())}:${pad(d.getMinutes())}` : '')
 
 /* Lightweight detail+action modal opened by tapping an event in any
    calendar view. Lives outside the view components so they can stay
@@ -20,7 +29,7 @@ const toLocalInput = (d) =>
    decides whether confirming a meeting also touches linked transactions.
    Google-synced events can be CLAIMED here: editing or deleting one owns
    it (owned=true), so the change survives future syncs (migration 0023). */
-export default function EventDetailsModal({ open, onClose, event, billClient, onConfirmMeeting, onSkipMeeting, onBillSession, onCompleteReminder, onRemoveReminder, onUpdateEvent, onDeleteEvent, onCancelBooking, onFollowupDone }) {
+export default function EventDetailsModal({ open, onClose, event, billClient, onConfirmMeeting, onSkipMeeting, onBillSession, onCompleteReminder, onRemoveReminder, onUpdateEvent, onDeleteEvent, onCancelBooking, onFollowupDone, onRescheduleMeeting, onCancelMeeting }) {
   const { t } = useT('modalsTask')
   /* Two-step delete confirm (resets per event — parent keys the modal on
      event.id). No undo path here, so the second tap is the safety net. */
@@ -33,6 +42,13 @@ export default function EventDetailsModal({ open, onClose, event, billClient, on
      charge — logging it as a held session (which is what bills a per-session
      client). Only this step keeps the modal open; everything else closes. */
   const [billStep, setBillStep] = useState(false)
+  /* Reschedule ("שינוי מועד") — an inline form on the meeting branch, mirroring
+     the Google-event editor below it. Two-step confirm on the cancel, matching
+     every other destructive action in this modal. */
+  const [moving, setMoving] = useState(false)
+  const [moveForm, setMoveForm] = useState({ date: '', time: '' })
+  const [moveErr, setMoveErr] = useState('')
+  const [confirmCancelMeeting, setConfirmCancelMeeting] = useState(false)
   /* Guards every async action against a double-fire (double-bill, double-save,
      double-delete). A ref so a rapid second tap is caught synchronously, before
      any re-render. */
@@ -63,6 +79,28 @@ export default function EventDetailsModal({ open, onClose, event, billClient, on
     if (busyRef.current) return
     busyRef.current = true
     try { await fn(event) } finally { onClose() }
+  }
+
+  const startMove = () => {
+    setMoveForm({ date: toDatePart(event.when), time: toTimePart(event.when) })
+    setMoveErr('')
+    setMoving(true)
+  }
+  const saveMove = async () => {
+    if (busyRef.current) return
+    if (!moveForm.date || !moveForm.time) { setMoveErr(t('event.moveRequired')); return }
+    busyRef.current = true
+    /* Kept OPEN on failure: the unique index on (subject, instant) rejects a
+       move onto a slot this subject already holds, and the coach needs to see
+       that and pick another time — not watch the modal close on a save that
+       never happened. */
+    try {
+      await onRescheduleMeeting?.(event, new Date(`${moveForm.date}T${moveForm.time}`).toISOString())
+      onClose()
+    } catch {
+      setMoveErr(t('event.moveFailed'))
+      busyRef.current = false
+    }
   }
 
   const startEdit = () => {
@@ -105,7 +143,11 @@ export default function EventDetailsModal({ open, onClose, event, billClient, on
         </Box>
       </Box>
 
-      {isMeeting && event.status === 'pending' && !billStep && (
+      {/* Past-tense question, past-tense gate. `isPast` is stamped by the
+          calendar when the event is opened; a meeting still ahead of us gets
+          the neutral "מתוכננת" line below instead, because answering "כן"
+          here materialises a session and bills a per-session client. */}
+      {isMeeting && event.status === 'pending' && event.isPast && !billStep && (
         <Box className="evt-detail-row">
           <Txt as="p" className="evt-detail-question">{t('event.meetingHappened')}</Txt>
           <Box className="evt-detail-actions">
@@ -135,6 +177,67 @@ export default function EventDetailsModal({ open, onClose, event, billClient, on
             </Btn>
             <Btn type="button" className="evt-detail-btn skip" onClick={onClose}>
               <X size={15} strokeWidth={2} aria-hidden="true" /> {t('event.billNo')}
+            </Btn>
+          </Box>
+        </Box>
+      )}
+
+      {/* An upcoming meeting is the one a coach most often needs to MOVE or
+          call off, and until now the modal offered neither — a synced Google
+          event could be edited and deleted while the app's own meeting could
+          only be stared at. */}
+      {isMeeting && event.status === 'pending' && !event.isPast && !billStep && !moving && (
+        <>
+          <Txt as="p" className="evt-detail-status">{t('event.meetingUpcoming')}</Txt>
+          <Box className="evt-detail-row">
+            <Box className="evt-detail-actions">
+              {onRescheduleMeeting && (
+                <Btn type="button" className="evt-detail-btn approve" onClick={startMove}>
+                  <CalendarClock size={15} strokeWidth={2} aria-hidden="true" /> {t('event.reschedule')}
+                </Btn>
+              )}
+              {onCancelMeeting && (
+                <Btn
+                  type="button"
+                  className="evt-detail-btn skip"
+                  onClick={confirmCancelMeeting ? handle(onCancelMeeting) : () => setConfirmCancelMeeting(true)}
+                >
+                  <X size={15} strokeWidth={2} aria-hidden="true" />
+                  {confirmCancelMeeting ? t('event.cancelMeetingConfirm') : t('event.cancelMeeting')}
+                </Btn>
+              )}
+            </Box>
+          </Box>
+        </>
+      )}
+
+      {isMeeting && moving && (
+        <Box className="evt-detail-row">
+          <Box className="m-row2">
+            <Box className="m-field">
+              <Box as="label" className="m-label">{t('meeting.date')}</Box>
+              <DateField
+                value={moveForm.date}
+                onChange={(e) => { setMoveForm((f) => ({ ...f, date: e.target.value })); if (moveErr) setMoveErr('') }}
+              />
+            </Box>
+            <Box className="m-field">
+              <Box as="label" className="m-label">{t('meeting.time')}</Box>
+              <Input
+                type="time"
+                className="m-input"
+                value={moveForm.time}
+                onChange={(e) => { setMoveForm((f) => ({ ...f, time: e.target.value })); if (moveErr) setMoveErr('') }}
+              />
+            </Box>
+          </Box>
+          {moveErr && <Txt as="p" className="m-error">{moveErr}</Txt>}
+          <Box className="evt-detail-actions">
+            <Btn type="button" className="evt-detail-btn approve" onClick={saveMove}>
+              <Check size={15} strokeWidth={2} aria-hidden="true" /> {t('common.save')}
+            </Btn>
+            <Btn type="button" className="evt-detail-btn skip" onClick={() => setMoving(false)}>
+              <X size={15} strokeWidth={2} aria-hidden="true" /> {t('common.cancel')}
             </Btn>
           </Box>
         </Box>

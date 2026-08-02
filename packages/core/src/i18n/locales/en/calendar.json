@@ -114,7 +114,9 @@
     "meetingConfirmed": "Meeting marked as held",
     "meetingSkipped": "Meeting skipped",
     "followupDone": "Follow-up marked done",
-    "actionFailed": "Action failed — please try again."
+    "actionFailed": "Action failed — please try again.",
+    "meetingRescheduled": "Meeting moved",
+    "meetingCanceled": "Meeting cancelled"
   },
   "kinds": {
     "followup": "Follow-up",

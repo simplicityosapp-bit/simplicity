@@ -6,7 +6,7 @@ import { useReminders } from '../../hooks/useReminders'
 import { useScheduledMeetings } from '../../hooks/useScheduledMeetings'
 import { useSessions } from '../../hooks/useSessions'
 import { useScheduledMeetingsGeneration } from '../../hooks/useScheduledMeetingsGeneration'
-import { confirmScheduledMeeting, skipScheduledMeeting } from '../../lib/scheduledMeetings'
+import { confirmScheduledMeeting, skipScheduledMeeting, rescheduleScheduledMeeting } from '../../lib/scheduledMeetings'
 import { showToast, showError } from '../../lib/toast'
 import { useCalendarDuplicates } from '../../hooks/useCalendarDuplicates'
 import { useCalendarDuplicateAutoResolve } from '../../hooks/useCalendarDuplicateAutoResolve'
@@ -51,7 +51,7 @@ const localTimeStr = (d) => `${pad2(d.getHours())}:${pad2(d.getMinutes())}`
 export default function CalendarScreen() {
   const { t } = useT('calendar')
   const { reminders, addReminder, completeReminder, removeReminder } = useReminders()
-  const { meetings, loading: meetingsLoading, addMeeting, updateMeeting } = useScheduledMeetings()
+  const { meetings, loading: meetingsLoading, addMeeting, updateMeeting, removeMeeting } = useScheduledMeetings()
   const { sessions, addSession, removeSession, putBackSession } = useSessions()
   const { events: calendarEvents, loading: calendarEventsLoading, refetch: refetchCalendarEvents, dismissEvent, updateEvent, deleteEvent, restoreEvent } = useCalendarEvents()
   /* Auto-sync Google Calendar on entry + every 10 min while this screen is
@@ -259,6 +259,17 @@ export default function CalendarScreen() {
     return allEvents.filter((e) => e.when >= startOfToday)
   }, [allEvents])
 
+  /* Opening an event stamps whether its time has already passed. "האם הפגישה
+     התקיימה?" is a past-tense question, and the home review widget only ever
+     asks it for meetings whose scheduled_at is behind us (homeData's
+     pastMeetings rule) — the calendar has to use the same cut, or a tap on
+     next week's meeting offers to confirm it, which materialises a session
+     and bills a per-session client for a meeting that hasn't happened.
+     The clock is read HERE, in the click handler, and not during the modal's
+     render: react-hooks/purity forbids the latter. */
+  const selectEvent = (ev) =>
+    setSelectedEvent(ev ? { ...ev, isPast: new Date(ev.when).getTime() <= Date.now() } : ev)
+
   /* Event action handlers — passed into EventDetailsModal so it
      stays purely declarative. */
   /* "Did it happen? → yes" mirrors the home review widget: materialise + link a
@@ -273,6 +284,17 @@ export default function CalendarScreen() {
     return confirmScheduledMeeting({ meeting: m, sessions, addSession, updateMeeting, removeSession, putBackSession })
   }
   const skipMeeting = (ev) => skipScheduledMeeting({ meeting: ev.raw, updateMeeting, removeSession, putBackSession })
+
+  /* Move an upcoming meeting to another slot, and call one off. Cancelling
+     reuses the skip helper — same status, same unwinding — with its own undo
+     wording, because "דולגה" describes a meeting that didn't happen, not one
+     the coach called off in advance. */
+  const rescheduleMeeting = (ev, at) =>
+    rescheduleScheduledMeeting({ meeting: ev.raw, at, updateMeeting, addMeeting, removeMeeting })
+  const cancelMeeting = (ev) => skipScheduledMeeting({
+    meeting: ev.raw, updateMeeting, removeSession, putBackSession,
+    label: t('toast.meetingCanceled'),
+  })
 
   /* "Did the meeting happen?" for a per-session client → offer a one-off charge.
      Billing a per-session client = logging the meeting as a held session
@@ -362,13 +384,13 @@ export default function CalendarScreen() {
       ) : (
         <>
           {view === 'schedule' && (
-            <CalendarSchedule items={scheduleItems} onSelect={setSelectedEvent} />
+            <CalendarSchedule items={scheduleItems} onSelect={selectEvent} />
           )}
           {view === 'day' && (
             <CalendarDay
               date={date}
               events={allEvents}
-              onSelect={setSelectedEvent}
+              onSelect={selectEvent}
               onPickSlot={(d) => { setScheduleAt(d); setShowGate(true) }}
               dayViewStart={dayViewStart}
               dayViewEnd={dayViewEnd}
@@ -378,7 +400,7 @@ export default function CalendarScreen() {
             <CalendarWeek
               date={date}
               events={allEvents}
-              onSelect={setSelectedEvent}
+              onSelect={selectEvent}
               onPickDay={(d) => { setDate(d); setView('day') }}
               weekStart={weekStart}
               hebrew={hebrew}
@@ -417,19 +439,27 @@ export default function CalendarScreen() {
         initialDate={scheduleAt ? localDateStr(scheduleAt) : undefined}
         initialTime={scheduleAt ? localTimeStr(scheduleAt) : undefined}
       />
+      {/* A task and a transaction are seeded from the tapped slot too — the
+          gate offers all four types from the same tap, so dropping the time
+          for half of them made the choice silently lose the user's input.
+          A transaction stores no time, so it takes the day alone. */}
       <AddTaskModal
+        key={scheduleAt ? `t-${scheduleAt.getTime()}` : 't-new'}
         open={activeModal === 'task'}
         onClose={() => { setActiveModal(null); setScheduleAt(null) }}
         projects={projects}
         clients={clients}
         onSave={addTask}
+        initialDue={scheduleAt ? scheduleAt.toISOString() : null}
       />
       <AddTransactionModal
+        key={scheduleAt ? `x-${scheduleAt.getTime()}` : 'x-new'}
         open={activeModal === 'transaction'}
         onClose={() => { setActiveModal(null); setScheduleAt(null) }}
         clients={clients}
         projects={projects}
         onSave={addTransaction}
+        defaults={scheduleAt ? { date: localDateStr(scheduleAt) } : undefined}
       />
       <EventDetailsModal
         key={selectedEvent?.id}
@@ -446,6 +476,8 @@ export default function CalendarScreen() {
         onDeleteEvent={deleteEvent}
         onCancelBooking={cancelBookingHandler}
         onFollowupDone={markFollowupDone}
+        onRescheduleMeeting={rescheduleMeeting}
+        onCancelMeeting={cancelMeeting}
       />
       <CalendarDuplicateModal
         open={showDuplicates}

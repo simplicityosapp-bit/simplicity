@@ -102,23 +102,60 @@ export function monthGrid(monthDate: Date, weekStart: string = 'sunday'): Date[]
   return cells
 }
 
-/* All events on the day matching `date`, sorted by time ascending. */
-export function eventsForDay<T extends { when: DateInput }>(events: T[] | null | undefined, date: DateInput): T[] {
+/** An event as the bucketing helpers see it: a start, and an optional end. */
+export interface SpanningEvent {
+  when: DateInput
+  end?: DateInput | null
+}
+
+/* Runaway guard for the day-walk below — a corrupt end_time decades out
+   would otherwise push one event into tens of thousands of buckets. */
+const MAX_SPAN_DAYS = 366
+
+/* The LAST civil day an event occupies. Two conventions meet here and one
+   rule settles both: Google stores an all-day event's end as the EXCLUSIVE
+   next midnight (28–30 July is start 28th, end 31st 00:00), and a timed
+   event that ends exactly at midnight shouldn't bleed into the next day
+   either. Stepping back a millisecond from the end handles each of them. */
+export function lastDayOf(e: SpanningEvent): Date {
+  const start = startOfDay(e.when)
+  if (!e.end) return start
+  const end = new Date(e.end)
+  if (Number.isNaN(end.getTime()) || end.getTime() <= new Date(e.when).getTime()) return start
+  const last = startOfDay(new Date(end.getTime() - 1))
+  return last > start ? last : start
+}
+
+/* True when `date` falls anywhere in the event's span — not just on the day
+   it starts. Without this a three-day conference synced from Google shows up
+   on its first day and vanishes for the rest of it. */
+export function coversDay(e: SpanningEvent, date: DateInput): boolean {
+  const d = startOfDay(date).getTime()
+  return d >= startOfDay(e.when).getTime() && d <= lastDayOf(e).getTime()
+}
+
+/* All events occupying `date`, sorted by start time ascending — so an event
+   that began on an earlier day leads the list on each day it continues into. */
+export function eventsForDay<T extends SpanningEvent>(events: T[] | null | undefined, date: DateInput): T[] {
   return (events || [])
-    .filter((e) => isSameDay(e.when, date))
+    .filter((e) => coversDay(e, date))
     .sort((a, b) => new Date(a.when).getTime() - new Date(b.when).getTime())
 }
 
-/* Counts of events per day in a given range — used by the month
-   grid's dot indicator. */
-export function eventsByDate<T extends { when: DateInput }>(events: T[] | null | undefined): Map<string, T[]> {
+/* Events per day — used by the month grid's dot indicator. A multi-day event
+   is listed under every day it spans, so its dot doesn't stop after day one. */
+export function eventsByDate<T extends SpanningEvent>(events: T[] | null | undefined): Map<string, T[]> {
   const map = new Map<string, T[]>()
   for (const e of (events || [])) {
-    const d = new Date(e.when)
-    const key = `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`
-    const list = map.get(key) || []
-    list.push(e)
-    map.set(key, list)
+    const start = startOfDay(e.when)
+    if (Number.isNaN(start.getTime())) continue
+    const last = lastDayOf(e)
+    for (let d = start, i = 0; d <= last && i <= MAX_SPAN_DAYS; d = addDays(d, 1), i++) {
+      const key = dateKey(d)
+      const list = map.get(key) || []
+      list.push(e)
+      map.set(key, list)
+    }
   }
   return map
 }

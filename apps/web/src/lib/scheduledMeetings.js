@@ -149,8 +149,13 @@ export async function billPerSessionMeeting({ meeting, sessions, addSession }) {
    All of it is reversed by ONE undo. removeSession is called with silent:true
    because it would otherwise register an undo of its own — and pushUndo is
    single-level, so the last registration wins and everything else would be
-   stranded half-applied. */
-export async function skipScheduledMeeting({ meeting, updateMeeting, removeSession, putBackSession, linkedTxs = [], setTxStatus }) {
+   stranded half-applied.
+
+   `label` overrides the undo toast's wording. The mechanics of "didn't
+   happen" and "cancelled in advance" are identical — same status, same
+   session and expense unwinding — but a coach who just cancelled next week's
+   meeting should not be told it was "דולגה". */
+export async function skipScheduledMeeting({ meeting, updateMeeting, removeSession, putBackSession, linkedTxs = [], setTxStatus, label }) {
   try {
     const prevStatus = meeting.status
     const prevSessionId = meeting.session_id ?? null
@@ -164,7 +169,7 @@ export async function skipScheduledMeeting({ meeting, updateMeeting, removeSessi
     if (setTxStatus) for (const t of prevTx) await setTxStatus(t.id, 'skipped')
 
     pushUndo({
-      label: i18n.t('calendar:toast.meetingSkipped'),
+      label: label || i18n.t('calendar:toast.meetingSkipped'),
       undo: async () => {
         if (droppedSessionId && putBackSession) await putBackSession(droppedSessionId)
         await updateMeeting(meeting.id, { status: prevStatus, session_id: prevSessionId })
@@ -179,6 +184,63 @@ export async function skipScheduledMeeting({ meeting, updateMeeting, removeSessi
   } catch {
     showError(i18n.t('calendar:toast.actionFailed'))
   }
+}
+
+/* Move a meeting to another date/time.
+
+   NOT an update of scheduled_at, and that is the whole point. The generator
+   dedups on the exact (subject, instant) key of every existing row, whatever
+   its status — so simply moving the row frees the original slot's key and the
+   very next mount of the calendar or the home screen materialises the old
+   occurrence again, leaving the coach with the meeting in both places.
+
+   Instead: the original row STAYS on its instant as 'skipped' (holding the key
+   down — the same trick the duplicate resolver's hideMeeting uses) and the new
+   time gets a fresh pending row. Applied uniformly, including to a one-off
+   meeting that sits on no recurring slot: telling the two apart means
+   re-deriving the subject's slot here, and a spare invisible row costs less
+   than a second copy of that rule going stale. A skipped meeting renders
+   nowhere — the calendar feed keeps only pending/confirmed, and the home
+   tile filters it out explicitly.
+
+   Throws so the caller can keep its form open: the partial-unique index on
+   (user, subject, scheduled_at) WHERE pending rejects a move onto a slot the
+   same subject already has, and that has to reach the coach as an error
+   rather than as a silently dropped save. */
+export async function rescheduleScheduledMeeting({ meeting, at, updateMeeting, addMeeting, removeMeeting }) {
+  const prevStatus = meeting.status
+  const created = await addMeeting({
+    subject_type: meeting.subject_type,
+    subject_id: meeting.subject_id,
+    scheduled_at: at,
+    status: 'pending',
+  })
+  /* Only once the new row exists — if the insert is rejected the original is
+     left exactly as it was, rather than cancelled with nothing to replace it. */
+  await updateMeeting(meeting.id, { status: 'skipped', session_id: null })
+
+  /* Undo re-inserts rather than un-deletes: removeMeeting is a hard delete, so
+     the replacement comes back with a fresh id. Tracked in `liveId` so a redo
+     after an undo still removes the row that is actually there. */
+  let liveId = created?.id
+  pushUndo({
+    label: i18n.t('calendar:toast.meetingRescheduled'),
+    undo: async () => {
+      if (liveId && removeMeeting) await removeMeeting(liveId)
+      await updateMeeting(meeting.id, { status: prevStatus })
+    },
+    redo: async () => {
+      const again = await addMeeting({
+        subject_type: meeting.subject_type,
+        subject_id: meeting.subject_id,
+        scheduled_at: at,
+        status: 'pending',
+      })
+      liveId = again?.id
+      await updateMeeting(meeting.id, { status: 'skipped', session_id: null })
+    },
+  })
+  return created
 }
 
 /* Visible-in-widget filter: a meeting that's already in the past, no

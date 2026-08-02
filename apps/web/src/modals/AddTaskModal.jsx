@@ -28,26 +28,31 @@ const dueParts = (iso) => {
    TaskTaxonomyModal). Deriving rather than seeding state means a late-arriving
    preference is picked up without an effect that writes back into the form. */
 const blank = () => ({ title: '', description: '', priority: null, project_id: '', client_id: '', status_id: '', category_id: '', due_date: '', due_time: '' })
-const fromTask = (t) => (t
+/* `initialDue` seeds the due date/time of a NEW task (the calendar's day grid
+   passes the slot the user tapped). It is deliberately separate from `task`:
+   passing a stub task to carry a date would flip the modal into edit mode. */
+const fromTask = (t, initialDue = null) => (t
   ? { title: t.title || '', description: t.description || '', priority: t.priority || null, project_id: t.project_id || '', client_id: t.client_id || '', status_id: t.status_id || '', category_id: t.category_id || '', ...dueParts(t.due_at) }
-  : blank())
+  : { ...blank(), ...dueParts(initialDue) })
 
 /* onSave is async (Supabase insert/update). Pass `task` to edit an existing one.
    `onDelete(id)` is optional — supplied only where the caller owns a delete
    (the tasks screen); without it the modal shows no delete action, exactly as
    before. Deleting is a soft-delete → Trash, so the confirm says so. */
-export default function AddTaskModal({ open, onClose, onSave, onDelete, projects = [], clients = [], statuses = [], categories = [], task = null }) {
+export default function AddTaskModal({ open, onClose, onSave, onDelete, projects = [], clients = [], statuses = [], categories = [], task = null, initialDue = null }) {
   const isEdit = !!task
   const { t } = useT('modalsTask')
   const { prefs } = useUserPreferences()
-  const [form, setForm] = useState(() => fromTask(task))
+  const [form, setForm] = useState(() => fromTask(task, initialDue))
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
-  /* Editing a task that already has a due date opens with the field showing. */
-  const [showDue, setShowDue] = useState(() => !!task?.due_at)
+  /* Opens with the due field showing whenever there's a date to show — an
+     edited task that carries one, or a new task seeded from a tapped slot. */
+  const openWithDue = !!(task?.due_at || initialDue)
+  const [showDue, setShowDue] = useState(openWithDue)
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }))
-  const close = () => { setForm(fromTask(task)); setShowDue(!!task?.due_at); setErr(''); setBusy(false); onClose() }
+  const close = () => { setForm(fromTask(task, initialDue)); setShowDue(openWithDue); setErr(''); setBusy(false); onClose() }
   /* Nothing picked yet → fall back to the configured default. */
   const priority = form.priority ?? (prefs?.tasks?.default_priority || 'medium')
 

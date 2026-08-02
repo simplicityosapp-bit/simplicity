@@ -21,7 +21,9 @@ const blank = (defaults = {}) => ({
   type: defaults.type || 'income',
   amount: defaults.amount || '',
   desc: defaults.desc || '',
-  date: todayStr(),
+  /* `date` honours a caller's default like every other field here — the
+     calendar's day grid passes the slot the user tapped. Absent → today. */
+  date: defaults.date || todayStr(),
   client_id: defaults.client_id || '',
   project_id: defaults.project_id || '',
   category_id: '',
@@ -133,9 +135,8 @@ export default function AddTransactionModal({ open, onClose, onSave, clients = [
 
   /* Has anything been entered that would be lost? Compared against the same
      blank(initial) the form opens with, so a caller's pre-filled defaults
-     (the project QuickRow binds project_id, the drawer locks the client)
-     don't count as the user's own work. The date is skipped: blank() always
-     stamps it with today. */
+     (the project QuickRow binds project_id, the drawer locks the client, the
+     calendar passes the tapped day) don't count as the user's own work. */
   const pristine = blank(initial)
   const formDirty = ['type', 'amount', 'desc', 'client_id', 'project_id', 'category_id', 'payment_method']
     .some((k) => String(form[k] ?? '') !== String(pristine[k] ?? ''))

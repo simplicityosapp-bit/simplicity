@@ -8,6 +8,7 @@ const DEFAULT_END = 22
 const HOUR_H = 56            // px per hour row
 const MIN_EVENT_H = 24       // floor so short / point events stay tappable
 const DEFAULT_DUR_MIN = 60   // assumed duration when an event carries no end
+const DAY_MIN = 24 * 60      // end-of-day clamp for an event continuing past midnight
 
 const minutesOf = (d) => { const x = new Date(d); return x.getHours() * 60 + x.getMinutes() }
 
@@ -62,37 +63,57 @@ export default function CalendarDay({ date, events, onSelect, onPickSlot, dayVie
     return out
   }, [startH, endH])
 
-  /* Events whose START falls outside the visible window keep their own bands
-     (a fully off-hours meeting shouldn't silently vanish or stretch the grid). */
-  const earlyEvents = useMemo(() => timedEvents.filter((e) => new Date(e.when).getHours() < startH), [timedEvents, startH])
-  const lateEvents = useMemo(() => timedEvents.filter((e) => new Date(e.when).getHours() > endH), [timedEvents, endH])
+  /* The minute range each event occupies WITHIN the displayed day. An event
+     that began on an earlier day enters at 00:00 and one that ends on a later
+     day runs to 24:00 — otherwise a continuing event would be positioned by
+     the previous day's clock time, which is where it used to land. */
+  const dayRanges = useMemo(() => {
+    const map = new Map()
+    for (const ev of timedEvents) {
+      const startsToday = isSameDay(ev.when, date)
+      const endDate = ev.end ? new Date(ev.end) : null
+      const hasEnd = !!endDate && endDate > new Date(ev.when)
+      const sMin = startsToday ? minutesOf(ev.when) : 0
+      let eMin
+      if (hasEnd) eMin = isSameDay(endDate, date) ? minutesOf(endDate) : DAY_MIN
+      else eMin = sMin + DEFAULT_DUR_MIN
+      map.set(ev, { sMin, eMin: Math.max(eMin, sMin + 1) })
+    }
+    return map
+  }, [timedEvents, date])
+
+  /* Events lying FULLY outside the visible window keep their own bands (a
+     fully off-hours meeting shouldn't silently vanish or stretch the grid).
+     Anything that overlaps the window at all goes in the grid, clamped —
+     including one that opened hours before the window did. */
+  const earlyEvents = useMemo(
+    () => timedEvents.filter((e) => (dayRanges.get(e)?.eMin ?? 0) <= gridStartMin),
+    [timedEvents, dayRanges, gridStartMin],
+  )
+  const lateEvents = useMemo(
+    () => timedEvents.filter((e) => (dayRanges.get(e)?.sMin ?? 0) >= gridEndMin),
+    [timedEvents, dayRanges, gridEndMin],
+  )
 
   /* In-grid events → absolute boxes (top/height) + overlap columns. */
   const boxes = useMemo(() => {
     const inGrid = timedEvents.filter((e) => {
-      const h = new Date(e.when).getHours()
-      return h >= startH && h <= endH
+      const r = dayRanges.get(e)
+      return r && r.eMin > gridStartMin && r.sMin < gridEndMin
     })
     const items = inGrid.map((ev) => {
-      const sMin = minutesOf(ev.when)
-      const endDate = ev.end ? new Date(ev.end) : null
-      let eMin
-      if (endDate && endDate > new Date(ev.when)) {
-        eMin = isSameDay(endDate, ev.when) ? minutesOf(endDate) : gridEndMin
-      } else {
-        eMin = sMin + DEFAULT_DUR_MIN
-      }
+      const { sMin, eMin } = dayRanges.get(ev)
       const top = (Math.max(sMin, gridStartMin) - gridStartMin) / 60 * HOUR_H
       const bottom = (Math.min(eMin, gridEndMin) - gridStartMin) / 60 * HOUR_H
       const height = Math.max(MIN_EVENT_H, bottom - top)
-      return { ev, start: sMin, end: Math.max(eMin, sMin + 1), top, height }
+      return { ev, start: sMin, end: eMin, top, height }
     })
     const cols = assignColumns(items)
     return items.map((it) => {
       const c = cols.get(it.ev) || { col: 0, cols: 1 }
       return { ...it, col: c.col, cols: c.cols }
     })
-  }, [timedEvents, startH, endH, gridStartMin, gridEndMin])
+  }, [timedEvents, dayRanges, gridStartMin, gridEndMin])
 
   return (
     <Box className="cal-day">

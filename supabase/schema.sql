@@ -1,14 +1,19 @@
 -- ════════════════════════════════════════════════════════════════
 --  schema.sql — public schema, introspected from the LIVE database
---  Watermark: migration 0106.  Generated: 2026-08-01
+--  Watermark: migration 0107.  Generated: 2026-08-02
 --  REFERENCE ONLY — nothing runs this file.
 --  Regenerate with supabase/introspect-schema.sql (see that file for how).
 --  Covers public tables: columns, constraints, indexes, RLS + policies,
 --  triggers, table comments, and function SIGNATURES. Function BODIES,
---  function GRANTs, column comments and storage.* policies are NOT here —
---  they live in the migrations.
+--  column comments and storage.* policies are NOT here — they live in the
+--  migrations.
 --  NOTE: policies marked AS RESTRICTIVE combine with AND. The tier gates
 --  depend on this; recreating one without it silently disables the cap.
+--  NOTE: function GRANTs used to be omitted entirely. Migration 0107 made
+--  them load-bearing — three report RPCs were reachable by anon — so a
+--  function that anon and authenticated both cannot execute is now marked
+--  [no anon/auth EXECUTE]. An unmarked SECURITY DEFINER function IS callable
+--  from the public API.
 -- ════════════════════════════════════════════════════════════════
 
 -- ══ app_sessions ══════════════════════════════════════
@@ -80,21 +85,21 @@ CREATE TABLE public.bookings (
   payment_status text NOT NULL DEFAULT 'none'::text,
   payment_deadline timestamp with time zone
 );
-ALTER TABLE public.bookings ADD CONSTRAINT bookings_pkey PRIMARY KEY (id);
-ALTER TABLE public.bookings ADD CONSTRAINT bookings_event_id_fkey FOREIGN KEY (event_id) REFERENCES calendar_events(id) ON DELETE SET NULL;
-ALTER TABLE public.bookings ADD CONSTRAINT bookings_lead_id_fkey FOREIGN KEY (lead_id) REFERENCES leads(id) ON DELETE SET NULL;
-ALTER TABLE public.bookings ADD CONSTRAINT bookings_meeting_type_id_fkey FOREIGN KEY (meeting_type_id) REFERENCES meeting_types(id) ON DELETE SET NULL;
-ALTER TABLE public.bookings ADD CONSTRAINT bookings_page_id_fkey FOREIGN KEY (page_id) REFERENCES booking_pages(id) ON DELETE SET NULL;
-ALTER TABLE public.bookings ADD CONSTRAINT bookings_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
-ALTER TABLE public.bookings ADD CONSTRAINT bookings_no_overlap EXCLUDE USING gist (user_id WITH =, tstzrange(starts_at, ends_at) WITH &&) WHERE ((status = ANY (ARRAY['pending'::text, 'confirmed'::text])));
-ALTER TABLE public.bookings ADD CONSTRAINT bookings_payment_status_chk CHECK ((payment_status = ANY (ARRAY['none'::text, 'awaiting'::text, 'paid'::text])));
 ALTER TABLE public.bookings ADD CONSTRAINT bookings_status_chk CHECK ((status = ANY (ARRAY['pending'::text, 'confirmed'::text, 'rejected'::text, 'cancelled'::text])));
 ALTER TABLE public.bookings ADD CONSTRAINT bookings_window_chk CHECK ((ends_at > starts_at));
-CREATE INDEX idx_bookings_awaiting ON public.bookings USING btree (user_id, payment_deadline) WHERE ((status = 'pending'::text) AND (payment_status = 'awaiting'::text));
-CREATE INDEX idx_bookings_page ON public.bookings USING btree (page_id);
-CREATE INDEX idx_bookings_pending ON public.bookings USING btree (user_id) WHERE (status = 'pending'::text);
+ALTER TABLE public.bookings ADD CONSTRAINT bookings_pkey PRIMARY KEY (id);
+ALTER TABLE public.bookings ADD CONSTRAINT bookings_no_overlap EXCLUDE USING gist (user_id WITH =, tstzrange(starts_at, ends_at) WITH &&) WHERE ((status = ANY (ARRAY['pending'::text, 'confirmed'::text])));
+ALTER TABLE public.bookings ADD CONSTRAINT bookings_page_id_fkey FOREIGN KEY (page_id) REFERENCES booking_pages(id) ON DELETE SET NULL;
+ALTER TABLE public.bookings ADD CONSTRAINT bookings_meeting_type_id_fkey FOREIGN KEY (meeting_type_id) REFERENCES meeting_types(id) ON DELETE SET NULL;
+ALTER TABLE public.bookings ADD CONSTRAINT bookings_lead_id_fkey FOREIGN KEY (lead_id) REFERENCES leads(id) ON DELETE SET NULL;
+ALTER TABLE public.bookings ADD CONSTRAINT bookings_event_id_fkey FOREIGN KEY (event_id) REFERENCES calendar_events(id) ON DELETE SET NULL;
+ALTER TABLE public.bookings ADD CONSTRAINT bookings_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
+ALTER TABLE public.bookings ADD CONSTRAINT bookings_payment_status_chk CHECK ((payment_status = ANY (ARRAY['none'::text, 'awaiting'::text, 'paid'::text])));
 CREATE INDEX idx_bookings_user ON public.bookings USING btree (user_id);
+CREATE INDEX idx_bookings_page ON public.bookings USING btree (page_id);
 CREATE INDEX idx_bookings_user_starts ON public.bookings USING btree (user_id, starts_at);
+CREATE INDEX idx_bookings_pending ON public.bookings USING btree (user_id) WHERE (status = 'pending'::text);
+CREATE INDEX idx_bookings_awaiting ON public.bookings USING btree (user_id, payment_deadline) WHERE ((status = 'pending'::text) AND (payment_status = 'awaiting'::text));
 ALTER TABLE public.bookings ENABLE ROW LEVEL SECURITY;
 CREATE POLICY bookings_own ON public.bookings FOR ALL TO authenticated
   USING ((user_id = auth.uid()))
@@ -122,8 +127,8 @@ CREATE TABLE public.calendar_events (
   group_id uuid,
   owned boolean NOT NULL DEFAULT false
 );
-ALTER TABLE public.calendar_events ADD CONSTRAINT calendar_events_pkey PRIMARY KEY (id);
 ALTER TABLE public.calendar_events ADD CONSTRAINT calendar_events_user_event_uniq UNIQUE (user_id, google_event_id);
+ALTER TABLE public.calendar_events ADD CONSTRAINT calendar_events_pkey PRIMARY KEY (id);
 ALTER TABLE public.calendar_events ADD CONSTRAINT calendar_events_client_id_fkey FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE SET NULL;
 ALTER TABLE public.calendar_events ADD CONSTRAINT calendar_events_group_id_fkey FOREIGN KEY (group_id) REFERENCES groups(id) ON DELETE SET NULL;
 ALTER TABLE public.calendar_events ADD CONSTRAINT calendar_events_lead_id_fkey FOREIGN KEY (lead_id) REFERENCES leads(id) ON DELETE SET NULL;
@@ -174,14 +179,14 @@ CREATE TABLE public.client_adjustments (
   updated_at timestamp with time zone NOT NULL DEFAULT now(),
   deleted_at timestamp with time zone
 );
-ALTER TABLE public.client_adjustments ADD CONSTRAINT client_adjustments_pkey PRIMARY KEY (id);
-ALTER TABLE public.client_adjustments ADD CONSTRAINT client_adjustments_client_id_fkey FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE CASCADE;
-ALTER TABLE public.client_adjustments ADD CONSTRAINT client_adjustments_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 ALTER TABLE public.client_adjustments ADD CONSTRAINT client_adjustments_kind_check CHECK ((kind = ANY (ARRAY['paid'::text, 'balance'::text])));
-ALTER TABLE public.client_adjustments ADD CONSTRAINT client_adjustments_kind_reason_check CHECK ((((reason = 'discount'::text) AND (kind = 'balance'::text)) OR ((reason = 'import_fix'::text) AND (kind = 'paid'::text)) OR ((reason = 'unrecorded_payment'::text) AND (kind = 'paid'::text)) OR (reason = 'legacy'::text)));
 ALTER TABLE public.client_adjustments ADD CONSTRAINT client_adjustments_reason_check CHECK ((reason = ANY (ARRAY['discount'::text, 'import_fix'::text, 'unrecorded_payment'::text, 'legacy'::text])));
-CREATE INDEX idx_client_adjustments_client ON public.client_adjustments USING btree (client_id);
+ALTER TABLE public.client_adjustments ADD CONSTRAINT client_adjustments_pkey PRIMARY KEY (id);
+ALTER TABLE public.client_adjustments ADD CONSTRAINT client_adjustments_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
+ALTER TABLE public.client_adjustments ADD CONSTRAINT client_adjustments_client_id_fkey FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE CASCADE;
+ALTER TABLE public.client_adjustments ADD CONSTRAINT client_adjustments_kind_reason_check CHECK ((((reason = 'discount'::text) AND (kind = 'balance'::text)) OR ((reason = 'import_fix'::text) AND (kind = 'paid'::text)) OR ((reason = 'unrecorded_payment'::text) AND (kind = 'paid'::text)) OR (reason = 'legacy'::text)));
 CREATE INDEX idx_client_adjustments_user ON public.client_adjustments USING btree (user_id);
+CREATE INDEX idx_client_adjustments_client ON public.client_adjustments USING btree (client_id);
 ALTER TABLE public.client_adjustments ENABLE ROW LEVEL SECURITY;
 CREATE POLICY client_adjustments_own ON public.client_adjustments FOR ALL TO authenticated
   USING ((user_id = auth.uid()))
@@ -200,10 +205,10 @@ CREATE TABLE public.client_status_log (
   created_at timestamp with time zone NOT NULL DEFAULT now()
 );
 ALTER TABLE public.client_status_log ADD CONSTRAINT client_status_log_pkey PRIMARY KEY (id);
-ALTER TABLE public.client_status_log ADD CONSTRAINT client_status_log_client_id_fkey FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE CASCADE;
-ALTER TABLE public.client_status_log ADD CONSTRAINT client_status_log_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 ALTER TABLE public.client_status_log ADD CONSTRAINT client_status_log_new_status_check CHECK ((new_status = ANY (ARRAY['active'::text, 'wandering'::text, 'past'::text, 'no_status'::text])));
 ALTER TABLE public.client_status_log ADD CONSTRAINT client_status_log_old_status_check CHECK ((old_status = ANY (ARRAY['active'::text, 'wandering'::text, 'past'::text, 'no_status'::text])));
+ALTER TABLE public.client_status_log ADD CONSTRAINT client_status_log_client_id_fkey FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE CASCADE;
+ALTER TABLE public.client_status_log ADD CONSTRAINT client_status_log_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 CREATE INDEX idx_client_status_log_client ON public.client_status_log USING btree (client_id);
 CREATE INDEX idx_client_status_log_user ON public.client_status_log USING btree (user_id);
 CREATE INDEX idx_client_status_log_user_changed ON public.client_status_log USING btree (user_id, changed_at);
@@ -226,8 +231,8 @@ CREATE TABLE public.client_statuses (
   deleted_at timestamp with time zone
 );
 ALTER TABLE public.client_statuses ADD CONSTRAINT client_statuses_pkey PRIMARY KEY (id);
-ALTER TABLE public.client_statuses ADD CONSTRAINT client_statuses_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 ALTER TABLE public.client_statuses ADD CONSTRAINT client_statuses_meta_category_check CHECK ((meta_category = ANY (ARRAY['active'::text, 'wandering'::text, 'past'::text, 'no_status'::text])));
+ALTER TABLE public.client_statuses ADD CONSTRAINT client_statuses_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 CREATE INDEX idx_client_statuses_user ON public.client_statuses USING btree (user_id);
 ALTER TABLE public.client_statuses ENABLE ROW LEVEL SECURITY;
 CREATE POLICY client_statuses_own ON public.client_statuses FOR ALL TO authenticated
@@ -275,31 +280,31 @@ CREATE TABLE public.clients (
   last_status_changed_at timestamp with time zone
 );
 ALTER TABLE public.clients ADD CONSTRAINT clients_pkey PRIMARY KEY (id);
-ALTER TABLE public.clients ADD CONSTRAINT clients_group_id_fkey FOREIGN KEY (group_id) REFERENCES groups(id) ON DELETE SET NULL;
-ALTER TABLE public.clients ADD CONSTRAINT clients_meeting_type_id_fkey FOREIGN KEY (meeting_type_id) REFERENCES meeting_types(id) ON DELETE SET NULL;
-ALTER TABLE public.clients ADD CONSTRAINT clients_project_id_fkey FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE SET NULL;
-ALTER TABLE public.clients ADD CONSTRAINT clients_status_id_fkey FOREIGN KEY (status_id) REFERENCES client_statuses(id) ON DELETE SET NULL;
-ALTER TABLE public.clients ADD CONSTRAINT clients_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 ALTER TABLE public.clients ADD CONSTRAINT clients_billing_mode_check CHECK ((billing_mode = ANY (ARRAY['package'::text, 'per_session'::text])));
 ALTER TABLE public.clients ADD CONSTRAINT clients_recurring_day_check CHECK (((recurring_day >= 0) AND (recurring_day <= 6)));
 ALTER TABLE public.clients ADD CONSTRAINT clients_status_check CHECK ((status = ANY (ARRAY['active'::text, 'wandering'::text, 'past'::text, 'no_status'::text])));
 ALTER TABLE public.clients ADD CONSTRAINT clients_status_meta_check CHECK ((status_meta = ANY (ARRAY['active'::text, 'wandering'::text, 'past'::text, 'no_status'::text])));
-CREATE INDEX clients_attention_snoozed_at_idx ON public.clients USING btree (user_id, attention_snoozed_at) WHERE (attention_snoozed_at IS NOT NULL);
+ALTER TABLE public.clients ADD CONSTRAINT clients_group_id_fkey FOREIGN KEY (group_id) REFERENCES groups(id) ON DELETE SET NULL;
+ALTER TABLE public.clients ADD CONSTRAINT clients_project_id_fkey FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE SET NULL;
+ALTER TABLE public.clients ADD CONSTRAINT clients_status_id_fkey FOREIGN KEY (status_id) REFERENCES client_statuses(id) ON DELETE SET NULL;
+ALTER TABLE public.clients ADD CONSTRAINT clients_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
+ALTER TABLE public.clients ADD CONSTRAINT clients_meeting_type_id_fkey FOREIGN KEY (meeting_type_id) REFERENCES meeting_types(id) ON DELETE SET NULL;
 CREATE INDEX idx_clients_group ON public.clients USING btree (group_id);
-CREATE INDEX idx_clients_meeting_type_id ON public.clients USING btree (meeting_type_id);
 CREATE INDEX idx_clients_project ON public.clients USING btree (project_id);
 CREATE INDEX idx_clients_status ON public.clients USING btree (status);
-CREATE INDEX idx_clients_status_id ON public.clients USING btree (status_id);
 CREATE INDEX idx_clients_user ON public.clients USING btree (user_id);
+CREATE INDEX idx_clients_status_id ON public.clients USING btree (status_id);
+CREATE INDEX idx_clients_meeting_type_id ON public.clients USING btree (meeting_type_id);
+CREATE INDEX clients_attention_snoozed_at_idx ON public.clients USING btree (user_id, attention_snoozed_at) WHERE (attention_snoozed_at IS NOT NULL);
 ALTER TABLE public.clients ENABLE ROW LEVEL SECURITY;
 CREATE POLICY clients_own ON public.clients FOR ALL TO authenticated
   USING ((user_id = auth.uid()))
   WITH CHECK ((user_id = auth.uid()));
 CREATE POLICY clients_tier_limit ON public.clients AS RESTRICTIVE FOR INSERT TO authenticated
   WITH CHECK (((NOT billing_enforced()) OR (current_tier() <> 'free'::text) OR (NOT onboarding_completed()) OR (client_count() < 10)));
-CREATE TRIGGER trg_clients_stamp_status BEFORE INSERT OR UPDATE ON public.clients FOR EACH ROW EXECUTE FUNCTION clients_stamp_status_change();
 CREATE TRIGGER trg_clients_updated BEFORE UPDATE ON public.clients FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 CREATE TRIGGER trg_report_sync_client AFTER INSERT OR UPDATE ON public.clients FOR EACH ROW EXECUTE FUNCTION report_sync_client();
+CREATE TRIGGER trg_clients_stamp_status BEFORE INSERT OR UPDATE ON public.clients FOR EACH ROW EXECUTE FUNCTION clients_stamp_status_change();
 
 -- ══ community_events ══════════════════════════════════════
 CREATE TABLE public.community_events (
@@ -313,13 +318,13 @@ CREATE TABLE public.community_events (
   ends_at timestamp with time zone,
   created_at timestamp with time zone NOT NULL DEFAULT now()
 );
+ALTER TABLE public.community_events ADD CONSTRAINT community_events_title_check CHECK (((char_length(btrim(title)) > 0) AND (char_length(title) <= 140)));
+ALTER TABLE public.community_events ADD CONSTRAINT community_events_description_check CHECK (((description IS NULL) OR (char_length(description) <= 1000)));
+ALTER TABLE public.community_events ADD CONSTRAINT community_events_location_check CHECK (((location IS NULL) OR (char_length(location) <= 200)));
+ALTER TABLE public.community_events ADD CONSTRAINT community_events_link_check CHECK (((link IS NULL) OR ((char_length(link) <= 300) AND (link ~* '^https?://'::text))));
+ALTER TABLE public.community_events ADD CONSTRAINT community_events_check CHECK (((ends_at IS NULL) OR (ends_at >= starts_at)));
 ALTER TABLE public.community_events ADD CONSTRAINT community_events_pkey PRIMARY KEY (id);
 ALTER TABLE public.community_events ADD CONSTRAINT community_events_created_by_fkey FOREIGN KEY (created_by) REFERENCES auth.users(id) ON DELETE CASCADE;
-ALTER TABLE public.community_events ADD CONSTRAINT community_events_check CHECK (((ends_at IS NULL) OR (ends_at >= starts_at)));
-ALTER TABLE public.community_events ADD CONSTRAINT community_events_description_check CHECK (((description IS NULL) OR (char_length(description) <= 1000)));
-ALTER TABLE public.community_events ADD CONSTRAINT community_events_link_check CHECK (((link IS NULL) OR ((char_length(link) <= 300) AND (link ~* '^https?://'::text))));
-ALTER TABLE public.community_events ADD CONSTRAINT community_events_location_check CHECK (((location IS NULL) OR (char_length(location) <= 200)));
-ALTER TABLE public.community_events ADD CONSTRAINT community_events_title_check CHECK (((char_length(btrim(title)) > 0) AND (char_length(title) <= 140)));
 CREATE INDEX idx_community_events_starts ON public.community_events USING btree (starts_at);
 ALTER TABLE public.community_events ENABLE ROW LEVEL SECURITY;
 CREATE POLICY community_events_delete ON public.community_events FOR DELETE TO authenticated
@@ -341,8 +346,8 @@ CREATE TABLE public.community_message_mentions (
 );
 ALTER TABLE public.community_message_mentions ADD CONSTRAINT community_message_mentions_pkey PRIMARY KEY (id);
 ALTER TABLE public.community_message_mentions ADD CONSTRAINT community_message_mentions_uniq UNIQUE (message_id, mentioned_user_id);
-ALTER TABLE public.community_message_mentions ADD CONSTRAINT community_message_mentions_mentioned_user_id_fkey FOREIGN KEY (mentioned_user_id) REFERENCES community_profiles(user_id) ON DELETE CASCADE;
 ALTER TABLE public.community_message_mentions ADD CONSTRAINT community_message_mentions_message_id_fkey FOREIGN KEY (message_id) REFERENCES community_messages(id) ON DELETE CASCADE;
+ALTER TABLE public.community_message_mentions ADD CONSTRAINT community_message_mentions_mentioned_user_id_fkey FOREIGN KEY (mentioned_user_id) REFERENCES community_profiles(user_id) ON DELETE CASCADE;
 CREATE INDEX idx_community_mentions_user ON public.community_message_mentions USING btree (mentioned_user_id);
 ALTER TABLE public.community_message_mentions ENABLE ROW LEVEL SECURITY;
 CREATE POLICY community_mentions_insert_author ON public.community_message_mentions FOR INSERT TO authenticated
@@ -363,11 +368,11 @@ CREATE TABLE public.community_message_reactions (
   emoji text NOT NULL,
   created_at timestamp with time zone NOT NULL DEFAULT now()
 );
+ALTER TABLE public.community_message_reactions ADD CONSTRAINT community_message_reactions_emoji_check CHECK (((char_length(btrim(emoji)) >= 1) AND (char_length(btrim(emoji)) <= 16)));
 ALTER TABLE public.community_message_reactions ADD CONSTRAINT community_message_reactions_pkey PRIMARY KEY (id);
 ALTER TABLE public.community_message_reactions ADD CONSTRAINT community_message_reactions_uniq UNIQUE (message_id, user_id, emoji);
 ALTER TABLE public.community_message_reactions ADD CONSTRAINT community_message_reactions_message_id_fkey FOREIGN KEY (message_id) REFERENCES community_messages(id) ON DELETE CASCADE;
 ALTER TABLE public.community_message_reactions ADD CONSTRAINT community_message_reactions_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
-ALTER TABLE public.community_message_reactions ADD CONSTRAINT community_message_reactions_emoji_check CHECK (((char_length(btrim(emoji)) >= 1) AND (char_length(btrim(emoji)) <= 16)));
 CREATE INDEX idx_community_reactions_user ON public.community_message_reactions USING btree (user_id);
 ALTER TABLE public.community_message_reactions ENABLE ROW LEVEL SECURITY;
 CREATE POLICY community_reactions_delete_own ON public.community_message_reactions FOR DELETE TO authenticated
@@ -387,11 +392,11 @@ CREATE TABLE public.community_message_reports (
   reason text,
   created_at timestamp with time zone NOT NULL DEFAULT now()
 );
+ALTER TABLE public.community_message_reports ADD CONSTRAINT community_message_reports_reason_check CHECK (((reason IS NULL) OR (char_length(reason) <= 500)));
 ALTER TABLE public.community_message_reports ADD CONSTRAINT community_message_reports_pkey PRIMARY KEY (id);
 ALTER TABLE public.community_message_reports ADD CONSTRAINT community_message_reports_uniq UNIQUE (message_id, reporter_id);
 ALTER TABLE public.community_message_reports ADD CONSTRAINT community_message_reports_message_id_fkey FOREIGN KEY (message_id) REFERENCES community_messages(id) ON DELETE CASCADE;
 ALTER TABLE public.community_message_reports ADD CONSTRAINT community_message_reports_reporter_id_fkey FOREIGN KEY (reporter_id) REFERENCES auth.users(id) ON DELETE CASCADE;
-ALTER TABLE public.community_message_reports ADD CONSTRAINT community_message_reports_reason_check CHECK (((reason IS NULL) OR (char_length(reason) <= 500)));
 CREATE INDEX idx_community_reports_message ON public.community_message_reports USING btree (message_id);
 ALTER TABLE public.community_message_reports ENABLE ROW LEVEL SECURITY;
 CREATE POLICY community_reports_delete_admin ON public.community_message_reports FOR DELETE TO authenticated
@@ -411,15 +416,15 @@ CREATE TABLE public.community_messages (
   reply_to_id uuid,
   pinned_at timestamp with time zone
 );
-ALTER TABLE public.community_messages ADD CONSTRAINT community_messages_pkey PRIMARY KEY (id);
-ALTER TABLE public.community_messages ADD CONSTRAINT community_messages_reply_to_id_fkey FOREIGN KEY (reply_to_id) REFERENCES community_messages(id) ON DELETE SET NULL;
-ALTER TABLE public.community_messages ADD CONSTRAINT community_messages_requires_profile FOREIGN KEY (user_id) REFERENCES community_profiles(user_id) ON DELETE CASCADE;
-ALTER TABLE public.community_messages ADD CONSTRAINT community_messages_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 ALTER TABLE public.community_messages ADD CONSTRAINT community_messages_content_check CHECK ((char_length(btrim(content)) > 0));
+ALTER TABLE public.community_messages ADD CONSTRAINT community_messages_pkey PRIMARY KEY (id);
+ALTER TABLE public.community_messages ADD CONSTRAINT community_messages_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
+ALTER TABLE public.community_messages ADD CONSTRAINT community_messages_requires_profile FOREIGN KEY (user_id) REFERENCES community_profiles(user_id) ON DELETE CASCADE;
+ALTER TABLE public.community_messages ADD CONSTRAINT community_messages_reply_to_id_fkey FOREIGN KEY (reply_to_id) REFERENCES community_messages(id) ON DELETE SET NULL;
 CREATE INDEX idx_community_messages_created_at ON public.community_messages USING btree (created_at DESC);
-CREATE INDEX idx_community_messages_pinned ON public.community_messages USING btree (pinned_at) WHERE ((pinned_at IS NOT NULL) AND (deleted_at IS NULL));
-CREATE INDEX idx_community_messages_reply_to ON public.community_messages USING btree (reply_to_id) WHERE (reply_to_id IS NOT NULL);
 CREATE INDEX idx_community_messages_user ON public.community_messages USING btree (user_id);
+CREATE INDEX idx_community_messages_reply_to ON public.community_messages USING btree (reply_to_id) WHERE (reply_to_id IS NOT NULL);
+CREATE INDEX idx_community_messages_pinned ON public.community_messages USING btree (pinned_at) WHERE ((pinned_at IS NOT NULL) AND (deleted_at IS NULL));
 ALTER TABLE public.community_messages ENABLE ROW LEVEL SECURITY;
 CREATE POLICY community_messages_admin_moderate ON public.community_messages FOR UPDATE TO authenticated
   USING (is_community_admin())
@@ -445,11 +450,11 @@ CREATE TABLE public.community_notifications (
   read_at timestamp with time zone,
   created_at timestamp with time zone NOT NULL DEFAULT now()
 );
+ALTER TABLE public.community_notifications ADD CONSTRAINT community_notifications_type_check CHECK ((type = 'mention'::text));
 ALTER TABLE public.community_notifications ADD CONSTRAINT community_notifications_pkey PRIMARY KEY (id);
+ALTER TABLE public.community_notifications ADD CONSTRAINT community_notifications_recipient_id_fkey FOREIGN KEY (recipient_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 ALTER TABLE public.community_notifications ADD CONSTRAINT community_notifications_actor_id_fkey FOREIGN KEY (actor_id) REFERENCES community_profiles(user_id) ON DELETE SET NULL;
 ALTER TABLE public.community_notifications ADD CONSTRAINT community_notifications_message_id_fkey FOREIGN KEY (message_id) REFERENCES community_messages(id) ON DELETE CASCADE;
-ALTER TABLE public.community_notifications ADD CONSTRAINT community_notifications_recipient_id_fkey FOREIGN KEY (recipient_id) REFERENCES auth.users(id) ON DELETE CASCADE;
-ALTER TABLE public.community_notifications ADD CONSTRAINT community_notifications_type_check CHECK ((type = 'mention'::text));
 CREATE INDEX idx_community_notifications_recipient ON public.community_notifications USING btree (recipient_id, created_at DESC);
 ALTER TABLE public.community_notifications ENABLE ROW LEVEL SECURITY;
 CREATE POLICY community_notifications_select_own ON public.community_notifications FOR SELECT TO authenticated
@@ -471,15 +476,15 @@ CREATE TABLE public.community_profiles (
   specialties text[],
   link text
 );
+ALTER TABLE public.community_profiles ADD CONSTRAINT community_profiles_display_name_check CHECK ((char_length(btrim(display_name)) > 0));
 ALTER TABLE public.community_profiles ADD CONSTRAINT community_profiles_pkey PRIMARY KEY (id);
 ALTER TABLE public.community_profiles ADD CONSTRAINT community_profiles_user_uniq UNIQUE (user_id);
 ALTER TABLE public.community_profiles ADD CONSTRAINT community_profiles_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 ALTER TABLE public.community_profiles ADD CONSTRAINT community_profiles_bio_len CHECK (((bio IS NULL) OR (char_length(bio) <= 300)));
-ALTER TABLE public.community_profiles ADD CONSTRAINT community_profiles_display_name_check CHECK ((char_length(btrim(display_name)) > 0));
-ALTER TABLE public.community_profiles ADD CONSTRAINT community_profiles_display_name_len CHECK ((char_length(display_name) <= 60));
 ALTER TABLE public.community_profiles ADD CONSTRAINT community_profiles_headline_len CHECK (((headline IS NULL) OR (char_length(headline) <= 80)));
-ALTER TABLE public.community_profiles ADD CONSTRAINT community_profiles_link_shape CHECK (((link IS NULL) OR ((char_length(link) <= 200) AND (link ~* '^https?://'::text))));
 ALTER TABLE public.community_profiles ADD CONSTRAINT community_profiles_specialties_bounds CHECK (((specialties IS NULL) OR ((COALESCE(array_length(specialties, 1), 0) <= 8) AND (char_length(array_to_string(specialties, ','::text)) <= 200))));
+ALTER TABLE public.community_profiles ADD CONSTRAINT community_profiles_link_shape CHECK (((link IS NULL) OR ((char_length(link) <= 200) AND (link ~* '^https?://'::text))));
+ALTER TABLE public.community_profiles ADD CONSTRAINT community_profiles_display_name_len CHECK ((char_length(display_name) <= 60));
 ALTER TABLE public.community_profiles ENABLE ROW LEVEL SECURITY;
 CREATE POLICY community_profiles_insert_own ON public.community_profiles FOR INSERT TO authenticated
   WITH CHECK ((user_id = auth.uid()));
@@ -502,10 +507,10 @@ CREATE TABLE public.community_reserved_names (
   note text,
   created_at timestamp with time zone NOT NULL DEFAULT now()
 );
-ALTER TABLE public.community_reserved_names ADD CONSTRAINT community_reserved_names_pkey PRIMARY KEY (id);
-ALTER TABLE public.community_reserved_names ADD CONSTRAINT community_reserved_names_pattern_uniq UNIQUE (pattern);
 ALTER TABLE public.community_reserved_names ADD CONSTRAINT community_reserved_names_mode_chk CHECK ((match_mode = ANY (ARRAY['contains'::text, 'exact'::text])));
 ALTER TABLE public.community_reserved_names ADD CONSTRAINT community_reserved_names_pattern_chk CHECK ((normalize_display_name(pattern) <> ''::text));
+ALTER TABLE public.community_reserved_names ADD CONSTRAINT community_reserved_names_pkey PRIMARY KEY (id);
+ALTER TABLE public.community_reserved_names ADD CONSTRAINT community_reserved_names_pattern_uniq UNIQUE (pattern);
 ALTER TABLE public.community_reserved_names ENABLE ROW LEVEL SECURITY;
 
 -- ══ daily_answers ══════════════════════════════════════
@@ -522,13 +527,13 @@ CREATE TABLE public.daily_answers (
   deleted_at timestamp with time zone
 );
 ALTER TABLE public.daily_answers ADD CONSTRAINT daily_answers_pkey PRIMARY KEY (id);
+ALTER TABLE public.daily_answers ADD CONSTRAINT daily_answers_value_xor CHECK ((((value_num IS NOT NULL) AND (value_text IS NULL)) OR ((value_num IS NULL) AND (value_text IS NOT NULL))));
 ALTER TABLE public.daily_answers ADD CONSTRAINT daily_answers_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 ALTER TABLE public.daily_answers ADD CONSTRAINT daily_answers_user_question_id_fkey FOREIGN KEY (user_question_id) REFERENCES user_questions(id) ON DELETE CASCADE;
-ALTER TABLE public.daily_answers ADD CONSTRAINT daily_answers_value_xor CHECK ((((value_num IS NOT NULL) AND (value_text IS NULL)) OR ((value_num IS NULL) AND (value_text IS NOT NULL))));
 CREATE INDEX idx_daily_answers_date ON public.daily_answers USING btree (date);
 CREATE INDEX idx_daily_answers_question ON public.daily_answers USING btree (user_question_id);
-CREATE INDEX idx_daily_answers_user ON public.daily_answers USING btree (user_id);
 CREATE UNIQUE INDEX idx_daily_answers_uniq ON public.daily_answers USING btree (user_question_id, date) WHERE (deleted_at IS NULL);
+CREATE INDEX idx_daily_answers_user ON public.daily_answers USING btree (user_id);
 ALTER TABLE public.daily_answers ENABLE ROW LEVEL SECURITY;
 CREATE POLICY daily_answers_own ON public.daily_answers FOR ALL TO authenticated
   USING ((user_id = auth.uid()))
@@ -551,18 +556,18 @@ CREATE TABLE public.feedback (
   notes text
 );
 ALTER TABLE public.feedback ADD CONSTRAINT feedback_pkey PRIMARY KEY (id);
-ALTER TABLE public.feedback ADD CONSTRAINT feedback_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
-ALTER TABLE public.feedback ADD CONSTRAINT feedback_classification_check CHECK (((classification IS NULL) OR (classification = ANY (ARRAY['bug'::text, 'dev'::text, 'unclear'::text]))));
 ALTER TABLE public.feedback ADD CONSTRAINT feedback_message_check CHECK ((char_length(btrim(message)) > 0));
+ALTER TABLE public.feedback ADD CONSTRAINT feedback_type_check CHECK (((type IS NULL) OR (type = ANY (ARRAY['bug'::text, 'idea'::text, 'praise'::text, 'other'::text]))));
+ALTER TABLE public.feedback ADD CONSTRAINT feedback_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
+ALTER TABLE public.feedback ADD CONSTRAINT feedback_status_check CHECK ((status = ANY (ARRAY['new'::text, 'in_progress'::text, 'waiting_decision'::text, 'done'::text, 'rejected'::text])));
 ALTER TABLE public.feedback ADD CONSTRAINT feedback_platform_check CHECK (((platform IS NULL) OR (platform = ANY (ARRAY['mobile'::text, 'desktop'::text, 'both'::text, 'unknown'::text]))));
 ALTER TABLE public.feedback ADD CONSTRAINT feedback_source_check CHECK ((source = ANY (ARRAY['app'::text, 'email'::text, 'manual'::text])));
-ALTER TABLE public.feedback ADD CONSTRAINT feedback_status_check CHECK ((status = ANY (ARRAY['new'::text, 'in_progress'::text, 'waiting_decision'::text, 'done'::text, 'rejected'::text])));
+ALTER TABLE public.feedback ADD CONSTRAINT feedback_classification_check CHECK (((classification IS NULL) OR (classification = ANY (ARRAY['bug'::text, 'dev'::text, 'unclear'::text]))));
 ALTER TABLE public.feedback ADD CONSTRAINT feedback_surface_check CHECK (((surface IS NULL) OR (surface = ANY (ARRAY['technical'::text, 'design'::text, 'both'::text]))));
-ALTER TABLE public.feedback ADD CONSTRAINT feedback_type_check CHECK (((type IS NULL) OR (type = ANY (ARRAY['bug'::text, 'idea'::text, 'praise'::text, 'other'::text]))));
-CREATE INDEX idx_feedback_classification ON public.feedback USING btree (classification);
 CREATE INDEX idx_feedback_created_at ON public.feedback USING btree (created_at DESC);
 CREATE INDEX idx_feedback_status ON public.feedback USING btree (status);
 CREATE INDEX idx_feedback_user ON public.feedback USING btree (user_id);
+CREATE INDEX idx_feedback_classification ON public.feedback USING btree (classification);
 ALTER TABLE public.feedback ENABLE ROW LEVEL SECURITY;
 CREATE POLICY feedback_insert ON public.feedback FOR INSERT TO authenticated
   WITH CHECK ((user_id = auth.uid()));
@@ -586,9 +591,9 @@ CREATE TABLE public.goal_categories (
   deleted_at timestamp with time zone
 );
 ALTER TABLE public.goal_categories ADD CONSTRAINT goal_categories_pkey PRIMARY KEY (id);
-ALTER TABLE public.goal_categories ADD CONSTRAINT goal_categories_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 ALTER TABLE public.goal_categories ADD CONSTRAINT goal_categories_graph_type_check CHECK ((graph_type = ANY (ARRAY['cumulative'::text, 'delta'::text])));
 ALTER TABLE public.goal_categories ADD CONSTRAINT goal_categories_measurement_type_check CHECK ((measurement_type = ANY (ARRAY['auto'::text, 'manual'::text])));
+ALTER TABLE public.goal_categories ADD CONSTRAINT goal_categories_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 CREATE INDEX idx_goal_categories_user ON public.goal_categories USING btree (user_id);
 ALTER TABLE public.goal_categories ENABLE ROW LEVEL SECURITY;
 CREATE POLICY goal_categories_own ON public.goal_categories FOR ALL TO authenticated
@@ -617,9 +622,9 @@ ALTER TABLE public.goal_entries ADD CONSTRAINT goal_entries_project_id_fkey FORE
 ALTER TABLE public.goal_entries ADD CONSTRAINT goal_entries_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 CREATE INDEX idx_goal_entries_category ON public.goal_entries USING btree (category_id);
 CREATE INDEX idx_goal_entries_date ON public.goal_entries USING btree (date);
-CREATE INDEX idx_goal_entries_group ON public.goal_entries USING btree (group_id);
-CREATE INDEX idx_goal_entries_project ON public.goal_entries USING btree (project_id);
 CREATE INDEX idx_goal_entries_user ON public.goal_entries USING btree (user_id);
+CREATE INDEX idx_goal_entries_project ON public.goal_entries USING btree (project_id);
+CREATE INDEX idx_goal_entries_group ON public.goal_entries USING btree (group_id);
 ALTER TABLE public.goal_entries ENABLE ROW LEVEL SECURITY;
 CREATE POLICY goal_entries_own ON public.goal_entries FOR ALL TO authenticated
   USING ((user_id = auth.uid()))
@@ -650,22 +655,22 @@ CREATE TABLE public.goals (
   deleted_at timestamp with time zone
 );
 ALTER TABLE public.goals ADD CONSTRAINT goals_pkey PRIMARY KEY (id);
+ALTER TABLE public.goals ADD CONSTRAINT goals_importance_check CHECK (((importance >= 1) AND (importance <= 5)));
+ALTER TABLE public.goals ADD CONSTRAINT goals_manual_input_type_check CHECK ((manual_input_type = ANY (ARRAY['number'::text, 'slider'::text, 'yes_no'::text])));
+ALTER TABLE public.goals ADD CONSTRAINT goals_measurement_type_check CHECK ((measurement_type = ANY (ARRAY['auto'::text, 'manual'::text])));
+ALTER TABLE public.goals ADD CONSTRAINT goals_time_frame_check CHECK ((time_frame = ANY (ARRAY['deadline'::text, 'monthly'::text, 'weekly'::text])));
+ALTER TABLE public.goals ADD CONSTRAINT goals_tracking_method_check CHECK ((tracking_method = ANY (ARRAY['manual'::text, 'daily_question'::text])));
 ALTER TABLE public.goals ADD CONSTRAINT goals_category_id_fkey FOREIGN KEY (category_id) REFERENCES goal_categories(id) ON DELETE CASCADE;
 ALTER TABLE public.goals ADD CONSTRAINT goals_group_id_fkey FOREIGN KEY (group_id) REFERENCES groups(id) ON DELETE SET NULL;
 ALTER TABLE public.goals ADD CONSTRAINT goals_parent_goal_id_fkey FOREIGN KEY (parent_goal_id) REFERENCES goals(id) ON DELETE CASCADE;
 ALTER TABLE public.goals ADD CONSTRAINT goals_project_id_fkey FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE SET NULL;
 ALTER TABLE public.goals ADD CONSTRAINT goals_tracked_by_question_id_fkey FOREIGN KEY (tracked_by_question_id) REFERENCES user_questions(id) ON DELETE SET NULL;
 ALTER TABLE public.goals ADD CONSTRAINT goals_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
-ALTER TABLE public.goals ADD CONSTRAINT goals_importance_check CHECK (((importance >= 1) AND (importance <= 5)));
-ALTER TABLE public.goals ADD CONSTRAINT goals_manual_input_type_check CHECK ((manual_input_type = ANY (ARRAY['number'::text, 'slider'::text, 'yes_no'::text])));
-ALTER TABLE public.goals ADD CONSTRAINT goals_measurement_type_check CHECK ((measurement_type = ANY (ARRAY['auto'::text, 'manual'::text])));
-ALTER TABLE public.goals ADD CONSTRAINT goals_time_frame_check CHECK ((time_frame = ANY (ARRAY['deadline'::text, 'monthly'::text, 'weekly'::text])));
-ALTER TABLE public.goals ADD CONSTRAINT goals_tracking_method_check CHECK ((tracking_method = ANY (ARRAY['manual'::text, 'daily_question'::text])));
 CREATE INDEX idx_goals_category ON public.goals USING btree (category_id);
 CREATE INDEX idx_goals_group ON public.goals USING btree (group_id);
 CREATE INDEX idx_goals_project ON public.goals USING btree (project_id);
-CREATE INDEX idx_goals_tracked_question ON public.goals USING btree (tracked_by_question_id);
 CREATE INDEX idx_goals_user ON public.goals USING btree (user_id);
+CREATE INDEX idx_goals_tracked_question ON public.goals USING btree (tracked_by_question_id);
 ALTER TABLE public.goals ENABLE ROW LEVEL SECURITY;
 CREATE POLICY goals_own ON public.goals FOR ALL TO authenticated
   USING ((user_id = auth.uid()))
@@ -726,11 +731,11 @@ CREATE TABLE public.groups (
   recurring_end_date date
 );
 ALTER TABLE public.groups ADD CONSTRAINT groups_pkey PRIMARY KEY (id);
-ALTER TABLE public.groups ADD CONSTRAINT groups_project_id_fkey FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE;
-ALTER TABLE public.groups ADD CONSTRAINT groups_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 ALTER TABLE public.groups ADD CONSTRAINT groups_billing_mode_check CHECK ((billing_mode = ANY (ARRAY['package'::text, 'per_session'::text, 'none'::text])));
 ALTER TABLE public.groups ADD CONSTRAINT groups_recurring_day_check CHECK (((recurring_day >= 0) AND (recurring_day <= 6)));
 ALTER TABLE public.groups ADD CONSTRAINT groups_status_check CHECK ((status = ANY (ARRAY['active'::text, 'in_development'::text, 'ended'::text])));
+ALTER TABLE public.groups ADD CONSTRAINT groups_project_id_fkey FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE;
+ALTER TABLE public.groups ADD CONSTRAINT groups_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 CREATE INDEX idx_groups_project ON public.groups USING btree (project_id);
 CREATE INDEX idx_groups_status ON public.groups USING btree (status);
 CREATE INDEX idx_groups_user ON public.groups USING btree (user_id);
@@ -752,12 +757,12 @@ CREATE TABLE public.investments (
   updated_at timestamp with time zone NOT NULL DEFAULT now(),
   deleted_at timestamp with time zone
 );
-ALTER TABLE public.investments ADD CONSTRAINT investments_pkey PRIMARY KEY (id);
-ALTER TABLE public.investments ADD CONSTRAINT investments_transaction_id_fkey FOREIGN KEY (transaction_id) REFERENCES transactions(id) ON DELETE SET NULL;
-ALTER TABLE public.investments ADD CONSTRAINT investments_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 ALTER TABLE public.investments ADD CONSTRAINT investments_amount_check CHECK ((amount >= (0)::numeric));
-CREATE INDEX idx_investments_transaction ON public.investments USING btree (transaction_id);
+ALTER TABLE public.investments ADD CONSTRAINT investments_pkey PRIMARY KEY (id);
+ALTER TABLE public.investments ADD CONSTRAINT investments_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
+ALTER TABLE public.investments ADD CONSTRAINT investments_transaction_id_fkey FOREIGN KEY (transaction_id) REFERENCES transactions(id) ON DELETE SET NULL;
 CREATE INDEX idx_investments_user ON public.investments USING btree (user_id);
+CREATE INDEX idx_investments_transaction ON public.investments USING btree (transaction_id);
 ALTER TABLE public.investments ENABLE ROW LEVEL SECURITY;
 CREATE POLICY investments_own ON public.investments FOR ALL TO authenticated
   USING ((user_id = auth.uid()))
@@ -794,11 +799,11 @@ CREATE TABLE public.lead_pages (
   slug text
 );
 ALTER TABLE public.lead_pages ADD CONSTRAINT lead_pages_pkey PRIMARY KEY (id);
-ALTER TABLE public.lead_pages ADD CONSTRAINT lead_pages_project_id_fkey FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE SET NULL;
 ALTER TABLE public.lead_pages ADD CONSTRAINT lead_pages_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
+ALTER TABLE public.lead_pages ADD CONSTRAINT lead_pages_project_id_fkey FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE SET NULL;
 ALTER TABLE public.lead_pages ADD CONSTRAINT lead_pages_slug_format CHECK (((slug IS NULL) OR (slug ~ '^[a-z0-9](?:[a-z0-9-]{1,38}[a-z0-9])$'::text)));
-CREATE INDEX idx_lead_pages_project ON public.lead_pages USING btree (project_id);
 CREATE INDEX idx_lead_pages_user ON public.lead_pages USING btree (user_id);
+CREATE INDEX idx_lead_pages_project ON public.lead_pages USING btree (project_id);
 CREATE UNIQUE INDEX idx_lead_pages_slug_unique ON public.lead_pages USING btree (lower(slug)) WHERE ((slug IS NOT NULL) AND (deleted_at IS NULL));
 ALTER TABLE public.lead_pages ENABLE ROW LEVEL SECURITY;
 CREATE POLICY lead_pages_own ON public.lead_pages FOR ALL TO authenticated
@@ -837,16 +842,16 @@ CREATE TABLE public.lead_status_log (
   created_at timestamp with time zone NOT NULL DEFAULT now()
 );
 ALTER TABLE public.lead_status_log ADD CONSTRAINT lead_status_log_pkey PRIMARY KEY (id);
+ALTER TABLE public.lead_status_log ADD CONSTRAINT lead_status_log_source_check CHECK ((source = ANY (ARRAY['manual_drag'::text, 'manual_select'::text, 'converted'::text, 'auto_expire'::text])));
 ALTER TABLE public.lead_status_log ADD CONSTRAINT lead_status_log_from_status_id_fkey FOREIGN KEY (from_status_id) REFERENCES lead_statuses(id) ON DELETE SET NULL;
 ALTER TABLE public.lead_status_log ADD CONSTRAINT lead_status_log_lead_id_fkey FOREIGN KEY (lead_id) REFERENCES leads(id) ON DELETE CASCADE;
 ALTER TABLE public.lead_status_log ADD CONSTRAINT lead_status_log_to_status_id_fkey FOREIGN KEY (to_status_id) REFERENCES lead_statuses(id) ON DELETE CASCADE;
 ALTER TABLE public.lead_status_log ADD CONSTRAINT lead_status_log_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
-ALTER TABLE public.lead_status_log ADD CONSTRAINT lead_status_log_source_check CHECK ((source = ANY (ARRAY['manual_drag'::text, 'manual_select'::text, 'converted'::text, 'auto_expire'::text])));
-CREATE INDEX idx_lead_status_log_from ON public.lead_status_log USING btree (from_status_id);
 CREATE INDEX idx_lead_status_log_lead ON public.lead_status_log USING btree (lead_id);
-CREATE INDEX idx_lead_status_log_to ON public.lead_status_log USING btree (to_status_id);
 CREATE INDEX idx_lead_status_log_user ON public.lead_status_log USING btree (user_id);
 CREATE INDEX idx_lead_status_log_user_changed ON public.lead_status_log USING btree (user_id, changed_at);
+CREATE INDEX idx_lead_status_log_from ON public.lead_status_log USING btree (from_status_id);
+CREATE INDEX idx_lead_status_log_to ON public.lead_status_log USING btree (to_status_id);
 ALTER TABLE public.lead_status_log ENABLE ROW LEVEL SECURITY;
 CREATE POLICY lead_status_log_insert ON public.lead_status_log FOR INSERT TO authenticated
   WITH CHECK ((user_id = auth.uid()));
@@ -869,8 +874,8 @@ CREATE TABLE public.lead_statuses (
   sort_order integer NOT NULL DEFAULT 0
 );
 ALTER TABLE public.lead_statuses ADD CONSTRAINT lead_statuses_pkey PRIMARY KEY (id);
-ALTER TABLE public.lead_statuses ADD CONSTRAINT lead_statuses_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 ALTER TABLE public.lead_statuses ADD CONSTRAINT lead_statuses_meta_category_check CHECK ((meta_category = ANY (ARRAY['in_process'::text, 'converted'::text, 'not_relevant'::text])));
+ALTER TABLE public.lead_statuses ADD CONSTRAINT lead_statuses_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 CREATE INDEX idx_lead_statuses_user ON public.lead_statuses USING btree (user_id);
 ALTER TABLE public.lead_statuses ENABLE ROW LEVEL SECURITY;
 CREATE POLICY lead_statuses_own ON public.lead_statuses FOR ALL TO authenticated
@@ -906,25 +911,25 @@ CREATE TABLE public.leads (
   pending_review boolean NOT NULL DEFAULT false
 );
 ALTER TABLE public.leads ADD CONSTRAINT leads_pkey PRIMARY KEY (id);
+ALTER TABLE public.leads ADD CONSTRAINT leads_status_check CHECK ((status = ANY (ARRAY['new'::text, 'in_contact'::text, 'intro_call'::text, 'pending_decision'::text, 'closed'::text])));
+ALTER TABLE public.leads ADD CONSTRAINT leads_status_meta_check CHECK ((status_meta = ANY (ARRAY['in_process'::text, 'converted'::text, 'not_relevant'::text])));
 ALTER TABLE public.leads ADD CONSTRAINT leads_converted_to_client_id_fkey FOREIGN KEY (converted_to_client_id) REFERENCES clients(id) ON DELETE SET NULL;
 ALTER TABLE public.leads ADD CONSTRAINT leads_group_id_fkey FOREIGN KEY (group_id) REFERENCES groups(id) ON DELETE SET NULL;
-ALTER TABLE public.leads ADD CONSTRAINT leads_page_id_fkey FOREIGN KEY (page_id) REFERENCES lead_pages(id) ON DELETE SET NULL;
 ALTER TABLE public.leads ADD CONSTRAINT leads_project_id_fkey FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE SET NULL;
 ALTER TABLE public.leads ADD CONSTRAINT leads_source_id_fkey FOREIGN KEY (source_id) REFERENCES lead_sources(id) ON DELETE SET NULL;
 ALTER TABLE public.leads ADD CONSTRAINT leads_status_id_fkey FOREIGN KEY (status_id) REFERENCES lead_statuses(id) ON DELETE SET NULL;
 ALTER TABLE public.leads ADD CONSTRAINT leads_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
-ALTER TABLE public.leads ADD CONSTRAINT leads_status_check CHECK ((status = ANY (ARRAY['new'::text, 'in_contact'::text, 'intro_call'::text, 'pending_decision'::text, 'closed'::text])));
-ALTER TABLE public.leads ADD CONSTRAINT leads_status_meta_check CHECK ((status_meta = ANY (ARRAY['in_process'::text, 'converted'::text, 'not_relevant'::text])));
-CREATE INDEX idx_leads_converted ON public.leads USING btree (converted_to_client_id);
+ALTER TABLE public.leads ADD CONSTRAINT leads_page_id_fkey FOREIGN KEY (page_id) REFERENCES lead_pages(id) ON DELETE SET NULL;
 CREATE INDEX idx_leads_group ON public.leads USING btree (group_id);
-CREATE INDEX idx_leads_page ON public.leads USING btree (page_id);
-CREATE INDEX idx_leads_pending_review ON public.leads USING btree (user_id) WHERE pending_review;
 CREATE INDEX idx_leads_project ON public.leads USING btree (project_id);
-CREATE INDEX idx_leads_source ON public.leads USING btree (source_id);
 CREATE INDEX idx_leads_status ON public.leads USING btree (status);
-CREATE INDEX idx_leads_status_id ON public.leads USING btree (status_id);
 CREATE INDEX idx_leads_status_meta ON public.leads USING btree (status_meta);
 CREATE INDEX idx_leads_user ON public.leads USING btree (user_id);
+CREATE INDEX idx_leads_status_id ON public.leads USING btree (status_id);
+CREATE INDEX idx_leads_source ON public.leads USING btree (source_id);
+CREATE INDEX idx_leads_converted ON public.leads USING btree (converted_to_client_id);
+CREATE INDEX idx_leads_page ON public.leads USING btree (page_id);
+CREATE INDEX idx_leads_pending_review ON public.leads USING btree (user_id) WHERE pending_review;
 ALTER TABLE public.leads ENABLE ROW LEVEL SECURITY;
 CREATE POLICY leads_own ON public.leads FOR ALL TO authenticated
   USING ((user_id = auth.uid()))
@@ -967,8 +972,8 @@ CREATE TABLE public.moon_snapshots (
   created_at timestamp with time zone NOT NULL DEFAULT now(),
   updated_at timestamp with time zone NOT NULL DEFAULT now()
 );
-ALTER TABLE public.moon_snapshots ADD CONSTRAINT moon_snapshots_pkey PRIMARY KEY (id);
 ALTER TABLE public.moon_snapshots ADD CONSTRAINT moon_snapshots_user_date_uniq UNIQUE (user_id, date);
+ALTER TABLE public.moon_snapshots ADD CONSTRAINT moon_snapshots_pkey PRIMARY KEY (id);
 ALTER TABLE public.moon_snapshots ADD CONSTRAINT moon_snapshots_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 CREATE INDEX idx_moon_snapshots_date ON public.moon_snapshots USING btree (date);
 CREATE INDEX idx_moon_snapshots_user ON public.moon_snapshots USING btree (user_id);
@@ -994,13 +999,13 @@ CREATE TABLE public.payment_installments (
   updated_at timestamp with time zone NOT NULL DEFAULT now(),
   deleted_at timestamp with time zone
 );
+ALTER TABLE public.payment_installments ADD CONSTRAINT payment_installments_method_chk CHECK (((payment_method IS NULL) OR (payment_method = ANY (ARRAY['bank_transfer'::text, 'cash'::text, 'credit_card'::text, 'app'::text, 'other'::text]))));
 ALTER TABLE public.payment_installments ADD CONSTRAINT payment_installments_pkey PRIMARY KEY (id);
+ALTER TABLE public.payment_installments ADD CONSTRAINT payment_installments_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 ALTER TABLE public.payment_installments ADD CONSTRAINT payment_installments_plan_id_fkey FOREIGN KEY (plan_id) REFERENCES payment_plans(id) ON DELETE CASCADE;
 ALTER TABLE public.payment_installments ADD CONSTRAINT payment_installments_transaction_id_fkey FOREIGN KEY (transaction_id) REFERENCES transactions(id) ON DELETE SET NULL;
-ALTER TABLE public.payment_installments ADD CONSTRAINT payment_installments_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
-ALTER TABLE public.payment_installments ADD CONSTRAINT payment_installments_method_chk CHECK (((payment_method IS NULL) OR (payment_method = ANY (ARRAY['bank_transfer'::text, 'cash'::text, 'credit_card'::text, 'app'::text, 'other'::text]))));
-CREATE INDEX idx_payment_installments_plan ON public.payment_installments USING btree (plan_id);
 CREATE INDEX idx_payment_installments_user ON public.payment_installments USING btree (user_id);
+CREATE INDEX idx_payment_installments_plan ON public.payment_installments USING btree (plan_id);
 CREATE UNIQUE INDEX idx_payment_installments_plan_num ON public.payment_installments USING btree (plan_id, num) WHERE (deleted_at IS NULL);
 ALTER TABLE public.payment_installments ENABLE ROW LEVEL SECURITY;
 CREATE POLICY payment_installments_own ON public.payment_installments FOR ALL TO authenticated
@@ -1022,11 +1027,11 @@ CREATE TABLE public.payment_plans (
   deleted_at timestamp with time zone
 );
 ALTER TABLE public.payment_plans ADD CONSTRAINT payment_plans_pkey PRIMARY KEY (id);
+ALTER TABLE public.payment_plans ADD CONSTRAINT payment_plans_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 ALTER TABLE public.payment_plans ADD CONSTRAINT payment_plans_client_id_fkey FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE CASCADE;
 ALTER TABLE public.payment_plans ADD CONSTRAINT payment_plans_project_id_fkey FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE SET NULL;
-ALTER TABLE public.payment_plans ADD CONSTRAINT payment_plans_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
-CREATE INDEX idx_payment_plans_client ON public.payment_plans USING btree (client_id);
 CREATE INDEX idx_payment_plans_user ON public.payment_plans USING btree (user_id);
+CREATE INDEX idx_payment_plans_client ON public.payment_plans USING btree (client_id);
 ALTER TABLE public.payment_plans ENABLE ROW LEVEL SECURITY;
 CREATE POLICY payment_plans_own ON public.payment_plans FOR ALL TO authenticated
   USING ((user_id = auth.uid()))
@@ -1053,17 +1058,17 @@ CREATE TABLE public.payment_requests (
   created_at timestamp with time zone NOT NULL DEFAULT now(),
   updated_at timestamp with time zone NOT NULL DEFAULT now()
 );
-ALTER TABLE public.payment_requests ADD CONSTRAINT payment_requests_pkey PRIMARY KEY (id);
-ALTER TABLE public.payment_requests ADD CONSTRAINT payment_requests_client_id_fkey FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE SET NULL;
-ALTER TABLE public.payment_requests ADD CONSTRAINT payment_requests_installment_id_fkey FOREIGN KEY (installment_id) REFERENCES payment_installments(id) ON DELETE SET NULL;
-ALTER TABLE public.payment_requests ADD CONSTRAINT payment_requests_transaction_id_fkey FOREIGN KEY (transaction_id) REFERENCES transactions(id) ON DELETE SET NULL;
-ALTER TABLE public.payment_requests ADD CONSTRAINT payment_requests_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
-ALTER TABLE public.payment_requests ADD CONSTRAINT payment_requests_amount_check CHECK ((amount > (0)::numeric));
 ALTER TABLE public.payment_requests ADD CONSTRAINT payment_requests_source_check CHECK ((source = ANY (ARRAY['client'::text, 'transaction'::text, 'installment'::text, 'booking'::text])));
+ALTER TABLE public.payment_requests ADD CONSTRAINT payment_requests_amount_check CHECK ((amount > (0)::numeric));
 ALTER TABLE public.payment_requests ADD CONSTRAINT payment_requests_status_check CHECK ((status = ANY (ARRAY['pending'::text, 'paid'::text, 'expired'::text, 'cancelled'::text, 'failed'::text])));
-CREATE INDEX payment_requests_client ON public.payment_requests USING btree (user_id, client_id);
-CREATE INDEX payment_requests_user ON public.payment_requests USING btree (user_id);
+ALTER TABLE public.payment_requests ADD CONSTRAINT payment_requests_pkey PRIMARY KEY (id);
+ALTER TABLE public.payment_requests ADD CONSTRAINT payment_requests_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
+ALTER TABLE public.payment_requests ADD CONSTRAINT payment_requests_client_id_fkey FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE SET NULL;
+ALTER TABLE public.payment_requests ADD CONSTRAINT payment_requests_transaction_id_fkey FOREIGN KEY (transaction_id) REFERENCES transactions(id) ON DELETE SET NULL;
+ALTER TABLE public.payment_requests ADD CONSTRAINT payment_requests_installment_id_fkey FOREIGN KEY (installment_id) REFERENCES payment_installments(id) ON DELETE SET NULL;
 CREATE UNIQUE INDEX payment_requests_grow_tx_uniq ON public.payment_requests USING btree (user_id, grow_transaction_id) WHERE (grow_transaction_id IS NOT NULL);
+CREATE INDEX payment_requests_user ON public.payment_requests USING btree (user_id);
+CREATE INDEX payment_requests_client ON public.payment_requests USING btree (user_id, client_id);
 ALTER TABLE public.payment_requests ENABLE ROW LEVEL SECURITY;
 CREATE POLICY payment_requests_select_own ON public.payment_requests FOR SELECT TO authenticated
   USING ((user_id = auth.uid()));
@@ -1084,14 +1089,14 @@ CREATE TABLE public.pending_grow_imports (
   created_at timestamp with time zone NOT NULL DEFAULT now(),
   updated_at timestamp with time zone NOT NULL DEFAULT now()
 );
+ALTER TABLE public.pending_grow_imports ADD CONSTRAINT pending_grow_imports_status_check CHECK ((status = ANY (ARRAY['pending'::text, 'imported'::text, 'dismissed'::text])));
 ALTER TABLE public.pending_grow_imports ADD CONSTRAINT pending_grow_imports_pkey PRIMARY KEY (id);
 ALTER TABLE public.pending_grow_imports ADD CONSTRAINT pending_grow_imports_uniq UNIQUE (user_id, grow_transaction_id);
+ALTER TABLE public.pending_grow_imports ADD CONSTRAINT pending_grow_imports_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 ALTER TABLE public.pending_grow_imports ADD CONSTRAINT pending_grow_imports_client_id_fkey FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE SET NULL;
 ALTER TABLE public.pending_grow_imports ADD CONSTRAINT pending_grow_imports_created_transaction_id_fkey FOREIGN KEY (created_transaction_id) REFERENCES transactions(id) ON DELETE SET NULL;
-ALTER TABLE public.pending_grow_imports ADD CONSTRAINT pending_grow_imports_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
-ALTER TABLE public.pending_grow_imports ADD CONSTRAINT pending_grow_imports_status_check CHECK ((status = ANY (ARRAY['pending'::text, 'imported'::text, 'dismissed'::text])));
-CREATE INDEX idx_pending_grow_imports_status ON public.pending_grow_imports USING btree (status);
 CREATE INDEX idx_pending_grow_imports_user ON public.pending_grow_imports USING btree (user_id);
+CREATE INDEX idx_pending_grow_imports_status ON public.pending_grow_imports USING btree (status);
 ALTER TABLE public.pending_grow_imports ENABLE ROW LEVEL SECURITY;
 CREATE POLICY pending_grow_imports_select ON public.pending_grow_imports FOR SELECT TO authenticated
   USING ((user_id = auth.uid()));
@@ -1117,14 +1122,14 @@ CREATE TABLE public.pending_invoice_imports (
   created_at timestamp with time zone NOT NULL DEFAULT now(),
   updated_at timestamp with time zone NOT NULL DEFAULT now()
 );
+ALTER TABLE public.pending_invoice_imports ADD CONSTRAINT pending_invoice_imports_status_check CHECK ((status = ANY (ARRAY['pending'::text, 'imported'::text, 'dismissed'::text])));
 ALTER TABLE public.pending_invoice_imports ADD CONSTRAINT pending_invoice_imports_pkey PRIMARY KEY (id);
 ALTER TABLE public.pending_invoice_imports ADD CONSTRAINT pending_invoice_imports_uniq UNIQUE (user_id, provider, external_document_id);
+ALTER TABLE public.pending_invoice_imports ADD CONSTRAINT pending_invoice_imports_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 ALTER TABLE public.pending_invoice_imports ADD CONSTRAINT pending_invoice_imports_client_id_fkey FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE SET NULL;
 ALTER TABLE public.pending_invoice_imports ADD CONSTRAINT pending_invoice_imports_created_transaction_id_fkey FOREIGN KEY (created_transaction_id) REFERENCES transactions(id) ON DELETE SET NULL;
-ALTER TABLE public.pending_invoice_imports ADD CONSTRAINT pending_invoice_imports_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
-ALTER TABLE public.pending_invoice_imports ADD CONSTRAINT pending_invoice_imports_status_check CHECK ((status = ANY (ARRAY['pending'::text, 'imported'::text, 'dismissed'::text])));
-CREATE INDEX idx_pending_invoice_imports_status ON public.pending_invoice_imports USING btree (status);
 CREATE INDEX idx_pending_invoice_imports_user ON public.pending_invoice_imports USING btree (user_id);
+CREATE INDEX idx_pending_invoice_imports_status ON public.pending_invoice_imports USING btree (status);
 ALTER TABLE public.pending_invoice_imports ENABLE ROW LEVEL SECURITY;
 CREATE POLICY pending_invoice_imports_select ON public.pending_invoice_imports FOR SELECT TO authenticated
   USING ((user_id = auth.uid()));
@@ -1190,19 +1195,19 @@ CREATE TABLE public.recurring_templates (
   trigger_type text NOT NULL DEFAULT 'schedule'::text
 );
 ALTER TABLE public.recurring_templates ADD CONSTRAINT recurring_templates_pkey PRIMARY KEY (id);
-ALTER TABLE public.recurring_templates ADD CONSTRAINT recurring_templates_category_id_fkey FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE SET NULL;
-ALTER TABLE public.recurring_templates ADD CONSTRAINT recurring_templates_client_id_fkey FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE SET NULL;
-ALTER TABLE public.recurring_templates ADD CONSTRAINT recurring_templates_project_id_fkey FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE SET NULL;
-ALTER TABLE public.recurring_templates ADD CONSTRAINT recurring_templates_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 ALTER TABLE public.recurring_templates ADD CONSTRAINT recurring_templates_cadence_type_check CHECK ((cadence_type = ANY (ARRAY['monthly_date'::text, 'weekly'::text])));
 ALTER TABLE public.recurring_templates ADD CONSTRAINT recurring_templates_day_of_month_check CHECK (((day_of_month >= 1) AND (day_of_month <= 31)));
 ALTER TABLE public.recurring_templates ADD CONSTRAINT recurring_templates_day_of_week_check CHECK (((day_of_week >= 0) AND (day_of_week <= 6)));
 ALTER TABLE public.recurring_templates ADD CONSTRAINT recurring_templates_trigger_type_check CHECK ((trigger_type = ANY (ARRAY['schedule'::text, 'on_meeting'::text])));
 ALTER TABLE public.recurring_templates ADD CONSTRAINT recurring_templates_type_check CHECK ((type = ANY (ARRAY['income'::text, 'expense'::text])));
-CREATE INDEX idx_recurring_templates_category ON public.recurring_templates USING btree (category_id);
+ALTER TABLE public.recurring_templates ADD CONSTRAINT recurring_templates_category_id_fkey FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE SET NULL;
+ALTER TABLE public.recurring_templates ADD CONSTRAINT recurring_templates_client_id_fkey FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE SET NULL;
+ALTER TABLE public.recurring_templates ADD CONSTRAINT recurring_templates_project_id_fkey FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE SET NULL;
+ALTER TABLE public.recurring_templates ADD CONSTRAINT recurring_templates_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 CREATE INDEX idx_recurring_templates_client ON public.recurring_templates USING btree (client_id);
 CREATE INDEX idx_recurring_templates_project ON public.recurring_templates USING btree (project_id);
 CREATE INDEX idx_recurring_templates_user ON public.recurring_templates USING btree (user_id);
+CREATE INDEX idx_recurring_templates_category ON public.recurring_templates USING btree (category_id);
 ALTER TABLE public.recurring_templates ENABLE ROW LEVEL SECURITY;
 CREATE POLICY recurring_templates_own ON public.recurring_templates FOR ALL TO authenticated
   USING ((user_id = auth.uid()))
@@ -1230,11 +1235,11 @@ CREATE TABLE public.reminders (
   category_id uuid
 );
 ALTER TABLE public.reminders ADD CONSTRAINT reminders_pkey PRIMARY KEY (id);
-ALTER TABLE public.reminders ADD CONSTRAINT reminders_category_id_fkey FOREIGN KEY (category_id) REFERENCES task_categories(id) ON DELETE SET NULL;
-ALTER TABLE public.reminders ADD CONSTRAINT reminders_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
-ALTER TABLE public.reminders ADD CONSTRAINT reminders_linked_to_type_check CHECK ((linked_to_type = ANY (ARRAY['client'::text, 'project'::text, 'group'::text, 'task'::text, 'transaction'::text, 'lead'::text, 'period'::text, 'investment'::text])));
 ALTER TABLE public.reminders ADD CONSTRAINT reminders_recurrence_type_check CHECK ((recurrence_type = ANY (ARRAY['none'::text, 'weekly'::text, 'monthly_date'::text, 'every_x_days'::text])));
 ALTER TABLE public.reminders ADD CONSTRAINT reminders_status_check CHECK ((status = ANY (ARRAY['pending'::text, 'triggered'::text, 'completed'::text, 'dismissed'::text, 'snoozed'::text])));
+ALTER TABLE public.reminders ADD CONSTRAINT reminders_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
+ALTER TABLE public.reminders ADD CONSTRAINT reminders_category_id_fkey FOREIGN KEY (category_id) REFERENCES task_categories(id) ON DELETE SET NULL;
+ALTER TABLE public.reminders ADD CONSTRAINT reminders_linked_to_type_check CHECK ((linked_to_type = ANY (ARRAY['client'::text, 'project'::text, 'group'::text, 'task'::text, 'transaction'::text, 'lead'::text, 'period'::text, 'investment'::text])));
 CREATE INDEX idx_reminders_linked ON public.reminders USING btree (linked_to_type, linked_to_id);
 CREATE INDEX idx_reminders_status ON public.reminders USING btree (status);
 CREATE INDEX idx_reminders_user ON public.reminders USING btree (user_id);
@@ -1272,15 +1277,15 @@ CREATE TABLE public.scheduled_meetings (
   updated_at timestamp with time zone NOT NULL DEFAULT now()
 );
 ALTER TABLE public.scheduled_meetings ADD CONSTRAINT scheduled_meetings_pkey PRIMARY KEY (id);
-ALTER TABLE public.scheduled_meetings ADD CONSTRAINT scheduled_meetings_session_id_fkey FOREIGN KEY (session_id) REFERENCES sessions(id) ON DELETE SET NULL;
-ALTER TABLE public.scheduled_meetings ADD CONSTRAINT scheduled_meetings_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 ALTER TABLE public.scheduled_meetings ADD CONSTRAINT scheduled_meetings_status_check CHECK ((status = ANY (ARRAY['pending'::text, 'confirmed'::text, 'skipped'::text, 'expired'::text])));
 ALTER TABLE public.scheduled_meetings ADD CONSTRAINT scheduled_meetings_subject_type_check CHECK ((subject_type = ANY (ARRAY['client'::text, 'group'::text])));
-CREATE INDEX idx_scheduled_meetings_session ON public.scheduled_meetings USING btree (session_id);
+ALTER TABLE public.scheduled_meetings ADD CONSTRAINT scheduled_meetings_session_id_fkey FOREIGN KEY (session_id) REFERENCES sessions(id) ON DELETE SET NULL;
+ALTER TABLE public.scheduled_meetings ADD CONSTRAINT scheduled_meetings_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 CREATE INDEX idx_scheduled_meetings_status ON public.scheduled_meetings USING btree (status);
 CREATE INDEX idx_scheduled_meetings_subject ON public.scheduled_meetings USING btree (subject_type, subject_id);
 CREATE INDEX idx_scheduled_meetings_user ON public.scheduled_meetings USING btree (user_id);
 CREATE UNIQUE INDEX scheduled_meetings_no_dup ON public.scheduled_meetings USING btree (user_id, subject_type, subject_id, scheduled_at) WHERE (status = 'pending'::text);
+CREATE INDEX idx_scheduled_meetings_session ON public.scheduled_meetings USING btree (session_id);
 ALTER TABLE public.scheduled_meetings ENABLE ROW LEVEL SECURITY;
 CREATE POLICY scheduled_meetings_own ON public.scheduled_meetings FOR ALL TO authenticated
   USING ((user_id = auth.uid()))
@@ -1304,11 +1309,11 @@ CREATE TABLE public.sessions (
   deleted_at timestamp with time zone
 );
 ALTER TABLE public.sessions ADD CONSTRAINT sessions_pkey PRIMARY KEY (id);
+ALTER TABLE public.sessions ADD CONSTRAINT sessions_subject_type_check CHECK ((subject_type = ANY (ARRAY['client'::text, 'group'::text])));
+ALTER TABLE public.sessions ADD CONSTRAINT sessions_subject_xor CHECK ((((client_id IS NOT NULL) AND (group_id IS NULL)) OR ((client_id IS NULL) AND (group_id IS NOT NULL))));
 ALTER TABLE public.sessions ADD CONSTRAINT sessions_client_id_fkey FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE CASCADE;
 ALTER TABLE public.sessions ADD CONSTRAINT sessions_group_id_fkey FOREIGN KEY (group_id) REFERENCES groups(id) ON DELETE CASCADE;
 ALTER TABLE public.sessions ADD CONSTRAINT sessions_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
-ALTER TABLE public.sessions ADD CONSTRAINT sessions_subject_type_check CHECK ((subject_type = ANY (ARRAY['client'::text, 'group'::text])));
-ALTER TABLE public.sessions ADD CONSTRAINT sessions_subject_xor CHECK ((((client_id IS NOT NULL) AND (group_id IS NULL)) OR ((client_id IS NULL) AND (group_id IS NOT NULL))));
 CREATE INDEX idx_sessions_client ON public.sessions USING btree (client_id);
 CREATE INDEX idx_sessions_date ON public.sessions USING btree (date);
 CREATE INDEX idx_sessions_group ON public.sessions USING btree (group_id);
@@ -1317,8 +1322,8 @@ ALTER TABLE public.sessions ENABLE ROW LEVEL SECURITY;
 CREATE POLICY sessions_own ON public.sessions FOR ALL TO authenticated
   USING ((user_id = auth.uid()))
   WITH CHECK ((user_id = auth.uid()));
-CREATE TRIGGER trg_report_sync_session AFTER INSERT OR UPDATE ON public.sessions FOR EACH ROW EXECUTE FUNCTION report_sync_session();
 CREATE TRIGGER trg_sessions_updated BEFORE UPDATE ON public.sessions FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+CREATE TRIGGER trg_report_sync_session AFTER INSERT OR UPDATE ON public.sessions FOR EACH ROW EXECUTE FUNCTION report_sync_session();
 
 -- ══ site_pages ══════════════════════════════════════
 CREATE TABLE public.site_pages (
@@ -1337,10 +1342,10 @@ CREATE TABLE public.site_pages (
   deleted_at timestamp with time zone,
   published_snapshot jsonb
 );
+ALTER TABLE public.site_pages ADD CONSTRAINT site_pages_kind_chk CHECK ((kind = ANY (ARRAY['landing'::text, 'lead'::text, 'booking'::text])));
 ALTER TABLE public.site_pages ADD CONSTRAINT site_pages_pkey PRIMARY KEY (id);
 ALTER TABLE public.site_pages ADD CONSTRAINT site_pages_project_id_fkey FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE SET NULL;
 ALTER TABLE public.site_pages ADD CONSTRAINT site_pages_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
-ALTER TABLE public.site_pages ADD CONSTRAINT site_pages_kind_chk CHECK ((kind = ANY (ARRAY['landing'::text, 'lead'::text, 'booking'::text])));
 ALTER TABLE public.site_pages ADD CONSTRAINT site_pages_slug_format CHECK (((slug IS NULL) OR (slug ~ '^[a-z0-9](?:[a-z0-9-]{1,38}[a-z0-9])$'::text)));
 CREATE INDEX idx_site_pages_user ON public.site_pages USING btree (user_id);
 CREATE UNIQUE INDEX idx_site_pages_kind_slug_unique ON public.site_pages USING btree (kind, lower(slug)) WHERE ((slug IS NOT NULL) AND (deleted_at IS NULL));
@@ -1386,8 +1391,8 @@ CREATE TABLE public.task_statuses (
   deleted_at timestamp with time zone
 );
 ALTER TABLE public.task_statuses ADD CONSTRAINT task_statuses_pkey PRIMARY KEY (id);
-ALTER TABLE public.task_statuses ADD CONSTRAINT task_statuses_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 ALTER TABLE public.task_statuses ADD CONSTRAINT task_statuses_meta_category_check CHECK ((meta_category = ANY (ARRAY['open'::text, 'done'::text])));
+ALTER TABLE public.task_statuses ADD CONSTRAINT task_statuses_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 CREATE INDEX idx_task_statuses_user ON public.task_statuses USING btree (user_id);
 ALTER TABLE public.task_statuses ENABLE ROW LEVEL SECURITY;
 CREATE POLICY task_statuses_own ON public.task_statuses FOR ALL TO authenticated
@@ -1414,13 +1419,13 @@ CREATE TABLE public.tasks (
   description text
 );
 ALTER TABLE public.tasks ADD CONSTRAINT tasks_pkey PRIMARY KEY (id);
+ALTER TABLE public.tasks ADD CONSTRAINT tasks_priority_check CHECK ((priority = ANY (ARRAY['high'::text, 'medium'::text, 'low'::text])));
+ALTER TABLE public.tasks ADD CONSTRAINT tasks_status_check CHECK ((status = ANY (ARRAY['todo'::text, 'done'::text])));
 ALTER TABLE public.tasks ADD CONSTRAINT tasks_category_id_fkey FOREIGN KEY (category_id) REFERENCES task_categories(id) ON DELETE SET NULL;
 ALTER TABLE public.tasks ADD CONSTRAINT tasks_client_id_fkey FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE SET NULL;
 ALTER TABLE public.tasks ADD CONSTRAINT tasks_project_id_fkey FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE SET NULL;
 ALTER TABLE public.tasks ADD CONSTRAINT tasks_status_id_fkey FOREIGN KEY (status_id) REFERENCES task_statuses(id) ON DELETE SET NULL;
 ALTER TABLE public.tasks ADD CONSTRAINT tasks_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
-ALTER TABLE public.tasks ADD CONSTRAINT tasks_priority_check CHECK ((priority = ANY (ARRAY['high'::text, 'medium'::text, 'low'::text])));
-ALTER TABLE public.tasks ADD CONSTRAINT tasks_status_check CHECK ((status = ANY (ARRAY['todo'::text, 'done'::text])));
 CREATE INDEX idx_tasks_category_id ON public.tasks USING btree (category_id);
 CREATE INDEX idx_tasks_client ON public.tasks USING btree (client_id);
 CREATE INDEX idx_tasks_project ON public.tasks USING btree (project_id);
@@ -1432,8 +1437,8 @@ ALTER TABLE public.tasks ENABLE ROW LEVEL SECURITY;
 CREATE POLICY tasks_own ON public.tasks FOR ALL TO authenticated
   USING ((user_id = auth.uid()))
   WITH CHECK ((user_id = auth.uid()));
-CREATE TRIGGER trg_report_sync_task AFTER INSERT OR UPDATE ON public.tasks FOR EACH ROW EXECUTE FUNCTION report_sync_task();
 CREATE TRIGGER trg_tasks_updated BEFORE UPDATE ON public.tasks FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+CREATE TRIGGER trg_report_sync_task AFTER INSERT OR UPDATE ON public.tasks FOR EACH ROW EXECUTE FUNCTION report_sync_task();
 
 -- ══ transactions ══════════════════════════════════════
 CREATE TABLE public.transactions (
@@ -1471,26 +1476,26 @@ CREATE TABLE public.transactions (
   scheduled_meeting_id uuid
 );
 ALTER TABLE public.transactions ADD CONSTRAINT transactions_pkey PRIMARY KEY (id);
+ALTER TABLE public.transactions ADD CONSTRAINT transactions_status_check CHECK ((status = ANY (ARRAY['confirmed'::text, 'pending'::text, 'skipped'::text])));
+ALTER TABLE public.transactions ADD CONSTRAINT transactions_type_check CHECK ((type = ANY (ARRAY['income'::text, 'expense'::text])));
 ALTER TABLE public.transactions ADD CONSTRAINT transactions_category_id_fkey FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE SET NULL;
 ALTER TABLE public.transactions ADD CONSTRAINT transactions_client_id_fkey FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE SET NULL;
 ALTER TABLE public.transactions ADD CONSTRAINT transactions_project_id_fkey FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE SET NULL;
 ALTER TABLE public.transactions ADD CONSTRAINT transactions_recurring_id_fkey FOREIGN KEY (recurring_id) REFERENCES recurring_templates(id) ON DELETE SET NULL;
 ALTER TABLE public.transactions ADD CONSTRAINT transactions_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
-ALTER TABLE public.transactions ADD CONSTRAINT transactions_amount_valid CHECK (((amount >= (0)::numeric) AND (amount <= '1000000000000'::numeric)));
 ALTER TABLE public.transactions ADD CONSTRAINT transactions_payment_method_check CHECK (((payment_method IS NULL) OR (payment_method = ANY (ARRAY['bank_transfer'::text, 'cash'::text, 'credit_card'::text, 'app'::text, 'other'::text]))));
-ALTER TABLE public.transactions ADD CONSTRAINT transactions_status_check CHECK ((status = ANY (ARRAY['confirmed'::text, 'pending'::text, 'skipped'::text])));
-ALTER TABLE public.transactions ADD CONSTRAINT transactions_type_check CHECK ((type = ANY (ARRAY['income'::text, 'expense'::text])));
-CREATE INDEX idx_transactions_category ON public.transactions USING btree (category_id);
+ALTER TABLE public.transactions ADD CONSTRAINT transactions_amount_valid CHECK (((amount >= (0)::numeric) AND (amount <= '1000000000000'::numeric)));
 CREATE INDEX idx_transactions_client ON public.transactions USING btree (client_id);
 CREATE INDEX idx_transactions_date ON public.transactions USING btree (date);
 CREATE INDEX idx_transactions_project ON public.transactions USING btree (project_id);
-CREATE INDEX idx_transactions_recurring ON public.transactions USING btree (recurring_id);
 CREATE INDEX idx_transactions_status ON public.transactions USING btree (status);
 CREATE INDEX idx_transactions_user ON public.transactions USING btree (user_id);
+CREATE INDEX idx_transactions_category ON public.transactions USING btree (category_id);
+CREATE INDEX idx_transactions_recurring ON public.transactions USING btree (recurring_id);
 CREATE UNIQUE INDEX idx_transactions_invoice_doc_uniq ON public.transactions USING btree (user_id, invoice_provider, invoice_document_id) WHERE ((invoice_document_id IS NOT NULL) AND (deleted_at IS NULL));
-CREATE UNIQUE INDEX idx_transactions_recurring_meeting ON public.transactions USING btree (user_id, recurring_id, scheduled_meeting_id) WHERE ((recurring_id IS NOT NULL) AND (scheduled_meeting_id IS NOT NULL) AND (deleted_at IS NULL));
-CREATE UNIQUE INDEX idx_transactions_recurring_slot ON public.transactions USING btree (user_id, recurring_id, date) WHERE ((recurring_id IS NOT NULL) AND (scheduled_meeting_id IS NULL) AND (deleted_at IS NULL));
 CREATE UNIQUE INDEX transactions_grow_tx_uniq ON public.transactions USING btree (user_id, grow_transaction_id) WHERE (grow_transaction_id IS NOT NULL);
+CREATE UNIQUE INDEX idx_transactions_recurring_slot ON public.transactions USING btree (user_id, recurring_id, date) WHERE ((recurring_id IS NOT NULL) AND (scheduled_meeting_id IS NULL) AND (deleted_at IS NULL));
+CREATE UNIQUE INDEX idx_transactions_recurring_meeting ON public.transactions USING btree (user_id, recurring_id, scheduled_meeting_id) WHERE ((recurring_id IS NOT NULL) AND (scheduled_meeting_id IS NOT NULL) AND (deleted_at IS NULL));
 ALTER TABLE public.transactions ENABLE ROW LEVEL SECURITY;
 CREATE POLICY transactions_own ON public.transactions FOR ALL TO authenticated
   USING ((user_id = auth.uid()))
@@ -1546,11 +1551,11 @@ CREATE TABLE public.user_integrations (
   scheduled_scan boolean NOT NULL DEFAULT false,
   grow_import_enabled boolean NOT NULL DEFAULT false
 );
-ALTER TABLE public.user_integrations ADD CONSTRAINT user_integrations_pkey PRIMARY KEY (id);
 ALTER TABLE public.user_integrations ADD CONSTRAINT user_integrations_user_provider_uniq UNIQUE (user_id, provider);
+ALTER TABLE public.user_integrations ADD CONSTRAINT user_integrations_pkey PRIMARY KEY (id);
 ALTER TABLE public.user_integrations ADD CONSTRAINT user_integrations_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
-ALTER TABLE public.user_integrations ADD CONSTRAINT user_integrations_business_type_check CHECK (((business_type IS NULL) OR (business_type = ANY (ARRAY['exempt'::text, 'licensed'::text]))));
 ALTER TABLE public.user_integrations ADD CONSTRAINT user_integrations_environment_check CHECK (((environment IS NULL) OR (environment = ANY (ARRAY['sandbox'::text, 'production'::text]))));
+ALTER TABLE public.user_integrations ADD CONSTRAINT user_integrations_business_type_check CHECK (((business_type IS NULL) OR (business_type = ANY (ARRAY['exempt'::text, 'licensed'::text]))));
 CREATE INDEX idx_user_integrations_user ON public.user_integrations USING btree (user_id);
 CREATE UNIQUE INDEX idx_user_integrations_webhook_token ON public.user_integrations USING btree (webhook_token) WHERE (webhook_token IS NOT NULL);
 ALTER TABLE public.user_integrations ENABLE ROW LEVEL SECURITY;
@@ -1564,8 +1569,8 @@ CREATE TABLE public.user_preferences (
   created_at timestamp with time zone NOT NULL DEFAULT now(),
   updated_at timestamp with time zone NOT NULL DEFAULT now()
 );
-ALTER TABLE public.user_preferences ADD CONSTRAINT user_preferences_pkey PRIMARY KEY (id);
 ALTER TABLE public.user_preferences ADD CONSTRAINT user_preferences_user_uniq UNIQUE (user_id);
+ALTER TABLE public.user_preferences ADD CONSTRAINT user_preferences_pkey PRIMARY KEY (id);
 ALTER TABLE public.user_preferences ADD CONSTRAINT user_preferences_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 CREATE INDEX idx_user_preferences_user ON public.user_preferences USING btree (user_id);
 ALTER TABLE public.user_preferences ENABLE ROW LEVEL SECURITY;
@@ -1590,9 +1595,9 @@ CREATE TABLE public.user_questions (
   deleted_at timestamp with time zone
 );
 ALTER TABLE public.user_questions ADD CONSTRAINT user_questions_pkey PRIMARY KEY (id);
-ALTER TABLE public.user_questions ADD CONSTRAINT user_questions_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 ALTER TABLE public.user_questions ADD CONSTRAINT user_questions_scale_type_check CHECK ((scale_type = ANY (ARRAY['1-10'::text, 'yes_no'::text, 'free_text'::text])));
 ALTER TABLE public.user_questions ADD CONSTRAINT user_questions_source_chk CHECK (((template_key IS NOT NULL) OR (custom_text IS NOT NULL)));
+ALTER TABLE public.user_questions ADD CONSTRAINT user_questions_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 CREATE INDEX idx_user_questions_user ON public.user_questions USING btree (user_id);
 ALTER TABLE public.user_questions ENABLE ROW LEVEL SECURITY;
 CREATE POLICY user_questions_own ON public.user_questions FOR ALL TO authenticated
@@ -1611,8 +1616,8 @@ CREATE TABLE public.user_quotes (
   deleted_at timestamp with time zone
 );
 ALTER TABLE public.user_quotes ADD CONSTRAINT user_quotes_pkey PRIMARY KEY (id);
-ALTER TABLE public.user_quotes ADD CONSTRAINT user_quotes_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 ALTER TABLE public.user_quotes ADD CONSTRAINT user_quotes_text_check CHECK ((char_length(btrim(text)) > 0));
+ALTER TABLE public.user_quotes ADD CONSTRAINT user_quotes_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 CREATE INDEX idx_user_quotes_user ON public.user_quotes USING btree (user_id);
 ALTER TABLE public.user_quotes ENABLE ROW LEVEL SECURITY;
 CREATE POLICY user_quotes_own ON public.user_quotes FOR ALL TO authenticated
@@ -1635,10 +1640,10 @@ CREATE TABLE public.user_subscriptions (
   created_at timestamp with time zone NOT NULL DEFAULT now(),
   updated_at timestamp with time zone NOT NULL DEFAULT now()
 );
+ALTER TABLE public.user_subscriptions ADD CONSTRAINT user_subscriptions_tier_chk CHECK ((tier = ANY (ARRAY['free'::text, 'basic'::text, 'premium'::text])));
 ALTER TABLE public.user_subscriptions ADD CONSTRAINT user_subscriptions_pkey PRIMARY KEY (id);
 ALTER TABLE public.user_subscriptions ADD CONSTRAINT user_subscriptions_user_uniq UNIQUE (user_id);
 ALTER TABLE public.user_subscriptions ADD CONSTRAINT user_subscriptions_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
-ALTER TABLE public.user_subscriptions ADD CONSTRAINT user_subscriptions_tier_chk CHECK ((tier = ANY (ARRAY['free'::text, 'basic'::text, 'premium'::text])));
 CREATE INDEX idx_user_subscriptions_user ON public.user_subscriptions USING btree (user_id);
 ALTER TABLE public.user_subscriptions ENABLE ROW LEVEL SECURITY;
 CREATE POLICY user_subscriptions_select_own ON public.user_subscriptions FOR SELECT TO authenticated
@@ -1651,9 +1656,9 @@ CREATE TRIGGER trg_user_subscriptions_updated BEFORE UPDATE ON public.user_subsc
 --   billing_enforced() -> boolean  search_path=""
 --   booking_page_count() -> integer  [SECURITY DEFINER]  search_path=public
 --   client_count() -> integer  [SECURITY DEFINER]  search_path=public
---   clients_stamp_status_change() -> trigger
+--   clients_stamp_status_change() -> trigger  search_path=public
 --   community_access() -> boolean  [SECURITY DEFINER]  search_path=public
---   community_notify_on_mention() -> trigger  [SECURITY DEFINER]  search_path=""
+--   community_notify_on_mention() -> trigger  [SECURITY DEFINER]  search_path=""  [no anon/auth EXECUTE]
 --   community_profiles_guard_reserved_name() -> trigger  search_path=public
 --   current_tier() -> text  [SECURITY DEFINER]  search_path=public
 --   goal_count() -> integer  [SECURITY DEFINER]  search_path=public
@@ -1663,24 +1668,24 @@ CREATE TRIGGER trg_user_subscriptions_updated BEFORE UPDATE ON public.user_subsc
 --   normalize_display_name(p text) -> text  search_path=""
 --   onboarding_completed() -> boolean  [SECURITY DEFINER]  search_path=public
 --   project_count() -> integer  [SECURITY DEFINER]  search_path=public
---   purge_trash(p_dry_run boolean DEFAULT true, p_days integer DEFAULT 30) -> TABLE(table_name text, purged integer, skipped integer)  [SECURITY DEFINER]  search_path=public
---   purge_trash_guard(p_table text) -> text  search_path=public
---   report_bump(p_user uuid, p_period date, p_metric text, p_delta integer) -> void  [SECURITY DEFINER]  search_path=public
---   report_contrib_client(c clients) -> TABLE(period date, metric text)
---   report_contrib_lead(l leads) -> TABLE(period date, metric text)
---   report_contrib_member(m group_members) -> TABLE(period date, metric text)
---   report_contrib_session(s sessions) -> TABLE(period date, metric text)
---   report_contrib_task(t tasks) -> TABLE(period date, metric text)
---   report_month(ts timestamp with time zone) -> date
---   report_snapshot_backfill(p_overwrite boolean DEFAULT false) -> integer  [SECURITY DEFINER]  search_path=public
---   report_snapshot_month(p_user uuid, p_period date, p_overwrite boolean DEFAULT false) -> void  [SECURITY DEFINER]  search_path=public
---   report_sync_client() -> trigger  [SECURITY DEFINER]  search_path=public
---   report_sync_lead() -> trigger  [SECURITY DEFINER]  search_path=public
---   report_sync_member() -> trigger  [SECURITY DEFINER]  search_path=public
---   report_sync_session() -> trigger  [SECURITY DEFINER]  search_path=public
---   report_sync_task() -> trigger  [SECURITY DEFINER]  search_path=public
+--   purge_trash(p_dry_run boolean DEFAULT true, p_days integer DEFAULT 30) -> TABLE(table_name text, purged integer, skipped integer)  [SECURITY DEFINER]  search_path=public  [no anon/auth EXECUTE]
+--   purge_trash_guard(p_table text) -> text  search_path=public  [no anon/auth EXECUTE]
+--   report_bump(p_user uuid, p_period date, p_metric text, p_delta integer) -> void  [SECURITY DEFINER]  search_path=public  [no anon/auth EXECUTE]
+--   report_contrib_client(c clients) -> TABLE(period date, metric text)  search_path=public
+--   report_contrib_lead(l leads) -> TABLE(period date, metric text)  search_path=public
+--   report_contrib_member(m group_members) -> TABLE(period date, metric text)  search_path=public
+--   report_contrib_session(s sessions) -> TABLE(period date, metric text)  search_path=public
+--   report_contrib_task(t tasks) -> TABLE(period date, metric text)  search_path=public
+--   report_month(ts timestamp with time zone) -> date  search_path=public
+--   report_snapshot_backfill(p_overwrite boolean DEFAULT false) -> integer  [SECURITY DEFINER]  search_path=public  [no anon/auth EXECUTE]
+--   report_snapshot_month(p_user uuid, p_period date, p_overwrite boolean DEFAULT false) -> void  [SECURITY DEFINER]  search_path=public  [no anon/auth EXECUTE]
+--   report_sync_client() -> trigger  [SECURITY DEFINER]  search_path=public  [no anon/auth EXECUTE]
+--   report_sync_lead() -> trigger  [SECURITY DEFINER]  search_path=public  [no anon/auth EXECUTE]
+--   report_sync_member() -> trigger  [SECURITY DEFINER]  search_path=public  [no anon/auth EXECUTE]
+--   report_sync_session() -> trigger  [SECURITY DEFINER]  search_path=public  [no anon/auth EXECUTE]
+--   report_sync_task() -> trigger  [SECURITY DEFINER]  search_path=public  [no anon/auth EXECUTE]
 --   report_tallies_reset_own() -> integer  [SECURITY DEFINER]  search_path=public
---   rls_auto_enable() -> event_trigger  [SECURITY DEFINER]  search_path=pg_catalog
+--   rls_auto_enable() -> event_trigger  [SECURITY DEFINER]  search_path=pg_catalog  [no anon/auth EXECUTE]
 --   set_updated_at() -> trigger  search_path=""
 --   site_page_count(k text) -> integer  [SECURITY DEFINER]  search_path=public
 --   user_consent_stamp() -> trigger  search_path=""

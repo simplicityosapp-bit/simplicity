@@ -120,7 +120,8 @@
     "presetWorkweek": "Dim–Jeu 09:00–17:00",
     "advancedTitle": "Réglages avancés",
     "statusInSetup": "En configuration",
-    "resumeSetup": "Continuer la configuration"
+    "resumeSetup": "Continuer la configuration",
+    "fieldsLabel": "Champs du formulaire"
   },
   "publicPage": {
     "loading": "Chargement…",
@@ -147,7 +148,8 @@
     "paidThankYou": "Paiement reçu — votre rendez-vous est confirmé ! À bientôt.",
     "cancelledTitle": "Paiement annulé",
     "cancelledBody": "Le paiement n'a pas été finalisé, donc le rendez-vous n'a pas été réservé. Le créneau sera libéré automatiquement bientôt — vous pouvez réessayer.",
-    "cancelledRetry": "Retour à la réservation"
+    "cancelledRetry": "Retour à la réservation",
+    "consentLink": "Détails"
   },
   "toolbox": {
     "title": "Boîte à outils",

@@ -35,6 +35,14 @@ export const DEFAULT_FIELDS = [
   { key: 'note', label: 'הערה', type: 'textarea', required: false, builtin: true },
 ]
 
+/* The fields a page actually collects. A page saved before its builder offered
+   the field editor carries no `fields` at all, and has to keep collecting
+   exactly what it always did — so absent means the four builtins, never "none".
+   MIRRORED in the booking-intake edge function, which cannot import this. */
+export function resolveFields(fields) {
+  return (Array.isArray(fields) && fields.length) ? fields : structuredClone(DEFAULT_FIELDS)
+}
+
 /* builtin field key → leads column. Free (non-builtin) fields are stored
    under leads.data keyed by their `key`. MIRRORED in the edge function. */
 export const BUILTIN_COLUMN = {

@@ -1,0 +1,41 @@
+/* ════════════════════════════════════════════════════════════════
+   FORM FIELDS EDITOR — styles for components/FormFieldsEditor.jsx.
+   ════════════════════════════════════════════════════════════════
+   The class names stay `spe-*` because this control was lifted out of the
+   site-page editor and still renders inside it; renaming them would have
+   restyled the builder for no gain.
+
+   SitePagesScreen.css declares the same structural rules, and deliberately
+   keeps them: .spe-f / .spe-flex / .spe-listitem / .spe-add-row dress several
+   OTHER inspector controls there, so deleting them here-or-there would strip
+   whichever screen didn't win. The declarations are identical, so whichever
+   sheet loads last paints the same thing — and this file is what makes the
+   control work on a screen that never loads the site-page editor's CSS
+   (the booking builder).
+   ════════════════════════════════════════════════════════════════ */
+
+.spe-f { display: flex; flex-direction: column; gap: 6px; font-size: var(--mg-caption); color: var(--spb-text-2, var(--stone)); }
+.spe-f > span { font-weight: 500; }
+
+.spe-flex {
+  font: inherit; font-size: var(--mg-body); color: var(--espresso); background: var(--pure-white);
+  border: 1px solid var(--divider); border-radius: 9px; padding: 9px 11px; width: 100%; box-sizing: border-box;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.spe-flex:focus-visible { border-color: var(--terracotta); }
+
+.spe-listitem { border: 1px solid var(--divider); border-radius: 10px; padding: 10px; display: flex; flex-direction: column; gap: 8px; background: var(--pure-white); }
+.spe-listitem-head { display: flex; align-items: center; gap: 8px; font-size: var(--mg-micro); color: var(--spb-text-3, var(--mist)); }
+.spe-listitem-head button { display: grid; place-items: center; width: 24px; height: 24px; border: none; background: transparent; color: var(--spb-text-3, var(--mist)); border-radius: 6px; cursor: pointer; transition: background 0.15s, color 0.15s; }
+
+.spe-field-row { display: flex; gap: 8px; align-items: center; }
+.spe-req-toggle { display: inline-flex; align-items: center; gap: 5px; font-size: var(--mg-micro); color: var(--spb-text-2, var(--stone)); white-space: nowrap; }
+
+.spe-add-row { display: inline-flex; align-items: center; justify-content: center; gap: 5px; font: inherit; font-size: var(--mg-caption); color: var(--terracotta); background: transparent; border: 1px dashed var(--terracotta); border-radius: 9px; padding: 8px; cursor: pointer; transition: background 0.15s; }
+.spe-add-row:hover { background: color-mix(in srgb, var(--terracotta) 8%, transparent); }
+
+.spe-opts { display: flex; flex-direction: column; gap: 6px; }
+.spe-opt-row { display: flex; gap: 6px; align-items: center; }
+.spe-opt-row button { display: grid; place-items: center; width: 28px; height: 28px; flex: none; border: none; background: transparent; color: var(--spb-text-3, var(--mist)); border-radius: 6px; cursor: pointer; transition: background 0.15s, color 0.15s; }
+.spe-add-opt { align-self: flex-start; display: inline-flex; align-items: center; gap: 4px; font: inherit; font-size: var(--mg-micro); color: var(--terracotta); background: transparent; border: none; padding: 2px 4px; cursor: pointer; }
+.spe-add-opt:hover { text-decoration: underline; }

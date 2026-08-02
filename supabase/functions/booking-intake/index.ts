@@ -55,6 +55,21 @@ function json(body: unknown, status = 200) {
 
 const str = (v: unknown) => (v == null ? '' : String(v)).trim()
 const MAX_ANSWER_LEN = 2000
+/* Cap on how many declared fields one submission may write, mirroring
+   site-intake — a page's field list is coach-authored, so it is bounded, but
+   the loop should not be. */
+const MAX_FIELDS = 40
+/* MIRRORS leadPageSchema.DEFAULT_FIELDS. This function can't import from the
+   web app, so the four builtins are restated here; they are the fallback for
+   any booking page saved before the field editor existed. */
+const DEFAULT_FIELDS = [
+  { key: 'name', label: 'שם', type: 'text', required: true, builtin: true },
+  { key: 'phone', label: 'טלפון', type: 'tel', required: false, builtin: true },
+  { key: 'email', label: 'אימייל', type: 'email', required: false, builtin: true },
+  { key: 'note', label: 'הערה', type: 'textarea', required: false, builtin: true },
+]
+/* bookings.name is NOT NULL and the name field is no longer guaranteed. */
+const FALLBACK_NAME = 'פנייה מהדף'
 const DEFAULT_DURATION = 50
 
 // ── Rate limiting (best-effort, per warm isolate; mirrors lead-intake) ──────
@@ -420,11 +435,46 @@ Deno.serve(async (req) => {
       if (overlaps(startMs, endMs, bs - bufferMs, be + bufferMs)) return json({ error: 'slot_taken' }, 409)
     }
 
-    const name = str(answers.name).slice(0, MAX_ANSWER_LEN)
-    if (!name) return json({ error: 'missing_name' }, 400)
+    // ── Declared fields (mirrors leadPageSchema.resolveFields + site-intake) ──
+    // A page saved before the field editor existed carries no `fields`, and has
+    // to keep collecting exactly what it always did: the four builtins.
+    const declared = Array.isArray(page.content?.fields) && page.content.fields.length
+      ? page.content.fields
+      : DEFAULT_FIELDS
 
-    const phoneVal = str(answers.phone).slice(0, MAX_ANSWER_LEN) || null
-    const emailVal = str(answers.email).slice(0, MAX_ANSWER_LEN) || null
+    // Required-field validation, server-authoritative: the browser checks the
+    // same list, but a crafted POST does not go through the browser.
+    for (const f of declared) {
+      if (f?.required && !str(answers[f.key])) {
+        return json({ error: 'missing_required', field: f.key }, 400)
+      }
+    }
+
+    // Map answers → columns (builtin) + data (free). Only DECLARED fields, so a
+    // POST can't smuggle keys the page never asked for.
+    const cols: Record<string, string | null> = { name: null, phone: null, email: null, note: null }
+    const extra: Record<string, string> = {}
+    let fieldCount = 0
+    for (const f of declared) {
+      if (fieldCount >= MAX_FIELDS) break
+      if (!f?.key) continue
+      const submitted = str(answers[f.key])
+      if (!submitted) continue
+      // Consent: the tick is the only thing the client is trusted for; the
+      // stored sentence is taken from the PAGE's own label, so a forged POST
+      // can't write its own "proof of consent" text.
+      const val = (f.type === 'consent' ? str(f.label || f.key) : submitted).slice(0, MAX_ANSWER_LEN)
+      fieldCount += 1
+      if (f.key in cols) cols[f.key] = val
+      else extra[f.key] = val
+    }
+
+    // bookings.name is NOT NULL. The coach can drop or un-require the name
+    // field, so fall back the way site-intake does rather than 400-ing on a
+    // page that is configured exactly as its owner intended.
+    const name = cols.name || cols.phone || cols.email || FALLBACK_NAME
+    const phoneVal = cols.phone
+    const emailVal = cols.email
 
     // Online payment? The page must opt in AND the chosen type must have a price
     // AND the coach must have Grow connected. If Grow isn't connected (misconfig)
@@ -440,8 +490,8 @@ Deno.serve(async (req) => {
       name,
       phone: phoneVal,
       email: emailVal,
-      note: str(answers.note).slice(0, MAX_ANSWER_LEN) || null,
-      data: {},
+      note: cols.note,
+      data: extra,
       starts_at: new Date(startMs).toISOString(),
       ends_at: new Date(endMs).toISOString(),
       // Payment-required → hold as pending+awaiting (must pay first; ignore

@@ -126,7 +126,8 @@
     "project": "Projet",
     "category": "Catégorie",
     "noProject": "Aucun projet",
-    "noCategory": "Aucune catégorie"
+    "noCategory": "Aucune catégorie",
+    "date": "Date"
   },
   "all": "Tout",
   "search": "Rechercher une tâche ou un rappel…",

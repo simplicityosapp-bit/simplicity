@@ -126,7 +126,8 @@
     "project": "Proyecto",
     "category": "Categoría",
     "noProject": "Sin proyecto",
-    "noCategory": "Sin categoría"
+    "noCategory": "Sin categoría",
+    "date": "Fecha"
   },
   "all": "Todo",
   "search": "Buscar una tarea o recordatorio…",

@@ -26,7 +26,6 @@
     "dueTime": "Heure",
     "addDue": "+ Ajouter une échéance",
     "removeDue": "Retirer l'échéance",
-    "noDueDateHint": "Les tâches n'ont pas d'échéance — besoin d'un rappel pour un jour précis ? Ajoutez plutôt un <0>rappel</0>.",
     "delete": "Supprimer la tâche",
     "deleteTitle": "Supprimer la tâche",
     "deleteMessage": "Supprimer « {{title}} » ? Vous pourrez la restaurer depuis la corbeille pendant 30 jours.",

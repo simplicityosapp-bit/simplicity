@@ -2,7 +2,7 @@
   "coachmark": {
     "add-task": {
       "bubble": "Create your first task",
-      "detail": "Tasks have no date. Reminders are anything with a date (one-off, or recurring and fixed)."
+      "detail": "A task is something to do — with a due date or without. A reminder always has a time you set, and it can repeat."
     },
     "add-lead": {
       "bubble": "Add your first lead",
@@ -81,7 +81,7 @@
     "tasks": {
       "view": {
         "title": "Tasks and reminders",
-        "body": "Tasks have no date. Reminders are anything with a date (one-off, or recurring and fixed) — switch between them here."
+        "body": "A task is something to do — with a due date or without. A reminder always has a time you set, and it can repeat. — switch between them here."
       },
       "add": {
         "title": "Add",

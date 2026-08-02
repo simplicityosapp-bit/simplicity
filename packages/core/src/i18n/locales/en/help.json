@@ -595,7 +595,7 @@
         },
         {
           "title": "Adding a Task",
-          "body": "On the Tasks side, click \"+ New Task\". Fill in \"What needs to be done?\" (required) and choose a priority (Urgent / Normal / Low). You can link it to a project and client, and if you've defined statuses or categories you can select those too. Tasks have no due date — the screen notes this and suggests adding a reminder if you need a specific day."
+          "body": "On the Tasks side, click \"+ New Task\". Fill in \"What needs to be done?\" (required) and choose a priority (Urgent / Normal / Low). You can link it to a project and client, and if you've defined statuses or categories you can select those too. You can also set a due date and time, or leave it without — both are fine."
         },
         {
           "title": "Priority and Grouping",
@@ -653,7 +653,7 @@
       "faq": [
         {
           "q": "Where do I set a due date for a task?",
-          "a": "Tasks don't have due dates at all — that's the difference from reminders. If something needs to happen on a specific day, switch to the Reminders side and add a reminder with a date and time."
+          "a": "The \"New Task\" sheet (and the edit sheet) has a \"Due date\" field and a time. A date on its own is enough — the time defaults to 09:00, and clearing the date removes the deadline. A task with no date is perfectly normal; the difference from a reminder is that a reminder always has a time, and it can repeat."
         },
         {
           "q": "How do I delete a single task?",
@@ -669,7 +669,7 @@
         },
         {
           "q": "How do I sort the task list?",
-          "a": "Tasks are automatically sorted by priority — Urgent, then Normal, then Low — with a counter for each group. There's no sorting by date, because tasks don't have dates."
+          "a": "Tasks are automatically sorted by priority — Urgent, then Normal, then Low — with a counter for each group, and by due date within each group. The \"View\" menu can group by project or category instead, and in \"All\" you can choose between grouping by date and grouping by urgency."
         },
         {
           "q": "What's the difference between \"Urgent\" and \"Overdue\" in the summary?",

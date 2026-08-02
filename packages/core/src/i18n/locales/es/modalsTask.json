@@ -26,7 +26,6 @@
     "dueTime": "Hora",
     "addDue": "+ Añadir fecha límite",
     "removeDue": "Quitar fecha límite",
-    "noDueDateHint": "Las tareas no tienen fecha límite. ¿Necesitas un recordatorio para un día concreto? Añade un <0>recordatorio</0> en su lugar.",
     "delete": "Eliminar tarea",
     "deleteTitle": "Eliminar tarea",
     "deleteMessage": "¿Eliminar \"{{title}}\"? Puedes restaurarla desde la papelera durante 30 días.",

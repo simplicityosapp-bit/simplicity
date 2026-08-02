@@ -114,13 +114,12 @@
   background: var(--espresso);
   color: var(--cream);
 }
-/* --cream has no dark mapping (stays #FFFCF7) while --espresso flips to
-   near-white, so this "inversion" produced near-white on near-white at
-   1.16:1. Keep the light fill, take the label dark. Same fix on .rep-cog.on,
-   .rep-pill.on and .rep-range-pill.on below, and on .set-seg-btn.on. */
+/* The espresso<->cream swap inverts the selected control, and works now that
+   --cream is mapped for dark (tokens.css). Same for .rep-cog.on, .rep-pill.on
+   and .rep-range-pill.on below. */
 [data-theme="dark"] .rep-view-btn.on {
   background: var(--cream);
-  color: var(--ink-on-accent);
+  color: var(--espresso);
 }
 .rep-cog {
   position: relative;
@@ -164,7 +163,7 @@
 }
 [data-theme="dark"] .rep-cog.on {
   background: var(--cream);
-  color: var(--ink-on-accent);
+  color: var(--espresso);
 }
 
 /* ── Customize panel ── */
@@ -393,7 +392,7 @@
 }
 [data-theme="dark"] .rep-pill.on {
   background: var(--cream);
-  color: var(--ink-on-accent);
+  color: var(--espresso);
 }
 
 /* ── Period title ── */
@@ -557,7 +556,7 @@
 }
 [data-theme="dark"] .rep-range-pill.on {
   background: var(--cream);
-  color: var(--ink-on-accent);
+  color: var(--espresso);
 }
 
 .rep-table-wrap {

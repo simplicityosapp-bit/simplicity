@@ -142,7 +142,7 @@
   border-radius: 999px;
   padding: 2px 12px;
 }
-[data-theme="dark"] .ob-step-counter { color: var(--cream); background: rgba(26, 22, 18, 0.82); }
+[data-theme="dark"] .ob-step-counter { color: var(--espresso); background: rgba(26, 22, 18, 0.82); }
 
 .ob-corner-btn {
   display: inline-flex;
@@ -188,7 +188,7 @@
   border-color: rgba(240, 235, 224, 0.12);
   color: var(--mist);
 }
-[data-theme="dark"] .ob-foot-exit:hover:not(:disabled) { color: var(--cream); }
+[data-theme="dark"] .ob-foot-exit:hover:not(:disabled) { color: var(--espresso); }
 
 /* ── Tree (image-based) ─────────────────────────────────────────
    The 10-stage tree art (transparent PNG) is dropped into the
@@ -380,7 +380,7 @@
 }
 [data-theme="dark"] .ob-label {
   background: rgba(26, 22, 18, 0.82);
-  color: var(--cream);
+  color: var(--espresso);
 }
 
 .ob-input {
@@ -397,7 +397,7 @@
 [data-theme="dark"] .ob-input {
   border-color: rgba(240, 235, 224, 0.20);
   background-color: rgba(30, 26, 22, 0.78);
-  color: var(--cream);
+  color: var(--espresso);
 }
 [data-theme="dark"] .ob-input::placeholder { color: var(--mist); opacity: 0.7; }
 .ob-input:focus {
@@ -425,7 +425,7 @@
   transition: background 0.15s, border-color 0.15s, color 0.15s;
 }
 [data-theme="dark"] .ob-pill { background: rgba(30, 26, 22, 0.5); }
-[data-theme="dark"] .ob-pill { border-color: rgba(240, 235, 224, 0.18); color: var(--cream); }
+[data-theme="dark"] .ob-pill { border-color: rgba(240, 235, 224, 0.18); color: var(--espresso); }
 .ob-pill:hover:not(.on) { background: rgba(42, 37, 32, 0.06); }
 [data-theme="dark"] .ob-pill:hover:not(.on) { background: rgba(240, 235, 224, 0.06); }
 .ob-pill.on {
@@ -857,7 +857,7 @@
 }
 .ob-btn.primary {
   background: var(--clay);
-  color: var(--cream);
+  color: var(--on-accent);
   box-shadow: 0 4px 14px color-mix(in srgb, var(--clay) 36%, transparent);
 }
 .ob-btn.primary:hover { transform: translateY(-1px); }
@@ -874,7 +874,7 @@
   color: var(--espresso);
   box-shadow: none;
 }
-[data-theme="dark"] .ob-btn.primary.quiet { color: var(--cream); }
+[data-theme="dark"] .ob-btn.primary.quiet { color: var(--espresso); }
 .ob-btn.primary.quiet:hover { background: color-mix(in srgb, var(--clay) 42%, transparent); }
 
 /* The line explaining what the step wants. It was 12.5px italic --stone
@@ -912,7 +912,7 @@
   border: 1px solid rgba(42, 37, 32, 0.12);
 }
 [data-theme="dark"] .ob-btn.ghost {
-  color: var(--cream);
+  color: var(--espresso);
   border-color: rgba(240, 235, 224, 0.18);
 }
 .ob-btn.ghost:hover:not(:disabled) { background: rgba(42, 37, 32, 0.04); }
@@ -925,7 +925,7 @@
 .ob-btn.link:hover { color: var(--espresso); }
 .ob-btn.danger {
   background: var(--clay);
-  color: var(--cream);
+  color: var(--on-accent);
 }
 
 /* ── Welcome gate — first-ever visit chooser ──────────────────
@@ -1031,7 +1031,7 @@
   color: var(--espresso);
   letter-spacing: -0.01em;
 }
-[data-theme="dark"] .ob-welcome-option-title { color: var(--cream); }
+[data-theme="dark"] .ob-welcome-option-title { color: var(--espresso); }
 .ob-welcome-option-sub {
   font-size: calc(12.5px * var(--text-scale));
   color: var(--stone);

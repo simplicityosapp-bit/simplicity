@@ -1500,7 +1500,7 @@ html[data-bg="blank"][data-card-style="flat"] .home-screen {
 .home-widget-hide:hover {
   background: var(--clay);
   border-color: var(--clay);
-  color: var(--pure-white);
+  color: var(--on-accent);
 }
 
 /* The bar sits above the bottom nav while arranging. */

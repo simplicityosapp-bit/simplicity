@@ -109,7 +109,7 @@
   font-family: 'Assistant', sans-serif;
   font-size: calc(16px * var(--text-scale));
   font-weight: 600;
-  color: var(--cream);
+  color: var(--on-accent);
   background: linear-gradient(135deg, var(--terracotta), var(--amber-warn));
 }
 .cd-h-id {

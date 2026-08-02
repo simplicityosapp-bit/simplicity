@@ -306,7 +306,7 @@
 .dnav-item.active {
   background: var(--terracotta);
   border-color: transparent;
-  color: var(--cream);
+  color: var(--on-accent);
 }
 [data-theme="dark"] .dnav-item.active {
   color: var(--ink-on-accent);

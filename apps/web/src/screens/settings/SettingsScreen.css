@@ -472,14 +472,12 @@ html[dir="ltr"] .set-profile-body .m-pills.has-more {
   background: var(--espresso);
   color: var(--cream);
 }
-/* Inverting the selected segment for dark mode only works if BOTH tokens flip.
-   --espresso does (near-black -> near-white); --cream does NOT, it has no dark
-   mapping at all and stays #FFFCF7. So this swap put near-white on near-white
-   at 1.16:1 and the selected segment vanished. The fill is correct — it's the
-   label that has to go dark against it. */
+/* The espresso<->cream swap is the intended inversion, and it works now that
+   --cream has a dark mapping (tokens.css). It briefly needed --ink-on-accent
+   here, back when --cream stayed near-white at night and this read 1.16:1. */
 [data-theme="dark"] .set-seg-btn.on {
   background: var(--cream);
-  color: var(--ink-on-accent);
+  color: var(--espresso);
 }
 
 /* Widgets section */

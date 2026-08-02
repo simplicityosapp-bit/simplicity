@@ -167,6 +167,71 @@ function makeMatcher(items: { id: string; name: string }[]) {
   }
 }
 
+/* PARTIAL match on a single name word (owner decision 02/08). Requiring EVERY
+   word meant "פגישה עם רעות" never matched the client "רעות מדיון" — nobody
+   writes the surname in a calendar title. Measured on real data: 850 of 894
+   events unmatched, of which 116 carry exactly one client's given name and
+   NONE carry two.
+
+   Only when exactly one item owns the word. Two clients called "כהן" make
+   "פגישה עם כהן" genuinely ambiguous, and guessing is worse than not
+   matching, because a wrong subject can get the mirror auto-hidden. Ambiguous
+   titles fall through to the manual banner, which is what it is for. */
+function makePartialMatcher(items: { id: string; name: string }[]) {
+  /* GIVEN name only — the first word. Matching any word let the surname carry
+     it, and "עמליה סינגר" was filed under the client "ליבי סינגר" on the
+     strength of a shared family name. A coach writes the given name. */
+  const prepared = (items ?? [])
+    .map((it) => ({ id: it.id, given: wordsOf(it.name)[0] }))
+    .filter((p) => !!p.given)
+  return (title: string): { id: string | null; confidence: number } => {
+    const titleWords = new Set(wordsOf(title))
+    if (!titleWords.size) return { id: null, confidence: 0 }
+    let single: string | null = null
+    for (const p of prepared) {
+      if (!titleWords.has(p.given)) continue
+      if (single && single !== p.id) return { id: null, confidence: 0 } // ambiguous
+      single = p.id
+    }
+    return single ? { id: single, confidence: 0.6 } : { id: null, confidence: 0 }
+  }
+}
+
+/* Strict first, across ALL four lists; only if NOTHING matched by full name do
+   we guess from a single word, and then only for CLIENTS.
+
+   Both restrictions are load-bearing, and the owner's own data shows why:
+
+   - Guessing per-list: the group "מחזור שני" and the lead "שני זכאי" share the
+     word "שני". A per-list guess attaches that lead to every "מחזור שני" in
+     the calendar on top of the correct group.
+   - Clients only: a client is a person's name, which is what a coach writes in
+     a calendar title. Groups and projects are named as PHRASES ("מחזור שני",
+     "יצירה חופשית"), so a single word of one carries no signal — "שני - ליד
+     יוצרים תוכן" would have been filed under the group. Leads are worse still:
+     30 of them, mostly bare given names. */
+function linkFor(
+  title: string,
+  strict: { client: Matcher; project: Matcher; lead: Matcher; group: Matcher },
+  partial: { client: Matcher },
+) {
+  const c = strict.client(title), p = strict.project(title)
+  const l = strict.lead(title), g = strict.group(title)
+  /* The guess is gated on there being no CLIENT match — NOT on nothing having
+     matched at all. Those are very different, and the owner's data proves it:
+     one of the projects is called "אימון", a single common word, so every
+     "אימון - ליבי" in the calendar strict-matches that project. A global gate
+     let the project swallow exactly the sessions the duplicate detector needs
+     and the client was never reached. Other dimensions are unaffected — a
+     title can legitimately carry both a project and a client. */
+  const cid = c.id ?? (partial.client(title).id)
+  const cConf = c.id ? c.confidence : (cid ? 0.6 : 0)
+  return {
+    clientId: cid, projectId: p.id, leadId: l.id, groupId: g.id,
+    confidence: Math.max(cConf, p.confidence, l.confidence, g.confidence),
+  }
+}
+
 function eventTimes(e: GEvent) {
   const allDay = !!(e.start?.date && !e.start?.dateTime)
   const start = e.start?.dateTime ?? (e.start?.date ? `${e.start.date}T00:00:00` : null)
@@ -200,10 +265,13 @@ async function runSync(userId: string) {
     admin.from('leads').select('id, name').eq('user_id', userId).is('deleted_at', null),
     admin.from('groups').select('id, name').eq('user_id', userId).is('deleted_at', null),
   ])
-  const matchClient = makeMatcher((clients ?? []) as any)
-  const matchProject = makeMatcher((projects ?? []) as any)
-  const matchLead = makeMatcher((leads ?? []) as any)
-  const matchGroup = makeMatcher((groups ?? []) as any)
+  const strict = {
+    client: makeMatcher((clients ?? []) as any),
+    project: makeMatcher((projects ?? []) as any),
+    lead: makeMatcher((leads ?? []) as any),
+    group: makeMatcher((groups ?? []) as any),
+  }
+  const partial = { client: makePartialMatcher((clients ?? []) as any) }
 
   // Pull events — incremental if we have a token, else full from sync_from.
   // Future is bounded (sync_from → +1y) so a full resync can't fetch an
@@ -261,12 +329,10 @@ async function runSync(userId: string) {
       clientId = m.client_id; projectId = m.project_id; leadId = m.lead_id; groupId = m.group_id
       confidence = (clientId || projectId || leadId || groupId) ? 1 : 0 // a cleared manual match isn't "confident"
     } else {
-      const c = matchClient(e.summary ?? '')
-      const p = matchProject(e.summary ?? '')
-      const l = matchLead(e.summary ?? '')
-      const g = matchGroup(e.summary ?? '')
-      clientId = c.id; projectId = p.id; leadId = l.id; groupId = g.id
-      confidence = Math.max(c.confidence, p.confidence, l.confidence, g.confidence) // best of the assigned links
+      const link = linkFor(e.summary ?? '', strict, partial)
+      clientId = link.clientId; projectId = link.projectId
+      leadId = link.leadId; groupId = link.groupId
+      confidence = link.confidence
     }
     /* ALL events are stored — matched or not (unmatched just carry null
        links). The unique (user_id, google_event_id) key dedupes, so an
@@ -300,6 +366,19 @@ async function runSync(userId: string) {
       .eq('user_id', userId).in('google_event_id', cancelled)
   }
 
+  /* ── Re-match events already stored ───────────────────────────────────
+     An incremental sync only returns events that CHANGED in Google, so a
+     better matcher would otherwise apply to new events only and leave a
+     history of unmatched ones behind — which is most of them. This re-runs
+     the matcher over rows that are still linked to nothing, using the title
+     already stored, so no Google call and no quota.
+
+     Only rows linked to NOTHING: an existing link is never overwritten here.
+     `matched_manually` is excluded because that is the user's own answer
+     (including a deliberately cleared one), and `owned` because those rows
+     are detached from the sync entirely. */
+  const rematched = await rematchUnlinked(userId, strict, partial)
+
   const last_synced_at = new Date().toISOString()
   await admin.from('user_integrations')
     .update({
@@ -311,7 +390,42 @@ async function runSync(userId: string) {
     })
     .eq('id', integration.id)
 
-  return { synced: upserts.length, removed: cancelled.length, last_synced_at, sync_from: integration.sync_from }
+  return { synced: upserts.length, removed: cancelled.length, rematched, last_synced_at, sync_from: integration.sync_from }
+}
+
+type Matcher = (title: string) => { id: string | null; confidence: number }
+
+/* Fill in links on stored events that have none, from their stored title.
+   Returns how many rows gained a link. Writes one row at a time only for
+   those that actually matched — an unmatched row is left completely alone,
+   so a run that finds nothing costs no writes. */
+async function rematchUnlinked(
+  userId: string,
+  strict: { client: Matcher; project: Matcher; lead: Matcher; group: Matcher },
+  partial: { client: Matcher },
+): Promise<number> {
+  const { data: rows } = await admin.from('calendar_events')
+    .select('id, title')
+    .eq('user_id', userId)
+    .eq('matched_manually', false)
+    .eq('owned', false)
+    .is('deleted_at', null)
+    .is('client_id', null).is('project_id', null).is('lead_id', null).is('group_id', null)
+    .limit(5000)
+  if (!rows?.length) return 0
+
+  let n = 0
+  for (const r of rows as any[]) {
+    const link = linkFor(r.title ?? '', strict, partial)
+    if (!link.clientId && !link.projectId && !link.leadId && !link.groupId) continue
+    const { error } = await admin.from('calendar_events').update({
+      client_id: link.clientId, project_id: link.projectId,
+      lead_id: link.leadId, group_id: link.groupId,
+      confidence_score: link.confidence,
+    }).eq('id', r.id)
+    if (!error) n += 1
+  }
+  return n
 }
 
 // ── Booking → Google Calendar write (Phase 6) ───────────────────

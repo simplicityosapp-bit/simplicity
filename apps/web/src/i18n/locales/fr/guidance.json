@@ -2,7 +2,7 @@
   "coachmark": {
     "add-task": {
       "bubble": "Créez votre première tâche",
-      "detail": "Les tâches n'ont pas de date. Les rappels sont tout ce qui a une date (ponctuel, ou récurrent et fixe)."
+      "detail": "Une tâche est quelque chose à faire, avec ou sans échéance. Un rappel a toujours une heure que vous fixez, et il peut se répéter."
     },
     "add-lead": {
       "bubble": "Ajoutez votre premier prospect",
@@ -81,7 +81,7 @@
     "tasks": {
       "view": {
         "title": "Tâches et rappels",
-        "body": "Les tâches n'ont pas de date. Les rappels sont tout ce qui a une date (ponctuel, ou récurrent et fixe) — basculez entre les deux ici."
+        "body": "Une tâche est quelque chose à faire, avec ou sans échéance. Un rappel a toujours une heure que vous fixez, et il peut se répéter. — basculez entre les deux ici."
       },
       "add": {
         "title": "Ajouter",

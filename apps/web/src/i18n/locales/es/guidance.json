@@ -2,7 +2,7 @@
   "coachmark": {
     "add-task": {
       "bubble": "Crea tu primera tarea",
-      "detail": "Las tareas no tienen fecha. Los recordatorios son cualquier cosa con fecha (puntual, o recurrente y fija)."
+      "detail": "Una tarea es algo que hacer, con o sin fecha límite. Un recordatorio siempre tiene una hora que fijas, y puede repetirse."
     },
     "add-lead": {
       "bubble": "Añade tu primer prospecto",
@@ -81,7 +81,7 @@
     "tasks": {
       "view": {
         "title": "Tareas y recordatorios",
-        "body": "Las tareas no tienen fecha. Los recordatorios son cualquier cosa con fecha (puntual, o recurrente y fija) — cambia entre ellos aquí."
+        "body": "Una tarea es algo que hacer, con o sin fecha límite. Un recordatorio siempre tiene una hora que fijas, y puede repetirse. — cambia entre ellos aquí."
       },
       "add": {
         "title": "Añadir",

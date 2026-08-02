@@ -595,7 +595,7 @@
         },
         {
           "title": "Añadir una tarea",
-          "body": "En el lado de Tareas, haz clic en «+ Nueva tarea». Rellena «¿Qué hay que hacer?» (obligatorio) y elige una prioridad (Urgente / Normal / Baja). Puedes vincularla a un proyecto y a un cliente, y si has definido estados o categorías, también puedes seleccionarlos. Las tareas no tienen fecha de vencimiento: la pantalla lo indica y sugiere añadir un recordatorio si necesitas un día concreto."
+          "body": "En el lado de Tareas, haz clic en «+ Nueva tarea». Rellena «¿Qué hay que hacer?» (obligatorio) y elige una prioridad (Urgente / Normal / Baja). Puedes vincularla a un proyecto y a un cliente, y si has definido estados o categorías, también puedes seleccionarlos. También puedes fijar una fecha límite y una hora, o dejarla sin ninguna: ambas opciones son válidas."
         },
         {
           "title": "Prioridad y agrupación",
@@ -653,7 +653,7 @@
       "faq": [
         {
           "q": "¿Dónde fijo una fecha de vencimiento para una tarea?",
-          "a": "Las tareas no tienen fecha de vencimiento en absoluto: esa es la diferencia con los recordatorios. Si algo tiene que ocurrir en un día concreto, cambia al lado de Recordatorios y añade un recordatorio con una fecha y una hora."
+          "a": "La ventana «Nueva tarea» (y la de edición) tiene un campo «Fecha límite» y una hora. Basta con la fecha: la hora se fija en las 09:00, y borrar la fecha elimina el vencimiento. Una tarea sin fecha es perfectamente normal; la diferencia con un recordatorio es que este siempre tiene una hora y puede repetirse."
         },
         {
           "q": "¿Cómo elimino una sola tarea?",
@@ -669,7 +669,7 @@
         },
         {
           "q": "¿Cómo ordeno la lista de tareas?",
-          "a": "Las tareas se ordenan automáticamente por prioridad —Urgente, luego Normal, luego Baja—, con un contador para cada grupo. No hay ordenación por fecha, porque las tareas no tienen fechas."
+          "a": "Las tareas se ordenan automáticamente por prioridad —Urgente, luego Normal, luego Baja—, con un contador para cada grupo, y por fecha límite dentro de cada grupo. El menú «Vista» permite agrupar por proyecto o categoría, y en «Todo» puedes elegir entre agrupar por fecha o por urgencia."
         },
         {
           "q": "¿Cuál es la diferencia entre «Urgentes» y «Vencidos» en el resumen?",

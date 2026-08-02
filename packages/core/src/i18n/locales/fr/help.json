@@ -595,7 +595,7 @@
         },
         {
           "title": "Ajouter une tâche",
-          "body": "Du côté Tâches, cliquez sur « + Nouvelle tâche ». Renseignez « Que faut-il faire ? » (requis) et choisissez une priorité (Urgente / Normale / Faible). Vous pouvez la lier à un projet et à un client, et si vous avez défini des statuts ou des catégories, vous pouvez aussi les sélectionner. Les tâches n'ont pas d'échéance — l'écran le note et suggère d'ajouter un rappel si vous avez besoin d'un jour précis."
+          "body": "Du côté Tâches, cliquez sur « + Nouvelle tâche ». Renseignez « Que faut-il faire ? » (requis) et choisissez une priorité (Urgente / Normale / Faible). Vous pouvez la lier à un projet et à un client, et si vous avez défini des statuts ou des catégories, vous pouvez aussi les sélectionner. Vous pouvez aussi définir une échéance et une heure, ou la laisser sans : les deux sont valables."
         },
         {
           "title": "Priorité et regroupement",
@@ -653,7 +653,7 @@
       "faq": [
         {
           "q": "Où définir une échéance pour une tâche ?",
-          "a": "Les tâches n'ont pas d'échéance du tout — c'est là la différence avec les rappels. Si quelque chose doit se passer un jour précis, basculez du côté Rappels et ajoutez un rappel avec une date et une heure."
+          "a": "La fenêtre « Nouvelle tâche » (et celle d'édition) comporte un champ « Échéance » et une heure. La date seule suffit : l'heure est fixée à 09:00, et effacer la date supprime l'échéance. Une tâche sans date est tout à fait normale ; la différence avec un rappel est que celui-ci a toujours une heure et peut se répéter."
         },
         {
           "q": "Comment supprimer une seule tâche ?",
@@ -669,7 +669,7 @@
         },
         {
           "q": "Comment trier la liste des tâches ?",
-          "a": "Les tâches sont automatiquement triées par priorité — Urgente, puis Normale, puis Faible — avec un compteur pour chaque groupe. Il n'y a pas de tri par date, car les tâches n'ont pas de dates."
+          "a": "Les tâches sont automatiquement triées par priorité — Urgente, puis Normale, puis Faible — avec un compteur pour chaque groupe, et par échéance au sein de chaque groupe. Le menu « Affichage » permet de grouper par projet ou catégorie, et dans « Tout » vous pouvez choisir entre un groupement par date et par urgence."
         },
         {
           "q": "Quelle est la différence entre « Urgentes » et « En retard » dans le résumé ?",

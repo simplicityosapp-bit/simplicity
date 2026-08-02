@@ -740,41 +740,86 @@ html[data-bg="blank"][data-card-style="flat"] .home-screen {
 /* The live value floats centred just above the slider, out of flow in the
    top gap (beta 14/07/2026 — moved off the inline-end save column to the
    middle so the widget reads tighter). It never pushes the row's height. */
-.ins-slider-wrap .ins-slider-val {
+/* The number rides ABOVE THE THUMB rather than sitting at a fixed centre, so
+   the value is read where the finger already is. The thumb's centre travels
+   (track - thumb), not the full track, so the offset is corrected by half a
+   thumb at each end — without that the number drifts off the thumb at 1 and 10.
+   inset-inline-start, so it follows the writing direction. */
+/* Owns the number's coordinate space: percentages inside it are percentages of
+   the TRACK, which is the only thing the value means anything against. */
+.ins-slider-track {
+  /* Declared here, not on .ins-slider: the number is the slider's SIBLING, and
+     custom properties inherit down, not sideways. Both read it from here. */
+  --ins-thumb: 22px;
+  position: relative;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+/* The number rides above the thumb so the value is read where the finger
+   already is. The thumb's centre travels (track − thumb), not the whole track,
+   so half a thumb is added at each end — without it the number drifts off the
+   thumb at 1 and at 10. */
+.ins-slider-track .ins-slider-val {
   position: absolute;
-  bottom: calc(100% + 4px);
-  left: 50%;
+  bottom: calc(100% + 6px);
+  inset-inline-start: calc(var(--ins-thumb) / 2 + (100% - var(--ins-thumb)) * var(--ins-p, 0));
   transform: translateX(-50%);
   pointer-events: none;
+  transition: inset-inline-start 0.12s ease-out;
 }
+/* inset-inline-start measures from the right in RTL, so the centring shift
+   flips with it. */
+[dir="rtl"] .ins-slider-track .ins-slider-val { transform: translateX(50%); }
 .ins-slider {
   flex: 1;
   -webkit-appearance: none;
   appearance: none;
-  height: 4px;
-  border-radius: 4px;
-  background: linear-gradient(to left, var(--moon-deep), var(--moon-hi));
+  height: 6px;
+  border-radius: 6px;
+  /* Two layers: the moon fill, sized to the value, over the unfilled rail. A
+     static full-width gradient looked identical at 3 and at 9 — the control
+     gave no sign it had moved (beta 01/08). */
+  background-image: linear-gradient(var(--moon-deep), var(--moon-deep));
+  background-repeat: no-repeat;
+  background-size: calc(var(--ins-p, 0) * 100%) 100%;
+  background-color: color-mix(in srgb, var(--moon-deep) 18%, transparent);
   outline: none;
   cursor: pointer;
 }
+/* The fill grows from whichever end the scale starts at. */
+.ins-slider { background-position: left center; }
+[dir="rtl"] .ins-slider { background-position: right center; }
+/* 22px with a soft halo — a bigger, more deliberate grip than the old 18px
+   dot, and the ring is drawn with a spread shadow rather than a real border so
+   it can't change the thumb's size (which the number's position depends on). */
 .ins-slider::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 18px;
-  height: 18px;
+  width: var(--ins-thumb);
+  height: var(--ins-thumb);
   border-radius: 50%;
   background: var(--pure-white);
   border: 2px solid var(--moon-deep);
-  box-shadow: 0 2px 8px rgba(42, 37, 32, 0.2);
+  box-shadow: 0 2px 8px rgba(42, 37, 32, 0.2),
+              0 0 0 5px color-mix(in srgb, var(--moon-deep) 14%, transparent);
   cursor: pointer;
+  transition: box-shadow 0.15s, transform 0.12s;
+}
+.ins-slider:active::-webkit-slider-thumb {
+  transform: scale(1.08);
+  box-shadow: 0 2px 8px rgba(42, 37, 32, 0.2),
+              0 0 0 8px color-mix(in srgb, var(--moon-deep) 18%, transparent);
 }
 .ins-slider::-moz-range-thumb {
-  width: 18px;
-  height: 18px;
+  width: var(--ins-thumb);
+  height: var(--ins-thumb);
   border-radius: 50%;
   background: var(--pure-white);
   border: 2px solid var(--moon-deep);
-  box-shadow: 0 2px 8px rgba(42, 37, 32, 0.2);
+  box-shadow: 0 2px 8px rgba(42, 37, 32, 0.2),
+              0 0 0 5px color-mix(in srgb, var(--moon-deep) 14%, transparent);
   cursor: pointer;
 }
 .ins-slider-val {

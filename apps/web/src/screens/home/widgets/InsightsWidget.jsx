@@ -205,22 +205,31 @@ export default function InsightsWidget() {
            ends with the slider stretched between them. The current value is
            shown as a fixed number stacked above the check (no floating pill),
            which lets the row keep a single, short height. */
-        <Box className="ins-slider-wrap">
+        /* --ins-p drives BOTH the filled part of the track and where the number
+           sits, so the two can't disagree about where the value is. Unitless
+           0–1, not a percentage: calc() cannot multiply a length BY a
+           percentage, and the offset below needs exactly that. */
+        <Box className="ins-slider-wrap" style={{ '--ins-p': (effectiveVal - 1) / 9 }}>
           {/* The live value floats centred just above the slider; the day-over-day
               comparison sits out of flow at the inline-end so they never overlap. */}
           {compare && <Txt as="p" className="ins-compare">{compare}</Txt>}
-          <Txt className="ins-slider-val mono" aria-hidden="true">{effectiveVal}</Txt>
           {collapseBtn}
-          <Input
-            type="range"
-            min="1"
-            max="10"
-            step="1"
-            value={effectiveVal}
-            className="ins-slider"
-            aria-label={text}
-            onChange={(e) => setVal(parseInt(e.target.value, 10))}
-          />
+          {/* The number is positioned against THIS box, not the whole row, so
+              its offset is a plain percentage of the track. Measured against
+              the row it landed outside the track entirely. */}
+          <Box className="ins-slider-track">
+            <Txt className="ins-slider-val mono" aria-hidden="true">{effectiveVal}</Txt>
+            <Input
+              type="range"
+              min="1"
+              max="10"
+              step="1"
+              value={effectiveVal}
+              className="ins-slider"
+              aria-label={text}
+              onChange={(e) => setVal(parseInt(e.target.value, 10))}
+            />
+          </Box>
           <Btn type="button" className="ins-save-btn" disabled={busy} onClick={() => save(effectiveVal)} aria-label={t('widgets.insights.saveAria')}>
             <Check size={15} strokeWidth={2} aria-hidden="true" />
           </Btn>

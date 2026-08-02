@@ -72,7 +72,8 @@
     "paid": "Payé",
     "balance": "Solde",
     "deselect": "Désélectionner",
-    "selectAria": "Sélectionner"
+    "selectAria": "Sélectionner",
+    "remindAria": "Ajouter un rappel"
   },
   "bulk": {
     "selected": "{{count}} sélectionnés",

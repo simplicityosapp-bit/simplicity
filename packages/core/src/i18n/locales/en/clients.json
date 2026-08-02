@@ -72,7 +72,8 @@
     "paid": "Paid",
     "balance": "Balance",
     "deselect": "Deselect",
-    "selectAria": "Select"
+    "selectAria": "Select",
+    "remindAria": "Add reminder"
   },
   "bulk": {
     "selected": "{{count}} selected",

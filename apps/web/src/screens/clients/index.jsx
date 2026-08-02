@@ -26,6 +26,7 @@ import ClientDrawer from '../../drawers/client/ClientDrawer'
 import AddClientModal from '../../modals/AddClientModal'
 import DeleteClientModal from '../../modals/DeleteClientModal'
 import ClientStatusesModal from '../../modals/ClientStatusesModal'
+import AddReminderModal from '../../modals/AddReminderModal'
 import MG from '../../components/MG'
 import { pushUndo } from '../../lib/undo'
 import './ClientsScreen.css'
@@ -93,7 +94,9 @@ export default function ClientsScreen() {
   const { projects } = useProjects()
   const { transactions, addTransaction, editTransaction, removeTransaction, refetch, error: txError } = useTransactions()
   const { tasks, editTask } = useTasks()
-  const { reminders, editReminder } = useReminders()
+  const { reminders, editReminder, addReminder } = useReminders()
+  /* Client whose reminder sheet is open, straight from its card. */
+  const [remindClient, setRemindClient] = useState(null)
   const { sessions, addSession, updateSession, error: sessionsError } = useSessions()
   const { meetings, addMeeting, removeMeeting } = useScheduledMeetings()
   const { groups, error: groupsError } = useGroups()
@@ -531,6 +534,7 @@ export default function ClientsScreen() {
                   client={c}
                   index={i}
                   onOpen={setOpenId}
+                  onRemind={setRemindClient}
                   selectMode={selectMode}
                   selected={selectedIds.has(c.id)}
                   onToggleSelect={toggleSelect}
@@ -552,6 +556,7 @@ export default function ClientsScreen() {
               client={c}
               index={i}
               onOpen={setOpenId}
+              onRemind={setRemindClient}
               selectMode={selectMode}
               selected={selectedIds.has(c.id)}
               onToggleSelect={toggleSelect}
@@ -661,6 +666,22 @@ export default function ClientsScreen() {
         }}
         onUpdateTransaction={editTransaction}
         onRemoveTransaction={removeTransaction}
+      />
+
+      {/* Reminder straight off a client card. `defaultLinkedTo` binds it to that
+          client and swaps the picker for a stated subject — the same shape the
+          project screen uses — because opening this from a card already answers
+          "who for". Keyed on the client so it re-seeds each time: Modal keeps
+          its children mounted, so without the key the second client you tapped
+          would open the first one's sheet. */}
+      <AddReminderModal
+        key={`remind-${remindClient?.id || 'none'}`}
+        open={!!remindClient}
+        onClose={() => setRemindClient(null)}
+        clients={clientList}
+        defaultLinkedTo={remindClient ? { type: 'client', id: remindClient.id } : null}
+        linkedSubjectName={remindClient?.name || ''}
+        onSave={addReminder}
       />
     </Box>
   )

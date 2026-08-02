@@ -39,6 +39,12 @@ const FILTERS = ['todo', 'done']
    default (preserves the original layout); project/category let the user
    re-slice the same tasks. */
 const GROUP_BY = ['priority', 'project', 'category']
+/* "הכל" gets its own, shorter set. Date is the default and the reason the mode
+   exists — one timeline over both kinds — but urgency is the other question
+   worth asking of a mixed list. Project and category are missing on purpose:
+   a reminder has neither, so grouping by them would file every reminder under
+   "ללא" and say nothing. */
+const ALL_GROUP_BY = ['date', 'priority']
 const GROUP_FALLBACK_COLOR = 'var(--mist)'
 /* Reminders get their own tabs: open, completed, and the recurring schedule.
    "הושלמו" deliberately holds the SAME second slot it holds for tasks — it used
@@ -237,6 +243,11 @@ export default function TasksScreen() {
   })
 
   const [groupBy, setGroupBy] = useState('priority')
+  /* Kept apart from `groupBy` rather than shared: the two modes don't offer the
+     same choices, so one state would carry "project" into "הכל", which has no
+     such grouping, and drag "date" back into the tasks view, which has no such
+     grouping either. */
+  const [allGroupBy, setAllGroupBy] = useState('date')
   /* Grouping lives behind the "תצוגה" pill rather than a third row of tabs.
      Two identical-looking segmented controls stacked (filter, then grouping)
      gave no clue which did what; this is the shape the clients screen already
@@ -439,6 +450,26 @@ export default function TasksScreen() {
         ? [{ key: 'all-done', label: t('doneGroup'), color: 'var(--stone)', items: [...allItems].sort(byPressure) }]
         : []
     }
+    /* Grouped by urgency instead of by date. Only a task carries a priority, so
+       the reminders land in one tail group rather than being scattered into
+       urgency bands they never chose — a reminder is a nudge, not a ranking. */
+    if (allGroupBy === 'priority') {
+      const groups = PRIORITY_GROUPS.map((g) => ({
+        key: `all-pri-${g}`,
+        label: t(`priority.${g}`),
+        color: PRIORITY_COLOR[g],
+        items: allItems
+          .filter((it) => it.kind === 'task' && (it.task.priority || 'medium') === g)
+          .sort(byPressure),
+      }))
+      groups.push({
+        key: 'all-pri-reminders',
+        label: t('reminders'),
+        color: GROUP_FALLBACK_COLOR,
+        items: allItems.filter((it) => it.kind === 'reminder').sort(byPressure),
+      })
+      return groups.filter((g) => g.items.length)
+    }
     return ALL_BUCKETS
       .map((b) => ({
         key: `all-${b.key}`,
@@ -451,7 +482,7 @@ export default function TasksScreen() {
           .sort(byPressure),
       }))
       .filter((g) => g.items.length)
-  }, [isAll, filter, allItems, now, t])
+  }, [isAll, filter, allItems, now, t, allGroupBy])
 
   /* "חוזרות" tab — all active recurring reminders, grouped: weekly by
      day-of-week, monthly together, every-X-days together. Scoped like every
@@ -578,6 +609,9 @@ export default function TasksScreen() {
      category filter, or both. One category names itself; several just count. */
   const viewEcho = [
     isTasks && groupBy !== 'priority' ? t(`groupBy.${groupBy}`) : null,
+    /* Same rule for the mixed list, against ITS default — a grouping hiding
+       inside a closed menu is what this line exists to prevent. */
+    isAll && allGroupBy !== 'date' ? t(`groupBy.${allGroupBy}`) : null,
     categoryFilters.size === 1
       ? (taskCategories.find((c) => categoryFilters.has(c.id))?.name || null)
       : (categoryFilters.size > 1 ? t('taxonomy.nSelected', { n: categoryFilters.size }) : null),
@@ -739,23 +773,28 @@ export default function TasksScreen() {
           </Btn>
           {viewOpen && (
             <Box className="mg-menu-pop mg-menu-pop-wide" role="menu" style={{ [viewSide]: 0 }}>
-              {/* Grouping is a tasks-only idea — reminders and the mixed list
-                  are grouped by date, which isn't a choice. */}
-              {isTasks && (
+              {/* Reminders are still grouped by date and that isn't a choice —
+                  they have no priority, project or category to group on. The
+                  mixed list does have one thing to ask beyond the date, though:
+                  how urgent, so it offers date-or-urgency and nothing else. */}
+              {(isTasks || isAll) && (
                 <>
                   <Txt as="p" className="mg-menu-h">{t('groupBy.heading')}</Txt>
-                  {GROUP_BY.map((gb) => (
-                    <Btn
-                      key={gb}
-                      type="button"
-                      role="menuitemradio"
-                      aria-checked={groupBy === gb}
-                      className={`mg-menu-opt${groupBy === gb ? ' on' : ''}`}
-                      onClick={() => { setGroupBy(gb); setViewOpen(false) }}
-                    >
-                      {t(`groupBy.${gb}`)}
-                    </Btn>
-                  ))}
+                  {(isAll ? ALL_GROUP_BY : GROUP_BY).map((gb) => {
+                    const active = isAll ? allGroupBy === gb : groupBy === gb
+                    return (
+                      <Btn
+                        key={gb}
+                        type="button"
+                        role="menuitemradio"
+                        aria-checked={active}
+                        className={`mg-menu-opt${active ? ' on' : ''}`}
+                        onClick={() => { (isAll ? setAllGroupBy : setGroupBy)(gb); setViewOpen(false) }}
+                      >
+                        {t(`groupBy.${gb}`)}
+                      </Btn>
+                    )
+                  })}
                   <Box className="mg-menu-divider" />
                 </>
               )}
@@ -888,10 +927,12 @@ export default function TasksScreen() {
                     project={projOf(it.task.project_id)}
                     clientName={clientNameOf(it.task.client_id)}
                     dueLabel={it.task.due_at ? formatWhen(it.task.due_at) : null}
-                    /* The bucket is the date, so priority always needs the word
-                       here — same rule as the dated tasks used to follow. */
+                    /* When the bucket is the date, priority needs the word —
+                       same rule as the dated tasks used to follow. Grouped BY
+                       urgency the heading already says it, so the tag would
+                       just repeat the section it sits in. */
                     dotColor={g.color}
-                    urgentTag={(it.task.priority || 'medium') === 'high'}
+                    urgentTag={allGroupBy !== 'priority' && (it.task.priority || 'medium') === 'high'}
                     onToggle={() => toggleTask(it.task)}
                     onEdit={setEditDatedTask}
                     onRename={renameTask}

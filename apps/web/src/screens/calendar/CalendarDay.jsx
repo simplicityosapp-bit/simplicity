@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { eventsForDay, isSameDay, fmtTime } from '@simplicity/core'
 import { useT } from '../../i18n/useT'
 import { Box, Txt, Btn } from '../../components/ui'
@@ -140,6 +140,29 @@ export default function CalendarDay({ date, events, onSelect, onPickSlot, dayVie
     return (mins - gridStartMin) / 60 * HOUR_H
   }, [now, date, gridStartMin, gridEndMin])
 
+  /* Open on the current hour instead of on the top of the window. The grid is
+     nearly a thousand pixels tall, so entering it at 06:00 put a coach who
+     works afternoons below the fold of their own day and made the marker they
+     came for something they had to go looking for.
+
+     Keyed on the `date` OBJECT, not on the day it represents. Every route into
+     this view hands over a fresh Date — the arrows build one, "היום" builds
+     one — so a re-entry re-centres while the minute tick, which changes
+     `nowTop` but not `date`, does not yank a scroll out from under someone who
+     has scrolled somewhere else on purpose. */
+  const nowRef = useRef(null)
+  const scrolledFor = useRef(null)
+  useEffect(() => {
+    if (nowTop === null || scrolledFor.current === date) return
+    scrolledFor.current = date
+    nowRef.current?.scrollIntoView({
+      block: 'center',
+      /* The one animation on this screen that moves the whole page; honour the
+         OS setting the same way the stylesheet's reduced-motion rules do. */
+      behavior: window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth',
+    })
+  }, [date, nowTop])
+
   return (
     <Box className="cal-day">
       {allDayEvents.length > 0 && (
@@ -206,7 +229,7 @@ export default function CalendarDay({ date, events, onSelect, onPickSlot, dayVie
             restates the device's own clock; the hour labels already carry the
             grid's structure for a reader who isn't looking at it. */}
         {nowTop !== null && (
-          <Box className="cal-day-now" style={{ top: `${nowTop}px` }} aria-hidden="true" />
+          <Box ref={nowRef} className="cal-day-now" style={{ top: `${nowTop}px` }} aria-hidden="true" />
         )}
       </Box>
 

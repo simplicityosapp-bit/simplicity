@@ -21,7 +21,7 @@
     },
     "payments": {
       "title": "Currency, date and time",
-      "sub": "Currency, date, time and the first day of the week"
+      "sub": "Currency, date, time, the first day of the week and day-view hours"
     },
     "meetingTypes": {
       "title": "Meeting types and prices",
@@ -77,6 +77,10 @@
     "dateFormat": "Date format",
     "timeFormat": "Time format",
     "weekStart": "First day of the week",
+    "dayViewHours": "Day view hours",
+    "dayViewFrom": "From",
+    "dayViewTo": "To",
+    "dayViewHint": "The range of hours the calendar draws in day view. An event outside it is not hidden — it appears in a separate band above or below the timeline.",
     "exampleToday": "The examples show today's date.",
     "typePlaceholder": "Meeting type…"
   },
@@ -310,7 +314,7 @@
       "profile": "profile name profession role form of address gender specialisation",
       "design": "design appearance look colour color theme dark light night day background photo text size font typeface letters spacing density cards glass blur transparency hebrew calendar language",
       "home": "home screen cards widgets order hide show what appears",
-      "payments": "currency shekel dollar euro amounts date time format week sunday monday clock",
+      "payments": "currency shekel dollar euro amounts date time format week sunday monday clock hours day view timeline",
       "meetingTypes": "price prices rate cost session type meeting types fee per session",
       "questions": "daily questions question reminder reflection how are you today",
       "data": "export import backup excel csv file download upload intro wizard",

@@ -221,13 +221,18 @@
 }
 /* Secondary next to the terracotta confirm — glass, not a second fill, so the
    pair reads as "the action" and "the other thing you can do". */
+/* Opaque enough to read. --mg-btn-secondary-bg IS --mg-card-bg, the same 30%
+   cream the row itself is painted with, so the button was glass on identical
+   glass and simply dissolved into it. The explicit higher-alpha pair is the
+   treatment .mg-menu-btn already uses for exactly this — a secondary button
+   sitting on a card — rather than a new token. */
 .inv-remind {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   padding: 8px 12px;
   border-radius: var(--mg-chip-radius);
-  background: var(--mg-btn-secondary-bg);
+  background: rgba(255, 250, 240, 0.72);
   border: var(--mg-btn-secondary-border);
   color: var(--stone);
   font-family: var(--mg-font);
@@ -235,6 +240,11 @@
   font-weight: 500;
   cursor: pointer;
   transition: color 0.15s;
+}
+/* Dark mode needs its own fill for the same reason: --mg-card-bg there is a
+   dark 48% that matches the row exactly. */
+[data-theme="dark"] .inv-remind {
+  background: rgba(20, 18, 14, 0.72);
 }
 .inv-remind:hover { color: var(--espresso); }
 /* A reminder is already waiting — tinted, not filled: it is a state, not a

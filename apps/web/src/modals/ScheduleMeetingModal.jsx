@@ -10,31 +10,58 @@ const todayStr = () => {
   const d = new Date()
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
 }
-const blank = (clientId = '', date, time) => ({ client_id: clientId, date: date || todayStr(), time: time || '09:00' })
+const blank = (subject = '', date, time) => ({ subject, date: date || todayStr(), time: time || '09:00' })
 const HEB_DAYS = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי', 'שבת']
 
-/* Schedule a future client meeting. If `client` is given the client is locked
-   (drawer flow); otherwise a client picker is shown (calendar flow).
+/* The picker carries the subject's TYPE as well as its id, because
+   scheduled_meetings is keyed on the pair and a bare id could belong to
+   either table. "client:<uuid>" / "group:<uuid>" — a colon is safe as the
+   separator, uuids contain hyphens but never one. */
+const subjectValue = (type, id) => `${type}:${id}`
+const parseSubject = (v) => {
+  const raw = String(v || '')
+  const at = raw.indexOf(':')
+  const type = raw.slice(0, at)
+  const id = raw.slice(at + 1)
+  return id && (type === 'client' || type === 'group') ? { type, id } : null
+}
+
+/* Schedule a future meeting. If `client` is given the client is locked
+   (drawer flow); otherwise a subject picker is shown (calendar flow).
+
+   `groups` is opt-in. scheduled_meetings has carried subject_type since it
+   was created and every reader already handles 'group' — the calendar names
+   them, confirming one materialises a group session — but nothing could ever
+   CREATE one, so a coach who runs groups had no way in. Passing the list turns
+   the picker into clients + groups; callers that omit it (the home and
+   project quick rows) keep exactly the client-only control they had.
 
    When `onSetRecurringSlot` is provided AND a client is locked, a "שעה קבועה"
    toggle appears (beta 07/06/2026): instead of one pending meeting it writes
    the client's weekly recurring slot (recurring_day + recurring_time), and the
    existing scheduled-meetings engine fans the series across its rolling window
    — perpetual until changed or cleared in the client editor. Replacing an
-   existing slot asks once before overwriting. */
-export default function ScheduleMeetingModal({ open, onClose, onSave, client, clients = [], onSetRecurringSlot, initialDate, initialTime }) {
+   existing slot asks once before overwriting. That path is client-only by
+   construction: it needs a locked client, so the picker is not even on screen. */
+export default function ScheduleMeetingModal({ open, onClose, onSave, client, clients = [], groups = [], onSetRecurringSlot, initialDate, initialTime }) {
   const { t } = useT('modalsTask')
   /* initialDate/initialTime prefill the form when opened from a tapped
      calendar slot (the parent remounts via `key` so this initializer
      re-runs per slot). Falls back to today/09:00 for the + flow. */
-  const [form, setForm] = useState(() => blank(client?.id || '', initialDate, initialTime))
+  const [form, setForm] = useState(() => blank(client ? subjectValue('client', client.id) : '', initialDate, initialTime))
+  /* Deleted groups are in the trash and must never be schedulable. Status is
+     deliberately NOT filtered: the client list beside it doesn't hide 'past'
+     clients either, and a coach logging a meeting for a winding-down group is
+     doing something legitimate. */
+  const pickGroups = (groups || []).filter((g) => !g.deleted_at)
+  const hasGroups = pickGroups.length > 0
   const [recurring, setRecurring] = useState(false)
   const [confirmReplace, setConfirmReplace] = useState(false)
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }))
   const close = () => {
-    setForm(blank(client?.id || '', initialDate, initialTime))
+    setForm(blank(client ? subjectValue('client', client.id) : '', initialDate, initialTime))
     setRecurring(false)
     setConfirmReplace(false)
     setErr('')
@@ -48,8 +75,8 @@ export default function ScheduleMeetingModal({ open, onClose, onSave, client, cl
   const hasExistingSlot = !!(client && client.recurring_day != null && client.recurring_time)
 
   const submit = async () => {
-    const clientId = client?.id || form.client_id
-    if (!clientId) { setErr(t('meeting.clientRequired')); return }
+    const picked = client ? { type: 'client', id: client.id } : parseSubject(form.subject)
+    if (!picked) { setErr(t(hasGroups ? 'meeting.subjectRequired' : 'meeting.clientRequired')); return }
     if (!form.date || !form.time) { setErr(t('meeting.dateTimeRequired')); return }
     setErr('')
 
@@ -59,7 +86,7 @@ export default function ScheduleMeetingModal({ open, onClose, onSave, client, cl
       if (hasExistingSlot && !confirmReplace) { setConfirmReplace(true); return }
       setBusy(true)
       try {
-        await onSetRecurringSlot(clientId, {
+        await onSetRecurringSlot(picked.id, {
           recurring_day: slotDow,
           recurring_time: form.time,
           recurring_start_date: form.date,
@@ -77,8 +104,8 @@ export default function ScheduleMeetingModal({ open, onClose, onSave, client, cl
     setBusy(true)
     try {
       await onSave({
-        subject_type: 'client',
-        subject_id: clientId,
+        subject_type: picked.type,
+        subject_id: picked.id,
         scheduled_at: new Date(`${form.date}T${form.time}`).toISOString(),
         status: 'pending',
         session_id: null,
@@ -101,10 +128,26 @@ export default function ScheduleMeetingModal({ open, onClose, onSave, client, cl
         </Txt>
       ) : (
         <Box className="m-field">
-          <Box as="label" className="m-label">{t('meeting.client')}</Box>
-          <select className="m-select" value={form.client_id} onChange={(e) => { set('client_id', e.target.value); if (err) setErr('') }}>
-            <option value="">{t('meeting.pickClient')}</option>
-            {clients.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+          <Box as="label" className="m-label">{t(hasGroups ? 'meeting.subject' : 'meeting.client')}</Box>
+          {/* One list rather than a type switch plus a list: the coach is
+              choosing WHO, and whether that who is a person or a group is a
+              fact about the name, not a separate decision. The optgroups only
+              appear when there is something to separate — a coach with no
+              groups sees the plain client list they always saw. */}
+          <select className="m-select" value={form.subject} onChange={(e) => { set('subject', e.target.value); if (err) setErr('') }}>
+            <option value="">{t(hasGroups ? 'meeting.pickSubject' : 'meeting.pickClient')}</option>
+            {hasGroups ? (
+              <>
+                <optgroup label={t('meeting.clientsGroup')}>
+                  {clients.map((c) => <option key={c.id} value={subjectValue('client', c.id)}>{c.name}</option>)}
+                </optgroup>
+                <optgroup label={t('meeting.groupsGroup')}>
+                  {pickGroups.map((g) => <option key={g.id} value={subjectValue('group', g.id)}>{g.name}</option>)}
+                </optgroup>
+              </>
+            ) : (
+              clients.map((c) => <option key={c.id} value={subjectValue('client', c.id)}>{c.name}</option>)
+            )}
           </select>
         </Box>
       )}

@@ -86,9 +86,14 @@
   "meeting": {
     "title": "Planifier un rendez-vous",
     "clientRequired": "Veuillez choisir un client.",
+    "subjectRequired": "Veuillez choisir un client ou un groupe.",
     "dateTimeRequired": "Veuillez choisir une date et une heure.",
     "client": "Client",
+    "subject": "Client ou groupe",
     "pickClient": "Choisir un client",
+    "pickSubject": "Choisir un client ou un groupe",
+    "clientsGroup": "Clients",
+    "groupsGroup": "Groupes",
     "date": "Date",
     "time": "Heure",
     "meetingType": "Type de rendez-vous",
@@ -168,7 +173,7 @@
   },
   "addGate": {
     "title": "Nouvel événement",
-    "meetingLabel": "Rendez-vous client",
+    "meetingLabel": "Rendez-vous",
     "meetingHint": "Un rendez-vous planifié",
     "reminderLabel": "Rappel",
     "reminderHint": "Nous vous le rappellerons au moment voulu",

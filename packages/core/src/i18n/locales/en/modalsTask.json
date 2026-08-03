@@ -86,9 +86,14 @@
   "meeting": {
     "title": "Schedule a meeting",
     "clientRequired": "Please pick a client.",
+    "subjectRequired": "Please pick a client or a group.",
     "dateTimeRequired": "Please pick a date and time.",
     "client": "Client",
+    "subject": "Client or group",
     "pickClient": "Pick a client",
+    "pickSubject": "Pick a client or a group",
+    "clientsGroup": "Clients",
+    "groupsGroup": "Groups",
     "date": "Date",
     "time": "Time",
     "meetingType": "Meeting type",
@@ -168,7 +173,7 @@
   },
   "addGate": {
     "title": "New event",
-    "meetingLabel": "Client meeting",
+    "meetingLabel": "Meeting",
     "meetingHint": "A scheduled meeting",
     "reminderLabel": "Reminder",
     "reminderHint": "We'll remind you when you say so",

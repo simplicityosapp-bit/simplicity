@@ -86,9 +86,14 @@
   "meeting": {
     "title": "Programar una cita",
     "clientRequired": "Elige un cliente.",
+    "subjectRequired": "Elige un cliente o un grupo.",
     "dateTimeRequired": "Elige una fecha y una hora.",
     "client": "Cliente",
+    "subject": "Cliente o grupo",
     "pickClient": "Elige un cliente",
+    "pickSubject": "Elige un cliente o un grupo",
+    "clientsGroup": "Clientes",
+    "groupsGroup": "Grupos",
     "date": "Fecha",
     "time": "Hora",
     "meetingType": "Tipo de cita",
@@ -168,7 +173,7 @@
   },
   "addGate": {
     "title": "Nuevo evento",
-    "meetingLabel": "Cita con cliente",
+    "meetingLabel": "Cita",
     "meetingHint": "Una cita programada",
     "reminderLabel": "Recordatorio",
     "reminderHint": "Te avisaremos cuando lo indiques",

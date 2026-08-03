@@ -440,6 +440,7 @@ export default function CalendarScreen() {
         open={activeModal === 'meeting'}
         onClose={() => { setActiveModal(null); setScheduleAt(null) }}
         clients={clients}
+        groups={groups}
         onSave={addMeeting}
         initialDate={scheduleAt ? localDateStr(scheduleAt) : undefined}
         initialTime={scheduleAt ? localTimeStr(scheduleAt) : undefined}

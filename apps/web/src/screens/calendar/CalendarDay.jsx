@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { eventsForDay, isSameDay, fmtTime } from '@simplicity/core'
 import { useT } from '../../i18n/useT'
 import { Box, Txt, Btn } from '../../components/ui'
@@ -9,6 +9,9 @@ const HOUR_H = 56            // px per hour row
 const MIN_EVENT_H = 24       // floor so short / point events stay tappable
 const DEFAULT_DUR_MIN = 60   // assumed duration when an event carries no end
 const DAY_MIN = 24 * 60      // end-of-day clamp for an event continuing past midnight
+/* One minute. The line moves 56/60 of a pixel per minute, so a coarser tick
+   would be visible as a jump and a finer one would re-render for nothing. */
+const NOW_TICK_MS = 60_000
 
 const minutesOf = (d) => { const x = new Date(d); return x.getHours() * 60 + x.getMinutes() }
 
@@ -52,6 +55,16 @@ export default function CalendarDay({ date, events, onSelect, onPickSlot, dayVie
   const gridStartMin = startH * 60
   const gridEndMin = (endH + 1) * 60
   const gridH = (endH - startH + 1) * HOUR_H
+
+  /* "Now" is state, not a render-time clock read: react-hooks/purity forbids
+     the latter, and a line drawn once at mount would drift a pixel a minute
+     until it was quietly lying. The lazy initialiser is the same shape the
+     calendar screen already uses for its selected date. */
+  const [now, setNow] = useState(() => new Date())
+  useEffect(() => {
+    const id = setInterval(() => setNow(new Date()), NOW_TICK_MS)
+    return () => clearInterval(id)
+  }, [])
 
   const dayEvents = useMemo(() => eventsForDay(events, date), [events, date])
   const allDayEvents = useMemo(() => dayEvents.filter((e) => e.allDay), [dayEvents])
@@ -115,6 +128,18 @@ export default function CalendarDay({ date, events, onSelect, onPickSlot, dayVie
     })
   }, [timedEvents, dayRanges, gridStartMin, gridEndMin])
 
+  /* Where "now" sits in the grid, or null when it doesn't belong on it — the
+     day being looked at isn't today, or the clock is outside the visible
+     window. The day view is the one place that shows a stretch of hours with
+     no marker for which of them is happening, so a coach scanning it had to
+     read the labels and do the arithmetic to find themselves. */
+  const nowTop = useMemo(() => {
+    if (!isSameDay(now, date)) return null
+    const mins = now.getHours() * 60 + now.getMinutes()
+    if (mins < gridStartMin || mins > gridEndMin) return null
+    return (mins - gridStartMin) / 60 * HOUR_H
+  }, [now, date, gridStartMin, gridEndMin])
+
   return (
     <Box className="cal-day">
       {allDayEvents.length > 0 && (
@@ -174,6 +199,15 @@ export default function CalendarDay({ date, events, onSelect, onPickSlot, dayVie
             </Btn>
           ))}
         </Box>
+
+        {/* Drawn LAST so it rides over the event blocks — an event in progress
+            is exactly when the marker matters most, and a line hidden behind
+            the thing it is marking is no marker at all. aria-hidden because it
+            restates the device's own clock; the hour labels already carry the
+            grid's structure for a reader who isn't looking at it. */}
+        {nowTop !== null && (
+          <Box className="cal-day-now" style={{ top: `${nowTop}px` }} aria-hidden="true" />
+        )}
       </Box>
 
       {lateEvents.length > 0 && (

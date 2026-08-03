@@ -527,6 +527,33 @@
   color: var(--stone);
   font-variant-numeric: tabular-nums;
 }
+/* "Now" marker — a hairline across the grid with a dot in the hour gutter,
+   so the eye lands on the current moment instead of counting hour labels.
+
+   Terracotta, the brand accent already used for "this one" (the add CTA, the
+   active filter), rather than --clay: clay is reserved for real warnings, and
+   the present moment is not one. Never in the way — pointer-events:none keeps
+   the hour bands beneath it tappable for scheduling, exactly as the events
+   layer does. z-index puts it over the event blocks; see the JSX. */
+.cal-day-now {
+  position: absolute;
+  inset-inline: 0;
+  height: 0;
+  border-top: 2px solid var(--terracotta);
+  pointer-events: none;
+  z-index: 2;
+}
+.cal-day-now::before {
+  content: '';
+  position: absolute;
+  top: -4px;
+  inset-inline-start: 50px;   /* centred on the 56px gutter's inner edge */
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--terracotta);
+}
+
 .cal-day-events {
   position: absolute;
   inset: 0;

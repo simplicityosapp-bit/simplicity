@@ -705,6 +705,73 @@
   text-overflow: ellipsis;
 }
 
+/* ── Week view on a phone: seven ROWS, not seven columns ──────────
+   Seven columns of `1fr` inside the 24px page padding leave ~41px per day
+   on a 375px screen, and ~30px of that survives the column's own padding —
+   so every client's name was ellipsed to a character or two and the 9.5px
+   time didn't fit at all. The week grid had no @media rule of any kind.
+
+   Rows rather than a sideways-scrolling grid (owner's call, 2026-08-02):
+   a horizontal scroller keeps the familiar shape but hides three or four
+   days behind a gesture the reader has to discover first, nested inside a
+   page that already scrolls the other way. Stacked days hide nothing and
+   ride the scroll the screen already has.
+
+   The day label becomes a fixed gutter on the inline-start edge and stays
+   a button — tapping it still opens that day. It stretches to the row's
+   full height, so the tap target grows with the day's contents instead of
+   being a 20px-tall word. With the width no longer scarce, the chips put
+   the time BESIDE the title and both step up to legible sizes; the column
+   layout's 9.5px/11px pair only ever existed to survive 30px of space. */
+@media (max-width: 767px) {
+  .cal-week {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  .cal-week-col {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 12px;
+    min-height: 0;              /* 7 × 140px of mostly-empty rows otherwise */
+    padding: 10px 12px;
+  }
+  .cal-week-head {
+    flex: 0 0 52px;
+    align-self: stretch;        /* whole gutter tappable, not just the word */
+    flex-direction: row;
+    align-items: baseline;
+    justify-content: flex-start;
+    gap: 6px;
+    width: auto;
+    padding: 0;
+    border-bottom: none;
+    border-radius: var(--mg-chip-radius);
+  }
+  .cal-week-body {
+    flex: 1 1 auto;
+    min-width: 0;
+    padding-top: 0;
+  }
+  .cal-week-evt {
+    flex-direction: row;
+    align-items: baseline;
+    gap: 8px;
+    padding: 7px 10px;
+  }
+  .cal-week-evt-time {
+    flex: 0 0 auto;
+    font-size: calc(11px * var(--text-scale));
+  }
+  .cal-week-evt-title {
+    flex: 1 1 auto;
+    font-size: calc(13px * var(--text-scale));
+  }
+  .cal-week-empty {
+    text-align: start;
+    padding-inline-start: 2px;
+  }
+}
+
 /* ────────────────────────────────────────────────────────────────
    MONTH VIEW — 6-week grid with event dots
    ──────────────────────────────────────────────────────────────── */

@@ -3,7 +3,7 @@
    ════════════════════════════════════════════════════════════════ */
 
 import i18n from '../i18n'
-import { hebrewParts, fmtDayLabel, type DateInput } from './calendar'
+import { hebrewParts, fmtDayLabel, lastDayOf, type DateInput, type SpanningEvent } from './calendar'
 
 const pad = (n: number): string => String(n).padStart(2, '0')
 
@@ -139,16 +139,57 @@ export function fmtTimeAgo(date: DateInput, now: Date = new Date()): string {
 }
 
 /* Relative-ish label: "Today 18:00", "Tomorrow 10:00", else "31/05 · 10:00". */
-export function formatWhen(date: DateInput, now: Date = new Date()): string {
-  const d = toLocalDate(date)
+/* "היום" / "מחר" when the date is one of those, else null. Extracted so the
+   date-only and date+time formatters cannot drift on which days get a word
+   instead of a number. */
+function relativeDayName(d: Date, now: Date): string | null {
   const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1)
-  if (sameDay(d, now)) return `${i18n.t('common:time.today')} ${fmtTime(d)}`
-  if (sameDay(d, tomorrow)) return `${i18n.t('common:time.tomorrow')} ${fmtTime(d)}`
-  /* Hebrew agenda date when the mode is on (dual → Hebrew · Gregorian). */
-  const datePart = hebrewCal
+  const key = sameDay(d, now) ? 'today' : sameDay(d, tomorrow) ? 'tomorrow' : null
+  if (!key) return null
+  /* Fall back to the plain date when there is no word to use. i18n is
+     initialised by the app but not by a unit test importing this directly,
+     and the old code interpolated the lookup unconditionally — which printed
+     the literal "undefined 17:35". A date is more use than that. */
+  return i18n.t(`common:time.${key}`) || null
+}
+
+/* Hebrew agenda date when the mode is on (dual → Hebrew · Gregorian). */
+function absoluteDatePart(d: Date): string {
+  return hebrewCal
     ? (hebrewDual ? `${hebShortDate(d)} · ${fmtShortDate(d)}` : hebShortDate(d))
     : fmtShortDate(d)
-  return `${datePart} · ${fmtTime(d)}`
+}
+
+export function formatWhen(date: DateInput, now: Date = new Date()): string {
+  const d = toLocalDate(date)
+  const rel = relativeDayName(d, now)
+  /* The relative form takes a space and the absolute one a separator dot —
+     "היום 10:00" but "12/08 · 10:00". Preserved from when this was one
+     expression. */
+  return rel ? `${rel} ${fmtTime(d)}` : `${absoluteDatePart(d)} · ${fmtTime(d)}`
+}
+
+/* The date WITHOUT the time — for an event that has no meaningful clock
+   reading of its own. An all-day event carries a start_time of 00:00 purely
+   as a storage artefact, so running it through formatWhen printed a spurious
+   hour ("12/08 · 17:35 · כל היום" in the event modal, where the 17:35 is the
+   sync timestamp and means nothing to the reader). */
+export function formatDay(date: DateInput, now: Date = new Date()): string {
+  const d = toLocalDate(date)
+  return relativeDayName(d, now) ?? absoluteDatePart(d)
+}
+
+/* The day, or the range of days, an event occupies: "12/08", "היום", or
+   "12/08–14/08". A range takes plain dates at BOTH ends — "היום–14/08" mixes
+   a relative word with an absolute one and reads as a typo rather than as a
+   span. Multi-day events became visible on every day they cover (see
+   eventsForDay), so an agenda row that named only the first day would now be
+   describing less than the calendar draws. */
+export function formatDaySpan(e: SpanningEvent, now: Date = new Date()): string {
+  const start = toLocalDate(e.when)
+  const last = lastDayOf(e)
+  if (sameDay(start, last)) return formatDay(start, now)
+  return `${absoluteDatePart(start)}–${absoluteDatePart(last)}`
 }
 
 /* Day-separator label for a chat/feed: "Today" / "Yesterday", else the app's

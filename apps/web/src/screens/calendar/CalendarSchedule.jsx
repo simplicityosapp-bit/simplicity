@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Clock, CalendarDays } from 'lucide-react'
-import { formatWhen } from '@simplicity/core'
+import { formatWhen, formatDaySpan } from '@simplicity/core'
 import { useT } from '../../i18n/useT'
 import WhatsAppButton from '../../components/WhatsAppButton'
 import { useWhatsAppMessage } from '../../hooks/useWhatsAppMessage'
@@ -72,7 +72,12 @@ export default function CalendarSchedule({ items, onSelect, hiddenDays = [] }) {
           </Txt>
           <Box className="cal-body">
             <Txt as="p" className="cal-title">{it.title}</Txt>
-            <Txt as="p" className="cal-when">{it.allDay ? t('allDay') : formatWhen(it.when)}{calContext(it) ? ` · ${calContext(it)}` : ''}</Txt>
+            {/* An all-day row said only "כל היום" — the one line on the card
+                that carries WHEN, spending itself on a fact the tag already
+                gives. A vacation sat between the 10/08 and 16/08 rows with
+                nothing to say which day, or how many, it was. It keeps the
+                words but leads with the date, or the range for a span. */}
+            <Txt as="p" className="cal-when">{it.allDay ? `${formatDaySpan(it)} · ${t('allDay')}` : formatWhen(it.when)}{calContext(it) ? ` · ${calContext(it)}` : ''}</Txt>
           </Box>
           {it.kind === 'meeting' && it.status === 'pending' && <Txt className="cal-tag">{t('tag.pending')}</Txt>}
           {it.kind === 'reminder' && <Txt className="cal-tag rem">{t('tag.reminder')}</Txt>}

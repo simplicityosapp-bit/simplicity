@@ -2,7 +2,7 @@ import { useRef, useState } from 'react'
 import { Check, X, CalendarDays, Clock, Pencil, Trash2, CalendarClock } from 'lucide-react'
 import Modal from './Modal'
 import DateField from '../components/DateField'
-import { formatWhen, fmtTime, isr } from '@simplicity/core'
+import { formatWhen, formatDaySpan, fmtTime, isr } from '@simplicity/core'
 import { useT } from '../i18n/useT'
 import { Box, Txt, Btn, Input, Lnk } from '../components/ui'
 
@@ -136,9 +136,14 @@ export default function EventDetailsModal({ open, onClose, event, billClient, on
         </Txt>
         <Box className="evt-detail-text">
           <Txt as="p" className="evt-detail-title">{title}</Txt>
+          {/* All-day events kept their storage artefact on display: a
+              start_time of 00:00 (or whatever the sync stamped) ran through
+              formatWhen and printed an hour the event does not have, next to
+              the words saying it has none. Date — or range — and the label. */}
           <Txt as="p" className="evt-detail-when">
-            {formatWhen(event.when)}
-            {event.allDay ? ` · ${t('event.allDay')}` : (event.end ? `–${fmtTime(event.end)}` : '')}
+            {event.allDay
+              ? `${formatDaySpan(event)} · ${t('event.allDay')}`
+              : `${formatWhen(event.when)}${event.end ? `–${fmtTime(event.end)}` : ''}`}
           </Txt>
         </Box>
       </Box>

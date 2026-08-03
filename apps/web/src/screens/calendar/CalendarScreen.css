@@ -981,11 +981,24 @@
   font-weight: 500;
   cursor: pointer;
 }
+/* The modal's primary answer — "כן", "שמירה", "עריכה", "שינוי מועד",
+   "סמן כבוצע". It was sage TEXT on a 12% sage tint, which is the same
+   mistake the finance approve buttons made and were fixed for ("the approve
+   button disappears", beta 01/08): sage on the near-white tint reaches only
+   ~2.3:1, and the tint is transparent, so what actually sits behind the
+   glyph is the modal glass and whatever photograph is under it — the one
+   backdrop no contrast figure can be quoted for at all.
+
+   Solid, exactly as .f-pending-act.yes: the fill carries its own background,
+   so the label stops depending on what happens to be behind it. Paired with
+   the quiet stone .skip chip the two now read primary/secondary at a glance
+   instead of as two equal tinted pills. */
 .evt-detail-btn.approve {
-  color: var(--sage);
-  background: rgba(139, 168, 136, 0.12);
-  border-color: rgba(139, 168, 136, 0.32);
+  color: var(--on-accent);
+  background: var(--sage-solid);
+  border-color: var(--sage-solid);
 }
+.evt-detail-btn.approve:hover { background: color-mix(in srgb, var(--sage-solid) 88%, var(--ink)); }
 .evt-detail-btn.skip {
   color: var(--stone);
   background: color-mix(in srgb, var(--stone) 10%, transparent);

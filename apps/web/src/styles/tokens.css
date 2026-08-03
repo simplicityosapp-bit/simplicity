@@ -43,6 +43,19 @@
      Mixed toward --ink, never --espresso — espresso flips in dark mode.
      Fills only; plain --sage stays the tint + text colour. */
   --sage-solid:    color-mix(in srgb, var(--sage) 70%, var(--ink));
+  /* Amber and moon, same job and same rule — a WHITE label on a solid fill of
+     the raw accent does not read in light mode: --amber-warn carries white at
+     2.2:1 (the worst in the palette) and --moon-deep at 5.4:1 but only until
+     dark mode lightens it to 2.4:1. Both need MORE ink than sage did, so the
+     ratio differs per hue rather than being copied: 60% is the first step where
+     each clears 4.5:1 in BOTH themes — amber 4.92 light / 6.51 dark, moon 9.16
+     light / 5.24 dark. Clearing it in both is what lets a fill drop its
+     [data-theme="dark"] override entirely instead of flipping its label to
+     --ink-on-accent, which only ever worked while the accent stayed light.
+     Fills only, exactly as above; plain --amber-warn / --moon-deep stay the
+     tint + text colour (the month-grid dots keep the raw hue). */
+  --amber-solid:   color-mix(in srgb, var(--amber-warn) 60%, var(--ink));
+  --moon-solid:    color-mix(in srgb, var(--moon-deep) 60%, var(--ink));
   /* ════════════════════════════════════════════════════════════════════ */
 
   /* Icon defaults (Lucide) — see scripts/icons.js */

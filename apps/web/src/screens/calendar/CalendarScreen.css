@@ -185,10 +185,20 @@
   color: var(--stone);
 }
 /* Association pills (meeting=sage, reminder=amber, calendar=moon) — solid
-   accent fill + white text, mirroring the canonical accent-button treatment
-   (--on-accent, flips to --ink-on-accent in dark where the accents lighten).
-   Hues track the week-chip + month-dot scheme so the calendar reads one
-   colour language. */
+   accent fill + white label, the canonical accent treatment.
+
+   The fills are the *-solid tokens, not the raw accents. White on raw --sage
+   measures 2.61:1 and on raw --amber-warn 2.23:1: "ממתינה" and "תזכורת" were
+   the two least readable things on the screen in daylight, on the pill whose
+   whole job is to be read at a glance. Dark mode was never the broken one
+   here — it lightens the accents, so the old [data-theme="dark"] override to
+   --ink-on-accent measured a healthy 5.6:1 and hid how bad the default was.
+
+   That override is now GONE rather than mirrored for the new fills. A theme
+   conditional on the LABEL only holds while the FILL keeps flipping under it;
+   the solid fills clear 4.5:1 with white in both themes (4.50/5.43 sage,
+   4.92/6.51 amber, 9.16/5.24 moon), so one declaration is correct day and
+   night — and there is no half-flipped state left to get wrong. */
 .cal-tag {
   flex-shrink: 0;
   font-family: var(--mg-font);
@@ -197,13 +207,10 @@
   padding: 2px 9px;
   border-radius: var(--mg-chip-radius);
   color: var(--on-accent);
-  background: var(--sage);
+  background: var(--sage-solid);
 }
 .cal-tag.rem {
-  background: var(--amber-warn);
-}
-[data-theme="dark"] .cal-tag {
-  color: var(--ink-on-accent);
+  background: var(--amber-solid);
 }
 
 /* ────────────────────────────────────────────────────────────────
@@ -881,8 +888,12 @@
   background: color-mix(in srgb, var(--moon-deep) 14%, transparent);
   color: var(--moon-deep);
 }
+/* Solid moon, like its two siblings. Raw --moon-deep passed with white in
+   light mode (5.42:1) but not at night, where it lightens to #9aa6c8 and
+   drops to 2.42:1 — the one tag that needed the deletion of the dark
+   override to be compensated rather than merely tidy. */
 .cal-tag.cal {
-  background: var(--moon-deep);
+  background: var(--moon-solid);
 }
 .cal-day-evt.calendar {
   border-color: color-mix(in srgb, var(--moon-deep) 38%, transparent);

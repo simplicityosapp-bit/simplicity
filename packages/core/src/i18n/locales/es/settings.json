@@ -21,7 +21,7 @@
     },
     "payments": {
       "title": "Moneda, fecha y hora",
-      "sub": "Moneda, fecha, hora y primer día de la semana"
+      "sub": "Moneda, fecha, hora, primer día de la semana y horas de la vista de día"
     },
     "meetingTypes": {
       "title": "Tipos de sesión y precios",
@@ -77,6 +77,10 @@
     "dateFormat": "Formato de fecha",
     "timeFormat": "Formato de hora",
     "weekStart": "Primer día de la semana",
+    "dayViewHours": "Horas en la vista de día",
+    "dayViewFrom": "Desde",
+    "dayViewTo": "Hasta",
+    "dayViewHint": "El rango de horas que el calendario dibuja en la vista de día. Un evento fuera de ese rango no se oculta: aparece en una franja aparte, encima o debajo de la línea de tiempo.",
     "exampleToday": "Los ejemplos muestran la fecha de hoy.",
     "typePlaceholder": "Tipo de sesión…"
   },
@@ -310,7 +314,7 @@
       "profile": "perfil nombre profesión rol tratamiento género especialidad",
       "design": "diseño apariencia aspecto color tema oscuro claro noche día fondo foto tamaño de texto fuente tipografía letras espacio densidad tarjetas cristal desenfoque calendario hebreo idioma",
       "home": "pantalla de inicio tarjetas widgets orden ocultar mostrar qué aparece",
-      "payments": "moneda shekel dólar euro importes fecha hora formato semana domingo lunes reloj",
+      "payments": "moneda shekel dólar euro importes fecha hora formato semana domingo lunes reloj horas vista día",
       "meetingTypes": "precio precios tarifa coste tipo de sesión tipos de sesión por sesión",
       "questions": "preguntas diarias pregunta recordatorio reflexión cómo estás hoy",
       "data": "exportar importar copia de seguridad excel csv archivo descargar subir introducción asistente",

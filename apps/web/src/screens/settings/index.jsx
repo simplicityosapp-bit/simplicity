@@ -143,6 +143,16 @@ function PaymentsBody({ prefs, onUpdate }) {
   const { t } = useT('settings')
   const f = prefs?.format || {}
   const setVal = (k) => (v) => onUpdate({ format: { [k]: v } })
+
+  /* Day-view window. The defaults repeat CalendarDay's own, because a pref
+     that has never been written has to read here as whatever the calendar is
+     actually drawing — showing 00:00 next to a grid that starts at 06:00
+     would make the control look broken before it was ever touched. */
+  const dayStart = Number.isFinite(prefs?.dayViewStart) ? prefs.dayViewStart : 6
+  const dayEnd = Number.isFinite(prefs?.dayViewEnd) ? prefs.dayViewEnd : 22
+  /* Raising the start past the end carries the end along, so the pair stays
+     valid without the user being told off for a move the UI allowed. */
+  const setDayStart = (h) => onUpdate({ dayViewStart: h, ...(h > dayEnd ? { dayViewEnd: h } : {}) })
   /* Option labels come from lib arrays (Hebrew `l`); re-label via t() so the
      <Segmented> pills follow the active language. */
   const tOpts = (group, opts) => opts.map((o) => ({ ...o, l: t(`options.${group}.${o.v}`) }))
@@ -167,6 +177,50 @@ function PaymentsBody({ prefs, onUpdate }) {
       <Txt as="p" className="set-example-note">{t('payments.exampleToday')}</Txt>
       <Segmented label={t('payments.timeFormat')} value={f.time_format || '24h'} options={timeOpts} onChange={setVal('time_format')} />
       <Segmented label={t('payments.weekStart')} value={f.week_start || 'sunday'} options={tOpts('weekStart', WEEK_START_OPTIONS)} onChange={setVal('week_start')} />
+
+      {/* Which hours the calendar's day timeline draws. These were readable
+          from prefs since the day view shipped and writable from nowhere, so
+          every coach got 06:00–22:00: eight dead rows for someone who starts
+          at 08:00, and a 05:30 session exiled to the "before" band.
+
+          NOT through `setVal` like its neighbours — the calendar reads them
+          as TOP-LEVEL integer hours (prefs.dayViewStart), while everything
+          else in this section persists under prefs.format. Left where the
+          reader already looks rather than moved for tidiness: nothing has
+          ever written the key, so no stored value would be orphaned, but the
+          calendar would have to change in the same breath for no user-visible
+          gain. */}
+      <Box className="m-field">
+        <Box as="label" className="m-label">{t('payments.dayViewHours')}</Box>
+        <Box className="m-row2">
+          <Box className="m-field">
+            <Box as="label" className="m-label" htmlFor="set-dayview-from">{t('payments.dayViewFrom')}</Box>
+            <select
+              id="set-dayview-from"
+              className="m-select"
+              value={dayStart}
+              onChange={(e) => setDayStart(Number(e.target.value))}
+            >
+              {HOUR_CHOICES.map((h) => <option key={h} value={h}>{hourLabel(h)}</option>)}
+            </select>
+          </Box>
+          <Box className="m-field">
+            <Box as="label" className="m-label" htmlFor="set-dayview-to">{t('payments.dayViewTo')}</Box>
+            {/* Only hours at or after the start are offered, so the invalid
+                pair cannot be produced in the first place — cheaper for the
+                reader than an error message explaining one. */}
+            <select
+              id="set-dayview-to"
+              className="m-select"
+              value={dayEnd}
+              onChange={(e) => onUpdate({ dayViewEnd: Number(e.target.value) })}
+            >
+              {HOUR_CHOICES.filter((h) => h >= dayStart).map((h) => <option key={h} value={h}>{hourLabel(h)}</option>)}
+            </select>
+          </Box>
+        </Box>
+        <Txt as="p" className="set-example-note">{t('payments.dayViewHint')}</Txt>
+      </Box>
     </Box>
   )
 }
@@ -278,6 +332,12 @@ function HomeBody({ prefs, onUpdate }) {
    group from the other half. Three sub-headings keep the eight controls
    readable — what the app looks like, what its cards look like, and the
    Hebrew-calendar pair. */
+/* Whole hours only — the calendar's day grid draws one row per hour and
+   clamps to 0..23, so a minute-precision control would promise a precision
+   the timeline cannot render. */
+const HOUR_CHOICES = Array.from({ length: 24 }, (_, h) => h)
+const hourLabel = (h) => `${String(h).padStart(2, '0')}:00`
+
 const THEME_OPTIONS = [
   { v: 'light' },
   { v: 'dark' },

@@ -21,7 +21,7 @@
     },
     "payments": {
       "title": "Devise, date et heure",
-      "sub": "Devise, date, heure et premier jour de la semaine"
+      "sub": "Devise, date, heure, premier jour de la semaine et heures de la vue jour"
     },
     "meetingTypes": {
       "title": "Types de séance et tarifs",
@@ -77,6 +77,10 @@
     "dateFormat": "Format de date",
     "timeFormat": "Format d'heure",
     "weekStart": "Premier jour de la semaine",
+    "dayViewHours": "Heures de la vue jour",
+    "dayViewFrom": "De",
+    "dayViewTo": "À",
+    "dayViewHint": "La plage horaire que le calendrier affiche en vue jour. Un événement en dehors n’est pas masqué : il apparaît dans une bande distincte, au-dessus ou en dessous de la timeline.",
     "exampleToday": "Les exemples montrent la date d'aujourd'hui.",
     "typePlaceholder": "Type de séance…"
   },
@@ -310,7 +314,7 @@
       "profile": "profil nom métier rôle forme d'adresse genre spécialité",
       "design": "design apparence aspect couleur thème sombre clair nuit jour fond photo taille du texte police typographie lettres espacement densité cartes verre flou calendrier hébraïque langue",
       "home": "écran d'accueil cartes widgets ordre masquer afficher ce qui apparaît",
-      "payments": "devise shekel dollar euro montants date heure format semaine dimanche lundi horloge",
+      "payments": "devise shekel dollar euro montants date heure format semaine dimanche lundi horloge heures vue jour",
       "meetingTypes": "prix tarif coût type de séance types de séance par séance",
       "questions": "questions quotidiennes question rappel réflexion comment allez-vous",
       "data": "export import sauvegarde excel csv fichier télécharger importer introduction assistant",

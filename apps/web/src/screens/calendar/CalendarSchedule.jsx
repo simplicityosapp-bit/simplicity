@@ -1,8 +1,7 @@
 import { useState } from 'react'
 import { Clock, CalendarDays } from 'lucide-react'
-import { formatWhen, weekdayNamesShort } from '@simplicity/core'
+import { formatWhen } from '@simplicity/core'
 import { useT } from '../../i18n/useT'
-import { useUserPreferences } from '../../hooks/useUserPreferences'
 import WhatsAppButton from '../../components/WhatsAppButton'
 import { useWhatsAppMessage } from '../../hooks/useWhatsAppMessage'
 import { Box, Txt, Btn } from '../../components/ui'
@@ -23,10 +22,16 @@ function calContext(it) {
    Paginates with "טען עוד" so a long horizon isn't silently truncated. The
    window only grows; a shrinking feed is handled by slice, and switching away
    from the agenda view remounts this and resets to the first page. */
-export default function CalendarSchedule({ items, onSelect }) {
+/* `hiddenDays` is the list of weekday indices (0=Sun…6=Sat) the coach has
+   switched off, owned by the calendar screen and edited in the view-filter
+   modal. It used to be read here and toggled from a chip row above the list,
+   which made this screen carry TWO filter surfaces — a modal for the event
+   types and these chips for the days — announcing the same name to a screen
+   reader and tracked by only one "filter is on" dot. The list still applies
+   the rule; it no longer owns the control. */
+export default function CalendarSchedule({ items, onSelect, hiddenDays = [] }) {
   const { t } = useT('calendar')
   const waMsg = useWhatsAppMessage()
-  const { prefs, update: updatePrefs } = useUserPreferences()
   const [limit, setLimit] = useState(PAGE)
 
   if (!items.length) {
@@ -37,17 +42,7 @@ export default function CalendarSchedule({ items, onSelect }) {
     )
   }
 
-  // Weekday show/hide chips — a coach can hide non-working days from the agenda.
-  // Stored as the list of HIDDEN weekday indices (0=Sun…6=Sat); absent/empty =
-  // every day shown, mirroring the calendarFilter "absent = shown" convention.
-  const dayLabels = weekdayNamesShort()
-  const hidden = Array.isArray(prefs?.scheduleHiddenDays) ? prefs.scheduleHiddenDays : []
-  const hiddenSet = new Set(hidden)
-  const toggleDay = (d) => {
-    const next = hiddenSet.has(d) ? hidden.filter((x) => x !== d) : [...hidden, d]
-    updatePrefs({ scheduleHiddenDays: next })
-  }
-
+  const hiddenSet = new Set(hiddenDays)
   const filtered = hiddenSet.size
     ? items.filter((it) => !hiddenSet.has(new Date(it.when).getDay()))
     : items
@@ -55,21 +50,6 @@ export default function CalendarSchedule({ items, onSelect }) {
   const remaining = filtered.length - shown.length
   return (
     <>
-      {Array.isArray(dayLabels) && dayLabels.length === 7 && (
-        <Box className="cal-day-filter" role="group" aria-label={t('filter')}>
-          {dayLabels.map((lbl, d) => (
-            <Btn
-              key={d}
-              type="button"
-              className={`cal-day-chip${hiddenSet.has(d) ? '' : ' on'}`}
-              aria-pressed={!hiddenSet.has(d)}
-              onClick={() => toggleDay(d)}
-            >
-              {lbl}
-            </Btn>
-          ))}
-        </Box>
-      )}
       {filtered.length === 0 ? (
         <Box className="empty">
           <Txt as="p" className="empty-text">{t('list.empty')}</Txt>

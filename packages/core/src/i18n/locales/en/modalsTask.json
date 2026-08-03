@@ -154,6 +154,9 @@
   "filter": {
     "title": "View filter",
     "hint": "Choose which event types appear in the calendar.",
+    "typesHeading": "Event types",
+    "daysHeading": "Days in the agenda list",
+    "daysSub": "Days you switch off won’t appear in the list. The day, week and month views still show every day.",
     "meetingLabel": "Meetings",
     "meetingSub": "Pending and confirmed",
     "reminderLabel": "Reminders",

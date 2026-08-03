@@ -96,12 +96,36 @@
   font-size: calc(11px * var(--text-scale));
   color: var(--stone);
 }
-/* Agenda weekday show/hide chips — pick which days appear in the "לוח" view. */
+/* Weekday show/hide chips — which days appear in the "לוח" list. They used to
+   sit above that list; they now live in the view-filter modal beside the event
+   types, so the screen has ONE surface deciding what it shows. The base rule
+   is kept rather than rewritten because the chips themselves are unchanged —
+   only their host is — and `.in-modal` supplies the rhythm of the sheet. */
 .cal-day-filter {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
   margin-bottom: 14px;
+}
+.cal-day-filter.in-modal {
+  margin: 0 0 4px;
+}
+/* Group headings inside the filter sheet — the label that gives each set of
+   controls its scope, so "days" cannot be read as applying to every view. */
+.cal-filter-group {
+  margin: 16px 0 0;
+  font-family: var(--mg-font);
+  font-size: calc(13px * var(--text-scale));
+  font-weight: 600;
+  color: var(--espresso);
+}
+.cal-filter-group:first-of-type { margin-top: 10px; }
+.cal-filter-group-sub {
+  margin: 3px 0 8px;
+  font-family: var(--mg-font);
+  font-size: calc(11px * var(--text-scale));
+  line-height: 1.5;
+  color: var(--stone);
 }
 .cal-day-chip {
   min-width: 34px;

@@ -154,6 +154,9 @@
   "filter": {
     "title": "Filtre d'affichage",
     "hint": "Choisissez quels types d'événements apparaissent dans le calendrier.",
+    "typesHeading": "Types d’événement",
+    "daysHeading": "Jours dans la liste agenda",
+    "daysSub": "Les jours désactivés n’apparaîtront pas dans la liste. Les vues jour, semaine et mois affichent toujours tous les jours.",
     "meetingLabel": "Rendez-vous",
     "meetingSub": "En attente et confirmés",
     "reminderLabel": "Rappels",

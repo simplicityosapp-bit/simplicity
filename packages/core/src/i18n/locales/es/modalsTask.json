@@ -154,6 +154,9 @@
   "filter": {
     "title": "Filtro de vista",
     "hint": "Elige qué tipos de eventos aparecen en el calendario.",
+    "typesHeading": "Tipos de evento",
+    "daysHeading": "Días en la lista de agenda",
+    "daysSub": "Los días que desactives no aparecerán en la lista. Las vistas de día, semana y mes siguen mostrando todos los días.",
     "meetingLabel": "Citas",
     "meetingSub": "Pendientes y confirmadas",
     "reminderLabel": "Recordatorios",

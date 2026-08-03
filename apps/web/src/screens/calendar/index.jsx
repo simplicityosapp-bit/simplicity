@@ -101,9 +101,23 @@ export default function CalendarScreen() {
   const fReminder = prefs?.calendarFilter?.reminder !== false
   const fCalendar = prefs?.calendarFilter?.calendar !== false
   const fLeadFollowup = prefs?.calendarFilter?.leadFollowup !== false
-  const filterActive = !(fMeeting && fReminder && fCalendar && fLeadFollowup)
   const setCalFilter = (key, value) =>
     updatePrefs?.({ calendarFilter: { meeting: fMeeting, reminder: fReminder, calendar: fCalendar, leadFollowup: fLeadFollowup, [key]: value } })
+
+  /* Weekday visibility for the agenda list. Owned here rather than inside
+     CalendarSchedule because the control for it now lives in the view-filter
+     modal, which this screen owns — the list only applies the rule.
+     Stored as the HIDDEN indices (0=Sun…6=Sat); absent/empty = every day
+     shown, matching the calendarFilter "absent = shown" convention. */
+  const hiddenDays = Array.isArray(prefs?.scheduleHiddenDays) ? prefs.scheduleHiddenDays : []
+  const toggleScheduleDay = (d) => updatePrefs?.({
+    scheduleHiddenDays: hiddenDays.includes(d) ? hiddenDays.filter((x) => x !== d) : [...hiddenDays, d],
+  })
+
+  /* The header's "a filter is on" dot has to answer for BOTH rules. It used
+     to track only the types, so a day switched off months ago left a gap in
+     the agenda with nothing on screen accounting for it. */
+  const filterActive = !(fMeeting && fReminder && fCalendar && fLeadFollowup) || hiddenDays.length > 0
 
   /* Mark a lead's follow-up as done from the calendar — clears the date so
      the event drops off (the lead itself stays in its column). */
@@ -384,7 +398,7 @@ export default function CalendarScreen() {
       ) : (
         <>
           {view === 'schedule' && (
-            <CalendarSchedule items={scheduleItems} onSelect={selectEvent} />
+            <CalendarSchedule items={scheduleItems} onSelect={selectEvent} hiddenDays={hiddenDays} />
           )}
           {view === 'day' && (
             <CalendarDay
@@ -491,6 +505,8 @@ export default function CalendarScreen() {
         onClose={() => setShowFilter(false)}
         filter={{ meeting: fMeeting, reminder: fReminder, calendar: fCalendar, leadFollowup: fLeadFollowup }}
         onChange={setCalFilter}
+        hiddenDays={hiddenDays}
+        onToggleDay={toggleScheduleDay}
       />
     </Box>
   )

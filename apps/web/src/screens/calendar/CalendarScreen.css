@@ -183,14 +183,30 @@
   align-items: center;
   justify-content: center;
 }
+/* Row icons — a tinted disc with the kind's glyph. The glyph is a graphical
+   object, so WCAG asks 3:1 against what it sits on; on the pale tint the raw
+   accents measured 2.17 (sage) and 1.86 (amber). Moon already cleared it at
+   4.28 and is left alone.
+
+   The deepened glyph is scoped to LIGHT mode and the accent restored for dark,
+   which is the opposite of the call made for .cal-tag a few rules up — and for
+   the opposite reason. A tag's fill is a SOLID token, the same colour in both
+   themes, so a theme conditional on its label was a rule with nothing under it
+   to justify itself. This tint is translucent: what the glyph actually sits on
+   is the card, and the card is near-white by day and near-black by night. When
+   the backdrop genuinely flips, the foreground genuinely must. */
 .cal-icon.meeting {
   background: rgba(139, 168, 136, 0.16);
-  color: var(--sage);
+  color: var(--sage-solid);
 }
 .cal-icon.reminder {
   background: rgba(212, 165, 116, 0.18);
-  color: var(--amber-warn);
+  color: var(--amber-solid);
 }
+/* Night restores the raw accents: against the dark tint they measure 4.30 and
+   4.00, while the deepened pair would sink into it. */
+[data-theme="dark"] .cal-icon.meeting { color: var(--sage); }
+[data-theme="dark"] .cal-icon.reminder { color: var(--amber-warn); }
 .cal-body {
   flex: 1;
   min-width: 0;
@@ -982,14 +998,18 @@
   align-items: center;
   justify-content: center;
 }
+/* The same disc at 36px in the detail modal, and the same fix — its backdrop
+   is the modal sheet rather than a card, which is lighter still by day. */
 .evt-detail-icon.meeting {
   background: rgba(139, 168, 136, 0.16);
-  color: var(--sage);
+  color: var(--sage-solid);
 }
 .evt-detail-icon.reminder {
   background: rgba(212, 165, 116, 0.18);
-  color: var(--amber-warn);
+  color: var(--amber-solid);
 }
+[data-theme="dark"] .evt-detail-icon.meeting { color: var(--sage); }
+[data-theme="dark"] .evt-detail-icon.reminder { color: var(--amber-warn); }
 .evt-detail-text {
   flex: 1;
   min-width: 0;

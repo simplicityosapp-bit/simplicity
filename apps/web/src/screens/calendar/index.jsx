@@ -457,6 +457,7 @@ export default function CalendarScreen() {
               hebrew={hebrew}
               dual={hebrewDual}
               onPickDay={(d) => { setDate(d); setView('day') }}
+              onSelect={selectEvent}
             />
           )}
         </>

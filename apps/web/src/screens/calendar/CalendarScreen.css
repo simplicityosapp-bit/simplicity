@@ -937,6 +937,149 @@
 .cal-month-dot.calendar {
   background: var(--moon-deep);
 }
+/* ── Month cells: dots on a phone, names on a desktop ─────────────
+   A 375px screen leaves ~41px per cell, so three dots plus "+N" is the most
+   that fits and a name would be an ellipsis with a letter in front of it. At
+   the 1200px content cap the same cell is ~160px, and dots there were paying
+   full price for a riddle — the reader had to look up the legend to learn a
+   colour, and even then only learned the KIND, never the who.
+
+   The switch is CSS, not a breakpoint in JS: both summaries live in the DOM
+   and one is hidden, so a resize can't catch the component holding a stale
+   idea of which one it drew. */
+.cal-month-titles { display: none; }
+
+/* One chip per event, tinted by kind — the same edge and fill the week view
+   gives its events, so a name means the same thing in both grids. The tint
+   replaces a leading dot: two colour signals on one row would say the same
+   thing twice and spend the width doing it.
+
+   Defined OUTSIDE the desktop query because the phone's day strip wears the
+   same chip; only the in-cell LIST below is desktop-only. */
+.cal-month-title {
+  display: block;
+  min-width: 0;
+  padding: 1px 5px;
+  border-radius: var(--mg-chip-radius);
+  border: 0.5px solid color-mix(in srgb, var(--sage) 32%, transparent);
+  background: color-mix(in srgb, var(--sage) 8%, transparent);
+  font-family: var(--mg-font);
+  font-size: calc(11px * var(--text-scale));
+  line-height: 1.5;
+  color: var(--espresso);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  text-align: start;
+}
+.cal-month-title.reminder {
+  border-color: color-mix(in srgb, var(--amber-warn) 35%, transparent);
+  background: color-mix(in srgb, var(--amber-warn) 8%, transparent);
+}
+.cal-month-title.calendar {
+  border-color: color-mix(in srgb, var(--moon-deep) 35%, transparent);
+  background: color-mix(in srgb, var(--moon-deep) 8%, transparent);
+}
+
+/* ── The phone's day strip ────────────────────────────────────────
+   Full width, so the names the grid cannot hold are simply readable. */
+.cal-month-strip {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--divider);
+}
+.cal-month-strip-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  padding: 0 2px 2px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font: inherit;
+  text-align: start;
+}
+.cal-month-strip-day {
+  font-family: var(--mg-font);
+  font-size: calc(13px * var(--text-scale));
+  font-weight: 600;
+  color: var(--espresso);
+}
+.cal-month-strip-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  flex: 0 0 auto;
+  font-family: var(--mg-font);
+  font-size: calc(11px * var(--text-scale));
+  font-weight: 600;
+  color: var(--terracotta);
+}
+.cal-month-strip-empty {
+  margin: 2px 0 0;
+  font-family: var(--mg-font);
+  font-size: calc(12px * var(--text-scale));
+  color: var(--stone);
+}
+/* In the strip a chip is a row with room to spare, so the time rides along
+   at the far edge instead of being dropped for width. */
+.cal-month-title.strip {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  width: 100%;
+  padding: 6px 9px;
+  font-size: calc(12px * var(--text-scale));
+  cursor: pointer;
+}
+.cal-month-title.strip .cal-month-title-text {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.cal-month-title-time {
+  flex: 0 0 auto;
+  font-family: var(--mg-font-num);
+  font-size: calc(11px * var(--text-scale));
+  color: var(--stone);
+  font-variant-numeric: tabular-nums;
+}
+/* The day the strip is describing, marked in the grid it came from. */
+.cal-month-cell.selected {
+  border-color: var(--terracotta);
+  background: color-mix(in srgb, var(--terracotta) 8%, transparent);
+}
+
+@media (min-width: 768px) {
+  /* The strip is the narrow screen's substitute for names in the cell; where
+     the cell has the names, it would be a second copy of them. */
+  .cal-month-strip { display: none; }
+  /* Names need the height that three dots never did. */
+  .cal-month-grid { grid-auto-rows: minmax(96px, 1fr); }
+  .cal-month-cell {
+    justify-content: flex-start;
+    gap: 3px;
+    padding: 6px 6px 5px;
+  }
+  .cal-month-dots { display: none; }
+  .cal-month-titles {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 3px;
+    width: 100%;
+    min-width: 0;
+  }
+  .cal-month-titles .cal-month-more { margin: 0; align-self: flex-start; }
+}
+
 .cal-month-legend {
   display: flex;
   flex-wrap: wrap;

@@ -82,10 +82,6 @@ export default function ScheduleMeetingModal({ open, onClose, onSave, client, cl
     const picked = client ? { type: 'client', id: client.id } : parseSubject(form.subject)
     if (!picked) { setErr(t(hasGroups ? 'meeting.subjectRequired' : 'meeting.clientRequired')); return }
     if (!form.date || !form.time) { setErr(t('meeting.dateTimeRequired')); return }
-    /* Guarded here as well as by the column's CHECK, so a coach who clears the
-       field or types 0 is told why rather than shown a database error. */
-    const duration = Number(form.duration)
-    if (!Number.isFinite(duration) || duration <= 0) { setErr(t('meeting.durationInvalid')); return }
     setErr('')
 
     /* Recurring path — set the client's weekly slot and let the engine build
@@ -108,7 +104,12 @@ export default function ScheduleMeetingModal({ open, onClose, onSave, client, cl
       return
     }
 
-    /* One-off path (unchanged). */
+    /* One-off path. The duration is validated HERE, not above, because the
+       recurring branch returns before it and a series' length is not this
+       form's to set — validating it earlier let an emptied field block a save
+       that never intended to use it. */
+    const duration = Number(form.duration)
+    if (!Number.isFinite(duration) || duration <= 0) { setErr(t('meeting.durationInvalid')); return }
     setBusy(true)
     try {
       await onSave({
@@ -176,7 +177,10 @@ export default function ScheduleMeetingModal({ open, onClose, onSave, client, cl
           because the only length it could find belonged to the SUBJECT
           (recurring_end_time), not to the meeting. Same control as the booking
           pages' meeting types: minutes, in fives. */}
-      <Box className="m-field">
+      {/* Hidden on the recurring path: that branch writes the subject's weekly
+          slot and never reads this, so leaving the field on screen offered a
+          number that would be silently dropped. */}
+      <Box className="m-field" hidden={recurring && canRecur}>
         <Box as="label" className="m-label" htmlFor="meeting-duration">{t('meeting.duration')}</Box>
         <Input
           id="meeting-duration"

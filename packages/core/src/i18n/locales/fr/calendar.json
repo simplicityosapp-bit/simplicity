@@ -12,6 +12,10 @@
     "autoHiddenOne": "Un doublon de calendrier masqué automatiquement",
     "autoHiddenMany": "{{count}} doublons de calendrier masqués automatiquement"
   },
+  "syncFailed": {
+    "text": "Google Calendar ne s’est pas mis à jour — votre agenda peut être incomplet",
+    "cta": "Vérifier la connexion"
+  },
   "fallback": {
     "client": "Client",
     "group": "Groupe",

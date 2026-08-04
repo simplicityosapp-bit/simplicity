@@ -10,11 +10,19 @@ import { useGoogleCalendar } from './useGoogleCalendar'
    It is silent (no toast/spinner — that's reserved for the manual "סנכרן
    עכשיו" button), never overlaps a running sync, and is a no-op when Google
    Calendar isn't connected. Pass onSynced to reload the cached events
-   (useCalendarEvents.refetch) after each successful pull. */
+   (useCalendarEvents.refetch) after each successful pull.
+
+   Silent is not the same as invisible. It returns { connected, failing } so
+   the host screen can SHOW that the feed has stopped: a coach whose refresh
+   token had expired saw a calendar that simply stopped gaining events, with
+   the actual error parked on a screen they had no reason to open. `failing`
+   tracks the LAST attempt — useGoogleCalendar clears its error when a sync
+   succeeds — so a passing blip clears itself on the next run rather than
+   needing to be dismissed. */
 const SYNC_INTERVAL_MS = 10 * 60_000 // 10 minutes
 
 export function useGoogleCalendarAutoSync({ onSynced } = {}) {
-  const { status, sync } = useGoogleCalendar()
+  const { status, sync, error } = useGoogleCalendar()
   const connected = !!status?.connected
 
   /* Mirror the latest values through refs (updated in effects, never during
@@ -65,4 +73,9 @@ export function useGoogleCalendarAutoSync({ onSynced } = {}) {
       document.removeEventListener('visibilitychange', onVisibility)
     }
   }, [connected, sync])
+
+  /* Only a CONNECTED account can be failing to sync. Without that guard the
+     status call's own error would light a "your calendar isn't updating"
+     warning for a coach who never linked Google in the first place. */
+  return { connected, failing: connected && !!error }
 }

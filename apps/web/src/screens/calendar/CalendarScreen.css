@@ -30,7 +30,12 @@
 
 /* Duplicate-detection banner: app recurring meeting collides with a synced
    Google event. Opens the resolver modal. Clay-tinted to read as "attention". */
-.cal-dup-banner {
+/* Two attention banners share one shape — duplicates against Google, and a
+   Google feed that has stopped. Both are a statement plus a way to act on it,
+   both sit above the view toggle, and giving them different chrome would read
+   as two unrelated kinds of problem rather than two problems. */
+.cal-dup-banner,
+.cal-sync-banner {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -49,7 +54,8 @@
   font-weight: 500;
   transition: border-color 0.15s;
 }
-.cal-dup-banner:hover { border-color: var(--clay); }
+.cal-dup-banner:hover,
+.cal-sync-banner:hover { border-color: var(--clay); }
 .cal-dup-text { flex: 1; }
 .cal-dup-cta { font-weight: 600; white-space: nowrap; }
 

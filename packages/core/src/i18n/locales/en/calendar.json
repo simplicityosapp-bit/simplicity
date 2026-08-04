@@ -12,6 +12,10 @@
     "autoHiddenOne": "One calendar duplicate hidden automatically",
     "autoHiddenMany": "{{count}} calendar duplicates hidden automatically"
   },
+  "syncFailed": {
+    "text": "Google Calendar didn’t update — your calendar may be out of date",
+    "cta": "Check the connection"
+  },
   "fallback": {
     "client": "Client",
     "group": "Group",

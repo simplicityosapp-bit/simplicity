@@ -59,7 +59,8 @@
   "legend": {
     "meetings": "פגישות",
     "reminders": "תזכורות",
-    "calendar": "יומן"
+    "calendar": "יומן",
+    "followups": "מעקב לידים"
   },
   "greg": {
     "weekdaysShort": [

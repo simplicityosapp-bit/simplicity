@@ -186,6 +186,9 @@ export default function CalendarMonth({ date, events, onPickDay, onSelect, weekS
         <Txt className="cal-month-leg"><Txt className="cal-month-dot meeting" aria-hidden="true" /> {t('legend.meetings')}</Txt>
         <Txt className="cal-month-leg"><Txt className="cal-month-dot reminder" aria-hidden="true" /> {t('legend.reminders')}</Txt>
         <Txt className="cal-month-leg"><Txt className="cal-month-dot calendar" aria-hidden="true" /> {t('legend.calendar')}</Txt>
+        {/* The fourth kind was drawn but never keyed — the legend claimed to
+            explain the dots and listed three of them. */}
+        <Txt className="cal-month-leg"><Txt className="cal-month-dot leadFollowup" aria-hidden="true" /> {t('legend.followups')}</Txt>
       </Box>
     </Box>
   )

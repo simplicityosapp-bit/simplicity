@@ -213,6 +213,35 @@
    4.00, while the deepened pair would sink into it. */
 [data-theme="dark"] .cal-icon.meeting { color: var(--sage); }
 [data-theme="dark"] .cal-icon.reminder { color: var(--amber-warn); }
+
+/* ── Lead follow-ups ──────────────────────────────────────────────
+   The fourth kind had no hue of its own anywhere on this screen. Its month
+   dot had no background at all — a 5px transparent circle, so a day whose
+   only entry was a follow-up looked empty while "+N" still counted it — and
+   every chip fell through to the sage base, which made a follow-up look like
+   a meeting.
+
+   Purple because the app already says lead in purple: the leads screen paints
+   its stat icon `--purple` and its sub-status chip `--purple-faint` over it.
+   Borrowing that is the difference between a colour with a meaning and a
+   fourth colour. It also happens to be the one accent that carries white at
+   AA (5.18:1), so a solid treatment here would need no *-solid variant.
+   `--purple-faint` is the existing tint and already flips for dark mode. */
+.cal-icon.leadFollowup {
+  background: var(--purple-faint);
+  color: var(--purple);
+}
+.evt-detail-icon.leadFollowup {
+  background: var(--purple-faint);
+  color: var(--purple);
+}
+.cal-month-dot.leadFollowup { background: var(--purple); }
+.cal-day-evt.leadFollowup,
+.cal-week-evt.leadFollowup,
+.cal-month-title.leadFollowup {
+  border-color: color-mix(in srgb, var(--purple) 35%, transparent);
+  background: color-mix(in srgb, var(--purple) 8%, transparent);
+}
 .cal-body {
   flex: 1;
   min-width: 0;

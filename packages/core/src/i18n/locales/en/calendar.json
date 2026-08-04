@@ -59,7 +59,8 @@
   "legend": {
     "meetings": "Meetings",
     "reminders": "Reminders",
-    "calendar": "Calendar"
+    "calendar": "Calendar",
+    "followups": "Lead follow-ups"
   },
   "greg": {
     "weekdaysShort": [

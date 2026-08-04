@@ -12,6 +12,10 @@
     "autoHiddenOne": "כפילות יומן אחת הוסתרה אוטומטית",
     "autoHiddenMany": "{{count}} כפילויות יומן הוסתרו אוטומטית"
   },
+  "syncFailed": {
+    "text": "העדכון מ-Google Calendar לא הצליח — ייתכן שהיומן לא מעודכן",
+    "cta": "לבדיקת החיבור"
+  },
   "fallback": {
     "client": "לקוח",
     "group": "קבוצה",

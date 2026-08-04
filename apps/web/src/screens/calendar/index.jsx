@@ -1,5 +1,7 @@
 import { useMemo, useState } from 'react'
-import { AlertTriangle, ArrowLeft, Calendar } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+import { AlertTriangle, ArrowLeft, Calendar, CloudOff } from 'lucide-react'
+import { ROUTES } from '../../lib/routes'
 import { remindersUpcoming } from '../../lib/homeData'
 import { fmtShortDate, fmtTime } from '@simplicity/core'
 import { useReminders } from '../../hooks/useReminders'
@@ -50,13 +52,15 @@ const localTimeStr = (d) => `${pad2(d.getHours())}:${pad2(d.getMinutes())}`
 
 export default function CalendarScreen() {
   const { t } = useT('calendar')
+  const navigate = useNavigate()
   const { reminders, addReminder, completeReminder, removeReminder } = useReminders()
   const { meetings, loading: meetingsLoading, addMeeting, updateMeeting, removeMeeting } = useScheduledMeetings()
   const { sessions, addSession, removeSession, putBackSession } = useSessions()
   const { events: calendarEvents, loading: calendarEventsLoading, refetch: refetchCalendarEvents, dismissEvent, updateEvent, deleteEvent, restoreEvent } = useCalendarEvents()
   /* Auto-sync Google Calendar on entry + every 10 min while this screen is
-     open (client-side only; reloads the cached events after each pull). */
-  useGoogleCalendarAutoSync({ onSynced: refetchCalendarEvents })
+     open (client-side only; reloads the cached events after each pull).
+     `syncFailing` is what makes a dead feed visible — see the banner below. */
+  const { failing: syncFailing } = useGoogleCalendarAutoSync({ onSynced: refetchCalendarEvents })
   const { bookings, cancel: cancelBookingFn } = useBookings()
   const { pages: bookingPages } = useBookingPages()
   const { types: meetingTypes } = useMeetingTypes()
@@ -365,6 +369,21 @@ export default function CalendarScreen() {
           <Btn className="cta-add" type="button" aria-label={t('newEventAria')} onClick={() => { setScheduleAt(null); setShowGate(true) }}>{t('newEvent')}</Btn>
         </Coachmark>
       </Box>
+
+      {/* A dead Google feed used to be indistinguishable from a quiet week.
+          The background sync stays silent by design — it must never nag over a
+          passing blip — but silence about a FAILURE meant the calendar just
+          stopped gaining events while the only account of why sat on the
+          connections screen, which nobody opens unprompted. This states the
+          fact and points at the one place that can fix it; it clears itself
+          the moment a sync succeeds, so a blip needs no dismissing. */}
+      {syncFailing && (
+        <Btn type="button" className="cal-sync-banner" onClick={() => navigate(ROUTES.CONNECTIONS)}>
+          <CloudOff size={15} strokeWidth={1.8} aria-hidden="true" />
+          <Txt className="cal-dup-text">{t('syncFailed.text')}</Txt>
+          <Txt className="cal-dup-cta">{t('syncFailed.cta')} <ArrowLeft size={14} strokeWidth={1.5} aria-hidden="true" /></Txt>
+        </Btn>
+      )}
 
       {duplicates.length > 0 && (
         <Btn type="button" className="cal-dup-banner" onClick={() => setShowDuplicates(true)}>

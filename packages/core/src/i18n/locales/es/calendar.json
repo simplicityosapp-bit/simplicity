@@ -12,6 +12,10 @@
     "autoHiddenOne": "Un duplicado de calendario ocultado automáticamente",
     "autoHiddenMany": "{{count}} duplicados de calendario ocultados automáticamente"
   },
+  "syncFailed": {
+    "text": "Google Calendar no se actualizó — puede que tu calendario no esté al día",
+    "cta": "Revisar la conexión"
+  },
   "fallback": {
     "client": "Cliente",
     "group": "Grupo",

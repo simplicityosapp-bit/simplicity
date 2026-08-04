@@ -67,6 +67,14 @@ export default function CalendarMonth({ date, events, onPickDay, onSelect, weekS
   const eventsMap = useMemo(() => eventsByDate(events), [events])
   const today = new Date()
 
+  /* The strip describes a day only while that day is still on screen. Stepping
+     to another month used to leave it open on a date the grid no longer drew —
+     a panel about nowhere. Derived rather than cleared in an effect, both
+     because react-hooks/set-state-in-effect forbids the latter and because
+     this is the more honest rule: the 42-cell grid spills into the neighbouring
+     months, so a selection that is still VISIBLE stays selected. */
+  const shown = selected && cells.some((c) => isSameDay(c.d, selected)) ? selected : null
+
   /* Re-order the weekday header to match the user's weekStart. */
   const weekdayHeader = useMemo(() => {
     const names = weekdayNamesShort(lang)
@@ -91,10 +99,10 @@ export default function CalendarMonth({ date, events, onPickDay, onSelect, weekS
             <Btn
               key={d.toISOString()}
               type="button"
-              className={`cal-month-cell${inMonth ? '' : ' dim'}${isToday ? ' today' : ''}${selected && isSameDay(d, selected) ? ' selected' : ''}`}
+              className={`cal-month-cell${inMonth ? '' : ' dim'}${isToday ? ' today' : ''}${shown && isSameDay(d, shown) ? ' selected' : ''}`}
               onClick={() => pickDay(d)}
               aria-label={aria}
-              aria-pressed={narrow ? !!(selected && isSameDay(d, selected)) : undefined}
+              aria-pressed={narrow ? !!(shown && isSameDay(d, shown)) : undefined}
             >
               {hebrew ? (
                 <Txt className="cal-month-num heb">
@@ -150,16 +158,16 @@ export default function CalendarMonth({ date, events, onPickDay, onSelect, weekS
           month. Its heading opens the day view, which is where the first tap
           used to go, so nothing was taken away — only delayed by one press
           that now buys an answer. */}
-      {narrow && selected && (
+      {narrow && shown && (
         <Box className="cal-month-strip">
-          <Btn type="button" className="cal-month-strip-head" onClick={() => onPickDay?.(selected)}>
-            <Txt className="cal-month-strip-day">{fmtDayLabel(selected)}</Txt>
+          <Btn type="button" className="cal-month-strip-head" onClick={() => onPickDay?.(shown)}>
+            <Txt className="cal-month-strip-day">{fmtDayLabel(shown)}</Txt>
             <Txt className="cal-month-strip-cta">{t('views.day')} <ArrowLeft size={13} strokeWidth={1.6} aria-hidden="true" /></Txt>
           </Btn>
-          {(eventsMap.get(dateKey(selected)) || []).length === 0 ? (
+          {(eventsMap.get(dateKey(shown)) || []).length === 0 ? (
             <Txt as="p" className="cal-month-strip-empty">{t('list.empty')}</Txt>
           ) : (
-            (eventsMap.get(dateKey(selected)) || []).map((ev, i) => (
+            (eventsMap.get(dateKey(shown)) || []).map((ev, i) => (
               <Btn
                 key={i}
                 type="button"

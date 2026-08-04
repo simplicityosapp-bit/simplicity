@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import {
-  monthGrid, hebrewMonthGrid, hebrewParts,
+  monthGrid, hebrewMonthGrid, hebrewParts, fmtDayLabel,
   eventsByDate, isSameDay, dateKey, weekdayNamesShort, weekStartIndex,
 } from '@simplicity/core'
 import { useT } from '../../i18n/useT'
@@ -21,7 +21,11 @@ export default function CalendarMonth({ date, events, onPickDay, weekStart = 'su
   const cells = useMemo(() => {
     if (!hebrew) {
       const m = date.getMonth()
-      return monthGrid(date, weekStart).map((d) => ({ d, inMonth: d.getMonth() === m, num: String(d.getDate()), aria: d.toDateString() }))
+      /* fmtDayLabel, not toDateString: the latter is always English ("Wed Aug
+         12 2026"), which a Hebrew screen reader spells out letter by letter.
+         This is the same label the day view puts in its header, so the cell
+         announces itself the way the screen it opens names that day. */
+      return monthGrid(date, weekStart).map((d) => ({ d, inMonth: d.getMonth() === m, num: String(d.getDate()), aria: fmtDayLabel(d) }))
     }
     const ref = hebrewParts(date)
     return hebrewMonthGrid(date, weekStart).map((d) => {

@@ -1,6 +1,13 @@
 import { useMemo } from 'react'
-import { startOfWeek, addDays, eventsForDay, isSameDay, hebrewDayNum, weekdayNamesShort, fmtTime } from '@simplicity/core'
+import { startOfWeek, addDays, eventsForDay, isSameDay, hebrewDayNum, hebrewParts, fmtDayLabel, weekdayNamesShort, fmtTime } from '@simplicity/core'
 import { Box, Txt, Btn } from '../../components/ui'
+
+/* Spoken form of a Hebrew-calendar date — "כ״ג בתמוז תשפ״ו". Kept identical
+   to the month grid's own label so the two views name a day the same way. */
+const hebLabel = (d) => {
+  const p = hebrewParts(d)
+  return `${p.dayText} ב${p.month} ${p.yearText}`
+}
 
 /* 7 vertical strips, one per day in the week containing `date`.
    Each strip stacks the day's events as compact chips. Tap a chip
@@ -30,7 +37,11 @@ export default function CalendarWeek({ date, events, onSelect, onPickDay, weekSt
               type="button"
               className="cal-week-head"
               onClick={() => onPickDay?.(d)}
-              aria-label={d.toDateString()}
+              /* Was toDateString() — always English, spelled out letter by
+                 letter by a Hebrew screen reader. Matches the month grid,
+                 including its Hebrew-calendar branch: what the column shows
+                 as a gematria numeral it should also say out loud. */
+              aria-label={hebrew ? hebLabel(d) : fmtDayLabel(d)}
             >
               <Txt className="cal-week-dow">{weekdayNamesShort()[d.getDay()]}</Txt>
               {hebrew ? (

@@ -364,7 +364,12 @@ export default function EventDetailsModal({ open, onClose, event, billClient, on
               className="evt-detail-btn skip"
               onClick={confirmDel ? handle(onRemoveReminder) : () => setConfirmDel(true)}
             >
-              <X size={15} strokeWidth={2} aria-hidden="true" /> {confirmDel ? t('event.deleteConfirm') : t('taxonomy.deleteConfirm')}
+              {/* `event.delete`, not `taxonomy.deleteConfirm` — the resting
+                  label was reading a key from the statuses-and-categories
+                  section, so deleting a reminder said "מחק" while deleting a
+                  calendar event three branches up said "מחיקה". Same modal,
+                  same action, two words. */}
+              <X size={15} strokeWidth={2} aria-hidden="true" /> {confirmDel ? t('event.deleteConfirm') : t('event.delete')}
             </Btn>
           </Box>
         </Box>

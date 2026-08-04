@@ -10,7 +10,11 @@ const todayStr = () => {
   const d = new Date()
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
 }
-const blank = (subject = '', date, time) => ({ subject, date: date || todayStr(), time: time || '09:00' })
+/* The length the day view has always assumed when it had nothing to go on.
+   Seeded into the form rather than left blank so the assumption becomes a
+   visible, editable number instead of a silent one. */
+const DEFAULT_DURATION_MIN = 60
+const blank = (subject = '', date, time) => ({ subject, date: date || todayStr(), time: time || '09:00', duration: DEFAULT_DURATION_MIN })
 const HEB_DAYS = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי', 'שבת']
 
 /* The picker carries the subject's TYPE as well as its id, because
@@ -78,6 +82,10 @@ export default function ScheduleMeetingModal({ open, onClose, onSave, client, cl
     const picked = client ? { type: 'client', id: client.id } : parseSubject(form.subject)
     if (!picked) { setErr(t(hasGroups ? 'meeting.subjectRequired' : 'meeting.clientRequired')); return }
     if (!form.date || !form.time) { setErr(t('meeting.dateTimeRequired')); return }
+    /* Guarded here as well as by the column's CHECK, so a coach who clears the
+       field or types 0 is told why rather than shown a database error. */
+    const duration = Number(form.duration)
+    if (!Number.isFinite(duration) || duration <= 0) { setErr(t('meeting.durationInvalid')); return }
     setErr('')
 
     /* Recurring path — set the client's weekly slot and let the engine build
@@ -107,6 +115,7 @@ export default function ScheduleMeetingModal({ open, onClose, onSave, client, cl
         subject_type: picked.type,
         subject_id: picked.id,
         scheduled_at: new Date(`${form.date}T${form.time}`).toISOString(),
+        duration_minutes: duration,
         status: 'pending',
         session_id: null,
       })
@@ -160,6 +169,25 @@ export default function ScheduleMeetingModal({ open, onClose, onSave, client, cl
           <Box as="label" className="m-label">{t('meeting.time')}</Box>
           <Input type="time" className="m-input" value={form.time} onChange={(e) => set('time', e.target.value)} />
         </Box>
+      </Box>
+
+      {/* How long. The day view used to draw every meeting as the same block —
+          a 90-minute workshop and a 25-minute check-in were one rectangle —
+          because the only length it could find belonged to the SUBJECT
+          (recurring_end_time), not to the meeting. Same control as the booking
+          pages' meeting types: minutes, in fives. */}
+      <Box className="m-field">
+        <Box as="label" className="m-label" htmlFor="meeting-duration">{t('meeting.duration')}</Box>
+        <Input
+          id="meeting-duration"
+          type="number"
+          min="5"
+          step="5"
+          className="m-input"
+          value={form.duration}
+          onChange={(e) => { set('duration', e.target.value); if (err) setErr('') }}
+        />
+        <Txt as="p" className="m-hint">{t('meeting.durationHint')}</Txt>
       </Box>
 
       {canRecur && (

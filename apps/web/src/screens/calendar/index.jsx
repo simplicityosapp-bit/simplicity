@@ -166,11 +166,20 @@ export default function CalendarScreen() {
       if (m.subject_type === 'group') return groups.find((g) => g.id === m.subject_id)?.name || t('fallback.group')
       return t('fallback.event')
     }
-    /* End time for a recurring meeting comes from the subject's
-       recurring_end_time (clients + groups both carry it) applied to the
-       meeting's own date — lets the day timeline span the real duration
-       instead of falling back to a fixed block. */
+    /* How long a meeting runs, in order of who actually knows:
+
+       1. the MEETING's own duration_minutes — set when it was booked by hand,
+          and the only source that describes this meeting rather than a habit;
+       2. the SUBJECT's recurring_end_time, which is what a materialised
+          series has and all the calendar ever had before;
+       3. nothing, and CalendarDay falls back to its 60-minute block.
+
+       The order matters for a one-off booked with a client who also has a
+       weekly slot: the 25 minutes the coach just typed must beat the 50 that
+       their standing Tuesday implies. */
     const subjectEnd = (m, start) => {
+      const own = Number(m.duration_minutes)
+      if (Number.isFinite(own) && own > 0) return new Date(start.getTime() + own * 60_000)
       const subj = m.subject_type === 'group'
         ? groups.find((g) => g.id === m.subject_id)
         : clients.find((c) => c.id === m.subject_id)

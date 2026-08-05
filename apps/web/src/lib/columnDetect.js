@@ -21,6 +21,33 @@ const clean = (v) => String(v == null ? '' : v).trim()
      - accounting negatives:     "(500)" → -500
      - trailing/leading minus:   "500-"  "-500"
    Returns a finite number, or NaN when it isn't money. */
+/* One "אופן חיוב" cell → the clients.billing_mode enum, or null when the
+   cell says nothing recognisable (the caller then leaves the column alone
+   and the DB default, 'package', stands).
+
+   Only 'per_session' is really being detected: package is both the default
+   and the overwhelmingly common arrangement, so an unreadable value must
+   never flip a client onto the other model. Matching is substring-based on
+   a normalised string, which is why the per-session words are checked
+   first — "לפי פגישה" contains neither package word, but a sheet that
+   writes "חבילה לפי פגישה" means the latter.
+
+   Lives here rather than in statusImport because that module is about
+   status columns specifically, and here because both import paths
+   (csvImport and sheetMapper) already depend on this one — sheetMapper
+   imports from csvImport, so the shared helper cannot live there. */
+const BILLING_WORDS = {
+  per_session: ['לפיפגישה', 'לפימפגש', 'לפיפגישות', 'פרפגישה', 'לפישעה', 'לפיטיפול', 'persession', 'permeeting', 'persession', 'hourly', 'payasyougo', 'payg'],
+  package: ['חבילה', 'מנוי', 'כרטיסיה', 'כרטיסייה', 'package', 'subscription', 'bundle', 'prepaid'],
+}
+export function parseBillingMode(v) {
+  const n = String(v == null ? '' : v).trim().toLowerCase().replace(/["'`״׳]/g, '').replace(/\s+/g, '')
+  if (!n) return null
+  for (const w of BILLING_WORDS.per_session) if (n === w || n.includes(w)) return 'per_session'
+  for (const w of BILLING_WORDS.package) if (n === w || n.includes(w)) return 'package'
+  return null
+}
+
 export function parseAmount(v) {
   if (v == null) return NaN
   let s = String(v).trim()

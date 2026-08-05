@@ -276,6 +276,7 @@
         "payment_date": "Payment date",
         "num_installments": "Number of instalments",
         "project": "Project",
+        "billing_mode": "Billing mode",
         "notes": "Notes"
       },
       "projects": {

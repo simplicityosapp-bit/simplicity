@@ -288,6 +288,7 @@
         "payment_date": "תאריך תשלום",
         "num_installments": "מספר תשלומים",
         "project": "פרויקט",
+        "billing_mode": "אופן חיוב",
         "notes": "הערות"
       },
       "projects": {

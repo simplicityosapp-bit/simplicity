@@ -18,7 +18,7 @@
 
 import i18n from '@simplicity/core/i18n'
 import { detectMatrix } from './pivotImport'
-import { detectColumnType, parseAmount, findHeaderRow } from './columnDetect'
+import { detectColumnType, parseAmount, findHeaderRow, parseBillingMode } from './columnDetect'
 import { normalizeDate } from './csvImport'
 import { mapValueToMetaConfident } from './statusImport'
 import { parsePayMethod } from '@simplicity/core'
@@ -108,6 +108,14 @@ export const ENTITY_FIELDS = {
        payment PLAN (פריסת תשלומים) for the client instead of a single payment. */
     { key: 'num_installments', label: 'מספר תשלומים', syn: ['מספרתשלומים', 'מסתשלומים', 'כמותתשלומים', 'מספרתשלום', 'פריסהלתשלומים', 'פריסה', 'installments', 'numpayments', 'numinstallments'] },
     { key: 'project',   label: 'פרויקט',          syn: ['פרויקט', 'פרוייקט', 'תוכנית', 'תכנית', 'מסלול', 'שירות', 'חבילה', 'project', 'program', 'package'] },
+    /* Which model bills this client. The export writes it, so a file that
+       left Simplicity can come back whole; before this the column round-
+       tripped into nothing and every per-session client returned as a
+       package one, silently changing how they are charged. Deliberately
+       AFTER 'project', whose synonyms include "חבילה"/"package" — a lone
+       "חבילה" header is far more often a programme name than a billing
+       model, and first-match wins. */
+    { key: 'billing_mode', label: 'אופן חיוב',    syn: ['אופןחיוב', 'סוגחיוב', 'שיטתחיוב', 'אופןתמחור', 'מודלחיוב', 'billingmode', 'billing', 'chargemode', 'pricingmodel'] },
     { key: 'notes',     label: 'הערות',           syn: ['הערות', 'הערה', 'תיאור', 'פירוט', 'notes', 'note', 'comment'] },
   ],
   projects: [
@@ -412,6 +420,9 @@ export function projectSheet(sheet) {
            coach already tracks carries over verbatim. */
         total_due: num(r, 'total_due'),
         price_per_session: price,
+        /* null when the column is absent or unreadable — the importer then
+           leaves billing_mode alone and the DB default stands. */
+        billing_mode: parseBillingMode(val(r, 'billing_mode')),
         /* Enrich the import-derived payment (from `paid`): a recognized method
            column → a PAY_METHODS key (free-text mapped, never raw); a payment
            date → the real transaction date instead of the placeholder. */

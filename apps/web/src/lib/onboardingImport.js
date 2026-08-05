@@ -254,6 +254,11 @@ export async function finalizeOnboardingImport(input = {}) {
         group_id: null,
         sessions: Number(c.sessions) || 0,
         price_per_session: Number(c.price_per_session) || 0,
+        /* Only when the file actually said so. Spreading a null here would
+           send billing_mode: null to a NOT NULL column; leaving the key out
+           lets the DB default ('package') stand, which is also the right
+           answer for every file that never mentioned a billing model. */
+        ...(c.billing_mode ? { billing_mode: c.billing_mode } : {}),
         /* Imported "סה״כ לתשלום" → the client's total due. When present it
            overrides sessions×price so the balance (total − paid) matches
            what the coach already tracks. */

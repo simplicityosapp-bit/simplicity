@@ -27,7 +27,7 @@
    ════════════════════════════════════════════════════════════════ */
 
 import { detectMatrix, buildPivotConfig, flattenMatrix } from './pivotImport'
-import { parseAmount, detectColumnType, findHeaderRow } from './columnDetect'
+import { parseAmount, detectColumnType, findHeaderRow, parseBillingMode } from './columnDetect'
 import { mapValueToMeta } from './statusImport'
 
 /* Canonical importable fields + their Hebrew labels (used by the
@@ -110,6 +110,11 @@ const HEADER_SYNONYMS = {
     'תאריךלידה', 'תאלידה', 'יוםהולדת', 'יוםהולדה', 'לידה'],
   project:    ['project', 'projectname', 'program', 'service', 'package', 'פרויקט', 'פרוייקט', 'תוכנית', 'תכנית', 'מסלול', 'שירות', 'חבילה', 'תכנית ליווי'],
   status:     ['status', 'state', 'stage', 'סטטוס', 'סטאטוס', 'מצב', 'שלב', 'מצבלקוח', 'סטטוסלקוח'],
+  /* Which model bills the client — written by the export, so a file that left
+     Simplicity comes back whole. No bare 'חבילה'/'package' here: those belong
+     to `project` above, where a lone "חבילה" header almost always names a
+     programme rather than a billing model. */
+  billing_mode: ['billingmode', 'billing', 'chargemode', 'pricingmodel', 'אופןחיוב', 'סוגחיוב', 'שיטתחיוב', 'אופןתמחור', 'מודלחיוב'],
   sessions:   ['sessions', 'session', 'totalsessions', 'meetings', 'numsessions', 'numberofsessions',
     'פגישות', 'מספרפגישות', 'כמותפגישות', 'מספרמפגשים', 'מפגשים', 'מספרסשנים', 'סשנים', 'מפגש', 'פגישה', 'כמותמפגשים', 'מספרמפגש',
     /* yoga / fitness / punch-card vocabulary (a count of sessions). */
@@ -347,6 +352,8 @@ export function projectEntities(headers, rows, mapping) {
         status_meta,
         sessions: Math.abs(Math.trunc(toNum(obj.sessions))) || 0,
         price_per_session: Math.abs(toNum(obj.price)) || 0,
+        /* null → the importer leaves billing_mode alone (DB default). */
+        billing_mode: parseBillingMode(obj.billing_mode),
         notes: obj.notes || null,
       })
     }

@@ -301,15 +301,21 @@ html[dir="rtl"] .cd-stat-l {
   font-variant-numeric: tabular-nums;
 }
 /* Per-session billing note — caption under the hero (migration 0014). */
+/* Both notes below sit under the «התאמה» pill, not under the hero. They were
+   written when they followed .cd-hero directly and carried a negative top
+   margin to snug up against it; the pill was inserted between them later and
+   the negative margin went on pulling, so the per-session line was drawn 6px
+   INSIDE the button's bottom edge. Positive margins now, measured from the
+   pill they actually follow. */
 .cd-billmode {
-  margin: -6px 0 12px;
+  margin: 10px 0 12px;
   text-align: center;
   font-family: var(--mg-font);
   font-size: calc(11px * var(--text-scale));
   color: var(--stone);
 }
 .cd-plan-hint {
-  margin: -4px 0 12px;
+  margin: 10px 0 12px;
   text-align: center;
   font-family: var(--mg-font);
   font-size: calc(11.5px * var(--text-scale));
@@ -318,11 +324,14 @@ html[dir="rtl"] .cd-stat-l {
 }
 /* Group-session rows (read-only) — shown under the hero in the full
    profile, one per group the client belongs to. */
+/* Third sibling of the «התאמה» pill, same story as .cd-billmode below: the
+   negative top margin dated from when this followed .cd-hero, and after the
+   pill moved in between it drew the first group row 4px into the button. */
 .cd-grp-sessions {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  margin: -4px 0 12px;
+  margin: 10px 0 12px;
 }
 .cd-grp-row {
   display: flex;

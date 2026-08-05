@@ -155,7 +155,15 @@ export function clientBalance(c: Client, txns?: Tx[], sessionsData: ClientSessio
     const g = groupsData.find((x) => x.id === m.group_id)
     return s + (g?.package_sessions || 0)
   }, 0)
-  const sessionsTotal = (c.sessions || 0) + memSessions
+  /* A per-session client has no quota to count toward — `sessions` stays 0 by
+     design — so counting that 0 as their allotment while their held meetings
+     counted as done let the clients-screen summary print MORE done than
+     allotted (a per-session-heavy practice drifted to "12/4"). Their
+     arrangement is "however many we have had", which is precisely what the
+     money side already does one screen up: privateTotal = done × price. The
+     allotment follows the same definition, so each held meeting adds one to
+     both sides and the ratio can no longer overflow. */
+  const sessionsTotal = (perSession ? privateDoneForBilling : (c.sessions || 0)) + memSessions
 
   /* Sessions split into PERSONAL (1-on-1) vs each GROUP the client is in.
      "נעשה" (done) = real private session records + the manual

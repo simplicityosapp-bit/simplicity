@@ -1,13 +1,13 @@
 import { useMemo, useState, useRef, useEffect } from 'react'
 import { Modal, View, Text, Pressable, StyleSheet, ScrollView, Linking, Alert } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { X, Trash2, Pencil, Banknote, MessageCircle, CalendarPlus, ChevronDown, Check, RotateCcw } from 'lucide-react-native'
+import { X, Trash2, Pencil, Banknote, MessageCircle, ChevronDown, Check, RotateCcw, Phone, Mail, PackagePlus } from 'lucide-react-native'
 import { clientBalance, effectiveClientMeta, isGroupDriven, isStatusOverridden, planBalance, planInstallments, isr } from '@simplicity/core'
 import Card from '../components/Card'
 import EditClientModal from '../modals/EditClientModal'
 import AddTransactionModal from '../modals/AddTransactionModal'
-import AddMeetingModal from '../modals/AddMeetingModal'
 import AddSessionModal from '../modals/AddSessionModal'
+import AddSessionsModal from '../modals/AddSessionsModal'
 import AddTaskModal from '../modals/AddTaskModal'
 import AddReminderModal from '../modals/AddReminderModal'
 import ClientDrawerSections from './ClientDrawerSections'
@@ -29,7 +29,7 @@ const STATUS_PILL = {
 const STATUS_ORDER = ['active', 'wandering', 'past', 'no_status']
 const initials = (name) => (name || '').split(' ').map((w) => w[0] || '').join('').slice(0, 2).toUpperCase()
 
-export default function ClientDrawer({ clientId, clients, transactions, sessions, members, groups, tasks = [], reminders = [], onClose, updateClient, deleteClient, addTransaction, addSession, addMeeting, updateSession, updateTask, deleteTask, updateTransaction, deleteTransaction, updateReminder, deleteReminder, updateMember }) {
+export default function ClientDrawer({ clientId, clients, transactions, sessions, members, groups, tasks = [], reminders = [], onClose, updateClient, deleteClient, addTransaction, addSession, updateSession, updateTask, deleteTask, updateTransaction, deleteTransaction, updateReminder, deleteReminder, updateMember }) {
   const insets = useSafeAreaInsets()
   const { projects } = useFormOptions()
   const [editing, setEditing] = useState(false)
@@ -37,8 +37,8 @@ export default function ClientDrawer({ clientId, clients, transactions, sessions
   const [payDefaults, setPayDefaults] = useState(null)   // prefill for the "record payment" modal
   const [pendingPaid, setPendingPaid] = useState(null)   // paid-field delta awaiting the record-or-fold prompt
   const pendingPaidRef = useRef(null)                    // delta to fold if the payment modal closes unsaved
-  const [scheduling, setScheduling] = useState(false)
   const [logging, setLogging] = useState(false)
+  const [addingSessions, setAddingSessions] = useState(false)
   const [statusMenu, setStatusMenu] = useState(false)
   const [editSession, setEditSession] = useState(null)
   const [editTask, setEditTask] = useState(null)
@@ -218,6 +218,29 @@ export default function ClientDrawer({ clientId, clients, transactions, sessions
                 </Pressable>
               </View>
 
+              {/* Phone and email were collected on every client and shown
+                  nowhere — the phone only ever fed the WhatsApp button, the
+                  email nothing at all. Pressable so the platform does the
+                  obvious thing: tel: dials, mailto: opens the mail app. The
+                  number displays exactly as typed; only the dial target is
+                  stripped. Matches the web client file. */}
+              {client.phone || client.email ? (
+                <View style={styles.contact}>
+                  {client.phone ? (
+                    <Pressable style={styles.contactItem} onPress={() => Linking.openURL(`tel:${String(client.phone).replace(/[^\d+]/g, '')}`)}>
+                      <Phone size={13} strokeWidth={1.7} color={colors.textSub} />
+                      <Text style={styles.contactText}>{client.phone}</Text>
+                    </Pressable>
+                  ) : null}
+                  {client.email ? (
+                    <Pressable style={styles.contactItem} onPress={() => Linking.openURL(`mailto:${client.email}`)}>
+                      <Mail size={13} strokeWidth={1.7} color={colors.textSub} />
+                      <Text style={styles.contactText}>{client.email}</Text>
+                    </Pressable>
+                  ) : null}
+                </View>
+              ) : null}
+
               {/* Billing hero — sessions / paid / balance */}
               <Card padded={false} contentStyle={styles.hero}>
                 <HeroStat label={i18n.t('clients:drawer.sessions', { defaultValue: 'פגישות' })} value={sessLabel} />
@@ -261,8 +284,8 @@ export default function ClientDrawer({ clientId, clients, transactions, sessions
               {/* Quick actions (2×2) */}
               <View style={styles.actions}>
                 <Action Icon={Check} label={i18n.t('clients:drawer.logSession', { defaultValue: 'תיעוד פגישה' })} onPress={() => setLogging(true)} />
-                <Action Icon={CalendarPlus} label={i18n.t('clients:drawer.scheduleMeeting', { defaultValue: 'קביעת פגישה' })} onPress={() => setScheduling(true)} />
                 <Action Icon={Banknote} label={i18n.t('clients:drawer.receivedPayment', { defaultValue: 'קיבלתי תשלום' })} onPress={() => setPaying(true)} />
+                <Action Icon={PackagePlus} label={i18n.t('clients:addSessions.title')} onPress={() => setAddingSessions(true)} />
                 {client.phone ? <Action Icon={MessageCircle} label="WhatsApp" onPress={() => whatsapp()} /> : null}
               </View>
 
@@ -314,7 +337,15 @@ export default function ClientDrawer({ clientId, clients, transactions, sessions
           return addTransaction(data)
         }}
       />
-      <AddMeetingModal open={scheduling} client={client} clients={client ? [client] : []} onClose={() => setScheduling(false)} onSave={addMeeting} onSetRecurringSlot={updateClient} />
+      {/* "קביעת פגישה" is gone from the actions above, as it is on web:
+          booking happens in the calendar, every time. The weekly slot this
+          could also set is still set in the edit sheet's scheduling section. */}
+      <AddSessionsModal
+        open={addingSessions}
+        onClose={() => setAddingSessions(false)}
+        client={client}
+        onSave={(next) => updateClient(client.id, { sessions: next })}
+      />
 
       {/* Log a session — composes the full sessions row around the modal's when/summary/notes */}
       <AddSessionModal
@@ -406,6 +437,9 @@ const styles = StyleSheet.create({
   editBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingVertical: 6, paddingHorizontal: 11, borderRadius: 999, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card },
   editText: { fontSize: 12, color: colors.textSub },
 
+  contact: { flexDirection: 'row', flexWrap: 'wrap', gap: 16, marginBottom: 12 },
+  contactItem: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  contactText: { fontSize: 12, color: colors.textSub },
   hero: { flexDirection: 'row', paddingVertical: 16, paddingHorizontal: 8 },
   stat: { flex: 1, alignItems: 'center', gap: 5 },
   statDivided: { borderLeftWidth: StyleSheet.hairlineWidth, borderRightWidth: StyleSheet.hairlineWidth, borderColor: colors.divider },

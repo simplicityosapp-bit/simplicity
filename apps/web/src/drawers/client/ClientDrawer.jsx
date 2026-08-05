@@ -440,7 +440,43 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
         personalHeld={balance?.personalHeld ?? 0}
         groupSessions={balance?.groupSessions ?? []}
         isMember={isMember}
-        onSave={onUpdateClient}
+        /* Saving this form rewrites price, quota, billing mode and the rest in
+           one go, and was the only irreversible write left on the card — a
+           status flip and an added block of meetings both offered an undo
+           while the form that can change all three did not.
+           The snapshot is taken from the fields the patch actually touches,
+           so undo puts back exactly what was overwritten and nothing else. A
+           key the client object doesn't carry restores as null, which is
+           right for the nullable columns and unreachable for the rest: a row
+           read from the database always carries them.
+           A save that changed nothing pushes no undo — the patch is built in
+           full every time, so without this an untouched form would still
+           raise a toast offering to undo nothing.
+           If a money edit follows, the adjustment sheet records its own undo
+           and supersedes this one. That is the undo store's single-level
+           design, and the adjustment is the later act. */
+        onSave={async (id, patch) => {
+          const prev = {}
+          let changed = false
+          for (const k of Object.keys(patch)) {
+            prev[k] = client[k] ?? null
+            /* A column the row doesn't carry has no previous value to differ
+               from, so it can't count as a change. Skipping it is what keeps
+               an untouched save quiet: the patch always names every column,
+               and a client created before a column existed would otherwise
+               "differ" from that column's default on every save. It still
+               gets snapshotted above, so undo can put it back. */
+            if (client[k] === undefined) continue
+            if ((patch[k] ?? null) !== prev[k]) changed = true
+          }
+          await onUpdateClient?.(id, patch)
+          if (!changed) return
+          pushUndo({
+            label: t('drawer.editUndo'),
+            undo: async () => { await onUpdateClient?.(id, prev) },
+            redo: async () => { await onUpdateClient?.(id, patch) },
+          })
+        }}
         onUpdateMember={onUpdateMember}
         /* A hand-edited «שולם» is money the user says arrived; a hand-edited
            «יתרה» is debt they're writing off. Each opens the adjustment sheet

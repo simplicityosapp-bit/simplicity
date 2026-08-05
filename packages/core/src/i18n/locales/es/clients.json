@@ -112,7 +112,8 @@
     "manualPayMessage": "Has actualizado «Pagado» en {{amount}}. Puedes registrar el importe como ingreso en tus informes financieros, o corregir solo la ficha del cliente: una corrección solo en la ficha no aparecerá en los informes financieros.",
     "manualPayConfirm": "Registrar como ingreso",
     "manualPayCancel": "Corregir solo la ficha",
-    "deleteMessage": "El cliente pasa a la papelera y se puede restaurar en un plazo de 30 días."
+    "deleteMessage": "El cliente pasa a la papelera y se puede restaurar en un plazo de 30 días.",
+    "editUndo": "Datos del cliente actualizados"
   },
   "sections": {
     "activity": "Actividad",

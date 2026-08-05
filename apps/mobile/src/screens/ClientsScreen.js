@@ -206,8 +206,14 @@ export default function ClientsScreen() {
   const renderCard = (e) => {
     const { c, meta, bal } = e
     const project = projects.find((p) => p.id === c.project_id)
+    /* A per-session client has no quota — sessions stays 0 by design — so
+       until the coach records how many meetings are booked ahead there is no
+       denominator to print, and pairing the held count with a 0 read as "0 of
+       0 done". Same rule the web card and the client file follow. */
     const sessLabel = bal.hasPersonal
-      ? `${bal.personalDone}/${bal.personalQuota || 0}`
+      ? (bal.perSession && !bal.personalQuota
+        ? `${bal.personalDone}`
+        : `${bal.personalDone}/${bal.personalQuota || 0}`)
       : `${bal.groupSessions.reduce((s, g) => s + g.held, 0)}/${bal.groupSessions.reduce((s, g) => s + (g.quota || 0), 0) || 0}`
     const selected = selectedIds.has(c.id)
     return (

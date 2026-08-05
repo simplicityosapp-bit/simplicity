@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { X, Pencil, Trash2, Check, CalendarPlus, Banknote, ChevronDown, RotateCcw, Phone, Mail, PackagePlus } from 'lucide-react'
+import { X, Pencil, Trash2, Check, Banknote, ChevronDown, RotateCcw, Phone, Mail, PackagePlus } from 'lucide-react'
 import { clientBalance, effectiveClientMeta, isGroupDriven, isStatusOverridden, planInstallments, planBalance, isr } from '@simplicity/core'
 import { usePaymentPlans } from '../../hooks/usePaymentPlans'
 import MG from '../../components/MG'
@@ -10,7 +10,6 @@ import { useWhatsAppMessage } from '../../hooks/useWhatsAppMessage'
 import AddSessionModal from '../../modals/AddSessionModal'
 import AddTaskModal from '../../modals/AddTaskModal'
 import AddReminderModal from '../../modals/AddReminderModal'
-import ScheduleMeetingModal from '../../modals/ScheduleMeetingModal'
 import AddTransactionModal from '../../modals/AddTransactionModal'
 import AddSessionsModal from '../../modals/AddSessionsModal'
 import EditClientModal from '../../modals/EditClientModal'
@@ -32,7 +31,7 @@ const STATUS_KEY = {
 const initials = (name) =>
   (name || '').split(' ').map((w) => w[0] || '').join('').slice(0, 2).toUpperCase()
 
-export default function ClientDrawer({ client, onClose, onDelete, projects = [], txns, tasks, reminders, sessions = [], members = [], groups = [], statuses = [], categories = [], clients = [], onLogSession, onScheduleMeeting, onAddPayment, onUpdateClient, onUpdateMember, onEditTransaction, onRemoveTransaction, onEditSession, onEditTask, onEditReminder, onIssued }) {
+export default function ClientDrawer({ client, onClose, onDelete, projects = [], txns, tasks, reminders, sessions = [], members = [], groups = [], statuses = [], categories = [], clients = [], onLogSession, onAddPayment, onUpdateClient, onUpdateMember, onEditTransaction, onRemoveTransaction, onEditSession, onEditTask, onEditReminder, onIssued }) {
   const { t } = useT('clients')
   const waMsg = useWhatsAppMessage()
   const open = !!client
@@ -336,9 +335,6 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
                 <Btn type="button" className="cd-action" onClick={() => setActionModal('session')}>
                   <Check size={15} strokeWidth={1.8} aria-hidden="true" /> {t('drawer.logSession')}
                 </Btn>
-                <Btn type="button" className="cd-action" onClick={() => setActionModal('meeting')}>
-                  <CalendarPlus size={15} strokeWidth={1.8} aria-hidden="true" /> {t('drawer.scheduleMeeting')}
-                </Btn>
                 <Btn type="button" className="cd-action" onClick={() => { setPaymentAmount(null); setActionModal('payment') }}>
                   <Banknote size={15} strokeWidth={1.8} aria-hidden="true" /> {t('drawer.receivedPayment')}
                 </Btn>
@@ -404,13 +400,12 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
         }}
       />
 
-      <ScheduleMeetingModal
-        open={actionModal === 'meeting'}
-        onClose={() => setActionModal(null)}
-        client={client}
-        onSave={onScheduleMeeting}
-        onSetRecurringSlot={onUpdateClient}
-      />
+      {/* "קביעת פגישה" is gone from here. Booking happens in the calendar,
+          every time — this was a second door onto the same act, on a row that
+          already said "פגישה" three ways. The weekly slot it could also set is
+          still set in two places that are about the client rather than about a
+          booking: this file's own "פגישה שבועית קבועה" editor, and the edit
+          modal's scheduling section. */}
       <AddTransactionModal
         key={`pay-${client?.id}-${paymentAmount ?? 'x'}`}
         open={actionModal === 'payment'}

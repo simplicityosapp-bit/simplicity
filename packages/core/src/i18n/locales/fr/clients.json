@@ -104,7 +104,6 @@
     "groupSessions": "Séances · {{name}}",
     "groupEnded": " (terminé)",
     "logSession": "Enregistrer une séance",
-    "scheduleMeeting": "Planifier un rendez-vous",
     "receivedPayment": "Paiement reçu",
     "requestPayment": "Demander un paiement sur WhatsApp",
     "statusChanged": "Statut modifié",

@@ -5,6 +5,7 @@ import { useTasks } from '../../hooks/useTasks'
 import { useReminders } from '../../hooks/useReminders'
 import { useProjects } from '../../hooks/useProjects'
 import { useClients } from '../../hooks/useClients'
+import { useGroups } from '../../hooks/useGroups'
 import { useTaskStatuses } from '../../hooks/useTaskStatuses'
 import { useTaskCategories } from '../../hooks/useTaskCategories'
 import { useT } from '../../i18n/useT'
@@ -169,6 +170,10 @@ export default function TasksScreen() {
   const { reminders, loading: remindersLoading, error: remindersError, addReminder, completeReminder, editReminder, removeReminder, clearCompleted: clearCompletedReminders } = useReminders()
   const { projects } = useProjects()
   const { clients } = useClients()
+  /* Only for naming a group-linked reminder. Nothing in the app writes that
+     link today — project detail reads and bulk-deletes by it — so this is
+     here to keep the resolver honest rather than to serve live rows. */
+  const { groups } = useGroups()
   const { statuses: taskStatuses, addStatus, removeStatus } = useTaskStatuses()
   const { categories: taskCategories, addCategory, removeCategory } = useTaskCategories()
   /* Top toggle drives entity choice. The rest of the screen reads
@@ -226,14 +231,28 @@ export default function TasksScreen() {
      an undefined every time, so a reminder created from a client's card —
      linked, correctly, in the database — printed with no sign of whose it
      was, on the one screen where all reminders sit together. Search had the
-     same hole: "everything for רעות" could never match a reminder. */
-  const remClientNameOf = (r) => (r?.linked_to_type === 'client' ? clientNameOf(r.linked_to_id) : undefined)
+     same hole: "everything for רעות" could never match a reminder.
+     Every kind of link resolves, not just the client one: a reminder set on a
+     project or an investment was equally anonymous here. */
+  const groupNameOf = (id) => groups.find((g) => g.id === id)?.name
+  const remSubjectOf = (r) => {
+    switch (r?.linked_to_type) {
+      case 'client': return clientNameOf(r.linked_to_id)
+      case 'project': return projOf(r.linked_to_id)?.name
+      case 'group': return groupNameOf(r.linked_to_id)
+      /* The investment link is a singleton: InvestmentRow stores it with a
+         null id because there is only ever the one investment view, so there
+         is nothing to look up and the label is the label. */
+      case 'investment': return t('item.linkedInvestment')
+      default: return undefined
+    }
+  }
   const hit = (...parts) => !q || parts.some((p) => (p || '').toLowerCase().includes(q))
   /* The details text is searchable for the same reason the reminder's is: it
      never appears on the card, so search is the only way back to what you
      wrote there. */
   const taskHit = (task) => hit(task.title, task.description, clientNameOf(task.client_id), projOf(task.project_id)?.name)
-  const remHit = (r) => hit(r.title, r.description, remClientNameOf(r))
+  const remHit = (r) => hit(r.title, r.description, remSubjectOf(r))
 
   /* Multi-select. Entered from the "תצוגה" menu, exactly where the clients
      screen keeps its own. Selection is keyed by row id across BOTH kinds — the
@@ -957,7 +976,7 @@ export default function TasksScreen() {
                   <ReminderItem
                     key={it.key}
                     reminder={it.reminder}
-                    clientName={remClientNameOf(it.reminder)}
+                    subjectName={remSubjectOf(it.reminder)}
                     category={it.reminder.category_id ? categoryById.get(it.reminder.category_id) : null}
                     dotColor={g.color}
                     onComplete={completeReminder}
@@ -1055,7 +1074,7 @@ export default function TasksScreen() {
                     <ReminderItem
                       key={r.id}
                       reminder={r}
-                      clientName={remClientNameOf(r)}
+                      subjectName={remSubjectOf(r)}
                       category={r.category_id ? categoryById.get(r.category_id) : null}
                       dotColor={g.color}
                       onComplete={completeReminder}
@@ -1085,7 +1104,7 @@ export default function TasksScreen() {
                 <ReminderItem
                   key={r.id}
                   reminder={r}
-                  clientName={remClientNameOf(r)}
+                  subjectName={remSubjectOf(r)}
                   category={r.category_id ? categoryById.get(r.category_id) : null}
                   dotColor="var(--stone)"
                   onComplete={completeReminder}
@@ -1116,7 +1135,7 @@ export default function TasksScreen() {
                     <ReminderItem
                       key={r.id}
                       reminder={r}
-                      clientName={remClientNameOf(r)}
+                      subjectName={remSubjectOf(r)}
                       category={r.category_id ? categoryById.get(r.category_id) : null}
                       dotColor={b.color}
                       onComplete={completeReminder}

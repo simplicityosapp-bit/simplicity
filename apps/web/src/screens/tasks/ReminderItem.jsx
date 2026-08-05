@@ -31,10 +31,14 @@ function repeatLabel(reminder, t) {
    The meta line shows the scheduled date/time and (optional) linked
    client. Dot color signals urgency: clay if overdue, amber if today,
    sage otherwise. */
-function ReminderItem({ reminder, clientName, dotColor, onComplete, onEdit, onRename, onPostpone, count = 1, index, category, selectMode = false, selected = false, onSelect }) {
+/* `subjectName` — whatever the reminder is linked to, not just a client: a
+   project, a group and the investment view can all own one. Named for the
+   link rather than for one of its kinds, because it was called clientName
+   while the screen fed it a field reminders do not have. */
+function ReminderItem({ reminder, subjectName, dotColor, onComplete, onEdit, onRename, onPostpone, count = 1, index, category, selectMode = false, selected = false, onSelect }) {
   const { t } = useT('tasks')
   const isDone = reminder.status === 'completed'
-  const meta = [clientName, formatWhen(reminder.scheduled_at)].filter(Boolean).join(' · ')
+  const meta = [subjectName, formatWhen(reminder.scheduled_at)].filter(Boolean).join(' · ')
   const repeat = repeatLabel(reminder, t)
 
   return (

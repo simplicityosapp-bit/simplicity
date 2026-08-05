@@ -219,12 +219,21 @@ export default function TasksScreen() {
      project are already printed on the card the user is looking for. */
   const projOf = (id) => projects.find((p) => p.id === id)
   const clientNameOf = (id) => clients.find((c) => c.id === id)?.name
+  /* A reminder does NOT have a client_id — the reminders table has no such
+     column. It carries linked_to_type / linked_to_id, which is what every
+     other reader of a reminder uses (the client file's own panel, the
+     calendar, project detail). Reading r.client_id here handed clientNameOf
+     an undefined every time, so a reminder created from a client's card —
+     linked, correctly, in the database — printed with no sign of whose it
+     was, on the one screen where all reminders sit together. Search had the
+     same hole: "everything for רעות" could never match a reminder. */
+  const remClientNameOf = (r) => (r?.linked_to_type === 'client' ? clientNameOf(r.linked_to_id) : undefined)
   const hit = (...parts) => !q || parts.some((p) => (p || '').toLowerCase().includes(q))
   /* The details text is searchable for the same reason the reminder's is: it
      never appears on the card, so search is the only way back to what you
      wrote there. */
   const taskHit = (task) => hit(task.title, task.description, clientNameOf(task.client_id), projOf(task.project_id)?.name)
-  const remHit = (r) => hit(r.title, r.description, clientNameOf(r.client_id))
+  const remHit = (r) => hit(r.title, r.description, remClientNameOf(r))
 
   /* Multi-select. Entered from the "תצוגה" menu, exactly where the clients
      screen keeps its own. Selection is keyed by row id across BOTH kinds — the
@@ -948,7 +957,7 @@ export default function TasksScreen() {
                   <ReminderItem
                     key={it.key}
                     reminder={it.reminder}
-                    clientName={clientNameOf(it.reminder.client_id)}
+                    clientName={remClientNameOf(it.reminder)}
                     category={it.reminder.category_id ? categoryById.get(it.reminder.category_id) : null}
                     dotColor={g.color}
                     onComplete={completeReminder}
@@ -1046,7 +1055,7 @@ export default function TasksScreen() {
                     <ReminderItem
                       key={r.id}
                       reminder={r}
-                      clientName={clientNameOf(r.client_id)}
+                      clientName={remClientNameOf(r)}
                       category={r.category_id ? categoryById.get(r.category_id) : null}
                       dotColor={g.color}
                       onComplete={completeReminder}
@@ -1076,7 +1085,7 @@ export default function TasksScreen() {
                 <ReminderItem
                   key={r.id}
                   reminder={r}
-                  clientName={clientNameOf(r.client_id)}
+                  clientName={remClientNameOf(r)}
                   category={r.category_id ? categoryById.get(r.category_id) : null}
                   dotColor="var(--stone)"
                   onComplete={completeReminder}
@@ -1107,7 +1116,7 @@ export default function TasksScreen() {
                     <ReminderItem
                       key={r.id}
                       reminder={r}
-                      clientName={clientNameOf(r.client_id)}
+                      clientName={remClientNameOf(r)}
                       category={r.category_id ? categoryById.get(r.category_id) : null}
                       dotColor={b.color}
                       onComplete={completeReminder}

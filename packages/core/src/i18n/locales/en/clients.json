@@ -256,10 +256,9 @@
     },
     "onlyNameRequired": "Only the name is required",
     "moreToggle": "Billing, meetings and more",
-    "grpBilling": "Billing",
-    "grpLinks": "Links",
-    "grpContact": "Contact",
-    "grpRecurring": "Recurring meeting"
+    "grpDetails": "Details",
+    "grpScheduling": "Sessions & scheduling",
+    "grpBilling": "Billing & payments"
   },
   "dataWarning": "Some data didn't load — balances may be incomplete.",
   "statuses": {

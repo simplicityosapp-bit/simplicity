@@ -256,10 +256,9 @@
     },
     "onlyNameRequired": "Solo el nombre es obligatorio",
     "moreToggle": "Facturación, citas y más",
-    "grpBilling": "Facturación",
-    "grpLinks": "Asignación",
-    "grpContact": "Contacto",
-    "grpRecurring": "Cita recurrente"
+    "grpDetails": "Detalles",
+    "grpScheduling": "Sesiones y horario",
+    "grpBilling": "Cobros y pagos"
   },
   "dataWarning": "Algunos datos no se cargaron — los saldos pueden estar incompletos.",
   "statuses": {

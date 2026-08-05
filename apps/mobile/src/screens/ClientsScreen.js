@@ -60,7 +60,7 @@ const bucketMeta = (m) => (m === 'active' || m === 'wandering' || m === 'past' ?
 export default function ClientsScreen() {
   const {
     clients, transactions, sessions, members, groups, tasks, reminders, loading, error, refetch,
-    addClient, addTransaction, addSession, addMeeting, updateClient, deleteClient,
+    addClient, addTransaction, addSession, updateClient, deleteClient,
     updateSession, updateTask, deleteTask, updateTransaction, deleteTransaction,
     updateReminder, deleteReminder, updateMember,
   } = useClientsList()
@@ -455,7 +455,6 @@ export default function ClientsScreen() {
         deleteClient={deleteClient}
         addTransaction={addTransaction}
         addSession={addSession}
-        addMeeting={addMeeting}
         updateSession={updateSession}
         updateTask={updateTask}
         deleteTask={deleteTask}

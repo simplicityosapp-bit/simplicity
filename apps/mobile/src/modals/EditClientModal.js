@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, Children, cloneElement } from 'react'
-import { View, Text, TextInput, Pressable, StyleSheet } from 'react-native'
+import { View, Text, TextInput, Pressable, StyleSheet, Alert } from 'react-native'
 import { User, MapPin, CalendarDays, Wallet, Users, ChevronDown } from 'lucide-react-native'
 import { isr } from '@simplicity/core'
 import Sheet from '../components/Sheet'
@@ -42,6 +42,7 @@ const blank = (client, snap) => ({
   notes: client?.notes || '',
   recurring_day: client?.recurring_day != null ? String(client.recurring_day) : '',
   recurring_time: client?.recurring_time || '',
+  recurring_end_time: client?.recurring_end_time || '',
   meeting_type_id: client?.meeting_type_id || '',
   price_overridden: client?.price_overridden ?? false,
 })
@@ -65,6 +66,8 @@ export default function EditClientModal({ open, onClose, onSave, client, rawPaid
   const snap = { rawPaid, memberTotal, personalHeld }
   const [form, setForm] = useState(() => blank(client, snap))
   const [openSecs, setOpenSecs] = useState(() => new Set(['details']))
+  /* Raw text held while «יתרה» is being typed into — see setBalance. */
+  const [balanceDraft, setBalanceDraft] = useState(null)
   // Per-group billing override (group_members.total_override), keyed by
   // membership id — lets the user set a member's total after the group's
   // billing mode produced a default (mirrors web EditClientModal).
@@ -76,6 +79,29 @@ export default function EditClientModal({ open, onClose, onSave, client, rawPaid
 
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }))
   const toggleSec = (k) => setOpenSecs((s) => { const n = new Set(s); if (n.has(k)) n.delete(k); else n.add(k); return n })
+
+  /* Backing out of the longest form in the app used to take ~20 filled fields
+     with it, money included, without a word. The seed is re-read rather than
+     snapshotted in state: `blank` is pure and the effect above already
+     re-seeds from it on every open, so the two can never drift. Values are
+     all primitives, so a shallow compare is enough. Saving calls onClose
+     directly and bypasses this; an untouched form still closes at once. */
+  const isDirty = () => {
+    const seed = blank(client, snap)
+    if (Object.keys(seed).some((k) => form[k] !== seed[k])) return true
+    return Object.keys(memberOverrides).some((k) => memberOverrides[k] !== (memberDefaults()[k] ?? ''))
+  }
+  const requestClose = () => {
+    if (busy || !isDirty()) { onClose(); return }
+    Alert.alert(
+      i18n.t('modalsSystem:discard.title'),
+      i18n.t('modalsSystem:discard.message'),
+      [
+        { text: i18n.t('modalsSystem:discard.cancel'), style: 'cancel' },
+        { text: i18n.t('modalsSystem:discard.confirm'), style: 'destructive', onPress: onClose },
+      ],
+    )
+  }
   const pickMeetingType = (id) => {
     const type = meetingTypes.find((mt) => mt.id === id)
     setForm((f) => ({ ...f, meeting_type_id: id, price_overridden: false, price_per_session: type && type.default_price != null ? String(type.default_price) : f.price_per_session }))
@@ -91,7 +117,18 @@ export default function EditClientModal({ open, onClose, onSave, client, rawPaid
   const livePaid = Number(form.paid) || 0
   const liveAdj = Number(form.adjustment) || 0
   const liveBalance = liveTotal - livePaid - liveAdj
-  const setBalance = (v) => set('adjustment', String(liveTotal - livePaid - (Number(v) || 0)))
+  /* «יתרה» is the one DERIVED money field — it renders liveBalance, which is
+     recomputed from `adjustment` on every keystroke. That round-trip destroys
+     the states a number must pass through on the way in: "-" (an overpaid
+     client) and the "." of "150.5" are not numbers yet, so Number()||0 turned
+     them into 0 and the field redrew as "0" over what was being typed.
+     Hold the raw text while editing and commit only once it parses; blur
+     drops the draft so the field re-syncs to the derived value. Same fix as
+     web. */
+  const setBalance = (v) => {
+    setBalanceDraft(v)
+    if (v !== '' && Number.isFinite(Number(v))) set('adjustment', String(liveTotal - livePaid - Number(v)))
+  }
 
   const statusLabel = T((STATUSES.find((s) => s.k === form.status) || STATUSES[0]).l)
   const schedSummary = form.recurring_day !== ''
@@ -125,6 +162,10 @@ export default function EditClientModal({ open, onClose, onSave, client, rawPaid
         notes: form.notes.trim() || null,
         recurring_day: form.recurring_day !== '' ? Number(form.recurring_day) : null,
         recurring_time: form.recurring_day !== '' ? (form.recurring_time || null) : null,
+        /* A fixed meeting needs a day; with no day the times are inert, so
+           they clear with it and a stray time can never persist a half-set
+           slot. */
+        recurring_end_time: form.recurring_day !== '' ? (form.recurring_end_time || null) : null,
         meeting_type_id: form.meeting_type_id || null,
         price_overridden: !!form.price_overridden,
       }
@@ -158,13 +199,22 @@ export default function EditClientModal({ open, onClose, onSave, client, rawPaid
     }
   }
 
-  if (!client) return <Sheet open={open} onClose={onClose} title={T('title')} />
+  /* Render nothing without a client rather than an empty titled sheet. */
+  if (!client) return null
 
   return (
-    <Sheet open={open} onClose={onClose} title={T('title')}>
+    /* The name in the title: with the client file dimmed behind the sheet and
+       a body that is mostly numbers, "עריכת לקוח" alone left nothing on screen
+       saying whose money is being edited. */
+    <Sheet open={open} onClose={requestClose} title={client.name ? T('titleNamed', { name: client.name }) : T('title')}>
       <Section Icon={User} title={T('secDetails')} summary={statusLabel} open={openSecs.has('details')} onToggle={() => toggleSec('details')}>
         <Field label={C('name')}>
           <TextInput style={[styles.input, err && !form.name.trim() && styles.inputErr]} value={form.name} onChangeText={(v) => { set('name', v); if (err) setErr('') }} placeholderTextColor={colors.textFaint} />
+          {/* The missing-name error belongs at its field, not in the footer
+              four sections below it. An empty name is the only error that can
+              reach that point — submit blocks on it — so anything else in
+              `err` is a save failure and stays at the bottom. */}
+          {err && !form.name.trim() ? <Text style={styles.error}>{err}</Text> : null}
         </Field>
         <Field label={T('status')}>
           <Pills options={STATUSES.map((s) => ({ k: s.k, label: T(s.l) }))} value={form.status} onPick={(k) => setForm((f) => ({ ...f, status: k, status_id: '' }))} />
@@ -209,8 +259,16 @@ export default function EditClientModal({ open, onClose, onSave, client, rawPaid
             <TextInput style={styles.input} value={form.recurring_time} onChangeText={(v) => set('recurring_time', v)} placeholder="HH:MM" placeholderTextColor={colors.textFaint} />
           </Field>
         </View>
-        {form.recurring_day !== '' || form.recurring_time !== '' ? (
-          <Pressable onPress={() => { set('recurring_day', ''); set('recurring_time', '') }}><Text style={styles.clearLink}>{T('clearFixed')}</Text></Pressable>
+        {/* End time — the client's own slot length. It was in neither app's
+            form, so a 1-on-1 slot could only ever be the calendar's 60-minute
+            fallback (the day view reads duration_minutes, then the subject's
+            recurring_end_time, then gives up). Groups have had it throughout. */}
+        <Field label={T('fixedEndTime')}>
+          <TextInput style={styles.input} value={form.recurring_end_time} onChangeText={(v) => set('recurring_end_time', v)} placeholder="HH:MM" placeholderTextColor={colors.textFaint} />
+          <Text style={styles.hint}>{T('fixedEndTimeHint')}</Text>
+        </Field>
+        {form.recurring_day !== '' || form.recurring_time !== '' || form.recurring_end_time !== '' ? (
+          <Pressable onPress={() => { set('recurring_day', ''); set('recurring_time', ''); set('recurring_end_time', '') }}><Text style={styles.clearLink}>{T('clearFixed')}</Text></Pressable>
         ) : null}
       </Section>
 
@@ -218,16 +276,20 @@ export default function EditClientModal({ open, onClose, onSave, client, rawPaid
         <Field label={T('billingMode')}>
           <Pills options={[{ k: 'package', label: T('billingPackage') }, { k: 'per_session', label: T('billingPerSession') }]} value={form.billing_mode} onPick={(k) => set('billing_mode', k)} />
         </Field>
+        {/* "נקבעו" shows in BOTH modes, as on web. It was hidden for
+            per-session because it is not what bills them — but hiding it also
+            removed the only way to say how many meetings are booked ahead, so
+            the card reported 0 forever and the one route to a real number was
+            to switch the client to package billing. */}
         <View style={styles.row2}>
-          {!isPerSession ? (
-            <Field label={T('scheduled')} flex>
-              <TextInput style={styles.input} value={form.sessions} onChangeText={(v) => set('sessions', v)} keyboardType="numeric" placeholderTextColor={colors.textFaint} />
-            </Field>
-          ) : null}
+          <Field label={T('scheduled')} flex>
+            <TextInput style={styles.input} value={form.sessions} onChangeText={(v) => set('sessions', v)} keyboardType="numeric" placeholderTextColor={colors.textFaint} />
+          </Field>
           <Field label={T('done')} flex>
             <TextInput style={styles.input} value={form.done} onChangeText={(v) => set('done', v)} keyboardType="numeric" placeholderTextColor={colors.textFaint} />
           </Field>
         </View>
+        {isPerSession ? <Text style={styles.hint}>{T('scheduledPerSessionHint')}</Text> : null}
         <Field label={T('pricePerSession')}>
           <TextInput style={styles.input} value={form.price_per_session} onChangeText={setPrice} keyboardType="numeric" placeholderTextColor={colors.textFaint} />
         </Field>
@@ -241,7 +303,7 @@ export default function EditClientModal({ open, onClose, onSave, client, rawPaid
               <TextInput style={styles.input} value={form.paid} onChangeText={(v) => set('paid', v)} keyboardType="numeric" placeholderTextColor={colors.textFaint} />
             </Field>
             <Field label={T('balance')} flex>
-              <TextInput style={styles.input} value={String(liveBalance)} onChangeText={setBalance} keyboardType="numeric" placeholderTextColor={colors.textFaint} />
+              <TextInput style={styles.input} value={balanceDraft ?? String(liveBalance)} onChangeText={setBalance} onBlur={() => setBalanceDraft(null)} keyboardType="numeric" placeholderTextColor={colors.textFaint} />
             </Field>
           </View>
           <Text style={styles.hint}>{T('billingHint', { total: isr(liveTotal) })}</Text>
@@ -285,10 +347,11 @@ export default function EditClientModal({ open, onClose, onSave, client, rawPaid
         </Section>
       ) : null}
 
-      {err ? <Text style={styles.error}>{err}</Text> : null}
+      {/* Save failures only — the name error is rendered at its own field. */}
+      {err && !!form.name.trim() ? <Text style={styles.error}>{err}</Text> : null}
 
       <View style={styles.actions}>
-        <Pressable style={styles.cancel} onPress={onClose}><Text style={styles.cancelText}>{C('cancel')}</Text></Pressable>
+        <Pressable style={styles.cancel} onPress={requestClose}><Text style={styles.cancelText}>{C('cancel')}</Text></Pressable>
         <Pressable style={[styles.save, busy && styles.saveOff]} onPress={submit} disabled={busy}>
           <Text style={styles.saveText}>{busy ? C('saving') : C('save')}</Text>
         </Pressable>

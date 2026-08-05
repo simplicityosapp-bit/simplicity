@@ -1,13 +1,12 @@
 import { useState } from 'react'
-import { User, CalendarDays, Wallet, Users, ChevronDown, MapPin } from 'lucide-react'
+import { User, CalendarDays, Wallet, Users, ChevronDown } from 'lucide-react'
 import Modal from './Modal'
 import MeetingTypesModal from './MeetingTypesModal'
 import ConfirmModal from './ConfirmModal'
 import { isr } from '@simplicity/core'
 import { useMeetingTypes } from '../hooks/useMeetingTypes'
 import { useT } from '../i18n/useT'
-import { Box, Txt, Btn, Input, Textarea } from '../components/ui'
-import DateField from '../components/DateField'
+import { Box, Txt, Btn, Input } from '../components/ui'
 
 const STATUSES = [
   { k: 'active', l: 'statusActive' },
@@ -35,11 +34,19 @@ function Section({ icon, title, summary, open, onToggle, children }) {
   )
 }
 
-/* Edit a client — name / status / sub-status / sessions / price / phone /
-   project. Parent passes key={client?.id} so this remounts cleanly per client.
-   The fields are grouped into four foldable sections (details / scheduling /
-   billing / groups) so the form reads top-down instead of as one long scroll.
-   None of the billing math or save logic changes with the regroup. */
+/* Edit a client — name / status / sub-status / phone / project / email, the
+   fixed-meeting slot, billing, and groups. Parent passes key={client?.id} so
+   this remounts cleanly per client. The fields are grouped into foldable
+   sections so the form reads top-down instead of as one long scroll.
+
+   Notes, address and birth date are deliberately NOT here. The client file
+   edits all three in place through its own section pencils (see the inline
+   editors in ClientDrawerSections), which makes that the one place they are
+   owned. Carrying a second copy here meant the same field had two editors
+   with two different save gestures, and left the modal able to write over a
+   value the file had just set. What is left in this modal is what the file
+   has no in-place editor for: identity, the slot, the billing numbers, and
+   the per-group price table. */
 export default function EditClientModal({ open, onClose, onSave, client, projects = [], groups = [], statuses = [], memberships = [], onUpdateMember, onPaidEntry, onBalanceEntry, rawPaid = 0, memberTotal = 0, personalHeld = 0, groupSessions = [] }) {
   const { t } = useT('modalsClient')
   const { t: ts } = useT('modalsSystem') // shared modal chrome (discard prompt)
@@ -69,11 +76,8 @@ export default function EditClientModal({ open, onClose, onSave, client, project
     adjustment: String(Number(client?.balance_adjustment) || 0),
     phone: client?.phone || '',
     email: client?.email || '',
-    address: client?.address || '',
-    birth_date: client?.birth_date || '',
     project_id: client?.project_id || '',
     group_id: client?.group_id || '',
-    notes: client?.notes || '',
     recurring_day: client?.recurring_day != null ? String(client.recurring_day) : '',
     recurring_time: client?.recurring_time || '',
     recurring_end_time: client?.recurring_end_time || '',
@@ -227,11 +231,8 @@ export default function EditClientModal({ open, onClose, onSave, client, project
         has_custom_price: form.total_due !== '',
         phone: form.phone.trim() || null,
         email: form.email?.trim() || null,
-        address: form.address?.trim() || null,
-        birth_date: form.birth_date || null,
         project_id: form.project_id || null,
         group_id: form.group_id || null,
-        notes: form.notes.trim() || null,
         recurring_day: form.recurring_day !== '' ? Number(form.recurring_day) : null,
         /* A fixed meeting needs a day; with no day the times are inert — drop
            them so a stray time can never persist a half-set meeting. */
@@ -253,13 +254,10 @@ export default function EditClientModal({ open, onClose, onSave, client, project
       const nextDoneAdj = (Number(form.done) || 0) - personalHeld
       const prevDoneAdj = Number(client?.sessions_done_adjustment) || 0
       if (nextDoneAdj !== prevDoneAdj) patch.sessions_done_adjustment = nextDoneAdj
-      /* The client file shows "עודכן {date}" under the notes, but the stamp was
-         only ever written on CREATE — so an edited note kept a stale date, or
-         showed none at all. Stamp it only when the text actually changed, so a
-         plain save never bumps it. */
-      if ((form.notes.trim() || null) !== (client.notes ?? null)) {
-        patch.notes_updated_at = new Date().toISOString()
-      }
+      /* No notes / address / birth-date here any more, and so no
+         notes_updated_at stamp either — the client file edits all three in
+         place, and its notes editor keeps that stamp. See the note above the
+         component. */
       /* Billing edits are handled INDEPENDENTLY — "שולם" and "יתרה" can both
          change in one save and neither is discarded:
          - "יתרה" → balance_adjustment (a forgiveness that only affects the
@@ -386,27 +384,6 @@ export default function EditClientModal({ open, onClose, onSave, client, project
         <Box className="m-field">
           <Box as="label" className="m-label">{t('common.email')}</Box>
           <Input type="email" className="m-input" value={form.email || ''} onChange={(e) => set('email', e.target.value)} placeholder={t('common.emailPlaceholder')} dir="ltr" aria-label={t('common.email')} />
-        </Box>
-        <Box className="m-field">
-          <Box as="label" className="m-label">{t('common.notesOptional')}</Box>
-          <Textarea className="m-textarea" rows={2} value={form.notes} onChange={(e) => set('notes', e.target.value)} aria-label={t('common.notesOptional')} />
-        </Box>
-      </Section>
-
-      <Section
-        icon={<MapPin size={17} strokeWidth={1.7} />}
-        title={t('editClient.secMoreDetails')}
-        summary={form.address || ''}
-        open={openSecs.has('more')}
-        onToggle={() => toggleSec('more')}
-      >
-        <Box className="m-field">
-          <Box as="label" className="m-label">{t('common.address')}</Box>
-          <Input className="m-input" value={form.address || ''} onChange={(e) => set('address', e.target.value)} placeholder={t('common.addressPlaceholder')} aria-label={t('common.address')} />
-        </Box>
-        <Box className="m-field">
-          <Box as="label" className="m-label">{t('common.birthDate')}</Box>
-          <DateField className="m-input" value={form.birth_date || ''} onChange={(e) => set('birth_date', e.target.value)} aria-label={t('common.birthDate')} />
         </Box>
       </Section>
 

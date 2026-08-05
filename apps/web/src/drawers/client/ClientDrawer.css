@@ -274,11 +274,23 @@
 .cd-stat-l {
   margin: 0 0 4px;
   font-family: var(--mg-font);
-  font-size: calc(9px * var(--text-scale));
+  /* Was 9px — the smallest type in the app, on the three numbers the card
+     exists to report. 11px sits under .m-label (12px) so the hierarchy is
+     unchanged, and the labels are short enough that nothing rewraps.
+     EditClientModal's .ec-bill-label mirrors this strip pixel for pixel and
+     was moved with it. */
+  font-size: calc(11px * var(--text-scale));
   font-weight: 500;
   color: var(--stone);
   letter-spacing: 0.04em;
   text-transform: uppercase;
+}
+/* Hebrew has no letter case, so the uppercase is inert here and the tracking
+   only loosens an already-small label. Latin (en/es/fr) keeps the micro-caps
+   look the design uses for stat labels. */
+html[dir="rtl"] .cd-stat-l {
+  letter-spacing: normal;
+  text-transform: none;
 }
 .cd-stat-v {
   margin: 0;

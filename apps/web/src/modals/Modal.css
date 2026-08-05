@@ -987,11 +987,18 @@
 .ec-bill-label {
   margin: 0 0 4px;
   font-family: var(--mg-font);
-  font-size: calc(9px * var(--text-scale));
+  /* Kept in lockstep with .cd-stat-l in ClientDrawer.css — this strip mirrors
+     the card hero pixel for pixel, so the two sizes move together or the
+     mirror stops being one. See the note there. */
+  font-size: calc(11px * var(--text-scale));
   font-weight: 500;
   color: var(--stone);
   letter-spacing: 0.04em;
   text-transform: uppercase;
+}
+html[dir="rtl"] .ec-bill-label {
+  letter-spacing: normal;
+  text-transform: none;
 }
 .ec-bill-val {
   margin: 0;

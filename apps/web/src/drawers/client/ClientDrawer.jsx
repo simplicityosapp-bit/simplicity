@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { X, Pencil, Trash2, Check, CalendarPlus, Banknote, ChevronDown, RotateCcw, Phone, Mail } from 'lucide-react'
+import { X, Pencil, Trash2, Check, CalendarPlus, Banknote, ChevronDown, RotateCcw, Phone, Mail, PackagePlus } from 'lucide-react'
 import { clientBalance, effectiveClientMeta, isGroupDriven, isStatusOverridden, planInstallments, planBalance, isr } from '@simplicity/core'
 import { usePaymentPlans } from '../../hooks/usePaymentPlans'
 import MG from '../../components/MG'
@@ -12,6 +12,7 @@ import AddTaskModal from '../../modals/AddTaskModal'
 import AddReminderModal from '../../modals/AddReminderModal'
 import ScheduleMeetingModal from '../../modals/ScheduleMeetingModal'
 import AddTransactionModal from '../../modals/AddTransactionModal'
+import AddSessionsModal from '../../modals/AddSessionsModal'
 import EditClientModal from '../../modals/EditClientModal'
 import EditTransactionModal from '../../modals/EditTransactionModal'
 import AdjustmentModal from '../../modals/AdjustmentModal'
@@ -341,6 +342,13 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
                 <Btn type="button" className="cd-action" onClick={() => { setPaymentAmount(null); setActionModal('payment') }}>
                   <Banknote size={15} strokeWidth={1.8} aria-hidden="true" /> {t('drawer.receivedPayment')}
                 </Btn>
+                {/* Selling another block of meetings was the one routine action
+                    with no quick route: edit → open billing → change "נקבעו" →
+                    save. It belongs next to the other things you do to a client
+                    you already have open. */}
+                <Btn type="button" className="cd-action" onClick={() => setActionModal('addSessions')}>
+                  <PackagePlus size={15} strokeWidth={1.8} aria-hidden="true" /> {t('addSessions.title')}
+                </Btn>
                 <WhatsAppButton
                   phone={client.phone}
                   message={waMsg('client', { name: client.name })}
@@ -377,6 +385,25 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
           num: nextNum,
         })}
       />
+      {/* Raising the quota moves real money, so it gets the same one-step undo
+          the status change has — keyed on the client's current count so a
+          reopened sheet always starts from what is on screen. */}
+      <AddSessionsModal
+        key={`add-sess-${client?.id}-${client?.sessions ?? 0}-${actionModal === 'addSessions'}`}
+        open={actionModal === 'addSessions'}
+        onClose={() => setActionModal(null)}
+        client={client}
+        onSave={async (next) => {
+          const prev = Number(client.sessions) || 0
+          await onUpdateClient?.(client.id, { sessions: next })
+          pushUndo({
+            label: t('addSessions.undo', { n: next - prev }),
+            undo: async () => { await onUpdateClient?.(client.id, { sessions: prev }) },
+            redo: async () => { await onUpdateClient?.(client.id, { sessions: next }) },
+          })
+        }}
+      />
+
       <ScheduleMeetingModal
         open={actionModal === 'meeting'}
         onClose={() => setActionModal(null)}

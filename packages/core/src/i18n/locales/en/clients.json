@@ -277,5 +277,17 @@
     "cancelRename": "Cancel",
     "close": "Close",
     "hintRename": "Tap a name to edit it."
+  },
+  "addSessions": {
+    "title": "Add meetings",
+    "howMany": "How many meetings to add?",
+    "countRequired": "Please enter a number of meetings.",
+    "previewCount": "Scheduled meetings: {{from}} → {{to}}",
+    "previewMoney": "{{n}} × {{price}} = {{amount}} will be added to the balance.",
+    "previewPerSession": "This client is billed per meeting held, so the balance will not change now.",
+    "previewOverridden": "This client has a manually set «Total due», so the balance will not change.",
+    "paymentSeparate": "This raises what the client owes. If it is already paid — «Received payment».",
+    "saveFailed": "Could not add. Please try again.",
+    "undo": "{{n}} meetings added"
   }
 }

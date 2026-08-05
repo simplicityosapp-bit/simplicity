@@ -277,5 +277,17 @@
     "cancelRename": "Annuler",
     "close": "Fermer",
     "hintRename": "Touchez un nom pour le modifier."
+  },
+  "addSessions": {
+    "title": "Ajouter des séances",
+    "howMany": "Combien de séances ajouter ?",
+    "countRequired": "Veuillez saisir un nombre de séances.",
+    "previewCount": "Séances planifiées : {{from}} → {{to}}",
+    "previewMoney": "{{n}} × {{price}} = {{amount}} seront ajoutés au solde.",
+    "previewPerSession": "Ce client est facturé à la séance effectuée, le solde ne changera donc pas maintenant.",
+    "previewOverridden": "Ce client a un « Total à payer » défini manuellement, le solde ne changera donc pas.",
+    "paymentSeparate": "Cela augmente ce que le client doit. Si c'est déjà payé — « Paiement reçu ».",
+    "saveFailed": "Ajout impossible. Veuillez réessayer.",
+    "undo": "{{n}} séances ajoutées"
   }
 }

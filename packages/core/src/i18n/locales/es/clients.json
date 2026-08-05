@@ -277,5 +277,17 @@
     "cancelRename": "Cancelar",
     "close": "Cerrar",
     "hintRename": "Toca un nombre para editarlo."
+  },
+  "addSessions": {
+    "title": "Añadir sesiones",
+    "howMany": "¿Cuántas sesiones añadir?",
+    "countRequired": "Introduce un número de sesiones.",
+    "previewCount": "Sesiones programadas: {{from}} → {{to}}",
+    "previewMoney": "{{n}} × {{price}} = {{amount}} se sumarán al saldo.",
+    "previewPerSession": "Este cliente se cobra por sesión realizada, así que el saldo no cambiará ahora.",
+    "previewOverridden": "Este cliente tiene un «Total a pagar» fijado manualmente, así que el saldo no cambiará.",
+    "paymentSeparate": "Esto aumenta lo que el cliente debe. Si ya está pagado — «Pago recibido».",
+    "saveFailed": "No se pudo añadir. Inténtalo de nuevo.",
+    "undo": "{{n}} sesiones añadidas"
   }
 }

@@ -187,7 +187,11 @@ export default function ClientsScreen() {
       sessionsLabel = String(sessionsCountForClients(tabClients, range, sessions, members, groups))
     } else {
       const done = enriched.filter((e) => e.meta === tab).reduce((s, e) => s + (e.bal.sessionsPaid || 0), 0)
-      const allot = tabClients.reduce((s, c) => s + (c.sessions || 0), 0)
+      /* Same source as `done` — the engine's sessionsTotal, not the raw
+         clients.sessions column. Reading the column skipped every group
+         quota and counted a per-session client's allotment as 0, both of
+         which let this print more done than allotted. */
+      const allot = enriched.filter((e) => e.meta === tab).reduce((s, e) => s + (e.bal.sessionsTotal || 0), 0)
       sessionsLabel = `${done}/${allot}`
     }
     return [

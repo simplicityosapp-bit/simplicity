@@ -47,7 +47,7 @@ function ClientCard({
      (see .cd-hero in ClientDrawer). Rendering the shared "done/quota" shape
      for them printed a denominator of 0 on every card. */
   const sessLabel = hasPersonal
-    ? (perSession ? `${personalDone}` : `${personalDone}/${personalQuota || 0}`)
+    ? (perSession && !personalQuota ? `${personalDone}` : `${personalDone}/${personalQuota || 0}`)
     : `${groupSessions.reduce((s, g) => s + g.held, 0)}/${groupSessions.reduce((s, g) => s + (g.quota || 0), 0) || 0}`
   /* "Set up" = the billing is configured enough that the numbers below mean
      something; otherwise they dim, so a row of ₪0 doesn't read as real.

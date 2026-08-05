@@ -59,6 +59,7 @@
     "billingModeChangeNote": "Nota: el saldo se recalculará según el nuevo modo de facturación.",
     "personalSessions": "Sesiones personales",
     "scheduled": "Programadas",
+    "scheduledPerSessionHint": "«Programadas» aquí es cuántas citas hay reservadas por delante, solo a título informativo. El cobro sigue lo que realmente se realizó.",
     "done": "Realizadas",
     "doneAdjustHint": "Sesiones realmente registradas: {{held}}. La diferencia ({{delta}}) se guarda como corrección manual en la ficha.",
     "projectDroppedGroup": "El cliente se desvinculó de «{{group}}» — un grupo pertenece a un solo proyecto.",
@@ -66,8 +67,8 @@
     "groupSessionsVal": "Realizadas {{held}} · Programadas {{quota}}",
     "pricePerSession": "Precio por sesión ₪",
     "totalDueOptional": "Total a pagar (opcional)",
-    "totalDuePlaceholder": "Automático: sesiones × precio",
-    "totalDueHint": "Si introduces un importe aquí, anulará el cálculo automático (sesiones × precio) — útil para datos importados.",
+    "totalDuePlaceholder": "Automático: {{formula}}",
+    "totalDueHint": "Si introduces un importe aquí, anulará el cálculo automático ({{formula}}) — útil para datos importados.",
     "billingCardLabel": "Cuánto se pagó y cuánto queda",
     "paid": "Pagado",
     "balance": "Saldo",
@@ -93,7 +94,9 @@
     "fGroups": "Grupos",
     "fDiscount": "Condonado",
     "confirmBalanceTitle": "Actualizar saldo",
-    "confirmBalanceMsg": "El saldo cambió a {{balance}}. ¿Guardar?"
+    "confirmBalanceMsg": "El saldo cambió a {{balance}}. ¿Guardar?",
+    "totalDueFormulaPackage": "programadas × precio",
+    "totalDueFormulaPerSession": "realizadas × precio"
   },
   "meetingTypes": {
     "title": "Tipos de cita",

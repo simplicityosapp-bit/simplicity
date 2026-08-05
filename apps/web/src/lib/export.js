@@ -118,7 +118,11 @@ export function exportTransactionsCSV({ transactions, clients, projects, categor
 
 /* Clients — round-trip-friendly columns (re-importable). */
 export function exportClientsCSV({ clients, projects, now }) {
-  const headers = [h('name'), h('phone'), h('email'), h('address'), h('birthDate'), h('project'), h('status'), h('sessions'), h('pricePerSession'), h('notes')]
+  /* billing_mode rides along because the two modes bill the same numbers
+     completely differently (package = sessions × price, per-session = held ×
+     price). An export that dropped it described a per-session client with
+     figures that only make sense for a package one. */
+  const headers = [h('name'), h('phone'), h('email'), h('address'), h('birthDate'), h('project'), h('status'), h('billingMode'), h('sessions'), h('pricePerSession'), h('notes')]
   const rows = (clients || [])
     .filter((c) => !c.deleted_at)
     .map((c) => [
@@ -129,6 +133,7 @@ export function exportClientsCSV({ clients, projects, now }) {
       c.birth_date || '',
       nameById(projects, c.project_id),
       vlabel('clientStatus', c.status_meta),
+      vlabel('clientBilling', c.billing_mode || 'package'),
       c.sessions != null ? String(c.sessions) : '',
       fmtAmount(Number(c.price_per_session || 0)),
       decOrFlag(c.notes),
@@ -184,9 +189,10 @@ export async function exportAllXLSX({ transactions, clients, projects, categorie
     ]))
 
   addSheet(sheet('clients'),
-    [h('name'), h('phone'), h('email'), h('address'), h('birthDate'), h('project'), h('status'), h('sessions'), h('pricePerSession'), h('notes')],
+    [h('name'), h('phone'), h('email'), h('address'), h('birthDate'), h('project'), h('status'), h('billingMode'), h('sessions'), h('pricePerSession'), h('notes')],
     (clients || []).filter((c) => !c.deleted_at).map((c) => [
       c.name || '', c.phone || '', c.email || '', c.address || '', c.birth_date || '', nameById(projects, c.project_id), vlabel('clientStatus', c.status_meta),
+      vlabel('clientBilling', c.billing_mode || 'package'),
       c.sessions != null ? String(c.sessions) : '', fmtAmount(Number(c.price_per_session || 0)), decOrFlag(c.notes),
     ]))
 

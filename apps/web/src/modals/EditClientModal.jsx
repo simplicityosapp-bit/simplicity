@@ -152,6 +152,7 @@ export default function EditClientModal({ open, onClose, onSave, client, project
      billing_mode: package = sessions × price, per_session = held × price;
      migration 0014). The editable "שולם"/"יתרה" are two views of it. */
   const isPerSession = form.billing_mode === 'per_session'
+  const totalDueFormula = t(isPerSession ? 'editClient.totalDueFormulaPerSession' : 'editClient.totalDueFormulaPackage')
   const privatePortion = form.total_due !== ''
     ? Math.max(0, Number(form.total_due) || 0)
     : isPerSession
@@ -472,20 +473,27 @@ export default function EditClientModal({ open, onClose, onSave, client, project
         </Box>
         <Box className="m-field">
           <Box as="label" className="m-label">{t('editClient.personalSessions')}</Box>
-          <Box className={`ec-bill${isPerSession ? '' : ' ec-bill-2'}`} style={isPerSession ? { gridTemplateColumns: '1fr' } : undefined}>
-            {!isPerSession && (
-              <Box className="ec-bill-cell">
-                <Txt as="p" className="ec-bill-label">{t('editClient.scheduled')}</Txt>
-                <Input type="number" min="0" className="ec-bill-input" value={form.sessions}
-                  onChange={(e) => set('sessions', e.target.value)} aria-label={t('editClient.scheduled')} />
-              </Box>
-            )}
-            <Box className={`ec-bill-cell${isPerSession ? '' : ' divided-start'}`}>
+          {/* "נקבעו" shows in BOTH modes now. It was hidden for per-session
+              because it is not what bills them — but hiding it also removed
+              the only way to say how many meetings are booked ahead, so the
+              card reported 0 forever and the only route to a real number was
+              to switch to package billing. In per-session the field is purely
+              informational: the bill is still done × price. */}
+          <Box className="ec-bill ec-bill-2">
+            <Box className="ec-bill-cell">
+              <Txt as="p" className="ec-bill-label">{t('editClient.scheduled')}</Txt>
+              <Input type="number" min="0" className="ec-bill-input" value={form.sessions}
+                onChange={(e) => set('sessions', e.target.value)} aria-label={t('editClient.scheduled')} />
+            </Box>
+            <Box className="ec-bill-cell divided-start">
               <Txt as="p" className="ec-bill-label">{t('editClient.done')}</Txt>
               <Input type="number" min="0" className="ec-bill-input" value={form.done}
                 onChange={(e) => set('done', e.target.value)} aria-label={t('editClient.done')} />
             </Box>
           </Box>
+          {isPerSession && (
+            <Txt as="p" className="m-hint">{t('editClient.scheduledPerSessionHint')}</Txt>
+          )}
           {/* Say what the app is about to file. A hand-edited "בוצעו" does not
               rewrite history — it records the gap against what was actually
               logged, and that gap outlives the edit. */}
@@ -501,10 +509,13 @@ export default function EditClientModal({ open, onClose, onSave, client, project
         </Box>
         <Box className="m-field">
           <Box as="label" className="m-label">{t('editClient.totalDueOptional')}</Box>
+          {/* The formula names the mode's ACTUAL inputs. It read "פגישות ×
+              מחיר" in both modes, which is only true of a package — a
+              per-session client is billed on the meetings that took place. */}
           <Input type="number" min="0" className="m-input" value={form.total_due}
-            onChange={(e) => set('total_due', e.target.value)} placeholder={t('editClient.totalDuePlaceholder')} aria-label={t('editClient.totalDueOptional')}
+            onChange={(e) => set('total_due', e.target.value)} placeholder={t('editClient.totalDuePlaceholder', { formula: totalDueFormula })} aria-label={t('editClient.totalDueOptional')}
           />
-          <Txt as="p" className="m-hint">{t('editClient.totalDueHint')}</Txt>
+          <Txt as="p" className="m-hint">{t('editClient.totalDueHint', { formula: totalDueFormula })}</Txt>
         </Box>
         <Box className="m-field">
           <Box as="label" className="m-label">{t('editClient.billingCardLabel')}</Box>

@@ -57,7 +57,10 @@ export default function AddClientModal({ open, onClose, onSave, projects = [], s
         status_id: form.status_id || null,
         project_id: form.project_id || null,
         group_id: form.group_id || null,
-        sessions: form.billing_mode === 'per_session' ? 0 : (Number(form.sessions) || 0),
+        /* Was forced to 0 for per-session, which is also why a client created
+           in that mode read differently from one switched into it later (the
+           edit modal always kept the number). Both keep what was typed now. */
+        sessions: Number(form.sessions) || 0,
         price_per_session: Number(form.price_per_session) || 0,
         billing_mode: form.billing_mode || 'package',
         meeting_type_id: form.meeting_type_id || null,

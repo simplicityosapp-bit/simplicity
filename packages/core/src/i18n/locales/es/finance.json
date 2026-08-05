@@ -184,10 +184,11 @@
     "viewMonthly": "Mensual",
     "viewCumulative": "Acumulado",
     "investedMonthly": "Invertido este mes",
+    "investedInMonth": "Invertido en {{month}}",
     "investedCumulative": "Invertido en total",
     "didInvest": "He invertido",
-    "negativeBase": "El mes pasado los gastos superaron los ingresos, así que no hay nada que destinar.",
-    "noData": "Aún no hay transacciones del mes pasado.",
+    "negativeBase": "En {{month}} los gastos superaron los ingresos, así que no hay nada que destinar.",
+    "noData": "Aún no hay ingresos en {{month}} ni en el mes anterior.",
     "categoryName": "Inversiones",
     "txDesc": "Destinado a inversión",
     "recordFailed": "No se pudo registrar la inversión — inténtalo de nuevo",
@@ -196,6 +197,16 @@
     "reminderTitle": "Destinar el {{percent}}% de los ingresos",
     "reminderBody": "Según {{month}} son {{amount}}. Si cambias el porcentaje o añades transacciones, la cifra real se actualizará en la pantalla de finanzas.",
     "reminderSetOn": "Recordatorio para el {{date}}",
-    "staleBasis": "Aún no hay ingresos este mes: la cifra se basa en {{month}}."
+    "staleBasis": "Aún no hay ingresos en {{selected}}: la cifra se basa en {{month}}.",
+    "recordTitle": "Registrar una inversión",
+    "recordAmount": "Importe a registrar: {{amount}}",
+    "recordDateLabel": "Fecha de la inversión",
+    "recordDateHint": "El gasto y el registro de la inversión reciben esta misma fecha.",
+    "recordUseMonthEnd": "Final de {{month}}",
+    "recordNeedDate": "Elige una fecha",
+    "recordNoFuture": "No se puede registrar una inversión con fecha futura",
+    "recordCancel": "Cancelar",
+    "recordConfirm": "Guardar",
+    "recordSaving": "Guardando…"
   }
 }

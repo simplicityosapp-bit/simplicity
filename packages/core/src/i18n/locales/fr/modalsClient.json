@@ -96,7 +96,9 @@
     "confirmBalanceTitle": "Mettre à jour le solde",
     "confirmBalanceMsg": "Le solde est passé à {{balance}}. Enregistrer ?",
     "totalDueFormulaPackage": "planifiées × prix",
-    "totalDueFormulaPerSession": "effectuées × prix"
+    "totalDueFormulaPerSession": "effectuées × prix",
+    "billingModeChangePreview": "Solde : {{from}} → {{to}}",
+    "billingModeChangeSame": "Le solde ne changera pas — « Total à payer » est défini manuellement et prime dans les deux modes."
   },
   "meetingTypes": {
     "title": "Types de rendez-vous",

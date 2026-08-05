@@ -96,7 +96,9 @@
     "confirmBalanceTitle": "Update balance",
     "confirmBalanceMsg": "The balance changed to {{balance}}. Save?",
     "totalDueFormulaPackage": "scheduled × price",
-    "totalDueFormulaPerSession": "done × price"
+    "totalDueFormulaPerSession": "done × price",
+    "billingModeChangePreview": "Balance: {{from}} → {{to}}",
+    "billingModeChangeSame": "The balance will not change — «Total due» is set manually and wins in both modes."
   },
   "meetingTypes": {
     "title": "Meeting types",

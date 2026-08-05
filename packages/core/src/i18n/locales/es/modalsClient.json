@@ -96,7 +96,9 @@
     "confirmBalanceTitle": "Actualizar saldo",
     "confirmBalanceMsg": "El saldo cambió a {{balance}}. ¿Guardar?",
     "totalDueFormulaPackage": "programadas × precio",
-    "totalDueFormulaPerSession": "realizadas × precio"
+    "totalDueFormulaPerSession": "realizadas × precio",
+    "billingModeChangePreview": "Saldo: {{from}} → {{to}}",
+    "billingModeChangeSame": "El saldo no cambiará — «Total a pagar» está fijado manualmente y prevalece en ambos modos."
   },
   "meetingTypes": {
     "title": "Tipos de cita",

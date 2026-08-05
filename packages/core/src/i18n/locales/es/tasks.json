@@ -103,6 +103,7 @@
     "checkTask": "Marcar como hecha",
     "checkReminder": "Marcar como hecho",
     "reminderDone": "Hecho",
+    "linkedInvestment": "Inversiones",
     "editTask": "Editar tarea",
     "editReminder": "Editar recordatorio",
     "pendingOccurrences": "{{n}} repeticiones aún pendientes",

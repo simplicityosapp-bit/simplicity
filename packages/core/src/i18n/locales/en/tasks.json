@@ -103,6 +103,7 @@
     "checkTask": "Mark done",
     "checkReminder": "Mark done",
     "reminderDone": "Done",
+    "linkedInvestment": "Investments",
     "editTask": "Edit task",
     "editReminder": "Edit reminder",
     "pendingOccurrences": "{{n}} occurrences still pending",

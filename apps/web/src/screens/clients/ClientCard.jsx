@@ -39,14 +39,27 @@ function ClientCard({
   /* `bal` is the precomputed balance from the clients screen's balanceByClient
      map (avoids re-scanning transactions per card); fall back to computing it
      for any caller that doesn't pass it. */
-  const { paid, balance, hasPersonal, personalDone, personalQuota, groupSessions } = bal || clientBalance(client, txns, sessions, members, groups)
+  const { paid, balance, hasPersonal, personalDone, personalQuota, groupSessions, perSession } = bal || clientBalance(client, txns, sessions, members, groups)
   /* Compact card shows PERSONAL sessions only; a pure group member shows
-     the group summary instead. (The full profile shows both.) */
+     the group summary instead. (The full profile shows both.)
+     A per-session client has NO quota — that is the whole point of the mode —
+     so they get the bare held count, exactly as the client file already did
+     (see .cd-hero in ClientDrawer). Rendering the shared "done/quota" shape
+     for them printed a denominator of 0 on every card. */
   const sessLabel = hasPersonal
-    ? `${personalDone}/${personalQuota || 0}`
+    ? (perSession ? `${personalDone}` : `${personalDone}/${personalQuota || 0}`)
     : `${groupSessions.reduce((s, g) => s + g.held, 0)}/${groupSessions.reduce((s, g) => s + (g.quota || 0), 0) || 0}`
+  /* "Set up" = the billing is configured enough that the numbers below mean
+     something; otherwise they dim, so a row of ₪0 doesn't read as real.
+     The quota half of this test is package-only. A per-session client keeps
+     sessions at 0 BY DESIGN, so requiring sessions > 0 dimmed every correctly
+     configured one of them — a client with a price, held meetings and a real
+     balance was being shown as an empty shell. What configures a per-session
+     client is the price on its own. */
+  const hasPrice = Number(client.price_per_session) > 0 || Number(client.total_override) > 0
   const hasSetup = isMember
-    || ((Number(client.sessions) > 0 || !!client.group_id) && (Number(client.price_per_session) > 0 || Number(client.total_override) > 0))
+    || (perSession && hasPrice)
+    || ((Number(client.sessions) > 0 || !!client.group_id) && hasPrice)
 
   const handleCardClick = () => {
     if (selectMode) onToggleSelect?.(client.id)

@@ -184,10 +184,11 @@
     "viewMonthly": "Monthly",
     "viewCumulative": "Cumulative",
     "investedMonthly": "Invested this month",
+    "investedInMonth": "Invested in {{month}}",
     "investedCumulative": "Invested in total",
     "didInvest": "I invested",
-    "negativeBase": "Last month's expenses exceeded income, so there's nothing to set aside.",
-    "noData": "No transactions from last month yet.",
+    "negativeBase": "In {{month}} expenses exceeded income, so there's nothing to set aside.",
+    "noData": "No income in {{month}} yet, nor in the month before it.",
     "categoryName": "Investments",
     "txDesc": "Set aside for investing",
     "recordFailed": "Recording the investment failed — please try again",
@@ -196,6 +197,16 @@
     "reminderTitle": "Set aside {{percent}}% of income",
     "reminderBody": "Based on {{month}} that comes to {{amount}}. Change the percentage or add transactions and the live figure on the finance screen will follow.",
     "reminderSetOn": "Reminder for {{date}}",
-    "staleBasis": "No income recorded this month yet — the figure is based on {{month}}."
+    "staleBasis": "No income recorded in {{selected}} yet — the figure is based on {{month}}.",
+    "recordTitle": "Record an investment",
+    "recordAmount": "Amount to record: {{amount}}",
+    "recordDateLabel": "Investment date",
+    "recordDateHint": "The expense and the investment record both get this date.",
+    "recordUseMonthEnd": "End of {{month}}",
+    "recordNeedDate": "Please pick a date",
+    "recordNoFuture": "An investment can't be recorded on a future date",
+    "recordCancel": "Cancel",
+    "recordConfirm": "Save",
+    "recordSaving": "Saving…"
   }
 }

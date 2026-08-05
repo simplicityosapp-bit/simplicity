@@ -1,9 +1,10 @@
 import { useMemo, useRef, useState } from 'react'
 import { ChevronDown, Sprout, Check, Bell, BellRing, Info } from 'lucide-react'
-import { isr, fmtMonthYear, fmtShortDate, previousMonthRange } from '@simplicity/core'
+import { isr, fmtMonthYear, fmtShortDate } from '@simplicity/core'
 import { useInvestmentSettings } from '../../hooks/useInvestmentSettings'
 import { useReminders } from '../../hooks/useReminders'
 import AddReminderModal from '../../modals/AddReminderModal'
+import RecordInvestmentModal from '../../modals/RecordInvestmentModal'
 import { useT } from '../../i18n/useT'
 import { Box, Txt, Btn, Input } from '../../components/ui'
 import './InvestmentRow.css'
@@ -30,9 +31,15 @@ function defaultRemindAt() {
    been invested — which is a record, not a prescription. Wiring the
    toggle to the target instead is the mistake this component exists to
    avoid; useInvestmentSettings has a test pinning them apart.
+
+   `month` is the month the finance screen is parked on, so the row can
+   never quote a different period from the header above it. Every label
+   here names the month it is actually talking about — when the basis has
+   fallen back, the figure's month and the screen's month differ, and the
+   row says which is which rather than leaving the user to guess.
    ════════════════════════════════════════════════════════════════ */
 
-export default function InvestmentRow() {
+export default function InvestmentRow({ month = null }) {
   const { t } = useT('finance')
   const [open, setOpen] = useState(false)
   const [saving, setSaving] = useState(false)
@@ -43,6 +50,7 @@ export default function InvestmentRow() {
   const [draft, setDraft] = useState(null)
   const [editing, setEditing] = useState(false)
   const [remindOpen, setRemindOpen] = useState(false)
+  const [recordOpen, setRecordOpen] = useState(false)
   const investingRef = useRef(false)
   const { reminders, addReminder } = useReminders()
 
@@ -57,8 +65,8 @@ export default function InvestmentRow() {
   const {
     settings, setBase, setPercent, setView,
     baseAmount, targetAmount, investedAmount, baseWasNegative, hasData,
-    basisIsStale, recordInvestment,
-  } = useInvestmentSettings()
+    basisFellBack, basisMonth, selectedMonth, isCurrentMonth, recordInvestment,
+  } = useInvestmentSettings(month)
 
   const shownPct = sliding ?? settings.percent
 
@@ -87,15 +95,20 @@ export default function InvestmentRow() {
     setEditing(false)
   }
 
-  /* Which month the figure is drawn from — the same previous-month range the
-     hook computes against, so the label can never drift from the maths. */
-  const lastMonth = fmtMonthYear(previousMonthRange().from)
+  /* Which month the figure is actually drawn from, and which one is on screen.
+     Both come straight out of the hook's own ranges, so a label can never
+     drift from the maths that produced the number beside it. They are the same
+     month unless the basis fell back. */
+  const basisLabel = fmtMonthYear(basisMonth)
+  const selectedLabel = fmtMonthYear(selectedMonth)
 
   const saveReminder = async (payload) => {
     await addReminder(payload)
   }
 
-  const onInvest = async () => {
+  /* `investedOn` null means "today", which is what recordInvestment defaults
+     to. Only the modal ever passes a date. */
+  const doRecord = async (investedOn = null) => {
     /* Ref, not the `saving` state: setSaving only disables the button after a
        re-render, so a fast double-tap can get two clicks in before the disabled
        prop lands — and this records money. The ref shuts the second one out
@@ -106,11 +119,21 @@ export default function InvestmentRow() {
     try {
       /* recordInvestment rounds to whole shekels, so what the button printed
          is what gets stored. */
-      await recordInvestment({ amount: liveTarget })
-    } catch { /* the hook surfaces its own error toast */ } finally {
+      await recordInvestment({ amount: liveTarget, investedOn })
+    } finally {
       investingRef.current = false
       setSaving(false)
     }
+  }
+
+  const onInvest = async () => {
+    /* On the month in progress this stays a single tap that stamps today —
+       asking there would be a dialog whose answer is always the default. On any
+       other month the date is a real question: the money moved today, but the
+       user may well mean it for the month they are looking at. */
+    if (!isCurrentMonth) { setRecordOpen(true); return }
+    /* The hook surfaces its own error toast; nothing to add here. */
+    await doRecord().catch(() => {})
   }
 
   return (
@@ -125,20 +148,25 @@ export default function InvestmentRow() {
         <Txt className="inv-ic" aria-hidden="true"><Sprout size={15} strokeWidth={1.8} /></Txt>
         <Txt className="inv-title">{t('investment.title')}</Txt>
         {/* Both markers stay glyph-only so the resting state is still ONE line:
-            a set reminder, and a figure drawn from a month that has already
-            closed while this one is still empty. */}
+            a set reminder, and a figure drawn from the month before the one on
+            screen because that one has taken nothing in yet. */}
         {activeReminder && (
           <Txt className="inv-flag rem" title={t('investment.reminderSetOn', { date: fmtShortDate(activeReminder.scheduled_at) })}>
             <BellRing size={13} strokeWidth={1.8} aria-hidden="true" />
             <Txt className="sr-only">{t('investment.reminderSetOn', { date: fmtShortDate(activeReminder.scheduled_at) })}</Txt>
           </Txt>
         )}
-        {basisIsStale && (
-          <Txt className="inv-flag warn" title={t('investment.staleBasis', { month: lastMonth })}>
+        {basisFellBack && (
+          <Txt className="inv-flag warn" title={t('investment.staleBasis', { selected: selectedLabel, month: basisLabel })}>
             <Info size={13} strokeWidth={1.8} aria-hidden="true" />
-            <Txt className="sr-only">{t('investment.staleBasis', { month: lastMonth })}</Txt>
+            <Txt className="sr-only">{t('investment.staleBasis', { selected: selectedLabel, month: basisLabel })}</Txt>
           </Txt>
         )}
+        {/* The month the figure came from, on the resting line. Without it the
+            row prints a bare sum while the screen's own header names a month —
+            and when the basis has fallen back those are two different months,
+            which is exactly when a bare sum reads as a bug. */}
+        <Txt className="inv-month">{basisLabel}</Txt>
         <Txt className="inv-amount mono">{isr(liveTarget)}</Txt>
         <ChevronDown size={15} strokeWidth={1.8} className="inv-chev" aria-hidden="true" />
       </Btn>
@@ -224,27 +252,39 @@ export default function InvestmentRow() {
               onKeyUp={commitSlide}
               onBlur={commitSlide}
             />
-            <Txt className="inv-basis">{t('investment.basedOn', { month: lastMonth })}</Txt>
+            <Txt className="inv-basis">{t('investment.basedOn', { month: basisLabel })}</Txt>
           </Box>
 
           {/* Why the figure reads ₪0, when it does — an unexplained zero looks
-              like a broken widget rather than a quiet month. */}
-          {baseWasNegative && <Txt as="p" className="inv-note">{t('investment.negativeBase')}</Txt>}
-          {!hasData && !baseWasNegative && <Txt as="p" className="inv-note">{t('investment.noData')}</Txt>}
+              like a broken widget rather than a quiet month. Both name the
+              month, since the row no longer always means "last month". */}
+          {baseWasNegative && (
+            <Txt as="p" className="inv-note">{t('investment.negativeBase', { month: basisLabel })}</Txt>
+          )}
+          {!hasData && !baseWasNegative && (
+            <Txt as="p" className="inv-note">{t('investment.noData', { month: selectedLabel })}</Txt>
+          )}
           {/* Spelled out here, where there is room for the reason rather than
               just the glyph in the header. */}
-          {basisIsStale && (
-            <Txt as="p" className="inv-note warn">{t('investment.staleBasis', { month: lastMonth })}</Txt>
+          {basisFellBack && (
+            <Txt as="p" className="inv-note warn">
+              {t('investment.staleBasis', { selected: selectedLabel, month: basisLabel })}
+            </Txt>
           )}
 
           <Box className="inv-divider" />
 
           {/* ── The record: what was actually invested ── */}
           <Box className="inv-field">
+            {/* "הושקע החודש" only when the month on screen IS this month —
+                otherwise it names the month, because the total below follows
+                the screen and would otherwise claim to be about today. */}
             <Txt as="p" className="inv-lbl">
               {settings.view === 'cumulative'
                 ? t('investment.investedCumulative')
-                : t('investment.investedMonthly')}
+                : (isCurrentMonth
+                  ? t('investment.investedMonthly')
+                  : t('investment.investedInMonth', { month: selectedLabel }))}
             </Txt>
             <Box className="mg-toggle" role="tablist" aria-label={t('investment.viewAria')}>
               <Btn
@@ -321,9 +361,21 @@ export default function InvestmentRow() {
           title: t('investment.reminderTitle', { percent: shownPct }),
           description: t('investment.reminderBody', {
             amount: isr(liveTarget),
-            month: lastMonth,
+            month: basisLabel,
           }),
         }}
+      />
+
+      {/* Only reached from a month that is not the one in progress — see
+          onInvest. Keyed the same way as the reminder sheet, so reopening it
+          re-seeds the date to today rather than keeping the last pick. */}
+      <RecordInvestmentModal
+        key={recordOpen ? 'rec-open' : 'rec-closed'}
+        open={recordOpen}
+        onClose={() => setRecordOpen(false)}
+        onConfirm={doRecord}
+        amount={liveTarget}
+        month={selectedMonth}
       />
     </Box>
   )

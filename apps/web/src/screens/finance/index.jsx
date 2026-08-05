@@ -206,7 +206,7 @@ export default function FinanceScreen() {
           </Box>
 
           {/* One line, directly under the numbers it is computed from. */}
-          <InvestmentRow />
+          <InvestmentRow month={month} />
 
           {/* Everything that wants a decision, directly under the summary —
               this used to sit below two management blocks, four screens down. */}

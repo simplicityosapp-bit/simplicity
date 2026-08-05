@@ -59,6 +59,19 @@
 .inv-flag.rem { color: var(--sage); }
 .inv-flag.warn { color: var(--terracotta); }
 
+/* The month the figure came from, riding just ahead of it. Muted and small
+   so the sum stays the thing you read — this is the caption on it, not a
+   second value. Never truncates: a half-written month name is worse than a
+   shorter title, and .inv-title is the flexible one that gives way. */
+.inv-month {
+  flex: 0 0 auto;
+  font-size: var(--mg-micro);
+  font-weight: 500;
+  color: var(--stone);
+  opacity: 0.85;
+  white-space: nowrap;
+}
+
 .inv-amount {
   flex: 0 0 auto;
   font-family: var(--mg-font-num);

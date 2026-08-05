@@ -184,10 +184,11 @@
     "viewMonthly": "Mensuel",
     "viewCumulative": "Cumulé",
     "investedMonthly": "Investi ce mois-ci",
+    "investedInMonth": "Investi en {{month}}",
     "investedCumulative": "Investi au total",
     "didInvest": "J'ai investi",
-    "negativeBase": "Le mois dernier, les dépenses ont dépassé les revenus : il n'y a rien à mettre de côté.",
-    "noData": "Aucune transaction du mois dernier pour l'instant.",
+    "negativeBase": "En {{month}}, les dépenses ont dépassé les revenus : il n'y a rien à mettre de côté.",
+    "noData": "Aucun revenu en {{month}} ni le mois précédent pour l'instant.",
     "categoryName": "Investissements",
     "txDesc": "Mis de côté pour investir",
     "recordFailed": "L'enregistrement de l'investissement a échoué — réessayez",
@@ -196,6 +197,16 @@
     "reminderTitle": "Mettre de côté {{percent}}% des revenus",
     "reminderBody": "D'après {{month}}, cela représente {{amount}}. Si vous modifiez le pourcentage ou ajoutez des transactions, le montant réel suivra sur l'écran des finances.",
     "reminderSetOn": "Rappel pour le {{date}}",
-    "staleBasis": "Aucun revenu ce mois-ci pour l'instant — le montant se base sur {{month}}."
+    "staleBasis": "Aucun revenu en {{selected}} pour l'instant — le montant se base sur {{month}}.",
+    "recordTitle": "Enregistrer un investissement",
+    "recordAmount": "Montant à enregistrer : {{amount}}",
+    "recordDateLabel": "Date de l'investissement",
+    "recordDateHint": "La dépense et l'enregistrement de l'investissement reçoivent la même date.",
+    "recordUseMonthEnd": "Fin {{month}}",
+    "recordNeedDate": "Choisissez une date",
+    "recordNoFuture": "Un investissement ne peut pas être enregistré à une date future",
+    "recordCancel": "Annuler",
+    "recordConfirm": "Enregistrer",
+    "recordSaving": "Enregistrement…"
   }
 }

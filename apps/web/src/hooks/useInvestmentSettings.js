@@ -20,15 +20,13 @@ import { useInvestments } from './useInvestments'
 
    Two independent numbers, and it matters which is which:
 
-     targetAmount   — the widget itself, ALWAYS on screen. percent × last
-                      month's income (or net). The toggle does not touch it.
-                      Based on the previous calendar month, the last one that
-                      actually closed — a figure that climbs all month is not
-                      something you can set aside against.
+     targetAmount   — the widget itself, ALWAYS on screen. percent × the
+                      income (or net) of the month the finance screen is
+                      parked on. The חודשי/מצטבר toggle does not touch it.
 
      investedAmount — the record of what the user actually put in, and the
                       ONLY thing the חודשי/מצטבר toggle switches:
-                        monthly    → invested during the current month
+                        monthly    → invested during the month on screen
                         cumulative → invested all time
                       Both read the history exclusively. The system never
                       infers an investment: it counts only what the user
@@ -74,24 +72,49 @@ export function migrateInvestmentSettings(cfg) {
 /* The whole calculation, as a pure function — no React, no Supabase. It lives
    out here for the same reason netChartGeometry does: the arithmetic is the
    part worth testing, and a hook that needs a provider tree can't be. `now`
-   is injectable so a test can stand on a fixed month.
+   and `month` are injectable so a test can stand on a fixed month.
+
+   `month` is the month the finance screen is parked on — any Date inside it.
+   Defaults to the month containing `now`, so a caller that never navigates
+   still gets the month in progress.
+
    Returns everything the row needs to both print a figure and explain it. */
-export function computeInvestment(transactions, settings, now = new Date(), investments = null) {
+export function computeInvestment(
+  transactions, settings, now = new Date(), investments = null, month = null,
+) {
   const cfg = migrateInvestmentSettings(settings)
   const rows = Array.isArray(investments) ? investments : []
 
-  /* ── The target: always last month, never switched by the toggle. ──
-     Expenses created BY an investment are excluded from the base, or the
+  /* Expenses created BY an investment are excluded from the base, or the
      target eats itself: ₪800 recorded in August shrinks August's net, which
-     is what September's target is computed from, and the figure spirals down
-     month over month. Excluded by transaction id — never by category name,
-     which the user can rename at will. */
+     is what the August target is computed from, and the figure spirals down
+     every time it is read. Excluded by transaction id — never by category
+     name, which the user can rename at will. */
   const investedTxIds = new Set(rows.map((r) => r?.transaction_id).filter(Boolean))
   const source = investedTxIds.size
     ? (transactions || []).filter((t) => !investedTxIds.has(t.id))
     : (transactions || [])
 
-  const range = previousMonthRange(now)
+  const anchor = month || now
+  const selected = currentMonthRange(anchor)
+  const sumIncome = (r) => financeQuery({ type: 'income', from: r.from, to: r.to, source })
+    .reduce((s, f) => s + (f.amount || 0), 0)
+
+  /* ── Which month the percentage is taken of ──
+     The month on screen, so the widget can never disagree with the header
+     above it. A month that has taken nothing in yet — the 2nd of a new one,
+     most obviously — has no income to take a percentage of, so the basis
+     falls back to the month before it and the row says so out loud.
+
+     ONE step back, never a search for the last month that had money. A figure
+     silently drawn from three months ago is one the user cannot locate, and
+     "why is this number here" is the exact question the fallback exists to
+     answer. When the previous month is empty too, `hasData` goes false and the
+     row says *that* instead. */
+  const selectedMonthIncome = sumIncome(selected)
+  const fellBack = selectedMonthIncome === 0
+  const range = fellBack ? previousMonthRange(anchor) : selected
+
   const sum = (type) => financeQuery({ type, ...range, source })
     .reduce((s, f) => s + (f.amount || 0), 0)
 
@@ -99,15 +122,6 @@ export function computeInvestment(transactions, settings, now = new Date(), inve
   const expenses = sum('expense')
   const net = income - expenses
   const baseAmount = cfg.base === 'net' ? net : income
-
-  /* Income booked so far in the month IN PROGRESS. Not part of the maths —
-     the target is always last month — but the row needs it to warn when the
-     figure it prints is drawn from a month the user has already left behind
-     while the current one is still empty. Without that, a target sitting above
-     a ₪0 month reads as a bug. */
-  const cur = currentMonthRange(now)
-  const currentMonthIncome = financeQuery({ type: 'income', from: cur.from, to: cur.to, source })
-    .reduce((s, f) => s + (f.amount || 0), 0)
 
   /* A losing month yields a negative base, and "invest −₪800" is not a thing.
      Floor the target at zero and hand the UI a flag so the row can say WHY it
@@ -122,41 +136,67 @@ export function computeInvestment(transactions, settings, now = new Date(), inve
   const investmentsKnown = Array.isArray(investments)
   const total = (list) => list.reduce((s, r) => s + (Number(r?.amount) || 0), 0)
 
-  const thisMonth = cur
-  const investedThisMonth = total(rows.filter((r) => {
+  /* Tracks the month ON SCREEN, not the basis month. When the basis has fallen
+     back, the two differ on purpose: "what you set aside during August" is
+     still an August question even while the target is quoting July. */
+  const investedInMonth = total(rows.filter((r) => {
     if (!r?.invested_on) return false
     /* toLocalDate, not new Date — invested_on is a DATE column, and reading it
        as UTC midnight would file the 1st under the previous month west of
        Greenwich, so "invested this month" would quietly drop it. */
     const ts = toLocalDate(r.invested_on).getTime()
-    return ts >= thisMonth.from.getTime() && ts <= thisMonth.to.getTime()
+    return ts >= selected.from.getTime() && ts <= selected.to.getTime()
   }))
   const investedTotal = total(rows)
+
+  /* No transactions in the basis month at all — distinct from a real zero, and
+     the row words it differently. */
+  const hasData = income !== 0 || expenses !== 0
+
+  /* Is the month on screen the one actually in progress? The row needs it to
+     word its labels ("הושקע החודש" vs "הושקע ביוני") and to decide whether
+     pressing "השקעתי" can silently stamp today. */
+  const nowMonth = currentMonthRange(now)
+  const isCurrentMonth = selected.from.getTime() === nowMonth.from.getTime()
 
   return {
     income,
     expenses,
     net,
-    currentMonthIncome,
-    /* The figure is drawn from a closed month while the current one has taken
-       nothing in yet — true and worth saying out loud, not an error. */
-    basisIsStale: currentMonthIncome === 0 && targetAmount > 0,
+    selectedMonthIncome,
+    /* The month on screen, and the month the maths actually used. Equal unless
+       the basis fell back. Both are returned so the row can label the figure
+       with its true source rather than with whatever is on screen.
+
+       With no data anywhere, the fallback month is named as the basis only in
+       the arithmetic's bookkeeping sense — it contributed nothing, and the row
+       would be captioning a ₪0 with a month the user has no reason to think
+       about. Report the month on screen instead: there is no source to name. */
+    selectedMonth: selected.from,
+    basisMonth: hasData ? range.from : selected.from,
+    /* The month on screen took nothing in, so the figure comes from the one
+       before it — true and worth saying out loud, not an error. Gated on
+       hasData: with nothing in either month there is no figure to explain,
+       and the "no data" note covers that case on its own. Two notes saying
+       different things would just be noise. */
+    basisFellBack: fellBack && hasData,
+    isCurrentMonth,
     baseAmount,
     baseWasNegative,
     /* The widget's own number — what to invest. Always shown. */
     targetAmount,
-    investedThisMonth,
+    investedInMonth,
     investedTotal,
     investmentsKnown,
     /* What the summary line prints, per the active view. */
-    investedAmount: cfg.view === 'cumulative' ? investedTotal : investedThisMonth,
-    /* No transactions last month at all — distinct from a real zero, and the
-       display sub-task will want to word it differently. */
-    hasData: income !== 0 || expenses !== 0,
+    investedAmount: cfg.view === 'cumulative' ? investedTotal : investedInMonth,
+    hasData,
   }
 }
 
-export function useInvestmentSettings() {
+/* `month` is the month the finance screen is showing. Passed straight through
+   to computeInvestment; omitting it means "the month in progress". */
+export function useInvestmentSettings(month = null) {
   const { prefs, update } = useUserPreferences()
   const { transactions, loading } = useTransactions()
   const {
@@ -180,9 +220,14 @@ export function useInvestmentSettings() {
     [write],
   )
 
+  /* Keyed on the month's timestamp, not the Date object: the screen builds a
+     fresh `new Date(...)` on every month change, and an object identity in the
+     dep list would recompute on any re-render that happened to make a new one. */
+  const monthKey = month ? month.getTime() : null
   const computed = useMemo(
-    () => computeInvestment(transactions, settings, new Date(), investments),
-    [transactions, settings, investments],
+    () => computeInvestment(transactions, settings, new Date(), investments, month),
+    /* eslint-disable-next-line react-hooks/exhaustive-deps */
+    [transactions, settings, investments, monthKey],
   )
 
   return {

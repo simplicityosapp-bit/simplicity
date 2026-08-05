@@ -204,10 +204,11 @@
     "viewMonthly": "חודשי",
     "viewCumulative": "מצטבר",
     "investedMonthly": "הושקע החודש",
+    "investedInMonth": "הושקע ב{{month}}",
     "investedCumulative": "הושקע בסך הכל",
     "didInvest": "השקעתי",
-    "negativeBase": "בחודש שעבר ההוצאות עלו על ההכנסות, אז אין ממה להפריש.",
-    "noData": "אין עדיין תנועות מהחודש שעבר.",
+    "negativeBase": "ב{{month}} ההוצאות עלו על ההכנסות, אז אין ממה להפריש.",
+    "noData": "אין עדיין הכנסות ב{{month}} ולא בחודש שלפניו.",
     "categoryName": "השקעות",
     "txDesc": "הפרשה להשקעות",
     "recordFailed": "רישום ההשקעה נכשל — נסה/י שוב",
@@ -216,6 +217,16 @@
     "reminderTitle": "להשקיע {{percent}}% מההכנסה",
     "reminderBody": "לפי {{month}} הסכום הוא {{amount}}. אם תשנה/י את האחוז או שיהיו תנועות חדשות, הסכום בפועל יתעדכן במסך הכספים.",
     "reminderSetOn": "תזכורת ל-{{date}}",
-    "staleBasis": "החודש עוד לא נרשמה הכנסה — הסכום מחושב לפי {{month}}."
+    "staleBasis": "ב{{selected}} עוד לא נרשמה הכנסה — הסכום מחושב לפי {{month}}.",
+    "recordTitle": "רישום השקעה",
+    "recordAmount": "הסכום שיירשם: {{amount}}",
+    "recordDateLabel": "תאריך ההשקעה",
+    "recordDateHint": "ההוצאה בתנועות ורישום ההשקעה יקבלו את אותו התאריך.",
+    "recordUseMonthEnd": "סוף {{month}}",
+    "recordNeedDate": "צריך לבחור תאריך",
+    "recordNoFuture": "אי אפשר לרשום השקעה בתאריך עתידי",
+    "recordCancel": "ביטול",
+    "recordConfirm": "שמירה",
+    "recordSaving": "שומר…"
   }
 }

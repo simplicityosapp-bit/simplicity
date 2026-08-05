@@ -98,7 +98,9 @@ export default function ClientsScreen() {
   /* Client whose reminder sheet is open, straight from its card. */
   const [remindClient, setRemindClient] = useState(null)
   const { sessions, addSession, updateSession, error: sessionsError } = useSessions()
-  const { meetings, addMeeting, removeMeeting } = useScheduledMeetings()
+  /* No addMeeting here any more — the client file stopped offering "קביעת
+     פגישה". `meetings` and `removeMeeting` stay for the stale-slot sweep. */
+  const { meetings, removeMeeting } = useScheduledMeetings()
   const { groups, error: groupsError } = useGroups()
 
   /* When a client's recurring slot changes or is cleared, drop the future
@@ -631,7 +633,6 @@ export default function ClientsScreen() {
         categories={categories}
         clients={clientList}
         onLogSession={addSession}
-        onScheduleMeeting={addMeeting}
         onAddPayment={addTransaction}
         onUpdateClient={handleUpdateClient}
         onUpdateMember={updateMember}

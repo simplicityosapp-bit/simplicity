@@ -256,10 +256,9 @@
     },
     "onlyNameRequired": "Seul le nom est obligatoire",
     "moreToggle": "Facturation, séances et plus",
-    "grpBilling": "Facturation",
-    "grpLinks": "Rattachement",
-    "grpContact": "Contact",
-    "grpRecurring": "Séance récurrente"
+    "grpDetails": "Détails",
+    "grpScheduling": "Séances et planning",
+    "grpBilling": "Facturation et paiements"
   },
   "dataWarning": "Certaines données ne se sont pas chargées — les soldes peuvent être incomplets.",
   "statuses": {

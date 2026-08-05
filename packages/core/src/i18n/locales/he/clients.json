@@ -262,10 +262,9 @@
     },
     "onlyNameRequired": "רק השם חובה",
     "moreToggle": "חיוב, פגישות ועוד",
-    "grpBilling": "חיוב",
-    "grpLinks": "שיוך",
-    "grpContact": "קשר",
-    "grpRecurring": "פגישה קבועה"
+    "grpDetails": "פרטים",
+    "grpScheduling": "פגישות ותזמון",
+    "grpBilling": "חיוב ותשלומים"
   },
   "dataWarning": "חלק מהנתונים לא נטענו — ייתכן שהיתרות חלקיות.",
   "statuses": {

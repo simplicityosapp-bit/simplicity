@@ -1,17 +1,25 @@
 /* ════════════════════════════════════════════════════════════════
    ClientFormFields — the shared add-client form body.
    ════════════════════════════════════════════════════════════════
-   Extracted so the in-app AddClientModal AND the onboarding client
-   step render the EXACT same fields — they can never drift apart.
-   Uses the modal form classes (.m-field / .m-input / .m-pills …) so
-   it looks identical wherever it's mounted.
+   Extracted when the onboarding client step rendered the same fields.
+   Onboarding has its own short form since the 4-step rework, so today
+   AddClientModal is the only mount. Uses the modal form classes
+   (.m-field / .m-input / .m-pills …) so it looks native wherever it is.
 
    Only NAME is required, but the form used to open as ~13 fields in
    one scroll, which reads as "all of this is expected of you now".
-   Name / phone / status stay in the open; everything else — billing,
-   links, contact, the recurring slot — sits behind ONE toggle. Nothing
-   was removed: every field is still here and still fillable, and the
-   rest can equally be completed later from the client's own file.
+   Name / phone / status stay in the open; everything else sits behind
+   ONE toggle. Nothing was removed: every field is still here and still
+   fillable, and the rest can equally be completed later from the
+   client's own file.
+
+   Inside the toggle the groups carry the SAME names, in the SAME order,
+   as the sections of EditClientModal — details, then the schedule, then
+   billing. Creating a client and editing one are the two halves of one
+   job, and they used to hand the user two different maps of it: this
+   form led with billing under headings ("שיוך", "קשר") that appear
+   nowhere in the edit modal. Meeting type moved into the schedule group
+   with them, which is where the edit modal keeps it.
 
    Props:
      - form:     the form state object (name, status, status_id,
@@ -106,6 +114,99 @@ export default function ClientFormFields({ form, set, setMeta, projects = [], st
         </Btn>
         {moreOpen && (
           <Box className="ec-acc-body">
+            <Txt as="p" className="m-group-h">{t('form.grpDetails')}</Txt>
+            {subStatuses.length > 0 && (
+              <Box className="m-field">
+                <Box as="label" className="m-label">{t('form.subStatus')}</Box>
+                <select className="m-select" value={form.status_id} onChange={(e) => set('status_id', e.target.value)}aria-label={t('form.subStatus')} >
+                  <option value="">{t('form.none')}</option>
+                  {subStatuses.map((s) => <option key={s.id} value={s.id}>{s.icon ? s.icon + ' ' : ''}{s.display_name}</option>)}
+                </select>
+              </Box>
+            )}
+            <Box className="m-field">
+              <Box as="label" className="m-label">{t('form.project')}</Box>
+              <select className="m-select" value={form.project_id} onChange={(e) => set('project_id', e.target.value)}aria-label={t('form.project')} >
+                <option value="">{t('form.none')}</option>
+                {projects.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
+              </select>
+            </Box>
+            {groups.length > 0 && (
+              <Box className="m-field">
+                <Box as="label" className="m-label">{t('form.group')}</Box>
+                <select className="m-select" value={form.group_id} onChange={(e) => set('group_id', e.target.value)}aria-label={t('form.group')} >
+                  <option value="">{t('form.noGroup')}</option>
+                  {groups.map((g) => <option key={g.id} value={g.id}>{g.name}</option>)}
+                </select>
+              </Box>
+            )}
+
+            <Box className="m-field">
+              <Box as="label" className="m-label">{t('form.email')}</Box>
+              <Input type="email" className="m-input" value={form.email || ''} onChange={(e) => set('email', e.target.value)} placeholder="name@example.com" dir="ltr" aria-label={t('form.email')} />
+            </Box>
+            <Box className="m-field">
+              <Box as="label" className="m-label">{t('form.address')}</Box>
+              <Input className="m-input" value={form.address || ''} onChange={(e) => set('address', e.target.value)} placeholder={t('form.addressPlaceholder')} aria-label={t('form.address')} />
+            </Box>
+            <Box className="m-field">
+              <Box as="label" className="m-label">{t('form.birthDate')}</Box>
+              <DateField className="m-input" value={form.birth_date || ''} onChange={(e) => set('birth_date', e.target.value)} aria-label={t('form.birthDate')} />
+            </Box>
+
+            <Txt as="p" className="m-group-h">{t('form.grpScheduling')}</Txt>
+            {/* Meeting type sits with the schedule, not with billing, because
+                that is where the edit modal keeps it — even though picking one
+                fills the price below. */}
+            {showMeetingTypes && (
+              <Box className="m-field">
+                <Box className="m-label-row">
+                  <Box as="label" className="m-label">{t('form.meetingType')}</Box>
+                  {onManageMeetingTypes && (
+                    <Btn type="button" className="m-clear-link" onClick={onManageMeetingTypes}>{t('form.manageMeetingTypes')}</Btn>
+                  )}
+                </Box>
+                <select
+                  className="m-select"
+                  value={form.meeting_type_id || ''}
+                  onChange={(e) => (onPickMeetingType ? onPickMeetingType(e.target.value) : set('meeting_type_id', e.target.value))}
+                  aria-label={t('form.meetingType')}
+                >
+                  <option value="">{t('form.none')}</option>
+                  {meetingTypes.map((mt) => (
+                    <option key={mt.id} value={mt.id}>
+                      {mt.name}{mt.default_price != null ? ` · ₪${mt.default_price}` : ''}
+                    </option>
+                  ))}
+                </select>
+              </Box>
+            )}
+            <Box className="m-row2">
+              <Box className="m-field">
+                <Box as="label" className="m-label">{t('form.recurringDay')}</Box>
+                <select className="m-select" value={form.recurring_day} onChange={(e) => set('recurring_day', e.target.value)}aria-label={t('form.recurringDay')} >
+                  <option value="">{t('form.none')}</option>
+                  {DAY_KEYS.map((d) => <option key={d} value={d}>{t(`form.days.${d}`)}</option>)}
+                </select>
+              </Box>
+              <Box className="m-field">
+                <Box as="label" className="m-label">{t('form.recurringTime')}</Box>
+                <Input type="time" className="m-input" value={form.recurring_time} onChange={(e) => set('recurring_time', e.target.value)} aria-label={t('form.recurringTime')} />
+              </Box>
+            </Box>
+            {/* A native time input can't be emptied on touch devices, so once a
+                fixed meeting is set by mistake there's no path back to "none".
+                This reachable clear resets the whole pair (day + time). */}
+            {(form.recurring_day !== '' || form.recurring_time !== '') && (
+              <Btn
+                type="button"
+                className="m-clear-link"
+                onClick={() => { set('recurring_day', ''); set('recurring_time', '') }}
+              >
+                {t('form.clearRecurring')}
+              </Btn>
+            )}
+
             <Txt as="p" className="m-group-h">{t('form.grpBilling')}</Txt>
             {/* Billing mode (migration 0014) — 'package' keeps the sessions ×
                 price model; 'per_session' bills per held meeting, so the quota
@@ -145,98 +246,6 @@ export default function ClientFormFields({ form, set, setMeta, projects = [], st
                 <Input type="number" min="0" className="m-input" value={form.price_per_session} onChange={(e) => setPrice(e.target.value)} placeholder="0" aria-label={t('form.pricePerSession')} />
               </Box>
             </Box>
-
-            {showMeetingTypes && (
-              <Box className="m-field">
-                <Box className="m-label-row">
-                  <Box as="label" className="m-label">{t('form.meetingType')}</Box>
-                  {onManageMeetingTypes && (
-                    <Btn type="button" className="m-clear-link" onClick={onManageMeetingTypes}>{t('form.manageMeetingTypes')}</Btn>
-                  )}
-                </Box>
-                <select
-                  className="m-select"
-                  value={form.meeting_type_id || ''}
-                  onChange={(e) => (onPickMeetingType ? onPickMeetingType(e.target.value) : set('meeting_type_id', e.target.value))}
-                  aria-label={t('form.meetingType')}
-                >
-                  <option value="">{t('form.none')}</option>
-                  {meetingTypes.map((mt) => (
-                    <option key={mt.id} value={mt.id}>
-                      {mt.name}{mt.default_price != null ? ` · ₪${mt.default_price}` : ''}
-                    </option>
-                  ))}
-                </select>
-              </Box>
-            )}
-
-            <Txt as="p" className="m-group-h">{t('form.grpLinks')}</Txt>
-            {subStatuses.length > 0 && (
-              <Box className="m-field">
-                <Box as="label" className="m-label">{t('form.subStatus')}</Box>
-                <select className="m-select" value={form.status_id} onChange={(e) => set('status_id', e.target.value)}aria-label={t('form.subStatus')} >
-                  <option value="">{t('form.none')}</option>
-                  {subStatuses.map((s) => <option key={s.id} value={s.id}>{s.icon ? s.icon + ' ' : ''}{s.display_name}</option>)}
-                </select>
-              </Box>
-            )}
-            <Box className="m-field">
-              <Box as="label" className="m-label">{t('form.project')}</Box>
-              <select className="m-select" value={form.project_id} onChange={(e) => set('project_id', e.target.value)}aria-label={t('form.project')} >
-                <option value="">{t('form.none')}</option>
-                {projects.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
-              </select>
-            </Box>
-            {groups.length > 0 && (
-              <Box className="m-field">
-                <Box as="label" className="m-label">{t('form.group')}</Box>
-                <select className="m-select" value={form.group_id} onChange={(e) => set('group_id', e.target.value)}aria-label={t('form.group')} >
-                  <option value="">{t('form.noGroup')}</option>
-                  {groups.map((g) => <option key={g.id} value={g.id}>{g.name}</option>)}
-                </select>
-              </Box>
-            )}
-
-            <Txt as="p" className="m-group-h">{t('form.grpContact')}</Txt>
-            <Box className="m-field">
-              <Box as="label" className="m-label">{t('form.email')}</Box>
-              <Input type="email" className="m-input" value={form.email || ''} onChange={(e) => set('email', e.target.value)} placeholder="name@example.com" dir="ltr" aria-label={t('form.email')} />
-            </Box>
-            <Box className="m-field">
-              <Box as="label" className="m-label">{t('form.address')}</Box>
-              <Input className="m-input" value={form.address || ''} onChange={(e) => set('address', e.target.value)} placeholder={t('form.addressPlaceholder')} aria-label={t('form.address')} />
-            </Box>
-            <Box className="m-field">
-              <Box as="label" className="m-label">{t('form.birthDate')}</Box>
-              <DateField className="m-input" value={form.birth_date || ''} onChange={(e) => set('birth_date', e.target.value)} aria-label={t('form.birthDate')} />
-            </Box>
-
-            <Txt as="p" className="m-group-h">{t('form.grpRecurring')}</Txt>
-            <Box className="m-row2">
-              <Box className="m-field">
-                <Box as="label" className="m-label">{t('form.recurringDay')}</Box>
-                <select className="m-select" value={form.recurring_day} onChange={(e) => set('recurring_day', e.target.value)}aria-label={t('form.recurringDay')} >
-                  <option value="">{t('form.none')}</option>
-                  {DAY_KEYS.map((d) => <option key={d} value={d}>{t(`form.days.${d}`)}</option>)}
-                </select>
-              </Box>
-              <Box className="m-field">
-                <Box as="label" className="m-label">{t('form.recurringTime')}</Box>
-                <Input type="time" className="m-input" value={form.recurring_time} onChange={(e) => set('recurring_time', e.target.value)} aria-label={t('form.recurringTime')} />
-              </Box>
-            </Box>
-            {/* A native time input can't be emptied on touch devices, so once a
-                fixed meeting is set by mistake there's no path back to "none".
-                This reachable clear resets the whole pair (day + time). */}
-            {(form.recurring_day !== '' || form.recurring_time !== '') && (
-              <Btn
-                type="button"
-                className="m-clear-link"
-                onClick={() => { set('recurring_day', ''); set('recurring_time', '') }}
-              >
-                {t('form.clearRecurring')}
-              </Btn>
-            )}
           </Box>
         )}
       </Box>

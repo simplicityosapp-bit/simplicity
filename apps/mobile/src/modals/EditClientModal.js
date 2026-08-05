@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef, Children, cloneElement } from 'react'
 import { View, Text, TextInput, Pressable, StyleSheet } from 'react-native'
 import { User, MapPin, CalendarDays, Wallet, Users, ChevronDown } from 'lucide-react-native'
 import { isr } from '@simplicity/core'
@@ -297,8 +297,37 @@ export default function EditClientModal({ open, onClose, onSave, client, rawPaid
   )
 }
 
+/* Tapping the LABEL puts the cursor in the field under it, the way the web
+   form does with htmlFor. There is no such binding in React Native, so the
+   label is a Pressable and the child input is handed a ref to focus.
+
+   Only a single child that takes a ref can be focused — a Select or a pills
+   row is not a text field and gets no ref, so its label simply does nothing
+   rather than throwing. Any ref the caller already put on the child is kept
+   and called alongside ours. */
 function Field({ label, flex, children }) {
-  return <View style={[styles.field, flex && styles.fieldFlex]}>{label ? <Text style={styles.label}>{label}</Text> : null}{children}</View>
+  const inputRef = useRef(null)
+  const only = Children.count(children) === 1 ? Children.only(children) : null
+  const focusable = only && only.type === TextInput
+  const child = focusable
+    ? cloneElement(only, {
+      ref: (node) => {
+        inputRef.current = node
+        const r = only.ref
+        if (typeof r === 'function') r(node)
+        else if (r && typeof r === 'object') r.current = node
+      },
+    })
+    : children
+  const labelNode = label ? <Text style={styles.label}>{label}</Text> : null
+  return (
+    <View style={[styles.field, flex && styles.fieldFlex]}>
+      {labelNode && focusable
+        ? <Pressable onPress={() => inputRef.current?.focus()} accessibilityRole="none">{labelNode}</Pressable>
+        : labelNode}
+      {child}
+    </View>
+  )
 }
 function Pills({ options, value, onPick }) {
   return (

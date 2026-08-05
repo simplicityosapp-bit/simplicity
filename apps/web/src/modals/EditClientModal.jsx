@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useId, useState } from 'react'
 import { User, CalendarDays, Wallet, Users, ChevronDown } from 'lucide-react'
 import Modal from './Modal'
 import MeetingTypesModal from './MeetingTypesModal'
@@ -50,6 +50,13 @@ function Section({ icon, title, summary, open, onToggle, children }) {
 export default function EditClientModal({ open, onClose, onSave, client, projects = [], groups = [], statuses = [], memberships = [], onUpdateMember, onPaidEntry, onBalanceEntry, rawPaid = 0, memberTotal = 0, personalHeld = 0, groupSessions = [] }) {
   const { t } = useT('modalsClient')
   const { t: ts } = useT('modalsSystem') // shared modal chrome (discard prompt)
+  /* Ties each label to its field so clicking the WORD puts the cursor in the
+     box — the target was the box alone until now. One useId per mount, not
+     one per field: the ids only have to be unique on the page, and the modal
+     can be mounted twice (it stays mounted while closed). Only fields whose
+     label points at exactly ONE control get this; a label over the status
+     pills or over the נקבעו/בוצעו pair has no single thing to focus. */
+  const fid = useId()
   /* Per-group billing override (group_members.total_override) — keyed by
      membership id. Lets the user manually set a member's total after the
      group's billing mode produced a default. */
@@ -344,8 +351,9 @@ export default function EditClientModal({ open, onClose, onSave, client, project
         onToggle={() => toggleSec('details')}
       >
         <Box className="m-field">
-          <Box as="label" className="m-label">{t('common.name')}</Box>
+          <Box as="label" className="m-label" htmlFor={`${fid}-name`}>{t('common.name')}</Box>
           <Input
+            id={`${fid}-name`}
             className={`m-input${err && !form.name.trim() ? ' err' : ''}`}
             value={form.name}
             onChange={(e) => { set('name', e.target.value); if (err) setErr('') }}
@@ -369,8 +377,8 @@ export default function EditClientModal({ open, onClose, onSave, client, project
         </Box>
         {subStatuses.length > 0 && (
           <Box className="m-field">
-            <Box as="label" className="m-label">{t('common.subStatusOptional')}</Box>
-            <select className="m-select" value={form.status_id} onChange={(e) => set('status_id', e.target.value)}aria-label={t('common.subStatusOptional')} >
+            <Box as="label" className="m-label" htmlFor={`${fid}-substatus`}>{t('common.subStatusOptional')}</Box>
+            <select id={`${fid}-substatus`} className="m-select" value={form.status_id} onChange={(e) => set('status_id', e.target.value)}aria-label={t('common.subStatusOptional')} >
               <option value="">{t('common.none')}</option>
               {subStatuses.map((s) => <option key={s.id} value={s.id}>{s.icon ? s.icon + ' ' : ''}{s.display_name}</option>)}
             </select>
@@ -378,12 +386,12 @@ export default function EditClientModal({ open, onClose, onSave, client, project
         )}
         <Box className="m-row2">
           <Box className="m-field">
-            <Box as="label" className="m-label">{t('common.phone')}</Box>
-            <Input className="m-input" value={form.phone} onChange={(e) => set('phone', e.target.value)} placeholder={t('common.phonePlaceholder')} aria-label={t('common.phone')} />
+            <Box as="label" className="m-label" htmlFor={`${fid}-phone`}>{t('common.phone')}</Box>
+            <Input id={`${fid}-phone`} className="m-input" value={form.phone} onChange={(e) => set('phone', e.target.value)} placeholder={t('common.phonePlaceholder')} aria-label={t('common.phone')} />
           </Box>
           <Box className="m-field">
-            <Box as="label" className="m-label">{t('common.project')}</Box>
-            <select className="m-select" value={form.project_id} onChange={(e) => changeProject(e.target.value)}aria-label={t('common.project')} >
+            <Box as="label" className="m-label" htmlFor={`${fid}-project`}>{t('common.project')}</Box>
+            <select id={`${fid}-project`} className="m-select" value={form.project_id} onChange={(e) => changeProject(e.target.value)}aria-label={t('common.project')} >
               <option value="">{t('common.none')}</option>
               {projects.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
             </select>
@@ -395,8 +403,8 @@ export default function EditClientModal({ open, onClose, onSave, client, project
           </Box>
         </Box>
         <Box className="m-field">
-          <Box as="label" className="m-label">{t('common.email')}</Box>
-          <Input type="email" className="m-input" value={form.email || ''} onChange={(e) => set('email', e.target.value)} placeholder={t('common.emailPlaceholder')} dir="ltr" aria-label={t('common.email')} />
+          <Box as="label" className="m-label" htmlFor={`${fid}-email`}>{t('common.email')}</Box>
+          <Input id={`${fid}-email`} type="email" className="m-input" value={form.email || ''} onChange={(e) => set('email', e.target.value)} placeholder={t('common.emailPlaceholder')} dir="ltr" aria-label={t('common.email')} />
         </Box>
       </Section>
 
@@ -409,10 +417,10 @@ export default function EditClientModal({ open, onClose, onSave, client, project
       >
         <Box className="m-field">
           <Box className="m-label-row">
-            <Box as="label" className="m-label">{t('editClient.meetingType')}</Box>
+            <Box as="label" className="m-label" htmlFor={`${fid}-mtype`}>{t('editClient.meetingType')}</Box>
             <Btn type="button" className="m-clear-link" onClick={() => setManageTypes(true)}>{t('editClient.manageMeetingTypes')}</Btn>
           </Box>
-          <select className="m-select" value={form.meeting_type_id || ''} onChange={(e) => pickMeetingType(e.target.value)}aria-label={t('editClient.meetingType')} >
+          <select id={`${fid}-mtype`} className="m-select" value={form.meeting_type_id || ''} onChange={(e) => pickMeetingType(e.target.value)}aria-label={t('editClient.meetingType')} >
             <option value="">{t('common.none')}</option>
             {meetingTypes.map((mt) => (
               <option key={mt.id} value={mt.id}>
@@ -423,15 +431,15 @@ export default function EditClientModal({ open, onClose, onSave, client, project
         </Box>
         <Box className="m-row2">
           <Box className="m-field">
-            <Box as="label" className="m-label">{t('editClient.fixedDay')}</Box>
-            <select className="m-select" value={form.recurring_day} onChange={(e) => set('recurring_day', e.target.value)}aria-label={t('editClient.fixedDay')} >
+            <Box as="label" className="m-label" htmlFor={`${fid}-recday`}>{t('editClient.fixedDay')}</Box>
+            <select id={`${fid}-recday`} className="m-select" value={form.recurring_day} onChange={(e) => set('recurring_day', e.target.value)}aria-label={t('editClient.fixedDay')} >
               <option value="">{t('common.none')}</option>
               {DAYS.map((d) => <option key={d} value={d}>{t(`common.day${d}`)}</option>)}
             </select>
           </Box>
           <Box className="m-field">
-            <Box as="label" className="m-label">{t('editClient.fixedTime')}</Box>
-            <Input type="time" className="m-input" value={form.recurring_time} onChange={(e) => set('recurring_time', e.target.value)} aria-label={t('editClient.fixedTime')} />
+            <Box as="label" className="m-label" htmlFor={`${fid}-rectime`}>{t('editClient.fixedTime')}</Box>
+            <Input id={`${fid}-rectime`} type="time" className="m-input" value={form.recurring_time} onChange={(e) => set('recurring_time', e.target.value)} aria-label={t('editClient.fixedTime')} />
           </Box>
         </Box>
         {/* End time — the client's own slot length. It was in the form state and
@@ -442,8 +450,8 @@ export default function EditClientModal({ open, onClose, onSave, client, project
             have had none — same row shape as EditGroupModal. */}
         <Box className="m-row2">
           <Box className="m-field">
-            <Box as="label" className="m-label">{t('editClient.fixedEndTime')}</Box>
-            <Input type="time" className="m-input" value={form.recurring_end_time} onChange={(e) => set('recurring_end_time', e.target.value)} aria-label={t('editClient.fixedEndTime')} />
+            <Box as="label" className="m-label" htmlFor={`${fid}-recend`}>{t('editClient.fixedEndTime')}</Box>
+            <Input id={`${fid}-recend`} type="time" className="m-input" value={form.recurring_end_time} onChange={(e) => set('recurring_end_time', e.target.value)} aria-label={t('editClient.fixedEndTime')} />
             <Txt as="p" className="m-hint">{t('editClient.fixedEndTimeHint')}</Txt>
           </Box>
         </Box>
@@ -523,15 +531,15 @@ export default function EditClientModal({ open, onClose, onSave, client, project
           )}
         </Box>
         <Box className="m-field">
-          <Box as="label" className="m-label">{t('editClient.pricePerSession')}</Box>
-          <Input type="number" min="0" className="m-input" value={form.price_per_session} onChange={(e) => setPrice(e.target.value)} aria-label={t('editClient.pricePerSession')} />
+          <Box as="label" className="m-label" htmlFor={`${fid}-price`}>{t('editClient.pricePerSession')}</Box>
+          <Input id={`${fid}-price`} type="number" min="0" className="m-input" value={form.price_per_session} onChange={(e) => setPrice(e.target.value)} aria-label={t('editClient.pricePerSession')} />
         </Box>
         <Box className="m-field">
-          <Box as="label" className="m-label">{t('editClient.totalDueOptional')}</Box>
+          <Box as="label" className="m-label" htmlFor={`${fid}-totaldue`}>{t('editClient.totalDueOptional')}</Box>
           {/* The formula names the mode's ACTUAL inputs. It read "פגישות ×
               מחיר" in both modes, which is only true of a package — a
               per-session client is billed on the meetings that took place. */}
-          <Input type="number" min="0" className="m-input" value={form.total_due}
+          <Input id={`${fid}-totaldue`} type="number" min="0" className="m-input" value={form.total_due}
             onChange={(e) => set('total_due', e.target.value)} placeholder={t('editClient.totalDuePlaceholder', { formula: totalDueFormula })} aria-label={t('editClient.totalDueOptional')}
           />
           <Txt as="p" className="m-hint">{t('editClient.totalDueHint', { formula: totalDueFormula })}</Txt>
@@ -588,8 +596,8 @@ export default function EditClientModal({ open, onClose, onSave, client, project
         >
           {projectHasGroups && (
             <Box className="m-field">
-              <Box as="label" className="m-label">{t('common.groupOptional')}</Box>
-              <select className="m-select" value={form.group_id} onChange={(e) => { set('group_id', e.target.value); if (e.target.value) setDroppedGroup('') }}aria-label={t('common.groupOptional')} >
+              <Box as="label" className="m-label" htmlFor={`${fid}-group`}>{t('common.groupOptional')}</Box>
+              <select id={`${fid}-group`} className="m-select" value={form.group_id} onChange={(e) => { set('group_id', e.target.value); if (e.target.value) setDroppedGroup('') }}aria-label={t('common.groupOptional')} >
                 <option value="">{t('editClient.noGroup')}</option>
                 {groups.filter((g) => g.project_id === form.project_id).map((g) => <option key={g.id} value={g.id}>{g.name}</option>)}
               </select>

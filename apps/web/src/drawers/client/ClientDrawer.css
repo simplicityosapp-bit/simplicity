@@ -235,6 +235,31 @@
   font-size: calc(11px * var(--text-scale));
   color: var(--stone);
 }
+/* Contact line under the header. Wraps rather than truncating — an email is
+   the one field here long enough to need it, and a half-shown address is
+   worse than a second line. Sits above the hero because it belongs with the
+   name, not with the money. */
+.cd-contact {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  margin: -8px 0 16px;
+}
+.cd-contact-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--mg-font);
+  font-size: calc(12px * var(--text-scale));
+  color: var(--stone);
+  text-decoration: none;
+  word-break: break-all;
+}
+.cd-contact-item:hover {
+  color: var(--terracotta);
+  text-decoration: underline;
+}
+.cd-contact-item svg { flex-shrink: 0; }
 .cd-edit-details {
   flex-shrink: 0;
   display: inline-flex;

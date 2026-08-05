@@ -276,6 +276,7 @@
         "payment_date": "Date de paiement",
         "num_installments": "Nombre de versements",
         "project": "Projet",
+        "billing_mode": "Mode de facturation",
         "notes": "Notes"
       },
       "projects": {

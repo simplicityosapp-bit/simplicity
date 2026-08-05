@@ -276,6 +276,7 @@
         "payment_date": "Fecha de pago",
         "num_installments": "Número de cuotas",
         "project": "Proyecto",
+        "billing_mode": "Modo de cobro",
         "notes": "Notas"
       },
       "projects": {

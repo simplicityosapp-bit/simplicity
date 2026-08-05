@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import Modal from './Modal'
+import ConfirmModal from './ConfirmModal'
 import { isr } from '@simplicity/core'
 import { useT } from '../i18n/useT'
 import { Box, Txt, Btn, Input } from '../components/ui'
@@ -37,8 +38,9 @@ const REASONS = [
    an edit of «שולם» or «יתרה» in the edit modal — the user already said how
    much and roughly what, so they only confirm. Parent keys this modal on the
    preset so it re-seeds each time it opens. */
-export default function AdjustmentModal({ open, onClose, balance, onSave, onAlsoRecordIncome, presetAmount = null, presetReason = null }) {
+export default function AdjustmentModal({ open, onClose, balance, onSave, onAlsoRecordIncome, presetAmount = null, presetReason = null, moreQueued = false }) {
   const { t } = useT('clients')
+  const { t: ts } = useT('modalsSystem') // shared modal chrome (discard prompt)
   const [reason, setReason] = useState(presetReason || 'discount')
   /* The preset arrives SIGNED — lowering «שולם» from 500 to 300 hands over
      -200. Keep the sign: absolute-valuing it here turned every downward
@@ -65,6 +67,15 @@ export default function AdjustmentModal({ open, onClose, balance, onSave, onAlso
     setNote(''); setBusy(false); setErr('')
     onClose()
   }
+  /* When this sheet was opened BY an edit of «שולם»/«יתרה», that edit was
+     deliberately not written yet — it is waiting on the reason asked for here.
+     Backing out therefore throws away a number the user typed on a screen that
+     has already closed and reported itself saved. The line below the fields
+     says so, but a line is easy to miss on a dialog that appeared unbidden, so
+     the exits confirm. A sheet opened from the card's own «התאמה» link holds
+     nothing from elsewhere and closes straight away. */
+  const [confirmDiscard, setConfirmDiscard] = useState(false)
+  const requestClose = () => { if (presetAmount != null && !busy) setConfirmDiscard(true); else close() }
 
   const submit = async () => {
     if (busy) return
@@ -94,7 +105,7 @@ export default function AdjustmentModal({ open, onClose, balance, onSave, onAlso
   }
 
   return (
-    <Modal open={open} onClose={close} title={t('adjust.title')}>
+    <Modal open={open} onClose={requestClose} title={t('adjust.title')}>
       <Box className="m-field">
         <Box as="label" className="m-label">{t('adjust.whatHappened')}</Box>
         <Box className="m-pills">
@@ -142,6 +153,13 @@ export default function AdjustmentModal({ open, onClose, balance, onSave, onAlso
         <Txt as="p" className="m-hint">{t('adjust.cancelDiscards')}</Txt>
       )}
 
+      {/* One save changed both «שולם» and «יתרה», so a second sheet follows
+          this one. Said up front — a dialog reappearing straight after the
+          first was confirmed reads as a glitch otherwise. */}
+      {moreQueued && (
+        <Txt as="p" className="m-hint">{t('adjust.moreQueued')}</Txt>
+      )}
+
       {/* States the outcome BEFORE saving — the whole point is that the user
           never has to work out which number a reason moves. */}
       {delta !== 0 && (
@@ -159,7 +177,7 @@ export default function AdjustmentModal({ open, onClose, balance, onSave, onAlso
       {err && <Txt as="p" className="m-error">{err}</Txt>}
 
       <Box className="m-actions">
-        <Btn type="button" className="m-btn-cancel" onClick={close} disabled={busy}>{t('inline.cancel')}</Btn>
+        <Btn type="button" className="m-btn-cancel" onClick={requestClose} disabled={busy}>{t('inline.cancel')}</Btn>
         <Btn type="button" className="m-btn-save" onClick={submit} disabled={busy}>
           {busy ? t('inline.saving') : t('inline.save')}
         </Btn>
@@ -172,6 +190,17 @@ export default function AdjustmentModal({ open, onClose, balance, onSave, onAlso
           {t('adjust.alsoRecordIncome')}
         </Btn>
       )}
+
+      <ConfirmModal
+        open={confirmDiscard}
+        onClose={() => setConfirmDiscard(false)}
+        title={ts('discard.title')}
+        message={t('adjust.cancelDiscards')}
+        confirmLabel={ts('discard.confirm')}
+        cancelLabel={ts('discard.cancel')}
+        danger
+        onConfirm={() => { setConfirmDiscard(false); close() }}
+      />
     </Modal>
   )
 }

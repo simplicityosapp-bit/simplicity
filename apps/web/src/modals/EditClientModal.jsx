@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { User, CalendarDays, Wallet, Users, ChevronDown, MapPin } from 'lucide-react'
 import Modal from './Modal'
 import MeetingTypesModal from './MeetingTypesModal'
+import ConfirmModal from './ConfirmModal'
 import { isr } from '@simplicity/core'
 import { useMeetingTypes } from '../hooks/useMeetingTypes'
 import { useT } from '../i18n/useT'
@@ -41,6 +42,7 @@ function Section({ icon, title, summary, open, onToggle, children }) {
    None of the billing math or save logic changes with the regroup. */
 export default function EditClientModal({ open, onClose, onSave, client, projects = [], groups = [], statuses = [], memberships = [], onUpdateMember, onPaidEntry, onBalanceEntry, rawPaid = 0, memberTotal = 0, personalHeld = 0, groupSessions = [] }) {
   const { t } = useT('modalsClient')
+  const { t: ts } = useT('modalsSystem') // shared modal chrome (discard prompt)
   /* Per-group billing override (group_members.total_override) — keyed by
      membership id. Lets the user manually set a member's total after the
      group's billing mode produced a default. */
@@ -80,6 +82,24 @@ export default function EditClientModal({ open, onClose, onSave, client, project
     meeting_type_id: client?.meeting_type_id || '',
     price_overridden: client?.price_overridden ?? false,
   }))
+  /* Frozen copies of the seed. useState ignores its argument after the first
+     render, so these permanently hold the form and the overrides exactly as
+     they were seeded from the client. Compared SHALLOWLY — every value in both
+     is a primitive — so a field added to the seed later is covered here
+     automatically instead of having to be remembered in a hand-written list. */
+  const [seededForm] = useState(form)
+  const [seededOverrides] = useState(memberOverrides)
+  const formDirty = Object.keys(form).some((k) => form[k] !== seededForm[k])
+    || Object.keys(memberOverrides).some((k) => memberOverrides[k] !== seededOverrides[k])
+  /* The longest form in the app sat behind an unguarded overlay: one tap
+     beside the sheet, or Escape, and ~20 fields — including money — went with
+     it, silently. Escape / the overlay / the X / «ביטול» all come through here
+     now; saving calls onClose directly and bypasses it. An untouched form
+     still closes immediately. */
+  const [confirmDiscard, setConfirmDiscard] = useState(false)
+  const requestClose = () => { if (formDirty) setConfirmDiscard(true); else onClose() }
+  /* Raw text held while «יתרה» is being typed into — see onBalanceInput. */
+  const [balanceDraft, setBalanceDraft] = useState(null)
   const { types: meetingTypes, refetch: refetchMeetingTypes } = useMeetingTypes()
   const [manageTypes, setManageTypes] = useState(false)
   const [err, setErr] = useState('')
@@ -93,6 +113,13 @@ export default function EditClientModal({ open, onClose, onSave, client, project
   })
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }))
   const setMeta = (k) => setForm((f) => ({ ...f, status: k, status_id: '' }))
+  /* Name of the group a project change just detached, or '' — drives the note
+     under the project select. Cleared as soon as a group is chosen again. */
+  const [droppedGroup, setDroppedGroup] = useState('')
+  const changeProject = (id) => {
+    setDroppedGroup(form.group_id ? (groups.find((g) => g.id === form.group_id)?.name || '') : '')
+    setForm((f) => ({ ...f, project_id: id, group_id: '' }))
+  }
   /* Picking a type auto-fills price_per_session from its default and re-attaches
      the price to the type; a hand-edited price detaches it (price_overridden). */
   const pickMeetingType = (id) => {
@@ -106,7 +133,13 @@ export default function EditClientModal({ open, onClose, onSave, client, project
   }
   const setPrice = (v) => setForm((f) => ({ ...f, price_per_session: v, price_overridden: true }))
 
-  if (!client) return <Modal open={open} onClose={onClose} title={t('editClient.title')} />
+  /* No client → render nothing. This used to return a Modal with a title and
+     an X and no body at all: an empty dialog is strictly worse than none.
+     Unreachable in practice (the drawer only opens this with a client, and it
+     can't close underneath an open modal), so nothing is lost by the guard
+     going quiet — the real close path keeps its animation, because `client` is
+     still set while `open` flips to false. */
+  if (!client) return null
   const subStatuses = statuses.filter((s) => s.meta_category === form.status)
 
   /* Live billing snapshot — mirrors the card. Billing is per-client: the
@@ -124,11 +157,42 @@ export default function EditClientModal({ open, onClose, onSave, client, project
   const livePaid = Number(form.paid) || 0
   const liveAdj = Number(form.adjustment) || 0
   const liveBalance = liveTotal - livePaid - liveAdj
-  /* Editing "יתרה" moves the forgiveness (adjustment) — "שולם" stays put. */
-  const setBalance = (v) => set('adjustment', String(liveTotal - livePaid - (Number(v) || 0)))
+  /* Editing "יתרה" moves the forgiveness (adjustment) — "שולם" stays put.
+     «יתרה» is the one DERIVED money field: it renders liveBalance, which is
+     recomputed from `adjustment` on every keystroke. That round-trip used to
+     destroy the intermediate states a number has to pass through. A number
+     input reports value="" while its text is not yet a valid number, so
+     typing "-" (an overpaid client) or the "." of "150.5" fed `Number('')||0`
+     → 0 → the field re-rendered as "0" over what was being typed, and
+     clearing the field snapped it to 0 instead of leaving it be.
+     So: hold the raw text while editing and commit ONLY once it parses.
+     While it doesn't, the rendered value stays "" — which matches what the
+     input already holds, so React leaves the DOM alone and the half-typed
+     text survives. Blur drops the draft and the field re-syncs to the
+     derived value. */
+  const onBalanceInput = (v) => {
+    setBalanceDraft(v)
+    if (v !== '' && Number.isFinite(Number(v))) set('adjustment', String(liveTotal - livePaid - Number(v)))
+  }
 
-  /* Collapsed-header summaries (live values). */
-  const statusLabel = t(`editClient.${(STATUSES.find((s) => s.k === form.status) || STATUSES[0]).l}`)
+  /* Collapsed-header summaries (live values). The status line carries the
+     sub-status too when one is picked — it's the more specific of the two, and
+     a closed section that reported only "פעיל׌" hid the very field the user
+     had just set. */
+  const pickedSub = form.status_id ? statuses.find((s) => s.id === form.status_id) : null
+  const metaLabel = t(`editClient.${(STATUSES.find((s) => s.k === form.status) || STATUSES[0]).l}`)
+  /* Sub-statuses are named by the user, and naming one after its own category
+     ("פעיל" under פעיל) is the obvious thing to do — appending it blindly then
+     reads "פעיל׌ · פעיל׌", which looks like a rendering fault rather than a
+     summary. Only append when it actually adds a word. */
+  const statusLabel = pickedSub && pickedSub.display_name !== metaLabel
+    ? `${metaLabel} · ${pickedSub.display_name}`
+    : metaLabel
+  /* How far the hand-edited "בוצעו" sits from what the app actually recorded.
+     The difference is stored as sessions_done_adjustment, and nothing on
+     screen used to say so — the number simply took, with a silent correction
+     filed behind it. Non-zero only while the two disagree. */
+  const doneDelta = (Number(form.done) || 0) - personalHeld
   const schedSummary = form.recurring_day !== ''
     ? `${t(`common.day${form.recurring_day}`)}${form.recurring_time ? ` · ${form.recurring_time}` : ''}`
     : (form.meeting_type_id ? (meetingTypes.find((mt) => mt.id === form.meeting_type_id)?.name || '') : '')
@@ -173,8 +237,13 @@ export default function EditClientModal({ open, onClose, onSave, client, project
            them so a stray time can never persist a half-set meeting. */
         recurring_time: form.recurring_day !== '' ? (form.recurring_time || null) : null,
         recurring_end_time: form.recurring_day !== '' ? (form.recurring_end_time || null) : null,
-        recurring_start_date: form.recurring_start_date || null,
-        recurring_end_date: form.recurring_end_date || null,
+        /* The dates hang off the same slot, so they clear with it. «ניקוי
+           פגישה קבועה» used to drop the day and both times and leave these
+           behind — a start date for a series that no longer exists. Nothing
+           writes them without a day (ScheduleMeetingModal sets the two
+           together), so gating them on the day can't strand a date either. */
+        recurring_start_date: form.recurring_day !== '' ? (form.recurring_start_date || null) : null,
+        recurring_end_date: form.recurring_day !== '' ? (form.recurring_end_date || null) : null,
         meeting_type_id: form.meeting_type_id || null,
         price_overridden: !!form.price_overridden,
       }
@@ -219,11 +288,15 @@ export default function EditClientModal({ open, onClose, onSave, client, project
         }
       }
       /* Hand any manual money change to the parent, which opens the adjustment
-         sheet so it lands in the ledger with a reason. Paid wins if somehow
-         both changed in one save — the sheet takes one adjustment at a time,
-         and «שולם» is the one that claims money actually moved. */
+         sheet so it lands in the ledger with a reason. BOTH are handed over
+         when both changed: a discount given and cash received are two separate
+         events with two different reasons, and neither is written into the
+         patch above — so the `else if` that used to sit here didn't "prefer"
+         «שולם», it silently threw the «יתרה» edit away. The parent queues them
+         and runs the sheets in order. «שולם» goes first: it's the one claiming
+         money actually moved. */
       if (paymentDelta !== 0) onPaidEntry?.(paymentDelta)
-      else if (balanceDelta !== 0) onBalanceEntry?.(balanceDelta)
+      if (balanceDelta !== 0) onBalanceEntry?.(balanceDelta)
       onClose()
     } catch (e) {
       setBusy(false)
@@ -246,7 +319,12 @@ export default function EditClientModal({ open, onClose, onSave, client, project
 
   return (
     <>
-    <Modal open={open} onClose={onClose} title={t('editClient.title')}>
+    {/* Named title. With the client file dimmed behind the overlay and a body
+        that is mostly numbers, a bare "עריכת לקוח" left nothing on screen
+        saying WHOSE money is being edited. Deliberately not truncated: a long
+        name wraps the header onto a second line, which costs nothing, where
+        an ellipsis would hide the one thing the title is here to say. */}
+    <Modal open={open} onClose={requestClose} title={client.name ? t('editClient.titleNamed', { name: client.name }) : t('editClient.title')}>
       <Section
         icon={<User size={17} strokeWidth={1.7} />}
         title={t('editClient.secDetails')}
@@ -262,6 +340,13 @@ export default function EditClientModal({ open, onClose, onSave, client, project
             onChange={(e) => { set('name', e.target.value); if (err) setErr('') }}
             aria-label={t('common.name')}
           />
+          {/* The missing-name error belongs HERE, not in the footer four
+              sections below it, where the reader had a red ring on one field
+              and the sentence explaining it somewhere off-screen. An empty
+              name is the only error that can reach this point — submit blocks
+              on it, so anything else in `err` is a save failure and stays at
+              the bottom with the buttons. */}
+          {err && !form.name.trim() && <Txt as="p" className="m-error">{err}</Txt>}
         </Box>
         <Box className="m-field">
           <Box as="label" className="m-label">{t('editClient.status')}</Box>
@@ -287,10 +372,15 @@ export default function EditClientModal({ open, onClose, onSave, client, project
           </Box>
           <Box className="m-field">
             <Box as="label" className="m-label">{t('common.project')}</Box>
-            <select className="m-select" value={form.project_id} onChange={(e) => { set('project_id', e.target.value); set('group_id', '') }}aria-label={t('common.project')} >
+            <select className="m-select" value={form.project_id} onChange={(e) => changeProject(e.target.value)}aria-label={t('common.project')} >
               <option value="">{t('common.none')}</option>
               {projects.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
             </select>
+            {/* A group belongs to exactly one project, so moving the client
+                takes the group with it. That was right but invisible — and the
+                groups section it happened in is usually collapsed, or hidden
+                outright once the new project has no groups of its own. */}
+            {droppedGroup && <Txt as="p" className="m-hint">{t('editClient.projectDroppedGroup', { group: droppedGroup })}</Txt>}
           </Box>
         </Box>
         <Box className="m-field">
@@ -354,8 +444,27 @@ export default function EditClientModal({ open, onClose, onSave, client, project
             <Input type="time" className="m-input" value={form.recurring_time} onChange={(e) => set('recurring_time', e.target.value)} aria-label={t('editClient.fixedTime')} />
           </Box>
         </Box>
+        {/* End time — the client's own slot length. It was in the form state and
+            saved back, but had no control here, so a 1-on-1 slot could never be
+            anything other than the calendar's 60-minute fallback (the day view
+            reads duration_minutes, then the subject's recurring_end_time, then
+            gives up). Groups have had all three fields for as long as clients
+            have had none — same row shape as EditGroupModal. */}
+        <Box className="m-row2">
+          <Box className="m-field">
+            <Box as="label" className="m-label">{t('editClient.fixedEndTime')}</Box>
+            <Input type="time" className="m-input" value={form.recurring_end_time} onChange={(e) => set('recurring_end_time', e.target.value)} aria-label={t('editClient.fixedEndTime')} />
+            <Txt as="p" className="m-hint">{t('editClient.fixedEndTimeHint')}</Txt>
+          </Box>
+        </Box>
         {/* Reachable clear — a native time input can't be emptied on touch, so
-            this is the only path back to "no fixed meeting". */}
+            this is the only path back to "no fixed meeting". Gated on the three
+            fields this section SHOWS, end time included: it now has a control
+            of its own right above, and it's precisely the kind of field a touch
+            user cannot empty by hand. (While it had no control, this same test
+            put a "clear the fixed meeting" link above an empty day and an empty
+            time, offering to clear nothing the user could see — adding the
+            field is what fixes that, not dropping the test.) */}
         {(form.recurring_day !== '' || form.recurring_time !== '' || form.recurring_end_time !== '') && (
           <Btn
             type="button"
@@ -400,6 +509,14 @@ export default function EditClientModal({ open, onClose, onSave, client, project
                 onChange={(e) => set('done', e.target.value)} aria-label={t('editClient.done')} />
             </Box>
           </Box>
+          {/* Say what the app is about to file. A hand-edited "בוצעו" does not
+              rewrite history — it records the gap against what was actually
+              logged, and that gap outlives the edit. */}
+          {doneDelta !== 0 && (
+            <Txt as="p" className="m-hint">
+              {t('editClient.doneAdjustHint', { held: personalHeld, delta: doneDelta > 0 ? `+${doneDelta}` : String(doneDelta) })}
+            </Txt>
+          )}
         </Box>
         <Box className="m-field">
           <Box as="label" className="m-label">{t('editClient.pricePerSession')}</Box>
@@ -427,8 +544,10 @@ export default function EditClientModal({ open, onClose, onSave, client, project
               <Txt as="p" className="ec-bill-label">{t('editClient.balance')}</Txt>
               <Box className="ec-bill-money">
                 <Txt className="ec-bill-cur">₪</Txt>
-                <Input type="number" className="ec-bill-input" value={String(liveBalance)}
-                  onChange={(e) => setBalance(e.target.value)} aria-label={t('editClient.balance')} />
+                <Input type="number" className="ec-bill-input" value={balanceDraft ?? String(liveBalance)}
+                  onChange={(e) => onBalanceInput(e.target.value)}
+                  onBlur={() => setBalanceDraft(null)}
+                  aria-label={t('editClient.balance')} />
               </Box>
             </Box>
           </Box>
@@ -463,7 +582,7 @@ export default function EditClientModal({ open, onClose, onSave, client, project
           {projectHasGroups && (
             <Box className="m-field">
               <Box as="label" className="m-label">{t('common.groupOptional')}</Box>
-              <select className="m-select" value={form.group_id} onChange={(e) => set('group_id', e.target.value)}aria-label={t('common.groupOptional')} >
+              <select className="m-select" value={form.group_id} onChange={(e) => { set('group_id', e.target.value); if (e.target.value) setDroppedGroup('') }}aria-label={t('common.groupOptional')} >
                 <option value="">{t('editClient.noGroup')}</option>
                 {groups.filter((g) => g.project_id === form.project_id).map((g) => <option key={g.id} value={g.id}>{g.name}</option>)}
               </select>
@@ -505,13 +624,24 @@ export default function EditClientModal({ open, onClose, onSave, client, project
         </Section>
       )}
 
-      {err && <Txt as="p" className="m-error">{err}</Txt>}
+      {/* Save failures only — the name error is rendered at its own field. */}
+      {err && !!form.name.trim() && <Txt as="p" className="m-error">{err}</Txt>}
 
       <Box className="m-actions">
-        <Btn type="button" className="m-btn-cancel" onClick={onClose}>{t('common.cancel')}</Btn>
+        <Btn type="button" className="m-btn-cancel" onClick={requestClose}>{t('common.cancel')}</Btn>
         <Btn type="button" className="m-btn-save" onClick={submit} disabled={busy}>{busy ? t('common.saving') : t('common.save')}</Btn>
       </Box>
 
+      <ConfirmModal
+        open={confirmDiscard}
+        onClose={() => setConfirmDiscard(false)}
+        title={ts('discard.title')}
+        message={ts('discard.message')}
+        confirmLabel={ts('discard.confirm')}
+        cancelLabel={ts('discard.cancel')}
+        danger
+        onConfirm={() => { setConfirmDiscard(false); onClose() }}
+      />
     </Modal>
     <MeetingTypesModal open={manageTypes} onClose={() => { setManageTypes(false); refetchMeetingTypes() }} />
     </>

@@ -189,6 +189,7 @@
       "unrecorded_payment": "Pago recibido, no registrado"
     },
     "cancelDiscards": "Cancelar aquí también descarta el cambio que introdujiste.",
+    "moreQueued": "Cambiaste «Pagado» y «Saldo» — al terminar este ajuste se abrirá otro para el segundo cambio.",
     "writeOffs": "Deuda condonada",
     "unexplained": "Ajuste sin detallar",
     "unexplainedSub": "registrado fuera de esta pantalla"

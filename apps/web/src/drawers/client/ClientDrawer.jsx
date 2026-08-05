@@ -48,8 +48,15 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
   /* Editing «שולם» or «יתרה» by hand no longer raises a bare yes/no prompt.
      The delta opens the adjustment sheet instead, pre-seeded with the amount
      and a likely reason, so every adjustment lands in the ledger with a
-     reason and a date attached (migration 0095). */
-  const [pendingAdjust, setPendingAdjust] = useState(null)
+     reason and a date attached (migration 0095).
+     A QUEUE, not one slot: a single save can change BOTH numbers — a discount
+     given and cash received are two separate events with two different
+     reasons — and holding one slot meant the second delta was computed and
+     then dropped without a word. They now run one after the other. */
+  const [adjustQueue, setAdjustQueue] = useState([])
+  const headAdjust = adjustQueue[0] || null
+  const queueAdjust = (entry) => setAdjustQueue((q) => [...q, entry])
+  const shiftAdjust = () => setAdjustQueue((q) => (q.length ? q.slice(1) : q))
   const { adjustments, addAdjustment } = useClientAdjustments()
   const scrollRef = useRef(null)
 
@@ -384,9 +391,10 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
         onUpdateMember={onUpdateMember}
         /* A hand-edited «שולם» is money the user says arrived; a hand-edited
            «יתרה» is debt they're writing off. Each opens the adjustment sheet
-           with that reason pre-picked, so both land in the ledger. */
-        onPaidEntry={(delta) => setPendingAdjust({ amount: delta, reason: 'unrecorded_payment' })}
-        onBalanceEntry={(delta) => setPendingAdjust({ amount: delta, reason: 'discount' })}
+           with that reason pre-picked, so both land in the ledger. Both can
+           fire from one save — they queue, and the sheets come in order. */
+        onPaidEntry={(delta) => queueAdjust({ amount: delta, reason: 'unrecorded_payment' })}
+        onBalanceEntry={(delta) => queueAdjust({ amount: delta, reason: 'discount' })}
       />
 
       {/* Edit an existing payment/transaction from the payments panel. */}
@@ -434,12 +442,16 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
           by a hand-edited «שולם»/«יתרה» in the edit modal. Keyed on the seed
           so it re-seeds every time it opens (Modal keeps children mounted). */}
       <AdjustmentModal
-        key={`adj-${client?.id}-${pendingAdjust?.amount ?? 'x'}-${actionModal === 'adjust'}`}
-        open={actionModal === 'adjust' || !!pendingAdjust}
-        onClose={() => { setActionModal(null); setPendingAdjust(null) }}
+        key={`adj-${client?.id}-${adjustQueue.length}-${headAdjust?.amount ?? 'x'}-${actionModal === 'adjust'}`}
+        /* Stand down while the income form is up — that path shifts the queue
+           and opens the transaction modal, and the two must never stack. The
+           remaining entry re-opens this sheet once the income form closes. */
+        open={actionModal === 'adjust' || (!!headAdjust && actionModal !== 'payment')}
+        onClose={() => { setActionModal(null); shiftAdjust() }}
         balance={balance}
-        presetAmount={pendingAdjust?.amount ?? null}
-        presetReason={pendingAdjust?.reason ?? null}
+        presetAmount={headAdjust?.amount ?? null}
+        presetReason={headAdjust?.reason ?? null}
+        moreQueued={adjustQueue.length > 1}
         onSave={recordAdjustment}
         /* Booking real income INSTEAD of an adjustment. One handler does the
            whole transition — closing the sheet from inside the modal and
@@ -447,7 +459,9 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
            close won, so the button silently did nothing. The note rides along
            as the transaction's description. */
         onAlsoRecordIncome={(amount, note) => {
-          setPendingAdjust(null)
+          /* Shift, don't clear — a second queued adjustment still gets its
+             turn once the income form is done with. */
+          shiftAdjust()
           setPaymentAmount(amount)
           setPaymentDesc(note || null)
           setActionModal('payment')

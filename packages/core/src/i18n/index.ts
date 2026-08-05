@@ -37,7 +37,7 @@ export * from './config'
    Add a main namespace? Add it to NAMESPACES + all four locales/<lng>/index.ts.
    ════════════════════════════════════════════════════════════════ */
 
-export const NAMESPACES: string[] = ['common', 'auth', 'nav', 'goals', 'settings', 'trash', 'home', 'clients', 'finance', 'calendar', 'leads', 'projects', 'tasks', 'connections', 'admin', 'landing', 'insights', 'reports', 'moon', 'components', 'onboarding', 'onboardingSteps', 'modalsClient', 'modalsData', 'modalsTask', 'modalsSystem', 'questions', 'help', 'cookies', 'subscription', 'community']
+export const NAMESPACES: string[] = ['common', 'auth', 'nav', 'goals', 'settings', 'trash', 'home', 'clients', 'finance', 'calendar', 'leads', 'projects', 'tasks', 'connections', 'admin', 'landing', 'insights', 'reports', 'moon', 'components', 'onboarding', 'onboardingSteps', 'modalsClient', 'modalsData', 'modalsTask', 'modalsSystem', 'questions', 'help', 'cookies', 'subscription', 'community', 'pages']
 
 type Bundle = Record<string, unknown>
 

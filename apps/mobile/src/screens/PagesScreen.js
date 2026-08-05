@@ -37,7 +37,7 @@ export default function PagesScreen() {
           <ScreenHead
             title={i18n.t('nav:extras.sitePages', { defaultValue: 'דפים ציבוריים' })}
             meta={[i18n.t('nav:items.sitePagesSub', { defaultValue: 'בנו דפי נחיתה, טפסים ותורים' })]}
-            tagline={i18n.t('pages:mobileHint', { defaultValue: 'צפייה ושיתוף — עריכה במחשב.' })}
+            tagline={i18n.t('pages:mobileHint')}
           />
           {error ? <Text style={styles.error}>{error}</Text> : null}
 
@@ -56,7 +56,7 @@ export default function PagesScreen() {
                         <Text style={styles.rowTitle} numberOfLines={1}>{p.title || p.url}</Text>
                         <View style={[styles.status, p.published ? styles.statusOn : styles.statusOff]}>
                           <Text style={[styles.statusText, p.published ? styles.statusTextOn : styles.statusTextOff]}>
-                            {p.published ? i18n.t('pages:published', { defaultValue: 'פורסם' }) : i18n.t('pages:draft', { defaultValue: 'טיוטה' })}
+                            {p.published ? i18n.t('pages:published') : i18n.t('pages:draft')}
                           </Text>
                         </View>
                       </View>
@@ -72,7 +72,7 @@ export default function PagesScreen() {
               </View>
             ))
           ) : (
-            <Text style={styles.empty}>{i18n.t('pages:empty', { defaultValue: 'אין עדיין דפים ציבוריים. צרו אותם באפליקציית המחשב.' })}</Text>
+            <Text style={styles.empty}>{i18n.t('pages:empty')}</Text>
           )}
         </ScrollView>
       )}

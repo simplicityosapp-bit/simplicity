@@ -38,7 +38,8 @@ import help from './help.json'
 import cookies from './cookies.json'
 import subscription from './subscription.json'
 import community from './community.json'
+import pages from './pages.json'
 
-const bundle = { common, auth, nav, goals, settings, trash, home, clients, finance, calendar, leads, projects, tasks, connections, admin, landing, insights, reports, moon, components, onboarding, onboardingSteps, modalsClient, modalsData, modalsTask, modalsSystem, questions, help, cookies, subscription, community }
+const bundle = { common, auth, nav, goals, settings, trash, home, clients, finance, calendar, leads, projects, tasks, connections, admin, landing, insights, reports, moon, components, onboarding, onboardingSteps, modalsClient, modalsData, modalsTask, modalsSystem, questions, help, cookies, subscription, community, pages }
 
 export default bundle

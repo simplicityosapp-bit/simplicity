@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { X, Pencil, Trash2, Check, CalendarPlus, Banknote, ChevronDown, RotateCcw } from 'lucide-react'
+import { X, Pencil, Trash2, Check, CalendarPlus, Banknote, ChevronDown, RotateCcw, Phone, Mail } from 'lucide-react'
 import { clientBalance, effectiveClientMeta, isGroupDriven, isStatusOverridden, planInstallments, planBalance, isr } from '@simplicity/core'
 import { usePaymentPlans } from '../../hooks/usePaymentPlans'
 import MG from '../../components/MG'
@@ -19,7 +19,7 @@ import { useClientAdjustments } from '../../hooks/useClientAdjustments'
 import { pushUndo } from '../../lib/undo'
 import { useT } from '../../i18n/useT'
 import './ClientDrawer.css'
-import { Box, Txt, Btn } from '../../components/ui'
+import { Box, Txt, Btn, Lnk } from '../../components/ui'
 
 const STATUS_KEY = {
   active: 'status.active',
@@ -215,6 +215,34 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
                   <Pencil size={13} strokeWidth={1.6} aria-hidden="true" /> {t('drawer.edit')}
                 </Btn>
               </Box>
+
+              {/* Phone and email were collected on every client — by the add
+                  form, by the edit modal, by an import — and then shown
+                  NOWHERE. The phone existed only as a parameter handed to the
+                  WhatsApp button; the email appeared in a CSV export and
+                  nowhere else in the app. A coach who typed a number could
+                  not read it back.
+                  Rendered as real links so the platform does the obvious
+                  thing: tel: dials on a phone, mailto: opens the mail app.
+                  The number is stripped to digits and a leading + for the
+                  href only — what is displayed stays exactly as it was
+                  typed, dashes and all. */}
+              {(client.phone || client.email) && (
+                <Box className="cd-contact">
+                  {client.phone && (
+                    <Lnk className="cd-contact-item" href={`tel:${client.phone.replace(/[^\d+]/g, '')}`}>
+                      <Phone size={13} strokeWidth={1.7} aria-hidden="true" />
+                      <Txt dir="ltr">{client.phone}</Txt>
+                    </Lnk>
+                  )}
+                  {client.email && (
+                    <Lnk className="cd-contact-item" href={`mailto:${client.email}`}>
+                      <Mail size={13} strokeWidth={1.7} aria-hidden="true" />
+                      <Txt dir="ltr">{client.email}</Txt>
+                    </Lnk>
+                  )}
+                </Box>
+              )}
 
               {/* Billing hero — ALWAYS shown on every client card (global).
                  "פגישות" = PERSONAL (done/set) when the client has 1-on-1

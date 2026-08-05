@@ -155,15 +155,18 @@ export function clientBalance(c: Client, txns?: Tx[], sessionsData: ClientSessio
     const g = groupsData.find((x) => x.id === m.group_id)
     return s + (g?.package_sessions || 0)
   }, 0)
-  /* A per-session client has no quota to count toward — `sessions` stays 0 by
-     design — so counting that 0 as their allotment while their held meetings
-     counted as done let the clients-screen summary print MORE done than
-     allotted (a per-session-heavy practice drifted to "12/4"). Their
-     arrangement is "however many we have had", which is precisely what the
-     money side already does one screen up: privateTotal = done × price. The
-     allotment follows the same definition, so each held meeting adds one to
-     both sides and the ratio can no longer overflow. */
-  const sessionsTotal = (perSession ? privateDoneForBilling : (c.sessions || 0)) + memSessions
+  /* A per-session client's allotment. When the coach has recorded how many
+     meetings are booked ahead, that IS the allotment and it reads like any
+     other client. When they have not, `sessions` is 0 — and counting that 0
+     while every meeting they held counted as done let the clients-screen
+     summary print MORE done than allotted (a per-session-heavy practice
+     drifted to "12/4"). The fallback is the done count, which is exactly how
+     the money side already defines their bill one screen up: privateTotal is
+     done × price. Each held meeting then adds one to both sides and the ratio
+     cannot overflow on its own. It still can once a plan is entered and
+     exceeded — that overflow is real, and package clients have always shown
+     it the same way. */
+  const sessionsTotal = (perSession ? ((c.sessions || 0) || privateDoneForBilling) : (c.sessions || 0)) + memSessions
 
   /* Sessions split into PERSONAL (1-on-1) vs each GROUP the client is in.
      "נעשה" (done) = real private session records + the manual

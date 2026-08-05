@@ -59,6 +59,7 @@
     "billingModeChangeNote": "Remarque : le solde sera recalculé selon le nouveau mode de facturation.",
     "personalSessions": "Séances individuelles",
     "scheduled": "Planifiées",
+    "scheduledPerSessionHint": "« Planifiées » indique ici combien de séances sont réservées à l'avance, à titre d'information. La facturation suit toujours ce qui a réellement eu lieu.",
     "done": "Effectuées",
     "doneAdjustHint": "Séances réellement enregistrées : {{held}}. L'écart ({{delta}}) est conservé comme correction manuelle sur la fiche.",
     "projectDroppedGroup": "Le client a été détaché de « {{group}} » — un groupe n'appartient qu'à un seul projet.",
@@ -66,8 +67,8 @@
     "groupSessionsVal": "Effectuées {{held}} · Planifiées {{quota}}",
     "pricePerSession": "Prix par séance ₪",
     "totalDueOptional": "Total dû (facultatif)",
-    "totalDuePlaceholder": "Automatique : séances × prix",
-    "totalDueHint": "Si vous saisissez un montant ici, il remplace le calcul automatique (séances × prix) — pratique pour les données importées.",
+    "totalDuePlaceholder": "Automatique : {{formula}}",
+    "totalDueHint": "Si vous saisissez un montant ici, il remplace le calcul automatique ({{formula}}) — pratique pour les données importées.",
     "billingCardLabel": "Combien a été payé, combien il reste",
     "paid": "Payé",
     "balance": "Solde",
@@ -93,7 +94,9 @@
     "fGroups": "Groupes",
     "fDiscount": "Annulé",
     "confirmBalanceTitle": "Mettre à jour le solde",
-    "confirmBalanceMsg": "Le solde est passé à {{balance}}. Enregistrer ?"
+    "confirmBalanceMsg": "Le solde est passé à {{balance}}. Enregistrer ?",
+    "totalDueFormulaPackage": "planifiées × prix",
+    "totalDueFormulaPerSession": "effectuées × prix"
   },
   "meetingTypes": {
     "title": "Types de rendez-vous",

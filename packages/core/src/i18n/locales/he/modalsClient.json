@@ -61,6 +61,7 @@
     "billingModeChangeNote": "שימו לב: היתרה תחושב מחדש לפי אופן החיוב החדש.",
     "personalSessions": "פגישות אישיות",
     "scheduled": "נקבעו",
+    "scheduledPerSessionHint": "«נקבעו» כאן הוא כמה פגישות קבועות קדימה, לידיעה בלבד. החיוב נשאר לפי מה שבוצע בפועל.",
     "done": "בוצעו",
     "doneAdjustHint": "מספר הפגישות שתועדו בפועל: {{held}}. ההפרש ({{delta}}) יישמר כתיקון ידני על הכרטיס.",
     "projectDroppedGroup": "הלקוח נותק מהקבוצה «{{group}}» — קבוצה שייכת לפרויקט אחד בלבד.",
@@ -68,10 +69,10 @@
     "groupSessionsVal": "בוצעו {{held}} · נקבעו {{quota}}",
     "pricePerSession": "מחיר לפגישה ₪",
     "totalDueOptional": "סה״כ לתשלום (אופציונלי)",
-    "totalDuePlaceholder": "אוטומטי: פגישות × מחיר",
-    "totalDueHint": "אם תזין/י סכום כאן הוא יגבר על החישוב האוטומטי (פגישות × מחיר) — שימושי לנתונים שיובאו.",
-    "totalDueHint_male": "אם תזין סכום כאן הוא יגבר על החישוב האוטומטי (פגישות × מחיר) — שימושי לנתונים שיובאו.",
-    "totalDueHint_female": "אם תזיני סכום כאן הוא יגבר על החישוב האוטומטי (פגישות × מחיר) — שימושי לנתונים שיובאו.",
+    "totalDuePlaceholder": "אוטומטי: {{formula}}",
+    "totalDueHint": "אם תזין/י סכום כאן הוא יגבר על החישוב האוטומטי ({{formula}}) — שימושי לנתונים שיובאו.",
+    "totalDueHint_male": "אם תזין סכום כאן הוא יגבר על החישוב האוטומטי ({{formula}}) — שימושי לנתונים שיובאו.",
+    "totalDueHint_female": "אם תזיני סכום כאן הוא יגבר על החישוב האוטומטי ({{formula}}) — שימושי לנתונים שיובאו.",
     "billingCardLabel": "כמה שולם וכמה נשאר",
     "paid": "שולם",
     "balance": "יתרה",
@@ -99,7 +100,9 @@
     "fGroups": "קבוצות",
     "fDiscount": "מחיקת חוב",
     "confirmBalanceTitle": "עדכון יתרה",
-    "confirmBalanceMsg": "היתרה עודכנה ל-{{balance}}. לשמור?"
+    "confirmBalanceMsg": "היתרה עודכנה ל-{{balance}}. לשמור?",
+    "totalDueFormulaPackage": "נקבעו × מחיר",
+    "totalDueFormulaPerSession": "בוצעו × מחיר"
   },
   "meetingTypes": {
     "title": "סוגי פגישה",

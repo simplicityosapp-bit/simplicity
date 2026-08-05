@@ -59,6 +59,7 @@
     "billingModeChangeNote": "Note: the balance will be recalculated under the new billing mode.",
     "personalSessions": "Personal sessions",
     "scheduled": "Scheduled",
+    "scheduledPerSessionHint": "«Scheduled» here is how many meetings are booked ahead, for your information only. Billing still follows what actually took place.",
     "done": "Done",
     "doneAdjustHint": "Meetings actually logged: {{held}}. The difference ({{delta}}) is kept as a manual correction on the card.",
     "projectDroppedGroup": "The client was detached from «{{group}}» — a group belongs to one project only.",
@@ -66,8 +67,8 @@
     "groupSessionsVal": "Done {{held}} · Scheduled {{quota}}",
     "pricePerSession": "Price per session ₪",
     "totalDueOptional": "Total due (optional)",
-    "totalDuePlaceholder": "Automatic: sessions × price",
-    "totalDueHint": "If you enter an amount here it overrides the automatic calculation (sessions × price) — handy for imported data.",
+    "totalDuePlaceholder": "Automatic: {{formula}}",
+    "totalDueHint": "If you enter an amount here it overrides the automatic calculation ({{formula}}) — handy for imported data.",
     "billingCardLabel": "How much was paid, how much is left",
     "paid": "Paid",
     "balance": "Balance",
@@ -93,7 +94,9 @@
     "fGroups": "Groups",
     "fDiscount": "Written off",
     "confirmBalanceTitle": "Update balance",
-    "confirmBalanceMsg": "The balance changed to {{balance}}. Save?"
+    "confirmBalanceMsg": "The balance changed to {{balance}}. Save?",
+    "totalDueFormulaPackage": "scheduled × price",
+    "totalDueFormulaPerSession": "done × price"
   },
   "meetingTypes": {
     "title": "Meeting types",

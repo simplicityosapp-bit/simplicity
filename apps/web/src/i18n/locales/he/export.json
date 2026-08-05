@@ -28,6 +28,7 @@
     "birthDate": "תאריך לידה",
     "sessions": "מספר פגישות",
     "pricePerSession": "מחיר לפגישה",
+    "billingMode": "אופן חיוב",
     "notes": "הערות",
     "color": "צבע",
     "inquiryDate": "תאריך פנייה",
@@ -57,6 +58,10 @@
     "confirmed": "אושרה",
     "pending": "ממתינה",
     "skipped": "דולגה"
+  },
+  "clientBilling": {
+    "package": "חבילה",
+    "per_session": "לפי פגישה"
   },
   "clientStatus": {
     "active": "פעיל",

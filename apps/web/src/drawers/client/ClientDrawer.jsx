@@ -224,9 +224,12 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
                   <Txt as="p" className="cd-stat-l">{t('drawer.sessions')}</Txt>
                   <Txt as="p" className="cd-stat-v mono">
                     {balance.hasPersonal
-                      ? (balance.perSession
-                        /* Per-session billing (migration 0014) — no preset
-                           quota, so only the held count is meaningful. */
+                      ? (balance.perSession && !balance.personalQuota
+                        /* Per-session billing (migration 0014) has no preset
+                           quota, so with nothing booked ahead the held count
+                           is the only meaningful figure. Once the coach does
+                           record how many are booked, it reads like any other
+                           client again. */
                         ? `${balance.personalDone}`
                         : `${balance.personalDone}/${balance.personalQuota || 0}`)
                       : `${balance.groupSessions.filter((g) => !g.ended).reduce((s, g) => s + g.held, 0)}/${balance.groupSessions.filter((g) => !g.ended).reduce((s, g) => s + (g.quota || 0), 0) || 0}`}

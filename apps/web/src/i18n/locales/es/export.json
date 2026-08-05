@@ -28,6 +28,7 @@
     "birthDate": "Fecha de nacimiento",
     "sessions": "Sesiones",
     "pricePerSession": "Precio por sesión",
+    "billingMode": "Modo de cobro",
     "notes": "Notas",
     "color": "Color",
     "inquiryDate": "Fecha de consulta",
@@ -57,6 +58,10 @@
     "confirmed": "Confirmada",
     "pending": "Pendiente",
     "skipped": "Omitida"
+  },
+  "clientBilling": {
+    "package": "Paquete",
+    "per_session": "Por sesión"
   },
   "clientStatus": {
     "active": "Activo",

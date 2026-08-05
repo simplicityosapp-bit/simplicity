@@ -235,12 +235,14 @@ export default function ClientFormFields({ form, set, setMeta, projects = [], st
             </Box>
 
             <Box className="m-row2">
-              {form.billing_mode !== 'per_session' && (
-                <Box className="m-field">
-                  <Box as="label" className="m-label">{t('form.sessionsCount')}</Box>
-                  <Input type="number" min="0" className="m-input" value={form.sessions} onChange={(e) => set('sessions', e.target.value)} placeholder="0" aria-label={t('form.sessionsCount')} />
-                </Box>
-              )}
+              {/* Shown in BOTH modes — see the note in EditClientModal. For a
+                  per-session client this is how many meetings are booked
+                  ahead, and it does not bill them; hiding it left no way to
+                  record that at all. */}
+              <Box className="m-field">
+                <Box as="label" className="m-label">{t('form.sessionsCount')}</Box>
+                <Input type="number" min="0" className="m-input" value={form.sessions} onChange={(e) => set('sessions', e.target.value)} placeholder="0" aria-label={t('form.sessionsCount')} />
+              </Box>
               <Box className="m-field">
                 <Box as="label" className="m-label">{t('form.pricePerSession')}</Box>
                 <Input type="number" min="0" className="m-input" value={form.price_per_session} onChange={(e) => setPrice(e.target.value)} placeholder="0" aria-label={t('form.pricePerSession')} />

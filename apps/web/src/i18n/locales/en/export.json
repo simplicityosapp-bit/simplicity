@@ -28,6 +28,7 @@
     "birthDate": "Date of birth",
     "sessions": "Sessions",
     "pricePerSession": "Price per session",
+    "billingMode": "Billing mode",
     "notes": "Notes",
     "color": "Color",
     "inquiryDate": "Inquiry date",
@@ -57,6 +58,10 @@
     "confirmed": "Confirmed",
     "pending": "Pending",
     "skipped": "Skipped"
+  },
+  "clientBilling": {
+    "package": "Package",
+    "per_session": "Per session"
   },
   "clientStatus": {
     "active": "Active",

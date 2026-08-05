@@ -12,6 +12,7 @@ import AddTaskModal from '../modals/AddTaskModal'
 import AddReminderModal from '../modals/AddReminderModal'
 import ClientDrawerSections from './ClientDrawerSections'
 import { useFormOptions } from '../lib/formOptions'
+import { pushUndo } from '../lib/undo'
 import { usePaymentPlans } from '../hooks/usePaymentPlans'
 import i18n from '../lib/i18n'
 import { colors } from '../theme/theme'
@@ -64,15 +65,30 @@ export default function ClientDrawer({ clientId, clients, transactions, sessions
 
   // Manual status change always sets status_overridden so the choice wins over
   // any group the client belongs to (migration 0062); revert clears the override.
+  /* Each of these offers a one-step undo, as on web. The snapshot is taken
+     from the client BEFORE the write, so undo restores the exact prior values
+     rather than guessing at defaults. */
   const changeStatus = (k) => {
     setStatusMenu(false)
     if (!client || (client.status_meta === k && client.status_overridden)) return
-    updateClient(client.id, { status_meta: k, status_id: null, status_overridden: true })
+    const prev = { status_meta: client.status_meta ?? null, status_id: client.status_id ?? null, status_overridden: !!client.status_overridden }
+    const next = { status_meta: k, status_id: null, status_overridden: true }
+    updateClient(client.id, next)
+    pushUndo({
+      label: i18n.t('clients:drawer.statusChanged'),
+      undo: async () => { await updateClient(client.id, prev) },
+      redo: async () => { await updateClient(client.id, next) },
+    })
   }
   const revertToGroup = () => {
     setStatusMenu(false)
     if (!client || !client.status_overridden) return
     updateClient(client.id, { status_overridden: false })
+    pushUndo({
+      label: i18n.t('clients:drawer.statusReverted'),
+      undo: async () => { await updateClient(client.id, { status_overridden: true }) },
+      redo: async () => { await updateClient(client.id, { status_overridden: false }) },
+    })
   }
 
   // Manual "שולם" edit → fold the delta into paid_adjustment as an informal,
@@ -316,7 +332,26 @@ export default function ClientDrawer({ clientId, clients, transactions, sessions
         personalHeld={bal?.personalHeld ?? 0}
         groupSessions={bal?.groupSessions ?? []}
         onClose={() => setEditing(false)}
-        onSave={(id, patch) => updateClient(id, patch)}
+        /* Same rule as web: snapshot only the fields the patch names, and
+           stay quiet when nothing actually changed — the patch lists every
+           column every time, so a column the row does not carry would
+           otherwise "differ" from its default on an untouched save. */
+        onSave={async (id, patch) => {
+          const prev = {}
+          let changed = false
+          for (const k of Object.keys(patch)) {
+            prev[k] = client[k] ?? null
+            if (client[k] === undefined) continue
+            if ((patch[k] ?? null) !== prev[k]) changed = true
+          }
+          await updateClient(id, patch)
+          if (!changed) return
+          pushUndo({
+            label: i18n.t('clients:drawer.editUndo'),
+            undo: async () => { await updateClient(id, prev) },
+            redo: async () => { await updateClient(id, patch) },
+          })
+        }}
         onPaidEntry={(delta) => setPendingPaid(delta)}
         memberships={client ? members.filter((m) => m.client_id === client.id && !m.left_at) : []}
         onUpdateMember={updateMember}
@@ -344,7 +379,15 @@ export default function ClientDrawer({ clientId, clients, transactions, sessions
         open={addingSessions}
         onClose={() => setAddingSessions(false)}
         client={client}
-        onSave={(next) => updateClient(client.id, { sessions: next })}
+        onSave={async (next) => {
+          const prev = Number(client.sessions) || 0
+          await updateClient(client.id, { sessions: next })
+          pushUndo({
+            label: i18n.t('clients:addSessions.undo', { n: next - prev }),
+            undo: async () => { await updateClient(client.id, { sessions: prev }) },
+            redo: async () => { await updateClient(client.id, { sessions: next }) },
+          })
+        }}
       />
 
       {/* Log a session — composes the full sessions row around the modal's when/summary/notes */}

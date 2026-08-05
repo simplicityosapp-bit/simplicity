@@ -15,6 +15,7 @@ import LoginScreen from './src/screens/LoginScreen'
 import PendingDeletionScreen from './src/screens/PendingDeletionScreen'
 import AppNavigator, { navigationRef } from './src/navigation/AppNavigator'
 import BottomBar from './src/components/BottomBar'
+import UndoToast from './src/components/UndoToast'
 import Drawer from './src/components/Drawer'
 import ErrorBoundary from './src/components/ErrorBoundary'
 
@@ -89,6 +90,10 @@ function AuthedApp({ lang }) {
         <AppNavigator />
         <BottomBar />
         <DrawerHost />
+        {/* Mounted once for the whole session, like web's. It renders nothing
+            until an action registers itself, and sits above the tab bar so it
+            never covers the nav. */}
+        <UndoToast />
       </View>
     </FormOptionsProvider>
   )

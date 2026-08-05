@@ -102,7 +102,9 @@
     "confirmBalanceTitle": "עדכון יתרה",
     "confirmBalanceMsg": "היתרה עודכנה ל-{{balance}}. לשמור?",
     "totalDueFormulaPackage": "נקבעו × מחיר",
-    "totalDueFormulaPerSession": "בוצעו × מחיר"
+    "totalDueFormulaPerSession": "בוצעו × מחיר",
+    "billingModeChangePreview": "היתרה: {{from}} ← {{to}}",
+    "billingModeChangeSame": "היתרה לא תשתנה — «סה״כ לתשלום» נקבע ידנית וגובר על שני המצבים."
   },
   "meetingTypes": {
     "title": "סוגי פגישה",

@@ -153,15 +153,27 @@ export default function EditClientModal({ open, onClose, onSave, client, project
      migration 0014). The editable "שולם"/"יתרה" are two views of it. */
   const isPerSession = form.billing_mode === 'per_session'
   const totalDueFormula = t(isPerSession ? 'editClient.totalDueFormulaPerSession' : 'editClient.totalDueFormulaPackage')
-  const privatePortion = form.total_due !== ''
+  /* The private portion under a GIVEN mode, so the two can be compared. A
+     manual total_override wins in both, which is exactly the case where
+     switching changes nothing — worth being able to say so. */
+  const portionUnder = (perSess) => (form.total_due !== ''
     ? Math.max(0, Number(form.total_due) || 0)
-    : isPerSession
-      ? (Number(form.done) || 0) * (Number(form.price_per_session) || 0)
-      : (Number(form.sessions) || 0) * (Number(form.price_per_session) || 0)
+    : (perSess ? (Number(form.done) || 0) : (Number(form.sessions) || 0)) * (Number(form.price_per_session) || 0))
+  const privatePortion = portionUnder(isPerSession)
   const liveTotal = (Number(memberTotal) || 0) + privatePortion
   const livePaid = Number(form.paid) || 0
   const liveAdj = Number(form.adjustment) || 0
   const liveBalance = liveTotal - livePaid - liveAdj
+  /* Switching the mode re-bills the client, and the note above the pills only
+     said THAT it would — a client on 12 scheduled, 3 held and ₪380 moves by
+     ₪3,420, and the coach met that number only after saving. Same arithmetic
+     the card uses, run against both modes, so what is promised here is what
+     the card will show. */
+  const savedPerSession = (client?.billing_mode || 'package') === 'per_session'
+  const balanceUnder = (perSess) => ((Number(memberTotal) || 0) + portionUnder(perSess)) - livePaid - liveAdj
+  const modeChanged = form.billing_mode !== (client?.billing_mode || 'package')
+  const balanceBefore = balanceUnder(savedPerSession)
+  const balanceAfter = liveBalance
   /* Editing "יתרה" moves the forgiveness (adjustment) — "שולם" stays put.
      «יתרה» is the one DERIVED money field: it renders liveBalance, which is
      recomputed from `adjustment` on every keystroke. That round-trip used to
@@ -467,8 +479,15 @@ export default function EditClientModal({ open, onClose, onSave, client, project
             <Btn type="button" className={`m-pill${!isPerSession ? ' on' : ''}`} onClick={() => set('billing_mode', 'package')}>{t('editClient.billingPackage')}</Btn>
             <Btn type="button" className={`m-pill${isPerSession ? ' on' : ''}`} onClick={() => set('billing_mode', 'per_session')}>{t('editClient.billingPerSession')}</Btn>
           </Box>
-          {form.billing_mode !== (client?.billing_mode || 'package') && (
-            <Txt as="p" className="m-sub">{t('editClient.billingModeChangeNote')}</Txt>
+          {modeChanged && (
+            <>
+              <Txt as="p" className="m-sub">{t('editClient.billingModeChangeNote')}</Txt>
+              <Txt as="p" className="m-hint">
+                {balanceAfter === balanceBefore
+                  ? t('editClient.billingModeChangeSame')
+                  : t('editClient.billingModeChangePreview', { from: isr(balanceBefore), to: isr(balanceAfter) })}
+              </Txt>
+            </>
           )}
         </Box>
         <Box className="m-field">

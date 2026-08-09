@@ -88,9 +88,8 @@
    of the screen-top row. Original per-screen label text is hidden
    via font-size:0; the visible "+" is drawn through ::before so we
    keep the accessible label intact for screen readers.
-   The "+" glyph itself is painted with a linear gradient through
-   the four non-terracotta brand colors (blush → sage → amber → clay),
-   echoing the per-widget halo palette. */
+   The "+" glyph itself carries a soft warm gradient — see the note on
+   ::before for why it no longer runs the full brand palette. */
 .cta-add {
   display: inline-flex;
   align-items: center;
@@ -116,12 +115,28 @@
   font-size: calc(64px * var(--text-scale));
   font-weight: 700;
   line-height: 0.85;                  /* tighten so the glyph centers */
+  /* This ran blush → sage → amber → clay, the four non-terracotta brand
+     colours, echoing the per-widget halo palette. Measured against the fill
+     it sits on, most of that glyph was invisible — in BOTH themes, not just
+     at night:
+                        on #C97B5E (day)   on #6B8472 (night)
+         blush   0%           2.60               3.26
+         sage   35%           1.24               1.25
+         amber  65%           1.46               1.24
+         clay  100%           1.33               2.13
+     A 64px/700 glyph is large text, so the bar is 3:1 — the middle two
+     thirds of the "+" were failing it by a factor of two.
+     The passing band on the daylight fill turns out to be tiny: --bone is
+     2.93, pure --blush is 2.60, and even a 10% wash of sage is 2.98. Only
+     near-white clears it. So the gradient keeps its diagonal and its warmth
+     but stays inside that band — 3.24 → 3.07 by day, 4.06 → 3.85 at night.
+     --on-accent and --blush are used because neither is remapped for dark
+     mode; --cream and --pure-white both flip to near-black and would paint
+     the glyph invisible at night. */
   background: linear-gradient(
     135deg,
-    var(--blush)      0%,
-    var(--sage)      35%,
-    var(--amber-warn) 65%,
-    var(--clay)     100%
+    var(--on-accent) 0%,
+    color-mix(in srgb, var(--blush) 25%, var(--on-accent)) 100%
   );
   -webkit-background-clip: text;
           background-clip: text;
@@ -134,8 +149,9 @@
 .cta-add:active {
   transform: scale(0.93);
 }
-/* Dark mode keeps the same gradient — the four colors stay legible
-   against terracotta in both themes. */
+/* Dark mode needs no override: both stops are tokens that stay light in
+   both themes, and the night fill (Misted Sage) is darker than the day one,
+   so the glyph reads BETTER there — 3.85:1 at its weakest point. */
 
 /* "You've reached your plan limit" note — a thin tappable banner shown next
    to the add control when a free-tier ceiling is hit. Routes to upgrade.

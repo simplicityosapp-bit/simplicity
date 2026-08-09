@@ -96,7 +96,7 @@ export default function AddClientModal({ open, onClose, onSave, projects = [], s
   }
 
   return (
-    <Modal open={open} onClose={guard.requestClose} title={<MG word="client_new" />} titleLabel={t('addClient.titleLabel')}>
+    <Modal open={open} onClose={guard.requestClose} onSubmit={submit} title={<MG word="client_new" />} titleLabel={t('addClient.titleLabel')}>
       {/* Remount per opening. Modal keeps its children mounted, so without
           this the fields live for the whole screen's lifetime and the "more"
           toggle stays however the last client left it — expanded on every

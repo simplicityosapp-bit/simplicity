@@ -125,7 +125,7 @@ export default function AddLeadModal({ open, onClose, onSave, sources = [], stat
   ]
 
   return (
-    <Modal open={open} onClose={requestClose} title={t('addLead.title')}>
+    <Modal open={open} onClose={requestClose} onSubmit={submit} title={t('addLead.title')}>
       <Box className="m-field">
         <Box as="label" className="m-label">{t('common.name')}</Box>
         <Input

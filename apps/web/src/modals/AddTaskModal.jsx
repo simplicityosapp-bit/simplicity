@@ -122,7 +122,7 @@ export default function AddTaskModal({ open, onClose, onSave, onDelete, projects
 
   return (
     <>
-    <Modal open={open} onClose={guard.requestClose} title={isEdit ? t('task.titleEdit') : t('task.titleNew')}>
+    <Modal open={open} onClose={guard.requestClose} onSubmit={submit} title={isEdit ? t('task.titleEdit') : t('task.titleNew')}>
       <Box className="m-field">
         <Box as="label" className="m-label">{t('task.whatToDo')}</Box>
         <Input

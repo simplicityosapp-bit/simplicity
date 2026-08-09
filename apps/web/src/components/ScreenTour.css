@@ -38,6 +38,10 @@
 }
 
 /* ── Guidance bubble ───────────────────────────────────────────── */
+/* The wrapper is focused on each step (see ScreenTour.jsx) so the dialog it
+   claims to be is actually reachable; that focus is programmatic, not a
+   click, and does not need its own ring. The buttons inside keep theirs. */
+.tour-bubble:focus { outline: none; }
 .tour-bubble {
   position: fixed;
   width: min(288px, calc(100vw - 24px));
@@ -89,13 +93,19 @@
   align-items: center;
   gap: 8px;
 }
+/* 44px, not the 38 it was. These two are the first controls a new account
+   ever taps, and they were the only ones left under the floor. */
 .tour-btn-next {
-  min-height: 38px;
-  padding: 8px 20px;
+  min-height: 44px;
+  padding: 10px 20px;
   border: none;
   border-radius: var(--mg-btn-radius);
   background: var(--mg-btn-primary-bg);
-  color: var(--pure-white);
+  /* --on-accent, not --pure-white. Identical in daylight (both #FFFFFF), but
+     --pure-white is a SURFACE token and remaps to near-black at night — this
+     rule only survived dark mode because of the override below, which made a
+     safety net load-bearing. --on-accent is the text token and never flips. */
+  color: var(--on-accent);
   font-family: var(--mg-font);
   font-size: calc(13.5px * var(--text-scale));
   font-weight: var(--mg-btn-weight);
@@ -115,8 +125,8 @@
    so it now reads and measures like one: same height as the primary, real
    contrast, no underline. */
 .tour-skip-all {
-  min-height: 38px;
-  padding: 8px 14px;
+  min-height: 44px;
+  padding: 10px 14px;
   border: none;
   border-radius: var(--mg-btn-radius);
   background: transparent;

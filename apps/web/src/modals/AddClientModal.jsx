@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import Modal from './Modal'
-import { useDiscardGuard, isDirty, useScrollToError } from './useDiscardGuard'
+import { useDiscardGuard, isDirty, useScrollToError, useFormDraft } from './useDiscardGuard'
 import ClientFormFields from '../components/ClientFormFields'
 import MeetingTypesModal from './MeetingTypesModal'
 import MG from '../components/MG'
@@ -30,11 +30,18 @@ export default function AddClientModal({ open, onClose, onSave, projects = [], s
   const set = (k, v) => { setForm((f) => ({ ...f, [k]: v })); if (err) setErr('') }
   const setMeta = (k) => { setForm((f) => ({ ...f, status: k, status_id: '' })); if (err) setErr('') }
   const close = () => { setForm(blank()); setErr(''); setBusy(false); onClose() }
+  /* Survives a refresh mid-form. Nothing to seed — this modal takes no
+     caller-supplied values. */
+  const draft = useFormDraft({ name: 'client', form, setForm, blank: blank(), enabled: open })
   /* Escape, the overlay and the X used to bin a filled-in client without a
      word — and this is the longest of the add forms once "more" is open.
      billing_mode and status are skipped: blank() seeds both, so their opening
-     values are the form's own, not the user's. */
-  const guard = useDiscardGuard(isDirty(form, blank(), ['status', 'billing_mode']), close)
+     values are the form's own, not the user's.
+     Discarding drops the draft too: "leave without saving" has to mean it. */
+  const guard = useDiscardGuard(
+    isDirty(form, blank(), ['status', 'billing_mode']),
+    () => { draft.clear(); close() },
+  )
   /* A rejected save should put the field it rejected back on screen. */
   useScrollToError(err)
 
@@ -88,6 +95,7 @@ export default function AddClientModal({ open, onClose, onSave, projects = [], s
         notes_updated_at: null,
       })
       showToast(t('addClient.toastSaved'))
+      draft.clear()
       close()
     } catch (e) {
       setBusy(false)

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useLayoutEffect, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useTours } from '../hooks/useTours'
 import { tourFor } from '../lib/tours'
@@ -25,6 +25,8 @@ import { Box, Txt, Btn } from './ui'
 const SCRIM_PAD = 8        /* breathing room around the spotlit element */
 const BUBBLE_W = 288       /* keep in sync with .tour-bubble max-width */
 const BUBBLE_GAP = 14      /* gap between spotlight and bubble */
+const VIEWPORT_PAD = 12    /* the bubble never comes closer than this to an edge */
+const BUBBLE_H_GUESS = 178 /* first paint only, before the real height is known */
 
 export default function ScreenTour({ screenKey }) {
   const { isSeen, markSeen } = useTours()
@@ -38,6 +40,15 @@ export default function ScreenTour({ screenKey }) {
   const [idx, setIdx] = useState(0)
   const [rect, setRect] = useState(null)
   const [active, setActive] = useState(false)
+  /* The bubble's REAL height, measured after it paints. The placement used to
+     assume 150px; the bodies actually render 135-200px, and nothing clamped
+     the result — so a target taller than the viewport pushed the bubble clean
+     off the top (measured at -545px on a long leads board) and took every
+     button with it. The scrim still swallowed clicks and there was no Escape,
+     which left the app unusable until a reload — and a reload re-ran the tour,
+     because "seen" is only recorded on finish or skip. */
+  const bubbleRef = useRef(null)
+  const [bubbleH, setBubbleH] = useState(BUBBLE_H_GUESS)
 
   /* Auto-start when the screen changes. Reset first, then poll for the
      targets (the screen may still be mounting / data still loading). */
@@ -76,6 +87,16 @@ export default function ScreenTour({ screenKey }) {
 
   const step = active ? steps[idx] : null
 
+  /* Escape ends the tour. It is the reflex for any full-screen overlay, and
+     without it the only way out was the two buttons in the bubble — which is
+     exactly what goes missing when the placement fails. */
+  useEffect(() => {
+    if (!active) return undefined
+    const onKey = (e) => { if (e.key === 'Escape') { setActive(false); markSeen(screenKey) } }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [active, markSeen, screenKey])
+
   const measure = useCallback(() => {
     if (!step) return
     const el = document.querySelector(step.target)
@@ -100,6 +121,31 @@ export default function ScreenTour({ screenKey }) {
     }
   }, [step, measure])
 
+  /* Measure the bubble once it has painted, and move focus into it. The
+     wrapper claims role="dialog" aria-modal="true"; it now behaves like one
+     instead of only saying so. Focus lands on the bubble itself rather than
+     the primary button, so a keyboard user can Tab to either action without
+     the tour hijacking the first Enter. preventScroll because the step has
+     just scrolled the target into view and must stay there. */
+  useLayoutEffect(() => {
+    const el = bubbleRef.current
+    if (!el) return
+    const h = el.offsetHeight
+    if (h && Math.abs(h - bubbleH) > 1) setBubbleH(h)
+    if (!el.contains(document.activeElement)) el.focus({ preventScroll: true })
+  }, [step, rect, bubbleH])
+
+  /* Keep Tab inside the bubble while the tour owns the screen. */
+  const onBubbleKeyDown = (e) => {
+    if (e.key !== 'Tab') return
+    const f = [...(bubbleRef.current?.querySelectorAll('button') || [])]
+    if (!f.length) return
+    const first = f[0]
+    const last = f[f.length - 1]
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus() }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus() }
+  }
+
   if (!active || !step || !rect) return null
 
   const finish = () => { setActive(false); markSeen(screenKey) }
@@ -113,12 +159,21 @@ export default function ScreenTour({ screenKey }) {
   const sh = rect.height + SCRIM_PAD * 2
 
   /* Bubble placement — below the spotlight if there's room, else above.
-     Horizontally centered on the target, clamped to the viewport. */
-  const placeBelow = sy + sh + BUBBLE_GAP + 150 < window.innerHeight
-  const bubbleTop = placeBelow ? sy + sh + BUBBLE_GAP : undefined
-  const bubbleBottom = placeBelow ? undefined : window.innerHeight - sy + BUBBLE_GAP
+     Horizontally centered on the target. BOTH axes are clamped to the
+     viewport: the horizontal one always was, and the vertical one is the fix.
+     Measured height, not an assumed 150.
+     When the spotlit element is taller than the screen there is no room on
+     either side of it, and the clamp lands the bubble over the spotlight
+     rather than outside the window. Overlapping the thing being explained is
+     a poor step; a bubble nobody can see or dismiss is a dead end. */
+  const placeBelow = sy + sh + BUBBLE_GAP + bubbleH <= window.innerHeight - VIEWPORT_PAD
+  let bubbleTop = placeBelow ? sy + sh + BUBBLE_GAP : sy - BUBBLE_GAP - bubbleH
+  bubbleTop = Math.max(
+    VIEWPORT_PAD,
+    Math.min(bubbleTop, window.innerHeight - bubbleH - VIEWPORT_PAD),
+  )
   let bubbleLeft = rect.left + rect.width / 2 - BUBBLE_W / 2
-  bubbleLeft = Math.max(12, Math.min(bubbleLeft, window.innerWidth - BUBBLE_W - 12))
+  bubbleLeft = Math.max(VIEWPORT_PAD, Math.min(bubbleLeft, window.innerWidth - BUBBLE_W - VIEWPORT_PAD))
 
   return createPortal(
     <Box className="tour-root" role="dialog" aria-modal="true" aria-label={t(step.title)}>
@@ -132,8 +187,11 @@ export default function ScreenTour({ screenKey }) {
       />
       {/* Guidance bubble. */}
       <Box
+        ref={bubbleRef}
+        tabIndex={-1}
+        onKeyDown={onBubbleKeyDown}
         className={`tour-bubble${placeBelow ? ' tour-bubble--below' : ' tour-bubble--above'}`}
-        style={{ top: bubbleTop, bottom: bubbleBottom, left: bubbleLeft }}
+        style={{ top: bubbleTop, left: bubbleLeft }}
       >
         <Txt as="p" className="tour-bubble-title">{t(step.title)}</Txt>
         <Txt as="p" className="tour-bubble-body">{t(step.body)}</Txt>

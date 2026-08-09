@@ -82,6 +82,19 @@
   overflow-y: auto;
   padding: 6px;
 }
+/* Heading over a run of options that share a `group` — the styled stand-in
+   for <optgroup>, which only the native control could draw. Same register as
+   .m-group-h in the modal forms: a quiet label, not a row you can pick. */
+.sel-group {
+  margin: 8px 0 4px;
+  padding: 0 10px;
+  font-family: var(--mg-font);
+  font-size: calc(11px * var(--text-scale));
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  color: var(--stone);
+}
+.sel-opt-wrap:first-child .sel-group { margin-top: 2px; }
 .sel-opt {
   display: flex;
   align-items: center;

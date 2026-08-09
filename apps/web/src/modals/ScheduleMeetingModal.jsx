@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import DateField from '../components/DateField'
+import SelectMenu from '../components/SelectMenu'
 import Modal from './Modal'
 import { useDiscardGuard, isDirty, useScrollToError } from './useDiscardGuard'
 import { useT } from '../i18n/useT'
@@ -139,6 +140,21 @@ export default function ScheduleMeetingModal({ open, onClose, onSave, client, cl
 
   const showReplaceWarning = recurring && confirmReplace && hasExistingSlot
 
+  /* Clients then groups, each run headed by its own label when both exist.
+     With no groups the list stays flat — no heading over a single run. */
+  const subjectOptions = [
+    ...clients.map((c) => ({
+      value: subjectValue('client', c.id),
+      label: c.name,
+      ...(hasGroups ? { group: t('meeting.clientsGroup') } : {}),
+    })),
+    ...pickGroups.map((g) => ({
+      value: subjectValue('group', g.id),
+      label: g.name,
+      group: t('meeting.groupsGroup'),
+    })),
+  ]
+
   return (
     <Modal open={open} onClose={guard.requestClose} title={t('meeting.title')}>
       {client ? (
@@ -151,24 +167,21 @@ export default function ScheduleMeetingModal({ open, onClose, onSave, client, cl
           <Box as="label" className="m-label">{t(hasGroups ? 'meeting.subject' : 'meeting.client')}</Box>
           {/* One list rather than a type switch plus a list: the coach is
               choosing WHO, and whether that who is a person or a group is a
-              fact about the name, not a separate decision. The optgroups only
+              fact about the name, not a separate decision. The headings only
               appear when there is something to separate — a coach with no
-              groups sees the plain client list they always saw. */}
-          <select className="m-select" value={form.subject} onChange={(e) => { set('subject', e.target.value); if (err) setErr('') }}>
-            <option value="">{t(hasGroups ? 'meeting.pickSubject' : 'meeting.pickClient')}</option>
-            {hasGroups ? (
-              <>
-                <optgroup label={t('meeting.clientsGroup')}>
-                  {clients.map((c) => <option key={c.id} value={subjectValue('client', c.id)}>{c.name}</option>)}
-                </optgroup>
-                <optgroup label={t('meeting.groupsGroup')}>
-                  {pickGroups.map((g) => <option key={g.id} value={subjectValue('group', g.id)}>{g.name}</option>)}
-                </optgroup>
-              </>
-            ) : (
-              clients.map((c) => <option key={c.id} value={subjectValue('client', c.id)}>{c.name}</option>)
-            )}
-          </select>
+              groups sees the plain client list they always saw.
+              This was the last native <select> in the add forms; SelectMenu
+              gained `group` on its options so the grouping survived the move
+              off the OS control. */}
+          <SelectMenu
+            value={form.subject}
+            onChange={(v) => { set('subject', v); if (err) setErr('') }}
+            options={subjectOptions}
+            placeholder={t(hasGroups ? 'meeting.pickSubject' : 'meeting.pickClient')}
+            ariaLabel={t(hasGroups ? 'meeting.subject' : 'meeting.client')}
+            searchable={clients.length + pickGroups.length > 8}
+            searchPlaceholder={t(hasGroups ? 'meeting.pickSubject' : 'meeting.pickClient')}
+          />
         </Box>
       )}
       <Box className="m-row2">

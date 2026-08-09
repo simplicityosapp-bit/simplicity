@@ -31,6 +31,7 @@
     "deleteMessage": "Delete \"{{title}}\"? You can restore it from the trash for 30 days.",
     "deleteConfirm": "Delete",
     "details": "Details (optional)",
+    "moreDetails": "More details",
     "detailsPlaceholder": "What exactly needs doing?"
   },
   "reminder": {

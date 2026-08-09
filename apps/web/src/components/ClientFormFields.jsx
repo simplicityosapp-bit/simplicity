@@ -37,10 +37,12 @@
    ════════════════════════════════════════════════════════════════ */
 
 import { useState } from 'react'
-import { ChevronDown, Wallet } from 'lucide-react'
+import { SlidersHorizontal } from 'lucide-react'
 import { useT } from '../i18n/useT'
 import { Box, Txt, Btn, Input } from './ui'
 import DateField from './DateField'
+import SelectMenu from './SelectMenu'
+import FormSection from './FormSection'
 
 const STATUSES = [
   { k: 'active', labelKey: 'status.active' },
@@ -58,6 +60,18 @@ export default function ClientFormFields({ form, set, setMeta, projects = [], st
   const showMeetingTypes = Array.isArray(meetingTypes)
   const setPrice = onPriceChange || ((v) => set('price_per_session', v))
   const nameMissing = !!err && !form.name.trim()
+  /* Option lists for the styled pickers. These five were native <select>s —
+     the last of them in the add forms — so tapping one opened the OS wheel
+     while the lead and transaction forms opened the app's own menu. */
+  const noneOpt = { value: '', label: t('form.none') }
+  const subStatusOptions = [noneOpt, ...subStatuses.map((s) => ({ value: s.id, label: `${s.icon ? `${s.icon} ` : ''}${s.display_name}` }))]
+  const projectOptions = [noneOpt, ...projects.map((p) => ({ value: p.id, label: p.name }))]
+  const groupOptions = [{ value: '', label: t('form.noGroup') }, ...groups.map((g) => ({ value: g.id, label: g.name }))]
+  const meetingTypeOptions = [noneOpt, ...(meetingTypes || []).map((mt) => ({
+    value: mt.id,
+    label: `${mt.name}${mt.default_price != null ? ` · ₪${mt.default_price}` : ''}`,
+  }))]
+  const dayOptions = [noneOpt, ...DAY_KEYS.map((d) => ({ value: String(d), label: t(`form.days.${d}`) }))]
   /* The toggle starts closed — a blank form should cost a name and nothing
      else. It opens on mount only when something inside already carries a
      value, so a part-filled form never hides what's in it.
@@ -106,38 +120,31 @@ export default function ClientFormFields({ form, set, setMeta, projects = [], st
         </Box>
       </Box>
 
-      <Box className={`ec-acc${moreOpen ? ' open' : ''}`}>
-        <Btn type="button" className="ec-acc-head" onClick={() => setMoreOpen((o) => !o)} aria-expanded={moreOpen}>
-          <Txt className="ec-acc-ic" aria-hidden="true"><Wallet size={17} strokeWidth={1.7} /></Txt>
-          <Txt className="ec-acc-title">{t('form.moreToggle')}</Txt>
-          <ChevronDown size={16} strokeWidth={1.8} className="ec-acc-chev" aria-hidden="true" />
-        </Btn>
-        {moreOpen && (
-          <Box className="ec-acc-body">
+      {/* SlidersHorizontal, not the Wallet this used to wear: the lid holds
+          details and the schedule as well as billing, and the lead and
+          transaction forms name the same lid with the same icon. */}
+      <FormSection
+        id="client-more"
+        icon={<SlidersHorizontal size={16} strokeWidth={1.7} />}
+        title={t('form.moreToggle')}
+        open={moreOpen}
+        onToggle={() => setMoreOpen((o) => !o)}
+      >
             <Txt as="p" className="m-group-h">{t('form.grpDetails')}</Txt>
             {subStatuses.length > 0 && (
               <Box className="m-field">
                 <Box as="label" className="m-label">{t('form.subStatus')}</Box>
-                <select className="m-select" value={form.status_id} onChange={(e) => set('status_id', e.target.value)}aria-label={t('form.subStatus')} >
-                  <option value="">{t('form.none')}</option>
-                  {subStatuses.map((s) => <option key={s.id} value={s.id}>{s.icon ? s.icon + ' ' : ''}{s.display_name}</option>)}
-                </select>
+                <SelectMenu value={form.status_id} onChange={(v) => set('status_id', v)} options={subStatusOptions} placeholder={t('form.none')} ariaLabel={t('form.subStatus')} />
               </Box>
             )}
             <Box className="m-field">
               <Box as="label" className="m-label">{t('form.project')}</Box>
-              <select className="m-select" value={form.project_id} onChange={(e) => set('project_id', e.target.value)}aria-label={t('form.project')} >
-                <option value="">{t('form.none')}</option>
-                {projects.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
-              </select>
+              <SelectMenu value={form.project_id} onChange={(v) => set('project_id', v)} options={projectOptions} placeholder={t('form.none')} ariaLabel={t('form.project')} />
             </Box>
             {groups.length > 0 && (
               <Box className="m-field">
                 <Box as="label" className="m-label">{t('form.group')}</Box>
-                <select className="m-select" value={form.group_id} onChange={(e) => set('group_id', e.target.value)}aria-label={t('form.group')} >
-                  <option value="">{t('form.noGroup')}</option>
-                  {groups.map((g) => <option key={g.id} value={g.id}>{g.name}</option>)}
-                </select>
+                <SelectMenu value={form.group_id} onChange={(v) => set('group_id', v)} options={groupOptions} placeholder={t('form.noGroup')} ariaLabel={t('form.group')} />
               </Box>
             )}
 
@@ -166,28 +173,19 @@ export default function ClientFormFields({ form, set, setMeta, projects = [], st
                     <Btn type="button" className="m-clear-link" onClick={onManageMeetingTypes}>{t('form.manageMeetingTypes')}</Btn>
                   )}
                 </Box>
-                <select
-                  className="m-select"
+                <SelectMenu
                   value={form.meeting_type_id || ''}
-                  onChange={(e) => (onPickMeetingType ? onPickMeetingType(e.target.value) : set('meeting_type_id', e.target.value))}
-                  aria-label={t('form.meetingType')}
-                >
-                  <option value="">{t('form.none')}</option>
-                  {meetingTypes.map((mt) => (
-                    <option key={mt.id} value={mt.id}>
-                      {mt.name}{mt.default_price != null ? ` · ₪${mt.default_price}` : ''}
-                    </option>
-                  ))}
-                </select>
+                  onChange={(v) => (onPickMeetingType ? onPickMeetingType(v) : set('meeting_type_id', v))}
+                  options={meetingTypeOptions}
+                  placeholder={t('form.none')}
+                  ariaLabel={t('form.meetingType')}
+                />
               </Box>
             )}
             <Box className="m-row2">
               <Box className="m-field">
                 <Box as="label" className="m-label">{t('form.recurringDay')}</Box>
-                <select className="m-select" value={form.recurring_day} onChange={(e) => set('recurring_day', e.target.value)}aria-label={t('form.recurringDay')} >
-                  <option value="">{t('form.none')}</option>
-                  {DAY_KEYS.map((d) => <option key={d} value={d}>{t(`form.days.${d}`)}</option>)}
-                </select>
+                <SelectMenu value={String(form.recurring_day ?? '')} onChange={(v) => set('recurring_day', v)} options={dayOptions} placeholder={t('form.none')} ariaLabel={t('form.recurringDay')} />
               </Box>
               <Box className="m-field">
                 <Box as="label" className="m-label">{t('form.recurringTime')}</Box>
@@ -248,9 +246,7 @@ export default function ClientFormFields({ form, set, setMeta, projects = [], st
                 <Input type="number" min="0" className="m-input" value={form.price_per_session} onChange={(e) => setPrice(e.target.value)} placeholder="0" aria-label={t('form.pricePerSession')} />
               </Box>
             </Box>
-          </Box>
-        )}
-      </Box>
+      </FormSection>
     </>
   )
 }

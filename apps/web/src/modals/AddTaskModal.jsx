@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Trash2, SlidersHorizontal } from 'lucide-react'
 import Modal from './Modal'
 import ConfirmModal from './ConfirmModal'
-import { useDiscardGuard, isDirty, useScrollToError } from './useDiscardGuard'
+import { useDiscardGuard, isDirty, useScrollToError, useFormDraft } from './useDiscardGuard'
 import DateField from '../components/DateField'
 import SelectMenu from '../components/SelectMenu'
 import FormSection from '../components/FormSection'
@@ -66,7 +66,22 @@ export default function AddTaskModal({ open, onClose, onSave, onDelete, projects
      word. Compared against the state the form OPENED with — which for an edit
      is the task itself and for a new one may already carry a tapped calendar
      slot, so neither counts as the user's own typing. */
-  const guard = useDiscardGuard(isDirty(form, fromTask(task, initialDue)), close)
+  /* Survives a refresh mid-form. NEW tasks only: this modal doubles as the
+     editor, and restoring a stale edit over whatever the row holds now would
+     be worse than losing it. Seeded on the calendar slot the caller tapped,
+     so a draft never lands on a different day than the one you opened. */
+  const draft = useFormDraft({
+    name: 'task',
+    form,
+    setForm,
+    blank: fromTask(null, initialDue),
+    enabled: open && !isEdit,
+    seed: { due: initialDue || '' },
+  })
+  const guard = useDiscardGuard(
+    isDirty(form, fromTask(task, initialDue)),
+    () => { draft.clear(); close() },
+  )
   /* A rejected save should put the field it rejected back on screen. */
   useScrollToError(err)
   /* Nothing picked yet → fall back to the configured default. */
@@ -102,6 +117,7 @@ export default function AddTaskModal({ open, onClose, onSave, onDelete, projects
         due_at,
         ...(metaStatus ? { status: metaStatus } : (isEdit ? {} : { status: 'todo', completed_at: null })),
       })
+      draft.clear()
       close()
     } catch (e) {
       setBusy(false)

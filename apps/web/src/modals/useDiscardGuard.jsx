@@ -98,3 +98,69 @@ export function isDirty(form, pristine, skip = []) {
     !skip.includes(k) && String(form[k] ?? '') !== String(pristine[k] ?? '')
   ))
 }
+
+/* ════════════════════════════════════════════════════════════════
+   useFormDraft — a half-filled form survives the page going away.
+   ════════════════════════════════════════════════════════════════
+   Narrow on purpose. useDiscardGuard already covers the case this
+   started as (a stray tap on the backdrop): the form asks, and "keep
+   editing" leaves the text where it was. What is left uncovered is the
+   page itself disappearing — a refresh, a crash, a back-navigation —
+   and that is all this restores.
+
+   So a draft is written continuously while the user types, and CLEARED
+   on both deliberate exits: a successful save, and choosing "leave
+   without saving" (which would otherwise be a lie — reopening would
+   hand the discarded text straight back).
+
+   sessionStorage, not local: a draft belongs to the sitting in front of
+   the screen right now. Close the tab and it is gone, which is the
+   behaviour someone returning tomorrow expects.
+
+   NEW RECORDS ONLY. Pass enabled:false for an edit — restoring a stale
+   edit over whatever the server holds now is worse than losing it.
+
+   `seed` is whatever the CALLER pre-filled: a locked client, a tapped
+   calendar day, a bound project. It goes into the key, so a form opened
+   from a different place never restores the other place's draft — the
+   half-typed payment for one client must not reappear under another.
+   ════════════════════════════════════════════════════════════════ */
+const seedKey = (seed) => {
+  if (!seed || typeof seed !== 'object') return String(seed ?? '')
+  return Object.keys(seed).sort().map((k) => `${k}=${seed[k] ?? ''}`).join('&')
+}
+
+export function useFormDraft({ name, form, setForm, blank, enabled, seed }) {
+  const key = `mg-draft:${name}:${seedKey(seed)}`
+
+  /* Restore when the form opens (enabled flips true), never mid-edit. */
+  useEffect(() => {
+    if (!enabled) return
+    try {
+      const raw = window.sessionStorage.getItem(key)
+      if (!raw) return
+      const saved = JSON.parse(raw)
+      if (saved && typeof saved === 'object') setForm((f) => ({ ...f, ...saved }))
+    } catch { /* unreadable or unparseable — open blank, which is the safe end */ }
+    /* setForm is the caller's stable setState; re-running on it would
+       restore over the user's typing. */
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [enabled, key])
+
+  /* Write on every change. A form back at its blank state holds nothing
+     worth restoring, so it drops the draft instead of storing an empty one. */
+  useEffect(() => {
+    if (!enabled) return
+    try {
+      if (isDirty(form, blank)) window.sessionStorage.setItem(key, JSON.stringify(form))
+      else window.sessionStorage.removeItem(key)
+    } catch { /* private mode / quota — the form still works, it just won't survive */ }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [enabled, form, key])
+
+  const clear = useCallback(() => {
+    try { window.sessionStorage.removeItem(key) } catch { /* nothing to do */ }
+  }, [key])
+
+  return { clear }
+}

@@ -4,7 +4,7 @@ import DateField from '../components/DateField'
 import SelectMenu from '../components/SelectMenu'
 import FormSection from '../components/FormSection'
 import Modal from './Modal'
-import { useDiscardGuard, isDirty, useScrollToError } from './useDiscardGuard'
+import { useDiscardGuard, isDirty, useScrollToError, useFormDraft } from './useDiscardGuard'
 import { useT } from '../i18n/useT'
 import { Box, Txt, Btn, Input, Textarea } from '../components/ui'
 
@@ -46,9 +46,14 @@ export default function AddLeadModal({ open, onClose, onSave, sources = [], stat
      inquiry_date is NOT skipped: blank() stamps it with today, so a value
      different from that one is a date the user chose. A half-typed new
      source name counts as work too. */
+  /* Survives a refresh mid-form. inquiry_date is stamped with today by
+     blank(), so a draft written yesterday restores yesterday's date — but
+     sessionStorage means "a draft written yesterday" cannot outlive the tab,
+     and the date is on screen and editable either way. */
+  const draft = useFormDraft({ name: 'lead', form, setForm, blank: blank(), enabled: open })
   const guard = useDiscardGuard(
     isDirty(form, blank()) || newSourceName.trim() !== '',
-    close,
+    () => { draft.clear(); close() },
   )
   const requestClose = guard.requestClose
   /* A rejected save should put the field it rejected back on screen. */
@@ -99,6 +104,7 @@ export default function AddLeadModal({ open, onClose, onSave, sources = [], stat
         converted_to_client_id: null,
         converted_at: null,
       })
+      draft.clear()
       close()
     } catch (e) {
       setBusy(false)

@@ -5,7 +5,7 @@ import DateField from '../components/DateField'
 import SelectMenu from '../components/SelectMenu'
 import FormSection from '../components/FormSection'
 import Modal from './Modal'
-import { useDiscardGuard, isDirty, useScrollToError } from './useDiscardGuard'
+import { useDiscardGuard, isDirty, useScrollToError, useFormDraft } from './useDiscardGuard'
 import { showToast } from '../lib/toast'
 import { useT } from '../i18n/useT'
 import { useInvoiceProvider } from '../hooks/useInvoiceProvider'
@@ -137,12 +137,25 @@ export default function AddTransactionModal({ open, onClose, onSave, clients = [
      drawer locks the client, the calendar passes the tapped day) don't count
      as the user's own work. The three pieces of state that live OUTSIDE the
      form object have to be named separately. */
+  /* Survives a refresh mid-form. The seed matters most here: this modal is
+     opened from the drawer with a client locked, from the project row with a
+     project bound, and from the calendar with a day tapped. Keying on that
+     means a half-typed payment for one client can never reappear under
+     another — a different opening is a different draft. */
+  const draft = useFormDraft({
+    name: 'transaction',
+    form,
+    setForm,
+    blank: blank(initial),
+    enabled: open,
+    seed: { client: lockedClientId, type: lockedType, ...defaults },
+  })
   const guard = useDiscardGuard(
     isDirty(form, blank(initial))
       || Object.values(recipient).some((v) => v.trim() !== '')
       || issueOnCreate
       || newCatName.trim() !== '',
-    close,
+    () => { draft.clear(); close() },
   )
   const requestClose = guard.requestClose
   /* A rejected save should put the field it rejected back on screen. */
@@ -243,6 +256,7 @@ export default function AddTransactionModal({ open, onClose, onSave, clients = [
       } else {
         showToast(t('tx.saved'))
       }
+      draft.clear()
       close()
     } catch (e) {
       setBusy(false)

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import DateField from '../components/DateField'
 import Modal from './Modal'
+import { useDiscardGuard, isDirty, useScrollToError } from './useDiscardGuard'
 import { useT } from '../i18n/useT'
 import { Box, Txt, Btn, Input } from '../components/ui'
 
@@ -72,6 +73,15 @@ export default function ScheduleMeetingModal({ open, onClose, onSave, client, cl
     setBusy(false)
     onClose()
   }
+  /* Escape, the overlay and the X used to bin a scheduled meeting without a
+     word. Every field here opens with a value the FORM chose — the locked or
+     tapped subject, today, 09:00, 60 minutes — so dirtiness is only ever a
+     change away from those, and opening the form by mistake still shuts on
+     one tap. The recurring toggle counts too: flipping it is a real choice. */
+  const opened = blank(client ? subjectValue('client', client.id) : '', initialDate, initialTime)
+  const guard = useDiscardGuard(isDirty(form, opened) || recurring, close)
+  /* A rejected save should put the field it rejected back on screen. */
+  useScrollToError(err)
 
   /* The toggle only makes sense when we can write back to a known client. */
   const canRecur = !!(client && onSetRecurringSlot)
@@ -130,7 +140,7 @@ export default function ScheduleMeetingModal({ open, onClose, onSave, client, cl
   const showReplaceWarning = recurring && confirmReplace && hasExistingSlot
 
   return (
-    <Modal open={open} onClose={close} title={t('meeting.title')}>
+    <Modal open={open} onClose={guard.requestClose} title={t('meeting.title')}>
       {client ? (
         <Txt as="p" className="m-sub">
           <Txt className="m-sub-dot" style={{ background: 'var(--terracotta)' }} />
@@ -226,11 +236,13 @@ export default function ScheduleMeetingModal({ open, onClose, onSave, client, cl
       {err && <Txt as="p" className="m-error">{err}</Txt>}
 
       <Box className="m-actions">
-        <Btn type="button" className="m-btn-cancel" onClick={close}>{t('common.cancel')}</Btn>
+        <Btn type="button" className="m-btn-cancel" onClick={guard.requestClose}>{t('common.cancel')}</Btn>
         <Btn type="button" className="m-btn-save" onClick={submit} disabled={busy}>
           {busy ? t('common.saving') : (showReplaceWarning ? t('meeting.replaceConfirm') : t('common.save'))}
         </Btn>
       </Box>
+
+      {guard.confirm}
     </Modal>
   )
 }

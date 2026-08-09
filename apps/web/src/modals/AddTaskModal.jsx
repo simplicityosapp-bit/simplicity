@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Trash2 } from 'lucide-react'
 import Modal from './Modal'
 import ConfirmModal from './ConfirmModal'
+import { useDiscardGuard, isDirty, useScrollToError } from './useDiscardGuard'
 import DateField from '../components/DateField'
 import { useT } from '../i18n/useT'
 import { useUserPreferences } from '../hooks/useUserPreferences'
@@ -53,6 +54,13 @@ export default function AddTaskModal({ open, onClose, onSave, onDelete, projects
   const [showDue, setShowDue] = useState(openWithDue)
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }))
   const close = () => { setForm(fromTask(task, initialDue)); setShowDue(openWithDue); setErr(''); setBusy(false); onClose() }
+  /* Escape, the overlay and the X used to bin a written-out task without a
+     word. Compared against the state the form OPENED with — which for an edit
+     is the task itself and for a new one may already carry a tapped calendar
+     slot, so neither counts as the user's own typing. */
+  const guard = useDiscardGuard(isDirty(form, fromTask(task, initialDue)), close)
+  /* A rejected save should put the field it rejected back on screen. */
+  useScrollToError(err)
   /* Nothing picked yet → fall back to the configured default. */
   const priority = form.priority ?? (prefs?.tasks?.default_priority || 'medium')
 
@@ -97,7 +105,7 @@ export default function AddTaskModal({ open, onClose, onSave, onDelete, projects
 
   return (
     <>
-    <Modal open={open} onClose={close} title={isEdit ? t('task.titleEdit') : t('task.titleNew')}>
+    <Modal open={open} onClose={guard.requestClose} title={isEdit ? t('task.titleEdit') : t('task.titleNew')}>
       <Box className="m-field">
         <Box as="label" className="m-label">{t('task.whatToDo')}</Box>
         <Input
@@ -211,10 +219,13 @@ export default function AddTaskModal({ open, onClose, onSave, onDelete, projects
             <Trash2 size={15} strokeWidth={1.8} aria-hidden="true" /> {t('task.delete')}
           </Btn>
         )}
-        <Btn type="button" className="m-btn-cancel" onClick={close}>{t('common.cancel')}</Btn>
+        <Btn type="button" className="m-btn-cancel" onClick={guard.requestClose}>{t('common.cancel')}</Btn>
         <Btn type="button" className="m-btn-save" onClick={submit} disabled={busy}>{busy ? t('common.saving') : t('common.save')}</Btn>
       </Box>
     </Modal>
+
+    {/* Sibling of the sheet, for the same reason the delete confirm below is. */}
+    {guard.confirm}
 
     {/* Sibling of the sheet above, NOT a child of it. Every .m-sheet shares
         z-index 510, so paint order is DOM order — and a Modal nested inside

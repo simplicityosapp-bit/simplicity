@@ -4,7 +4,7 @@ import { ChevronDown, SlidersHorizontal } from 'lucide-react'
 import DateField from '../components/DateField'
 import SelectMenu from '../components/SelectMenu'
 import Modal from './Modal'
-import ConfirmModal from './ConfirmModal'
+import { useDiscardGuard, isDirty, useScrollToError } from './useDiscardGuard'
 import { showToast } from '../lib/toast'
 import { useT } from '../i18n/useT'
 import { useInvoiceProvider } from '../hooks/useInvoiceProvider'
@@ -38,7 +38,6 @@ const blank = (defaults = {}) => ({
 export default function AddTransactionModal({ open, onClose, onSave, clients = [], projects = [], categories = [], onCreateCategory, client, defaultType, defaults = {}, members = [], groups = [] }) {
   const { t } = useT('modalsData')
   const { t: tc } = useT('connections') // reuse the per-tx picker's item-field strings
-  const { t: ts } = useT('modalsSystem') // shared modal chrome (discard prompt)
   const qc = useQueryClient()
   const inv = useInvoiceProvider()
   const lockedClientId = client?.id || ''
@@ -87,10 +86,6 @@ export default function AddTransactionModal({ open, onClose, onSave, clients = [
      add flow). The details are saved on the transaction (recipient_*). */
   const [recipient, setRecipient] = useState({ name: '', email: '', phone: '', tax_id: '' })
   const setRcp = (k, v) => setRecipient((r) => ({ ...r, [k]: v }))
-  /* Escape / the overlay / the X threw away a filled-in form silently. They
-     ask first now — but only when something was actually typed, so the common
-     "opened it by mistake" case still closes on one tap. */
-  const [confirmDiscard, setConfirmDiscard] = useState(false)
   /* The optional half of the form. Starts open only when a caller pre-filled
      something inside it (the project QuickRow binds project_id, a caller may
      pass desc or payment_method), because a value hidden behind a closed lid
@@ -131,21 +126,26 @@ export default function AddTransactionModal({ open, onClose, onSave, clients = [
       return next
     })
   }
-  const close = () => { setForm(blank(initial)); setErr(''); setBusy(false); setCreatingCat(false); setNewCatName(''); setCatBusy(false); setIssueOnCreate(false); setIssueDocType('invoice_receipt'); setIssuePayment('bank_transfer'); setIssueItems([]); setIssueItemId(''); setIssueItemName(''); setIssueCatalogLoading(false); setIssueCatalogErr(''); setItemPickerManual(false); setConfirmDiscard(false); setDetailsOpen(!!(initial.desc || initial.project_id || initial.payment_method)); setRecipient({ name: '', email: '', phone: '', tax_id: '' }); onClose() }
+  const close = () => { setForm(blank(initial)); setErr(''); setBusy(false); setCreatingCat(false); setNewCatName(''); setCatBusy(false); setIssueOnCreate(false); setIssueDocType('invoice_receipt'); setIssuePayment('bank_transfer'); setIssueItems([]); setIssueItemId(''); setIssueItemName(''); setIssueCatalogLoading(false); setIssueCatalogErr(''); setItemPickerManual(false); setDetailsOpen(!!(initial.desc || initial.project_id || initial.payment_method)); setRecipient({ name: '', email: '', phone: '', tax_id: '' }); onClose() }
 
-  /* Has anything been entered that would be lost? Compared against the same
-     blank(initial) the form opens with, so a caller's pre-filled defaults
-     (the project QuickRow binds project_id, the drawer locks the client, the
-     calendar passes the tapped day) don't count as the user's own work. */
-  const pristine = blank(initial)
-  const formDirty = ['type', 'amount', 'desc', 'client_id', 'project_id', 'category_id', 'payment_method']
-    .some((k) => String(form[k] ?? '') !== String(pristine[k] ?? ''))
-    || form.date !== pristine.date
-    || Object.values(recipient).some((v) => v.trim() !== '')
-    || issueOnCreate
-    || newCatName.trim() !== ''
-  /* The single exit for Escape, the overlay and the X. */
-  const requestClose = () => { if (formDirty) setConfirmDiscard(true); else close() }
+  /* Escape / the overlay / the X threw away a filled-in form silently. They
+     ask first now — but only when something was actually typed, so the common
+     "opened it by mistake" case still closes on one tap.
+     Compared against the same blank(initial) the form opens with, so a
+     caller's pre-filled defaults (the project QuickRow binds project_id, the
+     drawer locks the client, the calendar passes the tapped day) don't count
+     as the user's own work. The three pieces of state that live OUTSIDE the
+     form object have to be named separately. */
+  const guard = useDiscardGuard(
+    isDirty(form, blank(initial))
+      || Object.values(recipient).some((v) => v.trim() !== '')
+      || issueOnCreate
+      || newCatName.trim() !== '',
+    close,
+  )
+  const requestClose = guard.requestClose
+  /* A rejected save should put the field it rejected back on screen. */
+  useScrollToError(err)
 
   /* Load the provider catalog for the issue-on-create picker. Defaults the
      selection to the first item — visible and changeable (like InvoiceActions),
@@ -506,16 +506,7 @@ export default function AddTransactionModal({ open, onClose, onSave, clients = [
         <Btn type="button" className="m-btn-save" onClick={submit} disabled={busy}>{busy ? t('common.saving') : t('common.save')}</Btn>
       </Box>
 
-      <ConfirmModal
-        open={confirmDiscard}
-        onClose={() => setConfirmDiscard(false)}
-        title={ts('discard.title')}
-        message={ts('discard.message')}
-        confirmLabel={ts('discard.confirm')}
-        cancelLabel={ts('discard.cancel')}
-        danger
-        onConfirm={close}
-      />
+      {guard.confirm}
     </Modal>
   )
 }

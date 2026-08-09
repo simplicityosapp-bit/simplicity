@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import Modal from './Modal'
+import { useDiscardGuard, isDirty, useScrollToError } from './useDiscardGuard'
 import ClientFormFields from '../components/ClientFormFields'
 import MeetingTypesModal from './MeetingTypesModal'
 import MG from '../components/MG'
@@ -29,6 +30,13 @@ export default function AddClientModal({ open, onClose, onSave, projects = [], s
   const set = (k, v) => { setForm((f) => ({ ...f, [k]: v })); if (err) setErr('') }
   const setMeta = (k) => { setForm((f) => ({ ...f, status: k, status_id: '' })); if (err) setErr('') }
   const close = () => { setForm(blank()); setErr(''); setBusy(false); onClose() }
+  /* Escape, the overlay and the X used to bin a filled-in client without a
+     word — and this is the longest of the add forms once "more" is open.
+     billing_mode and status are skipped: blank() seeds both, so their opening
+     values are the form's own, not the user's. */
+  const guard = useDiscardGuard(isDirty(form, blank(), ['status', 'billing_mode']), close)
+  /* A rejected save should put the field it rejected back on screen. */
+  useScrollToError(err)
 
   /* Picking a type auto-fills the price from the type's default (and re-attaches
      the price to the type); the user can still override it by hand afterwards. */
@@ -88,7 +96,7 @@ export default function AddClientModal({ open, onClose, onSave, projects = [], s
   }
 
   return (
-    <Modal open={open} onClose={close} title={<MG word="client_new" />} titleLabel={t('addClient.titleLabel')}>
+    <Modal open={open} onClose={guard.requestClose} title={<MG word="client_new" />} titleLabel={t('addClient.titleLabel')}>
       {/* Remount per opening. Modal keeps its children mounted, so without
           this the fields live for the whole screen's lifetime and the "more"
           toggle stays however the last client left it — expanded on every
@@ -110,11 +118,12 @@ export default function AddClientModal({ open, onClose, onSave, projects = [], s
       {err && <Txt as="p" className="m-error">{err}</Txt>}
 
       <Box className="m-actions">
-        <Btn type="button" className="m-btn-cancel" onClick={close}>{t('common.cancel')}</Btn>
+        <Btn type="button" className="m-btn-cancel" onClick={guard.requestClose}>{t('common.cancel')}</Btn>
         <Btn type="button" className="m-btn-save" onClick={submit} disabled={busy}>{busy ? t('common.saving') : t('common.save')}</Btn>
       </Box>
 
       <MeetingTypesModal open={manageTypes} onClose={() => { setManageTypes(false); refetchMeetingTypes() }} />
+      {guard.confirm}
     </Modal>
   )
 }

@@ -173,12 +173,29 @@
 [data-theme="dark"] .m-select {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23B8C1B5' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
 }
+/* The reason a save did not happen. This was 11px in --clay-on-dark with no
+   other marking — the SMALLEST and WEAKEST text in the sheet, identical in
+   size to the neutral .m-hint beside it, and measuring 4.22:1 on the daylight
+   glass where 4.5 is the floor for text this size. A refusal that whispers.
+   Shape borrowed from .set-save-error, which the settings screen already uses
+   for the same job, so a failed write reads the same wherever it happens.
+   Colour is theme-split on purpose: --clay-on-dark exists to make danger TEXT
+   legible on a dark surface and is already 5.5-6.3:1 there, but in daylight it
+   resolves to plain --clay and falls short, so the light side takes it 15%
+   toward --ink for 5.28:1. */
 .m-error {
-  margin: 6px 0 0;
+  margin: 8px 0 0;
+  padding: 8px 12px;
+  border-radius: 10px;
+  border: 1px solid color-mix(in srgb, var(--clay) 28%, transparent);
+  background: color-mix(in srgb, var(--clay) 10%, transparent);
   font-family: var(--mg-font);
-  font-size: calc(11px * var(--text-scale));
-  color: var(--clay-on-dark);
+  font-size: calc(12.5px * var(--text-scale));
+  font-weight: 500;
+  line-height: 1.5;
+  color: color-mix(in srgb, var(--clay-on-dark) 85%, var(--ink));
 }
+[data-theme="dark"] .m-error { color: var(--clay-on-dark); }
 /* Shared native checkbox — tints the control to the brand accent so modal
    checkboxes match the language instead of rendering the OS default blue. */
 .m-check {

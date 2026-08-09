@@ -3,7 +3,7 @@ import { ChevronDown, SlidersHorizontal } from 'lucide-react'
 import DateField from '../components/DateField'
 import SelectMenu from '../components/SelectMenu'
 import Modal from './Modal'
-import ConfirmModal from './ConfirmModal'
+import { useDiscardGuard, isDirty, useScrollToError } from './useDiscardGuard'
 import { useT } from '../i18n/useT'
 import { Box, Txt, Btn, Input, Textarea } from '../components/ui'
 
@@ -19,17 +19,12 @@ const blank = () => ({ name: '', phone: '', source_id: '', project_id: '', group
    enables inline source creation so the user never leaves the modal. */
 export default function AddLeadModal({ open, onClose, onSave, sources = [], statuses = [], projects = [], groups = [], onAddSource }) {
   const { t } = useT('modalsClient')
-  const { t: ts } = useT('modalsSystem') // shared modal chrome (discard prompt)
   const [form, setForm] = useState(blank)
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
   const [creatingSource, setCreatingSource] = useState(false)
   const [newSourceName, setNewSourceName] = useState('')
   const [sourceBusy, setSourceBusy] = useState(false)
-  /* Escape / the overlay / the X threw a filled-in enquiry away without a
-     word. They ask first now — but only when something was actually typed,
-     so opening the form by mistake still closes on one tap. */
-  const [confirmDiscard, setConfirmDiscard] = useState(false)
   /* The optional half of the form. Closed unless something inside it is
      already filled by a caller-supplied default. */
   const [detailsOpen, setDetailsOpen] = useState(false)
@@ -40,20 +35,23 @@ export default function AddLeadModal({ open, onClose, onSave, sources = [], stat
   const close = () => {
     setForm(blank()); setErr(''); setBusy(false)
     setCreatingSource(false); setNewSourceName(''); setSourceBusy(false)
-    setConfirmDiscard(false); setDetailsOpen(false)
+    setDetailsOpen(false)
     onClose()
   }
 
-  /* Compared against the same blank() the form opens with. inquiry_date is
-     skipped: blank() always stamps it with today, so it is never the user's
-     own work. */
-  const pristine = blank()
-  const formDirty = ['name', 'phone', 'source_id', 'project_id', 'group_id', 'status_id', 'follow_up_date', 'notes']
-    .some((k) => String(form[k] ?? '') !== String(pristine[k] ?? ''))
-    || form.inquiry_date !== pristine.inquiry_date
-    || newSourceName.trim() !== ''
-  /* The single exit for Escape, the overlay and the X. */
-  const requestClose = () => { if (formDirty) setConfirmDiscard(true); else close() }
+  /* Escape / the overlay / the X threw a filled-in enquiry away without a
+     word. They ask first now — but only when something was actually typed,
+     so opening the form by mistake still closes on one tap.
+     inquiry_date is NOT skipped: blank() stamps it with today, so a value
+     different from that one is a date the user chose. A half-typed new
+     source name counts as work too. */
+  const guard = useDiscardGuard(
+    isDirty(form, blank()) || newSourceName.trim() !== '',
+    close,
+  )
+  const requestClose = guard.requestClose
+  /* A rejected save should put the field it rejected back on screen. */
+  useScrollToError(err)
 
   /* Groups belonging to the chosen project — drives the conditional picker. */
   const projectGroups = form.project_id
@@ -231,16 +229,7 @@ export default function AddLeadModal({ open, onClose, onSave, sources = [], stat
         <Btn type="button" className="m-btn-save" onClick={submit} disabled={busy}>{busy ? t('common.saving') : t('common.save')}</Btn>
       </Box>
 
-      <ConfirmModal
-        open={confirmDiscard}
-        onClose={() => setConfirmDiscard(false)}
-        title={ts('discard.title')}
-        message={ts('discard.message')}
-        confirmLabel={ts('discard.confirm')}
-        cancelLabel={ts('discard.cancel')}
-        danger
-        onConfirm={close}
-      />
+      {guard.confirm}
     </Modal>
   )
 }

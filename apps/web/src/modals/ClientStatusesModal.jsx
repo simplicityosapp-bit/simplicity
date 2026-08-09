@@ -185,12 +185,12 @@ export default function ClientStatusesModal({ open, onClose }) {
                   />
                   <Btn
                     type="button"
-                    className="cst-add-btn"
+                    className="mg-add-inline"
                     onClick={() => submitNew(meta)}
                     disabled={!(drafts[meta] || '').trim()}
                     aria-label={t('statuses.addAria')}
                   >
-                    <Plus size={15} strokeWidth={1.8} aria-hidden="true" />
+                    <Plus size={18} strokeWidth={1.8} aria-hidden="true" />
                   </Btn>
                 </Box>
               </Box>

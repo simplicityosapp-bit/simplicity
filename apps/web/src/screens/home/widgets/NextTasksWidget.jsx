@@ -75,7 +75,7 @@ export default function NextTasksWidget() {
               in a separate full-width button further down the screen. */}
           <Btn
             type="button"
-            className="h-card-add"
+            className="mg-add-icon h-card-add"
             aria-label={t('widgets.nextTasks.addAria')}
             title={t('widgets.nextTasks.addAria')}
             onClick={(e) => { e.stopPropagation(); setAdding('pick') }}

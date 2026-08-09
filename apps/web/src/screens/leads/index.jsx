@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Leaf, ArrowLeft, TrendingUp, ChevronLeft, Bell, SlidersHorizontal, Search, Magnet } from 'lucide-react'
+import { Leaf, ArrowLeft, TrendingUp, ChevronLeft, Bell, SlidersHorizontal, Search, Magnet, UserPlus } from 'lucide-react'
 import { ROUTES } from '../../lib/routes'
 import { useLeads } from '../../hooks/useLeads'
 import { useLeadPages } from '../../hooks/useLeadPages'
@@ -250,6 +250,9 @@ export default function LeadsScreen() {
             {t('title')}
           </Txt>
         </Box>
+        {/* Kanban only, deliberately: the other "view" is not another way to
+            look at the leads, it is the panel that edits the status names. An
+            "add lead" button has nothing to add there. */}
         {view === 'kanban' && (
           <Coachmark id="add-lead" radius="50%">
             <Btn className="cta-add" type="button" aria-label={t('newLeadAria')} onClick={() => setShowAdd(true)}>{t('newLead')}</Btn>
@@ -322,15 +325,15 @@ export default function LeadsScreen() {
             /* Three empty columns, 0/0/— and a banner saying nothing is due
                read as a broken screen rather than a new one. Until there is a
                single lead, the screen is one invitation. */
-            <Box className="l-firstrun">
-              <Txt as="p" className="l-firstrun-title">{t('firstRun.title')}</Txt>
-              <Txt as="p" className="l-firstrun-sub">{t('firstRun.sub')}</Txt>
-              <Btn type="button" className="l-firstrun-cta" onClick={() => setShowAdd(true)}>
-                {t('firstRun.addLead')}
+            <Box className="mg-firstrun">
+              <Txt as="p" className="mg-firstrun-title">{t('firstRun.title')}</Txt>
+              <Txt as="p" className="mg-firstrun-sub">{t('firstRun.sub')}</Txt>
+              <Btn type="button" className="empty-action" onClick={() => setShowAdd(true)}>
+                <UserPlus size={18} strokeWidth={1.6} aria-hidden="true" /> {t('firstRun.addLead')}
               </Btn>
               {/* Where leads arrive on their own — the contextual home for the
                   link that used to sit unexplained in the toolbar. */}
-              <Btn type="button" className="l-firstrun-alt" onClick={() => navigate(ROUTES.SITE_PAGES)}>
+              <Btn type="button" className="mg-firstrun-alt" onClick={() => navigate(ROUTES.SITE_PAGES)}>
                 {t('firstRun.pagesLink')}
               </Btn>
             </Box>

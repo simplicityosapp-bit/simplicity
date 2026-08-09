@@ -89,7 +89,7 @@
       "pastSessionsCount": "פגישות שהתקיימו ({{count}})",
       "noSessions": "אין פגישות מתועדות עדיין",
       "deleteSessionAria": "מחק פגישה",
-      "newGroup": "+ קבוצה חדשה"
+      "newGroup": "קבוצה חדשה"
     },
     "status": {
       "active": "פעילה",
@@ -100,7 +100,7 @@
       "title": "לקוחות",
       "empty": "אין לקוחות בפרויקט זה",
       "private": "פרטי",
-      "addToProject": "+ <mg>לקוח/ה</mg> לפרויקט"
+      "addToProject": "<mg>לקוח/ה</mg> לפרויקט"
     },
     "reminders": {
       "title": "תזכורות מקושרות",

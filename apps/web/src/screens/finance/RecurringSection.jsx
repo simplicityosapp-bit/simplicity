@@ -1,3 +1,4 @@
+import { Plus } from 'lucide-react'
 import RecurringCard from './RecurringCard'
 import { useT } from '../../i18n/useT'
 import { Box, Txt, Btn } from '../../components/ui'
@@ -12,8 +13,8 @@ export default function RecurringSection({ templates, onAdd, onEdit, onDelete, o
   return (
     <Box as="section" className="rec-section">
       <Box className="rec-section-head">
-        <Btn type="button" className="rec-section-add" onClick={onAdd}>
-          {t('recurring.add')}
+        <Btn type="button" className="mg-add-section" onClick={onAdd}>
+          <Plus size={16} strokeWidth={1.8} aria-hidden="true" /> {t('recurring.add')}
         </Btn>
       </Box>
       {live.length === 0 ? (

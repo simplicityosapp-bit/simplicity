@@ -903,8 +903,8 @@ export default function SettingsScreen() {
               </Box>
             ))
           )}
-          <Btn type="button" className="set-q-add" onClick={() => setShowAddQ(true)}>
-            <Plus size={15} strokeWidth={1.8} aria-hidden="true" /> {t('questions.add')}
+          <Btn type="button" className="mg-add-section" onClick={() => setShowAddQ(true)}>
+            <Plus size={16} strokeWidth={1.8} aria-hidden="true" /> {t('questions.add')}
           </Btn>
 
           <Box className="set-sub-divider" />

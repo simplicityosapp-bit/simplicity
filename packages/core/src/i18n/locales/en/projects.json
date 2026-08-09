@@ -85,7 +85,7 @@
       "pastSessionsCount": "Past sessions ({{count}})",
       "noSessions": "No sessions logged yet",
       "deleteSessionAria": "Delete session",
-      "newGroup": "+ New group"
+      "newGroup": "New group"
     },
     "status": {
       "active": "Active",
@@ -96,7 +96,7 @@
       "title": "Clients",
       "empty": "No clients in this project",
       "private": "Private",
-      "addToProject": "+ Add <mg>client</mg> to project"
+      "addToProject": "Add <mg>client</mg> to project"
     },
     "reminders": {
       "title": "Linked reminders",

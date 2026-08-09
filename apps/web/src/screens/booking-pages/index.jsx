@@ -109,7 +109,12 @@ export default function BookingPagesScreen() {
           </Txt>
         </Box>
         <Coachmark id="add-booking-page" radius="50%">
-          <Btn className="cta-add" type="button" onClick={() => (atLimit ? goUpgrade() : setEditingId('new'))}>{t('pages.newPage')}</Btn>
+          {/* .cta-add hides its label with font-size:0 and paints the "+" through
+              ::before, so every other screen's copy names itself with aria-label.
+              This one was the exception, leaving its accessible name resting on
+              zero-sized text. The label carries no "+" to strip, so it doubles as
+              the aria string — no separate key needed. */}
+          <Btn className="cta-add" type="button" aria-label={t('pages.newPage')} onClick={() => (atLimit ? goUpgrade() : setEditingId('new'))}>{t('pages.newPage')}</Btn>
         </Coachmark>
       </Box>
       {atLimit && (

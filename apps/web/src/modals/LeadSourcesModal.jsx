@@ -90,12 +90,12 @@ export default function LeadSourcesModal({ open, onClose, sources = [], onAdd, o
           />
           <Btn
             type="button"
-            className="m-tax-add-btn"
+            className="mg-add-inline"
             onClick={add}
             disabled={!name.trim() || busy}
             aria-label={t('sourcesModal.addAria')}
           >
-            <Plus size={15} strokeWidth={1.8} aria-hidden="true" />
+            <Plus size={18} strokeWidth={1.8} aria-hidden="true" />
           </Btn>
         </Box>
         {err && <Txt as="p" className="m-hint" style={{ color: 'var(--clay)' }}>{err}</Txt>}

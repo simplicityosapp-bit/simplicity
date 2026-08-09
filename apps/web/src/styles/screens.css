@@ -316,6 +316,184 @@
    the flex item — carry the centering the bare button used to do. */
 .screen-top .coachmark { flex: 0 0 auto; margin: 0 auto; }
 
+/* ── First-run panel ───────────────────────────────────────────────
+   Leads and finance replace their WHOLE screen with a single invitation
+   until the first row exists — three empty kanban columns, or six cards
+   apologising for being empty, read as broken rather than new. The two
+   panels had grown byte-identical copies of every rule in LeadsScreen.css
+   and FinanceScreen.css; they live here once, for the same reason
+   .h-quick-row does — screens.css is loaded globally, a per-screen chunk
+   is not.
+   The panel's own button is .empty-action, the same sage CTA the other
+   five screens put in their empty card. An earlier pass gave this one
+   terracotta instead, reasoning that a screen-sized invitation is the
+   primary action rather than a quiet aside — but the four screens that
+   DO use .empty-action are equally first-run (they test length === 0),
+   so that split described the markup, not the moment. And the terracotta
+   "+" still sits in the header while this panel shows, which is exactly
+   the competition the sage call of 2026-07-31 exists to avoid. */
+.mg-firstrun {
+  margin-bottom: 18px;
+  /* Two-value, deliberately: --mg-card-pad is itself a shorthand, so
+     `34px var(--mg-card-pad)` expanded to THREE values (34 top / 24 sides /
+     28 bottom) and quietly robbed the card of its bottom breathing room.
+     --mg-card-pad-x is the horizontal half on its own. */
+  padding: 34px var(--mg-card-pad-x);
+  border-radius: var(--mg-card-radius);
+  border: var(--mg-card-border);
+  background: var(--mg-card-bg);
+  box-shadow: var(--mg-card-shadow);
+  -webkit-backdrop-filter: var(--mg-card-blur);
+  backdrop-filter: var(--mg-card-blur);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 10px;
+}
+.mg-firstrun-title {
+  margin: 0;
+  font-family: var(--mg-font);
+  font-size: calc(18px * var(--text-scale));
+  font-weight: 600;
+  color: var(--espresso);
+}
+.mg-firstrun-sub {
+  margin: 0 0 6px;
+  max-width: 36ch;
+  font-family: var(--mg-font);
+  font-size: calc(13px * var(--text-scale));
+  line-height: 1.55;
+  color: var(--stone);
+}
+/* .empty-action carries a 16px top margin for the empty CARD, where it
+   follows a paragraph directly. Here the panel's own 10px gap already
+   spaces it. */
+.mg-firstrun .empty-action { margin-top: 0; }
+/* The quieter second door out of the panel (a link, not a rival CTA). */
+.mg-firstrun-alt {
+  padding: 4px 8px;
+  border: none;
+  background: transparent;
+  font-family: var(--mg-font);
+  font-size: calc(13px * var(--text-scale));
+  color: var(--stone);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.mg-firstrun-alt:hover { color: var(--espresso); }
+
+/* ── Inline "name it, then add it" button ──────────────────────────
+   ONE control for the row that is a text field plus a confirm: expense
+   categories, client statuses, lead statuses, lead sources, task statuses
+   and categories, personal quote sources. The same interaction had grown
+   five separate looks — a 40px outlined rectangle, a 38px glass square, a
+   40px filled circle, a 30px outlined circle and a ~28px text pill — and
+   every one of them came in UNDER the 44px touch floor that .mg-toggle-btn
+   and .bk-mini-btn go out of their way to reach.
+   44px exactly, so the target is honoured by the paint itself rather than
+   by an ::after that would reach across into the field beside it. The
+   fields are all --mg-btn-h (48px), so the circle sits just inside its row.
+   Filled, not outlined: paired with an input this is a submit, and the
+   filled circle was already the strongest of the five it replaces. */
+.mg-add-inline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  /* Same token pair as every other primary fill — remaps to Moonglow at
+     night, where --on-accent has to flip dark. See .h-quick-primary. */
+  background: var(--mg-btn-primary-bg);
+  color: var(--on-accent);
+  cursor: pointer;
+  transition: background 0.18s, transform 0.12s;
+}
+.mg-add-inline:hover:not(:disabled) { background: var(--mg-btn-primary-bg-hover); }
+.mg-add-inline:active:not(:disabled) { transform: scale(0.93); }
+.mg-add-inline:disabled { opacity: 0.45; cursor: default; }
+[data-theme="dark"] .mg-add-inline { color: var(--ink-on-accent); }
+
+/* ── Section-level "add another" ───────────────────────────────────
+   The quiet adder that closes a list inside a working screen: a fifth
+   group on a project, another daily question, a recurring template, a
+   community event. Secondary by definition — the screen's own "+" is
+   already terracotta in the header — so this is an outlined pill, not
+   a fill.
+   It replaces a dashed rectangle (project detail), two solid-bordered
+   rectangles (settings, meeting types), a terracotta pill (community)
+   and a 26px-tall micro-pill (recurring templates).
+   TEXT IS --espresso, NOT --terracotta. Two of the four it replaces
+   used terracotta type, which measures 2.93:1 against a light glass
+   card — under AA for 13px. The accent moves to the border, where a
+   3:1 non-text threshold applies and it comfortably passes; the label
+   itself gets the 12.8:1 that --espresso carries. */
+.mg-add-section {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 10px 16px;
+  border: 1px solid color-mix(in srgb, var(--terracotta) 35%, transparent);
+  border-radius: 999px;
+  background: transparent;
+  font-family: var(--mg-font);
+  font-size: calc(13px * var(--text-scale));
+  font-weight: 600;
+  color: var(--espresso);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.mg-add-section:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--terracotta) 10%, transparent);
+  border-color: color-mix(in srgb, var(--terracotta) 60%, transparent);
+}
+.mg-add-section:disabled { opacity: 0.45; cursor: default; }
+
+/* ── Card-header add ───────────────────────────────────────────────
+   The smallest one: a bare ring in the header of a card that owns the
+   thing being added, so "add" sits with its subject instead of in a
+   separate button further down. Shared by the home task widget and the
+   moon widget's per-goal rows, which had 26px and 22px versions of the
+   same idea with different hover accents.
+   --mg-add-icon-accent lets a host recolour the hover without a second
+   class (the moon widget stays sage — it is the goals sub-theme). */
+.mg-add-icon {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  flex-shrink: 0;
+  padding: 0;
+  border-radius: 50%;
+  border: 1.5px solid var(--divider);
+  background: transparent;
+  color: var(--stone);
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+.mg-add-icon:hover {
+  border-color: var(--mg-add-icon-accent, var(--terracotta));
+  color: var(--mg-add-icon-accent, var(--terracotta));
+}
+/* Grown pointer target — the paint stays 26px so the card header keeps
+   its density, the HIT reaches 44px by spilling into the padding above
+   and to the outer side, never into the link that follows inline. */
+.mg-add-icon::after {
+  content: '';
+  position: absolute;
+  inset-block: -9px;
+  inset-inline: -7px;
+}
+
 /* ── Entry animation ───────────────────────────────────────────── */
 @keyframes mgFadeUp {
   from { opacity: 0; transform: translateY(8px); }
@@ -352,8 +530,12 @@
 .h-quick-btn:active {
   transform: scale(0.97);
 }
+/* Base and hover have to come from the SAME token pair. This read raw
+   --terracotta at rest but --mg-btn-primary-bg-hover on hover, so at night
+   the button sat Misted-Sage green and flashed to light Moonglow cream the
+   moment a pointer touched it — two different materials, one button. */
 .h-quick-primary {
-  background: var(--terracotta);
+  background: var(--mg-btn-primary-bg);
   border: none;
   color: var(--on-accent);
 }

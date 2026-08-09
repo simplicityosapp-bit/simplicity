@@ -17,24 +17,8 @@
   gap: 8px;
 }
 .qsm-add .m-input { flex: 1; }
-.qsm-add-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex: 0 0 auto;
-  width: 40px;
-  height: 40px;
-  border: none;
-  border-radius: 50%;
-  background: var(--mg-btn-primary-bg);
-  color: var(--on-accent);
-  cursor: pointer;
-  transition: background 0.18s, transform 0.12s;
-}
-.qsm-add-btn:hover { background: var(--mg-btn-primary-bg-hover); }
-.qsm-add-btn:active { transform: scale(0.93); }
-.qsm-add-btn:disabled { opacity: 0.6; cursor: default; }
-[data-theme="dark"] .qsm-add-btn { color: var(--ink-on-accent); }
+/* The confirm button is .mg-add-inline (styles/screens.css) — this rule was
+   the model the shared one was built from. */
 
 /* Personal list — scrolls internally past ~5 rows. */
 .qsm-list {

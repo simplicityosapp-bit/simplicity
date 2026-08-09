@@ -19,7 +19,7 @@
    rendered container and maps the viewBox 1:1 to pixels rather than
    assuming a fixed width.
 
-   Reached here: .f-overview, .f-firstrun, .f-breakdown, .f-tx (corner only —
+   Reached here: .f-overview, .mg-firstrun, .f-breakdown, .f-tx (corner only —
    its padding is hard-coded), plus PendingSection and InvoiceImports, which
    render inside this screen and read the same corner token.
 
@@ -65,70 +65,10 @@
 }
 
 /* ── First run ─────────────────────────────────────────────────
-   Before there is a single transaction the screen is one invitation,
-   not six cards apologising for being empty. */
-.f-firstrun {
-  margin-bottom: 18px;
-  /* Was `34px var(--mg-card-pad)`, which reads as "34 top and bottom, the
-     card's padding on the sides" but is not: --mg-card-pad is a two-value
-     shorthand, so it expanded to three values — 34 top, 24 sides, 28 bottom.
-     The generous vertical breathing room this card is built around was
-     silently missing from its underside. --mg-card-pad-x is the horizontal
-     half on its own, so the two-value form now means what it says. */
-  padding: 34px var(--mg-card-pad-x);
-  border-radius: var(--mg-card-radius);
-  border: var(--mg-card-border);
-  background: var(--mg-card-bg);
-  box-shadow: var(--mg-card-shadow);
-  backdrop-filter: var(--mg-card-blur);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  gap: 10px;
-}
-.f-firstrun-title {
-  margin: 0;
-  font-family: var(--mg-font);
-  font-size: calc(18px * var(--text-scale));
-  font-weight: 600;
-  color: var(--espresso);
-}
-.f-firstrun-sub {
-  margin: 0 0 6px;
-  max-width: 34ch;
-  font-family: var(--mg-font);
-  font-size: calc(13px * var(--text-scale));
-  line-height: 1.55;
-  color: var(--stone);
-}
-.f-firstrun-cta {
-  min-height: var(--mg-btn-h);
-  padding: 0 26px;
-  border-radius: var(--mg-btn-radius);
-  border: none;
-  background: var(--terracotta);
-  color: var(--on-accent);
-  font-family: var(--mg-font);
-  font-size: calc(15px * var(--text-scale));
-  font-weight: 500;
-  cursor: pointer;
-  transition: filter 0.15s, transform 0.12s;
-}
-.f-firstrun-cta:hover { filter: brightness(1.06); }
-.f-firstrun-cta:active { transform: scale(0.98); }
-.f-firstrun-alt {
-  padding: 4px 8px;
-  border: none;
-  background: transparent;
-  font-family: var(--mg-font);
-  font-size: calc(13px * var(--text-scale));
-  color: var(--stone);
-  text-decoration: underline;
-  text-underline-offset: 3px;
-  cursor: pointer;
-}
-.f-firstrun-alt:hover { color: var(--espresso); }
+   The whole panel is .mg-firstrun (+ -title / -sub / -alt) in
+   styles/screens.css, shared with leads — the two screens had grown
+   byte-identical copies of every rule. Its CTA is the app-wide
+   .empty-action. */
 .f-month-nav {
   display: flex;
   align-items: center;
@@ -572,25 +512,8 @@
 }
 
 
-.rec-section-add {
-  padding: 5px 12px;
-  border-radius: 999px;
-  border: 1px solid var(--divider);
-  background: transparent;
-  font-family: var(--mg-font);
-  font-size: calc(12px * var(--text-scale));
-  color: var(--espresso);
-  cursor: pointer;
-  transition: background 0.15s, border-color 0.15s;
-}
-.rec-section-add:hover {
-  background: rgba(42, 37, 32, 0.04);
-  border-color: rgba(42, 37, 32, 0.15);
-}
-[data-theme="dark"] .rec-section-add:hover {
-  background: rgba(240, 235, 224, 0.06);
-  border-color: rgba(240, 235, 224, 0.18);
-}
+/* "New template" is the shared .mg-add-section (styles/screens.css). Its own
+   pill painted ~26px tall — the smallest add target in the app. */
 .rec-section-empty {
   margin: 6px 0 0;
   font-family: var(--mg-font);
@@ -801,27 +724,8 @@
 .cat-color-dot:hover {
   transform: scale(1.1);
 }
-.cat-add-btn {
-  padding: 6px 14px;
-  border-radius: 999px;
-  border: 1px solid var(--divider);
-  background: transparent;
-  font-family: var(--mg-font);
-  font-size: calc(12px * var(--text-scale));
-  color: var(--espresso);
-  cursor: pointer;
-  transition: background 0.15s;
-}
-.cat-add-btn:hover:not(:disabled) {
-  background: rgba(42, 37, 32, 0.05);
-}
-.cat-add-btn:disabled {
-  opacity: 0.4;
-  cursor: default;
-}
-[data-theme="dark"] .cat-add-btn:hover:not(:disabled) {
-  background: rgba(240, 235, 224, 0.07);
-}
+/* The row's confirm button is .mg-add-inline (styles/screens.css) — the
+   one inline adder shared with the statuses / sources / taxonomy rows. */
 
 /* ── Mid-section grid — analytical/management blocks ─────────
    The four blocks between the month hero and the transaction list

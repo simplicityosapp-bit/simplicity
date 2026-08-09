@@ -71,8 +71,8 @@ export default function QuoteSourceModal({
             placeholder={t('quoteSource.addPlaceholder')}
             onKeyDown={(e) => { if (e.key === 'Enter') submit() }}
           />
-          <Btn type="button" className="qsm-add-btn" onClick={submit} disabled={busy} aria-label={t('quoteSource.addAria')}>
-            <Plus size={16} strokeWidth={1.8} aria-hidden="true" />
+          <Btn type="button" className="mg-add-inline" onClick={submit} disabled={busy} aria-label={t('quoteSource.addAria')}>
+            <Plus size={18} strokeWidth={1.8} aria-hidden="true" />
           </Btn>
         </Box>
       </Box>

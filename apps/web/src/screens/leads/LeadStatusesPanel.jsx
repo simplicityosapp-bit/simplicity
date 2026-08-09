@@ -170,12 +170,12 @@ export default function LeadStatusesPanel({ statuses, onAdd, onUpdate, onRemove 
                   />
                   <Btn
                     type="button"
-                    className="lead-statuses-add-btn"
+                    className="mg-add-inline"
                     onClick={() => submit(m.key)}
                     disabled={!(drafts[m.key] || '').trim() || busy[m.key]}
                     aria-label={t('statusesPanel.addAria')}
                   >
-                    <Plus size={15} strokeWidth={1.8} aria-hidden="true" />
+                    <Plus size={18} strokeWidth={1.8} aria-hidden="true" />
                   </Btn>
                 </>
               )}

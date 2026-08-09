@@ -109,8 +109,8 @@ export default function TaskTaxonomyModal({
             onKeyDown={(e) => { if (e.key === 'Enter') addStatus() }}
             placeholder={t('taxonomy.statusPlaceholder')}
           />
-          <Btn type="button" className="m-tax-add-btn" onClick={addStatus} disabled={!sName.trim() || busy} aria-label={t('taxonomy.addStatusAria')}>
-            <Plus size={15} strokeWidth={1.8} aria-hidden="true" />
+          <Btn type="button" className="mg-add-inline" onClick={addStatus} disabled={!sName.trim() || busy} aria-label={t('taxonomy.addStatusAria')}>
+            <Plus size={18} strokeWidth={1.8} aria-hidden="true" />
           </Btn>
         </Box>
       </Box>
@@ -156,8 +156,8 @@ export default function TaskTaxonomyModal({
             onKeyDown={(e) => { if (e.key === 'Enter') addCategory() }}
             placeholder={t('taxonomy.categoryPlaceholder')}
           />
-          <Btn type="button" className="m-tax-add-btn" onClick={addCategory} disabled={!cName.trim() || busy} aria-label={t('taxonomy.addCategoryAria')}>
-            <Plus size={15} strokeWidth={1.8} aria-hidden="true" />
+          <Btn type="button" className="mg-add-inline" onClick={addCategory} disabled={!cName.trim() || busy} aria-label={t('taxonomy.addCategoryAria')}>
+            <Plus size={18} strokeWidth={1.8} aria-hidden="true" />
           </Btn>
         </Box>
       </Box>

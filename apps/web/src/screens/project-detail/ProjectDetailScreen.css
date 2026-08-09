@@ -238,24 +238,9 @@
   text-align: center;
   padding: 8px 0;
 }
-.pd-add-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  margin-top: 4px;
-  padding: 9px 12px;
-  border-radius: var(--mg-btn-radius);
-  border: 1px dashed var(--divider);
-  background: transparent;
-  font-family: var(--mg-font);
-  font-size: calc(13px * var(--text-scale));
-  font-weight: 600;
-  color: var(--espresso);
-  cursor: pointer;
-}
-.pd-add-btn:hover { background: rgba(42, 37, 32, 0.04); }
-[data-theme="dark"] .pd-add-btn:hover { background: rgba(240, 235, 224, 0.04); }
+/* The four section adders (group / client / task / reminder) are the shared
+   .mg-add-section (styles/screens.css). Only the spacing above them is local. */
+.pd-section .mg-add-section { margin-top: 4px; }
 
 /* ── Group status pills ────────────────────────────────── */
 .gc-status-row {

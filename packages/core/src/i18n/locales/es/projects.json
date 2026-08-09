@@ -85,7 +85,7 @@
       "pastSessionsCount": "Sesiones pasadas ({{count}})",
       "noSessions": "Aún no hay sesiones registradas",
       "deleteSessionAria": "Eliminar sesión",
-      "newGroup": "+ Nuevo grupo"
+      "newGroup": "Nuevo grupo"
     },
     "status": {
       "active": "Activo",
@@ -96,7 +96,7 @@
       "title": "Clientes",
       "empty": "No hay clientes en este proyecto",
       "private": "Privado",
-      "addToProject": "+ Añadir <mg>cliente</mg> al proyecto"
+      "addToProject": "Añadir <mg>cliente</mg> al proyecto"
     },
     "reminders": {
       "title": "Recordatorios vinculados",

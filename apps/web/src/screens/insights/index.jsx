@@ -338,8 +338,8 @@ export default function InsightsScreen() {
       ) : visible.length === 0 ? (
         <Box className="empty">
           <Txt as="p" className="empty-text">{t('empty')}</Txt>
-          <Btn type="button" className="ins-empty-add" onClick={() => setShowAddQuestion(true)}>
-            <Plus size={15} strokeWidth={1.8} aria-hidden="true" />
+          <Btn type="button" className="empty-action" onClick={() => setShowAddQuestion(true)}>
+            <Plus size={18} strokeWidth={1.6} aria-hidden="true" />
             {t('emptyAdd')}
           </Btn>
         </Box>

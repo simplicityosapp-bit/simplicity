@@ -157,7 +157,7 @@ export default function MoonWidget() {
                     {s.cat.measurement_type === 'manual' && (
                       <Btn
                         type="button"
-                        className="moon-expanded-cat-add"
+                        className="mg-add-icon moon-cat-add"
                         aria-label={t('widgets.moon.logEntryAria', { name: s.goal.label || s.cat.name })}
                         title={t('widgets.moon.logEntry')}
                         onClick={(e) => { e.stopPropagation(); setEntryCategory(s.cat) }}

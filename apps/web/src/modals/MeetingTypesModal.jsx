@@ -66,8 +66,11 @@ export function MeetingTypesManager({ onChanged }) {
           placeholder={t('meetingTypes.pricePlaceholder')}
           onKeyDown={(e) => { if (e.key === 'Enter') submitNew() }}
         />
-        <Btn type="button" className="set-q-add" onClick={submitNew} disabled={!newName.trim()} aria-label={t('meetingTypes.add')}>
-          <Plus size={15} strokeWidth={1.8} aria-hidden="true" />
+        {/* Wore .set-q-add — a text-pill class — while rendering icon-only.
+            It is the same "name it, then add it" row as the statuses and
+            sources modals, so it takes their button. */}
+        <Btn type="button" className="mg-add-inline" onClick={submitNew} disabled={!newName.trim()} aria-label={t('meetingTypes.add')}>
+          <Plus size={18} strokeWidth={1.8} aria-hidden="true" />
         </Btn>
       </Box>
       <Txt as="p" className="m-hint">{t('meetingTypes.priceHint')}</Txt>

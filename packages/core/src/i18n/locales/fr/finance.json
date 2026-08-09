@@ -59,7 +59,7 @@
   },
   "recurring": {
     "title": "Modèles récurrents",
-    "add": "+ Nouveau modèle",
+    "add": "Nouveau modèle",
     "empty": "Aucun modèle récurrent pour l'instant. En ajouter un créera automatiquement des transactions en attente chaque mois ou chaque semaine.",
     "income": "Revenu",
     "expense": "Dépense",
@@ -73,6 +73,7 @@
     "title": "Catégories de dépenses",
     "empty": "Aucune catégorie pour l'instant. Ajoutez une catégorie pour étiqueter les dépenses (abonnements, conseil, etc.).",
     "add": "Ajouter",
+    "addAria": "Ajouter une catégorie",
     "namePlaceholder": "Nom de la catégorie",
     "colorGroupAria": "Couleur de la catégorie",
     "colorAria": "Couleur {{number}}",

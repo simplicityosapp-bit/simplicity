@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { X } from 'lucide-react'
+import { Plus, X } from 'lucide-react'
 import { CATEGORY_COLORS } from '../../lib/api/categories'
 import { useT } from '../../i18n/useT'
 import ConfirmModal from '../../modals/ConfirmModal'
@@ -77,13 +77,17 @@ export default function CategoriesSection({ categories, onAdd, onDelete }) {
             />
           ))}
         </Box>
+        {/* Was the one text button among the app's inline adders ("הוסף", and
+            masculine-only at that). Now the same Plus circle they all use —
+            the placeholder beside it already says what is being named. */}
         <Btn
           type="button"
-          className="cat-add-btn"
+          className="mg-add-inline"
           onClick={submit}
           disabled={!name.trim() || busy}
+          aria-label={t('categories.addAria')}
         >
-          {t('categories.add')}
+          <Plus size={18} strokeWidth={1.8} aria-hidden="true" />
         </Btn>
       </Box>
 

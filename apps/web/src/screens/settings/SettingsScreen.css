@@ -269,22 +269,9 @@
   color: var(--clay-on-dark);
   cursor: pointer;
 }
-.set-q-add {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  align-self: flex-start;
-  margin-top: 4px;
-  padding: 8px 14px;
-  border-radius: var(--mg-btn-radius);
-  border: 1px solid var(--divider);
-  background: transparent;
-  font-family: var(--mg-font);
-  font-size: calc(13px * var(--text-scale));
-  font-weight: 600;
-  color: var(--terracotta);
-  cursor: pointer;
-}
+/* The "add a daily question" button is the shared .mg-add-section
+   (styles/screens.css); only its placement in the column is local. */
+.set-q > .mg-add-section { align-self: flex-start; margin-top: 4px; }
 
 /* sub-status groups (client/lead statuses by meta) */
 .set-sub { display: flex; flex-direction: column; gap: 16px; }
@@ -325,7 +312,6 @@
   margin-top: 4px;
 }
 .set-sub-add .m-input { flex: 1; }
-.set-sub-add .set-q-add { margin-top: 0; padding: 0 10px; height: 40px; }
 
 /* AddQuestionModal — template chooser */
 /* The daily-question template picker (.q-tmpl*) now lives in

@@ -83,20 +83,7 @@
   margin-top: 4px;
 }
 .cst-add .m-input { flex: 1; min-width: 0; }
-.cst-add-btn {
-  flex-shrink: 0;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  height: 40px;
-  padding: 0 12px;
-  border-radius: var(--mg-btn-radius);
-  border: 1px solid var(--divider);
-  background: transparent;
-  color: var(--terracotta);
-  cursor: pointer;
-}
-.cst-add-btn:disabled { opacity: 0.45; cursor: default; }
+/* The confirm button is .mg-add-inline (styles/screens.css). */
 
 /* Touch targets on a phone — these are the same 26/30px controls that made
    the settings copy hard to hit. */

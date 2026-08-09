@@ -59,7 +59,7 @@
   },
   "recurring": {
     "title": "Recurring templates",
-    "add": "+ New template",
+    "add": "New template",
     "empty": "No recurring templates yet. Adding one will create pending transactions automatically every month or week.",
     "income": "Income",
     "expense": "Expense",
@@ -73,6 +73,7 @@
     "title": "Expense categories",
     "empty": "No categories yet. Add a category to tag expenses (subscriptions, consulting, etc.).",
     "add": "Add",
+    "addAria": "Add category",
     "namePlaceholder": "Category name",
     "colorGroupAria": "Category color",
     "colorAria": "Color {{number}}",

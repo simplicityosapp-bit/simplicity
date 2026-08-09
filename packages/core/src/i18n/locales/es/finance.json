@@ -59,7 +59,7 @@
   },
   "recurring": {
     "title": "Plantillas recurrentes",
-    "add": "+ Nueva plantilla",
+    "add": "Nueva plantilla",
     "empty": "Aún no hay plantillas recurrentes. Al añadir una se crearán transacciones pendientes automáticamente cada mes o semana.",
     "income": "Ingreso",
     "expense": "Gasto",
@@ -73,6 +73,7 @@
     "title": "Categorías de gastos",
     "empty": "Aún no hay categorías. Añade una categoría para etiquetar gastos (suscripciones, consultoría, etc.).",
     "add": "Añadir",
+    "addAria": "Añadir categoría",
     "namePlaceholder": "Nombre de la categoría",
     "colorGroupAria": "Color de la categoría",
     "colorAria": "Color {{number}}",

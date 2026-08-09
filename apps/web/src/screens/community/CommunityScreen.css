@@ -1097,22 +1097,13 @@
   padding-bottom: 16px;
 }
 .cmt-events-body::-webkit-scrollbar { display: none; }
-.cme-new {
-  align-self: flex-start;
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 16px;
-  border-radius: 999px;
-  border: 1px solid rgba(201, 123, 94, 0.4);
-  background: none;
-  color: var(--terracotta);
-  font-family: var(--mg-font);
-  font-size: calc(13px * var(--text-scale));
-  font-weight: 600;
-  cursor: pointer;
-}
-.cme-new:hover { background: rgba(201, 123, 94, 0.12); }
+/* "New event" is the shared .mg-add-section (styles/screens.css). It used to
+   carry its own pill with the LITERAL light-mode terracotta in the border
+   (rgba(201,123,94,…)) against a var(--terracotta) label — so at night, when
+   the token remaps to Misted Sage, the text went green inside a salmon
+   outline. The shared rule keeps both tied to one token, and moves the label
+   itself to --espresso, which clears AA at this size. */
+.cmt-events-body > .mg-add-section { align-self: flex-start; }
 
 .cme-gimport { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .cme-gimport-btn {

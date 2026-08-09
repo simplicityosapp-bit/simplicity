@@ -168,13 +168,13 @@ export default function FinanceScreen() {
         {/* Six empty cards ("no classified income", "no categories yet", a flat
            chart…) read as a broken screen rather than a new one. Until there
            is a single transaction, the screen is one invitation. */}
-        <Box className="f-firstrun">
-          <Txt as="p" className="f-firstrun-title">{t('firstRun.title')}</Txt>
-          <Txt as="p" className="f-firstrun-sub">{t('firstRun.sub')}</Txt>
-          <Btn type="button" className="f-firstrun-cta" onClick={() => openAdd('income')}>
-            {t('firstRun.addIncome')}
+        <Box className="mg-firstrun">
+          <Txt as="p" className="mg-firstrun-title">{t('firstRun.title')}</Txt>
+          <Txt as="p" className="mg-firstrun-sub">{t('firstRun.sub')}</Txt>
+          <Btn type="button" className="empty-action" onClick={() => openAdd('income')}>
+            <Wallet size={18} strokeWidth={1.6} aria-hidden="true" /> {t('firstRun.addIncome')}
           </Btn>
-          <Btn type="button" className="f-firstrun-alt" onClick={() => openAdd('expense')}>
+          <Btn type="button" className="mg-firstrun-alt" onClick={() => openAdd('expense')}>
             {t('firstRun.addExpense')}
           </Btn>
         </Box>

@@ -85,7 +85,7 @@
       "pastSessionsCount": "Séances passées ({{count}})",
       "noSessions": "Aucune séance enregistrée pour l'instant",
       "deleteSessionAria": "Supprimer la séance",
-      "newGroup": "+ Nouveau groupe"
+      "newGroup": "Nouveau groupe"
     },
     "status": {
       "active": "Actif",
@@ -96,7 +96,7 @@
       "title": "Clients",
       "empty": "Aucun client dans ce projet",
       "private": "Privé",
-      "addToProject": "+ Ajouter un <mg>client</mg> au projet"
+      "addToProject": "Ajouter un <mg>client</mg> au projet"
     },
     "reminders": {
       "title": "Rappels liés",

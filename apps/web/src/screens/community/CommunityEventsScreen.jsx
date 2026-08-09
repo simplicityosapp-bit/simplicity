@@ -122,7 +122,7 @@ export default function CommunityEventsScreen() {
       <Box className="cmt-events-body">
         {/* Create — any member. A toggle keeps the list uncluttered. */}
         {!showForm && (
-          <Btn type="button" className="cme-new" onClick={() => { setErr(''); setShowForm(true) }}>
+          <Btn type="button" className="mg-add-section" onClick={() => { setErr(''); setShowForm(true) }}>
             <Plus size={16} strokeWidth={1.8} aria-hidden="true" /> {t('events.newEvent')}
           </Btn>
         )}

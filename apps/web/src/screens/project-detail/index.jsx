@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import {
-  ChevronRight, ChevronDown, Plus, Pencil, Check, CalendarPlus, X, Trash2, Bell, GripVertical, Link2, ChevronLeft, Sprout,
+  ChevronRight, ChevronDown, Plus, Pencil, Check, CalendarPlus, X, Trash2, Bell, GripVertical, Link2, ChevronLeft, Sprout, UserPlus,
 } from 'lucide-react'
 import { useProjects } from '../../hooks/useProjects'
 import { useSitePages } from '../../hooks/useSitePages'
@@ -623,8 +623,8 @@ export default function ProjectDetailScreen() {
                 )
               })
             )}
-            <Btn className="pd-add-btn" type="button" onClick={() => setShowAddGroup(true)}>
-              {t('detail.groups.newGroup')}
+            <Btn className="mg-add-section" type="button" onClick={() => setShowAddGroup(true)}>
+              <Plus size={16} strokeWidth={1.8} aria-hidden="true" /> {t('detail.groups.newGroup')}
             </Btn>
           </Box>
         )}
@@ -666,7 +666,8 @@ export default function ProjectDetailScreen() {
                 )
               })
             )}
-            <Btn className="pd-add-btn" type="button" onClick={() => setShowAddClient(true)}>
+            <Btn className="mg-add-section" type="button" onClick={() => setShowAddClient(true)}>
+              <UserPlus size={16} strokeWidth={1.8} aria-hidden="true" />
               <Trans t={t} i18nKey="detail.clients.addToProject" components={{ mg: <MG word="client" /> }} />
             </Btn>
           </Box>
@@ -723,8 +724,8 @@ export default function ProjectDetailScreen() {
                 )
               })
             )}
-            <Btn className="pd-add-btn" type="button" onClick={() => setShowAddTask(true)}>
-              <Plus size={13} strokeWidth={1.8} aria-hidden="true" /> {t('detail.tasks.add')}
+            <Btn className="mg-add-section" type="button" onClick={() => setShowAddTask(true)}>
+              <Plus size={16} strokeWidth={1.8} aria-hidden="true" /> {t('detail.tasks.add')}
             </Btn>
           </Box>
         )}
@@ -785,8 +786,8 @@ export default function ProjectDetailScreen() {
                 )
               })
             )}
-            <Btn className="pd-add-btn" type="button" onClick={() => setShowAddReminder(true)}>
-              <Bell size={13} strokeWidth={1.8} aria-hidden="true" /> {t('detail.reminders.add')}
+            <Btn className="mg-add-section" type="button" onClick={() => setShowAddReminder(true)}>
+              <Bell size={16} strokeWidth={1.8} aria-hidden="true" /> {t('detail.reminders.add')}
             </Btn>
           </Box>
         )}

@@ -292,7 +292,7 @@ export default function AddTransactionModal({ open, onClose, onSave, clients = [
   ]
 
   return (
-    <Modal open={open} onClose={requestClose} title={client ? t('tx.titlePayment') : t('tx.titleNew')}>
+    <Modal open={open} onClose={requestClose} onSubmit={submit} title={client ? t('tx.titlePayment') : t('tx.titleNew')}>
       {client && (
         <Txt as="p" className="m-sub">
           <Txt className="m-sub-dot" style={{ background: 'var(--sage)' }} />

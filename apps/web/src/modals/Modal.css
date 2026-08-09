@@ -371,21 +371,36 @@
 .m-tax-add .m-input { flex: 1; }
 /* The confirm button is .mg-add-inline (styles/screens.css). */
 
-/* Inline schedule warning — yes/no target exceeds scheduled days. */
-.m-sched-warn {
+/* ── Inline warning ─────────────────────────────────────────────────
+   The third voice in a form, between .m-hint and .m-error: the save is
+   allowed, but it will do something the user may not have meant — a
+   target that exceeds the scheduled days, a weekly slot about to be
+   overwritten. It was .m-sched-warn, known only to the two goal modals,
+   which is why the meeting form's "this replaces the fixed slot" note
+   was wearing .m-hint and reading as a neutral tip.
+   AMBER, not the clay it used to borrow: clay is the colour of a refusal
+   and .m-error now owns it. --amber-warn is the token for exactly this
+   ("אזהרה רכה"), and the split below is the same one .m-error needs —
+   the raw accent is far too light to read as text in daylight (2.18:1)
+   and --amber-solid, the fills-only variant, goes near-black at night.
+   Lands at ~5.6:1 by day and ~6.7:1 at night. */
+.m-warn {
   display: flex;
   align-items: flex-start;
   gap: 6px;
   margin: 8px 0 4px;
-  padding: 7px 10px;
+  padding: 8px 12px;
   border-radius: 10px;
-  background: color-mix(in srgb, var(--clay) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--amber-warn) 34%, transparent);
+  background: color-mix(in srgb, var(--amber-warn) 14%, transparent);
   font-family: var(--mg-font);
-  font-size: calc(12px * var(--text-scale));
+  font-size: calc(12.5px * var(--text-scale));
+  font-weight: 500;
   line-height: 1.45;
-  color: var(--clay-on-dark);
+  color: color-mix(in srgb, var(--amber-warn) 55%, var(--ink));
 }
-.m-sched-warn svg { flex-shrink: 0; margin-top: 1px; }
+[data-theme="dark"] .m-warn { color: color-mix(in srgb, var(--amber-warn) 78%, var(--bone)); }
+.m-warn svg { flex-shrink: 0; margin-top: 1px; }
 
 /* ── TileDrillModal — chip drill-down with filter controls ───── */
 .td-body {

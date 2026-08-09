@@ -313,7 +313,7 @@ export default function EditGoalModal({ open, onClose, onSave, onDelete, goal, c
 
           {effIsYesNo && (
             overMax ? (
-              <Txt as="p" className="m-sched-warn">
+              <Txt as="p" className="m-warn">
                 <AlertTriangle size={13} strokeWidth={1.9} aria-hidden="true" />
                 {t('addGoal.overMaxWarn', { target: parseFloat(form.target_value), max: maxOccurrences })}
               </Txt>

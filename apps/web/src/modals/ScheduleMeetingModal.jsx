@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { AlertTriangle } from 'lucide-react'
 import DateField from '../components/DateField'
 import SelectMenu from '../components/SelectMenu'
 import Modal from './Modal'
@@ -156,7 +157,7 @@ export default function ScheduleMeetingModal({ open, onClose, onSave, client, cl
   ]
 
   return (
-    <Modal open={open} onClose={guard.requestClose} title={t('meeting.title')}>
+    <Modal open={open} onClose={guard.requestClose} onSubmit={submit} title={t('meeting.title')}>
       {client ? (
         <Txt as="p" className="m-sub">
           <Txt className="m-sub-dot" style={{ background: 'var(--terracotta)' }} />
@@ -242,8 +243,16 @@ export default function ScheduleMeetingModal({ open, onClose, onSave, client, cl
         </Box>
       )}
 
+      {/* Overwriting a client's standing weekly slot wipes a series. That wore
+          .m-hint — the same grey as "how long the meeting runs" right above
+          it — so the one destructive thing this form can do looked like a tip.
+          The save button already renames itself to "החלפה"; now the sentence
+          explaining what is being replaced carries the same weight. */}
       {showReplaceWarning && (
-        <Txt as="p" className="m-hint">{t('meeting.replaceWarning', { day: HEB_DAYS[client.recurring_day], time: client.recurring_time })}</Txt>
+        <Txt as="p" className="m-warn">
+          <AlertTriangle size={13} strokeWidth={1.9} aria-hidden="true" />
+          {t('meeting.replaceWarning', { day: HEB_DAYS[client.recurring_day], time: client.recurring_time })}
+        </Txt>
       )}
 
       {err && <Txt as="p" className="m-error">{err}</Txt>}

@@ -14,7 +14,7 @@ const FOCUSABLE = 'button:not([disabled]), a[href], input:not([disabled]), selec
    in the home widgets — a `.home-stack .home-widget > *` rule that
    forced `position: relative` onto every direct child including the
    modal nodes). The portal sidesteps the cascade entirely. */
-export default function Modal({ open, onClose, title, titleLabel, children }) {
+export default function Modal({ open, onClose, title, titleLabel, onSubmit, children }) {
   const { t } = useT('modalsSystem')
   const sheetRef = useRef(null)
   const overlayRef = useRef(null)
@@ -61,6 +61,33 @@ export default function Modal({ open, onClose, title, titleLabel, children }) {
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
   }, [open, onClose])
+
+  /* Enter in a text field saves. These forms have no <form> element, so the
+     browser's own "Enter submits" never applied and every add form made the
+     user reach for the button — on a phone, past the keyboard.
+     Lives here rather than on each field so all five behave the same.
+     Deliberately narrow:
+       - single-line inputs only. A textarea's Enter is a newline, and a
+         button's is its own activation (the lid, a pill, a picker row).
+       - skips an event already handled: the inline "new source" / "new
+         category" rows call preventDefault to create their row on Enter,
+         and that must not also save the form around them.
+       - skips mid-composition Enter, which is the IME committing a word,
+         not the user asking to save. */
+  useEffect(() => {
+    if (!open || !onSubmit) return undefined
+    const sheet = sheetRef.current
+    const onKey = (e) => {
+      if (e.key !== 'Enter' || e.defaultPrevented || e.isComposing) return
+      if (!isTopModalLayer(layerRef.current)) return
+      const el = e.target
+      if (el?.tagName !== 'INPUT' || el.type === 'checkbox' || el.type === 'radio') return
+      e.preventDefault()
+      onSubmit()
+    }
+    sheet?.addEventListener('keydown', onKey)
+    return () => sheet?.removeEventListener('keydown', onKey)
+  }, [open, onSubmit])
 
   /* Lock the scrolling .screen behind the modal so the background can't
      scroll on touch. The lock is derived from the set of open modals, never

@@ -1,9 +1,11 @@
 import { useState } from 'react'
-import { Trash2 } from 'lucide-react'
+import { Trash2, SlidersHorizontal } from 'lucide-react'
 import Modal from './Modal'
 import ConfirmModal from './ConfirmModal'
 import { useDiscardGuard, isDirty, useScrollToError } from './useDiscardGuard'
 import DateField from '../components/DateField'
+import SelectMenu from '../components/SelectMenu'
+import FormSection from '../components/FormSection'
 import { useT } from '../i18n/useT'
 import { useUserPreferences } from '../hooks/useUserPreferences'
 import { Box, Txt, Btn, Input, Textarea } from '../components/ui'
@@ -52,8 +54,14 @@ export default function AddTaskModal({ open, onClose, onSave, onDelete, projects
      edited task that carries one, or a new task seeded from a tapped slot. */
   const openWithDue = !!(task?.due_at || initialDue)
   const [showDue, setShowDue] = useState(openWithDue)
+  /* The lid opens on mount only when something inside already carries a value
+     — an edited task bound to a project, a description already written — so a
+     value is never hidden behind a closed lid. Same rule the lead and
+     transaction forms use. */
+  const detailsPrefilled = !!(task && (task.project_id || task.client_id || task.status_id || task.category_id || task.description))
+  const [detailsOpen, setDetailsOpen] = useState(detailsPrefilled)
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }))
-  const close = () => { setForm(fromTask(task, initialDue)); setShowDue(openWithDue); setErr(''); setBusy(false); onClose() }
+  const close = () => { setForm(fromTask(task, initialDue)); setShowDue(openWithDue); setDetailsOpen(detailsPrefilled); setErr(''); setBusy(false); onClose() }
   /* Escape, the overlay and the X used to bin a written-out task without a
      word. Compared against the state the form OPENED with — which for an edit
      is the task itself and for a new one may already carry a tapped calendar
@@ -103,6 +111,15 @@ export default function AddTaskModal({ open, onClose, onSave, onDelete, projects
 
   const titleMissing = !!err && !form.title.trim()
 
+  /* Option lists for the styled pickers. This form used four native <select>s
+     while the lead and transaction forms opened the app's own menu — the same
+     split the lead modal's own comment complains about. Same shapes they build. */
+  const noneOpt = { value: '', label: t('common.none') }
+  const projectOptions = [noneOpt, ...projects.map((p) => ({ value: p.id, label: p.name }))]
+  const clientOptions = [noneOpt, ...clients.map((c) => ({ value: c.id, label: c.name }))]
+  const statusOptions = [noneOpt, ...statuses.map((s) => ({ value: s.id, label: s.display_name }))]
+  const categoryOptions = [noneOpt, ...categories.map((c) => ({ value: c.id, label: c.name }))]
+
   return (
     <>
     <Modal open={open} onClose={guard.requestClose} title={isEdit ? t('task.titleEdit') : t('task.titleNew')}>
@@ -123,23 +140,6 @@ export default function AddTaskModal({ open, onClose, onSave, onDelete, projects
           ))}
         </Box>
       </Box>
-      <Box className="m-row2">
-        <Box className="m-field">
-          <Box as="label" className="m-label">{t('task.project')}</Box>
-          <select className="m-select" value={form.project_id} onChange={(e) => set('project_id', e.target.value)}>
-            <option value="">{t('common.none')}</option>
-            {projects.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
-          </select>
-        </Box>
-        <Box className="m-field">
-          <Box as="label" className="m-label">{t('task.client')}</Box>
-          <select className="m-select" value={form.client_id} onChange={(e) => set('client_id', e.target.value)}>
-            <option value="">{t('common.none')}</option>
-            {clients.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
-          </select>
-        </Box>
-      </Box>
-
       {/* The due date is optional, so it stays behind a toggle instead of
           taking two permanent rows. Removing collapses AND clears it — a
           hidden-but-set date would silently keep a due_at the user can't see. */}
@@ -175,41 +175,68 @@ export default function AddTaskModal({ open, onClose, onSave, onDelete, projects
         </Btn>
       )}
 
-      {(statuses.length > 0 || categories.length > 0) && (
+      {/* This form used to lay all six fields out flat while every other add
+          form showed three or four and folded the rest. A task is "what needs
+          doing", how urgent, and by when; where it belongs and what it is
+          about go behind the same lid the lead and transaction forms use. */}
+      <FormSection
+        id="task-details"
+        icon={<SlidersHorizontal size={16} strokeWidth={1.7} />}
+        title={t('task.moreDetails')}
+        open={detailsOpen}
+        onToggle={() => setDetailsOpen((o) => !o)}
+      >
         <Box className="m-row2">
-          {statuses.length > 0 && (
-            <Box className="m-field">
-              <Box as="label" className="m-label">{t('task.status')}</Box>
-              <select className="m-select" value={form.status_id} onChange={(e) => set('status_id', e.target.value)}>
-                <option value="">{t('common.none')}</option>
-                {statuses.map((s) => <option key={s.id} value={s.id}>{s.display_name}</option>)}
-              </select>
-            </Box>
-          )}
-          {categories.length > 0 && (
-            <Box className="m-field">
-              <Box as="label" className="m-label">{t('task.category')}</Box>
-              <select className="m-select" value={form.category_id} onChange={(e) => set('category_id', e.target.value)}>
-                <option value="">{t('common.none')}</option>
-                {categories.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
-              </select>
-            </Box>
-          )}
+          <Box className="m-field">
+            <Box as="label" className="m-label">{t('task.project')}</Box>
+            <SelectMenu value={form.project_id} onChange={(v) => set('project_id', v)} options={projectOptions} placeholder={t('common.none')} ariaLabel={t('task.project')} />
+          </Box>
+          <Box className="m-field">
+            <Box as="label" className="m-label">{t('task.client')}</Box>
+            {/* Searchable: the roster grows without bound, and this is the one
+                picker here that can run to hundreds of rows. */}
+            <SelectMenu
+              value={form.client_id}
+              onChange={(v) => set('client_id', v)}
+              options={clientOptions}
+              placeholder={t('common.none')}
+              ariaLabel={t('task.client')}
+              searchable={clients.length > 8}
+              searchPlaceholder={t('task.client')}
+            />
+          </Box>
         </Box>
-      )}
 
-      {/* Last field, where the reminder form puts its own — a task has had
-          nowhere to say what "להתקשר לדנה" is actually about, while a reminder
-          has carried a details box since it was built. */}
-      <Box className="m-field">
-        <Box as="label" className="m-label">{t('task.details')}</Box>
-        <Textarea
-          className="m-textarea"
-          value={form.description}
-          onChange={(e) => set('description', e.target.value)}
-          placeholder={t('task.detailsPlaceholder')}
-        />
-      </Box>
+        {(statuses.length > 0 || categories.length > 0) && (
+          <Box className="m-row2">
+            {statuses.length > 0 && (
+              <Box className="m-field">
+                <Box as="label" className="m-label">{t('task.status')}</Box>
+                <SelectMenu value={form.status_id} onChange={(v) => set('status_id', v)} options={statusOptions} placeholder={t('common.none')} ariaLabel={t('task.status')} />
+              </Box>
+            )}
+            {categories.length > 0 && (
+              <Box className="m-field">
+                <Box as="label" className="m-label">{t('task.category')}</Box>
+                <SelectMenu value={form.category_id} onChange={(v) => set('category_id', v)} options={categoryOptions} placeholder={t('common.none')} ariaLabel={t('task.category')} />
+              </Box>
+            )}
+          </Box>
+        )}
+
+        {/* Last field, where the reminder form puts its own — a task has had
+            nowhere to say what "להתקשר לדנה" is actually about, while a reminder
+            has carried a details box since it was built. */}
+        <Box className="m-field">
+          <Box as="label" className="m-label">{t('task.details')}</Box>
+          <Textarea
+            className="m-textarea"
+            value={form.description}
+            onChange={(e) => set('description', e.target.value)}
+            placeholder={t('task.detailsPlaceholder')}
+          />
+        </Box>
+      </FormSection>
 
       {err && <Txt as="p" className="m-error">{err}</Txt>}
 

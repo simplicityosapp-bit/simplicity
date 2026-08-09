@@ -1,8 +1,9 @@
 import { useMemo, useState } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
-import { ChevronDown, SlidersHorizontal } from 'lucide-react'
+import { SlidersHorizontal } from 'lucide-react'
 import DateField from '../components/DateField'
 import SelectMenu from '../components/SelectMenu'
+import FormSection from '../components/FormSection'
 import Modal from './Modal'
 import { useDiscardGuard, isDirty, useScrollToError } from './useDiscardGuard'
 import { showToast } from '../lib/toast'
@@ -366,20 +367,13 @@ export default function AddTransactionModal({ open, onClose, onSave, clients = [
           it used to be eight before you reached Save. Opens by itself whenever
           something inside it is already filled — see detailsPrefilled — so a
           value is never hidden behind a closed lid. */}
-      <Box className={`ec-acc${detailsOpen ? ' open' : ''}`}>
-        <Btn
-          type="button"
-          className="ec-acc-head"
-          onClick={() => setDetailsOpen((o) => !o)}
-          aria-expanded={detailsOpen}
-          aria-controls="tx-details"
-        >
-          <Txt className="ec-acc-ic" aria-hidden="true"><SlidersHorizontal size={16} strokeWidth={1.7} /></Txt>
-          <Txt className="ec-acc-title">{t('tx.moreDetails')}</Txt>
-          <ChevronDown size={16} strokeWidth={1.8} className="ec-acc-chev" aria-hidden="true" />
-        </Btn>
-        {detailsOpen && (
-          <Box id="tx-details" className="ec-acc-body">
+      <FormSection
+        id="tx-details"
+        icon={<SlidersHorizontal size={16} strokeWidth={1.7} />}
+        title={t('tx.moreDetails')}
+        open={detailsOpen}
+        onToggle={() => setDetailsOpen((o) => !o)}
+      >
             <Box className="m-field">
               <Box as="label" className="m-label">{t('common.description')}</Box>
               <Input className="m-input" value={form.desc} onChange={(e) => set('desc', e.target.value)} placeholder={t('tx.descPlaceholder')} />
@@ -423,9 +417,7 @@ export default function AddTransactionModal({ open, onClose, onSave, clients = [
                 )}
               </Box>
             )}
-          </Box>
-        )}
-      </Box>
+      </FormSection>
 
       {issuable && (
         <Box className="m-field m-issue">

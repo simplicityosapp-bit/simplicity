@@ -1,7 +1,8 @@
 import { useState } from 'react'
-import { ChevronDown, SlidersHorizontal } from 'lucide-react'
+import { SlidersHorizontal } from 'lucide-react'
 import DateField from '../components/DateField'
 import SelectMenu from '../components/SelectMenu'
+import FormSection from '../components/FormSection'
 import Modal from './Modal'
 import { useDiscardGuard, isDirty, useScrollToError } from './useDiscardGuard'
 import { useT } from '../i18n/useT'
@@ -172,20 +173,13 @@ export default function AddLeadModal({ open, onClose, onSave, sources = [], stat
           is set (the one an existing lead is most often created with) or any
           other is already filled — a value behind a closed lid is worse than
           no lid at all. */}
-      <Box className={`ec-acc${detailsOpen ? ' open' : ''}`}>
-        <Btn
-          type="button"
-          className="ec-acc-head"
-          onClick={() => setDetailsOpen((o) => !o)}
-          aria-expanded={detailsOpen}
-          aria-controls="lead-details"
-        >
-          <Txt className="ec-acc-ic" aria-hidden="true"><SlidersHorizontal size={16} strokeWidth={1.7} /></Txt>
-          <Txt className="ec-acc-title">{t('addLead.moreDetails')}</Txt>
-          <ChevronDown size={16} strokeWidth={1.8} className="ec-acc-chev" aria-hidden="true" />
-        </Btn>
-        {detailsOpen && (
-          <Box id="lead-details" className="ec-acc-body">
+      <FormSection
+        id="lead-details"
+        icon={<SlidersHorizontal size={16} strokeWidth={1.7} />}
+        title={t('addLead.moreDetails')}
+        open={detailsOpen}
+        onToggle={() => setDetailsOpen((o) => !o)}
+      >
             <Box className="m-field">
               <Box as="label" className="m-label">{t('common.projectOptional')}</Box>
               <SelectMenu value={form.project_id} onChange={setProject} options={projectOptions} placeholder={t('common.none')} ariaLabel={t('common.projectOptional')} />
@@ -218,9 +212,7 @@ export default function AddLeadModal({ open, onClose, onSave, sources = [], stat
               <Box as="label" className="m-label">{t('common.notes')}</Box>
               <Textarea className="m-textarea" value={form.notes} onChange={(e) => set('notes', e.target.value)} placeholder={t('common.leadNotesPlaceholder')} />
             </Box>
-          </Box>
-        )}
-      </Box>
+      </FormSection>
 
       {err && <Txt as="p" className="m-error">{err}</Txt>}
 

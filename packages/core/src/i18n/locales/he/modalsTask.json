@@ -33,6 +33,7 @@
     "deleteMessage": "למחוק את \"{{title}}\"? אפשר לשחזר אותה מסל המיחזור עד 30 יום.",
     "deleteConfirm": "מחק",
     "details": "פרטים (אופציונלי)",
+    "moreDetails": "פרטים נוספים",
     "detailsPlaceholder": "מה בדיוק צריך לעשות?"
   },
   "reminder": {

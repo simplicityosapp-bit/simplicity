@@ -86,18 +86,26 @@ export default function SelectMenu({
           <Box className="sel-options">
             {visible.length === 0 ? (
               <Txt as="p" className="sel-empty">—</Txt>
-            ) : visible.map((o) => (
-              <Btn
-                key={String(o.value)}
-                type="button"
-                role="option"
-                aria-selected={String(o.value) === String(value)}
-                className={`sel-opt${String(o.value) === String(value) ? ' on' : ''}${o.accent ? ' accent' : ''}`}
-                onClick={() => pick(o)}
-              >
-                <Txt className="sel-opt-label">{o.label}</Txt>
-                {String(o.value) === String(value) && <Check size={14} strokeWidth={2} aria-hidden="true" />}
-              </Btn>
+            ) : visible.map((o, i) => (
+              <Box key={String(o.value)} className="sel-opt-wrap">
+                {/* An option may name a `group`; the heading prints when that
+                    name changes, which is what <optgroup> did for the native
+                    control the meeting picker used to be. Options without one
+                    render exactly as before, so no existing caller moves. */}
+                {o.group && o.group !== visible[i - 1]?.group && (
+                  <Txt as="p" className="sel-group">{o.group}</Txt>
+                )}
+                <Btn
+                  type="button"
+                  role="option"
+                  aria-selected={String(o.value) === String(value)}
+                  className={`sel-opt${String(o.value) === String(value) ? ' on' : ''}${o.accent ? ' accent' : ''}`}
+                  onClick={() => pick(o)}
+                >
+                  <Txt className="sel-opt-label">{o.label}</Txt>
+                  {String(o.value) === String(value) && <Check size={14} strokeWidth={2} aria-hidden="true" />}
+                </Btn>
+              </Box>
             ))}
           </Box>
         </Box>

@@ -31,6 +31,7 @@
     "deleteMessage": "¿Eliminar \"{{title}}\"? Puedes restaurarla desde la papelera durante 30 días.",
     "deleteConfirm": "Eliminar",
     "details": "Detalles (opcional)",
+    "moreDetails": "Más detalles",
     "detailsPlaceholder": "¿Qué hay que hacer exactamente?"
   },
   "reminder": {

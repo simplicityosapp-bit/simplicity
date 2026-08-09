@@ -1,5 +1,6 @@
 import { useId, useState } from 'react'
-import { User, CalendarDays, Wallet, Users, ChevronDown } from 'lucide-react'
+import { User, CalendarDays, Wallet, Users } from 'lucide-react'
+import FormSection from '../components/FormSection'
 import Modal from './Modal'
 import MeetingTypesModal from './MeetingTypesModal'
 import ConfirmModal from './ConfirmModal'
@@ -16,23 +17,10 @@ const STATUSES = [
 ]
 const DAYS = [0, 1, 2, 3, 4, 5, 6]
 
-/* A foldable section of the form. Module-level (stable identity) so the
-   inputs in its body never remount on a parent re-render — typing keeps
-   focus. Closed sections render no body (also keeps them out of the
-   modal's Tab focus-trap); the chevron rotates via the .open class. */
-function Section({ icon, title, summary, open, onToggle, children }) {
-  return (
-    <Box className={`ec-acc${open ? ' open' : ''}`}>
-      <Btn type="button" className="ec-acc-head" onClick={onToggle} aria-expanded={open}>
-        <Txt className="ec-acc-ic" aria-hidden="true">{icon}</Txt>
-        <Txt className="ec-acc-title">{title}</Txt>
-        {!open && summary ? <Txt className="ec-acc-sum">{summary}</Txt> : null}
-        <ChevronDown size={16} strokeWidth={1.8} className="ec-acc-chev" aria-hidden="true" />
-      </Btn>
-      {open && <Box className="ec-acc-body">{children}</Box>}
-    </Box>
-  )
-}
+/* The foldable section this form is built from started here; it now lives in
+   components/FormSection so the add forms — which had each hand-rolled the
+   same markup beside it — share one. Aliased so the JSX below reads as before. */
+const Section = FormSection
 
 /* Edit a client — name / status / sub-status / phone / project / email, the
    fixed-meeting slot, billing, and groups. Parent passes key={client?.id} so

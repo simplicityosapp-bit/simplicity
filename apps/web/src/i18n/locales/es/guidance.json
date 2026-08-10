@@ -115,7 +115,7 @@
     "projects": {
       "hero": {
         "title": "Resumen de proyectos",
-        "body": "Un resumen general — «Mensual» muestra este mes, «Acumulado» desde el principio."
+        "body": "Un resumen general — «Mensual» muestra la imagen de este mes, y «Acumulado» muestra todo desde el principio."
       },
       "list": {
         "title": "Tarjetas de proyecto",

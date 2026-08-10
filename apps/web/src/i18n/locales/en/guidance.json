@@ -115,7 +115,7 @@
     "projects": {
       "hero": {
         "title": "Projects summary",
-        "body": "A general summary — \"Monthly\" shows this month, \"Cumulative\" from the start."
+        "body": "A general summary — \"Monthly\" shows this month's picture, and \"Cumulative\" shows everything from the start."
       },
       "list": {
         "title": "Project cards",

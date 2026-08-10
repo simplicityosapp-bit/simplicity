@@ -2,6 +2,8 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react
 import { createPortal } from 'react-dom'
 import { useTours } from '../hooks/useTours'
 import { tourFor } from '../lib/tours'
+import MG from './MG'
+import { mgToReadable } from '../lib/multiGender'
 import { useT } from '../i18n/useT'
 import './ScreenTour.css'
 import { Box, Txt, Btn } from './ui'
@@ -64,6 +66,16 @@ export default function ScreenTour({ screenKey }) {
       const present = def.filter((s) => document.querySelector(s.target))
       if (present.length) {
         clearInterval(timer)
+        /* Dropping a step whose target is absent is intended — a widget the
+           user turned off should not stall the walkthrough. Doing it in total
+           silence is not: the finance tour ran four of its five steps for
+           however long, because the recurring section's body is unmounted
+           while collapsed and nothing said so. Dev-only, so a real user still
+           never sees a word about it. */
+        if (import.meta.env.DEV && present.length < def.length) {
+          const missing = def.filter((s) => !present.includes(s)).map((s) => s.target)
+          console.warn(`[tour:${screenKey}] ${present.length}/${def.length} steps — no element for: ${missing.join(', ')}`)
+        }
         setSteps(present)
         setIdx(0)
         setActive(true)
@@ -175,10 +187,22 @@ export default function ScreenTour({ screenKey }) {
   let bubbleLeft = rect.left + rect.width / 2 - BUBBLE_W / 2
   bubbleLeft = Math.max(VIEWPORT_PAD, Math.min(bubbleLeft, window.innerWidth - BUBBLE_W - VIEWPORT_PAD))
 
+  /* The dialog's own name goes through the same conversion as the body — a
+     raw merge glyph here would be announced as an unassigned codepoint. */
   return createPortal(
-    <Box className="tour-root" role="dialog" aria-modal="true" aria-label={t(step.title)}>
-      {/* Scrim + spotlight hole (box-shadow trick dims everything else). */}
-      <Box
+    <Box className="tour-root" role="dialog" aria-modal="true" aria-label={mgToReadable(t(step.title))}>
+      {/* Scrim + spotlight hole (box-shadow trick dims everything else).
+          Tapping the lit element advances the step. The glow points at a
+          control and the scrim swallows the click, so the one gesture the
+          spotlight invites used to do nothing at all — no movement, no
+          feedback, on a screen where every other tap is also dead. It cannot
+          press the button underneath (the tour is a walkthrough, and a modal
+          opening behind the scrim would be worse), but "got it" is exactly
+          what the tap means. */}
+      <Btn
+        type="button"
+        aria-label={tr('tour.gotIt')}
+        onClick={next}
         className={`tour-spot${step.accent === 'sage' ? ' tour-spot--sage' : ''}`}
         style={{
           top: sy, left: sx, width: sw, height: sh,
@@ -193,8 +217,13 @@ export default function ScreenTour({ screenKey }) {
         className={`tour-bubble${placeBelow ? ' tour-bubble--below' : ' tour-bubble--above'}`}
         style={{ top: bubbleTop, left: bubbleLeft }}
       >
-        <Txt as="p" className="tour-bubble-title">{t(step.title)}</Txt>
-        <Txt as="p" className="tour-bubble-body">{t(step.body)}</Txt>
+        {/* Through <MG>, because some of this copy carries the dual-gender
+            merge glyphs ("פעיל׊׉", "לקוח׌"). Those sit on unassigned Unicode
+            codepoints: the font draws them, but a screen reader reads garbage.
+            <MG> pairs the visible glyph with an sr-only readable form, and
+            passes strings without any glyph straight through at no cost. */}
+        <Txt as="p" className="tour-bubble-title"><MG text={t(step.title)} /></Txt>
+        <Txt as="p" className="tour-bubble-body"><MG text={t(step.body)} /></Txt>
         <Box className="tour-bubble-foot">
           <Txt className="tour-bubble-count">{idx + 1}/{steps.length}</Txt>
           <Box className="tour-bubble-btns">

@@ -16,9 +16,14 @@
 }
 
 /* ── Spotlight hole ────────────────────────────────────────────── */
+/* A button now (it advances the step — see ScreenTour.jsx), so it has to shed
+   the button chrome and keep taking clicks. */
 .tour-spot {
   position: fixed;
-  pointer-events: none;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
   box-shadow:
     0 0 0 9999px var(--tour-scrim),
     0 0 0 2px var(--cm-glow-hi),

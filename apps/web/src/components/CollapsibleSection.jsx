@@ -16,8 +16,12 @@ import { Box, Txt, Btn } from './ui'
    ════════════════════════════════════════════════════════════════ */
 export default function CollapsibleSection({ id, icon, title, count, open, onToggle, children }) {
   const bodyId = `collapsible-${id}`
+  /* data-section is a stable hook that survives collapsing. The body is
+     unmounted while closed, so anything inside it — including a guided-tour
+     target — simply is not there; the tour drops such a step silently, and
+     the finance walkthrough was running four steps instead of five. */
   return (
-    <Box as="section" className={`cs-section${open ? ' open' : ''}`}>
+    <Box as="section" data-section={id} className={`cs-section${open ? ' open' : ''}`}>
       <Btn
         type="button"
         className="cs-head"

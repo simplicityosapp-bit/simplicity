@@ -88,7 +88,12 @@ const PROJECTS_TOUR = [
 const FINANCE_TOUR = [
   { target: '.f-chart',     title: 'guidance:tour.finance.chart.title',     body: 'guidance:tour.finance.chart.body' },
   { target: '.f-breakdown', title: 'guidance:tour.finance.breakdown.title', body: 'guidance:tour.finance.breakdown.body' },
-  { target: '.rec-section', title: 'guidance:tour.finance.recurring.title', body: 'guidance:tour.finance.recurring.body' },
+  /* The SECTION, not .rec-section inside it: that body is unmounted while the
+     section is collapsed — which is how it opens — so the step was being
+     dropped and the tour ran four steps instead of five. Measured, not
+     guessed. Pointing at the collapsed strip is also the better step: it
+     shows the user the thing they have to open. */
+  { target: '[data-section="recurring"]', title: 'guidance:tour.finance.recurring.title', body: 'guidance:tour.finance.recurring.body' },
   { target: '.f-list',    title: 'guidance:tour.finance.list.title', body: 'guidance:tour.finance.list.body' },
   { target: '.cta-add',   title: 'guidance:tour.finance.add.title',  body: 'guidance:tour.finance.add.body', radius: '50%', accent: 'sage' },
 ]

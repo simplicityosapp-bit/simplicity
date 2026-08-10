@@ -75,23 +75,23 @@
       },
       "add": {
         "title": "Ajouter un client",
-        "body": "C'est ici que vous ajoutez un nouveau client."
+        "body": "Seul le nom est obligatoire — le reste peut attendre."
       }
     },
     "tasks": {
       "view": {
         "title": "Tâches et rappels",
-        "body": "Une tâche est quelque chose à faire, avec ou sans échéance. Un rappel a toujours une heure que vous fixez, et il peut se répéter. — basculez entre les deux ici."
+        "body": "Une tâche est quelque chose à faire, avec ou sans échéance. Un rappel a toujours une heure que vous fixez, et il peut se répéter. Basculez entre les deux ici."
       },
       "add": {
         "title": "Ajouter",
-        "body": "C'est ici que vous ajoutez une nouvelle tâche ou un nouveau rappel."
+        "body": "Seul le titre est obligatoire — échéance et détails peuvent suivre."
       }
     },
     "leads": {
       "toggle": {
         "title": "Prospects et statuts",
-        "body": "« Prospects » affiche vos prospects en colonnes selon leur statut. Sur l'écran Statuts, vous pouvez modifier et ajouter les différents statuts de vos prospects."
+        "body": "« Prospects » les répartit en colonnes selon leur statut. Sur l'écran Statuts, vous pouvez modifier et ajouter vos propres statuts."
       },
       "stats": {
         "title": "Instantané",
@@ -103,7 +103,7 @@
       },
       "add": {
         "title": "Nouveau prospect",
-        "body": "C'est ici que vous ajoutez un nouveau prospect."
+        "body": "Seul le nom est obligatoire — source, étape et notes peuvent suivre."
       }
     },
     "leadPages": {
@@ -123,7 +123,7 @@
       },
       "add": {
         "title": "Nouveau projet",
-        "body": "C'est ici que vous démarrez un nouveau projet."
+        "body": "Vous pourrez y rattacher clients, tâches et revenus plus tard."
       }
     },
     "finance": {
@@ -145,7 +145,7 @@
       },
       "add": {
         "title": "Nouvelle transaction",
-        "body": "C'est ici que vous ajoutez un revenu ou une dépense."
+        "body": "Un montant et une date suffisent pour commencer."
       }
     }
   }

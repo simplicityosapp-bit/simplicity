@@ -75,23 +75,23 @@
       },
       "add": {
         "title": "Add client",
-        "body": "This is where you add a new client."
+        "body": "Only the name is required — everything else can wait."
       }
     },
     "tasks": {
       "view": {
         "title": "Tasks and reminders",
-        "body": "A task is something to do — with a due date or without. A reminder always has a time you set, and it can repeat. — switch between them here."
+        "body": "A task is something to do — with a due date or without. A reminder always has a time you set, and it can repeat. Switch between them here."
       },
       "add": {
         "title": "Add",
-        "body": "This is where you add a new task or reminder."
+        "body": "Only the title is required — a due date and details can come later."
       }
     },
     "leads": {
       "toggle": {
         "title": "Leads and statuses",
-        "body": "\"Leads\" shows your leads in columns by their status. On the Statuses screen you can edit and add the different statuses for your leads."
+        "body": "\"Leads\" arranges them in columns by status. On the Statuses screen you can edit and add statuses of your own."
       },
       "stats": {
         "title": "Snapshot",
@@ -103,7 +103,7 @@
       },
       "add": {
         "title": "New lead",
-        "body": "This is where you add a new lead."
+        "body": "Only the name is required — source, stage and notes can come later."
       }
     },
     "leadPages": {
@@ -123,7 +123,7 @@
       },
       "add": {
         "title": "New project",
-        "body": "This is where you start a new project."
+        "body": "Clients, tasks and income can be attached to it later."
       }
     },
     "finance": {
@@ -145,7 +145,7 @@
       },
       "add": {
         "title": "New transaction",
-        "body": "This is where you add income or an expense."
+        "body": "An amount and a date are all it takes to start."
       }
     }
   }

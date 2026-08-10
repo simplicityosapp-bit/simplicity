@@ -75,23 +75,23 @@
       },
       "add": {
         "title": "Añadir cliente",
-        "body": "Aquí es donde añades un nuevo cliente."
+        "body": "Solo el nombre es obligatorio; lo demás puede esperar."
       }
     },
     "tasks": {
       "view": {
         "title": "Tareas y recordatorios",
-        "body": "Una tarea es algo que hacer, con o sin fecha límite. Un recordatorio siempre tiene una hora que fijas, y puede repetirse. — cambia entre ellos aquí."
+        "body": "Una tarea es algo que hacer, con o sin fecha límite. Un recordatorio siempre tiene una hora que fijas, y puede repetirse. Cambia entre ellos aquí."
       },
       "add": {
         "title": "Añadir",
-        "body": "Aquí es donde añades una nueva tarea o recordatorio."
+        "body": "Solo el título es obligatorio; la fecha y los detalles pueden esperar."
       }
     },
     "leads": {
       "toggle": {
         "title": "Prospectos y estados",
-        "body": "«Prospectos» muestra tus prospectos en columnas según su estado. En la pantalla de Estados puedes editar y añadir los distintos estados de tus prospectos."
+        "body": "«Prospectos» los ordena en columnas según su estado. En la pantalla de Estados puedes editar y añadir tus propios estados."
       },
       "stats": {
         "title": "Instantánea",
@@ -103,7 +103,7 @@
       },
       "add": {
         "title": "Nuevo prospecto",
-        "body": "Aquí es donde añades un nuevo prospecto."
+        "body": "Solo el nombre es obligatorio; origen, etapa y notas pueden esperar."
       }
     },
     "leadPages": {
@@ -123,7 +123,7 @@
       },
       "add": {
         "title": "Nuevo proyecto",
-        "body": "Aquí es donde empiezas un nuevo proyecto."
+        "body": "Más adelante podrás asociarle clientes, tareas e ingresos."
       }
     },
     "finance": {
@@ -145,7 +145,7 @@
       },
       "add": {
         "title": "Nueva transacción",
-        "body": "Aquí es donde añades un ingreso o un gasto."
+        "body": "Un importe y una fecha es todo lo que hace falta para empezar."
       }
     }
   }

@@ -26,7 +26,7 @@
   cursor: pointer;
   /* Layered premium shadow + a faint top highlight for a tactile pill. */
   box-shadow:
-    0 8px 22px rgba(201, 123, 94, 0.32),
+    0 8px 22px color-mix(in srgb, var(--terracotta) 32%, transparent),
     0 2px 6px rgba(42, 37, 32, 0.16),
     inset 0 1px 0 rgba(255, 255, 255, 0.28);
   transition: transform 0.15s ease, box-shadow 0.15s ease, filter 0.15s ease, opacity 0.15s ease;
@@ -35,7 +35,7 @@
   filter: brightness(0.97);
   transform: translateY(-50%) scale(1.03);
   box-shadow:
-    0 12px 28px rgba(201, 123, 94, 0.38),
+    0 12px 28px color-mix(in srgb, var(--terracotta) 38%, transparent),
     0 3px 8px rgba(42, 37, 32, 0.18),
     inset 0 1px 0 rgba(255, 255, 255, 0.3);
 }

@@ -108,8 +108,8 @@
      Spec: vertical padding 14-16px, hit area = whole row, terracotta
      hover/active bg, divider only between rows (not above first). */
   --mg-row-pad-y:       14px;
-  --mg-row-hover-bg:    rgba(201, 123, 94, 0.04); /* Terracotta @ 4% */
-  --mg-row-active-bg:   rgba(201, 123, 94, 0.08); /* Terracotta @ 8% */
+  --mg-row-hover-bg:    color-mix(in srgb, var(--terracotta) 4%, transparent); /* Terracotta @ 4% */
+  --mg-row-active-bg:   color-mix(in srgb, var(--terracotta) 8%, transparent); /* Terracotta @ 8% */
   /* ── Simplicity buttons (Primary / Secondary) ──────────────────────
      One primary per cluster: solid Terracotta, white text. Secondary
      wears the same glass as cards. NO gradients, NO colored shadows. */
@@ -225,9 +225,9 @@
   --moon-drawer-bg:linear-gradient(180deg, rgba(232,238,252,.55) 0%, rgba(208,218,242,.40) 30%, rgba(245,247,250,.92) 100%);
   --bg-moon:#f3f5fa;
   /* Coachmark glow — terracotta halo for first-touch guidance (2026-05-31) */
-  --cm-glow-soft: rgba(201, 123, 94, 0.32);
-  --cm-glow-mid:  rgba(201, 123, 94, 0.45);
-  --cm-glow-hi:   rgba(201, 123, 94, 0.58);
+  --cm-glow-soft: color-mix(in srgb, var(--terracotta) 32%, transparent);
+  --cm-glow-mid:  color-mix(in srgb, var(--terracotta) 45%, transparent);
+  --cm-glow-hi:   color-mix(in srgb, var(--terracotta) 58%, transparent);
   /* Guided-tour scrim — dims everything except the spotlight (light) */
   --tour-scrim: rgba(26, 22, 18, 0.55);
 }
@@ -282,9 +282,9 @@
   --moon-drawer-bg:linear-gradient(180deg, rgba(35,48,82,.65) 0%, rgba(20,30,60,.78) 30%, rgba(3,14,6,.96) 100%);
   --bg-moon:#040d18;
   /* Coachmark glow — dark uses the Misted-Sage accent (terracotta remap) */
-  --cm-glow-soft: rgba(107, 132, 114, 0.34);
-  --cm-glow-mid:  rgba(107, 132, 114, 0.48);
-  --cm-glow-hi:   rgba(107, 132, 114, 0.62);
+  --cm-glow-soft: color-mix(in srgb, var(--terracotta) 34%, transparent);
+  --cm-glow-mid:  color-mix(in srgb, var(--terracotta) 48%, transparent);
+  --cm-glow-hi:   color-mix(in srgb, var(--terracotta) 62%, transparent);
   /* Guided-tour scrim — darker in dark mode for separation */
   --tour-scrim: rgba(0, 0, 0, 0.68);
 }

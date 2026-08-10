@@ -725,7 +725,7 @@ body.modal-open .screen {
   margin-inline-start: 6px;
   padding: 1px 7px;
   border-radius: 999px;
-  background: rgba(201, 123, 94, 0.16);
+  background: color-mix(in srgb, var(--terracotta) 16%, transparent);
   color: var(--terracotta, #c97b5e);
   font-family: var(--mg-font, inherit);
   font-size: calc(9.5px * var(--text-scale, 1));
@@ -736,6 +736,6 @@ body.modal-open .screen {
   vertical-align: middle;
 }
 [data-theme="dark"] .mg-nav-beta {
-  background: rgba(201, 123, 94, 0.26);
+  background: color-mix(in srgb, var(--terracotta) 26%, transparent);
   color: #e7b9a6;
 }

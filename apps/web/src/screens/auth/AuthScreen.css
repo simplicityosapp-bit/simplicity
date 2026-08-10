@@ -291,7 +291,7 @@
   border: 1.5px solid var(--terracotta);
   background: rgba(255, 250, 240, 0.78);
   backdrop-filter: blur(20px) saturate(150%);
-  box-shadow: 0 4px 14px rgba(201, 123, 94, 0.18);
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--terracotta) 18%, transparent);
   color: var(--terracotta) !important;
   font-weight: 700;
   transition: background 0.15s, box-shadow 0.15s, transform 0.12s;
@@ -299,7 +299,7 @@
 .auth-foot-cta:hover {
   background: var(--terracotta);
   color: var(--on-accent) !important;
-  box-shadow: 0 6px 18px rgba(201, 123, 94, 0.28);
+  box-shadow: 0 6px 18px color-mix(in srgb, var(--terracotta) 28%, transparent);
 }
 .auth-foot-cta:active { transform: scale(0.96); }
 [data-theme="dark"] .auth-foot-cta {

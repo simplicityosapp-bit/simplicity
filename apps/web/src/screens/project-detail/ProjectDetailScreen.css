@@ -61,8 +61,8 @@
   font-family: var(--mg-font-num);
   font-size: calc(10px * var(--text-scale));
 }
-.pd-chart-area-top { stop-color: rgba(201, 123, 94, 0.22); }
-.pd-chart-area-bot { stop-color: rgba(201, 123, 94, 0); }
+.pd-chart-area-top { stop-color: color-mix(in srgb, var(--terracotta) 22%, transparent); }
+.pd-chart-area-bot { stop-color: transparent; }
 [data-theme="dark"] .pd-chart-area-top { stop-color: rgba(232, 144, 96, 0.46); }
 [data-theme="dark"] .pd-chart-area-bot { stop-color: rgba(232, 144, 96, 0.04); }
 

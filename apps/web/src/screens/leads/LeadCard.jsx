@@ -6,7 +6,7 @@ import WhatsAppButton from '../../components/WhatsAppButton'
 import { useT } from '../../i18n/useT'
 import { Box, Txt, Btn } from '../../components/ui'
 
-function LeadCard({ lead, onEdit, onConvert, onDelete, sources = [], statuses = [], dragProps = null, dragging = false }) {
+function LeadCard({ lead, onEdit, onConvert, onDelete, onFollowup, sources = [], statuses = [], dragProps = null, dragging = false }) {
   const { t } = useT('leads')
   const waMsg = useWhatsAppMessage()
   const meta = statusMetaOfLead(lead)
@@ -95,6 +95,21 @@ function LeadCard({ lead, onEdit, onConvert, onDelete, sources = [], statuses = 
           >
             <ArrowLeft size={11} strokeWidth={1.8} aria-hidden="true" />
             {needsClientRecord ? t('card.createClient') : t('card.convert')}
+          </Btn>
+        )}
+        {/* When to chase them again. The date itself is printed above; this is
+            the way to set or change it without opening the whole editor, which
+            is what the card could not do before. Same stopPropagation as its
+            neighbours so it opens neither the editor nor a drag. */}
+        {onFollowup && (
+          <Btn
+            type="button"
+            className={`lead-fu-btn${lead.follow_up_date ? ' set' : ''}${overdue ? ' overdue' : ''}`}
+            aria-label={t(lead.follow_up_date ? 'card.followupChangeAria' : 'card.followupAddAria', { name: lead.name })}
+            title={t(lead.follow_up_date ? 'card.followupChangeTitle' : 'card.followupAddTitle')}
+            onClick={(e) => { e.stopPropagation(); onFollowup(lead) }}
+          >
+            <Clock size={14} strokeWidth={1.8} aria-hidden="true" />
           </Btn>
         )}
         {/* Direct WhatsApp on EVERY lead. With no phone, wa.me opens WhatsApp's

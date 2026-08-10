@@ -96,7 +96,11 @@
     "inquiry": "Consulta {{date}}",
     "converted": "Convertido en cliente",
     "convert": "Convertir en cliente",
-    "createClient": "Crear ficha de cliente"
+    "createClient": "Crear ficha de cliente",
+    "followupAddAria": "Programar un seguimiento para {{name}}",
+    "followupChangeAria": "Cambiar el seguimiento de {{name}}",
+    "followupAddTitle": "Cuándo volver a contactarlos",
+    "followupChangeTitle": "Cambiar el seguimiento"
   },
   "sourcesModal": {
     "title": "Fuentes de prospectos",
@@ -236,5 +240,17 @@
   "color": {
     "pick": "Cambiar el color de {{name}}",
     "option": "Color {{index}} de {{total}}"
+  },
+  "followup": {
+    "title": "Cuándo volver a contactarlos",
+    "titleAria": "Programar un seguimiento para {{name}}",
+    "tomorrow": "Mañana",
+    "week": "En una semana",
+    "month": "En un mes",
+    "otherDate": "Otra fecha",
+    "setIt": "Programar",
+    "markDone": "Hecho: borrar el seguimiento",
+    "cancel": "Cancelar",
+    "saveFailed": "No se pudo guardar. {{error}}"
   }
 }

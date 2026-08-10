@@ -24,6 +24,7 @@ import AddLeadModal from '../../modals/AddLeadModal'
 import EditLeadModal from '../../modals/EditLeadModal'
 import ConvertLeadModal from '../../modals/ConvertLeadModal'
 import FollowupsModal from '../../modals/FollowupsModal'
+import LeadFollowupModal from '../../modals/LeadFollowupModal'
 import LeadsFilterModal from '../../modals/LeadsFilterModal'
 import ConfirmModal from '../../modals/ConfirmModal'
 import Modal from '../../modals/Modal'
@@ -107,6 +108,7 @@ export default function LeadsScreen() {
   const [editLead, setEditLead] = useState(null)
   const [convertLead, setConvertLead] = useState(null)
   const [pendingDeleteLead, setPendingDeleteLead] = useState(null)
+  const [followupLead, setFollowupLead] = useState(null)
   const [dropPicker, setDropPicker] = useState(null) // { leadId, newMeta, subs }
   const [showFollowups, setShowFollowups] = useState(false)
 
@@ -126,6 +128,9 @@ export default function LeadsScreen() {
     )
   }, [officialLeads])
   const markFollowupDone = (lead) => updateLead(lead.id, { follow_up_date: null }).catch(() => {})
+  /* From the card. Not swallowed like the one above: the modal shows the
+     failure and keeps the choice on screen rather than closing on a lie. */
+  const setFollowup = (date) => updateLead(followupLead.id, { follow_up_date: date || null })
 
   const buckets = useMemo(() => {
     const f = leadsFilter
@@ -411,6 +416,7 @@ export default function LeadsScreen() {
               onEdit={setEditLead}
               onConvert={setConvertLead}
               onDelete={setPendingDeleteLead}
+              onFollowup={setFollowupLead}
               dnd={leadDnd}
               sources={sources}
               statuses={leadStatuses}
@@ -460,6 +466,12 @@ export default function LeadsScreen() {
         leads={dueFollowups}
         onOpenLead={(lead) => { setShowFollowups(false); setEditLead(lead) }}
         onMarkDone={markFollowupDone}
+      />
+      <LeadFollowupModal
+        open={!!followupLead}
+        onClose={() => setFollowupLead(null)}
+        lead={followupLead}
+        onSave={setFollowup}
       />
       <LeadsFilterModal
         open={showFilter}

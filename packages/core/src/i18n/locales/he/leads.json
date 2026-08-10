@@ -98,7 +98,11 @@
     "inquiry": "פנייה {{date}}",
     "converted": "נוסף לרשימת הלקוחות",
     "convert": "הפיכה ללקוח",
-    "createClient": "יצירת כרטיס לקוח"
+    "createClient": "יצירת כרטיס לקוח",
+    "followupAddAria": "קביעת פולואפ ל{{name}}",
+    "followupChangeAria": "שינוי הפולואפ של {{name}}",
+    "followupAddTitle": "מתי לחזור אליהם",
+    "followupChangeTitle": "שינוי הפולואפ"
   },
   "sourcesModal": {
     "title": "מקורות לידים",
@@ -244,5 +248,17 @@
   "color": {
     "pick": "שינוי הצבע של {{name}}",
     "option": "צבע {{index}} מתוך {{total}}"
+  },
+  "followup": {
+    "title": "מתי לחזור אליהם",
+    "titleAria": "קביעת פולואפ ל{{name}}",
+    "tomorrow": "מחר",
+    "week": "בעוד שבוע",
+    "month": "בעוד חודש",
+    "otherDate": "תאריך אחר",
+    "setIt": "קביעה",
+    "markDone": "בוצע — לנקות את הפולואפ",
+    "cancel": "ביטול",
+    "saveFailed": "השמירה נכשלה. {{error}}"
   }
 }

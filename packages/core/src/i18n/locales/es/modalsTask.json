@@ -99,13 +99,7 @@
     "date": "Fecha",
     "time": "Hora",
     "duration": "Duración (minutos)",
-    "durationHint": "Cuánto dura la cita. Es lo que determina la altura del bloque en la vista de día.",
-    "meetingType": "Tipo de cita",
-    "once": "Una vez",
-    "recurring": "Hora fija",
-    "recurringHint": "Una cita semanal cada {{day}} a las {{time}}. Puedes cambiarla o quitarla desde «Cita semanal recurrente» en la ficha del cliente.",
-    "replaceWarning": "Este cliente ya tiene una hora fija el {{day}} a las {{time}}. Al pulsar «Sí, reemplazar» se sobrescribirá.",
-    "replaceConfirm": "Sí, reemplazar"
+    "durationHint": "Cuánto dura la cita. Es lo que determina la altura del bloque en la vista de día."
   },
   "taxonomy": {
     "title": "Estados y categorías",

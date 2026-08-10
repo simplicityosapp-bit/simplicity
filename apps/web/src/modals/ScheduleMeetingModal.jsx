@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { AlertTriangle } from 'lucide-react'
 import DateField from '../components/DateField'
 import SelectMenu from '../components/SelectMenu'
 import Modal from './Modal'
@@ -18,7 +17,6 @@ const todayStr = () => {
    visible, editable number instead of a silent one. */
 const DEFAULT_DURATION_MIN = 60
 const blank = (subject = '', date, time) => ({ subject, date: date || todayStr(), time: time || '09:00', duration: DEFAULT_DURATION_MIN })
-const HEB_DAYS = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי', 'שבת']
 
 /* The picker carries the subject's TYPE as well as its id, because
    scheduled_meetings is keyed on the pair and a bare id could belong to
@@ -43,14 +41,19 @@ const parseSubject = (v) => {
    the picker into clients + groups; callers that omit it (the home and
    project quick rows) keep exactly the client-only control they had.
 
-   When `onSetRecurringSlot` is provided AND a client is locked, a "שעה קבועה"
-   toggle appears (beta 07/06/2026): instead of one pending meeting it writes
-   the client's weekly recurring slot (recurring_day + recurring_time), and the
-   existing scheduled-meetings engine fans the series across its rolling window
-   — perpetual until changed or cleared in the client editor. Replacing an
-   existing slot asks once before overwriting. That path is client-only by
-   construction: it needs a locked client, so the picker is not even on screen. */
-export default function ScheduleMeetingModal({ open, onClose, onSave, client, clients = [], groups = [], onSetRecurringSlot, initialDate, initialTime }) {
+   This form also carried a "שעה קבועה" branch that wrote the client's weekly
+   recurring slot instead of one pending meeting, guarded by
+   `client && onSetRecurringSlot`. 87e2e7bc removed the only caller that
+   supplied either — the client file's booking button, dropped on the owner's
+   call that booking always happens in the calendar — so the toggle, the slot
+   write, the replace confirmation and its warning had all been unreachable
+   since. Removed here rather than left as scenery.
+   The weekly slot is still set where it belongs, on the client rather than on
+   a booking: the drawer's own "פגישה שבועית קבועה" editor and the scheduling
+   section of EditClientModal. Neither needs the replace warning this branch
+   had — the field IS the subject of those forms, shown with its current value,
+   so changing it is the intent rather than a side effect. */
+export default function ScheduleMeetingModal({ open, onClose, onSave, client, clients = [], groups = [], initialDate, initialTime }) {
   const { t } = useT('modalsTask')
   /* initialDate/initialTime prefill the form when opened from a tapped
      calendar slot (the parent remounts via `key` so this initializer
@@ -62,15 +65,11 @@ export default function ScheduleMeetingModal({ open, onClose, onSave, client, cl
      doing something legitimate. */
   const pickGroups = (groups || []).filter((g) => !g.deleted_at)
   const hasGroups = pickGroups.length > 0
-  const [recurring, setRecurring] = useState(false)
-  const [confirmReplace, setConfirmReplace] = useState(false)
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }))
   const close = () => {
     setForm(blank(client ? subjectValue('client', client.id) : '', initialDate, initialTime))
-    setRecurring(false)
-    setConfirmReplace(false)
     setErr('')
     setBusy(false)
     onClose()
@@ -79,16 +78,11 @@ export default function ScheduleMeetingModal({ open, onClose, onSave, client, cl
      word. Every field here opens with a value the FORM chose — the locked or
      tapped subject, today, 09:00, 60 minutes — so dirtiness is only ever a
      change away from those, and opening the form by mistake still shuts on
-     one tap. The recurring toggle counts too: flipping it is a real choice. */
+     one tap. */
   const opened = blank(client ? subjectValue('client', client.id) : '', initialDate, initialTime)
-  const guard = useDiscardGuard(isDirty(form, opened) || recurring, close)
+  const guard = useDiscardGuard(isDirty(form, opened), close)
   /* A rejected save should put the field it rejected back on screen. */
   useScrollToError(err)
-
-  /* The toggle only makes sense when we can write back to a known client. */
-  const canRecur = !!(client && onSetRecurringSlot)
-  const slotDow = new Date(`${form.date || todayStr()}T${form.time || '09:00'}`).getDay()
-  const hasExistingSlot = !!(client && client.recurring_day != null && client.recurring_time)
 
   const submit = async () => {
     const picked = client ? { type: 'client', id: client.id } : parseSubject(form.subject)
@@ -96,30 +90,6 @@ export default function ScheduleMeetingModal({ open, onClose, onSave, client, cl
     if (!form.date || !form.time) { setErr(t('meeting.dateTimeRequired')); return }
     setErr('')
 
-    /* Recurring path — set the client's weekly slot and let the engine build
-       the series. Overwriting an existing slot is confirmed once. */
-    if (recurring && canRecur) {
-      if (hasExistingSlot && !confirmReplace) { setConfirmReplace(true); return }
-      setBusy(true)
-      try {
-        await onSetRecurringSlot(picked.id, {
-          recurring_day: slotDow,
-          recurring_time: form.time,
-          recurring_start_date: form.date,
-          recurring_end_date: null,
-        })
-        close()
-      } catch (e) {
-        setBusy(false)
-        setErr(t('common.saveFailed', { error: e.message || t('common.tryAgain') }))
-      }
-      return
-    }
-
-    /* One-off path. The duration is validated HERE, not above, because the
-       recurring branch returns before it and a series' length is not this
-       form's to set — validating it earlier let an emptied field block a save
-       that never intended to use it. */
     const duration = Number(form.duration)
     if (!Number.isFinite(duration) || duration <= 0) { setErr(t('meeting.durationInvalid')); return }
     setBusy(true)
@@ -138,8 +108,6 @@ export default function ScheduleMeetingModal({ open, onClose, onSave, client, cl
       setErr(t('common.saveFailed', { error: e.message || t('common.tryAgain') }))
     }
   }
-
-  const showReplaceWarning = recurring && confirmReplace && hasExistingSlot
 
   /* Clients then groups, each run headed by its own label when both exist.
      With no groups the list stays flat — no heading over a single run. */
@@ -201,10 +169,7 @@ export default function ScheduleMeetingModal({ open, onClose, onSave, client, cl
           because the only length it could find belonged to the SUBJECT
           (recurring_end_time), not to the meeting. Same control as the booking
           pages' meeting types: minutes, in fives. */}
-      {/* Hidden on the recurring path: that branch writes the subject's weekly
-          slot and never reads this, so leaving the field on screen offered a
-          number that would be silently dropped. */}
-      <Box className="m-field" hidden={recurring && canRecur}>
+      <Box className="m-field">
         <Box as="label" className="m-label" htmlFor="meeting-duration">{t('meeting.duration')}</Box>
         <Input
           id="meeting-duration"
@@ -218,49 +183,12 @@ export default function ScheduleMeetingModal({ open, onClose, onSave, client, cl
         <Txt as="p" className="m-hint">{t('meeting.durationHint')}</Txt>
       </Box>
 
-      {canRecur && (
-        <Box className="m-field">
-          <Box as="label" className="m-label">{t('meeting.meetingType')}</Box>
-          <Box className="m-pills">
-            <Btn
-              type="button"
-              className={`m-pill${!recurring ? ' on' : ''}`}
-              onClick={() => { setRecurring(false); setConfirmReplace(false); if (err) setErr('') }}
-            >
-              {t('meeting.once')}
-            </Btn>
-            <Btn
-              type="button"
-              className={`m-pill${recurring ? ' on' : ''}`}
-              onClick={() => { setRecurring(true); if (err) setErr('') }}
-            >
-              {t('meeting.recurring')}
-            </Btn>
-          </Box>
-          {recurring && (
-            <Txt as="p" className="m-hint">{t('meeting.recurringHint', { day: HEB_DAYS[slotDow], time: form.time })}</Txt>
-          )}
-        </Box>
-      )}
-
-      {/* Overwriting a client's standing weekly slot wipes a series. That wore
-          .m-hint — the same grey as "how long the meeting runs" right above
-          it — so the one destructive thing this form can do looked like a tip.
-          The save button already renames itself to "החלפה"; now the sentence
-          explaining what is being replaced carries the same weight. */}
-      {showReplaceWarning && (
-        <Txt as="p" className="m-warn">
-          <AlertTriangle size={13} strokeWidth={1.9} aria-hidden="true" />
-          {t('meeting.replaceWarning', { day: HEB_DAYS[client.recurring_day], time: client.recurring_time })}
-        </Txt>
-      )}
-
       {err && <Txt as="p" className="m-error">{err}</Txt>}
 
       <Box className="m-actions">
         <Btn type="button" className="m-btn-cancel" onClick={guard.requestClose}>{t('common.cancel')}</Btn>
         <Btn type="button" className="m-btn-save" onClick={submit} disabled={busy}>
-          {busy ? t('common.saving') : (showReplaceWarning ? t('meeting.replaceConfirm') : t('common.save'))}
+          {busy ? t('common.saving') : t('common.save')}
         </Btn>
       </Box>
 

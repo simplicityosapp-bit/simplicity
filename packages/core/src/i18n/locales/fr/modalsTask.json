@@ -99,13 +99,7 @@
     "date": "Date",
     "time": "Heure",
     "duration": "Durée (minutes)",
-    "durationHint": "Combien de temps dure le rendez-vous. C’est ce qui fixe la hauteur du bloc dans la vue jour.",
-    "meetingType": "Type de rendez-vous",
-    "once": "Une seule fois",
-    "recurring": "Horaire fixe",
-    "recurringHint": "Un rendez-vous hebdomadaire chaque {{day}} à {{time}}. Vous pouvez le modifier ou le supprimer depuis « Séance hebdomadaire récurrente » dans la fiche du client.",
-    "replaceWarning": "Ce client a déjà un horaire fixe le {{day}} à {{time}}. Appuyer sur « Oui, remplacer » l'écrasera.",
-    "replaceConfirm": "Oui, remplacer"
+    "durationHint": "Combien de temps dure le rendez-vous. C’est ce qui fixe la hauteur du bloc dans la vue jour."
   },
   "taxonomy": {
     "title": "Statuts et catégories",

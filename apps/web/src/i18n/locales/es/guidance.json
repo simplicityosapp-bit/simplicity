@@ -41,7 +41,7 @@
       },
       "insights": {
         "title": "Preguntas diarias",
-        "body": "Estas son las preguntas que elegiste. Tus respuestas se acumulan con el tiempo en la pantalla «¿Cómo estás hoy?», y las preguntas nuevas se pueden vincular a objetivos en la pantalla de Objetivos."
+        "body": "Estas son las preguntas que elegiste. Puedes ver tus respuestas a lo largo del tiempo en la pantalla «¿Cómo estás hoy?», y vincular preguntas nuevas a objetivos en la pantalla de Objetivos."
       },
       "quick-row": {
         "title": "Añadir rápido",
@@ -137,7 +137,7 @@
       },
       "recurring": {
         "title": "Plantillas recurrentes",
-        "body": "Movimientos que se repiten cada mes o cada semana. Se configuran una vez y se crean solos; solo queda aprobarlos."
+        "body": "Transacciones que se repiten cada mes o cada semana. Se configuran una vez y se crean solas; solo queda aprobarlas."
       },
       "list": {
         "title": "Transacciones",

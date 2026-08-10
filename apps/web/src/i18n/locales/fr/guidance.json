@@ -41,7 +41,7 @@
       },
       "insights": {
         "title": "Questions quotidiennes",
-        "body": "Ce sont les questions que vous avez choisies. Vos réponses s'accumulent au fil du temps sur l'écran « Comment allez-vous aujourd'hui », et de nouvelles questions peuvent être liées à des objectifs sur l'écran Objectifs."
+        "body": "Ce sont les questions que vous avez choisies. Vous pouvez voir vos réponses au fil du temps sur l'écran « Comment allez-vous aujourd'hui », et lier de nouvelles questions à des objectifs sur l'écran Objectifs."
       },
       "quick-row": {
         "title": "Ajout rapide",
@@ -49,7 +49,7 @@
       },
       "attention": {
         "title": "Nécessite votre attention",
-        "body": "Des séances à confirmer, des paiements qui ne sont pas encore arrivés, des séances en double dans l'agenda — ce qu'il serait dommage de laisser filer."
+        "body": "Des rendez-vous à confirmer, des paiements qui ne sont pas encore arrivés, des rendez-vous en double dans l'agenda — ce qu'il serait dommage de laisser filer."
       },
       "next-tasks": {
         "title": "Tâches et rappels",
@@ -137,7 +137,7 @@
       },
       "recurring": {
         "title": "Modèles récurrents",
-        "body": "Des mouvements qui reviennent chaque mois ou chaque semaine. On les configure une fois et ils se créent tout seuls — il ne reste qu'à les valider."
+        "body": "Des transactions qui reviennent chaque mois ou chaque semaine. On les configure une fois et elles se créent toutes seules — il ne reste qu'à les valider."
       },
       "list": {
         "title": "Transactions",

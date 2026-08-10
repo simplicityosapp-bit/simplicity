@@ -37,27 +37,27 @@
     "home": {
       "moon": {
         "title": "Resumen",
-        "body": "Un vistazo rápido a cómo avanzan tus objetivos. Toca para ver cada objetivo por separado — y saltar a la pantalla completa."
+        "body": "Un vistazo rápido a cuánto has avanzado en tus objetivos. Toca para ver cada uno por separado o abrir la pantalla completa."
       },
       "insights": {
         "title": "Preguntas diarias",
-        "body": "Estas son las preguntas que elegiste. Puedes seguir tus respuestas a lo largo del tiempo en la pantalla «¿Cómo estás hoy?», y vincular nuevas preguntas a objetivos en la pantalla de Objetivos."
+        "body": "Estas son las preguntas que elegiste. Tus respuestas se acumulan con el tiempo en la pantalla «¿Cómo estás hoy?», y las preguntas nuevas se pueden vincular a objetivos en la pantalla de Objetivos."
       },
       "quick-row": {
         "title": "Añadir rápido",
-        "body": "Un atajo a todos los botones de añadir — tareas, ingresos, oportunidades y más."
+        "body": "Todo lo que puedes añadir, en un solo sitio: tareas, ingresos, prospectos y más."
       },
       "attention": {
         "title": "Necesita atención",
-        "body": "Confirmar citas que tuvieron lugar, pagos que deberían llegar, duplicados en el calendario — y otras cosas que no quieres que se te escapen."
+        "body": "Citas por confirmar, pagos que todavía no han entrado, citas duplicadas en el calendario: las cosas que sería una pena perder de vista."
       },
       "next-tasks": {
         "title": "Tareas y recordatorios",
         "body": "Todo lo pendiente en un solo lugar — tareas y recordatorios juntos, lo más urgente primero: atrasado, luego lo de hoy."
       },
       "chips": {
-        "title": "Tarjetas de estado",
-        "body": "Una vista enfocada y personalizada — toca aquí para abrir un menú y personalizarla."
+        "title": "Números rápidos",
+        "body": "Tú eliges qué números aparecen aquí. Toca para abrir la selección."
       }
     },
     "clients": {
@@ -95,7 +95,7 @@
       },
       "stats": {
         "title": "Instantánea",
-        "body": "Cuántas consultas entraron este mes, cuántas se convirtieron en clientes y cuál es tu tasa de conversión."
+        "body": "Cuántas consultas entraron este mes y cuántas se convirtieron en clientes."
       },
       "board": {
         "title": "Tablero de prospectos",
@@ -119,7 +119,7 @@
       },
       "list": {
         "title": "Tarjetas de proyecto",
-        "body": "Cada panel reúne los grupos, clientes, ingresos y tareas que pertenecen a ese proyecto."
+        "body": "Cada tarjeta reúne los grupos, clientes, ingresos y tareas de ese proyecto."
       },
       "add": {
         "title": "Nuevo proyecto",
@@ -129,7 +129,7 @@
     "finance": {
       "chart": {
         "title": "Ingresos acumulados",
-        "body": "La línea se construye día a día frente a la meta de ingresos mensual (la línea de puntos). Así ves si se mantiene el ritmo."
+        "body": "La línea sube con cada ingreso que entra. La línea discontinua es el objetivo del mes: así ves si mantienes el ritmo."
       },
       "breakdown": {
         "title": "De dónde, a dónde",
@@ -137,7 +137,7 @@
       },
       "recurring": {
         "title": "Plantillas recurrentes",
-        "body": "Transacciones que se repiten cada mes o cada semana. Configúralo una vez y el sistema las crea solo — tú solo tienes que aprobar."
+        "body": "Movimientos que se repiten cada mes o cada semana. Se configuran una vez y se crean solos; solo queda aprobarlos."
       },
       "list": {
         "title": "Transacciones",

@@ -37,27 +37,27 @@
     "home": {
       "moon": {
         "title": "Overview",
-        "body": "A quick look at how your goals are progressing. Tap to see each goal on its own — and jump to the full screen."
+        "body": "A quick look at how far along your goals are. Tap to see each one on its own, or open the full screen."
       },
       "insights": {
         "title": "Daily questions",
-        "body": "These are the questions you chose. You can track your answers over time on the \"How are you today\" screen, and link new questions to goals on the Goals screen."
+        "body": "These are the questions you chose. Your answers build up over time on the \"How are you today\" screen, and new questions can be linked to goals on the Goals screen."
       },
       "quick-row": {
         "title": "Quick add",
-        "body": "A shortcut to every add button in the app — tasks, income, leads and more."
+        "body": "Everything you can add, in one place — tasks, income, leads and more."
       },
       "attention": {
         "title": "Needs attention",
-        "body": "Confirming meetings that took place, payments that should arrive, calendar duplicates — and other things you don't want to slip through the cracks."
+        "body": "Meetings to confirm, payments that have not come in yet, meetings doubled up in the calendar — the things it would be a shame to lose track of."
       },
       "next-tasks": {
         "title": "Tasks and reminders",
         "body": "Everything still open, in one place — tasks and reminders together, most pressing first: overdue, then due today."
       },
       "chips": {
-        "title": "Status cards",
-        "body": "A focused, personalized view — tap here to open a menu and customize it."
+        "title": "Quick numbers",
+        "body": "You choose which numbers show up here. Tap to open the picker."
       }
     },
     "clients": {
@@ -95,7 +95,7 @@
       },
       "stats": {
         "title": "Snapshot",
-        "body": "How many inquiries came in this month, how many became clients, and what your conversion rate is."
+        "body": "How many enquiries came in this month, and how many became clients."
       },
       "board": {
         "title": "Leads board",
@@ -119,7 +119,7 @@
       },
       "list": {
         "title": "Project cards",
-        "body": "Each panel brings together the groups, clients, income, and tasks that belong to that project."
+        "body": "Each card holds the groups, clients, income and tasks that belong to that project."
       },
       "add": {
         "title": "New project",
@@ -129,7 +129,7 @@
     "finance": {
       "chart": {
         "title": "Cumulative income",
-        "body": "The line builds day by day against the monthly income target (the dashed line). That's how you see if the pace holds."
+        "body": "The line climbs with every payment that comes in. The dashed line is the monthly target — that is how you see whether the pace is holding."
       },
       "breakdown": {
         "title": "From where, to where",
@@ -137,7 +137,7 @@
       },
       "recurring": {
         "title": "Recurring templates",
-        "body": "Transactions that recur every month or week. Set it up once and the system creates them on its own — you just need to approve."
+        "body": "Transactions that repeat every month or week. Set one up once and it will be created on its own — all that is left is to approve it."
       },
       "list": {
         "title": "Transactions",

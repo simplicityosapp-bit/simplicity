@@ -37,27 +37,27 @@
     "home": {
       "moon": {
         "title": "Vue d'ensemble",
-        "body": "Un aperçu rapide de la progression de vos objectifs. Touchez pour voir chaque objectif séparément — et accéder à l'écran complet."
+        "body": "Un coup d'œil rapide à votre avancée sur vos objectifs. Touchez pour voir chacun séparément, ou ouvrir l'écran complet."
       },
       "insights": {
         "title": "Questions quotidiennes",
-        "body": "Ce sont les questions que vous avez choisies. Vous pouvez suivre vos réponses au fil du temps sur l'écran « Comment allez-vous aujourd'hui », et associer de nouvelles questions à des objectifs sur l'écran Objectifs."
+        "body": "Ce sont les questions que vous avez choisies. Vos réponses s'accumulent au fil du temps sur l'écran « Comment allez-vous aujourd'hui », et de nouvelles questions peuvent être liées à des objectifs sur l'écran Objectifs."
       },
       "quick-row": {
         "title": "Ajout rapide",
-        "body": "Un raccourci vers tous les boutons d'ajout — tâches, revenus, prospects et plus."
+        "body": "Tout ce que vous pouvez ajouter, au même endroit : tâches, revenus, prospects et plus."
       },
       "attention": {
-        "title": "Demande attention",
-        "body": "Confirmer les rendez-vous qui ont eu lieu, les paiements qui devraient arriver, les doublons du calendrier — et d'autres choses que vous ne voulez pas laisser passer entre les mailles du filet."
+        "title": "Nécessite votre attention",
+        "body": "Des séances à confirmer, des paiements qui ne sont pas encore arrivés, des séances en double dans l'agenda — ce qu'il serait dommage de laisser filer."
       },
       "next-tasks": {
         "title": "Tâches et rappels",
         "body": "Tout ce qui reste, au même endroit — tâches et rappels ensemble, du plus urgent : en retard, puis pour aujourd'hui."
       },
       "chips": {
-        "title": "Cartes d'état",
-        "body": "Une vue ciblée et personnalisée — touchez ici pour ouvrir un menu et la personnaliser."
+        "title": "Chiffres rapides",
+        "body": "Vous choisissez quels chiffres apparaissent ici. Touchez pour ouvrir la sélection."
       }
     },
     "clients": {
@@ -95,7 +95,7 @@
       },
       "stats": {
         "title": "Instantané",
-        "body": "Combien de demandes sont arrivées ce mois-ci, combien sont devenues des clients, et quel est votre taux de conversion."
+        "body": "Combien de demandes sont arrivées ce mois-ci, et combien sont devenues des clients."
       },
       "board": {
         "title": "Tableau des prospects",
@@ -119,7 +119,7 @@
       },
       "list": {
         "title": "Cartes de projet",
-        "body": "Chaque panneau réunit les groupes, les clients, les revenus et les tâches qui appartiennent à ce projet."
+        "body": "Chaque carte réunit les groupes, clients, revenus et tâches de ce projet."
       },
       "add": {
         "title": "Nouveau projet",
@@ -129,7 +129,7 @@
     "finance": {
       "chart": {
         "title": "Revenu cumulé",
-        "body": "La courbe se construit jour après jour par rapport à l'objectif de revenu mensuel (la ligne en pointillés). C'est ainsi que vous voyez si le rythme tient."
+        "body": "La ligne monte à chaque revenu encaissé. La ligne pointillée est l'objectif du mois : c'est ainsi que vous voyez si le rythme tient."
       },
       "breakdown": {
         "title": "D'où, vers où",
@@ -137,7 +137,7 @@
       },
       "recurring": {
         "title": "Modèles récurrents",
-        "body": "Des transactions qui reviennent chaque mois ou chaque semaine. Configurez-les une fois et le système les crée tout seul — vous n'avez plus qu'à approuver."
+        "body": "Des mouvements qui reviennent chaque mois ou chaque semaine. On les configure une fois et ils se créent tout seuls — il ne reste qu'à les valider."
       },
       "list": {
         "title": "Transactions",

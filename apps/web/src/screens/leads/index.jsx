@@ -272,21 +272,29 @@ export default function LeadsScreen() {
           the view toggle as a single settings affordance. */}
       <Box className="l-toolbar">
         <Box className="l-view-toggle" role="tablist" aria-label={t('viewToggleAria')}>
+          {/* The pair declared role="tab" and aria-selected but named no panel,
+              so a screen reader announced "tab, selected" over content it could
+              not tie to the tab. Both point at the one region below, which is
+              what actually swaps. */}
           <Btn
             type="button"
+            id="lead-tab-kanban"
             className={`l-view-btn${view === 'kanban' ? ' on' : ''}`}
             onClick={() => setView('kanban')}
             role="tab"
             aria-selected={view === 'kanban'}
+            aria-controls="lead-view-panel"
           >
             {t('tabLeads')}
           </Btn>
           <Btn
             type="button"
+            id="lead-tab-statuses"
             className={`l-view-btn${view === 'statuses' ? ' on' : ''}`}
             onClick={() => setView('statuses')}
             role="tab"
             aria-selected={view === 'statuses'}
+            aria-controls="lead-view-panel"
           >
             {t('tabStatuses')}
           </Btn>
@@ -301,6 +309,11 @@ export default function LeadsScreen() {
         </Btn>
       </Box>
 
+      <Box
+        id="lead-view-panel"
+        role="tabpanel"
+        aria-labelledby={view === 'statuses' ? 'lead-tab-statuses' : 'lead-tab-kanban'}
+      >
       {loading ? (
         <Box className="empty"><Txt as="p" className="empty-text">{t('loading')}</Txt></Box>
       ) : error ? (
@@ -427,6 +440,7 @@ export default function LeadsScreen() {
           )}
         </>
       )}
+      </Box>
 
       <LeadSourcesModal
         open={showSources}
@@ -492,7 +506,10 @@ export default function LeadsScreen() {
         message={pendingDeleteLead ? t('delete.message', { name: pendingDeleteLead.name }) : ''}
         confirmLabel={t('delete.confirm')}
         danger
-        onConfirm={() => { if (pendingDeleteLead) removeLead(pendingDeleteLead.id) }}
+        /* RETURNS the promise, so ConfirmModal stays busy until the delete
+           lands instead of closing the moment the click is handled — the shape
+           the pending-reject confirm already uses. */
+        onConfirm={() => (pendingDeleteLead ? removeLead(pendingDeleteLead.id) : undefined)}
       />
 
       <Modal

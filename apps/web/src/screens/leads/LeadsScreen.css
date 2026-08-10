@@ -712,16 +712,30 @@
   color: var(--clay-on-dark);
   font-weight: 500;
 }
+/* "נוסף לרשימת הלקוחות" — the one piece of GOOD news a card can carry, and
+   it was bare 11px text in plain --sage beside a bordered chip and a round
+   button, so it read as a caption and disappeared (owner, 10/08). A pill now,
+   like every other state in the app.
+   Filled rather than outlined on purpose: the chip beside it is an ACTION and
+   wears an outline; this is a state and should not look pressable.
+   Plain --sage as text measures ~2.4:1 on a light card — the reason it faded
+   as much as the missing shape. Darkened toward --ink in daylight; at night
+   --sage is already light enough against the card. */
 .lead-converted {
   display: inline-flex;
   align-items: center;
   gap: 4px;
   margin-top: 8px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--sage) 38%, transparent);
+  background: color-mix(in srgb, var(--sage) 15%, transparent);
   font-family: var(--mg-font);
   font-size: calc(11px * var(--text-scale));
-  font-weight: 500;
-  color: var(--sage);
+  font-weight: 600;
+  color: color-mix(in srgb, var(--sage) 55%, var(--ink));
 }
+[data-theme="dark"] .lead-converted { color: var(--sage); }
 
 /* "הפיכה ללקוח" CTA — soft chip at the bottom of every non-converted
    card, on the card itself rather than behind an overflow menu.
@@ -768,6 +782,111 @@
 .lead-card-foot .lead-convert-btn { flex: 1; justify-content: center; margin-top: 0; }
 .lead-card-foot .lead-converted { margin-top: 0; margin-inline-end: auto; }
 .lead-card-foot > .lead-wa-btn:only-child { margin-inline-start: auto; }
+/* Set / change when to chase this lead. Same 30px ring as WhatsApp beside it
+   so the footer reads as one row of actions.
+   The paint stays 30px and the HIT area grows to 44 — the separation
+   .mg-toggle-btn and .bk-mini-btn already use. VERTICAL only: the footer's
+   buttons sit 8px apart, so growing sideways would have them stealing each
+   other's taps. */
+.lead-fu-btn {
+  position: relative;
+  flex-shrink: 0;
+  display: inline-grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1px solid var(--divider);
+  background: var(--mg-card-bg);
+  color: var(--stone);
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+.lead-fu-btn::after {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  inset-block: -7px;
+}
+.lead-fu-btn:hover { color: var(--terracotta); border-color: color-mix(in srgb, var(--terracotta) 45%, transparent); }
+/* A lead that already has a date wears it, so the button reads as "there is
+   one" at a glance rather than only after reading the line above. */
+.lead-fu-btn.set {
+  color: var(--terracotta);
+  border-color: color-mix(in srgb, var(--terracotta) 40%, transparent);
+}
+/* Overdue takes the same clay the date line takes, so the two agree. */
+.lead-fu-btn.overdue {
+  color: var(--clay-on-dark);
+  border-color: color-mix(in srgb, var(--clay) 45%, transparent);
+}
+
+/* ── "מתי לחזור אליהם" sheet ─────────────────────────────────── */
+.lfu-choices {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 4px 0 12px;
+}
+.lfu-choice {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 44px;
+  padding: 10px 14px;
+  border-radius: var(--mg-btn-radius);
+  border: 1px solid color-mix(in srgb, var(--terracotta) 30%, transparent);
+  background: transparent;
+  font-family: var(--mg-font);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.lfu-choice:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--terracotta) 10%, transparent);
+  border-color: color-mix(in srgb, var(--terracotta) 55%, transparent);
+}
+.lfu-choice:disabled { opacity: 0.5; cursor: default; }
+.lfu-choice-label {
+  font-size: calc(14px * var(--text-scale));
+  font-weight: 600;
+  color: var(--espresso);
+}
+/* The date the shortcut resolves to, so nobody has to count days. */
+.lfu-choice-date {
+  font-size: calc(12.5px * var(--text-scale));
+  color: var(--stone);
+  font-variant-numeric: tabular-nums;
+}
+/* Stacked, and each sized to its own content — the two used to share a line
+   and overlap, because one is inline-block and the other inline-flex. */
+.lfu-rest {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+.lfu-custom { margin-top: 4px; align-self: stretch; }
+.lfu-custom-save { margin-top: 10px; }
+.lfu-done {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  margin-top: 8px;
+  padding: 10px 16px;
+  border-radius: var(--mg-btn-radius);
+  border: 1px solid var(--divider);
+  background: transparent;
+  font-family: var(--mg-font);
+  font-size: calc(13px * var(--text-scale));
+  font-weight: 600;
+  color: var(--espresso);
+  cursor: pointer;
+}
+.lfu-done:hover:not(:disabled) { background: var(--mg-row-hover-bg); }
+.lfu-done:disabled { opacity: 0.5; cursor: default; }
+
 .lead-wa-btn {
   flex-shrink: 0;
   display: inline-grid;

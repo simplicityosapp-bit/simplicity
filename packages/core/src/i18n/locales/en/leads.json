@@ -96,7 +96,11 @@
     "inquiry": "Inquiry {{date}}",
     "converted": "Converted to client",
     "convert": "Convert to client",
-    "createClient": "Create client record"
+    "createClient": "Create client record",
+    "followupAddAria": "Set a follow-up for {{name}}",
+    "followupChangeAria": "Change the follow-up for {{name}}",
+    "followupAddTitle": "When to come back to them",
+    "followupChangeTitle": "Change the follow-up"
   },
   "sourcesModal": {
     "title": "Lead sources",
@@ -236,5 +240,17 @@
   "color": {
     "pick": "Change the colour of {{name}}",
     "option": "Colour {{index}} of {{total}}"
+  },
+  "followup": {
+    "title": "When to come back to them",
+    "titleAria": "Set a follow-up for {{name}}",
+    "tomorrow": "Tomorrow",
+    "week": "In a week",
+    "month": "In a month",
+    "otherDate": "Another date",
+    "setIt": "Set it",
+    "markDone": "Done — clear the follow-up",
+    "cancel": "Cancel",
+    "saveFailed": "That did not save. {{error}}"
   }
 }

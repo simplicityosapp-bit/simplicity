@@ -5,7 +5,7 @@ import { Box, Txt } from '../../components/ui'
 /* A meta column. Drop handling is pointer-based (touch + mouse) via the shared
    `dnd` instance: the column is a drop zone keyed by its meta, and each card is
    draggable. */
-export default function LeadColumn({ title, color, metaKey, leads, onEdit, onConvert, onDelete, dnd, sources, statuses }) {
+export default function LeadColumn({ title, color, metaKey, leads, onEdit, onConvert, onDelete, onFollowup, dnd, sources, statuses }) {
   const { t } = useT('leads')
   const over = dnd?.overZone === metaKey
   return (
@@ -27,6 +27,7 @@ export default function LeadColumn({ title, color, metaKey, leads, onEdit, onCon
               onEdit={onEdit}
               onConvert={onConvert}
               onDelete={onDelete}
+              onFollowup={onFollowup}
               sources={sources}
               statuses={statuses}
               dragProps={dnd ? dnd.draggableProps(l.id) : null}

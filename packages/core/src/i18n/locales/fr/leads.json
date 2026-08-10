@@ -96,7 +96,11 @@
     "inquiry": "Demande {{date}}",
     "converted": "Converti en client",
     "convert": "Convertir en client",
-    "createClient": "Créer la fiche client"
+    "createClient": "Créer la fiche client",
+    "followupAddAria": "Planifier une relance pour {{name}}",
+    "followupChangeAria": "Modifier la relance de {{name}}",
+    "followupAddTitle": "Quand les recontacter",
+    "followupChangeTitle": "Modifier la relance"
   },
   "sourcesModal": {
     "title": "Sources de prospects",
@@ -236,5 +240,17 @@
   "color": {
     "pick": "Changer la couleur de {{name}}",
     "option": "Couleur {{index}} sur {{total}}"
+  },
+  "followup": {
+    "title": "Quand les recontacter",
+    "titleAria": "Planifier une relance pour {{name}}",
+    "tomorrow": "Demain",
+    "week": "Dans une semaine",
+    "month": "Dans un mois",
+    "otherDate": "Une autre date",
+    "setIt": "Planifier",
+    "markDone": "Fait — effacer la relance",
+    "cancel": "Annuler",
+    "saveFailed": "L'enregistrement a échoué. {{error}}"
   }
 }

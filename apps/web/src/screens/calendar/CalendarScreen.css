@@ -1269,7 +1269,7 @@
   padding: 12px 14px;
   border: 1px solid rgba(44, 38, 33, 0.10);
   border-radius: 12px;
-  background: rgba(201, 123, 94, 0.05);
+  background: color-mix(in srgb, var(--terracotta) 5%, transparent);
 }
 .evt-detail-booking-head {
   margin: 0 0 6px;

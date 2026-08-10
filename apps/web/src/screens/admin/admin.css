@@ -336,7 +336,7 @@
   padding: 4px 11px; border-radius: 999px;
   font-size: var(--mg-micro); font-weight: 500; white-space: nowrap;
 }
-.admin-sub-badge.regular { background: rgba(201, 123, 94, .16); color: var(--terracotta); }
+.admin-sub-badge.regular { background: color-mix(in srgb, var(--terracotta) 16%, transparent); color: var(--terracotta); }
 /* Subscribed rows get a faint sage wash so they stand out at a glance. */
 .admin-table tbody tr.is-sub td { background: rgba(139, 168, 136, .07); }
 .admin-table tbody tr.is-sub.clickable:hover td { background: rgba(139, 168, 136, .12); }

@@ -177,11 +177,11 @@ html:has(.lp-root)::-webkit-scrollbar { width: 0; height: 0; display: none; }
   padding: 0 26px;
   background: var(--terracotta);
   color: var(--on-accent);
-  box-shadow: 0 6px 18px rgba(201, 123, 94, 0.26);
+  box-shadow: 0 6px 18px color-mix(in srgb, var(--terracotta) 26%, transparent);
 }
 .lp-btn-primary:hover {
   background: var(--mg-btn-primary-bg-hover);
-  box-shadow: 0 8px 22px rgba(201, 123, 94, 0.34);
+  box-shadow: 0 8px 22px color-mix(in srgb, var(--terracotta) 34%, transparent);
 }
 [data-theme="dark"] .lp-btn-primary {
   background: var(--mg-btn-primary-bg);

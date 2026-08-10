@@ -231,7 +231,7 @@
 .bk-type-row.on {
   border-color: color-mix(in srgb, var(--terracotta) 55%, transparent);
   background: color-mix(in srgb, var(--terracotta) 7%, var(--mg-btn-secondary-bg));
-  box-shadow: 0 2px 12px rgba(201, 123, 94, 0.1);
+  box-shadow: 0 2px 12px color-mix(in srgb, var(--terracotta) 10%, transparent);
 }
 .bk-type-pick {
   display: flex;

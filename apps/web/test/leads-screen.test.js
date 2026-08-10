@@ -125,6 +125,18 @@ describe('board search', () => {
     expect(m('1234')).toBe(true)
   })
 
+  it('a term that merely CONTAINS a digit is not a phone search', () => {
+    /* The digit fallback used to strip the digits out of ANY term, so nonsense
+       carrying a "1" matched every phone containing one — "זזזז1" returned
+       this lead on the board. */
+    expect(m('זזזז1')).toBe(false)
+    expect(m('dana1')).toBe(false)
+    expect(m('abc4567')).toBe(false)
+    /* A bare digit still matches, but honestly: the phone is part of the text
+       being searched, so "1" is a substring hit like any other. */
+    expect(m('1')).toBe(true)
+  })
+
   it('every term must match', () => {
     expect(m('dana instagram')).toBe(true)
     expect(m('dana חתול')).toBe(false)

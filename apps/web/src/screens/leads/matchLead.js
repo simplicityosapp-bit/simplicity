@@ -16,6 +16,14 @@ const norm = (s) => String(s ?? '').toLowerCase().trim()
    and vice versa. */
 const digits = (s) => String(s ?? '').replace(/[^\d]/g, '')
 
+/* A term that is ITSELF a phone number — digits and the separators people type
+   between them. The digit fallback below is only for these: stripping digits
+   out of any term at all made "זזזז1" match every lead whose phone contains a
+   1, so a search that should have found nothing returned people.
+   Three digits minimum for the same reason — a lone "1" is not a search. */
+const PHONE_TERM = /^[\d\s()+-]+$/
+const isPhoneTerm = (term) => PHONE_TERM.test(term) && digits(term).length >= 3
+
 /**
  * Does this lead match the free-text query?
  *
@@ -36,9 +44,9 @@ export function matchLead(lead, query, { sourcesById, projectsById } = {}) {
 
   return terms.every((term) => {
     if (hay.includes(term)) return true
-    /* A numeric term also matches the phone with its separators stripped. */
-    const d = digits(term)
-    return !!d && phoneDigits.includes(d)
+    /* A term that is a phone number also matches the phone with its separators
+       stripped — and only such a term; see isPhoneTerm. */
+    return isPhoneTerm(term) && phoneDigits.includes(digits(term))
   })
 }
 

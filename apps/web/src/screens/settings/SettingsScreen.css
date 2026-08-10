@@ -91,8 +91,13 @@
   font-size: calc(13px * var(--text-scale));
   font-weight: 600;
   line-height: 1.5;
-  color: var(--clay-on-dark);
+  /* Same split .m-error needs, for the same reason: --clay-on-dark exists to
+     make danger text legible on a DARK surface and is already 5.5-6.3:1 there,
+     but in daylight it resolves to plain --clay and measures 4.22:1 — under the
+     4.5 floor for text this size. The light side takes it 15% toward --ink. */
+  color: color-mix(in srgb, var(--clay-on-dark) 85%, var(--ink));
 }
+[data-theme="dark"] .set-save-error { color: var(--clay-on-dark); }
 
 .set-group {
   border-radius: var(--mg-card-radius);

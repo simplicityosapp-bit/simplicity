@@ -3,18 +3,26 @@
 //  connector. Lets a user's OWN Claude (Desktop / Claude Code / Cowork)
 //  read — and later edit — their Simplicity data through MCP tools.
 // ════════════════════════════════════════════════════════════════
-//  ⚠️ FEASIBILITY SPIKE — read-only, single tool (`list_clients`).
-//  The point of this stage is to prove a Supabase Edge Function can host
-//  a remote MCP server that Claude connects to. No mutations yet, so
-//  there is zero write/delete blast radius while we validate transport.
+//  STAGE 2a — scoped tokens. Auth is a row in `mcp_tokens` (migration 0109),
+//  not an environment secret, so tokens are per-user, revocable, and carry a
+//  SCOPE that decides what the connector may do:
+//
+//    scope 'read'        → the read tools only.
+//    scope 'read_write'  → read tools + create/edit tools.
+//
+//  NO DELETE AT ANY SCOPE (owner decision 16/08). There is no delete tool in
+//  this file, of any kind, soft or hard. A model that misreads an instruction
+//  can remove a client or a month of transactions in a single call, and
+//  "restorable from Trash for 30 days" is a recovery story, not a permission
+//  model. Removing things stays a decision the user makes in the app. The scope
+//  check is the second line of defence here; the first is that the capability
+//  was never built.
 //
 //  DEPLOY (custom token auth — NOT a Supabase JWT):
 //      supabase functions deploy claude-mcp --no-verify-jwt
 //
-//  SPIKE AUTH (replaced by the hashed `mcp_tokens` table in stage 2):
-//    - MCP_SPIKE_TOKEN     — the bearer token the client sends
-//    - MCP_SPIKE_USER_ID   — the single user that token maps to
-//  Set them as Edge Function secrets; never hardcode a token in source.
+//  Issuing a token: see the recipe at the foot of migration 0109. The token is
+//  generated outside the database and only its SHA-256 is stored.
 //
 //  ── SECURITY MODEL (this is the whole point — treat as load-bearing) ──
 //    1. AUTHN: a high-entropy bearer token in the `Authorization` header
@@ -22,9 +30,16 @@
 //       token is compared by its SHA-256 digest, and maps to exactly one
 //       user_id. No token → 401. Everything is private; even `initialize`
 //       requires auth.
-//    2. TENANT ISOLATION: every DB read is filtered by the resolved
-//       user_id. We NEVER accept a user id from the client. This is the
-//       #1 cross-tenant leak vector — guard it on every single query.
+//    2. TENANT ISOLATION: every DB read AND write is filtered by the
+//       resolved user_id. We NEVER accept a user id from the client. This
+//       is the #1 cross-tenant leak vector — guard it on every single
+//       query. Any id the client DOES send (a client_id to attach a task
+//       to) is re-checked against that user before it is used, or the
+//       model could staple its row to another tenant's record.
+//    2b. SCOPE: tools declare what they need. `tools/list` hides what the
+//       token cannot call, and `tools/call` re-checks independently —
+//       filtering the catalogue is a courtesy to the model, not a
+//       control, since a client can call any name it likes.
 //    3. TRANSPORT: Streamable HTTP. Requests → one `application/json`
 //       JSON-RPC response; notifications → 202. Stateless (no session id).
 //    4. DNS-REBINDING: the spec asks servers to validate `Origin`. Our
@@ -43,32 +58,18 @@ const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
 const SERVICE_ROLE = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
 const admin = createClient(SUPABASE_URL, SERVICE_ROLE)
 
-const SPIKE_TOKEN = Deno.env.get('MCP_SPIKE_TOKEN') ?? ''
-// The spike token maps to ONE user. Prefer an explicit id; otherwise resolve
-// from an email server-side via the service role (so no UUID handling needed).
-const SPIKE_USER_ID = Deno.env.get('MCP_SPIKE_USER_ID') ?? ''
-const SPIKE_USER_EMAIL = (Deno.env.get('MCP_SPIKE_USER_EMAIL') ?? '').trim().toLowerCase()
-
-let cachedSpikeUserId: string | null = null
-async function resolveSpikeUserId(): Promise<string | null> {
-  if (SPIKE_USER_ID) return SPIKE_USER_ID
-  if (cachedSpikeUserId) return cachedSpikeUserId
-  if (!SPIKE_USER_EMAIL) return null
-  // Scan auth users for the configured email (spike-only; the real stage maps
-  // a hashed token row → user_id directly, no scan).
-  for (let page = 1; page <= 5; page++) {
-    const { data, error } = await admin.auth.admin.listUsers({ page, perPage: 1000 })
-    if (error) return null
-    const users = data?.users ?? []
-    const found = users.find((u) => (u.email ?? '').toLowerCase() === SPIKE_USER_EMAIL)
-    if (found) { cachedSpikeUserId = found.id; return found.id }
-    if (users.length < 1000) break
-  }
-  return null
-}
-
 const SERVER_NAME = 'simplicity'
-const SERVER_VERSION = '0.1.0-spike'
+const SERVER_VERSION = '0.2.0'
+
+// Scopes, most restrictive first. 'read_write' is a superset of 'read'.
+type Scope = 'read' | 'read_write'
+type Auth = { tokenId: string; userId: string; scope: Scope }
+
+// How stale last_used_at may get before we spend a write refreshing it. The
+// column answers "is this token still in use / should I revoke it", which does
+// not need minute precision — and an UPDATE on every single tool call would
+// double the round-trips of the hot path for nothing.
+const LAST_USED_REFRESH_MS = 5 * 60_000
 // Protocol versions we understand. We negotiate down to the client's if known.
 const SUPPORTED_PROTOCOL = ['2025-06-18', '2025-03-26', '2024-11-05']
 const DEFAULT_PROTOCOL = '2025-06-18'
@@ -85,6 +86,38 @@ function timingSafeEqualHex(a: string, b: string): boolean {
   let diff = 0
   for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i)
   return diff === 0
+}
+
+// ── Token → user + scope ─────────────────────────────────────────────
+// Deliberately NOT cached. Caching an auth decision in a warm isolate means a
+// revoked token keeps working until that isolate happens to die — the user
+// pressed "revoke" and we carried on serving their data. One indexed lookup on
+// a UNIQUE column is a price worth paying for revocation that takes effect when
+// the user asks for it.
+async function resolveToken(presented: string): Promise<Auth | null> {
+  const hash = await sha256Hex(presented)
+  const { data, error } = await admin
+    .from('mcp_tokens')
+    .select('id, user_id, scope, token_hash, last_used_at')
+    .eq('token_hash', hash)
+    .is('revoked_at', null)
+    .maybeSingle()
+  if (error || !data) return null
+  // Belt and braces: the row came back from an equality filter, so this can
+  // only fail if the driver handed us something else entirely — but the
+  // comparison is free and the failure mode it guards is total.
+  if (!timingSafeEqualHex(hash, String(data.token_hash ?? ''))) return null
+  const scope: Scope = data.scope === 'read_write' ? 'read_write' : 'read'
+
+  // Throttled touch — see LAST_USED_REFRESH_MS.
+  const last = data.last_used_at ? Date.parse(data.last_used_at) : 0
+  if (!last || Date.now() - last > LAST_USED_REFRESH_MS) {
+    await admin.from('mcp_tokens')
+      .update({ last_used_at: new Date().toISOString() })
+      .eq('id', data.id)
+      .then(undefined, () => { /* never fail a request over bookkeeping */ })
+  }
+  return { tokenId: data.id, userId: data.user_id, scope }
 }
 
 // ── Rate limiting (best-effort, per warm isolate) ────────────────────
@@ -130,10 +163,13 @@ const rpcError = (id: unknown, code: number, message: string, status = 200) =>
 const rpcResult = (id: unknown, result: unknown) =>
   json({ jsonrpc: '2.0', id, result })
 
-// ── Tool catalogue (spike: one read-only tool) ───────────────────────
-const TOOLS = [
+// ── Tool catalogue ───────────────────────────────────────────────────
+// `needs` is stripped before the catalogue goes over the wire — it is our
+// bookkeeping, not part of the MCP tool shape.
+const TOOLS: Array<{ name: string; needs: Scope; description: string; inputSchema: unknown }> = [
   {
     name: 'list_clients',
+    needs: 'read',
     description:
       "List the signed-in coach's clients (their own data only). Returns name, status, contact details and pricing. Read-only.",
     inputSchema: {
@@ -145,7 +181,31 @@ const TOOLS = [
       additionalProperties: false,
     },
   },
+  {
+    name: 'create_task',
+    needs: 'read_write',
+    description:
+      "Create a task on the signed-in coach's own task board. Optionally attach it to one of their clients. Cannot edit or remove anything that already exists.",
+    inputSchema: {
+      type: 'object',
+      properties: {
+        title: { type: 'string', description: 'What needs doing. Required, 1-500 characters.' },
+        priority: { type: 'string', enum: ['high', 'medium', 'low'], description: "Defaults to 'medium'." },
+        due_at: { type: 'string', description: 'Optional ISO-8601 due date/time.' },
+        description: { type: 'string', description: 'Optional longer note, up to 5000 characters.' },
+        client_id: { type: 'string', description: "Optional id of one of the coach's own clients, from list_clients." },
+      },
+      required: ['title'],
+      additionalProperties: false,
+    },
+  },
 ]
+
+const allows = (scope: Scope, needs: Scope): boolean => scope === 'read_write' || needs === 'read'
+// What the client is allowed to see. Hiding a tool the token cannot use keeps
+// the model from planning around a capability it will only be refused.
+const toolsFor = (scope: Scope) =>
+  TOOLS.filter((t) => allows(scope, t.needs)).map(({ needs: _needs, ...t }) => t)
 
 // ── Tool: list_clients — STRICTLY scoped to the resolved userId ──────
 async function listClients(userId: string, args: Record<string, unknown>) {
@@ -164,9 +224,79 @@ async function listClients(userId: string, args: Record<string, unknown>) {
   return data ?? []
 }
 
+// ── Tool: create_task — the only write, and it only ADDS ─────────────
+// Creates nothing but a task, touches no existing row, and cannot remove
+// anything. user_id is the resolved one, never a client-supplied value.
+async function createTask(userId: string, args: Record<string, unknown>) {
+  const title = typeof args?.title === 'string' ? args.title.trim() : ''
+  if (!title) throw new Error('title_required')
+  if (title.length > 500) throw new Error('title_too_long')
+
+  const rawPriority = typeof args?.priority === 'string' ? args.priority : 'medium'
+  // The column has a CHECK constraint; reject here so the model gets a sentence
+  // instead of a Postgres error.
+  if (!['high', 'medium', 'low'].includes(rawPriority)) throw new Error('bad_priority')
+
+  const description = typeof args?.description === 'string' ? args.description.trim() : ''
+  if (description.length > 5000) throw new Error('description_too_long')
+
+  let dueAt: string | null = null
+  if (args?.due_at != null && args.due_at !== '') {
+    const parsed = Date.parse(String(args.due_at))
+    if (Number.isNaN(parsed)) throw new Error('bad_due_at')
+    dueAt = new Date(parsed).toISOString()
+  }
+
+  // ⚠️ TENANT ISOLATION on a client-supplied id. Without this check the model
+  // could pass any uuid and staple this task to another coach's client — the
+  // FK would happily accept it, because the constraint only knows the id is a
+  // client, not whose. Re-resolve it against THIS user or refuse.
+  let clientId: string | null = null
+  if (args?.client_id != null && args.client_id !== '') {
+    const candidate = String(args.client_id)
+    const { data: owned, error: ownErr } = await admin
+      .from('clients')
+      .select('id')
+      .eq('id', candidate)
+      .eq('user_id', userId)        // ← never widen this
+      .is('deleted_at', null)
+      .maybeSingle()
+    if (ownErr) throw new Error('query_failed')
+    if (!owned) throw new Error('unknown_client')
+    clientId = owned.id
+  }
+
+  const { data, error } = await admin
+    .from('tasks')
+    .insert({
+      user_id: userId,             // ← the resolved user, never args
+      title,
+      priority: rawPriority,
+      status: 'todo',
+      due_at: dueAt,
+      description: description || null,
+      client_id: clientId,
+    })
+    .select('id, title, priority, status, due_at, client_id, created_at')
+    .single()
+  if (error) throw new Error('insert_failed')
+  return data
+}
+
+// A refusal the model can read, rather than a bare code.
+const TOOL_ERRORS: Record<string, string> = {
+  title_required: 'A task needs a title.',
+  title_too_long: 'That title is too long (max 500 characters).',
+  bad_priority: "Priority must be one of 'high', 'medium' or 'low'.",
+  description_too_long: 'That description is too long (max 5000 characters).',
+  bad_due_at: 'Could not read that due date. Use an ISO-8601 date/time.',
+  unknown_client: 'No such client on this account.',
+}
+
 // ── JSON-RPC dispatch for a single request message ───────────────────
-async function dispatch(userId: string, msg: any) {
+async function dispatch(auth: Auth, msg: any) {
   const { id, method, params } = msg
+  const { userId, scope } = auth
   switch (method) {
     case 'initialize': {
       const client = params?.protocolVersion
@@ -180,20 +310,33 @@ async function dispatch(userId: string, msg: any) {
     case 'ping':
       return rpcResult(id, {})
     case 'tools/list':
-      return rpcResult(id, { tools: TOOLS })
+      return rpcResult(id, { tools: toolsFor(scope) })
     case 'tools/call': {
       const name = params?.name
       const args = (params?.arguments ?? {}) as Record<string, unknown>
-      if (name !== 'list_clients') return rpcError(id, -32602, 'Unknown tool')
+      const tool = TOOLS.find((t) => t.name === name)
+      if (!tool) return rpcError(id, -32602, 'Unknown tool')
+      // ⚠️ Re-checked here, independently of what tools/list showed. A client
+      // can call any name it likes without ever reading the catalogue, so the
+      // filtering in tools/list is a courtesy to the model and THIS is the
+      // control. A read-only token is told the tool does not exist rather than
+      // that it exists and is barred — there is nothing useful in confirming
+      // the shape of what it cannot reach.
+      if (!allows(scope, tool.needs)) return rpcError(id, -32602, 'Unknown tool')
       try {
-        const rows = await listClients(userId, args)
+        const result = name === 'list_clients'
+          ? await listClients(userId, args)
+          : await createTask(userId, args)
         return rpcResult(id, {
-          content: [{ type: 'text', text: JSON.stringify(rows, null, 2) }],
+          content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
         })
-      } catch {
-        // isError result (not a transport error) so the model sees a clean message.
+      } catch (e) {
+        // isError result (not a transport error) so the model sees a clean
+        // message. Only our own known reasons are echoed — never a driver or
+        // Postgres error, which would leak schema detail.
+        const reason = e instanceof Error ? e.message : ''
         return rpcResult(id, {
-          content: [{ type: 'text', text: 'Could not read clients.' }],
+          content: [{ type: 'text', text: TOOL_ERRORS[reason] ?? `Could not complete ${name}.` }],
           isError: true,
         })
       }
@@ -221,17 +364,18 @@ Deno.serve(async (req) => {
     const authz = req.headers.get('authorization') ?? ''
     const m = authz.match(/^Bearer\s+(.+)$/i)
     const presented = m?.[1]?.trim() ?? ''
-    if (!presented || !SPIKE_TOKEN) {
+    if (!presented) {
       return json({ error: 'unauthorized' }, 401, { 'WWW-Authenticate': 'Bearer' })
     }
-    const presentedHash = await sha256Hex(presented)
-    if (overLimit(`tok:${presentedHash}`, 120, 60_000)) {
+    // Rate-limit on the digest, before the lookup: the limiter must not become
+    // the thing that lets someone hammer the database with guesses.
+    if (overLimit(`tok:${await sha256Hex(presented)}`, 120, 60_000)) {
       return json({ error: 'rate_limited' }, 429)
     }
-    const ok = timingSafeEqualHex(presentedHash, await sha256Hex(SPIKE_TOKEN))
-    if (!ok) return json({ error: 'unauthorized' }, 401, { 'WWW-Authenticate': 'Bearer' })
-    const userId = await resolveSpikeUserId()
-    if (!userId) return json({ error: 'unauthorized' }, 401, { 'WWW-Authenticate': 'Bearer' })
+    const auth = await resolveToken(presented)
+    // One answer for "no such token", "revoked" and "malformed" alike — telling
+    // them apart tells a prober which of their guesses was once real.
+    if (!auth) return json({ error: 'unauthorized' }, 401, { 'WWW-Authenticate': 'Bearer' })
 
     // ── Parse the JSON-RPC message ──────────────────────────────────
     let msg: any
@@ -245,7 +389,7 @@ Deno.serve(async (req) => {
       return new Response(null, { status: 202, headers: CORS })
     }
 
-    return await dispatch(userId, msg)
+    return await dispatch(auth, msg)
   } catch (e) {
     console.error('claude-mcp error:', e)
     return rpcError(null, -32603, 'Internal error')

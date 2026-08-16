@@ -138,6 +138,29 @@ export function fmtTimeAgo(date: DateInput, now: Date = new Date()): string {
   return fmtShortDate(d)
 }
 
+/* Whole CALENDAR days from today to `date` — 0 today, 1 tomorrow, negative
+   for the past. Counted between local midnights, not from elapsed hours:
+   something at 23:00 tonight and something at 08:00 tomorrow are one day
+   apart to a reader and nine hours apart to a subtraction. Rounding the ms
+   quotient also absorbs the 23/25-hour DST days. */
+export function daysUntil(date: DateInput, now: Date = new Date()): number {
+  const d = toLocalDate(date)
+  if (Number.isNaN(d.getTime())) return NaN
+  const from = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime()
+  const to = new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime()
+  return Math.round((to - from) / 86400000)
+}
+
+/* "עוד 3 ימים" — the near-future countdown, or null when there is nothing
+   worth saying. Only 2–7 days out: today and tomorrow already have words of
+   their own (relativeDayName), so a tag would repeat what the date line just
+   said, and past a week a raw day count stops reading as a distance. */
+export function daysUntilLabel(date: DateInput, now: Date = new Date()): string | null {
+  const n = daysUntil(date, now)
+  if (!Number.isFinite(n) || n < 2 || n > 7) return null
+  return i18n.t('common:time.inDays', { count: n })
+}
+
 /* Relative-ish label: "Today 18:00", "Tomorrow 10:00", else "31/05 · 10:00". */
 /* "היום" / "מחר" when the date is one of those, else null. Extracted so the
    date-only and date+time formatters cannot drift on which days get a word

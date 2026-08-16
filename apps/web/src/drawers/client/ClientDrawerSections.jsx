@@ -5,6 +5,7 @@ import { getClientMemberships, financeQuery, isConfirmedTx, isr, fmtShortDate, f
 import { useT } from '../../i18n/useT'
 import PaymentPlanSection from './PaymentPlanSection'
 import DateField from '../../components/DateField'
+import DueInTag from '../../components/DueInTag'
 import { Box, Txt, Btn, Input, Textarea } from '../../components/ui'
 
 const DAY_KEYS = [0, 1, 2, 3, 4, 5, 6]
@@ -607,7 +608,14 @@ export default function ClientDrawerSections({ client: c, balance, txns, tasks =
                 <>
                   <Box className="cd-row-body">
                     <Txt as="p" className={`cd-row-title${done ? ' done' : ''}`}>{r.title}</Txt>
-                    <Txt as="p" className="cd-row-sub">{fmtShortDate(r.scheduled_at)} · {fmtTime(r.scheduled_at)}</Txt>
+                    {/* The date here is a bare "12/08 · 10:00" — no "היום" /
+                        "מחר" word as on the tasks rows — so how soon it is has
+                        to be said outright. Not for a done one: it is not due
+                        in any number of days. */}
+                    <Txt as="p" className="cd-row-sub">
+                      {fmtShortDate(r.scheduled_at)} · {fmtTime(r.scheduled_at)}
+                      {!done && <DueInTag date={r.scheduled_at} className="is-inline" />}
+                    </Txt>
                   </Box>
                   {editKey === 'rem'
                     ? <Pencil size={12} strokeWidth={1.6} className="cd-row-editicon" aria-hidden="true" />

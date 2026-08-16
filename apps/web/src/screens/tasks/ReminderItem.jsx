@@ -1,8 +1,9 @@
 import { memo } from 'react'
 import { Check, Pencil, Repeat, CalendarClock } from 'lucide-react'
-import { formatWhen, isRecurring } from '@simplicity/core'
+import { formatWhen, isRecurring, daysUntilLabel } from '@simplicity/core'
 import { useT } from '../../i18n/useT'
 import InlineTitle from './InlineTitle'
+import DueInTag from '../../components/DueInTag'
 import { Box, Txt, Btn } from '../../components/ui'
 
 /* The recurrence, in words. On the open list a recurring reminder is otherwise
@@ -40,6 +41,11 @@ function ReminderItem({ reminder, subjectName, dotColor, onComplete, onEdit, onR
   const isDone = reminder.status === 'completed'
   const meta = [subjectName, formatWhen(reminder.scheduled_at)].filter(Boolean).join(' · ')
   const repeat = repeatLabel(reminder, t)
+  /* Asked here rather than inside the tag so the tags row itself can stay
+     unrendered when the countdown is the only thing that would have been in
+     it and it has nothing to say. A done reminder is not due in any number
+     of days, so it never gets one. */
+  const showDueIn = !isDone && !!daysUntilLabel(reminder.scheduled_at)
 
   return (
     <Box className={`tc anim${isDone ? ' is-done' : ''}${selectMode ? ' is-selectable' : ''}${selected ? ' is-selected' : ''}`} style={{ animationDelay: `${index * 0.04}s` }}>
@@ -68,8 +74,9 @@ function ReminderItem({ reminder, subjectName, dotColor, onComplete, onEdit, onR
         {reminder.description && (
           <Txt as="p" className="tc-desc">{reminder.description}</Txt>
         )}
-        {(repeat || category) && (
+        {(repeat || category || showDueIn) && (
           <Box className="tc-tags">
+            {showDueIn && <DueInTag date={reminder.scheduled_at} />}
             {repeat && (
               <Txt className="tc-tag tc-tag-repeat">
                 <Repeat size={10} strokeWidth={1.8} aria-hidden="true" />

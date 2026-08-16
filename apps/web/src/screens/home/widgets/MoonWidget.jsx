@@ -76,7 +76,13 @@ export default function MoonWidget() {
       paced: overall.paced,
       confidence: overall.confidence,
     }).catch(() => { /* non-fatal */ })
-  }, [overall])
+    /* Depend on the score PRIMITIVES, not on `overall`. That object is rebuilt
+       by useMemo on every change to any of eleven data hooks (goals, clients,
+       transactions, sessions…), so a fresh identity — and therefore a write —
+       landed on every unrelated data tick, even when the three numbers were
+       identical. The linter can't see that the primitives cover the object. */
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [overall?.pure, overall?.paced, overall?.confidence])
 
   const conf = overall?.confidence ?? 0
   const pure = overall?.pure

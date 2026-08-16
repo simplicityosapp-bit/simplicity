@@ -63,11 +63,13 @@ export function useTasks() {
     const done = (qc.getQueryData(KEY) ?? []).filter((t) => t.status === 'done')
     if (!done.length) return 0
     qc.setQueryData(KEY, (prev) => (prev ?? []).filter((t) => t.status !== 'done'))
-    try {
-      await Promise.all(done.map((t) => apiRemoveTask(t.id)))
-    } catch {
-      qc.invalidateQueries({ queryKey: KEY })
-    }
+    /* allSettled, not all: Promise.all rejects on the FIRST failure and leaves
+       the remaining deletes unawaited, so one bad row could abort the rest of
+       a bulk clear the user had already seen disappear. Every delete is now
+       attempted; reconcile only if something actually failed, and the failed
+       rows come back on the refetch. */
+    const results = await Promise.allSettled(done.map((t) => apiRemoveTask(t.id)))
+    if (results.some((r) => r.status === 'rejected')) qc.invalidateQueries({ queryKey: KEY })
     return done.length
   }, [qc])
 

@@ -41,6 +41,7 @@ import DeleteGroupModal from '../../modals/DeleteGroupModal'
 import ConfirmModal from '../../modals/ConfirmModal'
 import Modal from '../../modals/Modal'
 import DateField from '../../components/DateField'
+import DueInTag from '../../components/DueInTag'
 import MG from '../../components/MG'
 import ProjectQuickRow from './ProjectQuickRow'
 import ProjectIncomeChart from './ProjectIncomeChart'
@@ -760,6 +761,11 @@ export default function ProjectDetailScreen() {
                         {fmtShortDate(r.scheduled_at)} · {fmtTime(r.scheduled_at)}
                         {isCompleted && ` · ${t('detail.reminders.done')}`}
                         {isOverdue && ` · ${t('detail.reminders.overdue')}`}
+                        {/* Same bare date as the client drawer, same need to
+                            say how soon. Overdue and done both fall outside
+                            the tag's window anyway — it only speaks 2–7 days
+                            ahead — so the three labels can never collide. */}
+                        {!isCompleted && <DueInTag date={r.scheduled_at} className="is-inline" />}
                       </Txt>
                     </Box>
                     {!isCompleted && (

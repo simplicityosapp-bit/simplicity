@@ -3,11 +3,12 @@ import { useNavigate } from 'react-router-dom'
 import { ClipboardList, ChevronLeft, ChevronDown, Check, Bell, Plus } from 'lucide-react'
 import { ROUTES } from '../../../lib/routes'
 import { tasksAndReminders } from '../../../lib/homeData'
-import { formatWhen } from '@simplicity/core'
+import { formatWhen, daysUntilLabel } from '@simplicity/core'
 import { useTasks } from '../../../hooks/useTasks'
 import { useReminders } from '../../../hooks/useReminders'
 import { useClients } from '../../../hooks/useClients'
 import { useProjects } from '../../../hooks/useProjects'
+import DueInTag from '../../../components/DueInTag'
 import Modal from '../../../modals/Modal'
 import AddTaskModal from '../../../modals/AddTaskModal'
 import AddReminderModal from '../../../modals/AddReminderModal'
@@ -101,7 +102,18 @@ export default function NextTasksWidget() {
         </Box>
         {items.length ? (
           <Box className="h-card-list" id="h-tasks-list">
-            {visible.map((it) => (
+            {visible.map((it) => {
+              /* The countdown REPLACES the date on this card rather than
+                 joining it — the only surface where it does. A row here is a
+                 single line holding the title, the date and the ✓, and at
+                 375px a second when-chip cost the title 94 of its 149 pixels:
+                 "סיכום שבועי" clipped to two characters so the row could say
+                 the same thing twice. Everywhere else the date is a bare
+                 "12/08 · 10:00" with room beside it, and the tag is additive.
+                 Reminders only, and only inside the 2–7 day window — an
+                 overdue or far-off row keeps its date untouched. */
+              const dueIn = it.kind === 'reminder' && it.when ? daysUntilLabel(it.when) : null
+              return (
                 <Box
                   key={it.id}
                   className="h-task-row"
@@ -118,12 +130,16 @@ export default function NextTasksWidget() {
                     )}
                     <Txt className="h-task-text">{it.title}</Txt>
                     {/* The date the list is ordered by. Sorting on something
-                        invisible reads as an arbitrary order. */}
-                    {it.when && (
+                        invisible reads as an arbitrary order. No `is-inline`
+                        on the tag: this row is a flex line that already
+                        spaces its children with `gap`. */}
+                    {dueIn ? (
+                      <DueInTag date={it.when} />
+                    ) : it.when ? (
                       <Txt className={`h-task-due${it.bucket === 'overdue' ? ' is-overdue' : ''}`}>
                         {formatWhen(it.when)}
                       </Txt>
-                    )}
+                    ) : null}
                   </Txt>
                   <Btn
                     type="button"
@@ -135,7 +151,8 @@ export default function NextTasksWidget() {
                     <Check size={13} strokeWidth={2} aria-hidden="true" />
                   </Btn>
                 </Box>
-            ))}
+              )
+            })}
             {/* What the chevron will reveal, said in words. */}
             {expandable && !open && (
               <Txt as="p" className="h-card-more">

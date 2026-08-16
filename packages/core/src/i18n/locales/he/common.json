@@ -26,7 +26,11 @@
     "now": "כעת",
     "today": "היום",
     "tomorrow": "מחר",
-    "yesterday": "אתמול"
+    "yesterday": "אתמול",
+    "inDays_one": "עוד יום",
+    "inDays_two": "עוד יומיים",
+    "inDays_many": "עוד {{count}} ימים",
+    "inDays_other": "עוד {{count}} ימים"
   },
   "mgWords": {
     "client": "לקוח/ה",

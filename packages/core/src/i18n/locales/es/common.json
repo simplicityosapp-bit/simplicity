@@ -18,7 +18,9 @@
     "now": "ahora",
     "today": "Hoy",
     "tomorrow": "Mañana",
-    "yesterday": "Ayer"
+    "yesterday": "Ayer",
+    "inDays_one": "en 1 día",
+    "inDays_other": "en {{count}} días"
   },
   "mgWords": {
     "client": "cliente",

@@ -1,0 +1,35 @@
+/* ════════════════════════════════════════════════════════════════
+   DueInTag — the "עוד X ימים" chip.
+   ════════════════════════════════════════════════════════════════
+   Deliberately the SAME chip as the recurrence / category tags on a task
+   row (.tc-tag): same radius, padding, card border and --mg-micro type. The
+   design language gives chips no per-chip hierarchy, and this one is context
+   rather than a status — it must not out-shout the title it sits under. */
+.due-in-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: var(--mg-card-border);
+  background: var(--mg-card-bg);
+  font-family: var(--mg-font);
+  font-size: var(--mg-micro);
+  font-weight: 500;
+  color: var(--stone);
+  white-space: nowrap;
+  /* Never the thing that gives way when a flex row runs out of width — the
+     titles beside it ellipsise instead. */
+  flex-shrink: 0;
+}
+.due-in-tag svg {
+  flex-shrink: 0;
+  opacity: 0.75;
+}
+/* Sitting INSIDE a meta line ("12/08 · 10:00  עוד 3 ימים") rather than in a
+   flex tag row that already spaces its children with `gap`. Logical margin so
+   the gap lands on the correct side under both RTL and LTR. */
+.due-in-tag.is-inline {
+  margin-inline-start: 6px;
+  vertical-align: middle;
+}

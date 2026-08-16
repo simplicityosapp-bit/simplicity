@@ -1316,6 +1316,26 @@ html[data-bg="blank"][data-card-style="flat"] .home-screen {
   transition: background 0.15s;
 }
 .h-people-wa:hover { background: color-mix(in srgb, var(--sage) 22%, transparent); }
+/* "בוצע" on a due follow-up. Deliberately the same circle as .fu-done on the
+   leads screen — same 34px, same divider ring, same sage check — because it
+   is the same action on the same record, just reached from the home card. */
+.h-people-done {
+  flex-shrink: 0;
+  display: inline-grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid var(--divider);
+  background: transparent;
+  color: var(--sage);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.h-people-done:hover {
+  background: color-mix(in srgb, var(--sage) 12%, transparent);
+  border-color: var(--sage);
+}
 /* Softens the stale-client list into a reminder rather than a to-do. */
 .h-people-hint {
   margin: 0 0 4px;

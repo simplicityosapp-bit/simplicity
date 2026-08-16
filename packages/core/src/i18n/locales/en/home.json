@@ -45,6 +45,8 @@
       "invoicesModalTitle": "Documents to import",
       "reachOut": "Quick reach-out",
       "staleClientsHint": "Just a reminder. Send a message, or dismiss and come back to it later.",
+      "followupDone": "Follow-up done",
+      "followupDoneAria": "Mark the follow-up with {{name}} as done",
       "snooze": "Dismiss",
       "snoozeAria": "Dismiss {{name}}",
       "snoozed": "Dismissed — returns after another 45 days with no session",

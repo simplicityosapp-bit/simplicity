@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Wallet, Calendar, Target, AlertCircle, Clock, Bell, ChevronLeft, ChevronDown, CalendarClock, FileDown, BellOff } from 'lucide-react'
+import { Wallet, Calendar, Target, AlertCircle, Clock, Bell, ChevronLeft, ChevronDown, CalendarClock, FileDown, BellOff, Check } from 'lucide-react'
 import { attentionItems, attentionRowAction, ATTENTION_PRIORITY } from '../../../lib/homeData'
 import { ROUTES } from '../../../lib/routes'
 import { pushUndo } from '../../../lib/undo'
@@ -58,7 +58,7 @@ export default function AttentionWidget() {
   const { categories: financeCategories } = useCategories()
   const { projects } = useProjects()
   const { sessions } = useSessions()
-  const { leads } = useLeads()
+  const { leads, updateLead } = useLeads()
   const { events: calendarEvents, dismissEvent } = useCalendarEvents()
   const { bookings } = useBookings()
   /* Route-B invoice imports staged by the provider webhook (a receipt issued
@@ -184,6 +184,19 @@ export default function AttentionWidget() {
     })
   }
 
+  /* "בוצע" on a due follow-up — clears follow_up_date, exactly as the leads
+     banner and the calendar already do. The row was reachable from here and
+     could be phoned from here, but not finished from here: you had to travel
+     to the leads screen to tick off the thing this widget had just told you
+     about.
+     No undo, deliberately: the two shipped call sites don't offer one either,
+     and unlike the snooze beside it this writes a field the user can see and
+     set again from the lead card. Nothing is destroyed.
+     The list re-resolves from freshly computed items every render (see
+     peopleRow), so the lead drops out the moment this lands — and the modal
+     closes itself once the last one goes. */
+  const markFollowupDone = (p) => updateLead(p.id, { follow_up_date: null }).catch(() => {})
+
   return (
     <>
       {/* The card keeps a pointer-only onClick as a convenience shortcut. It
@@ -300,6 +313,21 @@ export default function AttentionWidget() {
                 message={waMsg(peopleRow.waKey, { name: p.name })}
                 triggerClassName="h-people-wa"
               />
+              {/* Follow-ups only. The two STALE rows clear themselves by
+                  their own rules (a session logged, a status moved) — there
+                  is no date on them to blank, so a ✓ would have nothing to
+                  write. */}
+              {peopleRow.rowId === 'dueFollowups' ? (
+                <Btn
+                  type="button"
+                  className="h-people-done"
+                  aria-label={t('widgets.attention.followupDoneAria', { name: p.name })}
+                  title={t('widgets.attention.followupDone')}
+                  onClick={() => markFollowupDone(p)}
+                >
+                  <Check size={15} strokeWidth={2} aria-hidden="true" />
+                </Btn>
+              ) : null}
               {/* Dismiss is client-only — the snooze column lives on clients,
                   and the two lead rows clear themselves by their own rules. */}
               {peopleRow.rowId === 'staleClients' ? (

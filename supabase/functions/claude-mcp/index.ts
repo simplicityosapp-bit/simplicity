@@ -24,6 +24,47 @@
 //  Issuing a token: see the recipe at the foot of migration 0109. The token is
 //  generated outside the database and only its SHA-256 is stored.
 //
+//  ════════════════════════════════════════════════════════════════
+//  ⛔ NOT LIVE. PAUSED 16/08/2026 — HOW THE TOKEN SHOULD WORK IS STILL OPEN.
+//  ════════════════════════════════════════════════════════════════
+//  This file and migration 0109 are merged but INERT. Before touching either,
+//  read this — the paused state is deliberate, not an oversight.
+//
+//  CURRENT STATE (verify before trusting; this note is from 16/08):
+//    - Migration 0109 has NOT been run. No `mcp_tokens` table exists, so even
+//      if this code were deployed the lookup would fail and every request
+//      would 401. That is the intended failure direction.
+//    - The DEPLOYED function is still the older spike (v7, env-secret auth,
+//      secrets unset → inert). The repo and the deployment have DIVERGED.
+//      ⚠️ Do not "deploy all functions" casually: that would push this code
+//      live against a table that does not exist.
+//    - The connections screen shows Claude as a disabled "בקרוב" row
+//      (screens/connections/index.jsx, SOON). Users cannot reach any of this.
+//      Leave it that way until the decisions below are made.
+//
+//  WHAT IS DECIDED:
+//    - Two scopes, 'read' and 'read_write'. No delete at any scope, ever.
+//    - The token is hashed, per-user, revocable (migration 0109).
+//
+//  WHAT IS NOT DECIDED — the reason this is paused:
+//    1. WHETHER A PASTED TOKEN IS THE RIGHT MECHANISM AT ALL. It only works in
+//       Claude Code. Cowork and claude.ai web use the app's own Connectors,
+//       which are OAuth-only with no field to paste a token into — so the
+//       coaches this product is for cannot connect this way. An official OAuth
+//       connector is what actually opens it to them, and that is separate work
+//       that may well replace this token flow rather than build on it. Do not
+//       invest further in the token path before settling this.
+//    2. HOW A USER GETS A TOKEN. There is no UI. Issuing is a manual SQL
+//       insert by the owner (recipe in 0109). The "בקרוב" row is the
+//       placeholder for whatever replaces that.
+//    3. EDIT TOOLS. 'read_write' was approved for create AND edit; only create
+//       exists (create_task). No edit tool has been designed.
+//    4. WHAT THE USER IS TOLD. Connecting means a coach's client data — names,
+//       phone numbers, pricing — flows into their Claude session on every
+//       question they ask. That needs saying plainly at the point of
+//       connection, and the wording has not been written.
+//  ════════════════════════════════════════════════════════════════
+//
 //  ── SECURITY MODEL (this is the whole point — treat as load-bearing) ──
 //    1. AUTHN: a high-entropy bearer token in the `Authorization` header
 //       (NOT a query param — query strings leak into logs/proxies). The

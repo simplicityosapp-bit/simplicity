@@ -2,6 +2,16 @@
 -- Migration 0109 — mcp_tokens (טוקנים לקונקטור Claude, עם הרשאה)
 -- Date: 2026-08-16
 -- ════════════════════════════════════════════════════════════════
+-- ⛔ NOT RUN. Merged but deliberately not applied — 16/08/2026.
+--    How the connector's token should work is still an open decision; the
+--    full list of what is and is not settled lives at the top of
+--    supabase/functions/claude-mcp/index.ts. Read that before running this.
+--    Running it early is harmless (an empty, unreachable table) but pointless:
+--    the matching function is not deployed, and the feature is hidden from
+--    users behind the disabled "בקרוב" row on the connections screen.
+--    ⚠️ After it IS run, regenerate supabase/schema.sql from the live DB —
+--    that file is generated, never hand-edited.
+-- ════════════════════════════════════════════════════════════════
 -- The Claude connector (supabase/functions/claude-mcp) authenticated against a
 -- single environment secret that mapped to one hard-coded user — fine for the
 -- feasibility spike, useless for real users, and impossible to scope. This

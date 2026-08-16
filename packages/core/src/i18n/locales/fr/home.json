@@ -45,6 +45,8 @@
       "invoicesModalTitle": "Documents à importer",
       "reachOut": "Contact rapide",
       "staleClientsHint": "Juste un rappel. Envoyez un message, ou ignorez et revenez-y plus tard.",
+      "followupDone": "Relance effectuée",
+      "followupDoneAria": "Marquer la relance avec {{name}} comme effectuée",
       "snooze": "Ignorer",
       "snoozeAria": "Ignorer {{name}}",
       "snoozed": "Ignoré — réapparaît après 45 jours supplémentaires sans séance",

@@ -45,6 +45,8 @@
       "invoicesModalTitle": "Documentos por importar",
       "reachOut": "Contacto rápido",
       "staleClientsHint": "Solo un recordatorio. Envía un mensaje, o descarta y vuelve a ello más tarde.",
+      "followupDone": "Seguimiento hecho",
+      "followupDoneAria": "Marcar como hecho el seguimiento con {{name}}",
       "snooze": "Descartar",
       "snoozeAria": "Descartar a {{name}}",
       "snoozed": "Descartado — vuelve tras otros 45 días sin sesión",

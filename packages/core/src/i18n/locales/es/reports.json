@@ -1,6 +1,9 @@
 {
   "title": "Informes",
   "loading": "Cargando…",
+  "loadError": "No pudimos cargar el informe en este momento.",
+  "retry": "Recargar",
+  "retrying": "Cargando…",
   "moonGlance": "Resumen",
   "view": {
     "selectAria": "Elegir vista",
@@ -14,20 +17,24 @@
     "reset": "Predeterminado",
     "resetTitle": "Restablecer a los valores predeterminados",
     "close": "Cerrar",
-    "hint": "Elige qué métricas mostrar y arrastra para reordenarlas.",
+    "hint": "Elige qué métricas mostrar y usa las flechas para reordenarlas.",
     "show": "Mostrar {{label}}",
-    "hide": "Ocultar {{label}}"
+    "hide": "Ocultar {{label}}",
+    "moveUp": "Subir: {{label}}",
+    "moveDown": "Bajar: {{label}}"
   },
   "list": {
     "selectMonthAria": "Elegir mes",
     "empty": "No hay datos para este mes",
-    "goToMonth": "← Ir a {{label}}"
+    "goToMonth": "Ir a {{label}}"
   },
   "table": {
     "noMetrics": "No hay métricas activas — toca el engranaje para mostrar métricas",
     "monthsBack": "Meses atrás:",
     "metric": "Métrica",
-    "summary": "Resumen"
+    "summary": "Resumen",
+    "summaryDesc": "No todo se resume igual. Los números que fluyen en el tiempo (consultas, sesiones, dinero) se suman. Los números «al final del mes» son un promedio. Y los porcentajes se recalculan sobre todo el rango: los porcentajes no se pueden sumar sin más.",
+    "drillAria": "{{metric}} en {{period}} — ver los registros"
   },
   "info": "Acerca de {{label}}",
   "drill": {
@@ -63,17 +70,22 @@
     "leadsConverted": "Convertidos en clientes",
     "conversionRate": "Tasa de conversión",
     "newClients": "Clientes nuevos",
-    "activeClientsAtEnd": "Clientes activos al final",
+    "activeClientsAtEnd": "Clientes activos al final del mes",
     "leftMidProcessPct": "Abandonaron a mitad de proceso",
     "sessions": "Sesiones realizadas",
     "income": "Ingresos",
     "expense": "Gastos",
     "net": "Neto",
     "tasksCompleted": "Tareas completadas",
-    "openTasksAtEnd": "Tareas abiertas al final"
+    "openTasksAtEnd": "Tareas abiertas al final del mes"
   },
   "metricsDesc": {
-    "leadsClosed": "Todos los prospectos que salieron del proceso — convertidos en clientes o marcados como no relevantes. (A diferencia de \"Convertidos en clientes\", que cuenta solo a quienes se convirtieron en clientes.)"
+    "leadsClosed": "Todos los prospectos que salieron del proceso — convertidos en clientes o marcados como no relevantes. (A diferencia de \"Convertidos en clientes\", que cuenta solo a quienes se convirtieron en clientes.)",
+    "conversionRate": "De las consultas que llegaron este mes, cuántas acabaron siendo clientes, aunque la conversión ocurriera más tarde. Por eso la cifra de un mes reciente todavía puede subir.",
+    "activeClientsAtEnd": "Una foto del último día del mes: cuántos clientes estaban marcados como «activos» en ese momento. No es un recuento de todas las personas que pasaron por tu consulta.",
+    "leftMidProcessPct": "De todas las personas que terminaron contigo este mes, qué proporción lo dejó a mitad de camino, antes de acabar el programa.",
+    "openTasksAtEnd": "Una foto del último día del mes: cuántas tareas seguían abiertas. Una tarea abierta y cerrada dentro del mismo mes no aparece aquí.",
+    "net": "Ingresos menos gastos. Un número negativo significa que salió más de lo que entró."
   },
   "groups": {
     "leads": "Prospectos",

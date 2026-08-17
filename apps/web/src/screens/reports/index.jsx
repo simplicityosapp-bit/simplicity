@@ -1,10 +1,10 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   BarChart3, Eye, List, Table2, Settings, X, GripVertical, RotateCcw,
   Leaf, ArrowRight, TrendingUp, Users, CircleCheck, XCircle,
   Calendar, ArrowDownCircle, ArrowUpCircle, Coins,
-  Check, CircleAlert, ChevronLeft,
+  Check, CircleAlert, ChevronLeft, CloudOff, ChevronUp, ChevronDown,
 } from 'lucide-react'
 import { ROUTES } from '../../lib/routes'
 import {
@@ -52,7 +52,7 @@ export default function ReportsScreen() {
   /* One raw read of all seven tables rather than the app's editing hooks:
      those filter deleted_at server-side, which would hide the history this
      screen exists to report. See useReportsData. */
-  const { leads, clients, sessions, transactions, tasks, groupMembers, groups, tallies, loading } = useReportsData()
+  const { leads, clients, sessions, transactions, tasks, groupMembers, groups, tallies, loading, unreachable, error, refetch, refetching } = useReportsData()
 
   const data = useMemo(
     () => ({ leads, clients, sessions, transactions, tasks, groupMembers, groups, tallies }),
@@ -63,13 +63,18 @@ export default function ReportsScreen() {
 
   return (
     <Box className="screen rep-screen">
-      <Box className="rep-head">
-        <Box className="rep-head-title">
-          <BarChart3 size={20} strokeWidth={1.5} aria-hidden="true" /> {t('title')}
+      {/* The shared header card, not a bespoke one. Owner rule 2026-07-29: a
+          screen header holds its name wearing its menu icon and nothing else —
+          this screen had kept its own 22px/600 title with the "מבט על" link
+          tucked inside the card. The link is not gone, it moved down to the
+          controls row where the screen's other navigation lives. */}
+      <Box className="screen-top">
+        <Box as="header" className="screen-head">
+          <Txt as="p" className="t-screen">
+            <BarChart3 size={20} strokeWidth={1.6} aria-hidden="true" />
+            {t('title')}
+          </Txt>
         </Box>
-        <Btn type="button" className="rep-head-link" onClick={() => navigate(ROUTES.MOON_GLANCE)}>
-          <Eye size={16} strokeWidth={1.6} aria-hidden="true" /> {t('moonGlance')}
-        </Btn>
       </Box>
 
       <Box className="rep-controls">
@@ -93,16 +98,21 @@ export default function ReportsScreen() {
             <Table2 size={14} strokeWidth={1.6} aria-hidden="true" /> {t('view.table')}
           </Btn>
         </Box>
-        <Btn
-          type="button"
-          className={`rep-cog${customizeOpen ? ' on' : ''}`}
-          aria-label={t('customize.label')}
-          title={t('customize.label')}
-          aria-expanded={customizeOpen}
-          onClick={() => setCustomizeOpen((v) => !v)}
-        >
-          <Settings size={16} strokeWidth={1.6} aria-hidden="true" />
-        </Btn>
+        <Box className="rep-controls-end">
+          <Btn type="button" className="rep-head-link" onClick={() => navigate(ROUTES.MOON_GLANCE)}>
+            <Eye size={16} strokeWidth={1.6} aria-hidden="true" /> {t('moonGlance')}
+          </Btn>
+          <Btn
+            type="button"
+            className={`rep-cog${customizeOpen ? ' on' : ''}`}
+            aria-label={t('customize.label')}
+            title={t('customize.label')}
+            aria-expanded={customizeOpen}
+            onClick={() => setCustomizeOpen((v) => !v)}
+          >
+            <Settings size={16} strokeWidth={1.6} aria-hidden="true" />
+          </Btn>
+        </Box>
       </Box>
 
       {customizeOpen && (
@@ -122,6 +132,28 @@ export default function ReportsScreen() {
         <Box className="rep-empty">
           <Txt className="rep-empty-icon"><BarChart3 size={28} strokeWidth={1.3} aria-hidden="true" /></Txt>
           <Txt as="p" className="rep-empty-text">{t('loading')}</Txt>
+        </Box>
+      ) : unreachable ? (
+        /* A read that failed — or that never ran, e.g. offline — falls back to
+           empty arrays, so every metric computes as 0 and the screen used to
+           tell the user their practice had no activity. That is a false
+           statement about their business, not a visible glitch. Say what
+           actually happened instead, and offer the way out. The raw message
+           rides in `title`, as on the tasks screen: it helps a bug report
+           without putting a stack trace in front of the user (and is simply
+           absent when there was no error to report). */
+        <Box className="rep-empty">
+          <Txt className="rep-empty-icon"><CloudOff size={28} strokeWidth={1.3} aria-hidden="true" /></Txt>
+          <Txt as="p" className="rep-empty-text" title={error || undefined}>{t('loadError')}</Txt>
+          <Btn
+            type="button"
+            className="empty-action"
+            onClick={() => refetch()}
+            disabled={refetching}
+          >
+            <RotateCcw size={18} strokeWidth={1.6} aria-hidden="true" />
+            {refetching ? t('retrying') : t('retry')}
+          </Btn>
         </Box>
       ) : config.view === 'list' ? (
         <ListView config={config} data={data} onDrill={openDrill} />
@@ -147,6 +179,24 @@ function ListView({ config, data, onDrill }) {
   const { t, lang } = useT('reports')
   const months = useMemo(() => getLast12Months(undefined, lang), [lang])
   const [selected, setSelected] = useState(months[months.length - 1])
+
+  /* The strip is 12 pills wide (~830px) inside a horizontal scroller, ordered
+     oldest → newest, and the default selection is the NEWEST — i.e. the far
+     end. On a phone the screen therefore opened showing five old months with
+     nothing highlighted, while the card underneath reported the current one.
+     Bring the selected pill into view instead: centred on first paint, and
+     'nearest' afterwards so clicking a visible pill doesn't shunt the strip
+     around. It also covers the empty state's "go to <month>" jump, which can
+     land on a pill that is off-screen. block:'nearest' keeps the page itself
+     still — only the strip scrolls. */
+  const activePillRef = useRef(null)
+  const centred = useRef(false)
+  useEffect(() => {
+    const el = activePillRef.current
+    if (!el?.scrollIntoView) return
+    el.scrollIntoView({ block: 'nearest', inline: centred.current ? 'nearest' : 'center' })
+    centred.current = true
+  }, [selected])
 
   const selectedReport = useMemo(
     () => computeReportForRange(selected.start, selected.end, data),
@@ -198,6 +248,7 @@ function ListView({ config, data, onDrill }) {
           return (
             <Btn
               key={`${p.year}-${p.month}`}
+              ref={on ? activePillRef : null}
               type="button"
               role="tab"
               aria-selected={on}
@@ -216,8 +267,13 @@ function ListView({ config, data, onDrill }) {
         <Box className="rep-empty">
           <Txt className="rep-empty-icon"><BarChart3 size={28} strokeWidth={1.3} aria-hidden="true" /></Txt>
           <Txt as="p" className="rep-empty-text">{t('list.empty')}</Txt>
+          {/* Calendar, not an arrow: a directional glyph has to flip between
+              the RTL and LTR locales, and the string used to carry a literal
+              "←" that pointed the wrong way in three of the four. The button
+              goes to a month — say that instead. */}
           {suggested && (
-            <Btn type="button" className="rep-empty-cta" onClick={() => setSelected(suggested)}>
+            <Btn type="button" className="empty-action" onClick={() => setSelected(suggested)}>
+              <Calendar size={18} strokeWidth={1.6} aria-hidden="true" />
               {t('list.goToMonth', { label: suggested.label })}
             </Btn>
           )}
@@ -315,7 +371,17 @@ function TableView({ config, data, onSetRange, onDrill }) {
                   {p.label}
                 </th>
               ))}
-              <th className="rep-th-summary">{t('table.summary')}</th>
+              {/* The column is a sum for flow metrics, an AVERAGE for the two
+                  month-end snapshots and a re-computation for the percentages.
+                  The manual says so in two places; the screen said only
+                  "Summary", so a reader had no way to know the 12 beside
+                  "active clients" was a mean and not a total. */}
+              <th className="rep-th-summary">
+                <Txt className="rep-th-summary-in">
+                  {t('table.summary')}
+                  <InfoPopover label={t('info', { label: t('table.summary') })} text={t('table.summaryDesc')} />
+                </Txt>
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -343,9 +409,25 @@ function TableView({ config, data, onSetRange, onDrill }) {
                       <td
                         key={`${p.year}-${p.month}`}
                         className={`rep-td-cell${p.isCurrent ? ' current' : ''}${empty ? '' : ' clickable'}`}
-                        onClick={empty ? undefined : () => onDrill(m.id, p)}
                       >
-                        <Txt className="mono">{formatReportValue(m, v)}</Txt>
+                        {/* A real button, not an onClick on the <td>. The cell
+                            handler made drill-down mouse-only: nothing here was
+                            focusable, so a keyboard user could read the table
+                            and never open a single one of its figures. An empty
+                            cell has nothing to open, so it stays inert text and
+                            doesn't collect a tab stop. */}
+                        {empty ? (
+                          <Txt className="mono">{formatReportValue(m, v)}</Txt>
+                        ) : (
+                          <Btn
+                            type="button"
+                            className="rep-td-btn mono"
+                            aria-label={t('table.drillAria', { metric: t(`metrics.${m.id}`), period: p.label })}
+                            onClick={() => onDrill(m.id, p)}
+                          >
+                            {formatReportValue(m, v)}
+                          </Btn>
+                        )}
                       </td>
                     )
                   })}
@@ -394,6 +476,10 @@ function CustomizePanel({ config, onToggle, onReorder, onReset, onClose }) {
   const [overId, setOverId] = useState(null)
 
   const handleDragStart = (e, id) => {
+    /* A press that started on one of the row's own buttons is aimed at that
+       button, not at the row — without this, reaching for ↑ / ↓ picks the
+       row up instead. */
+    if (e.target?.closest?.('button')) { e.preventDefault(); return }
     setDraggingId(id)
     try { e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', id) } catch { /* noop */ }
   }
@@ -410,6 +496,19 @@ function CustomizePanel({ config, onToggle, onReorder, onReset, onClose }) {
   }
   const handleDragEnd = () => { setDraggingId(null); setOverId(null) }
 
+  /* HTML5 drag-and-drop does not exist on touch, so on a phone the grip was
+     decoration and the order could not be changed at all — while the hint
+     said "drag to reorder". These two buttons are the reachable path, and
+     they work with a keyboard too; the grip stays as the fast way on desktop.
+
+     onReorder(from, to) removes `from` first and then inserts it BEFORE `to`,
+     so stepping down has to target the row after the neighbour — and a null
+     target means "put it last", which is exactly the second-to-last case. */
+  const move = (id, index, dir) => {
+    if (dir < 0) onReorder(id, items[index - 1]?.id)
+    else onReorder(id, items[index + 2]?.id ?? null)
+  }
+
   return (
     <Box className="rep-cust" role="region" aria-label={t('customize.regionAria')}>
       <Box className="rep-cust-head">
@@ -423,7 +522,7 @@ function CustomizePanel({ config, onToggle, onReorder, onReset, onClose }) {
       </Box>
       <Txt as="p" className="rep-cust-hint">{t('customize.hint')}</Txt>
       <Box className="rep-cust-list">
-        {items.map((m) => {
+        {items.map((m, i) => {
           const on = visible.has(m.id)
           return (
             <Box
@@ -438,6 +537,26 @@ function CustomizePanel({ config, onToggle, onReorder, onReset, onClose }) {
               <Txt className="rep-cust-grip" aria-hidden="true">
                 <GripVertical size={14} strokeWidth={1.5} />
               </Txt>
+              <Box className="rep-cust-moves">
+                <Btn
+                  type="button"
+                  className="rep-cust-move"
+                  aria-label={t('customize.moveUp', { label: t(`metrics.${m.id}`) })}
+                  disabled={i === 0}
+                  onClick={() => move(m.id, i, -1)}
+                >
+                  <ChevronUp size={14} strokeWidth={1.8} aria-hidden="true" />
+                </Btn>
+                <Btn
+                  type="button"
+                  className="rep-cust-move"
+                  aria-label={t('customize.moveDown', { label: t(`metrics.${m.id}`) })}
+                  disabled={i === items.length - 1}
+                  onClick={() => move(m.id, i, 1)}
+                >
+                  <ChevronDown size={14} strokeWidth={1.8} aria-hidden="true" />
+                </Btn>
+              </Box>
               <Txt className="rep-cust-icon"><MetricIcon id={m.id} /></Txt>
               <Txt className="rep-cust-label">{t(`metrics.${m.id}`)}</Txt>
               <Btn

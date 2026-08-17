@@ -1,6 +1,9 @@
 {
   "title": "Reports",
   "loading": "Loading…",
+  "loadError": "We couldn't load the report right now.",
+  "retry": "Reload",
+  "retrying": "Loading…",
   "moonGlance": "Overview",
   "view": {
     "selectAria": "Choose view",
@@ -14,20 +17,24 @@
     "reset": "Default",
     "resetTitle": "Reset to default",
     "close": "Close",
-    "hint": "Pick which metrics to show, and drag to reorder.",
+    "hint": "Pick which metrics to show, and use the arrows to reorder.",
     "show": "Show {{label}}",
-    "hide": "Hide {{label}}"
+    "hide": "Hide {{label}}",
+    "moveUp": "Move up: {{label}}",
+    "moveDown": "Move down: {{label}}"
   },
   "list": {
     "selectMonthAria": "Choose month",
     "empty": "No data for this month",
-    "goToMonth": "← Go to {{label}}"
+    "goToMonth": "Go to {{label}}"
   },
   "table": {
     "noMetrics": "No active metrics — tap the gear to show metrics",
     "monthsBack": "Months back:",
     "metric": "Metric",
-    "summary": "Summary"
+    "summary": "Summary",
+    "summaryDesc": "Not everything is summarised the same way. Numbers that flow over time (inquiries, sessions, money) are added up. The \"at month end\" numbers are an average. And percentages are re-computed over the whole range — percentages can't simply be added.",
+    "drillAria": "{{metric}} in {{period}} — show the records"
   },
   "info": "About {{label}}",
   "drill": {
@@ -63,17 +70,22 @@
     "leadsConverted": "Converted to clients",
     "conversionRate": "Conversion rate",
     "newClients": "New clients",
-    "activeClientsAtEnd": "Active clients at end",
+    "activeClientsAtEnd": "Active clients at month end",
     "leftMidProcessPct": "Left mid-process",
     "sessions": "Sessions held",
     "income": "Income",
     "expense": "Expenses",
     "net": "Net",
     "tasksCompleted": "Tasks completed",
-    "openTasksAtEnd": "Open tasks at end"
+    "openTasksAtEnd": "Open tasks at month end"
   },
   "metricsDesc": {
-    "leadsClosed": "All leads that left the pipeline — converted to clients or marked not relevant. (Versus \"Converted to clients\", which counts only those who became clients.)"
+    "leadsClosed": "All leads that left the pipeline — converted to clients or marked not relevant. (Versus \"Converted to clients\", which counts only those who became clients.)",
+    "conversionRate": "Of the inquiries that arrived this month, how many eventually became clients — even if that happened later. So a recent month's figure can still rise.",
+    "activeClientsAtEnd": "A snapshot on the last day of the month: how many clients were marked \"active\" at that moment. It is not a count of everyone you saw during the month.",
+    "leftMidProcessPct": "Of everyone who finished with you this month, the share who stopped part-way, before the programme ended.",
+    "openTasksAtEnd": "A snapshot on the last day of the month: how many tasks were still open. A task opened and closed within the same month never appears here.",
+    "net": "Income minus expenses. A negative number means more went out than came in."
   },
   "groups": {
     "leads": "Leads",

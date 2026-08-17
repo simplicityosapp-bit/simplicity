@@ -414,25 +414,31 @@ export function computeReportForRange(start: Date, end: Date, data: ReportData =
    Display strings (label/desc/group name) resolve via i18n at the call site
    (reports:metrics.<id> / reports:metricsDesc.<id> / reports:groups.<id>) so
    the registry stays language-agnostic and follows the active language. */
+/* `info: true` is carried by the metrics whose NAME does not tell you what
+   was counted — the two "at month end" snapshots (a value AT a date, not a
+   tally of the month), the two percentages (whose denominators are not
+   obvious), and net (which can go negative). The plain tallies — new
+   inquiries, sessions held, income — say it on the label and would only be
+   padded by a tooltip. */
 export const REPORT_METRICS: ReportMetric[] = [
   /* Leads */
   { id: 'newInquiries',       group: 'leads',    kind: 'flow',      format: 'count' },
   { id: 'leadsClosed',        group: 'leads',    kind: 'flow',      format: 'count', info: true },
   { id: 'leadsConverted',     group: 'leads',    kind: 'flow',      format: 'count' },
-  { id: 'conversionRate',     group: 'leads',    kind: 'cohortPct', format: 'pct' },
+  { id: 'conversionRate',     group: 'leads',    kind: 'cohortPct', format: 'pct',   info: true },
   /* Clients */
   { id: 'newClients',         group: 'clients',  kind: 'flow',      format: 'count' },
-  { id: 'activeClientsAtEnd', group: 'clients',  kind: 'snapshot',  format: 'count' },
-  { id: 'leftMidProcessPct',  group: 'clients',  kind: 'cohortPct', format: 'pct' },
+  { id: 'activeClientsAtEnd', group: 'clients',  kind: 'snapshot',  format: 'count', info: true },
+  { id: 'leftMidProcessPct',  group: 'clients',  kind: 'cohortPct', format: 'pct',   info: true },
   /* Sessions */
   { id: 'sessions',           group: 'sessions', kind: 'flow',      format: 'count' },
   /* Finance */
   { id: 'income',             group: 'finance',  kind: 'flow',      format: 'money' },
   { id: 'expense',            group: 'finance',  kind: 'flow',      format: 'money' },
-  { id: 'net',                group: 'finance',  kind: 'flow',      format: 'money' },
+  { id: 'net',                group: 'finance',  kind: 'flow',      format: 'money', info: true },
   /* Tasks */
   { id: 'tasksCompleted',     group: 'tasks',    kind: 'flow',      format: 'count' },
-  { id: 'openTasksAtEnd',     group: 'tasks',    kind: 'snapshot',  format: 'count' },
+  { id: 'openTasksAtEnd',     group: 'tasks',    kind: 'snapshot',  format: 'count', info: true },
 ]
 
 export const REPORT_GROUPS = [

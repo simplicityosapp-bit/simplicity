@@ -1028,7 +1028,7 @@
         },
         {
           "title": "Choosing Numbers and Order",
-          "body": "The gear button \"Customize view\" opens a panel where you toggle which numbers to show (a switch for each) and drag a handle to change the order. Your choices and order apply to both views."
+          "body": "The gear button \"Customize view\" opens a panel where you toggle which numbers to show (a switch for each) and change the order with the arrows beside each row. With a mouse you can also drag the handle. Your choices and order apply to both views."
         },
         {
           "title": "Restoring Defaults",

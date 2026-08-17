@@ -11,16 +11,15 @@
    and finance. Declared on the screen root so unconverted screens keep the
    20px / 24×28 app default. Proportion only — the material is untouched.
 
-   Reached here: the corner on .rep-head, .rep-cust, .rep-group, .rep-empty
-   and .rep-table-wrap, plus the padding on .rep-cust and .rep-empty. Both
-   read `padding: var(--mg-card-pad)` on its own, which is the safe form —
-   see the finance screen for what happens when a rule tries to use only
-   half of that shorthand.
+   Reached here: the corner on .rep-cust, .rep-group, .rep-empty and
+   .rep-table-wrap, plus the padding on .rep-cust and .rep-empty. Both read
+   `padding: var(--mg-card-pad)` on its own, which is the safe form — see the
+   finance screen for what happens when a rule tries to use only half of that
+   shorthand. It also reaches the shared .screen-head, which this screen now
+   uses in place of the .rep-head it used to define for itself.
 
-   Two things this screen already had, so they are deliberately left alone:
+   One thing this screen already had, so it is deliberately left alone:
 
-     • .rep-head's padding is 16px 18px 14px, hard-coded — the proportion
-       this rollout is spreading, arrived at independently here.
      • .rep-row-wrap already separates rows with a hairline and resets the
        last one. That is home's list pattern, mirrored (border-bottom +
        :last-child rather than border-top + :first-child) and equivalent.
@@ -36,34 +35,12 @@
   --mg-card-pad:    var(--mg-card-pad-y) var(--mg-card-pad-x);
 }
 
-/* ── Head + intra-screen link ── */
-/* Same glass treatment as .screen-head — title flush right (RTL
-   start), the "מבט על" link tucked underneath. */
-.rep-head {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 6px;
-  width: 62%;
-  max-width: 280px;
-  padding: 16px 18px 14px;
-  margin: 14px 0 16px;
-  border-radius: var(--mg-card-radius);
-  border: var(--mg-card-border);
-  background: var(--mg-card-bg);
-  box-shadow: var(--mg-card-shadow);
-  backdrop-filter: var(--mg-card-blur);
-}
-.rep-head-title {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-family: 'Assistant', sans-serif;
-  font-size: calc(22px * var(--text-scale));
-  font-weight: 600;
-  color: var(--espresso);
-}
-.rep-head-title svg { color: var(--stone); }
+/* ── Intra-screen link ("מבט על") ──
+   The screen's own header card and title are gone: it now uses the shared
+   .screen-top / .screen-head / .t-screen like every other screen, so the
+   name is one size and one weight app-wide and the card holds nothing but
+   the name and its menu icon (owner rule 2026-07-29). The link this file
+   used to nest inside that card sits in the controls row instead. */
 .rep-head-link {
   display: inline-flex;
   align-items: center;
@@ -85,6 +62,12 @@
   justify-content: space-between;
   gap: 8px;
   margin-bottom: 14px;
+}
+.rep-controls-end {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
 }
 .rep-view-toggle {
   display: inline-flex;
@@ -225,7 +208,9 @@
 }
 .rep-cust-row {
   display: grid;
-  grid-template-columns: 18px 18px 1fr auto;
+  /* grip · ↑↓ · icon · label · toggle — the two reorder affordances sit
+     together at the start of the row, as in the settings widget list. */
+  grid-template-columns: 18px auto 18px 1fr auto;
   align-items: center;
   gap: 8px;
   padding: 8px 8px;
@@ -254,6 +239,52 @@
 }
 .rep-cust-row.on .rep-cust-label { opacity: 1; }
 
+/* ── Reorder arrows ──
+   The grip beside them is an HTML5 drag source, which does not exist on
+   touch — these are the path that works on every device and from the
+   keyboard. Same control as the home-widget list in settings (.set-w-move-btn)
+   and the same aria-label shape; laid out as a horizontal pair rather than
+   that screen's 20×15 vertical stepper, because a 15px-tall target is the
+   thing this fix exists to avoid. Kept visually quiet (stone, no fill) so the
+   row still reads as a label with a switch, not as a toolbar. */
+.rep-cust-moves {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+.rep-cust-move {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: none;
+  border-radius: 8px;
+  background: none;
+  color: var(--stone);
+  cursor: pointer;
+  transition: background 120ms, color 120ms, opacity 120ms;
+}
+/* 44px-tall pointer target without moving the 26px box — the same trick
+   .rep-cog uses. The INLINE growth is only 1px per side, enough to close the
+   2px seam between the pair and no more: these two buttons are adjacent and
+   do opposite things, so overlapping targets would mean a mis-tap moves the
+   metric the wrong way. 28x44 is comfortably over the 24px minimum. */
+.rep-cust-move::after {
+  content: '';
+  position: absolute;
+  inset-block: -9px;
+  inset-inline: -1px;
+}
+.rep-cust-move:hover:not(:disabled) {
+  color: var(--espresso);
+  background: var(--mg-row-hover-bg);
+}
+.rep-cust-move:disabled { opacity: 0.3; cursor: default; }
+
 .rep-cust-toggle {
   position: relative;
   width: 32px;
@@ -269,16 +300,26 @@
 .rep-cust-toggle-knob {
   position: absolute;
   top: 2px;
-  right: 2px;
+  /* Logical, not `right`. The knob has to start at the track's START edge and
+     travel to its END, which is right→left in Hebrew and left→right in the
+     three LTR locales; hard-coding `right` ran the switch BACKWARDS in
+     en/es/fr. Same reason .rep-th-metric / .rep-td-metric were converted. */
+  inset-inline-start: 2px;
   width: 14px;
   height: 14px;
   border-radius: 50%;
-  background: var(--cream);
+  /* --on-accent (#FFFFFF, the one foreground token that is NOT remapped for
+     dark), not --cream. --cream is a SURFACE token and correctly turns
+     #1A1F26 at night — which made the knob near-black on the off track's
+     rgba(255,255,255,.15): 1.4:1, so at night you could not see which
+     metrics were switched off. Now 11.9:1 off / 4.1:1 on in dark, and
+     unchanged in daylight. */
+  background: var(--on-accent);
   box-shadow: 0 1px 2px rgba(0,0,0,.2);
-  transition: right 160ms, transform 160ms;
+  transition: inset-inline-start 160ms;
 }
 .rep-cust-toggle.on .rep-cust-toggle-knob {
-  right: calc(100% - 16px);
+  inset-inline-start: calc(100% - 16px);
 }
 
 /* ── Drill-down modal body ── */
@@ -507,15 +548,13 @@
   font-weight: 500;
   color: var(--espresso);
 }
-.rep-empty-cta {
-  margin-top: 8px;
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-family: var(--mg-font);
-  font-size: calc(13px * var(--text-scale));
-  font-weight: 500;
-  color: var(--terracotta);
+/* The "go to <month>" button was terracotta TEXT at 13px: 2.9:1 in daylight,
+   3.5:1 at night once the token remaps to sage — under 4.5:1 in both. It is
+   now the shared .empty-action (sage fill, ink label, 7:1 either way), which
+   is what every other empty state on the app already offers. Nothing left
+   here but the spacing that sets it inside this card. */
+.rep-empty .empty-action {
+  margin-top: 12px;
 }
 
 /* ── Table view ── */
@@ -559,8 +598,23 @@
   color: var(--espresso);
 }
 
+/* ── The table's scroll box ──
+   `overflow-x: auto` alone made overflow-y compute to auto as well, so this
+   was already a scroll container — just one with no height, which never
+   scrolled vertically. That is why `position: sticky; top: 0` on the header
+   did nothing: it was pinned to a container that never moved, and scrolling
+   the PAGE carried the month names away with everything else. Eighteen rows
+   of numbers with no column headings is a wall of digits.
+
+   Giving the box a height makes both axes real: the header freezes against
+   the top of the box and the metric column against its start edge, so a
+   number always has a month above it and a name beside it. Capped by
+   viewport height so it never overruns a phone, and by 640px so it doesn't
+   grow into a second page on a desktop monitor. */
 .rep-table-wrap {
-  overflow-x: auto;
+  overflow: auto;
+  max-height: min(68vh, 640px);
+  overscroll-behavior: contain;
   border-radius: var(--mg-card-radius);
   border: var(--mg-card-border);
   background: var(--mg-card-bg);
@@ -584,9 +638,14 @@
   font-size: calc(13px * var(--text-scale));
   color: var(--espresso);
 }
+/* Stacking, now that both axes actually scroll: the two corner cells (2) sit
+   above the month headers and the frozen columns (1), which in turn sit above
+   the ordinary cells. Without this the metric name scrolled over its own
+   header. */
 .rep-table thead th {
   position: sticky;
   top: 0;
+  z-index: 1;
   background: var(--rep-sticky-bg);
   font-weight: 600;
   font-size: calc(11px * var(--text-scale));
@@ -597,17 +656,34 @@
   border-bottom: 1px solid var(--divider, rgba(0,0,0,.08));
   white-space: nowrap;
 }
+/* The frozen row-header column. `inset-inline-start`, not `right`: this is the
+   FIRST column, which sits on the right in Hebrew and on the left in the three
+   LTR locales — pinning it to the physical right edge left en/es/fr with the
+   metric names sliding out over the month columns as the table scrolled. */
 .rep-th-metric {
   position: sticky !important;
-  right: 0;
+  inset-inline-start: 0;
   z-index: 2;
   text-align: start !important;
   min-width: 112px;
   border-inline-end: 1px solid var(--divider, rgba(0,0,0,.06));
 }
 .rep-th-period.current { color: var(--espresso); }
+/* Frozen at the END edge, the mirror of the metric column at the start. It
+   was the last of up to fourteen columns, so on a phone the one figure that
+   answers "and over the whole period?" was the one you had to scroll furthest
+   to reach — and nothing on screen said it was there. Pinned, the row now
+   reads name · (scrollable months) · total without any scrolling at all. */
 .rep-th-summary {
+  position: sticky !important;
+  inset-inline-end: 0;
+  z-index: 2;
   border-inline-start: 1px solid var(--divider, rgba(0,0,0,.06));
+}
+.rep-th-summary-in {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .rep-tr-group td {
@@ -633,7 +709,7 @@
 
 .rep-td-metric {
   position: sticky;
-  right: 0;
+  inset-inline-start: 0;   /* see .rep-th-metric */
   z-index: 1;
   background: var(--rep-sticky-bg);
   text-align: start !important;
@@ -656,12 +732,26 @@
   font-weight: 500;
   min-width: 54px;
 }
-.rep-td-cell.clickable { cursor: pointer; }
+.rep-td-cell.clickable { cursor: pointer; padding: 0; }
 .rep-td-cell.clickable:hover {
   background: rgba(0,0,0,.05);
 }
 [data-theme="dark"] .rep-td-cell.clickable:hover {
   background: rgba(255,255,255,.06);
+}
+/* Fills its cell, so the whole cell stays the pointer target it always was —
+   the padding simply moved from the <td> onto the button. */
+.rep-td-btn {
+  width: 100%;
+  padding: 10px 8px;
+  border: none;
+  background: none;
+  font: inherit;
+  font-weight: 500;
+  color: inherit;
+  text-align: center;
+  cursor: pointer;
+  font-variant-numeric: tabular-nums;
 }
 .rep-td-cell.current {
   background: rgba(0,0,0,.03);
@@ -671,11 +761,15 @@
   background: rgba(255,255,255,.05);
 }
 .rep-td-summary {
+  position: sticky;
+  inset-inline-end: 0;   /* see .rep-th-summary */
+  z-index: 1;
   font-variant-numeric: tabular-nums;
   font-weight: 500;
   border-inline-start: 1px solid var(--divider, rgba(0,0,0,.06));
-  background: rgba(0,0,0,.015);
-}
-[data-theme="dark"] .rep-td-summary {
-  background: rgba(255,255,255,.03);
+  /* OPAQUE, like the metric column and for the same reason: a frozen cell has
+     no backdrop-filter of its own, so the faint rgba tint this used to carry
+     let the scrolling month cells read straight through it. The column is
+     still marked off by its border. */
+  background: var(--rep-sticky-bg);
 }

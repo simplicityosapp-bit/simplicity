@@ -49,8 +49,17 @@ const TABLES = {
 
 const EMPTY = Object.fromEntries(Object.keys(TABLES).map((k) => [k, []]))
 
+/* WHY THIS RETURNS THREE STATES AND NOT TWO.
+   When the read doesn't produce rows, the bag falls back to EMPTY and every
+   metric computes as 0 — so the screen said "no activity this month", which
+   is a false statement about the user's business rather than a visible
+   glitch. `error` alone does not cover it: a query that never got to run
+   sits at fetchStatus 'paused' (React Query parks fetches it believes are
+   offline) with a null error and isLoading false, which lands in exactly the
+   same silent hole. `unreachable` names both cases, so the screen can refuse
+   to draw a report it doesn't have the data for. */
 export function useReportsData() {
-  const { data, isLoading, error } = useQuery({
+  const { data, status, fetchStatus, error, refetch, isFetching } = useQuery({
     queryKey: ['reports', 'raw'],
     queryFn: async () => {
       const keys = Object.keys(TABLES)
@@ -60,5 +69,15 @@ export function useReportsData() {
       return Object.fromEntries(keys.map((k, i) => [k, rows[i]]))
     },
   })
-  return { ...(data ?? EMPTY), loading: isLoading, error: error?.message ?? null }
+  const paused = fetchStatus === 'paused' && data === undefined
+  return {
+    ...(data ?? EMPTY),
+    /* 'idle' counts as still-settling, not as failure — otherwise the error
+       card flashes for a frame on every mount, before the fetch starts. */
+    loading: status === 'pending' && !paused,
+    unreachable: !!error || paused,
+    error: error?.message ?? null,
+    refetch,
+    refetching: isFetching,
+  }
 }

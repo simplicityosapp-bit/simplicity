@@ -1028,7 +1028,7 @@
         },
         {
           "title": "Choisir les chiffres et l'ordre",
-          "body": "Le bouton engrenage « Personnaliser la vue » ouvre un panneau où vous activez les chiffres à afficher (un interrupteur pour chacun) et glissez une poignée pour changer l'ordre. Vos choix et votre ordre s'appliquent aux deux vues."
+          "body": "Le bouton engrenage « Personnaliser la vue » ouvre un panneau où vous activez les chiffres à afficher (un interrupteur pour chacun) et changez l'ordre avec les flèches à côté de chaque ligne. Avec une souris, vous pouvez aussi faire glisser la poignée. Vos choix et votre ordre s'appliquent aux deux vues."
         },
         {
           "title": "Rétablir les valeurs par défaut",

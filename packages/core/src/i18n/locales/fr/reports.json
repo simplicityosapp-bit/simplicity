@@ -1,6 +1,9 @@
 {
   "title": "Rapports",
   "loading": "Chargement…",
+  "loadError": "Nous n'avons pas pu charger le rapport pour le moment.",
+  "retry": "Recharger",
+  "retrying": "Chargement…",
   "moonGlance": "Vue d'ensemble",
   "view": {
     "selectAria": "Choisir l'affichage",
@@ -14,20 +17,24 @@
     "reset": "Par défaut",
     "resetTitle": "Réinitialiser par défaut",
     "close": "Fermer",
-    "hint": "Choisissez les indicateurs à afficher et faites-les glisser pour les réorganiser.",
+    "hint": "Choisissez les indicateurs à afficher et utilisez les flèches pour les réorganiser.",
     "show": "Afficher {{label}}",
-    "hide": "Masquer {{label}}"
+    "hide": "Masquer {{label}}",
+    "moveUp": "Monter : {{label}}",
+    "moveDown": "Descendre : {{label}}"
   },
   "list": {
     "selectMonthAria": "Choisir le mois",
     "empty": "Aucune donnée pour ce mois",
-    "goToMonth": "← Aller à {{label}}"
+    "goToMonth": "Aller à {{label}}"
   },
   "table": {
     "noMetrics": "Aucun indicateur actif — touchez la roue dentée pour afficher des indicateurs",
     "monthsBack": "Mois en arrière :",
     "metric": "Indicateur",
-    "summary": "Résumé"
+    "summary": "Résumé",
+    "summaryDesc": "Tout n'est pas résumé de la même façon. Les nombres qui s'accumulent dans le temps (demandes, séances, argent) s'additionnent. Les nombres « en fin de mois » sont une moyenne. Et les pourcentages sont recalculés sur toute la plage — on ne peut pas simplement additionner des pourcentages.",
+    "drillAria": "{{metric}} en {{period}} — voir les enregistrements"
   },
   "info": "À propos de {{label}}",
   "drill": {
@@ -63,17 +70,22 @@
     "leadsConverted": "Convertis en clients",
     "conversionRate": "Taux de conversion",
     "newClients": "Nouveaux clients",
-    "activeClientsAtEnd": "Clients actifs à la fin",
+    "activeClientsAtEnd": "Clients actifs en fin de mois",
     "leftMidProcessPct": "Partis en cours de parcours",
     "sessions": "Séances réalisées",
     "income": "Revenus",
     "expense": "Dépenses",
     "net": "Net",
     "tasksCompleted": "Tâches terminées",
-    "openTasksAtEnd": "Tâches ouvertes à la fin"
+    "openTasksAtEnd": "Tâches ouvertes en fin de mois"
   },
   "metricsDesc": {
-    "leadsClosed": "Tous les prospects sortis du processus — convertis en clients ou marqués non pertinents. (Contrairement à « Convertis en clients », qui ne compte que ceux devenus clients.)"
+    "leadsClosed": "Tous les prospects sortis du processus — convertis en clients ou marqués non pertinents. (Contrairement à « Convertis en clients », qui ne compte que ceux devenus clients.)",
+    "conversionRate": "Parmi les demandes reçues ce mois-ci, combien sont finalement devenues des clients, même si la conversion a eu lieu plus tard. Le chiffre d'un mois récent peut donc encore monter.",
+    "activeClientsAtEnd": "Un instantané du dernier jour du mois : combien de clients étaient marqués « actif » à ce moment-là. Ce n'est pas le décompte de toutes les personnes vues dans le mois.",
+    "leftMidProcessPct": "Parmi toutes les personnes ayant terminé avec vous ce mois-ci, la part qui s'est arrêtée en cours de route, avant la fin du parcours.",
+    "openTasksAtEnd": "Un instantané du dernier jour du mois : combien de tâches étaient encore ouvertes. Une tâche ouverte et fermée dans le même mois n'apparaît pas ici.",
+    "net": "Revenus moins dépenses. Un nombre négatif signifie qu'il est sorti plus qu'il n'est entré."
   },
   "groups": {
     "leads": "Prospects",

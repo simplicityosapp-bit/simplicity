@@ -1028,7 +1028,7 @@
         },
         {
           "title": "Elegir números y orden",
-          "body": "El botón de engranaje «Personalizar vista» abre un panel donde activas qué números mostrar (un interruptor por cada uno) y arrastras un tirador para cambiar el orden. Tus elecciones y el orden se aplican a ambas vistas."
+          "body": "El botón de engranaje «Personalizar vista» abre un panel donde activas qué números mostrar (un interruptor por cada uno) y cambias el orden con las flechas de cada fila. Con el ratón también puedes arrastrar el tirador. Tus elecciones y el orden se aplican a ambas vistas."
         },
         {
           "title": "Restablecer valores por defecto",

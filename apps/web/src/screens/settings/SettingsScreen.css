@@ -535,16 +535,29 @@ html[dir="ltr"] .set-profile-body .m-pills.has-more {
 .set-w-toggle-knob {
   position: absolute;
   top: 2px;
-  right: 2px;
+  /* Logical, not `right`. The knob has to start at the track's START edge and
+     travel to its END, which is right→left in Hebrew and left→right in the
+     three LTR locales; hard-coding `right` ran the switch BACKWARDS in
+     en/es/fr. Same fix as .rep-cust-toggle-knob on the reports screen. */
+  inset-inline-start: 2px;
   width: 16px;
   height: 16px;
   border-radius: 50%;
-  background: var(--cream);
+  /* --on-accent (#FFFFFF, the one foreground token that is NOT remapped for
+     dark), not --cream. --cream is a SURFACE token and correctly turns
+     #1A1F26 at night — which made the knob near-black on the off track's
+     rgba(255,255,255,.15): 1.6:1, so at night you could not see which
+     widgets were switched off. Now 10.1:1 off / 4.1:1 on in dark, and
+     unchanged in daylight. (Measured in place — lower than the reports
+     screen's 11.9:1 because this switch sits inside two stacked
+     translucent cards, which lightens the track under it.) */
+  background: var(--on-accent);
   box-shadow: 0 1px 2px rgba(0,0,0,.2);
-  transition: right 160ms;
+  transition: inset-inline-start 160ms;
 }
 .set-w-toggle.on .set-w-toggle-knob {
-  right: calc(100% - 18px);
+  /* 36px track, 16px knob → 100% - 18px keeps the 2px end gap. */
+  inset-inline-start: calc(100% - 18px);
 }
 
 /* About section */

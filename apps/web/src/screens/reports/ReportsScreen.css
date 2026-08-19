@@ -492,7 +492,8 @@
   flex: 1;
   min-width: 0;
   display: grid;
-  grid-template-columns: 18px 1fr auto;
+  /* icon · name · value · month-on-month change */
+  grid-template-columns: 18px 1fr auto auto;
   align-items: center;
   gap: 10px;
   padding: 10px 14px;
@@ -824,3 +825,37 @@
 [data-theme="dark"] .rep-cog.on.has-hidden::before {
   box-shadow: 0 0 0 1.5px var(--cream);
 }
+
+/* ── Month-on-month change chip ──
+   The arrow points the way the number MOVED; the colour says whether that
+   was good news. Two different axes, deliberately: more expenses, more open
+   tasks at month end and a higher drop-out rate all point UP and all read
+   red, while "leads closed" has no good direction and never colours at all.
+
+   Colours follow the same rule as .neg above — daylight mixes the hue
+   toward --ink to clear 4.5:1 at this size, night uses the pre-lightened
+   token, because a hue that reads on cream is invisible on charcoal and
+   vice versa. 11px is small text, so this is measured, not eyeballed. */
+.rep-row-delta {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  min-width: 44px;
+  justify-content: flex-end;
+  font-family: var(--mg-font);
+  font-size: calc(11px * var(--text-scale));
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  color: var(--stone);
+}
+.rep-row-delta.good { color: color-mix(in srgb, var(--sage) 62%, var(--ink)); }
+.rep-row-delta.bad  { color: color-mix(in srgb, var(--clay) 90%, var(--ink)); }
+[data-theme="dark"] .rep-row-delta.good { color: var(--sage); }
+[data-theme="dark"] .rep-row-delta.bad  { color: var(--clay-on-dark); }
+/* "=" — no change. Grey, and no arrow is drawn, so a flat month reads as
+   flat rather than as a missing comparison. */
+.rep-row-delta.flat { color: var(--mist); font-weight: 500; }
+/* An empty metric dims its whole row; the chip must dim with it rather than
+   sitting bright beside a greyed-out zero. */
+.rep-row.empty .rep-row-delta { opacity: 0.7; }

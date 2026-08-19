@@ -30,7 +30,8 @@
   "list": {
     "selectMonthAria": "בחירת חודש",
     "empty": "אין נתונים לחודש הזה",
-    "goToMonth": "מעבר ל{{label}}"
+    "goToMonth": "מעבר ל{{label}}",
+    "deltaTitle": "ב{{period}}: {{value}}"
   },
   "table": {
     "noMetrics": "אין מדדים פעילים — לחץ/י על גלגל השיניים כדי להציג מדדים",

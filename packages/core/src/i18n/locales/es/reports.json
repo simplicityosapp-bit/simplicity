@@ -28,7 +28,8 @@
   "list": {
     "selectMonthAria": "Elegir mes",
     "empty": "No hay datos para este mes",
-    "goToMonth": "Ir a {{label}}"
+    "goToMonth": "Ir a {{label}}",
+    "deltaTitle": "En {{period}}: {{value}}"
   },
   "table": {
     "noMetrics": "No hay métricas activas — toca el engranaje para mostrar métricas",

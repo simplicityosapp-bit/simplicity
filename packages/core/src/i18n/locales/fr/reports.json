@@ -28,7 +28,8 @@
   "list": {
     "selectMonthAria": "Choisir le mois",
     "empty": "Aucune donnée pour ce mois",
-    "goToMonth": "Aller à {{label}}"
+    "goToMonth": "Aller à {{label}}",
+    "deltaTitle": "En {{period}} : {{value}}"
   },
   "table": {
     "noMetrics": "Aucun indicateur actif — touchez la roue dentée pour afficher des indicateurs",

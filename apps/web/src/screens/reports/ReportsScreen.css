@@ -492,7 +492,11 @@
   flex: 1;
   min-width: 0;
   display: grid;
-  /* icon · name · value · month-on-month change */
+  /* icon · name · value · month-on-month change. The 12-month shape adds a
+     fifth column at 768px and up — declared in the media query rather than
+     here, because a track whose only item is display:none is 0 wide but its
+     GAP is not: leaving it in cost the name 10px and wrapped the longest one
+     onto a second line. */
   grid-template-columns: 18px 1fr auto auto;
   align-items: center;
   gap: 10px;
@@ -511,7 +515,12 @@
 [data-theme="dark"] .rep-row:not(:disabled):hover {
   background: rgba(255,255,255,.04);
 }
-.rep-row.empty { cursor: default; opacity: 0.6; }
+/* A metric that came out 0 or has no value: not clickable, and dimmed.
+   The modifier is `zero`, NOT `empty` — screens.css owns a global `.empty`
+   that is a full glass CARD (max-width 320px, 32px padding, its own
+   background, shadow and centred text), and it was landing on every
+   zero-valued row: a 40px line became a 145px centred card mid-list. */
+.rep-row.zero { cursor: default; opacity: 0.6; }
 .rep-row-icon { color: var(--stone); display: inline-flex; }
 .rep-row-label {
   font-family: var(--mg-font);
@@ -858,7 +867,7 @@
 .rep-row-delta.flat { color: var(--mist); font-weight: 500; }
 /* An empty metric dims its whole row; the chip must dim with it rather than
    sitting bright beside a greyed-out zero. */
-.rep-row.empty .rep-row-delta { opacity: 0.7; }
+.rep-row.zero .rep-row-delta { opacity: 0.7; }
 
 /* ── Period title row ──
    The title used to be a bare paragraph; it now shares its line with the
@@ -895,3 +904,54 @@
   inset-inline: -6px;
 }
 .rep-export { position: relative; }
+
+/* ── Sparkline ──
+   The twelve-month shape of one metric, beside its number.
+
+   HIDDEN ON NARROW SCREENS, and that is the honest trade rather than an
+   oversight: at 375px the row already carries an icon, a name up to 150px
+   long, the value and the change chip, and there is no 40px left that does
+   not come out of the name. A truncated metric name is a worse screen than
+   no picture. The phone still answers "which way did this go?" — that is
+   what the arrow and delta are for — and the shape appears the moment there
+   is room for it. The shape appears at 768px, where the content column widens.
+
+   Time runs the same way the month pills do: oldest at the START of the
+   strip. In Hebrew that is the right, so the whole SVG is mirrored, which
+   carries the selected-month dot along with it; the LTR locales get it back. */
+.rep-spark {
+  display: none;
+  width: 40px;
+  height: 16px;
+  overflow: visible;
+  transform: scaleX(-1);
+}
+html[dir="ltr"] .rep-spark { transform: none; }
+.rep-spark-line {
+  fill: none;
+  stroke: var(--stone);
+  stroke-width: 1.2;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  opacity: 0.75;
+  /* The stroke must not stretch with preserveAspectRatio="none". */
+  vector-effect: non-scaling-stroke;
+}
+.rep-spark-dot {
+  fill: var(--terracotta);
+  stroke: none;
+}
+/* Fewer than two months with a figure — nothing to draw. The slot still
+   holds its width so the column of numbers stays aligned down the card. */
+.rep-spark-none { display: none; width: 40px; height: 16px; }
+
+/* 768px is where this app widens its content column (the same edge
+   SettingsScreen.css works to), and it is the first width at which the row is
+   wide enough for all five columns. Verified: forcing the shape on at 375px
+   wraps the two longest metric names onto a second line, and at 560px — where
+   the row is still only 370px — it wraps one. */
+@media (min-width: 768px) {
+  .rep-row { grid-template-columns: 18px 1fr auto auto auto; }
+  .rep-spark { display: block; }
+  .rep-spark-none { display: block; }
+}

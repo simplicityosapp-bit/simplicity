@@ -79,6 +79,51 @@ function ExportButton({ onExport }) {
   )
 }
 
+/* Twelve months of one metric, as a 40x16 line.
+
+   aria-hidden on purpose. Every point it draws is already available as a
+   number — this row states the latest one and its change, and the table view
+   lays out all twelve as columns. A screen reader gains nothing from the
+   shape and would have to sit through twelve readings to reconstruct it, so
+   the picture is left to the eyes that can use it.
+
+   Months with no value are skipped rather than plotted as zero, and the line
+   simply spans the gap: a month the practice has no figure for is unknown,
+   not a dip to nothing. Under two real points there is no shape to draw and
+   the slot stays empty rather than showing a misleading flat line.
+
+   Scaled to its own min/max, so this says "the shape of your year", not "how
+   big". The number beside it carries the magnitude. */
+function MetricSpark({ series, selectedIdx }) {
+  const W = 40
+  const H = 16
+  const PAD = 2
+  const pts = series
+    .map((v, i) => ({ i, v }))
+    .filter((p) => typeof p.v === 'number')
+  if (pts.length < 2) return <Txt className="rep-spark rep-spark-none" aria-hidden="true" />
+  const vals = pts.map((p) => p.v)
+  const min = Math.min(...vals)
+  const max = Math.max(...vals)
+  const r1 = (n) => Math.round(n * 10) / 10
+  const x = (i) => r1(PAD + (i / (series.length - 1)) * (W - 2 * PAD))
+  const y = (v) => r1(max === min ? H / 2 : H - PAD - ((v - min) / (max - min)) * (H - 2 * PAD))
+  const line = pts.map((p) => `${x(p.i)},${y(p.v)}`).join(' ')
+  const here = pts.find((p) => p.i === selectedIdx)
+  return (
+    <svg
+      className="rep-spark"
+      viewBox={`0 0 ${W} ${H}`}
+      preserveAspectRatio="none"
+      aria-hidden="true"
+      focusable="false"
+    >
+      <polyline className="rep-spark-line" points={line} />
+      {here && <circle className="rep-spark-dot" cx={x(here.i)} cy={y(here.v)} r="2" />}
+    </svg>
+  )
+}
+
 function MetricIcon({ id, size = 14 }) {
   const Comp = METRIC_ICONS[id] || BarChart3
   return <Comp size={size} strokeWidth={1.6} aria-hidden="true" />
@@ -297,20 +342,37 @@ function ListView({ config, data, onDrill }) {
     centred.current = true
   }, [selected])
 
-  const selectedReport = useMemo(
-    () => computeReportForRange(selected.start, selected.end, data),
-    [selected, data],
+  /* All twelve months, computed once, and everything on this view reads from
+     it: the selected month’s card, the change against the month before, the
+     "go to <month>" suggestion, and the sparkline’s twelve points.
+
+     This replaces two narrower calculations that each did their own pass. The
+     old code deliberately computed ONLY the selected month and scanned the
+     rest lazily, on the grounds that a non-empty month should cost nothing
+     extra — a good trade until the sparkline arrived, which needs all twelve
+     regardless. Memoised on the data bag, so it runs once per load, and the
+     table view has always done exactly this at range 12. */
+  const monthly = useMemo(
+    () => months.map((p) => ({ period: p, report: computeReportForRange(p.start, p.end, data) })),
+    [months, data],
   )
+  const selectedIdx = useMemo(
+    () => months.findIndex((p) => p.year === selected.year && p.month === selected.month),
+    [months, selected],
+  )
+  const selectedReport = monthly[selectedIdx]?.report || monthly[monthly.length - 1].report
 
   /* The month before the selected one, so every figure can say which way it
-     moved. Only the LIST view needs this: the table already puts the months
-     side by side, and a delta column there would repeat what the eye can
-     already do. One extra pass over the bag per month change — the table
-     view does up to twelve. */
+     moved. Eleven of the twelve pills find it already computed in `monthly`;
+     only the oldest pill reaches past the strip and pays for its own pass.
+     The LIST view alone needs this — the table already puts the months side
+     by side, where a delta column would repeat what the eye can do. */
   const prevPeriod = useMemo(() => getPreviousPeriod(selected, lang), [selected, lang])
   const prevReport = useMemo(
-    () => computeReportForRange(prevPeriod.start, prevPeriod.end, data),
-    [prevPeriod, data],
+    () => (selectedIdx > 0
+      ? monthly[selectedIdx - 1].report
+      : computeReportForRange(prevPeriod.start, prevPeriod.end, data)),
+    [selectedIdx, monthly, prevPeriod, data],
   )
 
   const ordered = useMemo(() => getOrderedVisibleMetrics(config), [config])
@@ -322,24 +384,20 @@ function ListView({ config, data, onDrill }) {
     return v === null || v === undefined || v === 0
   })
 
-  /* Lazy: only when the selected month is empty do we scan other months
-     for activity — newest first, stopping at the first hit. This avoids
-     computing all 12 monthly reports on every mount (the common case is
-     a non-empty month, where we compute nothing extra). */
+  /* Newest first, stopping at the first month with anything in it. Reads the
+     reports already computed above rather than recomputing them. */
   const suggested = useMemo(() => {
     if (!isEmpty) return null
-    for (let i = months.length - 1; i >= 0; i -= 1) {
-      const p = months[i]
-      if (p.year === selected.year && p.month === selected.month) continue
-      const report = computeReportForRange(p.start, p.end, data)
+    for (let i = monthly.length - 1; i >= 0; i -= 1) {
+      if (i === selectedIdx) continue
       const hasData = ordered.some((m) => {
-        const v = report.metrics[m.id]
+        const v = monthly[i].report.metrics[m.id]
         return v !== null && v !== undefined && v !== 0
       })
-      if (hasData) return p
+      if (hasData) return monthly[i].period
     }
     return null
-  }, [isEmpty, months, selected, data, ordered])
+  }, [isEmpty, monthly, selectedIdx, ordered])
 
   /* Exports exactly what this view is showing: the visible metrics in the
      user's order, the selected month, and the change against the month
@@ -418,15 +476,19 @@ function ListView({ config, data, onDrill }) {
                   const v = selectedReport.metrics[m.id]
                   const empty = v === null || v === undefined || v === 0
                   return (
-                    <Box key={m.id} className={`rep-row-wrap${empty ? ' empty' : ''}`}>
+                    <Box key={m.id} className={`rep-row-wrap${empty ? ' zero' : ''}`}>
                       <Btn
                         type="button"
-                        className={`rep-row${empty ? ' empty' : ''}`}
+                        className={`rep-row${empty ? ' zero' : ''}`}
                         onClick={() => !empty && onDrill(m.id, selected)}
                         disabled={empty}
                       >
                         <Txt className="rep-row-icon"><MetricIcon id={m.id} /></Txt>
                         <Txt className="rep-row-label">{t(`metrics.${m.id}`)}</Txt>
+                        <MetricSpark
+                          series={monthly.map((x) => x.report.metrics[m.id])}
+                          selectedIdx={selectedIdx}
+                        />
                         <Txt className={`rep-row-value mono${negCls(m, v)}`}>{formatReportValue(m, v)}</Txt>
                         <MetricDelta
                           metric={m}

@@ -773,3 +773,54 @@
      still marked off by its border. */
   background: var(--rep-sticky-bg);
 }
+
+/* ── A money figure that came out negative ──
+   The only number on this screen whose meaning reverses, and until now it
+   wore the same espresso as every other.
+
+   Two declarations, not one, because the two themes need opposite moves.
+   The finance screen paints its net with --clay-on-dark, but it does so at
+   36px, where 3:1 is the bar. Here the value is 13px, so 4.5:1 applies —
+   and --clay-on-dark resolves to plain --clay in daylight, which measures
+   4.03:1 against this card over the app background. Just under.
+
+   So daylight gets clay pulled toward --ink (~4.7:1). --ink, not --espresso,
+   is the mixing partner for the reason the finance screen documents: it is
+   NOT remapped for dark, so the mix stays predictable. Night keeps
+   --clay-on-dark's salmon, which measures 6.3:1 on the dark card — mixing
+   toward ink there would darken the one value that needs to stay light. */
+.rep-row-value.neg,
+.rep-td-btn.neg,
+.rep-td-summary .mono.neg {
+  color: color-mix(in srgb, var(--clay) 90%, var(--ink));
+}
+[data-theme="dark"] .rep-row-value.neg,
+[data-theme="dark"] .rep-td-btn.neg,
+[data-theme="dark"] .rep-td-summary .mono.neg {
+  color: var(--clay-on-dark);
+}
+
+/* ── "Some metrics are hidden" ──
+   A dot on the cog. The count itself lives in the button's tooltip and
+   accessible name, so the dot only has to say "something is set here" —
+   which is exactly what a screen missing ten of its thirteen numbers needs
+   to say before the user concludes it is broken. */
+.rep-cog.has-hidden::before {
+  content: '';
+  position: absolute;
+  top: 4px;
+  inset-inline-end: 4px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--terracotta);
+  /* Ringed in the button's own fill so the dot still reads when the cog is
+     active and its background flips to espresso. */
+  box-shadow: 0 0 0 1.5px var(--mg-card-bg);
+}
+.rep-cog.on.has-hidden::before {
+  box-shadow: 0 0 0 1.5px var(--espresso);
+}
+[data-theme="dark"] .rep-cog.on.has-hidden::before {
+  box-shadow: 0 0 0 1.5px var(--cream);
+}

@@ -21,7 +21,9 @@
     "show": "Afficher {{label}}",
     "hide": "Masquer {{label}}",
     "moveUp": "Monter : {{label}}",
-    "moveDown": "Descendre : {{label}}"
+    "moveDown": "Descendre : {{label}}",
+    "labelHidden": "Personnaliser l'affichage — {{shown}} indicateurs sur {{total}} affichés",
+    "resetConfirm": "Les 13 indicateurs reviennent, dans leur ordre d'origine. L'ordre que vous avez créé est abandonné. Aucune donnée n'est supprimée."
   },
   "list": {
     "selectMonthAria": "Choisir le mois",

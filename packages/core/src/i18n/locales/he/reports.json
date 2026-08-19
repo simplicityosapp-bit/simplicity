@@ -23,7 +23,9 @@
     "show": "הצג {{label}}",
     "hide": "הסתר {{label}}",
     "moveUp": "הזזה למעלה: {{label}}",
-    "moveDown": "הזזה למטה: {{label}}"
+    "moveDown": "הזזה למטה: {{label}}",
+    "labelHidden": "התאמת תצוגה — {{shown}} מתוך {{total}} מדדים מוצגים",
+    "resetConfirm": "כל 13 המדדים יחזרו לתצוגה, בסדר המקורי שלהם. הסדר שבנית יימחק. שום נתון לא נמחק."
   },
   "list": {
     "selectMonthAria": "בחירת חודש",

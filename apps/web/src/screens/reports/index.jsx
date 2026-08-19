@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   BarChart3, Eye, List, Table2, Settings, X, GripVertical, RotateCcw,
@@ -14,6 +14,7 @@ import {
   getAllOrderedMetrics, getDrillRecords,
 } from '@simplicity/core'
 import Modal from '../../modals/Modal'
+import ConfirmModal from '../../modals/ConfirmModal'
 import InfoPopover from '../../components/InfoPopover'
 import { useReportsConfig } from '../../hooks/useReportsConfig'
 import { useReportsData } from '../../hooks/useReportsData'
@@ -38,6 +39,16 @@ const METRIC_ICONS = {
   openTasksAtEnd:     CircleAlert,
 }
 
+/* A negative figure is the one number on this screen whose meaning reverses,
+   and it was painted in the same espresso as every other. Clay marks it, via
+   --clay-on-dark: plain clay in daylight, and a legible salmon at night where
+   deep wine is unreadable as text. Same treatment the finance screen gives
+   its net. Money only — a percentage here cannot go negative and a count
+   never drops below zero. */
+const negCls = (metric, val) => (
+  metric.format === 'money' && typeof val === 'number' && val < 0 ? ' neg' : ''
+)
+
 function MetricIcon({ id, size = 14 }) {
   const Comp = METRIC_ICONS[id] || BarChart3
   return <Comp size={size} strokeWidth={1.6} aria-hidden="true" />
@@ -48,6 +59,15 @@ export default function ReportsScreen() {
   const navigate = useNavigate()
   const { config, setView, setRange, toggleMetric, reorderMetric, resetConfig } = useReportsConfig()
   const [customizeOpen, setCustomizeOpen] = useState(false)
+  /* Hiding metrics is sticky and silent: switch ten of the thirteen off, come
+     back next week, and the screen simply looks broken. The cog wears a dot
+     while anything is hidden, and its tooltip says how many of how many are
+     showing. */
+  const shownCount = config.visibleMetrics.length
+  const someHidden = shownCount < REPORT_METRICS.length
+  const cogLabel = someHidden
+    ? t('customize.labelHidden', { shown: shownCount, total: REPORT_METRICS.length })
+    : t('customize.label')
   const [drill, setDrill] = useState(null)  /* { metricId, period } | null */
   /* One raw read of all seven tables rather than the app's editing hooks:
      those filter deleted_at server-side, which would hide the history this
@@ -104,9 +124,9 @@ export default function ReportsScreen() {
           </Btn>
           <Btn
             type="button"
-            className={`rep-cog${customizeOpen ? ' on' : ''}`}
-            aria-label={t('customize.label')}
-            title={t('customize.label')}
+            className={`rep-cog${customizeOpen ? ' on' : ''}${someHidden ? ' has-hidden' : ''}`}
+            aria-label={cogLabel}
+            title={cogLabel}
             aria-expanded={customizeOpen}
             onClick={() => setCustomizeOpen((v) => !v)}
           >
@@ -178,7 +198,24 @@ export default function ReportsScreen() {
 function ListView({ config, data, onDrill }) {
   const { t, lang } = useT('reports')
   const months = useMemo(() => getLast12Months(undefined, lang), [lang])
-  const [selected, setSelected] = useState(months[months.length - 1])
+  /* The chosen month is held as a plain {year, month} KEY, not as the period
+     object. Those objects carry a localised label and are rebuilt whenever the
+     language changes, so a stored one went stale on a switch: the pills
+     relabelled while the card underneath kept the old language's month name
+     until the user picked again. Resolving through `months` on every render
+     keeps the two in step, and falls back to the newest month if the key ever
+     drops out of the 12-month window — which it does at midnight on the 1st,
+     with the app left open. */
+  const [selectedKey, setSelectedKey] = useState(() => {
+    const newest = months[months.length - 1]
+    return { year: newest.year, month: newest.month }
+  })
+  const selected = useMemo(
+    () => months.find((p) => p.year === selectedKey.year && p.month === selectedKey.month)
+      || months[months.length - 1],
+    [months, selectedKey],
+  )
+  const setSelected = useCallback((p) => setSelectedKey({ year: p.year, month: p.month }), [])
 
   /* The strip is 12 pills wide (~830px) inside a horizontal scroller, ordered
      oldest → newest, and the default selection is the NEWEST — i.e. the far
@@ -297,7 +334,7 @@ function ListView({ config, data, onDrill }) {
                       >
                         <Txt className="rep-row-icon"><MetricIcon id={m.id} /></Txt>
                         <Txt className="rep-row-label">{t(`metrics.${m.id}`)}</Txt>
-                        <Txt className="rep-row-value mono">{formatReportValue(m, v)}</Txt>
+                        <Txt className={`rep-row-value mono${negCls(m, v)}`}>{formatReportValue(m, v)}</Txt>
                       </Btn>
                       {m.info && <Txt className="rep-row-info"><InfoPopover label={t('info', { label: t(`metrics.${m.id}`) })} text={t(`metricsDesc.${m.id}`)} /></Txt>}
                     </Box>
@@ -421,7 +458,7 @@ function TableView({ config, data, onSetRange, onDrill }) {
                         ) : (
                           <Btn
                             type="button"
-                            className="rep-td-btn mono"
+                            className={`rep-td-btn mono${negCls(m, v)}`}
                             aria-label={t('table.drillAria', { metric: t(`metrics.${m.id}`), period: p.label })}
                             onClick={() => onDrill(m.id, p)}
                           >
@@ -432,7 +469,7 @@ function TableView({ config, data, onSetRange, onDrill }) {
                     )
                   })}
                   <td className="rep-td-summary">
-                    <Txt className="mono">{formatReportValue(m, summary)}</Txt>
+                    <Txt className={`mono${negCls(m, summary)}`}>{formatReportValue(m, summary)}</Txt>
                   </td>
                 </tr>
               )
@@ -472,6 +509,11 @@ function CustomizePanel({ config, onToggle, onReorder, onReset, onClose }) {
   const { t } = useT('reports')
   const items = useMemo(() => getAllOrderedMetrics(config), [config])
   const visible = useMemo(() => new Set(config.visibleMetrics), [config.visibleMetrics])
+  /* "Default" silently threw away a hand-built order and a set of choices
+     that persist across devices, on one tap, with no undo anywhere in the
+     screen. It asks first now — the app's shared ConfirmModal, not a bespoke
+     one. Not marked danger: nothing is deleted, the metrics all come back. */
+  const [confirmReset, setConfirmReset] = useState(false)
   const [draggingId, setDraggingId] = useState(null)
   const [overId, setOverId] = useState(null)
 
@@ -513,7 +555,7 @@ function CustomizePanel({ config, onToggle, onReorder, onReset, onClose }) {
     <Box className="rep-cust" role="region" aria-label={t('customize.regionAria')}>
       <Box className="rep-cust-head">
         <Txt className="rep-cust-title">{t('customize.title')}</Txt>
-        <Btn type="button" className="rep-cust-reset" onClick={onReset} title={t('customize.resetTitle')}>
+        <Btn type="button" className="rep-cust-reset" onClick={() => setConfirmReset(true)} title={t('customize.resetTitle')}>
           <RotateCcw size={12} strokeWidth={1.6} aria-hidden="true" /> {t('customize.reset')}
         </Btn>
         <Btn type="button" className="rep-cust-close" aria-label={t('customize.close')} onClick={onClose}>
@@ -571,6 +613,14 @@ function CustomizePanel({ config, onToggle, onReorder, onReset, onClose }) {
           )
         })}
       </Box>
+      <ConfirmModal
+        open={confirmReset}
+        onClose={() => setConfirmReset(false)}
+        title={t('customize.resetTitle')}
+        message={t('customize.resetConfirm')}
+        confirmLabel={t('customize.reset')}
+        onConfirm={onReset}
+      />
     </Box>
   )
 }

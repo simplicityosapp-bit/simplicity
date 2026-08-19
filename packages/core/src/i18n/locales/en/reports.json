@@ -28,7 +28,8 @@
   "list": {
     "selectMonthAria": "Choose month",
     "empty": "No data for this month",
-    "goToMonth": "Go to {{label}}"
+    "goToMonth": "Go to {{label}}",
+    "deltaTitle": "In {{period}}: {{value}}"
   },
   "table": {
     "noMetrics": "No active metrics — tap the gear to show metrics",

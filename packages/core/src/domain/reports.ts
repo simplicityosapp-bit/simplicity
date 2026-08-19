@@ -107,6 +107,11 @@ export interface ReportMetric {
   kind: string
   format: string
   info?: boolean
+  /* Which way is the good way, for the month-on-month arrow. The colour
+     follows MEANING, not direction (owner call 2026-08-17): expenses
+     climbing is not good news just because the line goes up. 'neutral'
+     means the metric has no good direction and its change never colours. */
+  good?: 'up' | 'down' | 'neutral'
 }
 
 export interface DrillRecord {
@@ -428,23 +433,23 @@ export function computeReportForRange(start: Date, end: Date, data: ReportData =
    padded by a tooltip. */
 export const REPORT_METRICS: ReportMetric[] = [
   /* Leads */
-  { id: 'newInquiries',       group: 'leads',    kind: 'flow',      format: 'count' },
-  { id: 'leadsClosed',        group: 'leads',    kind: 'flow',      format: 'count', info: true },
-  { id: 'leadsConverted',     group: 'leads',    kind: 'flow',      format: 'count' },
-  { id: 'conversionRate',     group: 'leads',    kind: 'cohortPct', format: 'pct',   info: true },
+  { id: 'newInquiries',       group: 'leads',    kind: 'flow',      format: 'count', good: 'up' },
+  { id: 'leadsClosed',        group: 'leads',    kind: 'flow',      format: 'count', info: true, good: 'neutral' },
+  { id: 'leadsConverted',     group: 'leads',    kind: 'flow',      format: 'count', good: 'up' },
+  { id: 'conversionRate',     group: 'leads',    kind: 'cohortPct', format: 'pct',   info: true, good: 'up' },
   /* Clients */
-  { id: 'newClients',         group: 'clients',  kind: 'flow',      format: 'count' },
-  { id: 'activeClientsAtEnd', group: 'clients',  kind: 'snapshot',  format: 'count', info: true },
-  { id: 'leftMidProcessPct',  group: 'clients',  kind: 'cohortPct', format: 'pct',   info: true },
+  { id: 'newClients',         group: 'clients',  kind: 'flow',      format: 'count', good: 'up' },
+  { id: 'activeClientsAtEnd', group: 'clients',  kind: 'snapshot',  format: 'count', info: true, good: 'up' },
+  { id: 'leftMidProcessPct',  group: 'clients',  kind: 'cohortPct', format: 'pct',   info: true, good: 'down' },
   /* Sessions */
-  { id: 'sessions',           group: 'sessions', kind: 'flow',      format: 'count' },
+  { id: 'sessions',           group: 'sessions', kind: 'flow',      format: 'count', good: 'up' },
   /* Finance */
-  { id: 'income',             group: 'finance',  kind: 'flow',      format: 'money' },
-  { id: 'expense',            group: 'finance',  kind: 'flow',      format: 'money' },
-  { id: 'net',                group: 'finance',  kind: 'flow',      format: 'money', info: true },
+  { id: 'income',             group: 'finance',  kind: 'flow',      format: 'money', good: 'up' },
+  { id: 'expense',            group: 'finance',  kind: 'flow',      format: 'money', good: 'down' },
+  { id: 'net',                group: 'finance',  kind: 'flow',      format: 'money', info: true, good: 'up' },
   /* Tasks */
-  { id: 'tasksCompleted',     group: 'tasks',    kind: 'flow',      format: 'count' },
-  { id: 'openTasksAtEnd',     group: 'tasks',    kind: 'snapshot',  format: 'count', info: true },
+  { id: 'tasksCompleted',     group: 'tasks',    kind: 'flow',      format: 'count', good: 'up' },
+  { id: 'openTasksAtEnd',     group: 'tasks',    kind: 'snapshot',  format: 'count', info: true, good: 'down' },
 ]
 
 export const REPORT_GROUPS = [
@@ -462,6 +467,61 @@ export function formatReportValue(metric: ReportMetric, val: number | null | und
   if (metric.format === 'money') return isr(val)
   if (metric.format === 'pct') return `${val}%`
   return String(val)
+}
+
+/* ── Month-on-month comparison ──────────────────────────── */
+
+/* The calendar month before `period`. Built from its year/month rather than
+   by stepping back off period.start, so it does not care that the pill strip
+   only spans twelve months: the raw tables hold everything, and the month
+   before the oldest pill is still a real month with real rows. The label
+   follows the active language, like every other period. */
+export function getPreviousPeriod(period: { year: number; month: number }, lng?: string): ReportPeriod {
+  const d = new Date(period.year, period.month - 1, 1)
+  const months = monthNamesShort(lng)
+  return {
+    start: new Date(d.getFullYear(), d.getMonth(), 1, 0, 0, 0, 0),
+    end: new Date(d.getFullYear(), d.getMonth() + 1, 0, 23, 59, 59, 999),
+    label: `${months[d.getMonth()]} ${String(d.getFullYear()).slice(-2)}`,
+    year: d.getFullYear(),
+    month: d.getMonth(),
+    isCurrent: false,
+  }
+}
+
+/* null when there is nothing honest to compare. A month with no value is not
+   a change of zero, it is an unknown — and "no inquiries yet" must not read
+   as "no change since last month". */
+export function computeReportDelta(
+  current: number | null | undefined,
+  previous: number | null | undefined,
+): number | null {
+  if (typeof current !== 'number' || typeof previous !== 'number') return null
+  return current - previous
+}
+
+/* Good news, bad news, or neither — this is what the arrow is coloured by.
+   Direction alone would paint a rising expense green. */
+export function reportDeltaTone(metric: ReportMetric, delta: number | null): 'good' | 'bad' | 'flat' | null {
+  if (delta === null) return null
+  if (delta === 0) return 'flat'
+  const axis = metric.good || 'neutral'
+  if (axis === 'neutral') return 'flat'
+  return ((axis === 'up') === (delta > 0)) ? 'good' : 'bad'
+}
+
+/* The change as text, always signed. Money keeps its symbol. A percentage
+   delta is deliberately rendered BARE: it is a difference in percentage
+   points, and "+5%" printed beside a rate of 30% would claim something else
+   entirely. Uses a real minus sign, not a hyphen, so it lines up under
+   tabular-nums. */
+export function formatReportDelta(metric: ReportMetric, delta: number | null): string {
+  if (delta === null) return ''
+  if (delta === 0) return '='
+  const sign = delta > 0 ? '+' : '\u2212'
+  const size = Math.abs(delta)
+  if (metric.format === 'money') return sign + isr(size)
+  return sign + String(size)
 }
 
 /* ── Summary cell (for the table view) ─────────────────────────── */

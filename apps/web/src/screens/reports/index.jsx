@@ -5,6 +5,7 @@ import {
   Leaf, ArrowRight, TrendingUp, Users, CircleCheck, XCircle,
   Calendar, ArrowDownCircle, ArrowUpCircle, Coins,
   Check, CircleAlert, ChevronLeft, CloudOff, ChevronUp, ChevronDown,
+  ArrowUp, ArrowDown,
 } from 'lucide-react'
 import { ROUTES } from '../../lib/routes'
 import {
@@ -12,6 +13,7 @@ import {
   computeReportForRange, getLast12Months, getPeriodsForMonths,
   formatReportValue, getOrderedVisibleMetrics, computeReportSummary,
   getAllOrderedMetrics, getDrillRecords,
+  getPreviousPeriod, computeReportDelta, reportDeltaTone, formatReportDelta,
 } from '@simplicity/core'
 import Modal from '../../modals/Modal'
 import ConfirmModal from '../../modals/ConfirmModal'
@@ -192,6 +194,34 @@ export default function ReportsScreen() {
   )
 }
 
+/* Month-on-month change, shown beside each figure in the list view.
+
+   The arrow points the way the number MOVED; the colour says whether that
+   was good news (owner call 2026-08-17). Those are not the same axis: more
+   expenses, more open tasks at month end and a higher mid-process drop-out
+   rate all point up and all read red. "Leads closed" has no good direction
+   at all — closing covers both conversions and dead ends — so it moves
+   without colouring.
+
+   Nothing is drawn when either month lacks a value: an absent figure is an
+   unknown, not a change of zero, and "no inquiries yet" must never render
+   as "no change since last month". */
+function MetricDelta({ metric, current, previous, prevLabel }) {
+  const { t } = useT('reports')
+  const delta = computeReportDelta(current, previous)
+  if (delta === null) return null
+  const tone = reportDeltaTone(metric, delta)
+  const Arrow = delta > 0 ? ArrowUp : ArrowDown
+  return (
+    <Txt
+      className={`rep-row-delta ${tone}`}
+      title={t('list.deltaTitle', { period: prevLabel, value: formatReportValue(metric, previous) })}
+    >
+      {delta !== 0 && <Arrow size={11} strokeWidth={2.2} aria-hidden="true" />}
+      {formatReportDelta(metric, delta)}
+    </Txt>
+  )
+}
 /* ── LIST VIEW ───────────────────────────────────────────────────
    12-month pill row + a single-month detail card. Empty months
    suggest navigating to the most recent month with data. */
@@ -238,6 +268,17 @@ function ListView({ config, data, onDrill }) {
   const selectedReport = useMemo(
     () => computeReportForRange(selected.start, selected.end, data),
     [selected, data],
+  )
+
+  /* The month before the selected one, so every figure can say which way it
+     moved. Only the LIST view needs this: the table already puts the months
+     side by side, and a delta column there would repeat what the eye can
+     already do. One extra pass over the bag per month change — the table
+     view does up to twelve. */
+  const prevPeriod = useMemo(() => getPreviousPeriod(selected, lang), [selected, lang])
+  const prevReport = useMemo(
+    () => computeReportForRange(prevPeriod.start, prevPeriod.end, data),
+    [prevPeriod, data],
   )
 
   const ordered = useMemo(() => getOrderedVisibleMetrics(config), [config])
@@ -335,6 +376,12 @@ function ListView({ config, data, onDrill }) {
                         <Txt className="rep-row-icon"><MetricIcon id={m.id} /></Txt>
                         <Txt className="rep-row-label">{t(`metrics.${m.id}`)}</Txt>
                         <Txt className={`rep-row-value mono${negCls(m, v)}`}>{formatReportValue(m, v)}</Txt>
+                        <MetricDelta
+                          metric={m}
+                          current={v}
+                          previous={prevReport.metrics[m.id]}
+                          prevLabel={prevPeriod.label}
+                        />
                       </Btn>
                       {m.info && <Txt className="rep-row-info"><InfoPopover label={t('info', { label: t(`metrics.${m.id}`) })} text={t(`metricsDesc.${m.id}`)} /></Txt>}
                     </Box>

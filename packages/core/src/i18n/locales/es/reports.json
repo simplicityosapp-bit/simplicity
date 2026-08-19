@@ -108,5 +108,7 @@
     "empty": "Aún no hay datos suficientes para un gráfico.",
     "aria": "Tendencias de varias métricas"
   },
-  "tagline": "Los números cuentan la historia."
+  "tagline": "Los números cuentan la historia.",
+  "exportLabel": "Exportar",
+  "exportAria": "Exportar el informe a un archivo"
 }

@@ -10,7 +10,8 @@
     "goals": "Objetivos",
     "goalEntries": "Registros de objetivos",
     "dailyAnswers": "Respuestas diarias",
-    "reflections": "Reflexiones"
+    "reflections": "Reflexiones",
+    "report": "Informe"
   },
   "headers": {
     "date": "Fecha",
@@ -48,7 +49,9 @@
     "question": "Pregunta",
     "answer": "Respuesta",
     "reflection": "Reflexión",
-    "score": "Puntuación"
+    "score": "Puntuación",
+    "metric": "Métrica",
+    "change": "Cambio respecto al mes anterior"
   },
   "txType": {
     "income": "Ingreso",

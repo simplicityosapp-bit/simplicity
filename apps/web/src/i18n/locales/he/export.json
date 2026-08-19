@@ -10,7 +10,8 @@
     "goals": "יעדים",
     "goalEntries": "רישומי יעדים",
     "dailyAnswers": "תשובות יומיות",
-    "reflections": "רפלקציות"
+    "reflections": "רפלקציות",
+    "report": "דוח"
   },
   "headers": {
     "date": "תאריך",
@@ -48,7 +49,9 @@
     "question": "שאלה",
     "answer": "תשובה",
     "reflection": "רפלקציה",
-    "score": "ציון"
+    "score": "ציון",
+    "metric": "מדד",
+    "change": "שינוי מהחודש הקודם"
   },
   "txType": {
     "income": "הכנסה",

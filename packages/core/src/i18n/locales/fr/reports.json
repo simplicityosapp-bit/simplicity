@@ -108,5 +108,7 @@
     "empty": "Données encore insuffisantes pour un graphique.",
     "aria": "Tendances multi-indicateurs"
   },
-  "tagline": "Les chiffres racontent l’histoire."
+  "tagline": "Les chiffres racontent l’histoire.",
+  "exportLabel": "Exporter",
+  "exportAria": "Exporter le rapport dans un fichier"
 }

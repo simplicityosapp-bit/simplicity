@@ -5,7 +5,7 @@ import {
   Leaf, ArrowRight, TrendingUp, Users, CircleCheck, XCircle,
   Calendar, ArrowDownCircle, ArrowUpCircle, Coins,
   Check, CircleAlert, ChevronLeft, CloudOff, ChevronUp, ChevronDown,
-  ArrowUp, ArrowDown,
+  ArrowUp, ArrowDown, Download,
 } from 'lucide-react'
 import { ROUTES } from '../../lib/routes'
 import {
@@ -17,6 +17,7 @@ import {
 } from '@simplicity/core'
 import Modal from '../../modals/Modal'
 import ConfirmModal from '../../modals/ConfirmModal'
+import { exportReportCSV } from '../../lib/export'
 import InfoPopover from '../../components/InfoPopover'
 import { useReportsConfig } from '../../hooks/useReportsConfig'
 import { useReportsData } from '../../hooks/useReportsData'
@@ -50,6 +51,33 @@ const METRIC_ICONS = {
 const negCls = (metric, val) => (
   metric.format === 'money' && typeof val === 'number' && val < 0 ? ' neg' : ''
 )
+
+/* What a figure looks like in the exported FILE, as opposed to on screen.
+   Raw and unadorned: the file exists to be opened in a spreadsheet and
+   summed, and "₪1,200" is text to Excel where 1200.00 is money. A metric
+   with no value for a period leaves the cell empty rather than writing 0,
+   which would be a different claim. */
+const exportValue = (metric, val) => {
+  if (typeof val !== 'number') return ''
+  return metric.format === 'money' ? val.toFixed(2) : String(val)
+}
+
+/* YYYY-MM, for the exported filename. */
+const periodSlug = (p) => `${p.year}-${String(p.month + 1).padStart(2, '0')}`
+
+/* A small text button beside the period title. It sits there rather than in
+   the controls row because the row is already 276px of a 327px phone, and
+   because the title is what the export is OF — the button reads as "export
+   this period". */
+function ExportButton({ onExport }) {
+  const { t } = useT('reports')
+  return (
+    <Btn type="button" className="rep-export" aria-label={t('exportAria')} onClick={onExport}>
+      <Download size={14} strokeWidth={1.7} aria-hidden="true" />
+      {t('exportLabel')}
+    </Btn>
+  )
+}
 
 function MetricIcon({ id, size = 14 }) {
   const Comp = METRIC_ICONS[id] || BarChart3
@@ -227,6 +255,10 @@ function MetricDelta({ metric, current, previous, prevLabel }) {
    suggest navigating to the most recent month with data. */
 function ListView({ config, data, onDrill }) {
   const { t, lang } = useT('reports')
+  /* The export column headers live in the 'export' namespace with every other
+     spreadsheet header, not in this screen's. lib/export registers that bundle
+     for all four languages when it loads, and this screen imports it. */
+  const { t: tExport } = useT('export')
   const months = useMemo(() => getLast12Months(undefined, lang), [lang])
   /* The chosen month is held as a plain {year, month} KEY, not as the period
      object. Those objects carry a localised label and are rebuilt whenever the
@@ -309,6 +341,23 @@ function ListView({ config, data, onDrill }) {
     return null
   }, [isEmpty, months, selected, data, ordered])
 
+  /* Exports exactly what this view is showing: the visible metrics in the
+     user's order, the selected month, and the change against the month
+     before it — the same three things on screen, so the file and the screen
+     never disagree. */
+  const exportMonth = useCallback(() => {
+    const rows = ordered.map((m) => [
+      t(`metrics.${m.id}`),
+      exportValue(m, selectedReport.metrics[m.id]),
+      exportValue(m, computeReportDelta(selectedReport.metrics[m.id], prevReport.metrics[m.id])),
+    ])
+    exportReportCSV({
+      columnLabels: [selected.label, tExport('headers.change')],
+      rows,
+      slug: periodSlug(selected),
+    })
+  }, [ordered, t, tExport, selectedReport, prevReport, selected])
+
   /* Group metrics by their group, in the user's order. */
   const grouped = useMemo(() => {
     const byId = new Map(REPORT_GROUPS.map((g) => [g.id, { ...g, items: [] }]))
@@ -339,7 +388,10 @@ function ListView({ config, data, onDrill }) {
         })}
       </Box>
 
-      <Txt as="p" className="rep-period-title">{selected.label}</Txt>
+      <Box className="rep-period-row">
+        <Txt as="p" className="rep-period-title">{selected.label}</Txt>
+        <ExportButton onExport={exportMonth} />
+      </Box>
 
       {isEmpty ? (
         <Box className="rep-empty">
@@ -417,6 +469,24 @@ function TableView({ config, data, onSetRange, onDrill }) {
     ? `${periods[0].label} – ${periods[periods.length - 1].label}`
     : periods[0].label
 
+  /* The same grid the table is drawing: a column per period plus the summary,
+     in the order they appear on screen. Group header rows are left out — they
+     are a reading aid, and a spreadsheet has its own. */
+  const exportGrid = useCallback(() => {
+    const rows = ordered.map((m) => [
+      t(`metrics.${m.id}`),
+      ...periodReports.map((p) => exportValue(m, p.data.metrics[m.id])),
+      exportValue(m, computeReportSummary(m, periodReports)),
+    ])
+    const first = periods[0]
+    const last = periods[periods.length - 1]
+    exportReportCSV({
+      columnLabels: [...periods.map((p) => p.label), t('table.summary')],
+      rows,
+      slug: periods.length > 1 ? `${periodSlug(first)}_${periodSlug(last)}` : periodSlug(first),
+    })
+  }, [ordered, t, periodReports, periods])
+
   /* Build rows in the user's order; insert a group-header row whenever
      the group changes (matches the prototype semantics). */
   const rows = []
@@ -444,7 +514,10 @@ function TableView({ config, data, onSetRange, onDrill }) {
   return (
     <>
       <RangePills range={config.range} onSetRange={onSetRange} />
-      <Txt as="p" className="rep-period-title">{periodLabel}</Txt>
+      <Box className="rep-period-row">
+        <Txt as="p" className="rep-period-title">{periodLabel}</Txt>
+        <ExportButton onExport={exportGrid} />
+      </Box>
       <Box className="rep-table-wrap">
         <table className="rep-table">
           <thead>

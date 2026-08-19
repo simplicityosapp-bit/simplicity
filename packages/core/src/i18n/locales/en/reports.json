@@ -21,7 +21,9 @@
     "show": "Show {{label}}",
     "hide": "Hide {{label}}",
     "moveUp": "Move up: {{label}}",
-    "moveDown": "Move down: {{label}}"
+    "moveDown": "Move down: {{label}}",
+    "labelHidden": "Customize view — {{shown}} of {{total}} metrics showing",
+    "resetConfirm": "All 13 metrics come back, in their original order. The order you built is discarded. No data is deleted."
   },
   "list": {
     "selectMonthAria": "Choose month",

@@ -327,12 +327,18 @@ export function computeReportForRange(start: Date, end: Date, data: ReportData =
     totalEnded++
     if (m.left_mid_process) leftCount++
   })
-  /* ⚠ This branch never fires: clients has no last_status_changed_at column
-     (only leads does), so inRangeTs() always sees undefined. That means a
-     PERSONAL client who ended mid-process has never reached this metric —
-     only group members do. Found while building the ledger, which mirrors
-     the behaviour rather than the intent so the two agree; fixing it moves a
-     live business figure and is the owner's call. */
+  /* Personal clients who ended mid-process, counted alongside the group
+     members above. This branch used to be dead: clients had no
+     last_status_changed_at column, so inRangeTs() always saw undefined and
+     only group members ever reached the metric. Migration 0101 added the
+     column, a BEFORE trigger that stamps it on every status change, and the
+     matching ledger contribution — so both halves count now, and the ledger
+     and this fallback still agree.
+
+     The column is deliberately NULL for rows predating 0101: those dates are
+     unknown, and inventing them would have rewritten closed months. Personal-
+     client churn therefore counts from that migration forward, and a month
+     older than it still reflects group members alone. */
   allClients.forEach((c) => {
     if ((c.status_meta || c.status) !== 'past') return
     if (!((c.sessions || 0) > 0)) return
@@ -630,7 +636,10 @@ export function getDrillRecords(metricId: string, start: Date, end: Date, data: 
         out.push({
           ...leadRow(l, converted ? `${i18n.t('reports:drill.converted')} • ${fmtDay(l.converted_at)}` : `${i18n.t('reports:drill.inquiry')} • ${fmtDay(l.inquiry_date || l.created_at)}`),
           icon: converted ? 'arrow' : 'leaf',
-          primary: (converted ? '✓ ' : '') + (l.name || i18n.t('reports:drill.noName')),
+          /* The icon and the secondary line already both say "converted"; a
+             third marker glued to the front of the person's own name only
+             made the name itself wrong. */
+          primary: l.name || i18n.t('reports:drill.noName'),
         })
       })
       break

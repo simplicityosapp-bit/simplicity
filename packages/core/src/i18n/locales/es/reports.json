@@ -21,7 +21,9 @@
     "show": "Mostrar {{label}}",
     "hide": "Ocultar {{label}}",
     "moveUp": "Subir: {{label}}",
-    "moveDown": "Bajar: {{label}}"
+    "moveDown": "Bajar: {{label}}",
+    "labelHidden": "Personalizar vista — {{shown}} de {{total}} métricas visibles",
+    "resetConfirm": "Vuelven las 13 métricas, en su orden original. Se descarta el orden que creaste. No se borra ningún dato."
   },
   "list": {
     "selectMonthAria": "Elegir mes",

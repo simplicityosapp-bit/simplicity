@@ -301,3 +301,24 @@ export async function exportAllXLSX({ transactions, clients, projects, categorie
   document.body.removeChild(a)
   setTimeout(() => URL.revokeObjectURL(url), 1000)
 }
+
+/* Reports — the grid the screen is currently showing.
+
+   The caller passes labels already resolved, because the metric names live in
+   the `reports` i18n namespace rather than this file's `export` one, and the
+   period labels are built by the report period engine. This function owns the
+   file: header row, column order, and the name it lands under.
+
+   Values arrive as RAW numbers, not as the screen's formatted strings. The
+   point of the file is that it opens in a spreadsheet and can be summed, and
+   "₪1,200" is text to Excel while 1200.00 is money. A metric with no value for
+   a period is an empty cell — not a zero, which would be a different claim.
+
+   Filename carries the period so a folder of these stays legible:
+   "mangata-report-2026-06.csv" for one month, "mangata-report-2026-04_2026-06"
+   for a range. */
+export function exportReportCSV({ columnLabels, rows, slug, now }) {
+  const headers = [h('metric'), ...columnLabels]
+  const stamp = slug || ymd(now)
+  downloadCsv(headers, rows, `mangata-report-${stamp}.csv`)
+}

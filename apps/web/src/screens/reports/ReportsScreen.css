@@ -859,3 +859,39 @@
 /* An empty metric dims its whole row; the chip must dim with it rather than
    sitting bright beside a greyed-out zero. */
 .rep-row.empty .rep-row-delta { opacity: 0.7; }
+
+/* ── Period title row ──
+   The title used to be a bare paragraph; it now shares its line with the
+   export button. The button sits HERE rather than in the controls row above
+   because that row already fills 276px of a 327px phone, and because this
+   line names the period the export is of. */
+.rep-period-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+.rep-export {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  padding: 4px 0;
+  cursor: pointer;
+  font-family: var(--mg-font);
+  font-size: calc(12px * var(--text-scale));
+  font-weight: 500;
+  color: var(--moon-deep);
+}
+[data-theme="dark"] .rep-export { color: var(--moon-hi); }
+.rep-export:hover { text-decoration: underline; }
+/* 44px target without disturbing the baseline the title is aligned to. */
+.rep-export::after {
+  content: '';
+  position: absolute;
+  inset-block: -10px;
+  inset-inline: -6px;
+}
+.rep-export { position: relative; }

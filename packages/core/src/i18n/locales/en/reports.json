@@ -108,5 +108,7 @@
     "empty": "Not enough data for a chart yet.",
     "aria": "Multi-metric trends"
   },
-  "tagline": "The numbers tell the story."
+  "tagline": "The numbers tell the story.",
+  "exportLabel": "Export",
+  "exportAria": "Export the report to a file"
 }

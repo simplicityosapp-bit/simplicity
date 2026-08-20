@@ -806,7 +806,7 @@
         "Les deux barres signifient des choses différentes : « de l'objectif » montre la part totale atteinte, et « du rythme » montre si vous êtes dans les temps par rapport à la part de temps déjà écoulée dans la période. Si « du rythme » est inférieur à 100 %, vous êtes en retard — même si « de l'objectif » progresse.",
         "Pour un objectif de question oui/non, vous pouvez viser moins de jours que ceux où la question est posée (par exemple, viser 3 par semaine même si la question apparaît 5 fois), mais pas plus.",
         "Même pour un objectif lié à une question quotidienne, le bouton « Saisir » reste présent — une saisie manuelle compte en plus des réponses aux questions, pas à leur place.",
-        "L'importance (1–5) détermine le poids de l'objectif dans le score global de la Vue Lune — un objectif plus important tire le score plus fortement.",
+        "L'importance (1–5) détermine le poids de l'objectif dans le score global de la Vue d'ensemble — un objectif plus important tire le score plus fortement.",
         "Si vous avez supprimé un objectif ou une entrée par erreur, la Corbeille offre une fenêtre de 30 jours pour la récupération, et supprimer une entrée affiche aussi une option d'annulation immédiate."
       ],
       "faq": [
@@ -911,7 +911,7 @@
         },
         {
           "q": "Y a-t-il des corrélations entre les mesures ici ?",
-          "a": "Non. Les relations entre mesures et les graphiques combinés se trouvent dans l'écran Vue Lune. Ici, chaque question se tient seule, avec sa propre moyenne, sa tendance et sa carte de chaleur."
+          "a": "Non. Les relations entre mesures et les graphiques combinés se trouvent dans l'écran Vue d'ensemble. Ici, chaque question se tient seule, avec sa propre moyenne, sa tendance et sa carte de chaleur."
         },
         {
           "q": "Que signifient les couleurs dans la carte de chaleur ?",
@@ -920,7 +920,7 @@
       ]
     },
     "moon": {
-      "title": "Vue Lune",
+      "title": "Vue d'ensemble",
       "intro": "Une vue unique et globale de toute votre activité : un score pondéré, une répartition par catégorie d'objectif, une tendance dans le temps et des liens entre différents domaines. Tout repose sur les objectifs que vous avez définis.",
       "features": [
         {
@@ -937,7 +937,7 @@
         },
         {
           "title": "Tendance dans le temps",
-          "body": "Un graphique en ligne de votre score sur les 30 derniers jours, avec trois mesures à côté : « Moyenne », « Pic » et « Aujourd'hui ». Le graphique s'appuie sur un instantané quotidien enregistré chaque jour. Si vous êtes nouveau et qu'il n'y a pas encore assez d'historique (moins de deux jours enregistrés), il est recalculé à partir des données actuelles."
+          "body": "Un graphique en ligne de votre score sur les 30 derniers jours, avec trois mesures à côté : « Moyenne », « Pic » et « Aujourd'hui ». La ligne est recalculée jour par jour à partir de vos données actuelles, et chaque jour disposant d'un instantané réellement enregistré remplace le calcul de ce jour-là — un historique réel là où il a été enregistré, une estimation ailleurs. La journée en cours reste toujours en direct, si bien que la fin de la ligne, le chiffre « Aujourd'hui » et l'anneau au-dessus affichent le même nombre."
         },
         {
           "title": "Tendances inter-domaines",
@@ -978,7 +978,7 @@
         },
         {
           "q": "Pourquoi est-il indiqué « Aucun lien significatif dans les données pour le moment » dans Liens à explorer ?",
-          "a": "C'est le résultat normal et attendu. Le système n'affiche un lien que s'il est suffisamment stable et statistiquement fiable (y compris en vérifiant si le lien est réel, en comparant les deux moitiés de la période, et en corrigeant pour les comparaisons multiples). Dans une fenêtre de 30 jours, ce qui franchit généralement la barre, c'est un lien entre deux questions numériques du point quotidien, et il faut habituellement quelques semaines de réponses avant que quoi que ce soit n'apparaisse."
+          "a": "C'est le résultat normal et attendu. Le système n'affiche un lien que s'il est suffisamment stable et statistiquement fiable (y compris en vérifiant si le lien est réel, en comparant les deux moitiés de la période, et en corrigeant pour les comparaisons multiples). Dans une fenêtre de 120 jours, ce qui franchit généralement la barre, c'est un lien entre deux questions numériques du point quotidien, et il faut habituellement quelques semaines de réponses avant que quoi que ce soit n'apparaisse."
         },
         {
           "q": "Pourquoi le bouton « Point quotidien » du graphique est-il désactivé ?",
@@ -1043,8 +1043,8 @@
           "body": "Si le mois que vous avez sélectionné n'a pas de données, vous verrez « Aucune donnée pour ce mois ». Si un autre mois a de l'activité, un bouton vous sera proposé pour y sauter (« Aller à… ») — le mois le plus récent qui contient quelque chose."
         },
         {
-          "title": "Lien vers la Vue Lune",
-          "body": "En haut, un lien « Vue Lune » vous mène à l'écran Lune pour une image plus large de votre activité."
+          "title": "Lien vers la Vue d'ensemble",
+          "body": "En haut, un lien « Vue d'ensemble » vous mène à l'écran Vue d'ensemble pour une image plus large de votre activité."
         }
       ],
       "tips": [

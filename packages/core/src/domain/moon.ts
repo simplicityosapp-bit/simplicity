@@ -263,11 +263,18 @@ export function moonGetCategories(now: Date = new Date(), data?: MoonData): { ca
 }
 
 /* Daily confidence for the last `days` days — computed by scoring "as of" each
-   day, so it reflects how income + entries accumulate through the period. */
+   day, so it reflects how income + entries accumulate through the period.
+   TODAY is scored at `now`, not at 23:59:59 like the days behind it. Pace
+   divides by the fraction of the period already elapsed, so asking "what is
+   the score at the end of today" late-dates that fraction and returns a
+   LOWER number than the live ring above the chart — the line ended below the
+   figure printed beneath it as "היום", every day, worst on a weekly goal
+   where an extra half-day is a seventh of the window. Past days keep
+   end-of-day: they really are over. */
 export function moonTrend(days = 30, now: Date = new Date(), data?: MoonData): { date: Date; score: number }[] {
   const out: { date: Date; score: number }[] = []
   for (let i = days - 1; i >= 0; i--) {
-    const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i, 23, 59, 59)
+    const d = i === 0 ? now : new Date(now.getFullYear(), now.getMonth(), now.getDate() - i, 23, 59, 59)
     const res = moonGetData(d, data)
     out.push({ date: d, score: res.overall ? res.overall.confidence : 0 })
   }

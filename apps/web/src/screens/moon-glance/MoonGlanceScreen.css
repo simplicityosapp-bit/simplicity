@@ -358,7 +358,8 @@
 }
 
 /* ── Correlations "patterns to explore" (§8.2) ─────────────────── */
-.mg-corr-empty {
+.mg-corr-empty,
+.mg-ov-empty {
   margin: 2px 0;
   font-family: var(--mg-font);
   font-size: calc(12px * var(--text-scale));

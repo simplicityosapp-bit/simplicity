@@ -70,7 +70,7 @@ function CorrCard({ driverText, outcomeText, c }) {
         <Txt as="p" className="mg-corr-line">
           <Trans t={t} i18nKey={lineKey} values={{ driver: driverText, outcome: outcomeText }} components={[<b key="d" />, <b key="o" />]} />
         </Txt>
-        <Txt as="p" className="mg-corr-sub">{t('corr.sub', { strength: c.strength, n: c.n })}</Txt>
+        <Txt as="p" className="mg-corr-sub">{t('corr.sub', { strength: t(`corr.strength.${c.strength}`), n: c.n })}</Txt>
       </Box>
       <Scatter points={c.points} driverText={driverText} outcomeText={outcomeText} />
     </Box>
@@ -168,11 +168,16 @@ export default function MoonGlanceScreen() {
      user opens מבט-על directly (previously those days were holes). Upserts on
      (user_id, date); fire-and-forget, never blocks the UI.
      Gated on a fully-settled read: a score computed while some feeds were still
-     empty is not just a wrong pixel, it is written into permanent history. */
+     empty is not just a wrong pixel, it is written into permanent history.
+     Keyed on the three NUMBERS and not on `overall`, which useMemo rebuilds
+     whenever any of nine feeds hands back a new array — a background refetch
+     that changes nothing still minted a fresh object and re-sent an identical
+     row. Same score, no write. */
+  const { pure: sPure, paced: sPaced, confidence: sConf } = overall || {}
   useEffect(() => {
-    if (!overall || loading || unreachable) return
-    upsertMoonSnapshot({ score: overall.pure, paced: overall.paced, confidence: overall.confidence }).catch(() => { /* non-fatal */ })
-  }, [overall, loading, unreachable])
+    if (sConf == null || loading || unreachable) return
+    upsertMoonSnapshot({ score: sPure, paced: sPaced, confidence: sConf }).catch(() => { /* non-fatal */ })
+  }, [sPure, sPaced, sConf, loading, unreachable])
 
   const cats = useMemo(() => moonGetCategories(new Date(), data), [data])
   const liveTrend = useMemo(() => moonTrend(30, new Date(), data), [data])
@@ -182,20 +187,28 @@ export default function MoonGlanceScreen() {
      any real persisted snapshot overrides its own day (true history where we
      recorded it, estimate elsewhere). Previously we switched to snapshots-ONLY
      once two existed — which drew a sparse, hole-y line, evenly spaced as if the
-     gap days didn't exist, on every day the app wasn't opened. */
+     gap days didn't exist, on every day the app wasn't opened.
+     TODAY is exempt from the override: its snapshot was written the last time
+     the app was open, so a morning visit froze the morning's score onto the
+     line while the ring above it moved on. The live point is simply fresher. */
   const trend = useMemo(() => {
     if (!snapshots || snapshots.length === 0) return liveTrend
+    const today = dayKeyOf(new Date())
     const byDay = Object.create(null)
     snapshots.forEach((s) => { byDay[dayKeyOf(new Date(s.date))] = Number(s.confidence ?? s.score ?? 0) })
     return liveTrend.map((tp) => {
       const k = dayKeyOf(tp.date)
-      return k in byDay ? { date: tp.date, score: byDay[k] } : tp
+      return (k !== today && k in byDay) ? { date: tp.date, score: byDay[k] } : tp
     })
   }, [snapshots, liveTrend])
 
   const scores = trend.map((t) => t.score)
   const avg = scores.length ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : 0
   const peak = scores.length ? Math.max(...scores) : 0
+  /* The "היום" stat reads the line's own last point rather than recomputing,
+     so the figure and the place the line ends can no longer disagree. With the
+     two fixes above it now equals the ring as well. */
+  const todayScore = scores.length ? scores[scores.length - 1] : (overall?.confidence ?? 0)
 
   /* ── Cross-module trend overlay (§8.1) ───────────────────────── */
   const activeQuestions = useMemo(() => (questions || []).filter((q) => q.active), [questions])
@@ -322,7 +335,7 @@ export default function MoonGlanceScreen() {
             <Txt as="p" className="mg-trend-stat-l">{t('trend.peak')}</Txt>
           </Box>
           <Box className="mg-trend-stat">
-            <Txt as="p" className="mg-trend-stat-v mono">{conf}%</Txt>
+            <Txt as="p" className="mg-trend-stat-v mono">{todayScore}%</Txt>
             <Txt as="p" className="mg-trend-stat-l">{t('trend.today')}</Txt>
           </Box>
         </Box>
@@ -357,7 +370,15 @@ export default function MoonGlanceScreen() {
             {activeQuestions.map((q) => <option key={q.id} value={q.id}>{questionText(q, gender)}</option>)}
           </select>
         )}
-        <MultiTrendChart days={overview.days} series={overview.series} />
+        {/* "Not enough data for a chart yet" is what MultiTrendChart says when
+            it has no drawable series — true when the rows are thin, a lie when
+            the user simply switched every toggle off. Naming the real reason
+            keeps the fix in the user's hands. */}
+        {overviewKeys.length === 0 ? (
+          <Txt as="p" className="mg-ov-empty">{t('overview.noneSelected')}</Txt>
+        ) : (
+          <MultiTrendChart days={overview.days} series={overview.series} />
+        )}
         <Txt as="p" className="mg-ov-note">{t('overview.note')}</Txt>
       </Box>
 
@@ -372,7 +393,9 @@ export default function MoonGlanceScreen() {
                 key={c.key}
                 c={c}
                 driverText={questionText(c.driverLabel, gender)}
-                outcomeText={c.outcomeLabel || (c.outcomeQ ? questionText(c.outcomeQ, gender) : '')}
+                /* outcomeLabel is a metric key now; pills.* holds the same word
+                   already printed on the toggle above the chart. */
+                outcomeText={c.outcomeLabel ? t(`pills.${c.outcomeLabel}`) : (c.outcomeQ ? questionText(c.outcomeQ, gender) : "")}
               />
             ))}
             <Txt as="p" className="mg-ov-note">{t('corr.note')}</Txt>

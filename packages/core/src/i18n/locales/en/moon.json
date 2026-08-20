@@ -29,12 +29,18 @@
     "question": "Daily question"
   },
   "overview": {
-    "note": "Relative trends · last 30 days — each line on its own scale (0–100). A visual link is not causation."
+    "note": "Relative trends · last 30 days — each line on its own scale (0–100). A visual link is not causation.",
+    "noneSelected": "Pick at least one metric above to see a chart."
   },
   "corr": {
     "moveTogether": "<0>{{driver}}</0> and <1>{{outcome}}</1> tend to move together (when one is high, so is the other).",
     "moveOpposite": "<0>{{driver}}</0> and <1>{{outcome}}</1> tend to move inversely (when one is high, the other is low).",
     "sub": "{{strength}} link · {{n}} points · observation, not causation",
+    "strength": {
+      "strong": "strong",
+      "medium": "medium",
+      "subtle": "subtle"
+    },
     "empty": "There's no significant link in the data right now — and usually there simply isn't, which is fine. If a stable, significant-enough pattern appears, we'll surface it here to explore.",
     "note": "Early observations only — correlation is not causation. The data is aggregated and statistically filtered for reliability."
   },

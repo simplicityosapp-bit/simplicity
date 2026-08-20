@@ -19,7 +19,8 @@
     "aria": "Tendencia de la puntuación en los últimos 30 días",
     "avg": "Media",
     "peak": "Máximo",
-    "today": "Hoy"
+    "today": "Hoy",
+    "tooShort": "Aún no hay suficiente historial para un gráfico: empieza a construirse desde tu primer objetivo."
   },
   "pills": {
     "income": "Ingresos",
@@ -42,6 +43,7 @@
       "subtle": "sutil"
     },
     "empty": "Ahora mismo no hay ningún vínculo significativo en los datos — y normalmente simplemente no lo hay, y eso está bien. Si aparece un patrón estable y suficientemente significativo, lo mostraremos aquí para explorarlo.",
+    "computing": "Buscando un patrón en los datos…",
     "note": "Solo observaciones iniciales — la correlación no es causalidad. Los datos se agregan y se filtran estadísticamente para mayor fiabilidad."
   },
   "scatter": {

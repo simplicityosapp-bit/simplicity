@@ -270,13 +270,22 @@ export function moonGetCategories(now: Date = new Date(), data?: MoonData): { ca
    LOWER number than the live ring above the chart — the line ended below the
    figure printed beneath it as "היום", every day, worst on a weekly goal
    where an extra half-day is a seventh of the window. Past days keep
-   end-of-day: they really are over. */
-export function moonTrend(days = 30, now: Date = new Date(), data?: MoonData): { date: Date; score: number }[] {
-  const out: { date: Date; score: number }[] = []
+   end-of-day: they really are over.
+   Each day is scored with the goals that EXISTED on it. Running today's goals
+   backwards over the whole window drew a coach who set their first goal this
+   morning a full month of history they never lived, and it back-dated every
+   later goal onto weeks it did not exist in. A day before any goal existed has
+   no score — null, a gap, NOT zero: "you were at 0%" is its own false claim
+   about a month in which there was simply nothing to measure. */
+export function moonTrend(days = 30, now: Date = new Date(), data?: MoonData): { date: Date; score: number | null }[] {
+  const out: { date: Date; score: number | null }[] = []
+  const allGoals = data?.goals || []
   for (let i = days - 1; i >= 0; i--) {
     const d = i === 0 ? now : new Date(now.getFullYear(), now.getMonth(), now.getDate() - i, 23, 59, 59)
-    const res = moonGetData(d, data)
-    out.push({ date: d, score: res.overall ? res.overall.confidence : 0 })
+    /* No created_at → we cannot prove it did not exist, so it counts. */
+    const goals = allGoals.filter((g) => !g.created_at || new Date(g.created_at) <= d)
+    const res = moonGetData(d, { ...data, goals })
+    out.push({ date: d, score: res.overall ? res.overall.confidence : null })
   }
   return out
 }

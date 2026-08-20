@@ -19,7 +19,8 @@
     "aria": "Tendance du score sur les 30 derniers jours",
     "avg": "Moyenne",
     "peak": "Maximum",
-    "today": "Aujourd'hui"
+    "today": "Aujourd'hui",
+    "tooShort": "Pas encore assez d'historique pour un graphique — il commence à se construire à partir de votre premier objectif."
   },
   "pills": {
     "income": "Revenus",
@@ -42,6 +43,7 @@
       "subtle": "subtil"
     },
     "empty": "Il n'y a aucun lien significatif dans les données pour le moment — et le plus souvent il n'y en a tout simplement pas, ce qui est normal. Si un schéma stable et suffisamment significatif apparaît, nous le ferons remonter ici pour l'explorer.",
+    "computing": "Recherche d'un motif dans les données…",
     "note": "Premières observations uniquement — corrélation n'est pas causalité. Les données sont agrégées et filtrées statistiquement pour plus de fiabilité."
   },
   "scatter": {

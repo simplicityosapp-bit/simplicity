@@ -19,7 +19,8 @@
     "aria": "Score trend over the last 30 days",
     "avg": "Average",
     "peak": "Peak",
-    "today": "Today"
+    "today": "Today",
+    "tooShort": "Not enough history for a chart yet — it starts building from your first goal."
   },
   "pills": {
     "income": "Income",
@@ -42,6 +43,7 @@
       "subtle": "subtle"
     },
     "empty": "There's no significant link in the data right now — and usually there simply isn't, which is fine. If a stable, significant-enough pattern appears, we'll surface it here to explore.",
+    "computing": "Checking the data for a pattern…",
     "note": "Early observations only — correlation is not causation. The data is aggregated and statistically filtered for reliability."
   },
   "scatter": {

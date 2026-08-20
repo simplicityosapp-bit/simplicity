@@ -57,6 +57,8 @@
     "action": "Set",
     "setGoal": "Set a goal"
   },
+  "logEntry": "Log progress",
+  "logEntryAria": "Log progress for {{name}}",
   "footerLink": "Edit your goals ←",
   "dualBars": {
     "pace": "Of pace",

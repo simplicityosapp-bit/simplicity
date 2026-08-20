@@ -63,6 +63,8 @@
     "setGoal_male": "הגדר יעד",
     "setGoal_female": "הגדירי יעד"
   },
+  "logEntry": "עדכון היעד",
+  "logEntryAria": "עדכון היעד {{name}}",
   "footerLink": "ערכ/י את היעדים שלך ←",
   "footerLink_male": "ערוך את היעדים שלך ←",
   "footerLink_female": "ערכי את היעדים שלך ←",

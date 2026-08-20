@@ -5,11 +5,12 @@ import { Trans } from 'react-i18next'
    drawer swapped the crescent for an eye on 2026-07-27 (it competed with the
    theme toggle's own moon). The lunar palette below stays — the name and the
    look are still מבט על's; only the glyph follows the menu. */
-import { Eye, BarChart3, CloudOff, RotateCcw, Target, ArrowLeft } from 'lucide-react'
+import { Eye, BarChart3, CloudOff, RotateCcw, Target, ArrowLeft, Plus } from 'lucide-react'
 import { ROUTES } from '../../lib/routes'
 import { moonGetData, moonGetCategories, moonTrend, moonReflection, questionText, buildOverviewTrend, buildOverviewCorrelations, OVERVIEW_METRICS } from '@simplicity/core'
 import { upsertMoonSnapshot } from '../../lib/api/moonSnapshots'
 import MoonDualBars from '../../components/MoonDualBars'
+import AddGoalEntryModal from '../../modals/AddGoalEntryModal'
 import { useGoals } from '../../hooks/useGoals'
 import { useGoalCategories } from '../../hooks/useGoalCategories'
 import { useGoalEntries } from '../../hooks/useGoalEntries'
@@ -150,12 +151,16 @@ export default function MoonGlanceScreen() {
     setRefetching(true)
     try { await Promise.allSettled(scoreFeeds.map((q) => q.refetch())) } finally { setRefetching(false) }
   }
+  /* Logging progress from here rather than only from the home widget: the
+     category rows are the place a coach sees a goal falling behind, and the
+     screen had no way to act on that. Same modal the widget opens. */
+  const [entryCategory, setEntryCategory] = useState(null)
   /* Destructured separately: these are the React-Query cache arrays, stable
      across renders, so the memo below keys off them and not the fresh hook
      objects above. */
   const { goals } = goalsQ
   const { categories } = catsQ
-  const { entries } = entriesQ
+  const { entries, addEntry } = entriesQ
   const { transactions } = txQ
   const { clients } = clientsQ
   const { leads } = leadsQ
@@ -347,9 +352,39 @@ export default function MoonGlanceScreen() {
                 <Txt className="mg-cat-dot" style={{ background: c.category.color || 'var(--moon-deep)' }} />
                 {c.category.name}
               </Txt>
+              {/* The entry modal is scoped to a CATEGORY, so one button here
+                  rather than the identical one repeated on every goal beneath
+                  it. Manual categories only — an 'auto' category is computed
+                  from transactions or sessions and has nothing to type in. */}
+              {c.category.measurement_type === 'manual' && (
+                <Btn
+                  className="mg-add-icon mg-cat-add"
+                  aria-label={t('logEntryAria', { name: c.category.name })}
+                  title={t('logEntry')}
+                  onClick={() => setEntryCategory(c.category)}
+                >
+                  <Plus size={14} strokeWidth={2} aria-hidden="true" />
+                </Btn>
+              )}
             </Box>
-            {/* Per-category: pace + goal-% side by side (was a lone pace bar). */}
-            <MoonDualBars pace={c.confidence} goal={c.pure} />
+            {/* The aggregate earns its row only when it is aggregating more
+                than one thing; with a single goal it would just be that goal's
+                own numbers printed twice. */}
+            {c.goals.length > 1 && <MoonDualBars pace={c.confidence} goal={c.pure} />}
+            {/* The goals themselves. "פירוט מלא" used to land here on LESS
+                detail than the home widget it came from — that widget moved to
+                per-goal bars on 04/06/2026 and this screen was left on
+                per-category, so the link promised a closer look and delivered a
+                coarser one. Named the way the user named them (goal.label,
+                falling back to the category like GoalCard). */}
+            <Box className="mg-cat-goals">
+              {c.goals.map((s) => (
+                <Box key={s.goal.id} className="mg-goal">
+                  <Txt as="p" className="mg-goal-name">{s.goal.label || c.category.name}</Txt>
+                  <MoonDualBars pace={Math.min(100, s.paced)} goal={s.pure} />
+                </Box>
+              ))}
+            </Box>
           </Box>
         ))}
       </Box>
@@ -442,6 +477,13 @@ export default function MoonGlanceScreen() {
       <Btn className="mg-footer-link" onClick={() => navigate(ROUTES.GOALS)}>
         {t('footerLink')}
       </Btn>
+
+      <AddGoalEntryModal
+        open={!!entryCategory}
+        onClose={() => setEntryCategory(null)}
+        category={entryCategory}
+        onSave={addEntry}
+      />
     </Box>
   )
 }

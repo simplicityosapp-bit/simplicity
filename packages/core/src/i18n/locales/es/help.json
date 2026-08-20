@@ -806,7 +806,7 @@
         "Las dos barras significan cosas distintas: «del objetivo» muestra cuánto se ha logrado en total, y «del ritmo» muestra si vas al ritmo previsto en relación con cuánto tiempo ya ha transcurrido en el periodo. Si «del ritmo» está por debajo del 100 %, vas con retraso, aunque «del objetivo» siga avanzando.",
         "Para un objetivo con pregunta de sí/no puedes aspirar a menos días de los que se hace la pregunta (por ejemplo, una meta de 3 por semana aunque la pregunta aparezca 5 veces), pero no a más.",
         "Incluso para un objetivo vinculado a una pregunta diaria, el botón «Introducir» sigue ahí: una entrada manual cuenta además de las respuestas a la pregunta, no en lugar de ellas.",
-        "La importancia (1–5) determina cuánto peso tiene el objetivo en la puntuación global de la Vista lunar: un objetivo más importante tira de la puntuación con más fuerza.",
+        "La importancia (1–5) determina cuánto peso tiene el objetivo en la puntuación global de la Resumen: un objetivo más importante tira de la puntuación con más fuerza.",
         "Si eliminaste un objetivo o una entrada sin querer, la Papelera tiene una ventana de 30 días para recuperarlo, y eliminar una entrada también muestra una opción de Deshacer inmediata."
       ],
       "faq": [
@@ -911,7 +911,7 @@
         },
         {
           "q": "¿Hay correlaciones entre métricas aquí?",
-          "a": "No. Las relaciones entre métricas y los gráficos combinados están en la pantalla de Vista lunar. Aquí cada pregunta va por su cuenta, con su propio promedio, tendencia y mapa de calor."
+          "a": "No. Las relaciones entre métricas y los gráficos combinados están en la pantalla de Resumen. Aquí cada pregunta va por su cuenta, con su propio promedio, tendencia y mapa de calor."
         },
         {
           "q": "¿Qué significan los colores del mapa de calor?",
@@ -920,7 +920,7 @@
       ]
     },
     "moon": {
-      "title": "Vista lunar",
+      "title": "Resumen",
       "intro": "Una única vista de alto nivel de toda tu actividad: una puntuación ponderada, un desglose por categoría de objetivo, una tendencia a lo largo del tiempo y conexiones entre distintas áreas. Todo se basa en los objetivos que has fijado.",
       "features": [
         {
@@ -937,7 +937,7 @@
         },
         {
           "title": "Tendencia a lo largo del tiempo",
-          "body": "Un gráfico de líneas de tu puntuación en los últimos 30 días, con tres métricas a su lado: «Promedio», «Máximo» y «Hoy». El gráfico se basa en una instantánea diaria guardada cada día. Si eres nuevo y aún no hay suficiente historial (menos de dos días guardados), se recalcula a partir de los datos actuales."
+          "body": "Un gráfico de líneas de tu puntuación en los últimos 30 días, con tres métricas a su lado: «Promedio», «Máximo» y «Hoy». La línea se recalcula día a día a partir de tus datos actuales, y cada día con una instantánea real guardada sustituye el cálculo de ese día: historial real donde se registró, una estimación en el resto. El día de hoy siempre está en vivo, de modo que el final de la línea, la cifra «Hoy» y el anillo de arriba muestran el mismo número."
         },
         {
           "title": "Tendencias entre módulos",
@@ -978,7 +978,7 @@
         },
         {
           "q": "¿Por qué dice «No hay una conexión significativa en los datos ahora mismo» en Conexiones por explorar?",
-          "a": "Es el resultado normal y esperado. El sistema solo muestra una conexión si es lo bastante estable y estadísticamente fiable (incluyendo comprobar si la conexión es real, comparar las dos mitades del periodo y corregir por comparaciones múltiples). En una ventana de 30 días, lo que normalmente supera el listón es una conexión entre dos preguntas numéricas del registro diario, y suele hacer falta unas semanas de respuestas antes de que aparezca algo."
+          "a": "Es el resultado normal y esperado. El sistema solo muestra una conexión si es lo bastante estable y estadísticamente fiable (incluyendo comprobar si la conexión es real, comparar las dos mitades del periodo y corregir por comparaciones múltiples). En una ventana de 120 días, lo que normalmente supera el listón es una conexión entre dos preguntas numéricas del registro diario, y suele hacer falta unas semanas de respuestas antes de que aparezca algo."
         },
         {
           "q": "¿Por qué está desactivado el botón «Registro diario» en el gráfico?",
@@ -1043,8 +1043,8 @@
           "body": "Si el mes que seleccionaste no tiene datos, verás «No hay datos para este mes». Si otro mes tiene actividad, se te ofrecerá un botón para saltar a él («Ir a...»): el mes más reciente que tenga algo."
         },
         {
-          "title": "Enlace a la Vista lunar",
-          "body": "Arriba hay un enlace «Vista lunar» que te lleva a la pantalla Lunar para una imagen más amplia de tu actividad."
+          "title": "Enlace a la Resumen",
+          "body": "Arriba hay un enlace «Resumen» que te lleva a la pantalla Resumen para una imagen más amplia de tu actividad."
         }
       ],
       "tips": [

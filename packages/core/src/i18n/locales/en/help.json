@@ -806,7 +806,7 @@
         "The two bars mean different things: \"of Goal\" shows how much has been achieved in total, and \"of Pace\" shows whether you are on track relative to how much time has already passed in the period. If \"of Pace\" is below 100%, you are behind — even if \"of Goal\" is moving forward.",
         "For a yes/no question goal you can aim for fewer days than the question is asked (for example, target 3 per week even if the question appears 5 times), but not for more.",
         "Even for a goal linked to a daily question, the \"Enter\" button is still there — a manual entry counts on top of question answers, not instead of them.",
-        "Importance (1–5) determines how much weight the goal carries in the overall score in Moon View — a more important goal pulls the score more strongly.",
+        "Importance (1–5) determines how much weight the goal carries in the overall score in Overview — a more important goal pulls the score more strongly.",
         "If you accidentally deleted a goal or an entry, the Trash has a 30-day window for recovery, and deleting an entry also shows an immediate Undo option."
       ],
       "faq": [
@@ -911,7 +911,7 @@
         },
         {
           "q": "Are there correlations between metrics here?",
-          "a": "No. Cross-metric relationships and combined charts are in the Moon View screen. Here each question stands on its own, with its own average, trend, and heat map."
+          "a": "No. Cross-metric relationships and combined charts are in the Overview screen. Here each question stands on its own, with its own average, trend, and heat map."
         },
         {
           "q": "What do the colors in the heat map mean?",
@@ -920,7 +920,7 @@
       ]
     },
     "moon": {
-      "title": "Moon View",
+      "title": "Overview",
       "intro": "A single high-level view of your entire practice: one weighted score, a breakdown by goal category, a trend over time, and connections between different areas. Everything is based on the goals you've set.",
       "features": [
         {
@@ -937,7 +937,7 @@
         },
         {
           "title": "Trend Over Time",
-          "body": "A line graph of your score over the last 30 days, with three metrics alongside it: \"Average\", \"Peak\", and \"Today\". The graph relies on a daily snapshot saved each day. If you're new and there isn't enough history yet (fewer than two saved days), it's recalculated from the current data."
+          "body": "A line graph of your score over the last 30 days, with three metrics alongside it: \"Average\", \"Peak\", and \"Today\". The line is recalculated from your current data day by day, and any day that has a real saved snapshot overrides the calculation for that day — true history where it was recorded, an estimate elsewhere. Today itself is always live, so the end of the line, the \"Today\" figure and the ring above it all show the same number."
         },
         {
           "title": "Cross-Module Trends",
@@ -978,7 +978,7 @@
         },
         {
           "q": "Why does it say \"No significant connection in the data right now\" in Connections to Explore?",
-          "a": "That's the normal, expected result. The system only shows a connection if it's stable and statistically reliable enough (including checking whether the connection is real, comparing the two halves of the period, and correcting for multiple comparisons). In a 30-day window, what typically clears the bar is a connection between two numerical daily check-in questions, and it usually takes a few weeks of answers before anything appears."
+          "a": "That's the normal, expected result. The system only shows a connection if it's stable and statistically reliable enough (including checking whether the connection is real, comparing the two halves of the period, and correcting for multiple comparisons). In a 120-day window, what typically clears the bar is a connection between two numerical daily check-in questions, and it usually takes a few weeks of answers before anything appears."
         },
         {
           "q": "Why is the \"Daily Check-In\" button in the graph disabled?",
@@ -1043,8 +1043,8 @@
           "body": "If the month you selected has no data, you'll see \"No data for this month\". If another month has activity, you'll be offered a button to jump to it (\"Go to...\") — the most recent month that has something."
         },
         {
-          "title": "Link to Moon View",
-          "body": "At the top there's a \"Moon View\" link that takes you to the Moon screen for a broader picture of your activity."
+          "title": "Link to Overview",
+          "body": "At the top there's a \"Overview\" link that takes you to the Overview screen for a broader picture of your activity."
         }
       ],
       "tips": [

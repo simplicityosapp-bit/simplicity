@@ -29,12 +29,18 @@
     "question": "Pregunta diaria"
   },
   "overview": {
-    "note": "Tendencias relativas · últimos 30 días — cada línea en su propia escala (0–100). Un vínculo visual no es causalidad."
+    "note": "Tendencias relativas · últimos 30 días — cada línea en su propia escala (0–100). Un vínculo visual no es causalidad.",
+    "noneSelected": "Elige al menos una métrica arriba para ver un gráfico."
   },
   "corr": {
     "moveTogether": "<0>{{driver}}</0> y <1>{{outcome}}</1> tienden a moverse juntos (cuando uno es alto, el otro también).",
     "moveOpposite": "<0>{{driver}}</0> y <1>{{outcome}}</1> tienden a moverse de forma inversa (cuando uno es alto, el otro es bajo).",
     "sub": "Vínculo {{strength}} · {{n}} puntos · observación, no causalidad",
+    "strength": {
+      "strong": "fuerte",
+      "medium": "moderado",
+      "subtle": "sutil"
+    },
     "empty": "Ahora mismo no hay ningún vínculo significativo en los datos — y normalmente simplemente no lo hay, y eso está bien. Si aparece un patrón estable y suficientemente significativo, lo mostraremos aquí para explorarlo.",
     "note": "Solo observaciones iniciales — la correlación no es causalidad. Los datos se agregan y se filtran estadísticamente para mayor fiabilidad."
   },

@@ -227,10 +227,15 @@ function splitHalfStable(xs: number[], ys: number[]): boolean {
   return Math.sign(r1) === Math.sign(r2) && Math.abs(r1) >= 0.2 && Math.abs(r2) >= 0.2
 }
 
-function strengthLabel(absR: number): string {
-  if (absR >= 0.5) return 'חזק'
-  if (absR >= 0.35) return 'בינוני'
-  return 'עדין'
+/* A KEY, not a word. This returned 'חזק'/'בינוני'/'עדין' and the screen dropped
+   it straight into corr.sub, so an English reader got "חזק link · 12 points".
+   Resolving it at render (rather than here, via i18n.t) also means a language
+   switch relabels an already-computed correlation — the memo that builds these
+   is keyed on the data, not on the language. */
+function strengthLabel(absR: number): 'strong' | 'medium' | 'subtle' {
+  if (absR >= 0.5) return 'strong'
+  if (absR >= 0.35) return 'medium'
+  return 'subtle'
 }
 
 interface CorrCtx { days: string[]; income: (number | null)[]; leads: (number | null)[]; sessions: (number | null)[] }
@@ -293,7 +298,10 @@ function buildPairs(driverMap: Record<string, number>, outcome: Outcome, corr: C
   return { xs, ys }
 }
 
-const OUTCOME_LABELS: Record<string, string> = { income: 'הכנסות', leads: 'פניות', sessions: 'פגישות' }
+/* Metric KEYS, for the same reason — these leaked 'הכנסות'/'פניות'/'פגישות'
+   into every non-Hebrew correlation sentence. The screen already carries the
+   translated words as moon:pills.*, the labels on the toggles right above. */
+const OUTCOME_LABELS: Record<string, string> = { income: 'income', leads: 'leads', sessions: 'sessions' }
 
 interface Candidate {
   driver: TrendQuestion
@@ -308,13 +316,15 @@ interface Candidate {
 export interface CorrelationResult {
   key: string
   driverLabel: TrendQuestion
+  /** Metric key ('income' | 'leads' | 'sessions'), or null when the outcome is
+      another question — resolve to text at render. */
   outcomeLabel: string | null
   outcomeQ: TrendQuestion | null
   rho: number
   p: number
   n: number
   direction: 'pos' | 'neg'
-  strength: string
+  strength: 'strong' | 'medium' | 'subtle'
   points: { x: number; y: number }[]
 }
 

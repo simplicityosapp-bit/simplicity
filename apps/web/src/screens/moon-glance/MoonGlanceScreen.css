@@ -288,17 +288,44 @@
   cursor: pointer;
   transition: background 0.15s, border-color 0.15s, opacity 0.15s;
 }
+/* Selected = the metric's OWN colour, the same one burning in its dot here and
+   on its line in the chart below — so the pill says not just "on" but WHICH
+   line it turns on.
+   The old on-state was invisible in daylight: it painted --mg-card-bg over a
+   card already painted --mg-card-bg (and under [data-card-style="flat"] that
+   token is one opaque fill, so the two matched EXACTLY), leaving a 1px border
+   and a text swap — --stone #2C2621 to --espresso #2A2520 — that no eye can
+   resolve.
+   Three cues now carry it, and the ring is the one that has to MEASURE: a 22%
+   tint reaches only 1.15:1 against the card, and a warm mid-tone like sessions
+   #D4A574 tops out at 2.02:1 against cream even at full strength, so the raw
+   hue can never clear 3:1 there. Deepened the house way (--sage-solid's
+   ratio, mixed toward --ink) the worst metric lands at 3.46:1 light. Weight is
+   the third cue and the only non-colour one, so the state survives a
+   colour-blind reading. */
 .mg-ov-pill.on {
-  background: var(--mg-card-bg);
-  border-color: var(--espresso);
+  background: color-mix(in srgb, var(--pill-color) 22%, transparent);
+  border-color: color-mix(in srgb, var(--pill-color) 70%, var(--ink));
   color: var(--espresso);
+  font-weight: 600;
+}
+/* Night flips which direction "more contrast" lies in: against a night card the
+   same ink-deepened ring sinks into it, so the mix goes toward light instead.
+   --on-accent (a flat white) and not --espresso — espresso IS near-white here,
+   but reading it inside a dark block is the trap tokens.css warns about, and
+   this needs a value that cannot flip under it. Worst metric: score 4.07:1. */
+[data-theme="dark"] .mg-ov-pill.on {
+  border-color: color-mix(in srgb, var(--pill-color) 80%, var(--on-accent));
 }
 .mg-ov-pill:disabled { opacity: 0.4; cursor: default; }
+/* Colour inherited from the pill's own --pill-color (set inline per metric),
+   so the dot and the selected fill can never drift apart. */
 .mg-ov-dot {
   width: 9px;
   height: 9px;
   border-radius: 50%;
   flex-shrink: 0;
+  background: var(--pill-color);
 }
 .mg-ov-select {
   width: 100%;

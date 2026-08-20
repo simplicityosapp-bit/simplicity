@@ -1,6 +1,10 @@
 {
   "title": "Overview",
   "reports": "Reports",
+  "loading": "Loading…",
+  "loadError": "We couldn't load your data right now.",
+  "retry": "Reload",
+  "retrying": "Loading…",
   "ring": {
     "kicker": "Of pace",
     "sub": "{{pct}}% of goal"
@@ -42,7 +46,8 @@
   },
   "empty": {
     "noGoals": "No goals yet. {{action}} a goal to see the score.",
-    "action": "Set"
+    "action": "Set",
+    "setGoal": "Set a goal"
   },
   "footerLink": "Edit your goals ←",
   "dualBars": {

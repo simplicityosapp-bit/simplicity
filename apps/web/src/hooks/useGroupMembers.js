@@ -9,7 +9,7 @@ const KEY = ['groupMembers']
 
 export function useGroupMembers() {
   const qc = useQueryClient()
-  const { data, isLoading, error, refetch } = useQuery({ queryKey: KEY, queryFn: listGroupMembers })
+  const { data, isLoading, error, fetchStatus, refetch } = useQuery({ queryKey: KEY, queryFn: listGroupMembers })
   const members = data ?? []
 
   const addMember = useCallback(async (payload) => {
@@ -29,5 +29,5 @@ export function useGroupMembers() {
     try { await apiUpdate(id, patch) } catch { qc.invalidateQueries({ queryKey: KEY }) }
   }, [qc])
 
-  return { members, loading: isLoading, error: error?.message ?? null, addMember, updateMember, removeMember, refetch }
+  return { members, loading: isLoading, unreachable: !!error || (fetchStatus === 'paused' && data === undefined), error: error?.message ?? null, addMember, updateMember, removeMember, refetch }
 }

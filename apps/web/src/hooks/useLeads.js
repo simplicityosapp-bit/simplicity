@@ -9,7 +9,7 @@ const KEY = ['leads']
 
 export function useLeads() {
   const qc = useQueryClient()
-  const { data, isLoading, error, refetch } = useQuery({ queryKey: KEY, queryFn: listLeads })
+  const { data, isLoading, error, fetchStatus, refetch } = useQuery({ queryKey: KEY, queryFn: listLeads })
   const leads = data ?? []
 
   const addLead = useCallback(async (payload) => {
@@ -33,5 +33,5 @@ export function useLeads() {
     } catch { qc.invalidateQueries({ queryKey: KEY }) }
   }, [qc])
 
-  return { leads, loading: isLoading, error: error?.message ?? null, addLead, updateLead, removeLead, refetch }
+  return { leads, loading: isLoading, unreachable: !!error || (fetchStatus === 'paused' && data === undefined), error: error?.message ?? null, addLead, updateLead, removeLead, refetch }
 }

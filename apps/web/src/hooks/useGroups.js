@@ -9,7 +9,7 @@ const KEY = ['groups']
 
 export function useGroups() {
   const qc = useQueryClient()
-  const { data, isLoading, error, refetch } = useQuery({ queryKey: KEY, queryFn: listGroups })
+  const { data, isLoading, error, fetchStatus, refetch } = useQuery({ queryKey: KEY, queryFn: listGroups })
   const groups = data ?? []
 
   const addGroup = useCallback(async (payload) => {
@@ -33,5 +33,5 @@ export function useGroups() {
     } catch { qc.invalidateQueries({ queryKey: KEY }) }
   }, [qc])
 
-  return { groups, loading: isLoading, error: error?.message ?? null, addGroup, updateGroup, removeGroup, refetch }
+  return { groups, loading: isLoading, unreachable: !!error || (fetchStatus === 'paused' && data === undefined), error: error?.message ?? null, addGroup, updateGroup, removeGroup, refetch }
 }

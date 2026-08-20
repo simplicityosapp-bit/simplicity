@@ -10,7 +10,7 @@ const KEY = ['goals']
 
 export function useGoals() {
   const qc = useQueryClient()
-  const { data, isLoading, error, refetch } = useQuery({ queryKey: KEY, queryFn: listGoals })
+  const { data, isLoading, error, fetchStatus, refetch } = useQuery({ queryKey: KEY, queryFn: listGoals })
   const goals = data ?? []
 
   const addGoal = useCallback(async (payload) => {
@@ -34,5 +34,5 @@ export function useGoals() {
     } catch { qc.invalidateQueries({ queryKey: KEY }) }
   }, [qc])
 
-  return { goals, loading: isLoading, error: error?.message ?? null, addGoal, updateGoal, removeGoal, refetch }
+  return { goals, loading: isLoading, unreachable: !!error || (fetchStatus === 'paused' && data === undefined), error: error?.message ?? null, addGoal, updateGoal, removeGoal, refetch }
 }

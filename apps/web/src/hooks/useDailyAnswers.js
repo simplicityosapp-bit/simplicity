@@ -7,7 +7,7 @@ const KEY = ['dailyAnswers']
 
 export function useDailyAnswers() {
   const qc = useQueryClient()
-  const { data, isLoading, error, refetch } = useQuery({ queryKey: KEY, queryFn: listDailyAnswers })
+  const { data, isLoading, error, fetchStatus, refetch } = useQuery({ queryKey: KEY, queryFn: listDailyAnswers })
   const answers = data ?? []
 
   const addAnswer = useCallback(async (payload) => {
@@ -21,5 +21,5 @@ export function useDailyAnswers() {
     return row
   }, [qc])
 
-  return { answers, loading: isLoading, error: error?.message ?? null, addAnswer, refetch }
+  return { answers, loading: isLoading, unreachable: !!error || (fetchStatus === 'paused' && data === undefined), error: error?.message ?? null, addAnswer, refetch }
 }

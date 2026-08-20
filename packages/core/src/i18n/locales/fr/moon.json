@@ -57,6 +57,8 @@
     "action": "Définir",
     "setGoal": "Définir un objectif"
   },
+  "logEntry": "Enregistrer un progrès",
+  "logEntryAria": "Enregistrer un progrès pour {{name}}",
   "footerLink": "Modifier vos objectifs ←",
   "dualBars": {
     "pace": "Du rythme",

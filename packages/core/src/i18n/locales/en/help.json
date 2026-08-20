@@ -940,7 +940,7 @@
           "body": "A line graph of your score over the last 30 days, with three metrics alongside it: \"Average\", \"Peak\", and \"Today\". The line is recalculated from your current data day by day, and any day that has a real saved snapshot overrides the calculation for that day — true history where it was recorded, an estimate elsewhere. Today itself is always live, so the end of the line, the \"Today\" figure and the ring above it all show the same number."
         },
         {
-          "title": "Cross-Module Trends",
+          "title": "What moves together",
           "body": "A graph that displays several metrics together on the same axis. Use the buttons to choose what to show: revenue, leads, sessions, score, or daily check-in. By default, revenue and score are shown. Each line is scaled to its own range (0–100), so you can compare the shape of the trend even across things measured differently (₪, counts, 1–10). If there isn't enough data, you'll see \"Not enough data for the graph yet\"."
         },
         {
@@ -948,7 +948,7 @@
           "body": "The \"Daily Check-In\" button is only active if you have active daily check-in questions set up. When you select it, a list opens to choose which question to display on the graph. Days you didn't answer appear as a gap in the line (not as zero), so the data isn't misleading."
         },
         {
-          "title": "Connections to Explore",
+          "title": "Links to Explore",
           "body": "The system automatically checks whether there's a connection between numerical daily check-in questions (scale 1–10) — primarily between two daily questions, and in principle also against revenue, leads, and sessions. Most of the time you'll see \"No significant connection in the data right now\", and that's completely fine. When a stable pattern appears, it's shown as a card describing that the metrics \"tend to move together\" or \"move inversely\", with a strength label (strong, moderate, or subtle), a point count, and a small scatter plot."
         },
         {
@@ -960,7 +960,7 @@
         "This entire screen is based on your goals — without at least one goal defined, you'll only see an empty message. Go to the Goals screen, set a goal, and come back.",
         "The difference between \"On Pace\" and \"Of Target\" matters: \"Of Target\" tells you how much of the full goal has been achieved, while \"On Pace\" tells you whether you're moving at the right speed for the time that's passed in the period. You can be 40% of your target but 100% on pace if it's still early in the month.",
         "Watch the line in \"Trend Over Time\" over weeks, not day by day — a single point tells you less than a trend.",
-        "In the \"Cross-Module Trends\" graph, each line is scaled to its own range, so you're comparing the shape of the trend, not the absolute values. The actual values appear in the graph legend (window sum for revenue, leads, and sessions; the last answered value for score and daily check-in).",
+        "In the \"What moves together\" graph, each line is scaled to its own range, so you're comparing the shape of the trend, not the absolute values. The actual values appear in the graph legend (window sum for revenue, leads, and sessions; the last answered value for score and daily check-in).",
         "A connection you see here — visual or statistical — is not cause and effect. The cards are intentionally phrased as \"tend to move together\", not \"X causes Y\"."
       ],
       "faq": [
@@ -977,7 +977,7 @@
           "a": "No. The two bars in each category are \"On Pace\" and \"Of Target\" for that category — there's no week-over-week comparison on this screen. Period comparisons are available in the Reports screen."
         },
         {
-          "q": "Why does it say \"No significant connection in the data right now\" in Connections to Explore?",
+          "q": "Why does it say \"No significant connection in the data right now\" in Links to Explore?",
           "a": "That's the normal, expected result. The system only shows a connection if it's stable and statistically reliable enough (including checking whether the connection is real, comparing the two halves of the period, and correcting for multiple comparisons). In a 120-day window, what typically clears the bar is a connection between two numerical daily check-in questions, and it usually takes a few weeks of answers before anything appears."
         },
         {

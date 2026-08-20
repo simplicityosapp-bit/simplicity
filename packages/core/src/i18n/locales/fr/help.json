@@ -940,7 +940,7 @@
           "body": "Un graphique en ligne de votre score sur les 30 derniers jours, avec trois mesures à côté : « Moyenne », « Pic » et « Aujourd'hui ». La ligne est recalculée jour par jour à partir de vos données actuelles, et chaque jour disposant d'un instantané réellement enregistré remplace le calcul de ce jour-là — un historique réel là où il a été enregistré, une estimation ailleurs. La journée en cours reste toujours en direct, si bien que la fin de la ligne, le chiffre « Aujourd'hui » et l'anneau au-dessus affichent le même nombre."
         },
         {
-          "title": "Tendances inter-domaines",
+          "title": "Ce qui bouge ensemble",
           "body": "Un graphique qui affiche plusieurs mesures ensemble sur le même axe. Utilisez les boutons pour choisir quoi afficher : revenu, prospects, séances, score ou point quotidien. Par défaut, le revenu et le score sont affichés. Chaque ligne est mise à l'échelle de sa propre plage (0–100), de sorte que vous pouvez comparer la forme de la tendance même entre des éléments mesurés différemment (₪, décomptes, 1–10). S'il n'y a pas assez de données, vous verrez « Pas encore assez de données pour le graphique »."
         },
         {
@@ -960,7 +960,7 @@
         "Tout cet écran repose sur vos objectifs — sans au moins un objectif défini, vous ne verrez qu'un message vide. Allez à l'écran Objectifs, définissez un objectif, et revenez.",
         "La différence entre « Dans les temps » et « De la cible » a son importance : « De la cible » vous dit quelle part de l'objectif complet a été atteinte, tandis que « Dans les temps » vous dit si vous avancez au bon rythme pour le temps écoulé dans la période. Vous pouvez être à 40 % de votre cible mais à 100 % dans les temps s'il est encore tôt dans le mois.",
         "Observez la ligne de « Tendance dans le temps » sur des semaines, pas jour après jour — un seul point vous en dit moins qu'une tendance.",
-        "Dans le graphique « Tendances inter-domaines », chaque ligne est mise à l'échelle de sa propre plage, vous comparez donc la forme de la tendance, pas les valeurs absolues. Les valeurs réelles apparaissent dans la légende du graphique (somme de la fenêtre pour le revenu, les prospects et les séances ; la dernière valeur répondue pour le score et le point quotidien).",
+        "Dans le graphique « Ce qui bouge ensemble », chaque ligne est mise à l'échelle de sa propre plage, vous comparez donc la forme de la tendance, pas les valeurs absolues. Les valeurs réelles apparaissent dans la légende du graphique (somme de la fenêtre pour le revenu, les prospects et les séances ; la dernière valeur répondue pour le score et le point quotidien).",
         "Un lien que vous voyez ici — visuel ou statistique — n'est pas une relation de cause à effet. Les cartes sont volontairement formulées « ont tendance à évoluer ensemble », pas « X cause Y »."
       ],
       "faq": [

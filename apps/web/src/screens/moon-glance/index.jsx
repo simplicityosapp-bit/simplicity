@@ -1,4 +1,4 @@
-import { useMemo, useState, useEffect } from 'react'
+import { useMemo, useState, useEffect, useDeferredValue } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Trans } from 'react-i18next'
 /* Eye, not Moon: the screen wears the icon it wears in the menu, and the
@@ -95,14 +95,21 @@ function TrendChart({ data }) {
   const W = 300
   const H = 84
   const pad = 5
-  if (data.length < 2) return null
-  const pts = data.map((d, i) => {
-    const x = pad + (i / (data.length - 1)) * (W - 2 * pad)
-    const y = H - pad - (d.score / 100) * (H - 2 * pad)
-    return [Math.round(x * 10) / 10, Math.round(y * 10) / 10]
-  })
+  /* x stays keyed to the day's position in the whole window, so a line that
+     only starts on day 18 visibly starts on day 18 — the empty stretch before
+     a coach had any goal is part of what the chart is telling them, and
+     re-spacing the real points across the full width would hide it. Days with
+     no score are dropped rather than drawn at zero. */
+  const pts = data
+    .map((d, i) => (d.score == null ? null : [
+      Math.round((pad + (i / (data.length - 1)) * (W - 2 * pad)) * 10) / 10,
+      Math.round((H - pad - (d.score / 100) * (H - 2 * pad)) * 10) / 10,
+    ]))
+    .filter(Boolean)
+  if (data.length < 2 || pts.length < 2) return <Txt as="p" className="mg-ov-empty">{t('trend.tooShort')}</Txt>
   const line = pts.map((p) => p.join(',')).join(' ')
-  const area = `${pad},${H - pad} ${line} ${W - pad},${H - pad}`
+  /* The fill closes down to the baseline under the REAL points only. */
+  const area = `${pts[0][0]},${H - pad} ${line} ${pts[pts.length - 1][0]},${H - pad}`
   return (
     <svg className="mg-trend-svg" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" role="img" aria-label={t('trend.aria')}>
       <polygon className="mg-trend-area" points={area} />
@@ -202,13 +209,17 @@ export default function MoonGlanceScreen() {
     })
   }, [snapshots, liveTrend])
 
-  const scores = trend.map((t) => t.score)
-  const avg = scores.length ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : 0
-  const peak = scores.length ? Math.max(...scores) : 0
+  /* Gap days carry no score and must not be averaged as zeros — an average
+     dragged down by the weeks before a coach had any goal describes nothing
+     that happened. Null when there is nothing yet to average; the row prints
+     an em dash rather than inventing a figure. */
+  const scores = trend.map((tp) => tp.score).filter((s) => s != null)
+  const avg = scores.length ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : null
+  const peak = scores.length ? Math.max(...scores) : null
   /* The "היום" stat reads the line's own last point rather than recomputing,
      so the figure and the place the line ends can no longer disagree. With the
      two fixes above it now equals the ring as well. */
-  const todayScore = scores.length ? scores[scores.length - 1] : (overall?.confidence ?? 0)
+  const todayScore = scores.length ? scores[scores.length - 1] : null
 
   /* ── Cross-module trend overlay (§8.1) ───────────────────────── */
   const activeQuestions = useMemo(() => (questions || []).filter((q) => q.active), [questions])
@@ -233,10 +244,31 @@ export default function MoonGlanceScreen() {
   /* Guarded correlations (§8.2) — Spearman + permutation + split-half; the
      common result is an honest "no significant link". Uses CORR_WINDOW (longer
      than the overlay) so the statistical gates have enough days to ever pass —
-     see the constant above. */
-  const correlations = useMemo(
-    () => buildOverviewCorrelations({ transactions, leads, sessions, answers }, { questions: activeQuestions, window: CORR_WINDOW }),
+     see the constant above.
+     KEPT OFF THE FIRST PAINT. The cost is data-dependent, not fixed: the cheap
+     gates reject nearly everything before the permutation test, so an ordinary
+     coach's answers cost 24–130ms — but a coach whose metrics really do move
+     together pushes many candidates through to 2000 permutations each, and
+     measured on a desktop that reached 1.2s at 5 active questions, 4.3s at 8
+     and 6.8s at 12. Running inside the render meant the whole screen waited on
+     it. Deferring costs nothing and bounds the damage: React paints everything
+     else first, then computes.
+     The iteration count is NOT the lever here, tempting as it looks. The
+     permutation estimator's floor p is 1/(iters+1), and BH admits a lone
+     discovery only at p ≤ q/mTotal — 0.00192 at 8 active questions. Dropping to
+     500 iterations raises the floor to 0.00200, just above it, so a user with
+     enough questions could never be shown a single genuine link again. The
+     screen would get faster by going blind. */
+  const corrInput = useMemo(
+    () => ({ transactions, leads, sessions, answers, questions: activeQuestions }),
     [transactions, leads, sessions, answers, activeQuestions],
+  )
+  const deferredCorrInput = useDeferredValue(corrInput, null)
+  const correlations = useMemo(
+    () => (deferredCorrInput
+      ? buildOverviewCorrelations(deferredCorrInput, { questions: deferredCorrInput.questions, window: CORR_WINDOW })
+      : null),
+    [deferredCorrInput],
   )
 
   /* Three outcomes where there used to be one. Ordered by what is actually
@@ -327,15 +359,15 @@ export default function MoonGlanceScreen() {
         <TrendChart data={trend} />
         <Box className="mg-trend-stats">
           <Box className="mg-trend-stat">
-            <Txt as="p" className="mg-trend-stat-v mono">{avg}%</Txt>
+            <Txt as="p" className="mg-trend-stat-v mono">{avg == null ? "—" : `${avg}%`}</Txt>
             <Txt as="p" className="mg-trend-stat-l">{t('trend.avg')}</Txt>
           </Box>
           <Box className="mg-trend-stat divided">
-            <Txt as="p" className="mg-trend-stat-v mono">{peak}%</Txt>
+            <Txt as="p" className="mg-trend-stat-v mono">{peak == null ? "—" : `${peak}%`}</Txt>
             <Txt as="p" className="mg-trend-stat-l">{t('trend.peak')}</Txt>
           </Box>
           <Box className="mg-trend-stat">
-            <Txt as="p" className="mg-trend-stat-v mono">{todayScore}%</Txt>
+            <Txt as="p" className="mg-trend-stat-v mono">{todayScore == null ? "—" : `${todayScore}%`}</Txt>
             <Txt as="p" className="mg-trend-stat-l">{t('trend.today')}</Txt>
           </Box>
         </Box>
@@ -384,7 +416,11 @@ export default function MoonGlanceScreen() {
 
       <Box className="mg-overview">
         <Txt as="p" className="mg-section-h">{t('section.correlations')}</Txt>
-        {correlations.length === 0 ? (
+        {correlations === null ? (
+          /* The deferred pass has not run yet — say "still looking" rather than
+             "nothing found", which is a verdict we have not reached. */
+          <Txt as="p" className="mg-corr-empty">{t('corr.computing')}</Txt>
+        ) : correlations.length === 0 ? (
           <Txt as="p" className="mg-corr-empty">{t('corr.empty')}</Txt>
         ) : (
           <>

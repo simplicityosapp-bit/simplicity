@@ -940,7 +940,7 @@
           "body": "Un gráfico de líneas de tu puntuación en los últimos 30 días, con tres métricas a su lado: «Promedio», «Máximo» y «Hoy». La línea se recalcula día a día a partir de tus datos actuales, y cada día con una instantánea real guardada sustituye el cálculo de ese día: historial real donde se registró, una estimación en el resto. El día de hoy siempre está en vivo, de modo que el final de la línea, la cifra «Hoy» y el anillo de arriba muestran el mismo número."
         },
         {
-          "title": "Tendencias entre módulos",
+          "title": "Qué se mueve junto",
           "body": "Un gráfico que muestra varias métricas juntas en el mismo eje. Usa los botones para elegir qué mostrar: ingresos, prospectos, sesiones, puntuación o registro diario. Por defecto se muestran los ingresos y la puntuación. Cada línea se escala a su propio rango (0–100), de modo que puedes comparar la forma de la tendencia incluso entre cosas medidas de forma distinta (€, recuentos, 1–10). Si no hay suficientes datos, verás «Aún no hay datos suficientes para el gráfico»."
         },
         {
@@ -948,7 +948,7 @@
           "body": "El botón «Registro diario» solo está activo si tienes preguntas de registro diario activas configuradas. Cuando lo seleccionas, se abre una lista para elegir qué pregunta mostrar en el gráfico. Los días que no respondiste aparecen como un hueco en la línea (no como cero), para que los datos no induzcan a error."
         },
         {
-          "title": "Conexiones por explorar",
+          "title": "Vínculos por explorar",
           "body": "El sistema comprueba automáticamente si hay una conexión entre las preguntas numéricas del registro diario (escala 1–10), principalmente entre dos preguntas diarias, y en principio también frente a ingresos, prospectos y sesiones. La mayoría de las veces verás «No hay una conexión significativa en los datos ahora mismo», y eso está perfectamente bien. Cuando aparece un patrón estable, se muestra como una tarjeta que describe que las métricas «tienden a moverse juntas» o «se mueven a la inversa», con una etiqueta de fuerza (fuerte, moderada o sutil), un recuento de puntos y un pequeño diagrama de dispersión."
         },
         {
@@ -960,7 +960,7 @@
         "Toda esta pantalla se basa en tus objetivos: sin al menos un objetivo definido, solo verás un mensaje vacío. Ve a la pantalla de Objetivos, fija un objetivo y vuelve.",
         "La diferencia entre «En ritmo» y «De la meta» importa: «De la meta» te dice cuánto del objetivo completo se ha logrado, mientras que «En ritmo» te dice si te mueves a la velocidad adecuada para el tiempo transcurrido en el periodo. Puedes estar al 40 % de tu meta pero al 100 % en ritmo si aún es pronto en el mes.",
         "Observa la línea de «Tendencia a lo largo del tiempo» a lo largo de las semanas, no día a día: un solo punto te dice menos que una tendencia.",
-        "En el gráfico de «Tendencias entre módulos», cada línea se escala a su propio rango, así que estás comparando la forma de la tendencia, no los valores absolutos. Los valores reales aparecen en la leyenda del gráfico (suma de la ventana para ingresos, prospectos y sesiones; el último valor respondido para la puntuación y el registro diario).",
+        "En el gráfico de «Qué se mueve junto», cada línea se escala a su propio rango, así que estás comparando la forma de la tendencia, no los valores absolutos. Los valores reales aparecen en la leyenda del gráfico (suma de la ventana para ingresos, prospectos y sesiones; el último valor respondido para la puntuación y el registro diario).",
         "Una conexión que ves aquí —visual o estadística— no es causa y efecto. Las tarjetas están redactadas a propósito como «tienden a moverse juntas», no «X causa Y»."
       ],
       "faq": [
@@ -977,7 +977,7 @@
           "a": "No. Las dos barras de cada categoría son «En ritmo» y «De la meta» para esa categoría: no hay comparación semana a semana en esta pantalla. Las comparaciones entre periodos están disponibles en la pantalla de Informes."
         },
         {
-          "q": "¿Por qué dice «No hay una conexión significativa en los datos ahora mismo» en Conexiones por explorar?",
+          "q": "¿Por qué dice «No hay una conexión significativa en los datos ahora mismo» en Vínculos por explorar?",
           "a": "Es el resultado normal y esperado. El sistema solo muestra una conexión si es lo bastante estable y estadísticamente fiable (incluyendo comprobar si la conexión es real, comparar las dos mitades del periodo y corregir por comparaciones múltiples). En una ventana de 120 días, lo que normalmente supera el listón es una conexión entre dos preguntas numéricas del registro diario, y suele hacer falta unas semanas de respuestas antes de que aparezca algo."
         },
         {

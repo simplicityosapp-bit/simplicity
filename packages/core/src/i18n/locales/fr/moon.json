@@ -12,7 +12,7 @@
   "section": {
     "byCategory": "Répartition par catégorie",
     "trend": "Tendance dans le temps",
-    "crossModule": "Tendances inter-modules",
+    "crossModule": "Ce qui bouge ensemble",
     "correlations": "Liens à explorer"
   },
   "trend": {

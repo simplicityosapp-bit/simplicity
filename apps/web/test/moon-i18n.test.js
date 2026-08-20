@@ -75,3 +75,27 @@ describe('the manual calls the screen what the app calls it', () => {
     expect(raw).toContain(help('he').screens.moon.title)
   })
 })
+
+describe('the manual documents the sections the screen actually shows', () => {
+  /* The rename that prompted this found the manual already adrift on its own:
+     fr said "Tendances inter-domaines" where the screen said "inter-modules",
+     and en/es called the correlations section "Connections"/"Conexiones"
+     against the screen's "Links"/"Vínculos". A reader searching the guide for
+     the heading in front of them came up empty. Case-insensitive on purpose —
+     the English manual title-cases its headings and that is a house style, not
+     a drift. */
+  it.each(LANGS)('%s: every section heading has a section in the manual', (l) => {
+    const titles = help(l).screens.moon.features.map((f) => f.title.toLowerCase())
+    const missing = Object.entries(moon(l).section)
+      .filter(([, v]) => !titles.includes(v.toLowerCase()))
+      .map(([k, v]) => `${k} (${v})`)
+    expect(missing).toEqual([])
+  })
+
+  it.each(LANGS)('%s: no section is named after the software\'s internals', (l) => {
+    /* "מגמות בין מודולים" — a coach does not have modules. Whatever these are
+       called next, they may not be called that. */
+    const words = /module|módulo|מודול/i
+    Object.values(moon(l).section).forEach((v) => expect(v).not.toMatch(words))
+  })
+})

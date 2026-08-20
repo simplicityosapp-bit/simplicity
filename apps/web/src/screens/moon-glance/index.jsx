@@ -5,7 +5,7 @@ import { Trans } from 'react-i18next'
    drawer swapped the crescent for an eye on 2026-07-27 (it competed with the
    theme toggle's own moon). The lunar palette below stays — the name and the
    look are still מבט על's; only the glyph follows the menu. */
-import { Eye, BarChart3 } from 'lucide-react'
+import { Eye, BarChart3, CloudOff, RotateCcw, Target, ArrowLeft } from 'lucide-react'
 import { ROUTES } from '../../lib/routes'
 import { moonGetData, moonGetCategories, moonTrend, moonReflection, questionText, buildOverviewTrend, buildOverviewCorrelations, OVERVIEW_METRICS } from '@simplicity/core'
 import { upsertMoonSnapshot } from '../../lib/api/moonSnapshots'
@@ -114,15 +114,47 @@ function TrendChart({ data }) {
 export default function MoonGlanceScreen() {
   const { t, gender } = useT('moon')
   const navigate = useNavigate()
-  const { goals } = useGoals()
-  const { categories } = useGoalCategories()
-  const { entries } = useGoalEntries()
-  const { transactions } = useTransactions()
-  const { clients } = useClients()
-  const { leads } = useLeads()
-  const { answers } = useDailyAnswers()
-  const { groups } = useGroups()
-  const { members } = useGroupMembers()
+  /* Every read that feeds the score is kept as its whole query object, not
+     just its rows — the screen needs the three states useReportsData
+     documents, not two. A query that never ran sits at fetchStatus 'paused'
+     (React Query parks fetches it believes are offline) with a null error AND
+     isLoading false; combined with each hook's `data ?? []` fallback that made
+     moonGetData return null and the screen state "עדיין אין יעדים" — a claim
+     about the user's practice — while the rows were still in flight. */
+  const goalsQ = useGoals()
+  const catsQ = useGoalCategories()
+  const entriesQ = useGoalEntries()
+  const txQ = useTransactions()
+  const clientsQ = useClients()
+  const leadsQ = useLeads()
+  const answersQ = useDailyAnswers()
+  const groupsQ = useGroups()
+  const membersQ = useGroupMembers()
+  const scoreFeeds = [goalsQ, catsQ, entriesQ, txQ, clientsQ, leadsQ, answersQ, groupsQ, membersQ]
+  const loading = scoreFeeds.some((q) => q.loading)
+  const unreachable = scoreFeeds.some((q) => q.unreachable)
+  const loadError = scoreFeeds.find((q) => q.error)?.error || null
+  /* Retry re-runs every feed, not just the one that reported the failure — an
+     offline spell parks all of them, and a partial retry would leave the score
+     computed from a half-loaded bag. allSettled: one rejecting refetch must not
+     abort the rest. */
+  const [refetching, setRefetching] = useState(false)
+  const retry = async () => {
+    setRefetching(true)
+    try { await Promise.allSettled(scoreFeeds.map((q) => q.refetch())) } finally { setRefetching(false) }
+  }
+  /* Destructured separately: these are the React-Query cache arrays, stable
+     across renders, so the memo below keys off them and not the fresh hook
+     objects above. */
+  const { goals } = goalsQ
+  const { categories } = catsQ
+  const { entries } = entriesQ
+  const { transactions } = txQ
+  const { clients } = clientsQ
+  const { leads } = leadsQ
+  const { answers } = answersQ
+  const { groups } = groupsQ
+  const { members } = membersQ
   const { sessions } = useSessions()
   const { questions } = useUserQuestions()
   const data = useMemo(
@@ -134,11 +166,13 @@ export default function MoonGlanceScreen() {
   /* Persist today's score as a snapshot when THIS screen is open too — not only
      the home MoonWidget — so the 30-day trend accumulates a point on any day the
      user opens מבט-על directly (previously those days were holes). Upserts on
-     (user_id, date); fire-and-forget, never blocks the UI. */
+     (user_id, date); fire-and-forget, never blocks the UI.
+     Gated on a fully-settled read: a score computed while some feeds were still
+     empty is not just a wrong pixel, it is written into permanent history. */
   useEffect(() => {
-    if (!overall) return
+    if (!overall || loading || unreachable) return
     upsertMoonSnapshot({ score: overall.pure, paced: overall.paced, confidence: overall.confidence }).catch(() => { /* non-fatal */ })
-  }, [overall])
+  }, [overall, loading, unreachable])
 
   const cats = useMemo(() => moonGetCategories(new Date(), data), [data])
   const liveTrend = useMemo(() => moonTrend(30, new Date(), data), [data])
@@ -192,15 +226,47 @@ export default function MoonGlanceScreen() {
     [transactions, leads, sessions, answers, activeQuestions],
   )
 
-  if (!overall) {
+  /* Three outcomes where there used to be one. Ordered by what is actually
+     true: still reading → say so; the read failed or never ran → say so and
+     offer the way out; only then, with a settled read behind us, is "you have
+     no goals yet" a statement we are entitled to make. */
+  if (loading || unreachable || !overall) {
     return (
       <Box className="screen moon-screen">
         <Box className="moon-head">
           <Box className="moon-head-title"><Eye size={20} strokeWidth={1.5} aria-hidden="true" /> {t('title')}</Box>
         </Box>
-        <Box className="empty">
-          <Txt as="p" className="empty-text">{t('empty.noGoals', { action: t('empty.action') })}</Txt>
-        </Box>
+        {loading ? (
+          <Box className="empty">
+            <Txt className="empty-icon"><Eye size={28} strokeWidth={1.3} aria-hidden="true" /></Txt>
+            <Txt as="p" className="empty-text">{t('loading')}</Txt>
+          </Box>
+        ) : unreachable ? (
+          /* The raw message rides in `title`, as on the reports and tasks
+             screens: it helps a bug report without putting a stack trace in
+             front of the user, and is simply absent when the read was parked
+             rather than failed. */
+          <Box className="empty">
+            <Txt className="empty-icon"><CloudOff size={28} strokeWidth={1.3} aria-hidden="true" /></Txt>
+            <Txt as="p" className="empty-text" title={loadError || undefined}>{t('loadError')}</Txt>
+            <Btn className="empty-action" onClick={retry} disabled={refetching}>
+              <RotateCcw size={18} strokeWidth={1.6} aria-hidden="true" /> {refetching ? t('retrying') : t('retry')}
+            </Btn>
+          </Box>
+        ) : (
+          <Box className="empty">
+            <Txt className="empty-icon"><Target size={28} strokeWidth={1.3} aria-hidden="true" /></Txt>
+            <Txt as="p" className="empty-text">{t('empty.noGoals', { action: t('empty.action') })}</Txt>
+            {/* The instruction used to be the whole card: "set a goal to see
+                the score" with nothing to press. The screen owns no goal
+                editor — the goals screen does — so the way out is a trip, and
+                the arrow says so, the same way the home MoonWidget's empty
+                chip does. */}
+            <Btn className="empty-action" onClick={() => navigate(ROUTES.GOALS)}>
+              {t('empty.setGoal')} <ArrowLeft size={18} strokeWidth={1.8} aria-hidden="true" />
+            </Btn>
+          </Box>
+        )}
       </Box>
     )
   }
@@ -272,10 +338,15 @@ export default function MoonGlanceScreen() {
               <Btn
                 key={m.key}
                 disabled={disabled}
+                aria-pressed={on}
                 className={`mg-ov-pill${on ? ' on' : ''}`}
+                /* The metric's colour rides on the pill, not just on its dot,
+                   so the on-state fill and the dot both read it from one
+                   place. */
+                style={{ '--pill-color': OVERVIEW_METRICS[m.key].color }}
                 onClick={() => toggleOverviewKey(m.key)}
               >
-                <Txt className="mg-ov-dot" style={{ background: OVERVIEW_METRICS[m.key].color }} />
+                <Txt className="mg-ov-dot" />
                 {t(m.labelKey)}
               </Btn>
             )

@@ -88,3 +88,77 @@ describe('the finance first-run card', () => {
     expect(financeFirstRun({ transactions: [], error: 'boom' })).toBe(false)
   })
 })
+
+/* ── מבט על, copied from hooks/use*.js + screens/moon-glance/index.jsx ── */
+/* The screen reads nine feeds and, until this fix, showed one thing when the
+   score came back null: "עדיין אין יעדים". Two different states landed there
+   wrongly — a read still in flight, and a read that never ran at all (React
+   Query parks a fetch it believes is offline at fetchStatus 'paused', which
+   reports NO error and isLoading false). Both told a coach their practice had
+   no goals. Pinned as conditions, in the order the screen evaluates them. */
+const feedState = ({ data, isLoading = false, error = null, fetchStatus = 'idle' } = {}) => ({
+  loading: isLoading,
+  unreachable: !!error || (fetchStatus === 'paused' && data === undefined),
+  error: error?.message ?? null,
+})
+
+const moonBranch = (feeds, overall) => {
+  const loading = feeds.some((q) => q.loading)
+  const unreachable = feeds.some((q) => q.unreachable)
+  if (loading) return 'loading'
+  if (unreachable) return 'unreachable'
+  if (!overall) return 'no-goals'
+  return 'score'
+}
+
+const settled = feedState({ data: [] })
+const score = { pure: 40, paced: 90, confidence: 90 }
+
+describe('the מבט על hook feeds', () => {
+  it('marks a parked (offline) read unreachable, though it has no error and is not loading', () => {
+    const parked = feedState({ data: undefined, fetchStatus: 'paused' })
+    expect(parked.loading).toBe(false)
+    expect(parked.error).toBe(null)
+    expect(parked.unreachable).toBe(true)
+  })
+
+  it('marks a failed read unreachable', () => {
+    expect(feedState({ data: undefined, error: new Error('boom') }).unreachable).toBe(true)
+  })
+
+  it('does NOT mark a parked read unreachable once cached rows exist', () => {
+    /* Offline with a warm cache is a usable screen, not a broken one. */
+    expect(feedState({ data: [], fetchStatus: 'paused' }).unreachable).toBe(false)
+  })
+
+  it('leaves a settled read alone', () => {
+    expect(feedState({ data: [] })).toEqual({ loading: false, unreachable: false, error: null })
+  })
+})
+
+describe('the מבט על empty state', () => {
+  it('says "no goals" only once every feed has settled', () => {
+    expect(moonBranch([settled, settled], null)).toBe('no-goals')
+  })
+
+  it('does NOT claim "no goals" while a feed is still loading', () => {
+    /* The regression: this was the first paint of every visit. */
+    expect(moonBranch([feedState({ isLoading: true }), settled], null)).toBe('loading')
+  })
+
+  it('does NOT claim "no goals" when a feed never ran', () => {
+    expect(moonBranch([feedState({ data: undefined, fetchStatus: 'paused' }), settled], null)).toBe('unreachable')
+  })
+
+  it('does NOT show a score computed from a half-loaded bag', () => {
+    /* Goals arrived, transactions did not — the ring would render a real
+       number built on missing income, and the effect would write it to
+       moon_snapshots as that day's permanent history. */
+    expect(moonBranch([settled, feedState({ isLoading: true })], score)).toBe('loading')
+    expect(moonBranch([settled, feedState({ data: undefined, fetchStatus: 'paused' })], score)).toBe('unreachable')
+  })
+
+  it('shows the score when everything settled and goals exist', () => {
+    expect(moonBranch([settled, settled], score)).toBe('score')
+  })
+})

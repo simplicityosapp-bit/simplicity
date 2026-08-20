@@ -1,6 +1,10 @@
 {
   "title": "מבט על",
   "reports": "דוחות",
+  "loading": "טוען…",
+  "loadError": "לא הצלחנו לטעון את הנתונים כרגע.",
+  "retry": "טעינה מחדש",
+  "retrying": "טוען…",
   "ring": {
     "kicker": "מהקצב",
     "sub": "{{pct}}% מהיעד"
@@ -44,7 +48,10 @@
     "noGoals": "עדיין אין יעדים. {{action}} יעד כדי לראות את הציון.",
     "action": "הגדר/י",
     "action_male": "הגדר",
-    "action_female": "הגדירי"
+    "action_female": "הגדירי",
+    "setGoal": "הגדר/י יעד",
+    "setGoal_male": "הגדר יעד",
+    "setGoal_female": "הגדירי יעד"
   },
   "footerLink": "ערכ/י את היעדים שלך ←",
   "footerLink_male": "ערוך את היעדים שלך ←",

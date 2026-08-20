@@ -1,6 +1,10 @@
 {
   "title": "Vue d'ensemble",
   "reports": "Rapports",
+  "loading": "Chargement…",
+  "loadError": "Nous n'avons pas pu charger vos données pour le moment.",
+  "retry": "Recharger",
+  "retrying": "Chargement…",
   "ring": {
     "kicker": "Du rythme",
     "sub": "{{pct}} % de l'objectif"
@@ -42,7 +46,8 @@
   },
   "empty": {
     "noGoals": "Aucun objectif pour l'instant. {{action}} un objectif pour voir le score.",
-    "action": "Définir"
+    "action": "Définir",
+    "setGoal": "Définir un objectif"
   },
   "footerLink": "Modifier vos objectifs ←",
   "dualBars": {

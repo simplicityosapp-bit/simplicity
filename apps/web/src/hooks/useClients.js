@@ -11,7 +11,7 @@ const KEY = ['clients']
 
 export function useClients() {
   const qc = useQueryClient()
-  const { data, isLoading, error, refetch } = useQuery({ queryKey: KEY, queryFn: listClients })
+  const { data, isLoading, error, fetchStatus, refetch } = useQuery({ queryKey: KEY, queryFn: listClients })
   const clients = data ?? []
 
   const addClient = useCallback(async (payload) => {
@@ -35,5 +35,5 @@ export function useClients() {
     }
   }, [qc])
 
-  return { clients, loading: isLoading, error: error?.message ?? null, addClient, updateClient, removeClient, refetch }
+  return { clients, loading: isLoading, unreachable: !!error || (fetchStatus === 'paused' && data === undefined), error: error?.message ?? null, addClient, updateClient, removeClient, refetch }
 }

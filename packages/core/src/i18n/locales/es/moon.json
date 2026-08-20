@@ -1,6 +1,10 @@
 {
   "title": "Resumen",
   "reports": "Informes",
+  "loading": "Cargando…",
+  "loadError": "No pudimos cargar tus datos en este momento.",
+  "retry": "Recargar",
+  "retrying": "Cargando…",
   "ring": {
     "kicker": "Del ritmo",
     "sub": "{{pct}}% del objetivo"
@@ -42,7 +46,8 @@
   },
   "empty": {
     "noGoals": "Aún no hay objetivos. {{action}} un objetivo para ver la puntuación.",
-    "action": "Define"
+    "action": "Define",
+    "setGoal": "Define un objetivo"
   },
   "footerLink": "Edita tus objetivos ←",
   "dualBars": {

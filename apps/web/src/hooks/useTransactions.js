@@ -14,7 +14,7 @@ const KEY = ['transactions']
 
 export function useTransactions() {
   const qc = useQueryClient()
-  const { data, isLoading, error, refetch } = useQuery({ queryKey: KEY, queryFn: listTransactions })
+  const { data, isLoading, error, fetchStatus, refetch } = useQuery({ queryKey: KEY, queryFn: listTransactions })
   const transactions = data ?? []
 
   const addTransaction = useCallback(async (payload) => {
@@ -48,5 +48,5 @@ export function useTransactions() {
     } catch { qc.invalidateQueries({ queryKey: KEY }) }
   }, [qc])
 
-  return { transactions, loading: isLoading, error: error?.message ?? null, addTransaction, editTransaction, setStatus, removeTransaction, refetch }
+  return { transactions, loading: isLoading, unreachable: !!error || (fetchStatus === 'paused' && data === undefined), error: error?.message ?? null, addTransaction, editTransaction, setStatus, removeTransaction, refetch }
 }

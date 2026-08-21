@@ -225,6 +225,21 @@ export default function EditClientModal({ open, onClose, onSave, client, project
      subject and is always there; the status follows it, and the project
      joins when the client has one. Same "· "-joined shape every other
      section summary here uses. */
+  /* Which money figure the user has actually moved. The same comparison
+     doSubmit runs to decide what to hand the adjustment sheet (seeded value
+     vs live), so the sentence shown here and the sheet that follows can
+     never disagree about which figure changed. */
+  const paidMoved = (Number(form.paid) || 0) !== (Number(seededForm.paid) || 0)
+  const balanceMoved = (Number(form.adjustment) || 0) !== (Number(seededForm.adjustment) || 0)
+  /* One sentence, only once something has moved. This used to be a standing
+     paragraph carrying FOUR subjects at once — the running total, what a
+     changed «שולם» means, what a changed «יתרה» means, and how new sessions
+     are priced — read in full by everyone who opened the section, including
+     everyone who was only there to look. */
+  const movedHint = paidMoved && balanceMoved
+    ? t('editClient.changedBoth')
+    : paidMoved ? t('editClient.changedPaid')
+      : balanceMoved ? t('editClient.changedBalance') : null
   const detailsSummary = [form.name.trim(), statusLabel, projects.find((p) => p.id === form.project_id)?.name]
     .filter(Boolean)
     .join(' · ')
@@ -549,6 +564,9 @@ export default function EditClientModal({ open, onClose, onSave, client, project
         <Box className="m-field">
           <Box as="label" className="m-label" htmlFor={`${fid}-price`}>{t('editClient.pricePerSession')}</Box>
           <Input id={`${fid}-price`} type="number" min="0" className="m-input" value={form.price_per_session} onChange={(e) => setPrice(e.target.value)} aria-label={t('editClient.pricePerSession')} />
+          {/* Lived at the tail of the «שולם»/«יתרה» paragraph two boxes down,
+              where it described neither of them. */}
+          <Txt as="p" className="m-hint">{t('editClient.pricePerSessionHint')}</Txt>
         </Box>
         <Box className="m-field">
           <Box as="label" className="m-label" htmlFor={`${fid}-totaldue`}>{t('editClient.totalDueOptional')}</Box>
@@ -583,6 +601,7 @@ export default function EditClientModal({ open, onClose, onSave, client, project
             </Box>
           </Box>
           <Txt as="p" className="ec-bill-hint">{t('editClient.billingHint', { total: isr(liveTotal) })}</Txt>
+          {movedHint && <Txt as="p" className="m-hint">{movedHint}</Txt>}
           {(memberTotal > 0 || liveAdj !== 0) && (
             <Box className="ec-formula">
               {memberTotal > 0 && (

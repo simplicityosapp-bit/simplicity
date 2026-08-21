@@ -587,93 +587,117 @@
     },
     "tasks": {
       "title": "Tasks",
-      "intro": "One screen for two types of to-dos. \"Tasks\" are things to do with no specific date. \"Reminders\" are anything tied to a day and time. Switch between them with a single tap on the toggle at the top.",
+      "intro": "One screen for everything still open. \"Tasks\" are things to do — with a due date or without one. \"Reminders\" are tied to a day and time and can repeat. \"All\" shows both in a single list ordered by urgency, and that's what opens when you arrive.",
       "features": [
         {
-          "title": "Switching Between Tasks and Reminders",
-          "body": "Below the title is a toggle with two buttons: Tasks and Reminders. A task is something to do, with no date. A reminder is anything tied to a day and time. Each side has its own summary, filter, and list, and the add button changes accordingly (\"+ New Task\" / \"+ New Reminder\"). Switching sides also resets the filter to \"Open\"."
+          "title": "Three views: All, Tasks, Reminders",
+          "body": "At the top of the summary card is a toggle with three buttons. \"All\" is the default, because it answers \"what's open right now\" without making you pick a half to look at first. \"Tasks\" and \"Reminders\" are where you organise one kind in depth. Switching views resets the filter to \"Open\", and the add button follows the view — in \"All\" it adds a task."
         },
         {
-          "title": "Adding a Task",
-          "body": "On the Tasks side, click \"+ New Task\". Fill in \"What needs to be done?\" (required) and choose a priority (Urgent / Normal / Low). You can link it to a project and client, and if you've defined statuses or categories you can select those too. You can also set a due date and time, or leave it without — both are fine."
+          "title": "How the \"All\" list is ordered",
+          "body": "The list splits into six groups, top to bottom: Overdue, Today, Urgent, This week, Later, No date. A deadline that has passed or lands today beats everything. Right behind it come the tasks you flagged \"Urgent\" — including the ones with no date at all — so they don't sink to the bottom underneath reminders that aren't due for weeks. A group with nothing in it isn't shown."
         },
         {
-          "title": "Priority and Grouping",
-          "body": "There are three priority levels: Urgent, Normal, and Low. Tasks are sorted in that order, and each group gets its own color dot and counter — Urgent in red, Normal in amber, Low in green."
+          "title": "What decides the order inside a group",
+          "body": "The top three groups read by the clock: \"Overdue\" leads with the oldest debt, and \"Today\" is a day plan. In the groups below them priority leads and the date only breaks the tie, because nothing down there is on fire. A reminder is read as \"Normal\" — it carries no priority of its own, and it never enters the \"Urgent\" group."
         },
         {
-          "title": "Completing a Task and Undoing",
-          "body": "Clicking the circle next to a task marks it as done; clicking again brings it back. After each action, an undo notification pops up (\"Task completed\" / \"Task restored\") in case you clicked by mistake. Marking a task as done clears any open custom status from it. Restoring it to active doesn't restore the status — you can choose it again in editing."
+          "title": "The \"View\" menu",
+          "body": "The button beside the tabs holds everything that changes the list: grouping, filtering by category, multi-select, and editing your statuses and categories. Whatever is active shows on the button itself even when the menu is shut, so a filter never hides. In \"All\" you can group by urgency (the default), date or priority; in \"Tasks\" by priority, project or category; reminders are always grouped by date."
         },
         {
-          "title": "Editing a Task",
-          "body": "Clicking the pencil icon on a task row opens the \"Edit Task\" window. It has exactly the same fields as when adding — title, priority, project, client, and if you've set them up, status and category."
+          "title": "Adding a task",
+          "body": "Tap \"+ New task\", fill in \"What needs doing?\" (required) and pick a priority: Urgent, Normal or Low. You can add a due date and time or leave it out — both are fine. Under \"More details\" you can link it to a project and a client, write an explanation, and if you've set up statuses or categories, choose those too."
         },
         {
-          "title": "Filtering Tasks",
-          "body": "Below the summary there are three tabs: Open, Completed, All. If you have categories, a row of pills also appears for filtering by category (including an \"All\" pill). Clicking the same category a second time clears the filter."
+          "title": "Priority and the coloured dots",
+          "body": "Three levels: Urgent, Normal and Low. The dot at the end of each row always shows the group that row sits in, so the group heading is its legend. When you aren't grouping by priority, an urgent task says so in words instead — an \"Urgent\" chip on the row itself."
         },
         {
-          "title": "Statuses and Categories",
-          "body": "The \"Statuses & Categories\" button (on the Tasks side) opens a window where you add and delete your own statuses and categories, each with a name and color. Each status is linked to either \"Open\" or \"Completed\" so that the counts on the Home screen stay accurate. Deletion asks for confirmation first, and doesn't delete the tasks themselves — they simply remain without that tag. There's also an undo option here for immediate recovery."
+          "title": "Completing a task and undoing it",
+          "body": "Tapping the circle marks it done, and tapping again brings it back. An undo toast appears after every tap, in case you hit the wrong one. Marking done clears any custom open status; reopening doesn't restore it — you can pick it again from the edit sheet."
         },
         {
-          "title": "Delete All Completed",
-          "body": "In the \"Completed\" tab there's a \"Delete All\" button that deletes all completed items at once (after confirmation). They go to the Trash and can be restored within 30 days. There is no delete button for an individual task here."
+          "title": "Editing, quick rename and deleting",
+          "body": "The pencil on a row opens the edit sheet, with the same fields as the add sheet and a delete button at the bottom. To change just the title, double-tap it and edit in place without opening anything. Everything you delete goes to the Trash and can be restored for up to 30 days."
         },
         {
-          "title": "Adding a Reminder",
-          "body": "On the Reminders side, click \"+ New Reminder\". Fill in \"What should I be reminded about?\", choose how often it repeats (One-time / Weekly / Monthly / Every X days), and set the timing. For recurring reminders you can add an end date, link it to a client, and write additional details."
+          "title": "Postponing to tomorrow",
+          "body": "A row whose time has come or gone gets a calendar icon that pushes it to tomorrow at the same hour. The push is measured from today, not from the old date — so even something three weeks late really moves to tomorrow instead of staying overdue. There's an undo toast."
         },
         {
-          "title": "Timing Changes Based on Recurrence",
-          "body": "First choose how often the reminder repeats, then the appropriate timing field appears. One-time asks for a date and time. Weekly asks for a day of the week and time. Monthly asks for a day of the month (1–31) and time. Every X days asks for a start date, time, and number of days."
+          "title": "Search",
+          "body": "The magnifier opens a search field that looks through the title, the details, and the name of the linked client or project. Closing the field clears the query, so a filter is never left running behind a shut icon."
         },
         {
-          "title": "Completing and Advancing Reminders",
-          "body": "When you mark a one-time reminder as done, it moves to \"Completed\". A recurring reminder isn't marked as done — it automatically jumps to the next occurrence (\"Reminder advanced\"). It keeps jumping until the next occurrence falls after the end date you set. There's an undo option here too."
+          "title": "Multi-select",
+          "body": "Through \"View\" then \"Select multiple\", the circle on each row becomes a checkbox. You can pick tasks and reminders together and then mark them done, assign a category or delete them — all at once, from an action bar that floats above the list. Changing a filter or searching clears the selection, so you can't delete rows you can no longer see."
         },
         {
-          "title": "Reminder Tabs and Grouping",
-          "body": "Reminders have three tabs: Open, Recurring, Completed. \"Open\" sorts by urgency — Overdue, Today, This Week, Later. \"Recurring\" shows the fixed schedule, sorted by day of week, monthly, and every X days."
+          "title": "Filtering by status",
+          "body": "Above the list are two tabs: \"Open\" and \"Done\". Reminders get a third, \"Recurring\", which shows the standing schedule — grouped by weekday, monthly, and every-so-many-days. The \"Done\" list is ordered from the most recent thing you finished downwards."
         },
         {
-          "title": "Summary Card",
-          "body": "Above the list is a summary card with three numbers: Open, a number that switches depending on which side you're on — \"Urgent\" for tasks (Urgent priority) or \"Overdue\" for reminders (a reminder whose time has passed and is still open) — and Completed."
+          "title": "Statuses and categories",
+          "body": "Through \"View\" then \"Statuses & categories\" you add and remove your own statuses and categories, each with a name and a colour. Every status belongs to either \"Open\" or \"Done\", so the counts on the home screen stay right. Deleting asks for confirmation and doesn't delete the tasks themselves — they simply lose that label. The same categories are the filter pills in that menu, and several can be active at once."
+        },
+        {
+          "title": "Clearing what's done",
+          "body": "The \"Done\" tab has a \"Delete completed\" button that deletes everything the list is showing in one go — with a category filter active, only what's inside it. It all goes to the Trash and can be restored for up to 30 days."
+        },
+        {
+          "title": "Adding a reminder",
+          "body": "In the reminders view tap \"+ New reminder\", fill in \"What should we remind you about?\", choose how often it repeats (one-off / weekly / monthly / every X days) and set the timing. A recurring reminder can take an end date, be linked to a client, and carry extra details."
+        },
+        {
+          "title": "The timing fields follow the repeat",
+          "body": "First you choose how often the reminder repeats, and then the matching timing field appears. One-off asks for a date and time. Weekly asks for a day of the week and a time. Monthly asks for a day of the month (1–31) and a time. Every X days asks for a start date, a time and a number of days."
+        },
+        {
+          "title": "Completing and advancing reminders",
+          "body": "A one-off reminder you tick moves to \"Done\". A recurring one is never marked done — it jumps to its next slot on its own (\"Reminder advanced\") and keeps jumping until the next slot falls after the end date you set. There's an undo toast here too."
+        },
+        {
+          "title": "The summary card",
+          "body": "Above the list is a summary card with three numbers: open, a number that changes with the view — \"Urgent\" in Tasks, \"Overdue\" in Reminders and in \"All\" — and done. All three are counted inside the active category filter, so the card always describes the same list sitting below it."
         }
       ],
       "tips": [
-        "A task is for something with no date. The moment you need a specific day and time, switch to Reminders and add one there. That's also what will appear in the \"Tasks and reminders\" card on the home screen.",
-        "Link a task to a client to connect it to them. Sessions with a date are managed in the Calendar, not here.",
-        "Set up your statuses and categories once in \"Statuses & Categories\", then easily filter by category using the pills above the list.",
-        "A recurring reminder doesn't disappear when you mark it — it jumps to the next occurrence. If several missed occurrences have built up, you'll see an ×N badge next to the title in the \"Open\" tab.",
-        "Marked something by mistake? An undo window pops up right after every circle click to restore the previous state.",
-        "To stop a recurring reminder after a certain date, add an \"End Date\" to it — either when adding or in editing."
+        "A task can have a due date or not — both are fine. What makes a reminder different is that it always has a time, and it can repeat.",
+        "A task flagged \"Urgent\" with no date doesn't sink to the bottom: in \"All\" it gets a group of its own, right after \"Today\".",
+        "Link a task to a client to tie it to them — search will then find it by their name too. Meetings with a date belong in the calendar, not here.",
+        "Set up statuses and categories once through \"View\", and you can filter by category from that same menu — several categories can be active together.",
+        "A recurring reminder doesn't disappear when you tick it — it jumps to its next slot. If several slots have piled up unhandled, an ×N chip appears beside the title in the \"Open\" tab.",
+        "Tapped by mistake? An undo toast appears right after every tap on the circle and puts it back."
       ],
       "faq": [
         {
           "q": "Where do I set a due date for a task?",
-          "a": "The \"New Task\" sheet (and the edit sheet) has a \"Due date\" field and a time. A date on its own is enough — the time defaults to 09:00, and clearing the date removes the deadline. A task with no date is perfectly normal; the difference from a reminder is that a reminder always has a time, and it can repeat."
+          "a": "The \"New task\" sheet (and the edit sheet) has a \"+ Add a due date\" switch that opens a \"Due date\" field and a time. A date on its own is enough — the time defaults to 09:00 — and removing the field clears the deadline. A task with no date is perfectly fine; in \"All\" it appears under \"No date\", unless you flagged it \"Urgent\"."
+        },
+        {
+          "q": "Why does an urgent task sit above a reminder that's due sooner?",
+          "a": "Because the list is ordered by urgency, not by date alone. A deadline that has passed or lands today still beats everything, but past that point a task you flagged \"Urgent\" rises above future work — even when the reminder is due sooner. If you'd rather have a pure timeline, switch \"View\" to group by \"Date\"."
+        },
+        {
+          "q": "Why does a task I set for today show as \"Overdue\"?",
+          "a": "When you set a date without a time, the app fills in 09:00 — and from that hour on the deadline counts as passed. If it matters that the task stays under \"Today\", give it a later time in the time field beside the date."
         },
         {
           "q": "How do I delete a single task?",
-          "a": "There's no delete button for an individual row here. Mark it as done, go to the \"Completed\" tab, and click \"Delete All\". Everything deleted goes to the Trash and can be restored within 30 days."
+          "a": "Open it with the pencil and use the delete button at the bottom of the sheet. To delete several at once there's \"View\" then \"Select multiple\". Everything goes to the Trash and can be restored for up to 30 days."
         },
         {
-          "q": "I marked a recurring reminder as done — why didn't it move to \"Completed\"?",
-          "a": "That's how it's supposed to work. A recurring reminder jumps to the next occurrence instead of being marked as done, so it keeps coming back. It only stops when the next occurrence falls after the end date you set."
+          "q": "I ticked a recurring reminder — why didn't it move to \"Done\"?",
+          "a": "That's how it's meant to work. A recurring reminder jumps to its next slot on its own rather than being marked done, so that it keeps coming back. It stops only when the next slot falls after the end date you set."
         },
         {
-          "q": "I deleted a status or category — what happens to tasks assigned to them?",
-          "a": "The tasks remain. They simply lose that tag and appear without a status or category. The status or category itself can be restored immediately via the undo window."
-        },
-        {
-          "q": "How do I sort the task list?",
-          "a": "Tasks are automatically sorted by priority — Urgent, then Normal, then Low — with a counter for each group, and by due date within each group. The \"View\" menu can group by project or category instead, and in \"All\" you can choose between grouping by date and grouping by urgency."
+          "q": "I deleted a status or a category — what happens to the tasks that used it?",
+          "a": "The tasks stay. They simply lose that label and appear with no status or category. The status or category itself can be restored right away from the undo toast."
         },
         {
           "q": "What's the difference between \"Urgent\" and \"Overdue\" in the summary?",
-          "a": "It's the same spot in the summary card, but it switches based on which side you're viewing. For tasks it counts open tasks with \"Urgent\" priority. For reminders it counts open reminders whose time has already passed."
+          "a": "It's the same slot in the summary card, changing with the view. In Tasks it counts open tasks at priority \"Urgent\". In Reminders and in \"All\" it counts whatever is past its time and still open."
         }
       ]
     },

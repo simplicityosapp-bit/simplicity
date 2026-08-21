@@ -587,93 +587,117 @@
     },
     "tasks": {
       "title": "Tareas",
-      "intro": "Una pantalla para dos tipos de pendientes. Las «Tareas» son cosas por hacer sin una fecha concreta. Los «Recordatorios» son cualquier cosa atada a un día y una hora. Cambia entre ellos con un solo toque en el interruptor de arriba.",
+      "intro": "Una pantalla para todo lo que sigue abierto. Las «Tareas» son cosas por hacer, con fecha límite o sin ella. Los «Recordatorios» están atados a un día y una hora y pueden repetirse. «Todo» muestra ambos en una sola lista ordenada por urgencia, y es lo que se abre al entrar.",
       "features": [
         {
-          "title": "Cambiar entre Tareas y Recordatorios",
-          "body": "Debajo del título hay un interruptor con dos botones: Tareas y Recordatorios. Una tarea es algo por hacer, sin fecha. Un recordatorio es cualquier cosa atada a un día y una hora. Cada lado tiene su propio resumen, filtro y lista, y el botón de añadir cambia en consecuencia («+ Nueva tarea» / «+ Nuevo recordatorio»). Cambiar de lado también restablece el filtro a «Abiertos»."
+          "title": "Tres vistas: Todo, Tareas, Recordatorios",
+          "body": "Arriba de la tarjeta de resumen hay un interruptor con tres botones. «Todo» es lo predeterminado, porque responde a «qué está abierto ahora mismo» sin obligarte a elegir primero una mitad. «Tareas» y «Recordatorios» son el lugar para organizar un tipo a fondo. Cambiar de vista devuelve el filtro a «Abiertas», y el botón de añadir sigue a la vista: en «Todo» añade una tarea."
+        },
+        {
+          "title": "Cómo se ordena la lista de «Todo»",
+          "body": "La lista se divide en seis grupos, de arriba abajo: Atrasadas, Hoy, Urgente, Esta semana, Más tarde, Sin fecha. Una fecha límite que ya pasó o que cae hoy gana a todo lo demás. Justo detrás vienen las tareas marcadas como «Urgente» —incluidas las que no tienen fecha alguna— para que no se hundan al fondo por debajo de recordatorios que faltan semanas. Un grupo vacío no se muestra."
+        },
+        {
+          "title": "Qué decide el orden dentro de un grupo",
+          "body": "Los tres grupos de arriba se leen por el reloj: «Atrasadas» empieza por la deuda más antigua y «Hoy» es un plan del día. En los grupos de abajo manda la prioridad y la fecha solo desempata, porque ahí ya no arde nada. Un recordatorio se lee como «Normal»: no tiene prioridad propia y nunca entra en el grupo «Urgente»."
+        },
+        {
+          "title": "El menú «Vista»",
+          "body": "El botón junto a las pestañas reúne todo lo que cambia la lista: agrupación, filtro por categoría, selección múltiple y edición de tus estados y categorías. Lo que esté activo aparece en el propio botón aunque el menú esté cerrado, para que ningún filtro quede escondido. En «Todo» puedes agrupar por urgencia (lo predeterminado), fecha o prioridad; en «Tareas» por prioridad, proyecto o categoría; los recordatorios siempre se agrupan por fecha."
         },
         {
           "title": "Añadir una tarea",
-          "body": "En el lado de Tareas, haz clic en «+ Nueva tarea». Rellena «¿Qué hay que hacer?» (obligatorio) y elige una prioridad (Urgente / Normal / Baja). Puedes vincularla a un proyecto y a un cliente, y si has definido estados o categorías, también puedes seleccionarlos. También puedes fijar una fecha límite y una hora, o dejarla sin ninguna: ambas opciones son válidas."
+          "body": "Pulsa «+ Nueva tarea», rellena «¿Qué hay que hacer?» (obligatorio) y elige una prioridad: Urgente, Normal o Baja. Puedes añadir fecha límite y hora o dejarlo sin ellas: ambas opciones son válidas. En «Más detalles» puedes vincularla a un proyecto y a un cliente, escribir una explicación y, si has definido estados o categorías, elegirlos también."
         },
         {
-          "title": "Prioridad y agrupación",
-          "body": "Hay tres niveles de prioridad: Urgente, Normal y Baja. Las tareas se ordenan en ese orden, y cada grupo tiene su propio punto de color y contador: Urgente en rojo, Normal en ámbar, Baja en verde."
+          "title": "Prioridad y los puntos de color",
+          "body": "Tres niveles: Urgente, Normal y Baja. El punto al final de cada fila muestra siempre el grupo en el que esa fila está, así que el encabezado del grupo es su leyenda. Cuando no agrupas por prioridad, una tarea urgente lo dice con palabras: una etiqueta «Urgente» sobre la propia fila."
         },
         {
-          "title": "Completar una tarea y deshacer",
-          "body": "Al hacer clic en el círculo junto a una tarea se marca como hecha; al hacer clic de nuevo, vuelve. Tras cada acción, aparece una notificación de deshacer («Tarea completada» / «Tarea restaurada») por si tocaste por error. Marcar una tarea como hecha borra de ella cualquier estado personalizado abierto. Restaurarla a activa no restaura el estado: puedes elegirlo de nuevo en la edición."
+          "title": "Completar una tarea y deshacerlo",
+          "body": "Pulsar el círculo la marca como hecha, y pulsarlo otra vez la devuelve. Tras cada pulsación aparece un aviso para deshacer, por si te has equivocado. Marcarla como hecha limpia cualquier estado propio abierto; reabrirla no lo devuelve, pero puedes volver a elegirlo en la ventana de edición."
         },
         {
-          "title": "Editar una tarea",
-          "body": "Al hacer clic en el icono del lápiz en la fila de una tarea se abre la ventana «Editar tarea». Tiene exactamente los mismos campos que al añadir: título, prioridad, proyecto, cliente y, si los has configurado, estado y categoría."
+          "title": "Editar, renombrar rápido y eliminar",
+          "body": "El lápiz de la fila abre la ventana de edición, con los mismos campos que la de añadir y un botón de eliminar abajo. Para cambiar solo el título, haz doble clic sobre él y edítalo ahí mismo, sin abrir nada. Todo lo que eliminas va a la papelera y se puede restaurar durante 30 días."
         },
         {
-          "title": "Filtrar tareas",
-          "body": "Debajo del resumen hay tres pestañas: Abiertas, Completadas, Todas. Si tienes categorías, también aparece una fila de píldoras para filtrar por categoría (incluida una píldora «Todas»). Al hacer clic en la misma categoría una segunda vez se borra el filtro."
+          "title": "Posponer a mañana",
+          "body": "Una fila cuyo momento ha llegado o ya pasó muestra un icono de calendario que la mueve a mañana, a la misma hora. El aplazamiento se mide desde hoy y no desde la fecha antigua, así que incluso algo con tres semanas de retraso pasa de verdad a mañana en vez de seguir atrasado. Hay aviso para deshacer."
+        },
+        {
+          "title": "Búsqueda",
+          "body": "La lupa abre un campo de búsqueda que recorre el título, los detalles y el nombre del cliente o proyecto vinculado. Cerrar el campo borra la búsqueda, para que no quede un filtro activo detrás de un icono cerrado."
+        },
+        {
+          "title": "Selección múltiple",
+          "body": "Desde «Vista» y luego «Selección múltiple», el círculo de cada fila se convierte en una casilla. Puedes elegir tareas y recordatorios a la vez y después marcarlos como hechos, asignarles una categoría o eliminarlos, todo de golpe desde una barra de acciones que flota sobre la lista. Cambiar un filtro o buscar limpia la selección, para que no elimines filas que ya no ves."
+        },
+        {
+          "title": "Filtrar por estado",
+          "body": "Sobre la lista hay dos pestañas: «Abiertas» y «Hechas». Los recordatorios tienen una tercera, «Recurrentes», que muestra el calendario fijo, agrupado por día de la semana, mensual y cada tantos días. La lista de «Hechas» se ordena desde lo último que terminaste hacia abajo."
         },
         {
           "title": "Estados y categorías",
-          "body": "El botón «Estados y categorías» (en el lado de Tareas) abre una ventana donde añades y eliminas tus propios estados y categorías, cada uno con un nombre y un color. Cada estado está vinculado a «Abiertas» o «Completadas» para que los recuentos de la pantalla de Inicio sigan siendo exactos. La eliminación pide confirmación primero, y no elimina las tareas en sí: simplemente se quedan sin esa etiqueta. Aquí también hay una opción de deshacer para recuperación inmediata."
+          "body": "Desde «Vista» y luego «Estados y categorías» añades y eliminas tus propios estados y categorías, cada uno con nombre y color. Cada estado pertenece a «Abiertas» o a «Hechas», para que los recuentos de Inicio sigan siendo correctos. Eliminar pide confirmación y no borra las tareas: simplemente pierden esa etiqueta. Esas mismas categorías son las pastillas de filtro de ese menú, y pueden estar varias activas a la vez."
         },
         {
-          "title": "Eliminar todas las completadas",
-          "body": "En la pestaña «Completadas» hay un botón «Eliminar todas» que elimina todos los elementos completados de una vez (tras confirmación). Van a la Papelera y se pueden restaurar dentro de 30 días. Aquí no hay un botón de eliminar para una tarea individual."
+          "title": "Eliminar lo completado",
+          "body": "La pestaña «Hechas» tiene un botón «Eliminar completadas» que borra de una vez lo que la lista está mostrando; con un filtro de categoría activo, solo lo que esté dentro de él. Todo va a la papelera y se puede restaurar durante 30 días."
         },
         {
           "title": "Añadir un recordatorio",
-          "body": "En el lado de Recordatorios, haz clic en «+ Nuevo recordatorio». Rellena «¿De qué quieres que te recuerde?», elige con qué frecuencia se repite (Una vez / Semanal / Mensual / Cada X días), y fija la programación. Para los recordatorios recurrentes puedes añadir una fecha de fin, vincularlo a un cliente y escribir detalles adicionales."
+          "body": "En la vista de recordatorios pulsa «+ Nuevo recordatorio», rellena «¿Sobre qué te recordamos?», elige cada cuánto se repite (una vez / semanal / mensual / cada X días) y define el momento. Un recordatorio recurrente admite fecha de fin, se puede vincular a un cliente y llevar detalles adicionales."
         },
         {
-          "title": "La programación cambia según la recurrencia",
-          "body": "Primero elige con qué frecuencia se repite el recordatorio, y luego aparece el campo de programación adecuado. Una vez pide una fecha y una hora. Semanal pide un día de la semana y una hora. Mensual pide un día del mes (1–31) y una hora. Cada X días pide una fecha de inicio, una hora y un número de días."
+          "title": "Los campos de momento siguen a la repetición",
+          "body": "Primero eliges cada cuánto se repite el recordatorio y después aparece el campo de momento correspondiente. Una vez pide fecha y hora. Semanal pide día de la semana y hora. Mensual pide día del mes (1–31) y hora. Cada X días pide fecha de inicio, hora y número de días."
         },
         {
-          "title": "Completar y avanzar recordatorios",
-          "body": "Cuando marcas un recordatorio único como hecho, pasa a «Completados». Un recordatorio recurrente no se marca como hecho: salta automáticamente a la siguiente vez («Recordatorio avanzado»). Sigue saltando hasta que la siguiente vez caiga después de la fecha de fin que fijaste. Aquí también hay una opción de deshacer."
+          "title": "Completar y adelantar recordatorios",
+          "body": "Un recordatorio de una sola vez que marcas pasa a «Hechas». Uno recurrente nunca se marca como hecho: salta solo a su siguiente momento («Recordatorio adelantado») y sigue saltando hasta que ese momento cae después de la fecha de fin que pusiste. Aquí también hay aviso para deshacer."
         },
         {
-          "title": "Pestañas y agrupación de recordatorios",
-          "body": "Los recordatorios tienen tres pestañas: Abiertos, Recurrentes, Completados. «Abiertos» ordena por urgencia: Vencidos, Hoy, Esta semana, Más adelante. «Recurrentes» muestra la programación fija, ordenada por día de la semana, mensual y cada X días."
-        },
-        {
-          "title": "Tarjeta de resumen",
-          "body": "Sobre la lista hay una tarjeta de resumen con tres números: Abiertos, un número que cambia según el lado en el que estés —«Urgentes» para las tareas (prioridad Urgente) o «Vencidos» para los recordatorios (un recordatorio cuya hora ha pasado y sigue abierto)— y Completados."
+          "title": "La tarjeta de resumen",
+          "body": "Sobre la lista hay una tarjeta de resumen con tres números: abiertas, un número que cambia con la vista —«Urgentes» en Tareas, «Atrasados» en Recordatorios y en «Todo»— y hechas. Los tres se cuentan dentro del filtro de categoría activo, así que la tarjeta siempre describe la misma lista que tiene debajo."
         }
       ],
       "tips": [
-        "Una tarea es para algo sin fecha. En el momento en que necesites un día y una hora concretos, cambia a Recordatorios y añade uno ahí. Eso es también lo que aparecerá en el widget de Próximos recordatorios de la pantalla de Inicio.",
-        "Vincula una tarea a un cliente para conectarla con él. Las sesiones con fecha se gestionan en el Calendario, no aquí.",
-        "Configura tus estados y categorías una vez en «Estados y categorías», y luego filtra fácilmente por categoría usando las píldoras sobre la lista.",
-        "Un recordatorio recurrente no desaparece cuando lo marcas: salta a la siguiente vez. Si se han acumulado varias veces no atendidas, verás una insignia ×N junto al título en la pestaña «Abiertos».",
-        "¿Marcaste algo por error? Una ventana de deshacer aparece justo después de cada clic en el círculo para restaurar el estado anterior.",
-        "Para detener un recordatorio recurrente tras una fecha determinada, añádele una «Fecha de fin», ya sea al añadirlo o en la edición."
+        "Una tarea puede tener fecha límite o no: ambas opciones son válidas. Lo que distingue a un recordatorio es que siempre tiene una hora y puede repetirse.",
+        "Una tarea marcada «Urgente» sin fecha no se hunde al fondo: en «Todo» tiene un grupo propio, justo después de «Hoy».",
+        "Vincula una tarea a un cliente para atarla a él, y así la búsqueda también la encontrará por su nombre. Las reuniones con fecha se gestionan en el calendario, no aquí.",
+        "Define estados y categorías una sola vez desde «Vista» y después podrás filtrar por categoría desde ese mismo menú: varias categorías pueden estar activas a la vez.",
+        "Un recordatorio recurrente no desaparece al marcarlo: salta a su siguiente momento. Si se han acumulado varios momentos sin atender, aparece una etiqueta ×N junto al título en la pestaña «Abiertas».",
+        "¿Lo has marcado sin querer? Justo después de cada pulsación en el círculo aparece un aviso para deshacer que devuelve el estado anterior."
       ],
       "faq": [
         {
           "q": "¿Dónde fijo una fecha de vencimiento para una tarea?",
-          "a": "La ventana «Nueva tarea» (y la de edición) tiene un campo «Fecha límite» y una hora. Basta con la fecha: la hora se fija en las 09:00, y borrar la fecha elimina el vencimiento. Una tarea sin fecha es perfectamente normal; la diferencia con un recordatorio es que este siempre tiene una hora y puede repetirse."
+          "a": "La ventana «Nueva tarea» (y la de edición) tiene un interruptor «+ Añadir fecha límite» que abre un campo «Fecha límite» y una hora. Basta con la fecha: la hora se fija en las 09:00, y quitar el campo borra el vencimiento. Una tarea sin fecha es perfectamente válida; en «Todo» aparece bajo «Sin fecha», salvo que la hayas marcado «Urgente»."
+        },
+        {
+          "q": "¿Por qué una tarea urgente aparece por encima de un recordatorio que vence antes?",
+          "a": "Porque la lista se ordena por urgencia, no solo por fecha. Un vencimiento que ya pasó o que cae hoy sigue ganando a todo, pero más allá de eso una tarea marcada «Urgente» sube por encima del trabajo futuro, aunque el recordatorio venza antes. Si prefieres una línea de tiempo pura, cambia «Vista» para agrupar por «Fecha»."
+        },
+        {
+          "q": "¿Por qué una tarea que puse para hoy aparece como «Atrasada»?",
+          "a": "Cuando pones una fecha sin hora, la app rellena las 09:00, y a partir de esa hora el vencimiento cuenta como pasado. Si te importa que la tarea siga bajo «Hoy», dale una hora más tardía en el campo de hora que hay junto a la fecha."
         },
         {
           "q": "¿Cómo elimino una sola tarea?",
-          "a": "Aquí no hay un botón de eliminar para una fila individual. Márcala como hecha, ve a la pestaña «Completadas» y haz clic en «Eliminar todas». Todo lo eliminado va a la Papelera y se puede restaurar dentro de 30 días."
+          "a": "Ábrela con el lápiz y usa el botón de eliminar del final de la ventana. Para eliminar varias de una vez está «Vista» y luego «Selección múltiple». Todo va a la papelera y se puede restaurar durante 30 días."
         },
         {
-          "q": "Marqué un recordatorio recurrente como hecho, ¿por qué no pasó a «Completados»?",
-          "a": "Así es como debe funcionar. Un recordatorio recurrente salta a la siguiente vez en lugar de marcarse como hecho, de modo que sigue volviendo. Solo se detiene cuando la siguiente vez cae después de la fecha de fin que fijaste."
+          "q": "Marqué un recordatorio recurrente, ¿por qué no pasó a «Hechas»?",
+          "a": "Así debe funcionar. Un recordatorio recurrente salta solo a su siguiente momento en vez de marcarse como hecho, para que siga volviendo. Solo se detiene cuando ese siguiente momento cae después de la fecha de fin que pusiste."
         },
         {
-          "q": "Eliminé un estado o una categoría, ¿qué pasa con las tareas asignadas a ellos?",
-          "a": "Las tareas permanecen. Simplemente pierden esa etiqueta y aparecen sin estado ni categoría. El propio estado o categoría se puede restaurar de inmediato con la ventana de deshacer."
+          "q": "Eliminé un estado o una categoría, ¿qué pasa con las tareas que los usaban?",
+          "a": "Las tareas se quedan. Simplemente pierden esa etiqueta y aparecen sin estado ni categoría. El estado o la categoría en sí se pueden restaurar enseguida desde el aviso para deshacer."
         },
         {
-          "q": "¿Cómo ordeno la lista de tareas?",
-          "a": "Las tareas se ordenan automáticamente por prioridad —Urgente, luego Normal, luego Baja—, con un contador para cada grupo, y por fecha límite dentro de cada grupo. El menú «Vista» permite agrupar por proyecto o categoría, y en «Todo» puedes elegir entre agrupar por fecha o por urgencia."
-        },
-        {
-          "q": "¿Cuál es la diferencia entre «Urgentes» y «Vencidos» en el resumen?",
-          "a": "Es el mismo lugar en la tarjeta de resumen, pero cambia según el lado que estés viendo. Para las tareas cuenta las tareas abiertas con prioridad «Urgente». Para los recordatorios cuenta los recordatorios abiertos cuya hora ya ha pasado."
+          "q": "¿Qué diferencia hay entre «Urgentes» y «Atrasados» en el resumen?",
+          "a": "Es el mismo hueco de la tarjeta de resumen, que cambia según la vista. En Tareas cuenta tareas abiertas con prioridad «Urgente». En Recordatorios y en «Todo» cuenta lo que ya pasó su momento y sigue abierto."
         }
       ]
     },

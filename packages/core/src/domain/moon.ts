@@ -12,6 +12,7 @@ import { isConvertedLead } from './leads'
 import '../i18n/reflections' // side-effect: register the 'reflections' namespace
 
 interface MoonGoal {
+  id?: string
   time_frame?: string
   created_at?: string | null
   target_date?: string | null
@@ -31,7 +32,7 @@ interface MoonCategory {
   data_source?: string
   graph_type?: string
 }
-interface MoonEntry { category_id?: string; date: string; value?: number | null; deleted_at?: string | null }
+interface MoonEntry { category_id?: string; goal_id?: string | null; date: string; value?: number | null; deleted_at?: string | null }
 interface MoonAnswer { user_question_id?: string; value_num?: number | string | null; date: string; deleted_at?: string | null }
 interface MoonClient { status_meta?: string; status?: string; deleted_at?: string | null }
 interface MoonLead { inquiry_date?: string | null; converted_at?: string | null; deleted_at?: string | null }
@@ -95,17 +96,27 @@ function goalActual(goal: MoonGoal, cat: MoonCategory, now: Date, entries: MoonE
      (not `now`) lets a value logged BEFORE noon still count toward today; the
      `d <= period.end` cap keeps it inside a goal whose window already closed. */
   const todayEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999)
-  /* Sum of manual progress entries for this goal's category within the
-     period. Used for purely-manual goals AND added on top of a
-     question-tracked goal's answers — a daily-question goal still shows
-     the "הזנה" button, so a manual top-up has to count too rather than
-     be silently dropped (beta 06/06/2026). End-of-today is the upper
-     bound so an entry logged before noon still counts toward today (the
-     sentinel date is normalised to 'YYYY-MM-DDT12:00:00'). */
+  /* Sum of manual progress entries belonging to this goal, within the period.
+     Used for purely-manual goals AND added on top of a question-tracked goal's
+     answers — a daily-question goal still shows the "הזנה" button, so a manual
+     top-up has to count too rather than be silently dropped (beta 06/06/2026).
+     End-of-today is the upper bound so an entry logged before noon still counts
+     toward today (the sentinel date is normalised to 'YYYY-MM-DDT12:00:00').
+
+     ATTRIBUTION (migration 0110). This matched on category_id alone, and every
+     manual goal in an account resolves to ONE shared category — so two manual
+     goals summed the same entries and were, for scoring purposes, the same
+     goal. An entry that names its goal now counts for THAT goal only. An entry
+     with no goal_id is a row written before 0110 that the migration could not
+     attribute without guessing; it keeps its old behaviour and still counts for
+     every goal in its category, which is the one reading that changes nobody's
+     numbers retroactively. */
   const sumManualEntries = (): number => {
     return live(entries)
       .filter((e) => {
-        if (e.category_id !== goal.category_id) return false
+        if (e.goal_id) {
+          if (!goal.id || e.goal_id !== goal.id) return false
+        } else if (e.category_id !== goal.category_id) return false
         const d = new Date(e.date + 'T12:00:00')
         return d >= period.start && d <= period.end && d <= todayEnd
       })

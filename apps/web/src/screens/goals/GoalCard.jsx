@@ -16,8 +16,13 @@ function GoalCard({ scored, index, entries = [], onAddEntry, onDeleteEntry, onEd
   const [showHistory, setShowHistory] = useState(false)
   const [confirmEntry, setConfirmEntry] = useState(null) // entry awaiting delete confirm
 
+  /* This goal's OWN entries. It filtered on cat.id, and every manual goal in
+     an account shares one category, so each card listed the whole bucket's
+     history as if it were its own (migration 0110). A legacy row carries no
+     goal_id and still belongs to the category — it shows on every goal there,
+     matching how it is still scored. */
   const catEntries = isManual
-    ? entries.filter((e) => e.category_id === cat.id).slice().sort((a, b) => new Date(b.date) - new Date(a.date))
+    ? entries.filter((e) => (e.goal_id ? e.goal_id === goal.id : e.category_id === cat.id)).slice().sort((a, b) => new Date(b.date) - new Date(a.date))
     : []
 
   return (
@@ -65,7 +70,7 @@ function GoalCard({ scored, index, entries = [], onAddEntry, onDeleteEntry, onEd
 
       {isManual && (
         <Box className="g-entry-bar">
-          <Btn className="g-entry-add" onClick={() => onAddEntry?.(cat)}>
+          <Btn className="g-entry-add" onClick={() => onAddEntry?.(goal, cat)}>
             <Plus size={14} strokeWidth={1.9} aria-hidden="true" /> {t('card.addEntry')}
           </Btn>
           {catEntries.length > 0 && (

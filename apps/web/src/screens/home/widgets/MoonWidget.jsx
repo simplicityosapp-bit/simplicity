@@ -54,7 +54,7 @@ export default function MoonWidget() {
      the modal opens straight on that goal's category, matching how the goals
      screen has always done it. Manual categories only: an 'auto' goal is
      computed from transactions/sessions and has nothing to type in. */
-  const [entryCategory, setEntryCategory] = useState(null)
+  const [entryTarget, setEntryTarget] = useState(null)
 
   const data = useMemo(
     () => ({ goals, categories, entries, transactions, sessions, clients, leads, answers, members, groups }),
@@ -166,7 +166,7 @@ export default function MoonWidget() {
                         className="mg-add-icon moon-cat-add"
                         aria-label={t('widgets.moon.logEntryAria', { name: s.goal.label || s.cat.name })}
                         title={t('widgets.moon.logEntry')}
-                        onClick={(e) => { e.stopPropagation(); setEntryCategory(s.cat) }}
+                        onClick={(e) => { e.stopPropagation(); setEntryTarget({ goal: s.goal, cat: s.cat }) }}
                       >
                         <Plus size={14} strokeWidth={2} aria-hidden="true" />
                       </Btn>
@@ -185,9 +185,10 @@ export default function MoonWidget() {
       )}
 
       <AddGoalEntryModal
-        open={!!entryCategory}
-        onClose={() => setEntryCategory(null)}
-        category={entryCategory}
+        open={!!entryTarget}
+        onClose={() => setEntryTarget(null)}
+        category={entryTarget?.cat}
+        goal={entryTarget?.goal}
         onSave={addEntry}
       />
     </Box>

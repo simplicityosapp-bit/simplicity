@@ -166,7 +166,7 @@ export default function MoonGlanceScreen() {
   /* Logging progress from here rather than only from the home widget: the
      category rows are the place a coach sees a goal falling behind, and the
      screen had no way to act on that. Same modal the widget opens. */
-  const [entryCategory, setEntryCategory] = useState(null)
+  const [entryTarget, setEntryTarget] = useState(null)
   /* The two statistical sections start folded — see the lid below. */
   const [deepOpen, setDeepOpen] = useState(false)
   /* Destructured separately: these are the React-Query cache arrays, stable
@@ -404,20 +404,6 @@ export default function MoonGlanceScreen() {
                 <Txt className="mg-cat-dot" style={{ background: c.category.color || 'var(--moon-deep)' }} />
                 {c.category.name}
               </Txt>
-              {/* The entry modal is scoped to a CATEGORY, so one button here
-                  rather than the identical one repeated on every goal beneath
-                  it. Manual categories only — an 'auto' category is computed
-                  from transactions or sessions and has nothing to type in. */}
-              {c.category.measurement_type === 'manual' && (
-                <Btn
-                  className="mg-add-icon mg-cat-add"
-                  aria-label={t('logEntryAria', { name: c.category.name })}
-                  title={t('logEntry')}
-                  onClick={() => setEntryCategory(c.category)}
-                >
-                  <Plus size={14} strokeWidth={2} aria-hidden="true" />
-                </Btn>
-              )}
             </Box>
             {/* The aggregate earns its row only when it is aggregating more
                 than one thing; with a single goal it would just be that goal's
@@ -432,7 +418,22 @@ export default function MoonGlanceScreen() {
             <Box className="mg-cat-goals">
               {c.goals.map((s) => (
                 <Box key={s.goal.id} className="mg-goal">
-                  <Txt as="p" className="mg-goal-name">{s.goal.label || c.category.name}</Txt>
+                  <Box className="mg-goal-head">
+                    <Txt as="p" className="mg-goal-name">{s.goal.label || c.category.name}</Txt>
+                    {/* Per GOAL, not per category. It sat on the category head while
+                        an entry belonged to a bucket; migration 0110 gave the entry
+                        a goal, so the button belongs where the number lands. */}
+                    {c.category.measurement_type === 'manual' && (
+                      <Btn
+                        className="mg-add-icon mg-cat-add"
+                        aria-label={t('logEntryAria', { name: s.goal.label || c.category.name })}
+                        title={t('logEntry')}
+                        onClick={() => setEntryTarget({ goal: s.goal, cat: c.category })}
+                      >
+                        <Plus size={14} strokeWidth={2} aria-hidden="true" />
+                      </Btn>
+                    )}
+                  </Box>
                   <MoonDualBars pace={Math.min(100, s.paced)} goal={s.pure} />
                 </Box>
               ))}
@@ -583,9 +584,10 @@ export default function MoonGlanceScreen() {
       </Btn>
 
       <AddGoalEntryModal
-        open={!!entryCategory}
-        onClose={() => setEntryCategory(null)}
-        category={entryCategory}
+        open={!!entryTarget}
+        onClose={() => setEntryTarget(null)}
+        category={entryTarget?.cat}
+        goal={entryTarget?.goal}
         onSave={addEntry}
       />
     </Box>

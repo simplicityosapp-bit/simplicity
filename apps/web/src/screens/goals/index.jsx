@@ -51,7 +51,10 @@ export default function GoalsScreen() {
   const { answers } = useDailyAnswers()
   const { prefs } = useUserPreferences()
   const [showAddGoal, setShowAddGoal] = useState(false)
-  const [entryCategory, setEntryCategory] = useState(null)
+  /* What a progress entry is being logged FOR — the goal and its category.
+     Was the category alone, which is exactly how entries ended up shared
+     between every goal in a bucket (migration 0110). */
+  const [entryTarget, setEntryTarget] = useState(null)
   const [pendingDeleteGoal, setPendingDeleteGoal] = useState(null)
   const [editGoal, setEditGoalState] = useState(null)
 
@@ -129,7 +132,7 @@ export default function GoalsScreen() {
                 scored={s}
                 index={i}
                 entries={entries}
-                onAddEntry={(cat) => setEntryCategory(cat)}
+                onAddEntry={(goal, cat) => setEntryTarget({ goal, cat })}
                 onDeleteEntry={removeEntry}
                 onEdit={(gl) => setEditGoalState(gl)}
                 onDelete={(gl) => setPendingDeleteGoal(gl)}
@@ -149,9 +152,10 @@ export default function GoalsScreen() {
         onSave={handleAddGoal}
       />
       <AddGoalEntryModal
-        open={!!entryCategory}
-        onClose={() => setEntryCategory(null)}
-        category={entryCategory}
+        open={!!entryTarget}
+        onClose={() => setEntryTarget(null)}
+        category={entryTarget?.cat}
+        goal={entryTarget?.goal}
         onSave={addEntry}
       />
       <EditGoalModal

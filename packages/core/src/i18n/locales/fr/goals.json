@@ -27,6 +27,7 @@
   },
   "card": {
     "editAria": "Modifier l'objectif",
+    "ended": "Terminé",
     "deleteAria": "Supprimer l'objectif",
     "importanceAria": "Importance {{importance}} sur 5",
     "addEntry": "Ajouter une entrée",

@@ -33,6 +33,7 @@
   },
   "card": {
     "editAria": "עריכת יעד",
+    "ended": "הסתיים",
     "deleteAria": "מחיקת יעד",
     "importanceAria": "חשיבות {{importance}} מתוך 5",
     "addEntry": "הזנה",

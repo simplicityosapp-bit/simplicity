@@ -102,6 +102,20 @@
   font-size: calc(11px * var(--text-scale));
   color: var(--stone);
 }
+/* "הסתיים" — a goal whose target date has passed. Muted on purpose: it is a
+   statement of fact about something finished, not a warning, and it shares a
+   line with the category and the date. --stone is the same colour the line it
+   sits in already uses, so the chip reads as part of that sentence rather than
+   as a fourth status colour on a card that already carries three. */
+.g-card-ended {
+  padding: 1px 7px;
+  border-radius: 999px;
+  border: 0.5px solid color-mix(in srgb, var(--stone) 28%, transparent);
+  background: color-mix(in srgb, var(--stone) 8%, transparent);
+  font-size: calc(10px * var(--text-scale));
+  color: var(--stone);
+  flex-shrink: 0;
+}
 .g-card-cat-dot {
   width: 8px;
   height: 8px;

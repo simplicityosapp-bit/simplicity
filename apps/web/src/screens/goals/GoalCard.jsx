@@ -8,11 +8,17 @@ import { useT } from '../../i18n/useT'
 
 function GoalCard({ scored, index, entries = [], onAddEntry, onDeleteEntry, onEdit, onDelete }) {
   const { t } = useT('goals')
-  const { goal, cat, actual, target, pure: rawPure, paced: rawPaced } = scored
+  const { goal, cat, actual, target, pure: rawPure, paced: rawPaced, ended = false } = scored
   const pure = Number.isFinite(rawPure) ? rawPure : 0
   const paced = Number.isFinite(rawPaced) ? rawPaced : pure
   const importance = goal.importance || 3
   const isManual = cat.measurement_type === 'manual'
+  /* Entries are only counted inside the goal's own window (goalActual bounds
+     them by period.end), so a value logged against a goal whose deadline has
+     passed would save and then change nothing at all. Offering the button
+     would be offering a no-op. The history stays readable — that is the
+     record, and the record is why the card is still here. */
+  const canLog = isManual && !ended
   const [showHistory, setShowHistory] = useState(false)
   const [confirmEntry, setConfirmEntry] = useState(null) // entry awaiting delete confirm
 
@@ -33,6 +39,11 @@ function GoalCard({ scored, index, entries = [], onAddEntry, onDeleteEntry, onEd
           <Txt as="p" className="g-card-cat">
             <Txt className="g-card-cat-dot" style={{ background: cat.color || 'var(--stone)' }} />
             {cat.name} · {timeFrameLabel(goal)}
+            {/* The deadline has passed. Said in a word, next to the date it
+                passed, because nothing else on the card would ever admit it —
+                the percentage and the bars go on reading exactly as they did
+                the day before, and cannot change again. */}
+            {ended && <Txt className="g-card-ended">{t('card.ended')}</Txt>}
           </Txt>
         </Box>
         <Btn className="g-card-edit" onClick={() => onEdit?.(goal)} aria-label={t('card.editAria')}>
@@ -79,11 +90,13 @@ function GoalCard({ scored, index, entries = [], onAddEntry, onDeleteEntry, onEd
         </Txt>
       </Box>
 
-      {isManual && (
+      {(canLog || (isManual && catEntries.length > 0)) && (
         <Box className="g-entry-bar">
+          {canLog && (
           <Btn className="g-entry-add" onClick={() => onAddEntry?.(goal, cat)}>
             <Plus size={14} strokeWidth={1.9} aria-hidden="true" /> {t('card.addEntry')}
           </Btn>
+          )}
           {catEntries.length > 0 && (
             <Btn className={`g-entry-toggle${showHistory ? ' open' : ''}`} onClick={() => setShowHistory((o) => !o)} aria-expanded={showHistory}>
               {t('card.history')} <Txt className="g-entry-count">{catEntries.length}</Txt>

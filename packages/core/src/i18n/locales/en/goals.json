@@ -27,6 +27,7 @@
   },
   "card": {
     "editAria": "Edit goal",
+    "ended": "Ended",
     "deleteAria": "Delete goal",
     "importanceAria": "Importance {{importance}} out of 5",
     "addEntry": "Add entry",

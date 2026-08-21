@@ -3,6 +3,12 @@
   "movement": "Movement",
   "tagline": "Every goal is a direction, not pressure.",
   "title": "Goals",
+  "timeFrame": {
+    "monthly": "Monthly",
+    "weekly": "Weekly",
+    "byDate": "By {{date}}",
+    "deadline": "Target"
+  },
   "newGoalAria": "New goal",
   "newGoal": "+ New goal",
   "loading": "Loading goals…",

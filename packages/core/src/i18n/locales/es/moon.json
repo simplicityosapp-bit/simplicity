@@ -7,7 +7,9 @@
   "retrying": "Cargando…",
   "ring": {
     "kicker": "Del ritmo",
-    "sub": "{{pct}}% del objetivo"
+    "sub": "{{pct}}% del objetivo",
+    "infoLabel": "Qué significa la puntuación",
+    "infoText": "La puntuación ponderada de todos tus objetivos, según el ritmo: cuánto de lo esperado hasta ahora has cubierto. 100% = justo a ritmo. Debajo, «X% del objetivo» es el avance frente a la meta completa."
   },
   "section": {
     "byCategory": "Desglose por categoría",
@@ -31,7 +33,9 @@
   },
   "overview": {
     "note": "Tendencias relativas · últimos 30 días — cada línea en su propia escala (0–100). Un vínculo visual no es causalidad.",
-    "noneSelected": "Elige al menos una métrica arriba para ver un gráfico."
+    "noneSelected": "Elige al menos una métrica arriba para ver un gráfico.",
+    "pickQuestion": "Elegir una pregunta diaria para el gráfico",
+    "noQuestions": "Para añadir una pregunta diaria al gráfico necesitas una activa — Ajustes → Preguntas diarias."
   },
   "corr": {
     "moveTogether": "<0>{{driver}}</0> y <1>{{outcome}}</1> tienden a moverse juntos (cuando uno es alto, el otro también).",

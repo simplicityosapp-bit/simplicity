@@ -9,6 +9,7 @@ import { Eye, BarChart3, CloudOff, RotateCcw, Target, ArrowLeft, Plus, ChevronDo
 import { ROUTES } from '../../lib/routes'
 import { moonGetData, moonGetCategories, moonTrend, moonReflection, questionText, buildOverviewTrend, buildOverviewCorrelations, OVERVIEW_METRICS } from '@simplicity/core'
 import { upsertMoonSnapshot } from '../../lib/api/moonSnapshots'
+import InfoPopover from '../../components/InfoPopover'
 import MoonDualBars from '../../components/MoonDualBars'
 import AddGoalEntryModal from '../../modals/AddGoalEntryModal'
 import { useGoals } from '../../hooks/useGoals'
@@ -26,6 +27,7 @@ import { useUserQuestions } from '../../hooks/useUserQuestions'
 import MultiTrendChart from '../../components/MultiTrendChart'
 import { Box, Txt, Btn } from '../../components/ui'
 import { useT } from '../../i18n/useT'
+import { useUserPreferences } from '../../hooks/useUserPreferences'
 import './MoonGlanceScreen.css'
 
 /* Window (days) for the cross-module trend OVERLAY — a 30-day visual shape. */
@@ -86,6 +88,15 @@ const OVERVIEW_PILLS = [
   { key: 'score',    labelKey: 'pills.score' },
   { key: 'question', labelKey: 'pills.question' },
 ]
+/* Day + month in the reading locale, for the two charts' x-axis ends. Both
+   plots ran 30 unlabelled days, so "the last 30 days" was a claim the picture
+   never backed — and now that the trend line can legitimately start partway in,
+   the span has to be visible for the gap before it to mean anything. */
+const shortDay = (d, lang) => {
+  const dt = d instanceof Date ? d : new Date(d)
+  const locale = lang === 'he' ? 'he-IL' : (lang || 'he-IL')
+  return dt.toLocaleDateString(locale, { day: 'numeric', month: 'numeric' })
+}
 const dayKeyOf = (d) => {
   const dt = d instanceof Date ? d : new Date(d)
   return `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, '0')}-${String(dt.getDate()).padStart(2, '0')}`
@@ -120,7 +131,8 @@ function TrendChart({ data }) {
 }
 
 export default function MoonGlanceScreen() {
-  const { t, gender } = useT('moon')
+  const { t, gender, lang } = useT('moon')
+  const { prefs, update: updatePrefs } = useUserPreferences()
   const navigate = useNavigate()
   /* Every read that feeds the score is kept as its whole query object, not
      just its rows — the screen needs the three states useReportsData
@@ -230,11 +242,40 @@ export default function MoonGlanceScreen() {
 
   /* ── Cross-module trend overlay (§8.1) ───────────────────────── */
   const activeQuestions = useMemo(() => (questions || []).filter((q) => q.active), [questions])
-  const [overviewKeys, setOverviewKeys] = useState(['income', 'score'])
-  const [questionId, setQuestionId] = useState('')
+  /* Which metrics are drawn, and which question, ride in user_preferences —
+     derived from prefs rather than held in local state, the shape the leads and
+     finance screens use for their view toggles. They used to reset to
+     income+score on every visit, which meant a coach who cares about sessions
+     re-picked them each time; now that the whole section sits behind a lid you
+     open on purpose, arriving at your own selection matters more, not less.
+     Unknown keys are dropped, so a metric retired from the registry cannot
+     resurrect a broken series out of a saved blob. */
+  const readKeys = (p) => {
+    const saved = p?.moonOverviewKeys
+    return Array.isArray(saved) ? saved.filter((k) => OVERVIEW_METRICS[k]) : ['income', 'score']
+  }
+  const overviewKeys = useMemo(() => readKeys(prefs), [prefs])
+  /* The saved question only counts while it is still active — deactivate it and
+     the chart falls back to the first one rather than drawing an empty series
+     for a question nobody answers any more. That fallback also replaces the old
+     "set the first question when the pill is switched on" step. */
+  const questionId = activeQuestions.some((q) => q.id === prefs?.moonOverviewQuestion)
+    ? prefs.moonOverviewQuestion
+    : (activeQuestions[0]?.id || '')
+  const setQuestionId = (id) => updatePrefs?.({ moonOverviewQuestion: id })
+  /* Toggling reads the list back out of the FUNCTION form of update, not out of
+     the rendered value. The rendered one is a render behind: prefs settle
+     asynchronously, so two pills tapped in the same tick both computed from the
+     same stale list and the second write erased the first — tap "sessions" then
+     "daily question" quickly and only the question stuck. The function form is
+     handed prefsRef.current, which the provider advances synchronously, so each
+     toggle sees the one before it. It replaces rather than merges, hence the
+     spread. */
   const toggleOverviewKey = (k) => {
-    setOverviewKeys((prev) => (prev.includes(k) ? prev.filter((x) => x !== k) : [...prev, k]))
-    if (k === 'question' && !questionId && activeQuestions.length) setQuestionId(activeQuestions[0].id)
+    updatePrefs?.((cur) => {
+      const list = readKeys(cur)
+      return { ...cur, moonOverviewKeys: list.includes(k) ? list.filter((x) => x !== k) : [...list, k] }
+    })
   }
   const scoreByDay = useMemo(() => {
     const m = {}
@@ -340,8 +381,15 @@ export default function MoonGlanceScreen() {
         <Box className="mg-ring" style={{ '--ring-pct': `${conf}%` }}>
           <Box className="mg-ring-pct mono">{conf}%</Box>
           {/* Micro-word naming the big number as pace — mirrors the home
-              MoonWidget kicker so the full screen reads the same. */}
-          <Box className="mg-ring-kicker">{t('ring.kicker')}</Box>
+              MoonWidget kicker so the full screen reads the same. The widget
+              also carries an InfoPopover explaining what "pace" means; the
+              screen built around that same number did not, so the one place a
+              coach comes to understand the score was the one place it went
+              unexplained. */}
+          <Box className="mg-ring-kicker">
+            {t('ring.kicker')}
+            <InfoPopover label={t('ring.infoLabel')} text={t('ring.infoText')} />
+          </Box>
           <Box className="mg-ring-sub">{t('ring.sub', { pct: overall.pure })}</Box>
         </Box>
         <Txt as="p" className="mg-reflection">{moonReflection(conf, gender)}</Txt>
@@ -396,6 +444,12 @@ export default function MoonGlanceScreen() {
       <Box className="mg-trend">
         <Txt as="p" className="mg-section-h">{t('section.trend')}</Txt>
         <TrendChart data={trend} />
+        {trend.length > 1 && (
+          <Box className="mg-axis" aria-hidden="true">
+            <Txt>{shortDay(trend[0].date, lang)}</Txt>
+            <Txt>{shortDay(trend[trend.length - 1].date, lang)}</Txt>
+          </Box>
+        )}
         <Box className="mg-trend-stats">
           <Box className="mg-trend-stat">
             <Txt as="p" className="mg-trend-stat-v mono">{avg == null ? "—" : `${avg}%`}</Txt>
@@ -465,8 +519,14 @@ export default function MoonGlanceScreen() {
                 )
               })}
             </Box>
+            {/* Why the "שאלה יומית" toggle is greyed out. A title tooltip would
+                have said it only to a mouse; a line under the row says it to
+                everyone, and names the screen that fixes it. */}
+            {activeQuestions.length === 0 && (
+              <Txt as="p" className="mg-ov-note">{t('overview.noQuestions')}</Txt>
+            )}
             {overviewKeys.includes('question') && activeQuestions.length > 0 && (
-              <select className="mg-ov-select" value={questionId} onChange={(e) => setQuestionId(e.target.value)}>
+              <select className="mg-ov-select" aria-label={t("overview.pickQuestion")} value={questionId} onChange={(e) => setQuestionId(e.target.value)}>
                 {activeQuestions.map((q) => <option key={q.id} value={q.id}>{questionText(q, gender)}</option>)}
               </select>
             )}
@@ -477,7 +537,15 @@ export default function MoonGlanceScreen() {
             {overviewKeys.length === 0 ? (
               <Txt as="p" className="mg-ov-empty">{t('overview.noneSelected')}</Txt>
             ) : (
-              <MultiTrendChart days={overview.days} series={overview.series} />
+              <>
+                <MultiTrendChart days={overview.days} series={overview.series} />
+                {overview.days.length > 1 && (
+                  <Box className="mg-axis" aria-hidden="true">
+                    <Txt>{shortDay(overview.days[0], lang)}</Txt>
+                    <Txt>{shortDay(overview.days[overview.days.length - 1], lang)}</Txt>
+                  </Box>
+                )}
+              </>
             )}
             <Txt as="p" className="mg-ov-note">{t('overview.note')}</Txt>
           </Box>

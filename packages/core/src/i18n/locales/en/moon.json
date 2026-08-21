@@ -7,7 +7,9 @@
   "retrying": "Loading…",
   "ring": {
     "kicker": "Of pace",
-    "sub": "{{pct}}% of goal"
+    "sub": "{{pct}}% of goal",
+    "infoLabel": "What the score means",
+    "infoText": "The importance-weighted score of all your goals, pace-aware — how much of what was expected by now you have covered. 100% = exactly on pace. Below it, «X% of goal» is progress against the full target."
   },
   "section": {
     "byCategory": "Breakdown by category",
@@ -31,7 +33,9 @@
   },
   "overview": {
     "note": "Relative trends · last 30 days — each line on its own scale (0–100). A visual link is not causation.",
-    "noneSelected": "Pick at least one metric above to see a chart."
+    "noneSelected": "Pick at least one metric above to see a chart.",
+    "pickQuestion": "Pick a daily question for the chart",
+    "noQuestions": "To add a daily question to the chart you need an active one first — Settings → Daily questions."
   },
   "corr": {
     "moveTogether": "<0>{{driver}}</0> and <1>{{outcome}}</1> tend to move together (when one is high, so is the other).",

@@ -46,3 +46,12 @@
   font-size: calc(12px * var(--text-scale));
   color: var(--stone);
 }
+/* The per-day measurement markers. Drawn as zero-length round-capped strokes
+   (see the component) so vector-effect can hold them round despite the
+   non-uniform viewBox scaling that turned the old <circle>s into ovals.
+   stroke-width IS the diameter here. */
+.mt-dot {
+  stroke-width: 3.6;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}

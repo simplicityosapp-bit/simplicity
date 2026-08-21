@@ -69,7 +69,21 @@ export default function MultiTrendChart({ days, series }) {
           <g key={s.key}>
             <path className="mt-line" style={{ stroke: s.color }} d={pathFor(s.norm)} />
             {dotsFor(s.norm).map((p) => (
-              <circle key={p.i} className="mt-dot" cx={p.x} cy={p.y} r="1.8" style={{ fill: s.color }} />
+              /* A zero-length round-capped stroke, not a <circle>. The svg is
+                 preserveAspectRatio="none" over a 300-wide viewBox, so at
+                 desktop width x scales ~2.3× against y's ~1.1× and an r=1.8
+                 circle painted as a squashed oval. vector-effect exempts a
+                 STROKE from that scaling — which is how .mt-line already stays
+                 crisp — so a stroke-width dot comes out round at any width. */
+              <line
+                key={p.i}
+                className="mt-dot"
+                x1={p.x}
+                y1={p.y}
+                x2={p.x}
+                y2={p.y}
+                style={{ stroke: s.color }}
+              />
             ))}
           </g>
         ))}

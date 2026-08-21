@@ -242,7 +242,7 @@
         },
         {
           "title": "Editar datos y facturación",
-          "body": "El botón «Editar» abre el formulario completo por secciones: datos, más detalles, citas y programación, facturación y pagos, y grupos. Ahí están el modo de facturación, las sesiones personales («programadas» y «realizadas»), el precio por sesión, un «Total a pagar» que anula el cálculo automático, y los campos «Pagado» y «Saldo» que puedes escribir. Cambiar cualquiera de esos dos últimos abre la ventana de Ajuste, para que también una corrección manual lleve un motivo y una fecha."
+          "body": "El botón «Editar» abre el formulario completo por secciones: datos, citas y programación, facturación y pagos — y grupos, que solo aparece si el cliente pertenece a alguno. Ahí están el modo de facturación, las sesiones personales («programadas» y «realizadas»), el precio por sesión, un «Total a pagar» que anula el cálculo automático, y los campos «Pagado» y «Saldo» que puedes escribir. Cambiar cualquiera de esos dos últimos abre la ventana de Ajuste, para que también una corrección manual lleve un motivo y una fecha. Las notas, la dirección y la fecha de nacimiento no están en este formulario: esos se editan en la propia ficha, con el lápiz junto a «Más detalles» y «Notas», para que cada campo tenga un único lugar de edición."
         },
         {
           "title": "Ajustes: un descuento, una corrección de importación, efectivo sin registrar",

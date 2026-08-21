@@ -124,6 +124,7 @@
     "label": "View",
     "heading": "Group by",
     "priority": "Priority",
+    "pressure": "Urgency",
     "project": "Project",
     "category": "Category",
     "noProject": "No project",

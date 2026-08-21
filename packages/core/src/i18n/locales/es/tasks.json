@@ -124,6 +124,7 @@
     "label": "Vista",
     "heading": "Agrupar por",
     "priority": "Prioridad",
+    "pressure": "Urgencia",
     "project": "Proyecto",
     "category": "Categoría",
     "noProject": "Sin proyecto",

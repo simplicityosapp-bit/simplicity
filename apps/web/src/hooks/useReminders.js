@@ -80,13 +80,20 @@ export function useReminders() {
      days — the safety net, like useTasks.clearCompleted). Recurring reminders
      never sit in 'completed' (they advance to the next slot), so this only
      sweeps real done rows. */
-  const clearCompleted = useCallback(async () => {
-    const done = (qc.getQueryData(KEY) ?? []).filter((r) => r.status === 'completed')
+  /* `ids` narrows the sweep to the rows the caller counted — see the twin in
+     useTasks for why the unscoped version was dangerous. */
+  const clearCompleted = useCallback(async (ids = null) => {
+    const only = ids ? new Set(ids) : null
+    const done = (qc.getQueryData(KEY) ?? []).filter((r) => r.status === 'completed' && (!only || only.has(r.id)))
     if (!done.length) return 0
-    qc.setQueryData(KEY, (prev) => (prev ?? []).filter((r) => r.status !== 'completed'))
-    try {
-      await Promise.all(done.map((r) => apiRemove(r.id)))
-    } catch { qc.invalidateQueries({ queryKey: KEY }) }
+    const going = new Set(done.map((r) => r.id))
+    qc.setQueryData(KEY, (prev) => (prev ?? []).filter((r) => !going.has(r.id)))
+    /* allSettled, not all: Promise.all rejects on the FIRST failure and leaves
+       the remaining deletes unawaited, so one bad row could abort the rest of
+       a bulk clear the user had already watched disappear. Same fix the tasks
+       twin already carries. */
+    const results = await Promise.allSettled(done.map((r) => apiRemove(r.id)))
+    if (results.some((x) => x.status === 'rejected')) qc.invalidateQueries({ queryKey: KEY })
     return done.length
   }, [qc])
 

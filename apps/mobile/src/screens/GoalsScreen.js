@@ -104,7 +104,7 @@ function GoalCard({ scored: s, onEdit }) {
               <Text style={[styles.gCatText, flip && styles.txtRtl]} numberOfLines={1}>{s.cat?.name} · {timeFrameLabel(s.goal)}</Text>
             </View>
           </View>
-          <Text style={[styles.gPct, over && styles.gPctOver]}>{Math.min(pure, 100)}%{pure > 100 ? '+' : ''}</Text>
+          <Text style={[styles.gPct, over && styles.gPctOver]}>{pure}%</Text>
         </View>
         <View style={styles.gBars}>
           <GBar label={i18n.t('moon:dualBars.pace', { defaultValue: 'מהקצב' })} pct={Math.min(100, paced)} color={colors.positive} />

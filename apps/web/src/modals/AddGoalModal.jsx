@@ -175,8 +175,10 @@ export default function AddGoalModal({ open, onClose, onSave, projects = [], gro
         <SelectMenu value={form.metric_key} onChange={(v) => { set('metric_key', v); if (err) setErr('') }} options={metricOptions} placeholder={t('addGoal.pickMetric')} ariaLabel={t('addGoal.metric')} />
       </Box>
       <Box className="m-field">
-        <Box as="label" className="m-label">{t('addGoal.goalName')}</Box>
-        <Input className="m-input" value={form.label} onChange={(e) => set('label', e.target.value)} placeholder={t('addGoal.goalNamePlaceholder')} />
+        {/* htmlFor/id: m-label sits beside its control rather than wrapping it,
+            so without this pairing the field has no accessible name at all. */}
+        <Box as="label" className="m-label" htmlFor="goal-name">{t('addGoal.goalName')}</Box>
+        <Input id="goal-name" className="m-input" value={form.label} onChange={(e) => set('label', e.target.value)} placeholder={t('addGoal.goalNamePlaceholder')} />
       </Box>
       <Box className="m-field">
         <Box as="label" className="m-label">{t('addGoal.timeFrame')}</Box>
@@ -188,8 +190,9 @@ export default function AddGoalModal({ open, onClose, onSave, projects = [], gro
       </Box>
       <Box className="m-row2">
         <Box className="m-field">
-          <Box as="label" className="m-label">{t('addGoal.target')}</Box>
+          <Box as="label" className="m-label" htmlFor="goal-target">{t('addGoal.target')}</Box>
           <Input
+            id="goal-target"
             type="number"
             min="0"
             className={`m-input${err && !(parseFloat(form.target_value) > 0) ? ' err' : ''}`}
@@ -200,8 +203,8 @@ export default function AddGoalModal({ open, onClose, onSave, projects = [], gro
         </Box>
         {form.time_frame === 'deadline' && (
           <Box className="m-field">
-            <Box as="label" className="m-label">{t('addGoal.targetDate')}</Box>
-            <DateField value={form.target_date} onChange={(e) => set('target_date', e.target.value)} />
+            <Box as="label" className="m-label" htmlFor="goal-target-date">{t('addGoal.targetDate')}</Box>
+            <DateField id="goal-target-date" value={form.target_date} onChange={(e) => set('target_date', e.target.value)} />
           </Box>
         )}
       </Box>
@@ -269,6 +272,7 @@ export default function AddGoalModal({ open, onClose, onSave, projects = [], gro
           ) : (
             <>
               <Input
+                aria-label={t('addGoal.dailyQuestion')}
                 className="m-input"
                 value={form.question_text}
                 onChange={(e) => { set('question_text', e.target.value); if (err) setErr('') }}

@@ -14,7 +14,11 @@ const blank = () => ({ value: '', date: todayStr(), note: '' })
 
 /* Log a manual progress entry for a category. onSave receives a row ready
    for goal_entries (category_id filled by the caller). */
-export default function AddGoalEntryModal({ open, onClose, onSave, category }) {
+/* `goal` is what the entry is FOR (migration 0110); `category` still supplies
+   the colour, icon and number formatting. Both are passed because a category
+   holds several goals and the row has to name one of them — see the note in
+   moon.ts on why matching by category alone made two goals into one. */
+export default function AddGoalEntryModal({ open, onClose, onSave, category, goal }) {
   const { t } = useT('modalsData')
   const [form, setForm] = useState(blank)
   const [err, setErr] = useState('')
@@ -32,6 +36,7 @@ export default function AddGoalEntryModal({ open, onClose, onSave, category }) {
     try {
       await onSave({
         category_id: category.id,
+        goal_id: goal?.id ?? null,
         project_id: null,
         group_id: null,
         date: form.date,
@@ -48,9 +53,13 @@ export default function AddGoalEntryModal({ open, onClose, onSave, category }) {
   return (
     <Modal open={open} onClose={close} title={t('goalEntry.title')}>
       {category && (
+        /* Names the GOAL the number lands on, not just its bucket. While
+           entries were category-scoped this said "אישי" — technically where the
+           row went, and useless for telling apart the three goals sharing that
+           word. The category keeps the dot and icon, as its colour. */
         <Txt as="p" className="m-sub">
           <Txt className="m-sub-dot" style={{ background: category.color || 'var(--stone)' }} />
-          {category.icon ? category.icon + ' ' : ''}{category.name}
+          {category.icon ? category.icon + ' ' : ''}{goal?.label || category.name}
         </Txt>
       )}
       <Box className="m-row2">

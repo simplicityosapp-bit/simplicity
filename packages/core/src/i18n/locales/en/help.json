@@ -242,7 +242,7 @@
         },
         {
           "title": "Editing details and billing",
-          "body": "The \"Edit\" button opens the full form in sections: details, more details, meetings & scheduling, billing & payments, and groups. That is where you find the billing mode, personal sessions (\"scheduled\" and \"done\"), price per session, a \"Total due\" that overrides the automatic calculation, and the \"Paid\" and \"Balance\" fields you can type into. Changing either of those last two opens the Adjustment sheet, so even a manual correction carries a reason and a date."
+          "body": "The \"Edit\" button opens the full form in sections: details, meetings & scheduling, billing & payments — and groups, which only appears for a client who is in one. That is where you find the billing mode, personal sessions (\"scheduled\" and \"held\"), price per session, a \"Total due\" that overrides the automatic calculation, and the \"Paid\" and \"Balance\" fields you can type into. Changing either of those last two opens the Adjustment sheet, so even a manual correction carries a reason and a date. Notes, address and birth date are not in this form — you edit those on the card itself, through the pencil beside \"More details\" and \"Notes\", so that every field has exactly one place it is edited."
         },
         {
           "title": "Adjustments — a discount, an import fix, cash that was never booked",

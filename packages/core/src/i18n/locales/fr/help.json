@@ -242,7 +242,7 @@
         },
         {
           "title": "Modifier les informations et la facturation",
-          "body": "Le bouton « Modifier » ouvre le formulaire complet, par sections : informations, plus de détails, séances et planification, facturation et paiements, et groupes. On y trouve le mode de facturation, les séances individuelles (« prévues » et « effectuées »), le prix par séance, un « Total à payer » qui remplace le calcul automatique, et les champs « Payé » et « Solde » que vous pouvez saisir. Modifier l'un de ces deux derniers ouvre la fenêtre d'Ajustement, afin qu'une correction manuelle porte elle aussi un motif et une date."
+          "body": "Le bouton « Modifier » ouvre le formulaire complet, par sections : informations, séances et planification, facturation et paiements — et groupes, qui n'apparaît que pour un client qui en fait partie. On y trouve le mode de facturation, les séances individuelles (« prévues » et « effectuées »), le prix par séance, un « Total à payer » qui remplace le calcul automatique, et les champs « Payé » et « Solde » que vous pouvez saisir. Modifier l'un de ces deux derniers ouvre la fenêtre d'Ajustement, afin qu'une correction manuelle porte elle aussi un motif et une date. Les notes, l'adresse et la date de naissance ne sont pas dans ce formulaire : elles se modifient sur la fiche elle-même, via le crayon à côté de « Plus de détails » et « Notes », afin que chaque champ n'ait qu'un seul endroit où être modifié."
         },
         {
           "title": "Ajustements : une remise, une correction d'import, des espèces non enregistrées",

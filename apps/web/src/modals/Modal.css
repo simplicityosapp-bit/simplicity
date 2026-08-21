@@ -1080,6 +1080,18 @@ html[dir="rtl"] .ec-bill-label {
 .ec-bill-2 { grid-template-columns: 1fr 1fr; }
 .ec-bill-cell.divided-start { border-inline-start: 1px solid var(--divider); }
 /* read-only group-session rows under the personal sessions strip */
+/* One per-group price row: the group name beside the override box. Both were
+   styled inline on the element — a style attribute is the one place a token
+   change cannot reach, and the font-size already had to spell out the
+   --text-scale multiplication that every class here gets for free. */
+.ec-grp-price {
+  align-items: center;
+  margin-bottom: 6px;
+}
+.ec-grp-price-name {
+  font-size: calc(13px * var(--text-scale));
+  color: var(--espresso);
+}
 .ec-grp-row {
   display: flex;
   align-items: center;

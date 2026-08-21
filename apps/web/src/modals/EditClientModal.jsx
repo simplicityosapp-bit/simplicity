@@ -4,7 +4,7 @@ import FormSection from '../components/FormSection'
 import SelectMenu from '../components/SelectMenu'
 import Modal from './Modal'
 import MeetingTypesModal from './MeetingTypesModal'
-import ConfirmModal from './ConfirmModal'
+import { useDiscardGuard } from './useDiscardGuard'
 import { isr } from '@simplicity/core'
 import { useMeetingTypes } from '../hooks/useMeetingTypes'
 import { useT } from '../i18n/useT'
@@ -38,7 +38,6 @@ const Section = FormSection
    the per-group price table. */
 export default function EditClientModal({ open, onClose, onSave, client, projects = [], groups = [], statuses = [], memberships = [], onUpdateMember, onPaidEntry, onBalanceEntry, rawPaid = 0, memberTotal = 0, personalHeld = 0, groupSessions = [] }) {
   const { t } = useT('modalsClient')
-  const { t: ts } = useT('modalsSystem') // shared modal chrome (discard prompt)
   /* Ties each label to its field so clicking the WORD puts the cursor in the
      box — the target was the box alone until now. One useId per mount, not
      one per field: the ids only have to be unique on the page, and the modal
@@ -96,8 +95,10 @@ export default function EditClientModal({ open, onClose, onSave, client, project
      it, silently. Escape / the overlay / the X / «ביטול» all come through here
      now; saving calls onClose directly and bypasses it. An untouched form
      still closes immediately. */
-  const [confirmDiscard, setConfirmDiscard] = useState(false)
-  const requestClose = () => { if (formDirty) setConfirmDiscard(true); else onClose() }
+  /* The shared hook rather than a fifth hand-rolled copy: it asks the same
+     four strings from the same namespace, so this is byte-identical to what
+     stood here — six other forms already take it in one line. */
+  const guard = useDiscardGuard(formDirty, onClose)
   /* Raw text held while «יתרה» is being typed into — see onBalanceInput. */
   const [balanceDraft, setBalanceDraft] = useState(null)
   const { types: meetingTypes, refetch: refetchMeetingTypes } = useMeetingTypes()
@@ -217,6 +218,16 @@ export default function EditClientModal({ open, onClose, onSave, client, project
   const statusLabel = pickedSub && pickedSub.display_name !== metaLabel
     ? `${metaLabel} · ${pickedSub.display_name}`
     : metaLabel
+  /* What the collapsed "פרטים" head reports. It showed the status alone —
+     the least distinguishing thing in a section that also holds the name,
+     the phone and the project, and a word the four status pills right below
+     it already say the moment you open it. The name is the section's
+     subject and is always there; the status follows it, and the project
+     joins when the client has one. Same "· "-joined shape every other
+     section summary here uses. */
+  const detailsSummary = [form.name.trim(), statusLabel, projects.find((p) => p.id === form.project_id)?.name]
+    .filter(Boolean)
+    .join(' · ')
   /* How far the hand-edited "בוצעו" sits from what the app actually recorded.
      The difference is stored as sessions_done_adjustment, and nothing on
      screen used to say so — the number simply took, with a silent correction
@@ -355,11 +366,11 @@ export default function EditClientModal({ open, onClose, onSave, client, project
         form of the lot was the one that made you scroll back to the button.
         It routes through submit(), so the empty-name guard still stops it and
         still re-opens the section holding the offending field. */}
-    <Modal open={open} onClose={requestClose} onSubmit={submit} title={client.name ? t('editClient.titleNamed', { name: client.name }) : t('editClient.title')}>
+    <Modal open={open} onClose={guard.requestClose} onSubmit={submit} title={client.name ? t('editClient.titleNamed', { name: client.name }) : t('editClient.title')}>
       <Section
         icon={<User size={17} strokeWidth={1.7} />}
         title={t('editClient.secDetails')}
-        summary={statusLabel}
+        summary={detailsSummary}
         /* Named so the head's aria-controls resolves — FormSection has always
            accepted an id and every other caller (client-more, task-details,
            lead-details, goal-details, tx-details) passes one. This form was the
@@ -628,8 +639,8 @@ export default function EditClientModal({ open, onClose, onSave, client, project
               {memberships.map((m) => {
                 const g = groups.find((x) => x.id === m.group_id)
                 return (
-                  <Box key={m.id} className="m-row2" style={{ alignItems: 'center', marginBottom: '6px' }}>
-                    <Txt style={{ fontSize: 'calc(13px * var(--text-scale))', color: 'var(--espresso)' }}>{g?.name || t('editClient.groupFallback')}</Txt>
+                  <Box key={m.id} className="m-row2 ec-grp-price">
+                    <Txt className="ec-grp-price-name">{g?.name || t('editClient.groupFallback')}</Txt>
                     <Input
                       type="number"
                       min="0"
@@ -652,20 +663,11 @@ export default function EditClientModal({ open, onClose, onSave, client, project
       {err && !!form.name.trim() && <Txt as="p" className="m-error">{err}</Txt>}
 
       <Box className="m-actions">
-        <Btn type="button" className="m-btn-cancel" onClick={requestClose}>{t('common.cancel')}</Btn>
+        <Btn type="button" className="m-btn-cancel" onClick={guard.requestClose}>{t('common.cancel')}</Btn>
         <Btn type="button" className="m-btn-save" onClick={submit} disabled={busy}>{busy ? t('common.saving') : t('common.save')}</Btn>
       </Box>
 
-      <ConfirmModal
-        open={confirmDiscard}
-        onClose={() => setConfirmDiscard(false)}
-        title={ts('discard.title')}
-        message={ts('discard.message')}
-        confirmLabel={ts('discard.confirm')}
-        cancelLabel={ts('discard.cancel')}
-        danger
-        onConfirm={() => { setConfirmDiscard(false); onClose() }}
-      />
+      {guard.confirm}
     </Modal>
     <MeetingTypesModal open={manageTypes} onClose={() => { setManageTypes(false); refetchMeetingTypes() }} />
     </>

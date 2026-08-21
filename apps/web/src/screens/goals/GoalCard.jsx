@@ -41,8 +41,14 @@ function GoalCard({ scored, index, entries = [], onAddEntry, onDeleteEntry, onEd
         <Btn className="g-card-del" onClick={() => onDelete?.(goal)} aria-label={t('card.deleteAria')}>
           <Trash2 size={13} strokeWidth={1.7} aria-hidden="true" />
         </Btn>
+        {/* The real figure, not a capped one. This printed "100%+" while the bar
+            directly beneath it printed the true 340% — two numbers for the same
+            thing on the same card, and the smaller one was the lie. The bar's
+            WIDTH still stops at 100 (MoonDualBars caps it); only the reading is
+            uncapped, which is what the manual has always described. The sage
+            'over' colour keeps saying you passed it. */}
         <Txt as="p" className={`g-card-pct${pure >= 100 ? ' over' : ''}`}>
-          {Math.min(pure, 100)}%{pure > 100 ? '+' : ''}
+          {pure}%
         </Txt>
       </Box>
 
@@ -54,7 +60,12 @@ function GoalCard({ scored, index, entries = [], onAddEntry, onDeleteEntry, onEd
         <Txt className="g-card-target mono">
           {formatGoalValue(actual, cat)} / {formatGoalValue(target, cat)}
         </Txt>
-        <Txt className="g-card-stars" aria-label={t('card.importanceAria', { importance })}>
+        {/* role="img": an aria-label on a generic span is ignored by most
+            screen readers, so the importance was announced as nothing at all.
+            It also stops five stars — a shape that is a rating CONTROL almost
+            everywhere else — reading as something you can press here, which it
+            is not. Editing importance lives in the goal form. */}
+        <Txt className="g-card-stars" role="img" aria-label={t('card.importanceAria', { importance })}>
           {[1, 2, 3, 4, 5].map((i) => (
             <Star
               key={i}

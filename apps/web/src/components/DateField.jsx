@@ -41,7 +41,10 @@ const clipEdges = (el) => {
 }
 const POPUP_H = 330 /* approx calendar height — enough to choose a side */
 
-export default function DateField({ value, onChange, className = '', disabled = false, placeholder }) {
+/* `id` lands on the trigger button so a sibling <label htmlFor> can name the
+   field. A button is a labelable element, so the association is real — without
+   it the caller's htmlFor pointed at nothing, which is worse than no label. */
+export default function DateField({ value, onChange, className = '', disabled = false, placeholder, id }) {
   const { t, lang } = useT('components')
   const ph = placeholder ?? t('dateField.placeholder')
   const { prefs } = useUserPreferences()
@@ -122,6 +125,7 @@ export default function DateField({ value, onChange, className = '', disabled = 
   return (
     <Box className={`datefield ${className}`} ref={ref}>
       <Btn
+        id={id}
         type="button"
         className="datefield-btn"
         disabled={disabled}

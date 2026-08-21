@@ -1,10 +1,12 @@
 /* ════════════════════════════════════════════════════════════════
    GOAL CATEGORIES API — Supabase data access (RLS-scoped to the user).
    ════════════════════════════════════════════════════════════════
-   CANONICAL: the auto-measurable default categories ARE seeded once per
-   account on the first Goals visit (goals/index.jsx, guarded by
-   prefs.goalsSeeded). The empty "choose where to start" chooser now only
-   serves a user who deleted every category.
+   Categories are NOT seeded. de5e8eb7 dropped the one-time seeding along with
+   the on-screen metric management, and prefs.goalsSeeded has not existed in the
+   code since — only in comments like the one this replaces. A category is
+   created on demand when a goal first needs it (goals/index.jsx →
+   resolveCategoryId), and the "choose where to start" chooser it mentions is
+   GoalCategoryPicker, which nothing imports.
    ════════════════════════════════════════════════════════════════ */
 
 import { supabase } from '../supabase'

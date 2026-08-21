@@ -1,11 +1,17 @@
 /* ════════════════════════════════════════════════════════════════
    GOAL CATEGORY PRESETS — one-tap "auto" categories.
    ════════════════════════════════════════════════════════════════
-   CANONICAL: these defaults ARE seeded once per account on first visit to
-   Goals (goals/index.jsx, guarded by prefs.goalsSeeded) so a new user lands
-   on a ready board. Each carries the technical config (measurement_type /
-   data_source / graph_type) so a non-technical user never has to set it.
-   Custom (manual) categories are created via AddGoalCategoryModal instead.
+   NOT seeded — de5e8eb7 removed the one-time seeding, and prefs.goalsSeeded
+   exists nowhere in the code. A preset becomes a real category on demand, the
+   first time a goal picks that metric (goals/index.jsx → resolveCategoryId).
+   Each carries the technical config (measurement_type / data_source /
+   graph_type) so a non-technical user never has to set it.
+   Manual goals all share ONE bucket (MANUAL_CATEGORY below) — that was the
+   point of de5e8eb7, not an accident. AddGoalCategoryModal, which this comment
+   used to send you to, has been imported by nothing since; a second manual
+   category cannot be created from anywhere in the app. Progress is still kept
+   apart per goal — goal_entries.goal_id, migration 0110 — so sharing the bucket
+   costs a grouping heading, not a number.
 
    i18n: display strings (name/hint) live in i18n (namespace 'presets',
    presets:category.<key>.name / .hint) and follow the active language.

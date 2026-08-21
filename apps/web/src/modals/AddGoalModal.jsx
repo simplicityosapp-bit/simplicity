@@ -1,6 +1,9 @@
 import { useState } from 'react'
-import { AlertTriangle } from 'lucide-react'
+import { AlertTriangle, SlidersHorizontal } from 'lucide-react'
 import Modal from './Modal'
+import { useDiscardGuard, isDirty, useScrollToError, useFormDraft } from './useDiscardGuard'
+import SelectMenu from '../components/SelectMenu'
+import FormSection from '../components/FormSection'
 import DateField from '../components/DateField'
 import ScheduleDayPicker from '../components/ScheduleDayPicker'
 import { questionText, scheduledOccurrences, buildSchedulePattern } from '@simplicity/core'
@@ -58,7 +61,17 @@ export default function AddGoalModal({ open, onClose, onSave, projects = [], gro
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }))
-  const close = () => { setForm(blank()); setErr(''); setBusy(false); onClose() }
+  const [detailsOpen, setDetailsOpen] = useState(false)
+  const close = () => { setForm(blank()); setDetailsOpen(false); setErr(''); setBusy(false); onClose() }
+  /* The four shared behaviours the lead, task and transaction forms have had
+     since 09/08 and this one — the LONGEST add form in the app — had none of.
+     Closing it binned a fully written-out goal without a word and with nothing
+     to come back to. This form only ever creates, so the draft has no edit case
+     to guard against. */
+  const draft = useFormDraft({ name: 'goal', form, setForm, blank: blank(), enabled: open })
+  const guard = useDiscardGuard(isDirty(form, blank()), () => { draft.clear(); close() })
+  /* A rejected save should put the field it rejected back on screen. */
+  useScrollToError(err)
 
   const selectedMetric = METRICS.find((m) => m.key === form.metric_key)
   const isManual = selectedMetric?.measurement_type === 'manual'
@@ -130,6 +143,7 @@ export default function AddGoalModal({ open, onClose, onSave, projects = [], gro
         manual_input_type: null,
         schedule_pattern: null,
       })
+      draft.clear()
       close()
     } catch (e) {
       setBusy(false)
@@ -137,14 +151,28 @@ export default function AddGoalModal({ open, onClose, onSave, projects = [], gro
     }
   }
 
+  /* SelectMenu wants {value,label}; these were four raw <select>s. */
+  const noneOpt = { value: '', label: t('common.none') }
+  const metricOptions = [
+    { value: '', label: t('addGoal.pickMetric') },
+    ...METRICS.map((m) => ({ value: m.key, label: (m.icon ? m.icon + ' ' : '') + m.name })),
+  ]
+  const projectOptions = [noneOpt, ...projects.map((p) => ({ value: p.id, label: p.name }))]
+  const groupOptions = [
+    { value: '', label: t('addGoal.noGroup') },
+    ...groups.filter((g) => g.project_id === form.project_id).map((g) => ({ value: g.id, label: g.name })),
+  ]
+  const questionOptions = [
+    { value: '', label: t('addGoal.pickQuestion') },
+    ...activeQuestions.map((q) => ({ value: q.id, label: (q.icon ? q.icon + ' ' : '') + questionText(q, gender) })),
+  ]
+
   return (
-    <Modal open={open} onClose={close} title={t('addGoal.title')}>
+    <>
+    <Modal open={open} onClose={guard.requestClose} onSubmit={submit} title={t('addGoal.title')}>
       <Box className="m-field">
         <Box as="label" className="m-label">{t('addGoal.metric')}</Box>
-        <select className="m-select" value={form.metric_key} onChange={(e) => { set('metric_key', e.target.value); if (err) setErr('') }}>
-          <option value="">{t('addGoal.pickMetric')}</option>
-          {METRICS.map((m) => <option key={m.key} value={m.key}>{m.icon ? m.icon + ' ' : ''}{m.name}</option>)}
-        </select>
+        <SelectMenu value={form.metric_key} onChange={(v) => { set('metric_key', v); if (err) setErr('') }} options={metricOptions} placeholder={t('addGoal.pickMetric')} ariaLabel={t('addGoal.metric')} />
       </Box>
       <Box className="m-field">
         <Box as="label" className="m-label">{t('addGoal.goalName')}</Box>
@@ -177,30 +205,37 @@ export default function AddGoalModal({ open, onClose, onSave, projects = [], gro
           </Box>
         )}
       </Box>
-      <Box className="m-field">
-        <Box as="label" className="m-label">{t('addGoal.importance')}</Box>
-        <Box className="m-pills">
-          {IMPORTANCE.map((n) => (
-            <Btn key={n} type="button" className={`m-pill${Number(form.importance) === n ? ' on' : ''}`} onClick={() => set('importance', n)}>{n}</Btn>
-          ))}
-        </Box>
-      </Box>
-      <Box className="m-field">
-        <Box as="label" className="m-label">{t('addGoal.projectOptional')}</Box>
-        <select className="m-select" value={form.project_id} onChange={(e) => { set('project_id', e.target.value); set('group_id', '') }}>
-          <option value="">{t('common.none')}</option>
-          {projects.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
-        </select>
-      </Box>
-      {form.project_id && groups.some((g) => g.project_id === form.project_id) && (
+      {/* What the goal IS — its metric, name, window and number — stays in the
+          open. How much it matters and where it belongs go behind the same lid
+          the lead, task and transaction forms use; this form had none, and it
+          is the one with the most optional half. Closed by default: importance
+          has a working default of 3 and both pickers are genuinely optional. */}
+      <FormSection
+        id="goal-details"
+        icon={<SlidersHorizontal size={16} strokeWidth={1.7} />}
+        title={t('addGoal.moreDetails')}
+        open={detailsOpen}
+        onToggle={() => setDetailsOpen((o) => !o)}
+      >
         <Box className="m-field">
-          <Box as="label" className="m-label">{t('addGoal.groupOptional')}</Box>
-          <select className="m-select" value={form.group_id} onChange={(e) => set('group_id', e.target.value)}>
-            <option value="">{t('addGoal.noGroup')}</option>
-            {groups.filter((g) => g.project_id === form.project_id).map((g) => <option key={g.id} value={g.id}>{g.name}</option>)}
-          </select>
+          <Box as="label" className="m-label">{t('addGoal.importance')}</Box>
+          <Box className="m-pills">
+            {IMPORTANCE.map((n) => (
+              <Btn key={n} type="button" className={`m-pill${Number(form.importance) === n ? ' on' : ''}`} onClick={() => set('importance', n)}>{n}</Btn>
+            ))}
+          </Box>
         </Box>
-      )}
+        <Box className="m-field">
+          <Box as="label" className="m-label">{t('addGoal.projectOptional')}</Box>
+          <SelectMenu value={form.project_id} onChange={(v) => { set('project_id', v); set('group_id', '') }} options={projectOptions} placeholder={t('common.none')} ariaLabel={t('addGoal.projectOptional')} />
+        </Box>
+        {form.project_id && groups.some((g) => g.project_id === form.project_id) && (
+          <Box className="m-field">
+            <Box as="label" className="m-label">{t('addGoal.groupOptional')}</Box>
+            <SelectMenu value={form.group_id} onChange={(v) => set('group_id', v)} options={groupOptions} placeholder={t('addGoal.noGroup')} ariaLabel={t('addGoal.groupOptional')} />
+          </Box>
+        )}
+      </FormSection>
 
       {isManual && (
         <Box className="m-field">
@@ -227,10 +262,7 @@ export default function AddGoalModal({ open, onClose, onSave, projects = [], gro
 
           {qMode === 'existing' ? (
             hasActiveQ ? (
-              <select className="m-select" value={form.tracked_by_question_id} onChange={(e) => { set('tracked_by_question_id', e.target.value); if (err) setErr('') }}>
-                <option value="">{t('addGoal.pickQuestion')}</option>
-                {activeQuestions.map((q) => <option key={q.id} value={q.id}>{q.icon ? q.icon + ' ' : ''}{questionText(q, gender)}</option>)}
-              </select>
+              <SelectMenu value={form.tracked_by_question_id} onChange={(v) => { set('tracked_by_question_id', v); if (err) setErr('') }} options={questionOptions} placeholder={t('addGoal.pickQuestion')} ariaLabel={t('addGoal.dailyQuestion')} />
             ) : (
               <Txt as="p" className="m-error">{t('addGoal.noActiveQuestions')}</Txt>
             )
@@ -288,9 +320,14 @@ export default function AddGoalModal({ open, onClose, onSave, projects = [], gro
       {err && <Txt as="p" className="m-error">{err}</Txt>}
 
       <Box className="m-actions">
-        <Btn type="button" className="m-btn-cancel" onClick={close}>{t('common.cancel')}</Btn>
+        <Btn type="button" className="m-btn-cancel" onClick={guard.requestClose}>{t('common.cancel')}</Btn>
         <Btn type="button" className="m-btn-save" onClick={submit} disabled={busy}>{busy ? t('common.saving') : t('common.save')}</Btn>
       </Box>
     </Modal>
+
+    {/* Sibling of the sheet, never a child — every .m-sheet shares z-index 510,
+        so paint order is DOM order. */}
+    {guard.confirm}
+    </>
   )
 }

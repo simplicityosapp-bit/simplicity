@@ -51,7 +51,7 @@ export interface MoonData {
   groups?: MoonGroup[]
 }
 interface Period { start: Date; end: Date }
-export interface ScoredGoal { goal: MoonGoal; cat: MoonCategory; target: number; actual: number; pure: number; paced: number }
+export interface ScoredGoal { goal: MoonGoal; cat: MoonCategory; target: number; actual: number; pure: number; paced: number; ended?: boolean }
 
 const live = <T extends { deleted_at?: string | null }>(a: T[] | null | undefined): T[] =>
   (a || []).filter((r) => !r.deleted_at)
@@ -78,6 +78,32 @@ function goalPeriod(goal: MoonGoal, now: Date): Period {
   const start = goal.created_at ? new Date(goal.created_at) : new Date(now.getFullYear(), now.getMonth(), 1)
   const end = goal.target_date ? new Date(goal.target_date + 'T23:59:59') : new Date(now.getFullYear() + 10, 0, 1)
   return { start, end }
+}
+
+/* A deadline goal is OVER once its target date has passed.
+
+   Nothing used to check this. `target_date` was written by the goal form and
+   printed as "עד 12/09", and then no code read it again — so a one-off goal
+   stayed on the goals screen for ever AND kept its full importance weight in
+   the מבט על score, permanently dragging the number with a result that could
+   no longer change. (goalPeriod already clamps its window to the same
+   instant, so after the deadline elapsedFraction pins to 1 and paced === pure
+   — the goal freezes at whatever it reached and never moves again.)
+
+   Only a deadline goal ends. Monthly and weekly ones roll into a fresh
+   period, which is the entire point of them, and a deadline goal with no
+   target_date has no date to pass.
+
+   Reaching the target early does NOT end it — owner decision 2026-08-21: the
+   date is the only thing that closes a goal, so passing 100% early still
+   lets you keep piling on, and a later deletion that drops it back below
+   100% cannot resurrect something already closed.
+
+   Built from the same `+ T23:59:59` string goalPeriod uses, so the two can
+   never disagree about when the last day ends. */
+export function isGoalEnded(goal: { time_frame?: string; target_date?: string | null }, now: Date = new Date()): boolean {
+  if (goal.time_frame !== 'deadline' || !goal.target_date) return false
+  return now > new Date(goal.target_date + 'T23:59:59')
 }
 
 function elapsedFraction(period: Period, now: Date): number {
@@ -208,7 +234,15 @@ function scoreGoal(goal: MoonGoal, now: Date, categories: MoonCategory[], entrie
 
 /* `data` lets a screen feed real Supabase rows; omitted members → [] (no mock
    fallback). { goals, categories, entries, transactions } */
-export function moonGetData(now: Date = new Date(), data?: MoonData): { overall: { pure: number; paced: number; confidence: number } | null; scored: ScoredGoal[] } {
+/* `scored` is the LIVE set — everything still being worked on. A goal whose
+   deadline has passed comes back separately in `ended`, so every consumer
+   that asks "how am I doing" (the ring, the home widget, the project ring,
+   the per-category rollup, the trend) excludes it without having to know it
+   exists. Only goalsByCategory opts back in, because the goals screen is the
+   RECORD and the owner asked for a finished goal to stay on it, tagged.
+   The alternative — one array with a flag — put the burden on five call
+   sites to remember to filter, which is five chances to forget. */
+export function moonGetData(now: Date = new Date(), data?: MoonData): { overall: { pure: number; paced: number; confidence: number } | null; scored: ScoredGoal[]; ended: ScoredGoal[] } {
   const {
     goals = [],
     categories = [],
@@ -220,11 +254,20 @@ export function moonGetData(now: Date = new Date(), data?: MoonData): { overall:
     members = [],
     groups = [],
   } = data || {}
-  const scored = live(goals)
+  const all = live(goals)
     .filter((g) => !g.parent_goal_id)
     .map((g) => scoreGoal(g, now, categories, entries, transactions, clients, leads, answers, members, groups))
     .filter((s): s is ScoredGoal => Boolean(s))
-  if (!scored.length) return { overall: null, scored: [] }
+  const scored: ScoredGoal[] = []
+  const ended: ScoredGoal[] = []
+  all.forEach((s) => {
+    if (isGoalEnded(s.goal, now)) ended.push({ ...s, ended: true })
+    else scored.push(s)
+  })
+  /* No LIVE goal → no score, even when finished ones remain. null is a gap,
+     not a zero: "you are at 0%" would be a claim about a month in which there
+     was simply nothing left to measure. */
+  if (!scored.length) return { overall: null, scored: [], ended }
   let tw = 0, tp = 0, tpc = 0, tc = 0
   scored.forEach((s) => {
     const w = Math.max(1, s.goal.importance || 3)
@@ -240,6 +283,7 @@ export function moonGetData(now: Date = new Date(), data?: MoonData): { overall:
       confidence: Math.round(tc / tw),
     },
     scored,
+    ended,
   }
 }
 

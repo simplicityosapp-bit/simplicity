@@ -27,6 +27,7 @@
   },
   "card": {
     "editAria": "Editar objetivo",
+    "ended": "Finalizado",
     "deleteAria": "Eliminar objetivo",
     "importanceAria": "Importancia {{importance}} de 5",
     "addEntry": "Añadir registro",

@@ -102,6 +102,12 @@ function GoalCard({ scored: s, onEdit }) {
             <View style={[styles.gCatRow, flip && styles.rowFlip]}>
               <View style={[styles.gCatDot, { backgroundColor: s.cat?.color || colors.textSub }]} />
               <Text style={[styles.gCatText, flip && styles.txtRtl]} numberOfLines={1}>{s.cat?.name} · {timeFrameLabel(s.goal)}</Text>
+              {/* The deadline has passed — see the web GoalCard. Nothing else on
+                  the card would ever admit it: the percentage and the bars read
+                  exactly as they did the day before, and cannot change again. */}
+              {s.ended ? (
+                <Text style={styles.gEnded}>{i18n.t('goals:card.ended', { defaultValue: 'הסתיים' })}</Text>
+              ) : null}
             </View>
           </View>
           <Text style={[styles.gPct, over && styles.gPctOver]}>{pure}%</Text>
@@ -137,6 +143,18 @@ const styles = StyleSheet.create({
   gTitleBlock: { flex: 1, minWidth: 0 },
   gTitle: { fontSize: 15, fontWeight: '600', color: colors.text },
   gCatRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 4 },
+  /* Muted on purpose: a statement of fact about something finished, not a
+     warning, sharing a line with the category and the date. */
+  gEnded: {
+    marginStart: 6,
+    paddingHorizontal: 6,
+    paddingVertical: 1,
+    borderRadius: 999,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: colors.textSub,
+    fontSize: 10,
+    color: colors.textSub,
+  },
   gCatDot: { width: 8, height: 8, borderRadius: 4 },
   gCatText: { flex: 1, fontSize: 11, color: colors.textSub },
   gPct: { fontSize: 20, fontWeight: '500', color: colors.text, fontVariant: ['tabular-nums'], lineHeight: 20 },

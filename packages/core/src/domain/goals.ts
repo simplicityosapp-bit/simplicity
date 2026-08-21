@@ -99,10 +99,21 @@ export function buildSchedulePattern(mode?: string, days?: number[], x?: string 
 
 /* Scored goals grouped by their category (only categories that have goals).
    `data` forwards real Supabase rows to the scoring engine; omitted → mock. */
+/* The goals screen is the RECORD, so unlike every other reader of the score
+   engine it shows goals whose deadline has passed — carrying `ended: true` so
+   the card can tag them. They stay in their original position rather than
+   being swept to the bottom of their category: the owner asked for a finished
+   goal to stay where it was, only marked. */
 export function goalsByCategory(now: Date = new Date(), data?: MoonData) {
-  const { scored } = moonGetData(now, data)
+  const { scored, ended } = moonGetData(now, data)
+  /* Merge the two back into the order the goals arrived in. Both arrays are
+     already in that order individually, but concatenating them would file
+     every finished goal after every live one. */
+  const rank = new Map((data?.goals || []).map((g, i) => [g.id, i]))
+  const all = [...scored, ...ended]
+    .sort((a, b) => (rank.get(a.goal.id) ?? 0) - (rank.get(b.goal.id) ?? 0))
   const byCat = new Map<string, { category: ScoredGoal['cat']; goals: ScoredGoal[] }>()
-  scored.forEach((s) => {
+  all.forEach((s) => {
     if (!byCat.has(s.cat.id)) byCat.set(s.cat.id, { category: s.cat, goals: [] })
     byCat.get(s.cat.id)!.goals.push(s)
   })

@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { View, Text, Pressable, StyleSheet, I18nManager } from 'react-native'
+import { useEffect, useRef, useState } from 'react'
+import { View, Text, TextInput, Pressable, StyleSheet, I18nManager } from 'react-native'
 import { ChevronDown, Pencil } from 'lucide-react-native'
 import { getClientMemberships, financeQuery, isConfirmedTx, isr, fmtShortDate, fmtTime } from '@simplicity/core'
 import Card from '../components/Card'
@@ -16,9 +16,23 @@ const PRIORITY_COLOR = { high: colors.danger, medium: colors.amberWarn, low: col
 const live = (a) => (a || []).filter((r) => !r.deleted_at)
 const T = (k, o) => i18n.t(`clients:sections.${k}`, o)
 
-function Section({ title, count, defaultOpen = false, onEdit, children }) {
+function Section({ title, count, defaultOpen = false, onEdit, editing = false, inline = false, children }) {
   const [open, setOpen] = useState(defaultOpen)
-  const toggle = () => setOpen((o) => !o)
+  /* Entering edit mode latches the section OPEN. Without it the pencil on a
+     collapsed section armed an editor that rendered into a hidden body — a
+     tap that did nothing at all. Adjusted during render rather than in an
+     effect, the pattern web uses for the same latch. */
+  const [prevEditing, setPrevEditing] = useState(editing)
+  if (editing !== prevEditing) {
+    setPrevEditing(editing)
+    if (editing) setOpen(true)
+  }
+  const isOpen = open || editing
+  /* Inert while editing: isOpen is forced true then, so a toggle tap looked
+     like a no-op but still flipped `open` to false underneath — and the
+     section snapped shut the moment the save landed, hiding the value just
+     written, which is exactly what the latch above exists to prevent. */
+  const toggle = () => { if (!editing) setOpen((o) => !o) }
   const flip = (i18n.language || '').startsWith('he') && !I18nManager.isRTL
   // Non-nested pressables (title / pencil / chevron are siblings) — a Pressable
   // inside the header Pressable swallows the tap on RN Web (same fix as web).
@@ -29,21 +43,83 @@ function Section({ title, count, defaultOpen = false, onEdit, children }) {
           <Text style={[styles.secTitle, flip && styles.txtRtl]}>{title}</Text>
           {count != null ? <Text style={styles.secCount}>{count}</Text> : null}
         </Pressable>
-        {onEdit ? (
+        {onEdit && !(inline && editing) ? (
           <Pressable onPress={onEdit} hitSlop={8} style={styles.secEdit} accessibilityLabel={i18n.t('clients:drawer.edit', { defaultValue: 'ערוך' })}>
             <Pencil size={13} strokeWidth={1.6} color={colors.textSub} />
           </Pressable>
         ) : null}
         <Pressable onPress={toggle} hitSlop={8} style={styles.secChevron}>
-          <ChevronDown size={16} strokeWidth={1.6} color={colors.textSub} style={{ transform: [{ rotate: open ? '180deg' : '0deg' }] }} />
+          <ChevronDown size={16} strokeWidth={1.6} color={colors.textSub} style={{ transform: [{ rotate: isOpen ? '180deg' : '0deg' }] }} />
         </Pressable>
       </View>
-      {open ? <View style={styles.secBody}>{children}</View> : null}
+      {isOpen ? <View style={styles.secBody}>{children}</View> : null}
     </Card>
   )
 }
 
-export default function ClientDrawerSections({ client: c, txns, tasks = [], reminders = [], sessions = [], members = [], groups = [], onEditClient, onEditTx, onEditSession, onEditTask, onEditReminder }) {
+/* The buttons under an open inline editor. Mirrors web's InlineForm: the
+   fields come in as children so they reconcile normally and keep focus
+   while you type. */
+function InlineForm({ onSave, onCancel, saving, error, children }) {
+  const flip = (i18n.language || '').startsWith('he') && !I18nManager.isRTL
+  return (
+    <View style={styles.inline}>
+      {children}
+      {error ? <Text style={[styles.inlineErr, flip && styles.txtRtl]}>{error}</Text> : null}
+      <View style={[styles.inlineActions, flip && styles.rowFlip]}>
+        <Pressable onPress={onCancel} disabled={saving} hitSlop={6} style={styles.inlineBtn}>
+          <Text style={styles.inlineCancel}>{i18n.t('clients:inline.cancel')}</Text>
+        </Pressable>
+        <Pressable onPress={onSave} disabled={saving} hitSlop={6} style={[styles.inlineBtn, styles.inlineBtnSave]}>
+          <Text style={styles.inlineSave}>{saving ? i18n.t('clients:inline.saving') : i18n.t('clients:inline.save')}</Text>
+        </Pressable>
+      </View>
+    </View>
+  )
+}
+
+export default function ClientDrawerSections({ client: c, txns, tasks = [], reminders = [], sessions = [], members = [], groups = [], onEditClient, onEditTx, onEditSession, onEditTask, onEditReminder, onUpdateClient }) {
+  /* ── inline single-value editing ──
+     «פרטים נוספים» and «הערות» handed their pencil straight to the full edit
+     modal — the same thing the header's «ערוך» button does — so one pencil
+     icon meant two different things depending on which section it sat in.
+     They edit their own fields in place now, exactly as they already do on
+     web, which is also what lets the edit FORM stop carrying a second copy
+     of the same three fields.
+     Sections whose content is not a single value (sessions, payments, the
+     membership price table) keep sending you to the modal. */
+  const [inlineKey, setInlineKey] = useState(null)
+  /* Mirrors inlineKey so a save that lands late can tell whether the user has
+     since moved to a different editor — the value captured in that closure is
+     stale by then. */
+  const inlineKeyRef = useRef(null)
+  useEffect(() => { inlineKeyRef.current = inlineKey }, [inlineKey])
+  const [draft, setDraft] = useState({})
+  const [saving, setSaving] = useState(false)
+  const [saveErr, setSaveErr] = useState('')
+  const setField = (k, v) => setDraft((d) => ({ ...d, [k]: v }))
+  const closeInline = () => { setInlineKey(null); setDraft({}); setSaving(false); setSaveErr('') }
+  const toggleInline = (k, seed) => {
+    if (inlineKey === k) { closeInline(); return }
+    setInlineKey(k); setDraft(seed); setSaving(false); setSaveErr('')
+  }
+  const saveInline = async (patch) => {
+    if (saving) return
+    const forKey = inlineKeyRef.current
+    setSaving(true)
+    setSaveErr('')
+    try {
+      await onUpdateClient?.(c.id, patch)
+      setSaving(false)
+      /* Only act if this editor is still the open one — a slow save landing
+         after the user switched must not close, or error onto, the new one. */
+      if (inlineKeyRef.current === forKey) { setInlineKey(null); setDraft({}) }
+    } catch {
+      setSaving(false)
+      if (inlineKeyRef.current === forKey) setSaveErr(i18n.t('clients:inline.saveFailed'))
+    }
+  }
+
   // Manual RTL flip for the LTR-engine Hebrew state (no-op on a real RTL device):
   // put leading dots/nums on the right, trailing dates/amounts on the left, and
   // right-align labels.
@@ -143,8 +219,40 @@ export default function ClientDrawerSections({ client: c, txns, tasks = [], remi
       <View style={styles.group}>
         <Text style={styles.groupTitle}>{T('contactEnv')}</Text>
 
-        <Section title={T('moreDetails')} onEdit={onEditClient}>
-          {(c.address || c.birth_date) ? (
+        <Section
+          title={T('moreDetails')}
+          editing={inlineKey === 'more'}
+          inline
+          onEdit={onUpdateClient ? () => toggleInline('more', { address: c.address || '', birth_date: c.birth_date || '' }) : onEditClient}
+        >
+          {inlineKey === 'more' ? (
+            <InlineForm
+              saving={saving}
+              error={saveErr}
+              onCancel={closeInline}
+              onSave={() => saveInline({
+                address: (draft.address || '').trim() || null,
+                birth_date: draft.birth_date || null,
+              })}
+            >
+              <Text style={[styles.inlineLabel, flip && styles.txtRtl]}>{T('address')}</Text>
+              <TextInput
+                style={[styles.inlineInput, flip && styles.txtRtl]}
+                value={draft.address || ''}
+                onChangeText={(v) => setField('address', v)}
+                placeholder={i18n.t('clients:form.addressPlaceholder', { defaultValue: '' })}
+                placeholderTextColor={colors.textFaint}
+              />
+              <Text style={[styles.inlineLabel, flip && styles.txtRtl]}>{T('birthDate')}</Text>
+              <TextInput
+                style={[styles.inlineInput, flip && styles.txtRtl]}
+                value={draft.birth_date || ''}
+                onChangeText={(v) => setField('birth_date', v)}
+                placeholder="YYYY-MM-DD"
+                placeholderTextColor={colors.textFaint}
+              />
+            </InlineForm>
+          ) : (c.address || c.birth_date) ? (
             <>
               {c.address ? <View style={[styles.row, flip && styles.rowFlip]}><View style={styles.rowBody}><Text style={[styles.rowTitle, flip && styles.txtRtl]}>{c.address}</Text><Text style={[styles.rowSub, flip && styles.txtRtl]}>{T('address')}</Text></View></View> : null}
               {c.birth_date ? <View style={[styles.row, flip && styles.rowFlip]}><View style={styles.rowBody}><Text style={[styles.rowTitle, flip && styles.txtRtl]}>{fmtShortDate(c.birth_date)}</Text><Text style={[styles.rowSub, flip && styles.txtRtl]}>{T('birthDate')}</Text></View></View> : null}
@@ -152,8 +260,39 @@ export default function ClientDrawerSections({ client: c, txns, tasks = [], remi
           ) : <Text style={styles.empty}>{T('noMoreDetails')}</Text>}
         </Section>
 
-        <Section title={T('notes')} onEdit={onEditClient}>
-          {c.notes ? (
+        <Section
+          title={T('notes')}
+          editing={inlineKey === 'notes'}
+          inline
+          onEdit={onUpdateClient ? () => toggleInline('notes', { notes: c.notes || '' }) : onEditClient}
+        >
+          {inlineKey === 'notes' ? (
+            <InlineForm
+              saving={saving}
+              error={saveErr}
+              onCancel={closeInline}
+              onSave={() => {
+                const next = (draft.notes || '').trim() || null
+                const patch = { notes: next }
+                /* The section prints "עודכן ב-…" from this column, so the
+                   stamp has to move with the text or the card shows a fresh
+                   note under a stale date. Only when the text actually
+                   changed — reopening and saving an untouched note must not
+                   claim it was rewritten today. */
+                if (next !== (c.notes ?? null)) patch.notes_updated_at = new Date().toISOString()
+                return saveInline(patch)
+              }}
+            >
+              <TextInput
+                style={[styles.inlineInput, styles.inlineArea, flip && styles.txtRtl]}
+                value={draft.notes || ''}
+                onChangeText={(v) => setField('notes', v)}
+                multiline
+                placeholder={i18n.t('clients:inline.notesPlaceholder')}
+                placeholderTextColor={colors.textFaint}
+              />
+            </InlineForm>
+          ) : c.notes ? (
             <>
               <Text style={styles.note}>{c.notes}</Text>
               {c.notes_updated_at ? <Text style={styles.noteTs}>{T('notesUpdated', { date: fmtShortDate(c.notes_updated_at) })}</Text> : null}
@@ -215,6 +354,29 @@ const styles = StyleSheet.create({
   secBody: { paddingHorizontal: 14, paddingBottom: 14, gap: 8 },
   line: { fontSize: 13, color: colors.text },
   note: { fontSize: 13, color: colors.text, lineHeight: 19 },
+  inline: { gap: 8 },
+  inlineLabel: { fontSize: 11, color: colors.textSub },
+  inlineInput: {
+    minHeight: 44,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderRadius: 12,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: colors.border,
+    backgroundColor: colors.inputBg,
+    fontSize: 13,
+    color: colors.text,
+  },
+  inlineArea: { minHeight: 88, textAlignVertical: 'top' },
+  inlineErr: { fontSize: 12, color: colors.danger },
+  inlineActions: { flexDirection: 'row', justifyContent: 'flex-end', gap: 8, marginTop: 2 },
+  inlineBtn: { minHeight: 44, justifyContent: 'center', paddingHorizontal: 14, borderRadius: 12 },
+  inlineBtnSave: { backgroundColor: colors.btnBg },
+  inlineCancel: { fontSize: 13, color: colors.textSub },
+  /* btnBg/onBtn, NOT brand/onBrand: brand becomes Misted Sage at night and
+     a white glyph on it is the low-contrast trap the web side already has a
+     separate primary-button token for. This pair is that token. */
+  inlineSave: { fontSize: 13, color: colors.onBtn },
   noteTs: { fontSize: 11, color: colors.textFaint, marginTop: 6 },
   empty: { fontSize: 12, color: colors.textFaint, textAlign: 'center', paddingVertical: 4 },
 

@@ -1,8 +1,12 @@
 /* ════════════════════════════════════════════════════════════════
    GOAL ENTRIES API — manual progress entries (RLS-scoped to the user).
    ════════════════════════════════════════════════════════════════
-   An entry belongs to a category (not a single goal); the moon engine
-   sums a category's entries within each goal's period.
+   An entry belongs to a GOAL (goal_id, migration 0110) and carries its
+   category alongside for colour and number formatting. It was category-scoped,
+   and because every manual goal in an account resolves to one shared bucket the
+   engine summed the same entries into all of them — progress logged on one goal
+   showed up on its neighbour. A row with a NULL goal_id predates 0110 and still
+   scores against its whole category; see the note in domain/moon.ts.
    ════════════════════════════════════════════════════════════════ */
 
 import { supabase } from '../supabase'

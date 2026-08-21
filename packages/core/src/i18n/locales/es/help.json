@@ -234,7 +234,7 @@
         },
         {
           "title": "Acciones rápidas en la ficha",
-          "body": "Cuatro botones en la parte superior de la ficha: «Registrar sesión» para una cita que ya ocurrió (fecha, resumen, notas privadas), «Programar cita» para una futura, puntual o como hora fija semanal, «Pago recibido» para registrar un ingreso, y un botón de WhatsApp que abre una conversación con el cliente. Debajo del resumen de facturación está además «Ajuste», para cambios que no son dinero entrante."
+          "body": "Cuatro botones en la parte superior de la ficha: «Registrar sesión» para una cita que ya ocurrió (fecha, resumen, notas privadas), «Programar cita» para una futura, puntual o como hora fija semanal, «Pago recibido» para registrar un ingreso, y un botón de WhatsApp que abre una conversación con el cliente. Debajo del resumen de facturación está además «Ajuste», que abre para editar las tres cifras que tiene encima: sesiones, pagado y saldo."
         },
         {
           "title": "Cambiar el estado desde la ficha",
@@ -246,7 +246,7 @@
         },
         {
           "title": "Ajustes: un descuento, una corrección de importación, efectivo sin registrar",
-          "body": "Debajo del resumen de facturación de la ficha está «Ajuste». En vez de tener que saber qué número editar, eliges qué ha pasado: «Descuento» reduce el saldo sin afirmar que alguien haya pagado; «Corrección de datos importados» arregla un importe que entró mal; «Pago recibido, no registrado» sube «Pagado». Una línea indica exactamente qué cambiará antes de guardar. Puedes añadir una nota («efectivo en la sesión»), y todo queda guardado con fecha y aparece como una fila en Pagos, de modo que el total de arriba siempre cuadra con lo que hay debajo. La deuda condonada va en su propio grupo, porque no forma parte del «Total pagado». Un ajuste nunca llega a tus informes financieros; si el dinero sí entró, usa «Registrar como ingreso en su lugar»."
+          "body": "El botón «Ajuste», debajo del resumen de facturación, abre los números de la ficha tal como están —«Programadas» y «Realizadas», «Pagado» y «Saldo»— solo que ahora puedes corregirlos. Todo se actualiza mientras escribes: subir «Pagado» baja «Saldo» al instante, y cambiar las sesiones vuelve a calcular el total a pagar. Cada cifra de dinero que se mueve tiene su propia pregunta: «Pagado» puede ser una «Corrección de datos importados» o un «Pago recibido, no registrado», mientras que bajar «Saldo» se registra siempre como descuento: un importe condonado sin afirmar que alguien haya pagado. Cambiar ambos a la vez se guarda de una sola vez y genera dos filas, porque cada una es un motivo distinto. Antes de guardar aparece una línea por cada cosa que va a cambiar, y puedes añadir una nota («efectivo en la sesión»). Las sesiones no son dinero: se guardan directamente en el cliente sin motivo, y unas «Realizadas» editadas a mano se guardan como la diferencia frente a lo que la app registró. Cada ajuste de dinero aparece como una fila con fecha en Pagos, de modo que el total de arriba siempre cuadra con lo que hay debajo; la deuda condonada va en su propio grupo, porque no forma parte del «Total pagado». Un ajuste nunca llega a tus informes financieros; si el dinero sí entró, usa «Registrar como ingreso en su lugar»."
         },
         {
           "title": "Seleccionar varios clientes a la vez",

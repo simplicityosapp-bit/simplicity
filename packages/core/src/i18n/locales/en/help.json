@@ -234,7 +234,7 @@
         },
         {
           "title": "Quick actions in the file",
-          "body": "Four buttons at the top of the file: \"Log session\" for a meeting that already happened (date, summary, private notes), \"Schedule meeting\" for a future one — either one-off or a weekly recurring slot, \"Got paid\" to record income, and a WhatsApp button that opens a chat with the client. Below the billing summary there is also \"Adjustment\", for changes that are not money coming in."
+          "body": "Four buttons at the top of the file: \"Log session\" for a meeting that already happened (date, summary, private notes), \"Schedule meeting\" for a future one — either one-off or a weekly recurring slot, \"Got paid\" to record income, and a WhatsApp button that opens a chat with the client. Below the billing summary there is also \"Adjustment\", which opens the three figures above it — sessions, paid and balance — for editing."
         },
         {
           "title": "Changing the status from the file",
@@ -246,7 +246,7 @@
         },
         {
           "title": "Adjustments — a discount, an import fix, cash that was never booked",
-          "body": "Below the billing summary in the file there is \"Adjustment\". Instead of having to know which number to edit, you pick what happened: \"Discount\" lowers the balance without claiming anyone paid; \"Imported data fix\" corrects a figure that came in wrong; \"Payment received, never recorded\" raises \"Paid\". A line states exactly what will change before you save. You can add a note (\"cash at the session\"), and it is all stored with a date and appears as a row under Payments — so the total above always adds up to what is listed beneath it. Written-off debt sits in its own group, since it is not part of \"Total paid\". An adjustment never reaches your finance reports; if the money really did arrive, use \"Record as income instead\"."
+          "body": "The \"Adjustment\" button below the billing summary opens the card's own numbers exactly as they read — \"Scheduled\" and \"Held\", \"Paid\" and \"Balance\" — only now you can correct them. Everything updates as you type: raising \"Paid\" drops \"Balance\" straight away, and changing the session counts re-bills the client. Each money figure that moves gets its own question: \"Paid\" can be an \"Imported data fix\" or a \"Payment received, never recorded\", while lowering \"Balance\" is always recorded as a discount — an amount forgiven without claiming anyone paid. Changing both at once saves in one go and files two rows, because each is a different reason. A line appears for everything that will change before you save, and you can add a note (\"cash at the session\"). Sessions are not money: they are written straight to the client with no reason, and a hand-edited \"Held\" is stored as the gap against what the app actually logged. Every money adjustment appears as a dated row under Payments, so the total above always adds up to what is listed beneath it; written-off debt sits in its own group, since it is not part of \"Total paid\". An adjustment never reaches your finance reports; if the money really did arrive, use \"Record as income instead\"."
         },
         {
           "title": "Selecting several clients at once",

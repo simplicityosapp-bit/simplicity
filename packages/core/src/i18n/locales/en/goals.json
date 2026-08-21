@@ -13,6 +13,7 @@
   "newGoal": "+ New goal",
   "loading": "Loading goals…",
   "loadError": "Couldn't load goals: {{error}}",
+  "unknownMetric": "Unrecognised metric — try picking a different one.",
   "empty": {
     "firstGoal": "Set your first goal.",
     "setGoal": "Set a goal",

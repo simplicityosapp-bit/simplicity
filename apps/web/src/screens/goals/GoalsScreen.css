@@ -108,7 +108,19 @@
   border-radius: 50%;
   flex-shrink: 0;
 }
+/* ── Card actions: edit + delete ───────────────────────────────── */
+/* Both paint at 24px, sit 10px apart at the top of every card, and one of them
+   deletes the goal. On a phone that is two 24px targets with 10px between them
+   — under the 44px minimum and close enough that a mis-tap opens a delete
+   confirm for a goal you meant to edit. (An undo exists, which softens it, but
+   the tap should not need one.)
+   The PAINT stays 24px so the header keeps its density; the HIT grows to 44px
+   through a positioned ::after, the technique .mg-add-icon already uses. Each
+   one spills 5px toward its sibling — half the gap, so the two hit areas meet
+   and never overlap, which would make it arbitrary which button an ambiguous
+   tap hit — and 15px the other way, into space nothing else claims. */
 .g-card-edit {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -121,6 +133,14 @@
   opacity: 0.6;
   cursor: pointer;
   flex-shrink: 0;
+}
+.g-card-edit::after {
+  content: '';
+  position: absolute;
+  inset-block: -10px;
+  /* Away from delete on the start side, half the gap toward it on the end. */
+  inset-inline-start: -15px;
+  inset-inline-end: -5px;
 }
 .g-card-edit:active { transform: scale(0.9); }
 .g-card-pct {
@@ -253,6 +273,7 @@
 .g-entry-del:active { transform: scale(0.9); }
 
 .g-card-del {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -266,6 +287,14 @@
   cursor: pointer;
   flex-shrink: 0;
   transition: color 0.15s, opacity 0.15s;
+}
+.g-card-del::after {
+  content: '';
+  position: absolute;
+  inset-block: -10px;
+  /* Mirror of edit's: half the gap toward it, the rest away from it. */
+  inset-inline-start: -5px;
+  inset-inline-end: -15px;
 }
 .g-card-del:hover { color: var(--clay-on-dark); opacity: 1; }
 .g-card-del:active { transform: scale(0.9); }

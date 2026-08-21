@@ -13,6 +13,7 @@
   "newGoal": "+ Nouvel objectif",
   "loading": "Chargement des objectifs…",
   "loadError": "Impossible de charger les objectifs : {{error}}",
+  "unknownMetric": "Mesure non reconnue — essayez d'en choisir une autre.",
   "empty": {
     "firstGoal": "Définissez votre premier objectif.",
     "setGoal": "Définir un objectif",

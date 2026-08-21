@@ -13,6 +13,9 @@
   "newGoal": "+ יעד חדש",
   "loading": "טוען יעדים…",
   "loadError": "שגיאה בטעינת היעדים: {{error}}",
+  "unknownMetric": "מדד לא מוכר — נסה/י לבחור מדד אחר.",
+  "unknownMetric_male": "מדד לא מוכר — נסה לבחור מדד אחר.",
+  "unknownMetric_female": "מדד לא מוכר — נסי לבחור מדד אחר.",
   "empty": {
     "firstGoal": "הגדר/י את היעד הראשון שלך.",
     "firstGoal_male": "הגדר את היעד הראשון שלך.",

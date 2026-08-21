@@ -941,7 +941,7 @@
         },
         {
           "title": "What moves together",
-          "body": "A graph that displays several metrics together on the same axis. Use the buttons to choose what to show: revenue, leads, sessions, score, or daily check-in. By default, revenue and score are shown. Each line is scaled to its own range (0–100), so you can compare the shape of the trend even across things measured differently (₪, counts, 1–10). If there isn't enough data, you'll see \"Not enough data for the graph yet\"."
+          "body": "This section lives under \"Go deeper\" at the bottom of the screen — tap it to open. A graph that displays several metrics together on the same axis. Use the buttons to choose what to show: revenue, leads, sessions, score, or daily check-in. By default, revenue and score are shown. Each line is scaled to its own range (0–100), so you can compare the shape of the trend even across things measured differently (₪, counts, 1–10). If there isn't enough data, you'll see \"Not enough data for the graph yet\"."
         },
         {
           "title": "Selecting a Daily Check-In in the Graph",
@@ -949,7 +949,7 @@
         },
         {
           "title": "Links to Explore",
-          "body": "The system automatically checks whether there's a connection between numerical daily check-in questions (scale 1–10) — primarily between two daily questions, and in principle also against revenue, leads, and sessions. Most of the time you'll see \"No significant connection in the data right now\", and that's completely fine. When a stable pattern appears, it's shown as a card describing that the metrics \"tend to move together\" or \"move inversely\", with a strength label (strong, moderate, or subtle), a point count, and a small scatter plot."
+          "body": "This section lives under \"Go deeper\" at the bottom of the screen — tap it to open. The system automatically checks whether there's a connection between numerical daily check-in questions (scale 1–10) — primarily between two daily questions, and in principle also against revenue, leads, and sessions. Most of the time you'll see \"No significant connection in the data right now\", and that's completely fine. When a stable pattern appears, it's shown as a card describing that the metrics \"tend to move together\" or \"move inversely\", with a strength label (strong, moderate, or subtle), a point count, and a small scatter plot."
         },
         {
           "title": "Navigating to Reports and Goals",

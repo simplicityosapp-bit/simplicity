@@ -57,6 +57,9 @@
     "action": "Set",
     "setGoal": "Set a goal"
   },
+  "deeper": {
+    "title": "Go deeper"
+  },
   "logEntry": "Log progress",
   "logEntryAria": "Log progress for {{name}}",
   "footerLink": "Edit your goals ←",

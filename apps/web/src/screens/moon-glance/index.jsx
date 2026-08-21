@@ -5,7 +5,7 @@ import { Trans } from 'react-i18next'
    drawer swapped the crescent for an eye on 2026-07-27 (it competed with the
    theme toggle's own moon). The lunar palette below stays — the name and the
    look are still מבט על's; only the glyph follows the menu. */
-import { Eye, BarChart3, CloudOff, RotateCcw, Target, ArrowLeft, Plus } from 'lucide-react'
+import { Eye, BarChart3, CloudOff, RotateCcw, Target, ArrowLeft, Plus, ChevronDown } from 'lucide-react'
 import { ROUTES } from '../../lib/routes'
 import { moonGetData, moonGetCategories, moonTrend, moonReflection, questionText, buildOverviewTrend, buildOverviewCorrelations, OVERVIEW_METRICS } from '@simplicity/core'
 import { upsertMoonSnapshot } from '../../lib/api/moonSnapshots'
@@ -155,6 +155,8 @@ export default function MoonGlanceScreen() {
      category rows are the place a coach sees a goal falling behind, and the
      screen had no way to act on that. Same modal the widget opens. */
   const [entryCategory, setEntryCategory] = useState(null)
+  /* The two statistical sections start folded — see the lid below. */
+  const [deepOpen, setDeepOpen] = useState(false)
   /* Destructured separately: these are the React-Query cache arrays, stable
      across renders, so the memo below keys off them and not the fresh hook
      objects above. */
@@ -264,9 +266,11 @@ export default function MoonGlanceScreen() {
      500 iterations raises the floor to 0.00200, just above it, so a user with
      enough questions could never be shown a single genuine link again. The
      screen would get faster by going blind. */
+  /* null while the lid is shut, so the engine is not merely deferred but never
+     invoked: the body is unrendered and there is nothing to compute for. */
   const corrInput = useMemo(
-    () => ({ transactions, leads, sessions, answers, questions: activeQuestions }),
-    [transactions, leads, sessions, answers, activeQuestions],
+    () => (deepOpen ? { transactions, leads, sessions, answers, questions: activeQuestions } : null),
+    [deepOpen, transactions, leads, sessions, answers, activeQuestions],
   )
   const deferredCorrInput = useDeferredValue(corrInput, null)
   const correlations = useMemo(
@@ -408,68 +412,100 @@ export default function MoonGlanceScreen() {
         </Box>
       </Box>
 
-      <Box className="mg-overview">
-        <Txt as="p" className="mg-section-h">{t('section.crossModule')}</Txt>
-        <Box className="mg-ov-pills">
-          {OVERVIEW_PILLS.map((m) => {
-            const on = overviewKeys.includes(m.key)
-            const disabled = m.key === 'question' && activeQuestions.length === 0
-            return (
-              <Btn
-                key={m.key}
-                disabled={disabled}
-                aria-pressed={on}
-                className={`mg-ov-pill${on ? ' on' : ''}`}
-                /* The metric's colour rides on the pill, not just on its dot,
-                   so the on-state fill and the dot both read it from one
-                   place. */
-                style={{ '--pill-color': OVERVIEW_METRICS[m.key].color }}
-                onClick={() => toggleOverviewKey(m.key)}
-              >
-                <Txt className="mg-ov-dot" />
-                {t(m.labelKey)}
-              </Btn>
-            )
-          })}
-        </Box>
-        {overviewKeys.includes('question') && activeQuestions.length > 0 && (
-          <select className="mg-ov-select" value={questionId} onChange={(e) => setQuestionId(e.target.value)}>
-            {activeQuestions.map((q) => <option key={q.id} value={q.id}>{questionText(q, gender)}</option>)}
-          </select>
-        )}
-        {/* "Not enough data for a chart yet" is what MultiTrendChart says when
-            it has no drawable series — true when the rows are thin, a lie when
-            the user simply switched every toggle off. Naming the real reason
-            keeps the fix in the user's hands. */}
-        {overviewKeys.length === 0 ? (
-          <Txt as="p" className="mg-ov-empty">{t('overview.noneSelected')}</Txt>
-        ) : (
-          <MultiTrendChart days={overview.days} series={overview.series} />
-        )}
-        <Txt as="p" className="mg-ov-note">{t('overview.note')}</Txt>
+      {/* The two statistical sections folded behind one lid, closed by default.
+          They are the least legible part of the screen for the audience it is
+          for — self-normalised overlays and rank correlations under a coach's
+          pace ring — and the score, its breakdown and the trend say everything
+          a coach needs before them. Folded, not deleted: the analysis is real
+          and someone will want it.
+          Deliberately NOT components/FormSection: that is the lid the add
+          FORMS share, a 1px bordered card meant to sit inside a modal, and it
+          would draw a rectangle around two glass cards here. Same disclosure
+          semantics, this screen's language.
+          Closed also means the correlation engine never runs — the body is not
+          rendered, so the permutation pass that can reach seconds costs nothing
+          until someone asks for it. */}
+      <Box className="mg-deeper">
+        <Btn
+          className={`mg-deeper-head${deepOpen ? ' open' : ''}`}
+          aria-expanded={deepOpen}
+          aria-controls="mg-deeper-body"
+          onClick={() => setDeepOpen((v) => !v)}
+        >
+          <Txt className="mg-deeper-title">{t('deeper.title')}</Txt>
+          {/* Names what is behind the lid, so opening it is not a guess. */}
+          <Txt className="mg-deeper-sum">{t('section.crossModule')} · {t('section.correlations')}</Txt>
+          <ChevronDown size={16} strokeWidth={1.8} className="mg-deeper-chev" aria-hidden="true" />
+        </Btn>
       </Box>
-
-      <Box className="mg-overview">
-        <Txt as="p" className="mg-section-h">{t('section.correlations')}</Txt>
-        {correlations === null ? (
-          /* The deferred pass has not run yet — say "still looking" rather than
-             "nothing found", which is a verdict we have not reached. */
-          <Txt as="p" className="mg-corr-empty">{t('corr.computing')}</Txt>
-        ) : correlations.length === 0 ? (
-          <Txt as="p" className="mg-corr-empty">{t('corr.empty')}</Txt>
-        ) : (
+      <Box id="mg-deeper-body">
+        {deepOpen && (
           <>
-            {correlations.map((c) => (
-              <CorrCard
-                key={c.key}
-                c={c}
-                driverText={questionText(c.driverLabel, gender)}
-                /* outcomeLabel is a metric key now; pills.* holds the same word
-                   already printed on the toggle above the chart. */
-                outcomeText={c.outcomeLabel ? t(`pills.${c.outcomeLabel}`) : (c.outcomeQ ? questionText(c.outcomeQ, gender) : "")}
-              />
-            ))}
-            <Txt as="p" className="mg-ov-note">{t('corr.note')}</Txt>
+          <Box className="mg-overview">
+            <Txt as="p" className="mg-section-h">{t('section.crossModule')}</Txt>
+            <Box className="mg-ov-pills">
+              {OVERVIEW_PILLS.map((m) => {
+                const on = overviewKeys.includes(m.key)
+                const disabled = m.key === 'question' && activeQuestions.length === 0
+                return (
+                  <Btn
+                    key={m.key}
+                    disabled={disabled}
+                    aria-pressed={on}
+                    className={`mg-ov-pill${on ? ' on' : ''}`}
+                    /* The metric's colour rides on the pill, not just on its dot,
+                       so the on-state fill and the dot both read it from one
+                       place. */
+                    style={{ '--pill-color': OVERVIEW_METRICS[m.key].color }}
+                    onClick={() => toggleOverviewKey(m.key)}
+                  >
+                    <Txt className="mg-ov-dot" />
+                    {t(m.labelKey)}
+                  </Btn>
+                )
+              })}
+            </Box>
+            {overviewKeys.includes('question') && activeQuestions.length > 0 && (
+              <select className="mg-ov-select" value={questionId} onChange={(e) => setQuestionId(e.target.value)}>
+                {activeQuestions.map((q) => <option key={q.id} value={q.id}>{questionText(q, gender)}</option>)}
+              </select>
+            )}
+            {/* "Not enough data for a chart yet" is what MultiTrendChart says when
+                it has no drawable series — true when the rows are thin, a lie when
+                the user simply switched every toggle off. Naming the real reason
+                keeps the fix in the user's hands. */}
+            {overviewKeys.length === 0 ? (
+              <Txt as="p" className="mg-ov-empty">{t('overview.noneSelected')}</Txt>
+            ) : (
+              <MultiTrendChart days={overview.days} series={overview.series} />
+            )}
+            <Txt as="p" className="mg-ov-note">{t('overview.note')}</Txt>
+          </Box>
+
+          <Box className="mg-overview">
+            <Txt as="p" className="mg-section-h">{t('section.correlations')}</Txt>
+            {correlations === null ? (
+              /* The deferred pass has not run yet — say "still looking" rather than
+                 "nothing found", which is a verdict we have not reached. */
+              <Txt as="p" className="mg-corr-empty">{t('corr.computing')}</Txt>
+            ) : correlations.length === 0 ? (
+              <Txt as="p" className="mg-corr-empty">{t('corr.empty')}</Txt>
+            ) : (
+              <>
+                {correlations.map((c) => (
+                  <CorrCard
+                    key={c.key}
+                    c={c}
+                    driverText={questionText(c.driverLabel, gender)}
+                    /* outcomeLabel is a metric key now; pills.* holds the same word
+                       already printed on the toggle above the chart. */
+                    outcomeText={c.outcomeLabel ? t(`pills.${c.outcomeLabel}`) : (c.outcomeQ ? questionText(c.outcomeQ, gender) : "")}
+                  />
+                ))}
+                <Txt as="p" className="mg-ov-note">{t('corr.note')}</Txt>
+              </>
+            )}
+          </Box>
           </>
         )}
       </Box>

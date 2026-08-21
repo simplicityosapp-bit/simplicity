@@ -442,6 +442,59 @@
   opacity: 0.55;
 }
 
+/* ── "להעמיק" lid ──────────────────────────────────────────────── */
+/* The control for the two statistical cards below it. Built on this screen's
+   own chrome rather than the shared .ec-acc from FormSection: that one is a
+   bordered box for stacking sections INSIDE a modal form, and here the things
+   being folded are already full glass cards — a border around them would read
+   as a card inside a card. */
+.mg-deeper {
+  margin-top: 16px;
+}
+.mg-deeper-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 13px 18px;
+  border-radius: var(--mg-card-radius);
+  border: var(--mg-card-border);
+  background: var(--mg-card-bg);
+  box-shadow: var(--mg-card-shadow);
+  backdrop-filter: var(--mg-card-blur);
+  cursor: pointer;
+  text-align: start;
+  font-family: var(--mg-font);
+}
+.mg-deeper-title {
+  flex-shrink: 0;
+  font-size: calc(13px * var(--text-scale));
+  font-weight: 600;
+  color: var(--moon-deep);
+}
+[data-theme="dark"] .mg-deeper-title {
+  color: var(--moon-hi);
+}
+/* What is behind the lid, so opening it is not a guess. Takes the squeeze on a
+   narrow screen — the title and the chevron are what must survive. */
+.mg-deeper-sum {
+  flex: 1;
+  min-width: 0;
+  font-size: calc(11px * var(--text-scale));
+  color: var(--stone);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.mg-deeper-chev {
+  flex-shrink: 0;
+  color: var(--stone);
+  transition: transform 0.18s ease;
+}
+.mg-deeper-head.open .mg-deeper-chev {
+  transform: rotate(180deg);
+}
+
 /* ── Footer link ───────────────────────────────────────────────── */
 .mg-footer-link {
   display: block;

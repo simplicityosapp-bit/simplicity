@@ -57,6 +57,9 @@
     "action": "Define",
     "setGoal": "Define un objetivo"
   },
+  "deeper": {
+    "title": "Profundizar"
+  },
   "logEntry": "Registrar avance",
   "logEntryAria": "Registrar avance de {{name}}",
   "footerLink": "Edita tus objetivos ←",

@@ -941,7 +941,7 @@
         },
         {
           "title": "Qué se mueve junto",
-          "body": "Un gráfico que muestra varias métricas juntas en el mismo eje. Usa los botones para elegir qué mostrar: ingresos, prospectos, sesiones, puntuación o registro diario. Por defecto se muestran los ingresos y la puntuación. Cada línea se escala a su propio rango (0–100), de modo que puedes comparar la forma de la tendencia incluso entre cosas medidas de forma distinta (€, recuentos, 1–10). Si no hay suficientes datos, verás «Aún no hay datos suficientes para el gráfico»."
+          "body": "Esta sección está bajo «Profundizar», al final de la pantalla: pulsa para abrirla. Un gráfico que muestra varias métricas juntas en el mismo eje. Usa los botones para elegir qué mostrar: ingresos, prospectos, sesiones, puntuación o registro diario. Por defecto se muestran los ingresos y la puntuación. Cada línea se escala a su propio rango (0–100), de modo que puedes comparar la forma de la tendencia incluso entre cosas medidas de forma distinta (€, recuentos, 1–10). Si no hay suficientes datos, verás «Aún no hay datos suficientes para el gráfico»."
         },
         {
           "title": "Seleccionar un registro diario en el gráfico",
@@ -949,7 +949,7 @@
         },
         {
           "title": "Vínculos por explorar",
-          "body": "El sistema comprueba automáticamente si hay una conexión entre las preguntas numéricas del registro diario (escala 1–10), principalmente entre dos preguntas diarias, y en principio también frente a ingresos, prospectos y sesiones. La mayoría de las veces verás «No hay una conexión significativa en los datos ahora mismo», y eso está perfectamente bien. Cuando aparece un patrón estable, se muestra como una tarjeta que describe que las métricas «tienden a moverse juntas» o «se mueven a la inversa», con una etiqueta de fuerza (fuerte, moderada o sutil), un recuento de puntos y un pequeño diagrama de dispersión."
+          "body": "Esta sección está bajo «Profundizar», al final de la pantalla: pulsa para abrirla. El sistema comprueba automáticamente si hay una conexión entre las preguntas numéricas del registro diario (escala 1–10), principalmente entre dos preguntas diarias, y en principio también frente a ingresos, prospectos y sesiones. La mayoría de las veces verás «No hay una conexión significativa en los datos ahora mismo», y eso está perfectamente bien. Cuando aparece un patrón estable, se muestra como una tarjeta que describe que las métricas «tienden a moverse juntas» o «se mueven a la inversa», con una etiqueta de fuerza (fuerte, moderada o sutil), un recuento de puntos y un pequeño diagrama de dispersión."
         },
         {
           "title": "Navegar a Informes y Objetivos",

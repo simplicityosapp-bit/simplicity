@@ -93,8 +93,6 @@
     "fPersonal": "Individual",
     "fGroups": "Grupos",
     "fDiscount": "Condonado",
-    "confirmBalanceTitle": "Actualizar saldo",
-    "confirmBalanceMsg": "El saldo cambió a {{balance}}. ¿Guardar?",
     "totalDueFormulaPackage": "programadas × precio",
     "totalDueFormulaPerSession": "realizadas × precio",
     "billingModeChangePreview": "Saldo: {{from}} → {{to}}",

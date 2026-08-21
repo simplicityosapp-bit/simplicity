@@ -1037,9 +1037,19 @@ html[dir="rtl"] .ec-bill-label {
   font-size: calc(13px * var(--text-scale));
   color: var(--stone);
 }
+/* The four figures a coach corrects by hand — נקבעו, בוצעו, שולם, יתרה.
+   They were 28px tall while the ordinary text fields sitting inches away in
+   the same form were 48px: the smallest targets on the screen were the ones
+   where a mis-tap costs money. --mg-btn-h is the height every other field in
+   the app already uses, so this is the form agreeing with itself rather than
+   a number invented for these four. min-height, not height: the row still
+   grows if --text-scale is turned up. The dashed rule stays at the bottom and
+   the digits centre themselves above it, which reads as a roomier field, not
+   as a line that drifted away from its text. */
 .ec-bill-input {
   width: 100%;
   max-width: 74px;
+  min-height: var(--mg-btn-h);
   padding: 0 2px 2px;
   border: none;
   border-bottom: 1px dashed color-mix(in srgb, var(--stone) 50%, transparent);

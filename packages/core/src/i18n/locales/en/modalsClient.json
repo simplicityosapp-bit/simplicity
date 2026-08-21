@@ -93,8 +93,6 @@
     "fPersonal": "Personal",
     "fGroups": "Groups",
     "fDiscount": "Written off",
-    "confirmBalanceTitle": "Update balance",
-    "confirmBalanceMsg": "The balance changed to {{balance}}. Save?",
     "totalDueFormulaPackage": "scheduled × price",
     "totalDueFormulaPerSession": "done × price",
     "billingModeChangePreview": "Balance: {{from}} → {{to}}",

@@ -1,6 +1,7 @@
 import { useId, useState } from 'react'
 import { User, CalendarDays, Wallet, Users } from 'lucide-react'
 import FormSection from '../components/FormSection'
+import SelectMenu from '../components/SelectMenu'
 import Modal from './Modal'
 import MeetingTypesModal from './MeetingTypesModal'
 import ConfirmModal from './ConfirmModal'
@@ -141,6 +142,22 @@ export default function EditClientModal({ open, onClose, onSave, client, project
   if (!client) return null
   const subStatuses = statuses.filter((s) => s.meta_category === form.status)
 
+  /* Option lists for the styled pickers. This form held FIVE native
+     <select>s — the most left anywhere in the app — while AddClientModal,
+     which edits the very same client through ClientFormFields, had already
+     moved all five to SelectMenu. Adding a client and editing one therefore
+     opened two different widgets for the same question: a cream-glass
+     popover with a ✓ on the chosen row, or the raw OS list. Same shapes
+     ClientFormFields builds, so the two cannot drift again. */
+  const noneOpt = { value: '', label: t('common.none') }
+  const subStatusOptions = [noneOpt, ...subStatuses.map((s) => ({ value: s.id, label: `${s.icon ? `${s.icon} ` : ''}${s.display_name}` }))]
+  const projectOptions = [noneOpt, ...projects.map((p) => ({ value: p.id, label: p.name }))]
+  const groupOptions = [{ value: '', label: t('editClient.noGroup') }, ...groups.filter((g) => g.project_id === form.project_id).map((g) => ({ value: g.id, label: g.name }))]
+  const meetingTypeOptions = [noneOpt, ...meetingTypes.map((mt) => ({
+    value: mt.id,
+    label: `${mt.name}${mt.default_price != null ? ` · ₪${mt.default_price}` : ''}`,
+  }))]
+  const dayOptions = [noneOpt, ...DAYS.map((d) => ({ value: String(d), label: t(`common.day${d}`) }))]
   /* Live billing snapshot — mirrors the card. Billing is per-client: the
      group dues (memberTotal, 0 for non-members) PLUS the private portion
      (total_override when set — incl. an explicit 0 for "free" — else by
@@ -330,11 +347,25 @@ export default function EditClientModal({ open, onClose, onSave, client, project
         saying WHOSE money is being edited. Deliberately not truncated: a long
         name wraps the header onto a second line, which costs nothing, where
         an ellipsis would hide the one thing the title is here to say. */}
-    <Modal open={open} onClose={requestClose} title={client.name ? t('editClient.titleNamed', { name: client.name }) : t('editClient.title')}>
+    {/* onSubmit = Enter saves. Modal only fires it from an <input>, only
+        when this sheet is the top layer (so Enter inside the discard confirm
+        or the meeting-types sheet is theirs), and never mid-IME-composition.
+        Six other forms in the app already had it — AddClient, AddTask,
+        AddGoal, AddLead, AddTransaction, ScheduleMeeting — and the LONGEST
+        form of the lot was the one that made you scroll back to the button.
+        It routes through submit(), so the empty-name guard still stops it and
+        still re-opens the section holding the offending field. */}
+    <Modal open={open} onClose={requestClose} onSubmit={submit} title={client.name ? t('editClient.titleNamed', { name: client.name }) : t('editClient.title')}>
       <Section
         icon={<User size={17} strokeWidth={1.7} />}
         title={t('editClient.secDetails')}
         summary={statusLabel}
+        /* Named so the head's aria-controls resolves — FormSection has always
+           accepted an id and every other caller (client-more, task-details,
+           lead-details, goal-details, tx-details) passes one. This form was the
+           only one that did not, so all four heads announced a relationship to
+           nothing. Scoped by fid because this modal can be mounted twice. */
+        id={`${fid}-sec-details`}
         open={openSecs.has('details')}
         onToggle={() => toggleSec('details')}
       >
@@ -365,11 +396,8 @@ export default function EditClientModal({ open, onClose, onSave, client, project
         </Box>
         {subStatuses.length > 0 && (
           <Box className="m-field">
-            <Box as="label" className="m-label" htmlFor={`${fid}-substatus`}>{t('common.subStatusOptional')}</Box>
-            <select id={`${fid}-substatus`} className="m-select" value={form.status_id} onChange={(e) => set('status_id', e.target.value)}aria-label={t('common.subStatusOptional')} >
-              <option value="">{t('common.none')}</option>
-              {subStatuses.map((s) => <option key={s.id} value={s.id}>{s.icon ? s.icon + ' ' : ''}{s.display_name}</option>)}
-            </select>
+            <Box as="label" className="m-label">{t('common.subStatusOptional')}</Box>
+            <SelectMenu value={form.status_id} onChange={(v) => set('status_id', v)} options={subStatusOptions} placeholder={t('common.none')} ariaLabel={t('common.subStatusOptional')} />
           </Box>
         )}
         <Box className="m-row2">
@@ -378,11 +406,8 @@ export default function EditClientModal({ open, onClose, onSave, client, project
             <Input id={`${fid}-phone`} className="m-input" value={form.phone} onChange={(e) => set('phone', e.target.value)} placeholder={t('common.phonePlaceholder')} aria-label={t('common.phone')} />
           </Box>
           <Box className="m-field">
-            <Box as="label" className="m-label" htmlFor={`${fid}-project`}>{t('common.project')}</Box>
-            <select id={`${fid}-project`} className="m-select" value={form.project_id} onChange={(e) => changeProject(e.target.value)}aria-label={t('common.project')} >
-              <option value="">{t('common.none')}</option>
-              {projects.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
-            </select>
+            <Box as="label" className="m-label">{t('common.project')}</Box>
+            <SelectMenu value={form.project_id} onChange={changeProject} options={projectOptions} placeholder={t('common.none')} ariaLabel={t('common.project')} />
             {/* A group belongs to exactly one project, so moving the client
                 takes the group with it. That was right but invisible — and the
                 groups section it happened in is usually collapsed, or hidden
@@ -400,30 +425,21 @@ export default function EditClientModal({ open, onClose, onSave, client, project
         icon={<CalendarDays size={17} strokeWidth={1.7} />}
         title={t('editClient.secScheduling')}
         summary={schedSummary}
+        id={`${fid}-sec-scheduling`}
         open={openSecs.has('scheduling')}
         onToggle={() => toggleSec('scheduling')}
       >
         <Box className="m-field">
           <Box className="m-label-row">
-            <Box as="label" className="m-label" htmlFor={`${fid}-mtype`}>{t('editClient.meetingType')}</Box>
+            <Box as="label" className="m-label">{t('editClient.meetingType')}</Box>
             <Btn type="button" className="m-clear-link" onClick={() => setManageTypes(true)}>{t('editClient.manageMeetingTypes')}</Btn>
           </Box>
-          <select id={`${fid}-mtype`} className="m-select" value={form.meeting_type_id || ''} onChange={(e) => pickMeetingType(e.target.value)}aria-label={t('editClient.meetingType')} >
-            <option value="">{t('common.none')}</option>
-            {meetingTypes.map((mt) => (
-              <option key={mt.id} value={mt.id}>
-                {mt.name}{mt.default_price != null ? ` · ₪${mt.default_price}` : ''}
-              </option>
-            ))}
-          </select>
+          <SelectMenu value={form.meeting_type_id || ''} onChange={pickMeetingType} options={meetingTypeOptions} placeholder={t('common.none')} ariaLabel={t('editClient.meetingType')} />
         </Box>
         <Box className="m-row2">
           <Box className="m-field">
-            <Box as="label" className="m-label" htmlFor={`${fid}-recday`}>{t('editClient.fixedDay')}</Box>
-            <select id={`${fid}-recday`} className="m-select" value={form.recurring_day} onChange={(e) => set('recurring_day', e.target.value)}aria-label={t('editClient.fixedDay')} >
-              <option value="">{t('common.none')}</option>
-              {DAYS.map((d) => <option key={d} value={d}>{t(`common.day${d}`)}</option>)}
-            </select>
+            <Box as="label" className="m-label">{t('editClient.fixedDay')}</Box>
+            <SelectMenu value={form.recurring_day} onChange={(v) => set('recurring_day', v)} options={dayOptions} placeholder={t('common.none')} ariaLabel={t('editClient.fixedDay')} />
           </Box>
           <Box className="m-field">
             <Box as="label" className="m-label" htmlFor={`${fid}-rectime`}>{t('editClient.fixedTime')}</Box>
@@ -466,6 +482,7 @@ export default function EditClientModal({ open, onClose, onSave, client, project
         icon={<Wallet size={17} strokeWidth={1.7} />}
         title={t('editClient.secBilling')}
         summary={billingSummary}
+        id={`${fid}-sec-billing`}
         open={openSecs.has('billing')}
         onToggle={() => toggleSec('billing')}
       >
@@ -579,16 +596,20 @@ export default function EditClientModal({ open, onClose, onSave, client, project
           icon={<Users size={17} strokeWidth={1.7} />}
           title={t('editClient.secGroups')}
           summary={groupsSummary}
-          open={openSecs.has('groups')}
+          id={`${fid}-sec-groups`}
+        open={openSecs.has('groups')}
           onToggle={() => toggleSec('groups')}
         >
           {projectHasGroups && (
             <Box className="m-field">
-              <Box as="label" className="m-label" htmlFor={`${fid}-group`}>{t('common.groupOptional')}</Box>
-              <select id={`${fid}-group`} className="m-select" value={form.group_id} onChange={(e) => { set('group_id', e.target.value); if (e.target.value) setDroppedGroup('') }}aria-label={t('common.groupOptional')} >
-                <option value="">{t('editClient.noGroup')}</option>
-                {groups.filter((g) => g.project_id === form.project_id).map((g) => <option key={g.id} value={g.id}>{g.name}</option>)}
-              </select>
+              <Box as="label" className="m-label">{t('common.groupOptional')}</Box>
+              <SelectMenu
+                value={form.group_id}
+                onChange={(v) => { set('group_id', v); if (v) setDroppedGroup('') }}
+                options={groupOptions}
+                placeholder={t('editClient.noGroup')}
+                ariaLabel={t('common.groupOptional')}
+              />
             </Box>
           )}
           {groupSessions.length > 0 && (

@@ -33,7 +33,12 @@ export default function FormSection({ icon, title, summary, open, onToggle, id, 
         className="ec-acc-head"
         onClick={onToggle}
         aria-expanded={open}
-        aria-controls={id}
+        /* Only while the body actually exists. A closed section renders NO
+           body (see above), so naming its id the rest of the time pointed
+           every screen reader at an element that is not in the document —
+           which ARIA forbids, and which is less use than saying nothing.
+           aria-expanded alone is a complete disclosure on its own. */
+        aria-controls={open && id ? id : undefined}
       >
         {icon && <Txt className="ec-acc-ic" aria-hidden="true">{icon}</Txt>}
         <Txt className="ec-acc-title">{title}</Txt>

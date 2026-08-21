@@ -124,6 +124,7 @@
     "label": "Affichage",
     "heading": "Grouper par",
     "priority": "Priorité",
+    "pressure": "Urgence",
     "project": "Projet",
     "category": "Catégorie",
     "noProject": "Aucun projet",

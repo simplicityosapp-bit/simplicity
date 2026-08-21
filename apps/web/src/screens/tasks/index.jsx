@@ -17,6 +17,12 @@ import ConfirmModal from '../../modals/ConfirmModal'
 import TaskTaxonomyModal from '../../modals/TaskTaxonomyModal'
 import Coachmark from '../../components/Coachmark'
 import { formatWhen, isRecurring, isActiveReminder, dueOccurrenceCount } from '@simplicity/core'
+/* The ranking rules live in a module of their own so a test can pin them —
+   they are the answer to "what do I owe first", they have been quietly wrong
+   once already, and every one of them is the kind of rule a later tidy-up
+   flattens back into a plain date sort. Same split the leads board uses for
+   matchLead. */
+import { PRESSURE_BUCKETS, CHRONO_PRESSURE, dateToBucket, pressureBucket, byPressure, byUrgency } from './pressure'
 import { pushUndo } from '../../lib/undo'
 import { reassignTasksStatus } from '../../lib/api/taskStatuses'
 import { reassignTasksCategory } from '../../lib/api/taskCategories'
@@ -40,12 +46,28 @@ const FILTERS = ['todo', 'done']
    default (preserves the original layout); project/category let the user
    re-slice the same tasks. */
 const GROUP_BY = ['priority', 'project', 'category']
-/* "הכל" gets its own, shorter set. Date is the default and the reason the mode
-   exists — one timeline over both kinds — but urgency is the other question
-   worth asking of a mixed list. Project and category are missing on purpose:
+/* "הכל" gets its own, shorter set. Project and category are missing on purpose:
    a reminder has neither, so grouping by them would file every reminder under
-   "ללא" and say nothing. */
-const ALL_GROUP_BY = ['date', 'priority']
+   "ללא" and say nothing.
+
+   PRESSURE leads, and is the default. The two that follow it are each half an
+   answer, which is why neither could be the default:
+
+   "תאריך" ranked purely by the calendar, so a task flagged דחוף with no
+   deadline landed in the LAST group — under a reminder three weeks out — and
+   a דחוף task due Thursday sat below a trivial one due Monday. Urgency was not
+   an axis at all, only a tie-break inside a bucket the calendar had already
+   chosen.
+
+   "עדיפות" has the opposite hole: only a task carries a priority, so every
+   reminder falls into one tail group and an OVERDUE reminder ends up below a
+   task marked נמוך. The calendar stops meaning anything.
+
+   Pressure is both axes at once, and it is the ranking the home widget has
+   used since it merged the two cards (see tasksAndReminders in lib/homeData).
+   Until now the screen that widget links to ordered the very same rows
+   differently — the same דחוף task sat third at home and last here. */
+const ALL_GROUP_BY = ['pressure', 'date', 'priority']
 const GROUP_FALLBACK_COLOR = 'var(--mist)'
 /* Reminders get their own tabs: open, completed, and the recurring schedule.
    "הושלמו" deliberately holds the SAME second slot it holds for tasks — it used
@@ -73,22 +95,6 @@ const REM_BUCKETS = [
    deadline is still owed. Dropping it is what kept the merged view from being
    a complete answer. */
 const ALL_BUCKETS = [...REM_BUCKETS, { key: 'undated', color: 'var(--stone)' }]
-/* Priority tie-break inside a bucket, same order the home widget uses. */
-const PORDER = { high: 0, medium: 1, low: 2 }
-
-/* Map a due Date → bucket key against now. Shared by reminders and dated
-   tasks so both land in the same overdue/today/week/later sections. */
-function dateToBucket(due, now) {
-  if (Number.isNaN(+due)) return null
-  if (due < now) return 'overdue'
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
-  const tomorrow = new Date(today); tomorrow.setDate(today.getDate() + 1)
-  const weekEnd = new Date(today); weekEnd.setDate(today.getDate() + 7)
-  if (due < tomorrow) return 'today'
-  if (due < weekEnd)  return 'week'
-  return 'later'
-}
-
 function reminderBucket(rem, now) {
   if (rem.status === 'completed') return null
   return dateToBucket(new Date(rem.scheduled_at), now)
@@ -123,6 +129,24 @@ function dueTs(task) {
   const v = +new Date(task.due_at)
   return Number.isNaN(v) ? null : v
 }
+
+/* When did this row FINISH? Tasks stamp completed_at; reminders have no such
+   column but do carry a trigger-written updated_at, and completion is the last
+   thing to touch a done reminder. Falls back to the row's own date so a row
+   with neither still lands somewhere stable rather than at epoch. */
+function doneTs(row) {
+  const raw = row.completed_at || row.updated_at || row.due_at || row.scheduled_at
+  const v = raw ? +new Date(raw) : NaN
+  return Number.isNaN(v) ? 0 : v
+}
+/* Finished work reads newest-first. Every "הושלמו" list on this screen was
+   ordered by DEADLINE — the same comparator the open lists use — which put the
+   task you closed two months ago at the top and this morning's at the bottom,
+   so the one thing you go to that tab to check (did that go through?) was the
+   hardest row to find. */
+const byRecency = (a, b) => doneTs(b) - doneTs(a)
+/* Same rule over the mixed list, which wraps its rows one level deeper. */
+const byItemRecency = (a, b) => doneTs(b.task || b.reminder) - doneTs(a.task || a.reminder)
 
 /* Inside a group the deadline decides the order — soonest first, undated
    last. The fetch is newest-created first, which sat a task due next month
@@ -275,7 +299,7 @@ export default function TasksScreen() {
      same choices, so one state would carry "project" into "הכל", which has no
      such grouping, and drag "date" back into the tasks view, which has no such
      grouping either. */
-  const [allGroupBy, setAllGroupBy] = useState('date')
+  const [allGroupBy, setAllGroupBy] = useState('pressure')
   /* Grouping lives behind the "תצוגה" pill rather than a third row of tabs.
      Two identical-looking segmented controls stacked (filter, then grouping)
      gave no clue which did what; this is the shape the clients screen already
@@ -356,11 +380,38 @@ export default function TasksScreen() {
      can derive them with a single .status check, and "הכל" is simply both. */
   const openTasks = scopedTasks.filter((t) => t.status !== 'done').length
   const openRems = scopedReminders.filter((r) => r.status !== 'completed').length
-  const doneTasks = scopedTasks.filter((t) => t.status === 'done').length
-  const doneRems = scopedReminders.filter((r) => r.status === 'completed').length
+  /* The ids, not merely the count. "מחיקת שהושלמו" used to call clearCompleted()
+     with no argument, which swept the WHOLE table — while the button and its
+     confirm dialog quoted these category-SCOPED numbers. With a category pill
+     active the dialog asked "למחוק 3 פריטים?" and binned every completed row
+     in the practice. The sweep now takes exactly the rows that were counted. */
+  const doneTaskIds = useMemo(() => scopedTasks.filter((t) => t.status === 'done').map((t) => t.id), [scopedTasks])
+  const doneRemIds = useMemo(() => scopedReminders.filter((r) => r.status === 'completed').map((r) => r.id), [scopedReminders])
+  const doneTasks = doneTaskIds.length
+  const doneRems = doneRemIds.length
   const openCount = isAll ? openTasks + openRems : (isTasks ? openTasks : openRems)
   const doneCount = isAll ? doneTasks + doneRems : (isTasks ? doneTasks : doneRems)
-  const now = useMemo(() => new Date(), [reminders, tasks, filter, view]) // eslint-disable-line react-hooks/exhaustive-deps -- deps intentionally refresh "now" when the list re-renders on data/filter/view change
+  /* "now" decides every bucket on this screen, so it has to keep moving. It was
+     a useMemo over the data/filter/view deps — refreshed only when something
+     ELSE changed — so a tab left open overnight went on calling yesterday
+     "היום", and a deadline that passed while you were reading the list never
+     turned red. A minute is the finest boundary that matters here (overdue),
+     and the visibility/focus sync is what a laptop waking from sleep needs:
+     timers do not fire while the machine is suspended. */
+  const [nowTs, setNowTs] = useState(() => Date.now())
+  useEffect(() => {
+    const sync = () => setNowTs(Date.now())
+    const id = setInterval(sync, 60000)
+    const onVis = () => { if (!document.hidden) sync() }
+    document.addEventListener('visibilitychange', onVis)
+    window.addEventListener('focus', sync)
+    return () => {
+      clearInterval(id)
+      document.removeEventListener('visibilitychange', onVis)
+      window.removeEventListener('focus', sync)
+    }
+  }, [])
+  const now = useMemo(() => new Date(nowTs), [nowTs])
   /* Middle tile re-labels per view: tasks use priority=high ("דחופות"), while
      reminders use overdue ("באיחור"). "הכל" takes the overdue reading over both
      kinds — a passed deadline is the one fact a mixed list can state about
@@ -378,15 +429,17 @@ export default function TasksScreen() {
     filter === 'done'
       ? scopedTasks.filter((t) => t.status === 'done' && taskHit(t))
       : scopedTasks.filter((t) => t.status !== 'done' && taskHit(t))
-  ), [scopedTasks, filter, q]) // eslint-disable-line react-hooks/exhaustive-deps -- taskHit is derived from q + the client/project lists
+  ), [scopedTasks, filter, q, clients, projects]) // eslint-disable-line react-hooks/exhaustive-deps -- taskHit searches THROUGH clients/projects, so a rename (or a list that lands after the tasks do) has to re-run it
 
   /* Build collapsible groups for the filtered tasks per the chosen groupBy.
      Priority keeps the original fixed order; project/category order follows
      the user's own project/category list, with an "unassigned" bucket last. */
   const taskGroups = useMemo(() => {
     /* .filter() already hands back a fresh array, so sorting it in place
-       never touches the cached task list. */
-    const inGroup = (pred) => filteredTasks.filter(pred).sort(byDueDate)
+       never touches the cached task list.
+       A deadline orders work you still owe; it says nothing useful about work
+       already finished, so the done tab orders by when you finished instead. */
+    const inGroup = (pred) => filteredTasks.filter(pred).sort(filter === 'done' ? byRecency : byDueDate)
     if (groupBy === 'project') {
       const groups = projects.map((p) => ({
         key: `p-${p.id}`,
@@ -418,11 +471,14 @@ export default function TasksScreen() {
         items: inGroup((task) => (task.priority || 'medium') === g),
       }))
       .filter((g) => g.items.length)
-  }, [groupBy, filteredTasks, projects, taskCategories, t])
+  }, [groupBy, filter, filteredTasks, projects, taskCategories, t])
 
   /* Same scoped set as the reminder counts — the category pills drive both. */
   const filteredReminders = useMemo(() => {
-    if (filter === 'done') return scopedReminders.filter((r) => r.status === 'completed' && remHit(r))
+    /* Newest-finished first, like every other done list here — the fetch is
+       scheduled_at ASCENDING, so "הושלמו" opened on the oldest thing you ever
+       ticked. .filter() hands back a fresh array, so the sort is safe. */
+    if (filter === 'done') return scopedReminders.filter((r) => r.status === 'completed' && remHit(r)).sort(byRecency)
     /* "פתוחות" = everything still owed, one-off and recurring alike, bucketed
        by its next occurrence (a recurring reminder's scheduled_at IS that
        occurrence). Recurring ones used to be gated on dueOccurrenceCount >= 1,
@@ -431,7 +487,7 @@ export default function TasksScreen() {
        "מאוחר יותר". Same-looking rows now behave the same; "חוזרות" stays the
        schedule view. */
     return scopedReminders.filter((r) => isActiveReminder(r) && remHit(r))
-  }, [scopedReminders, filter, q]) // eslint-disable-line react-hooks/exhaustive-deps -- remHit is derived from q + the client list
+  }, [scopedReminders, filter, q, clients, projects, groups]) // eslint-disable-line react-hooks/exhaustive-deps -- remHit resolves every link kind, so it reads all three lists
 
   /* "הכל" — both kinds in one list, which is the answer the home widget has
      always given and this screen never did: tasks alone can't tell you what is
@@ -455,28 +511,34 @@ export default function TasksScreen() {
       items.push({ key: `rem-${r.id}`, kind: 'reminder', reminder: r, when: r.scheduled_at || null })
     })
     return items
-  }, [isAll, filter, scopedTasks, scopedReminders, q]) // eslint-disable-line react-hooks/exhaustive-deps -- the hit helpers derive from q + the client/project lists
-
-  /* Soonest first. Undated work (and a tie) falls back to urgency, then to a
-     task ahead of a reminder — you act on a task, a reminder only tells you
-     something. The same tie-breaks the home widget settled on. */
-  const byPressure = (a, b) => {
-    const ta = a.when ? +new Date(a.when) : null
-    const tb = b.when ? +new Date(b.when) : null
-    if (ta !== null && tb !== null && ta !== tb) return ta - tb
-    const pa = a.kind === 'task' ? (a.task.priority || 'medium') : 'medium'
-    const pb = b.kind === 'task' ? (b.task.priority || 'medium') : 'medium'
-    if (pa !== pb) return (PORDER[pa] ?? 1) - (PORDER[pb] ?? 1)
-    if (a.kind !== b.kind) return a.kind === 'task' ? -1 : 1
-    return 0
-  }
+  }, [isAll, filter, scopedTasks, scopedReminders, q, clients, projects, groups]) // eslint-disable-line react-hooks/exhaustive-deps -- the hit helpers derive from exactly these
 
   const allGroups = useMemo(() => {
     if (!isAll) return []
     if (filter === 'done') {
       return allItems.length
-        ? [{ key: 'all-done', label: t('doneGroup'), color: 'var(--stone)', items: [...allItems].sort(byPressure) }]
+        ? [{ key: 'all-done', label: t('doneGroup'), color: 'var(--stone)', items: [...allItems].sort(byItemRecency) }]
         : []
+    }
+    /* The default — see ALL_GROUP_BY. Both axes at once: the clock decides the
+       top of the list, the flag decides the middle, the calendar decides the
+       rest. An empty band simply does not render, so a practice with nothing
+       late never sees a "באיחור" heading. */
+    if (allGroupBy === 'pressure') {
+      return PRESSURE_BUCKETS
+        .map((b) => ({
+          key: `all-${b.key}`,
+          /* "דחוף" borrows the priority label rather than minting a bucket
+             string of its own — it IS that priority, and two keys for one word
+             is how a group heading and the chip on the rows inside it drift
+             apart in a later translation pass. */
+          label: b.key === 'urgent' ? t('priority.high') : t(`buckets.${b.key}`),
+          color: b.color,
+          items: allItems
+            .filter((it) => pressureBucket(it, now) === b.key)
+            .sort(CHRONO_PRESSURE.has(b.key) ? byPressure : byUrgency),
+        }))
+        .filter((g) => g.items.length)
     }
     /* Grouped by urgency instead of by date. Only a task carries a priority, so
        the reminders land in one tail group rather than being scattered into
@@ -539,8 +601,14 @@ export default function TasksScreen() {
   /* Drop the selection whenever the visible set changes underneath it, or on
      leaving select mode. Adjusted during render rather than in an effect, to
      avoid a cascading set-state-in-effect — the pattern the clients screen
-     settled on. Without it you could delete rows you can no longer see. */
-  const selScope = `${view}|${filter}|${selectMode}`
+     settled on. Without it you could delete rows you can no longer see.
+     The category pills and the search box narrow the visible set exactly the
+     way the tabs do, so they belong in this key too — without them you could
+     tick ten rows, filter down to one category (that menu stays open for
+     multi-select, and the bulk bar stays on screen), then press "מחיקה", which
+     resolves ids against the FULL list and takes nine rows you can no longer
+     see with it. */
+  const selScope = `${view}|${filter}|${selectMode}|${[...categoryFilters].sort().join(',')}|${q}`
   const [prevSelScope, setPrevSelScope] = useState(selScope)
   if (selScope !== prevSelScope) {
     setPrevSelScope(selScope)
@@ -639,7 +707,7 @@ export default function TasksScreen() {
     isTasks && groupBy !== 'priority' ? t(`groupBy.${groupBy}`) : null,
     /* Same rule for the mixed list, against ITS default — a grouping hiding
        inside a closed menu is what this line exists to prevent. */
-    isAll && allGroupBy !== 'date' ? t(`groupBy.${allGroupBy}`) : null,
+    isAll && allGroupBy !== 'pressure' ? t(`groupBy.${allGroupBy}`) : null,
     categoryFilters.size === 1
       ? (taskCategories.find((c) => categoryFilters.has(c.id))?.name || null)
       : (categoryFilters.size > 1 ? t('taxonomy.nSelected', { n: categoryFilters.size }) : null),
@@ -960,7 +1028,11 @@ export default function TasksScreen() {
                        urgency the heading already says it, so the tag would
                        just repeat the section it sits in. */
                     dotColor={g.color}
-                    urgentTag={allGroupBy !== 'priority' && (it.task.priority || 'medium') === 'high'}
+                    /* The chip carries the flag wherever the heading does not.
+                       Inside "דחוף" the heading already says it — and grouped BY
+                       priority every heading does — but a דחוף task sitting under
+                       "באיחור" or "היום" still needs to admit what it is. */
+                    urgentTag={allGroupBy !== 'priority' && g.key !== 'all-urgent' && (it.task.priority || 'medium') === 'high'}
                     onToggle={() => toggleTask(it.task)}
                     onEdit={setEditDatedTask}
                     onRename={renameTask}
@@ -1295,7 +1367,7 @@ export default function TasksScreen() {
           message={doneCount === 1 ? t('clearConfirm.allMessageOne') : t('clearConfirm.allMessageMany', { count: doneCount })}
           confirmLabel={t('clearConfirm.confirm')}
           danger
-          onConfirm={async () => { await clearCompleted(); await clearCompletedReminders() }}
+          onConfirm={async () => { await clearCompleted(doneTaskIds); await clearCompletedReminders(doneRemIds) }}
         />
       )}
 
@@ -1325,7 +1397,7 @@ export default function TasksScreen() {
             message={doneCount === 1 ? t('clearConfirm.tasksMessageOne') : t('clearConfirm.tasksMessageMany', { count: doneCount })}
             confirmLabel={t('clearConfirm.confirm')}
             danger
-            onConfirm={() => clearCompleted()}
+            onConfirm={() => clearCompleted(doneTaskIds)}
           />
         </>
       )}
@@ -1348,7 +1420,7 @@ export default function TasksScreen() {
             message={doneCount === 1 ? t('clearConfirm.remindersMessageOne') : t('clearConfirm.remindersMessageMany', { count: doneCount })}
             confirmLabel={t('clearConfirm.confirm')}
             danger
-            onConfirm={() => clearCompletedReminders()}
+            onConfirm={() => clearCompletedReminders(doneRemIds)}
           />
         </>
       )}

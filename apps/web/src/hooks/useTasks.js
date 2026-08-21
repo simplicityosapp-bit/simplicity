@@ -59,10 +59,20 @@ export function useTasks() {
   /* Bulk-clear every completed task in one go. Soft-delete (deleted_at), so
      the rows land in Trash and stay restorable for 30 days — that's the
      safety net here, rather than the single-level inline undo. */
-  const clearCompleted = useCallback(async () => {
-    const done = (qc.getQueryData(KEY) ?? []).filter((t) => t.status === 'done')
+  /* `ids` narrows the sweep to exactly the rows the caller counted. The
+     tasks screen filters by category, so its "מחיקת שהושלמו" button and its
+     confirm dialog both speak about a SLICE of the done rows — while this
+     swept the whole table, binning forty tasks under a dialog that said
+     three. Omitting it keeps the old whole-table behaviour for callers with
+     no scope of their own. */
+  const clearCompleted = useCallback(async (ids = null) => {
+    const only = ids ? new Set(ids) : null
+    const done = (qc.getQueryData(KEY) ?? []).filter((t) => t.status === 'done' && (!only || only.has(t.id)))
     if (!done.length) return 0
-    qc.setQueryData(KEY, (prev) => (prev ?? []).filter((t) => t.status !== 'done'))
+    /* Drop exactly what we are about to delete, not every done row — with a
+       scope in hand the two are no longer the same set. */
+    const going = new Set(done.map((t) => t.id))
+    qc.setQueryData(KEY, (prev) => (prev ?? []).filter((t) => !going.has(t.id)))
     /* allSettled, not all: Promise.all rejects on the FIRST failure and leaves
        the remaining deletes unawaited, so one bad row could abort the rest of
        a bulk clear the user had already seen disappear. Every delete is now

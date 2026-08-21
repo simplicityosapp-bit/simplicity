@@ -93,8 +93,6 @@
     "fPersonal": "Individuel",
     "fGroups": "Groupes",
     "fDiscount": "Annulé",
-    "confirmBalanceTitle": "Mettre à jour le solde",
-    "confirmBalanceMsg": "Le solde est passé à {{balance}}. Enregistrer ?",
     "totalDueFormulaPackage": "planifiées × prix",
     "totalDueFormulaPerSession": "effectuées × prix",
     "billingModeChangePreview": "Solde : {{from}} → {{to}}",

@@ -99,8 +99,6 @@
     "fPersonal": "אישי",
     "fGroups": "קבוצות",
     "fDiscount": "מחיקת חוב",
-    "confirmBalanceTitle": "עדכון יתרה",
-    "confirmBalanceMsg": "היתרה עודכנה ל-{{balance}}. לשמור?",
     "totalDueFormulaPackage": "נקבעו × מחיר",
     "totalDueFormulaPerSession": "בוצעו × מחיר",
     "billingModeChangePreview": "היתרה: {{from}} ← {{to}}",

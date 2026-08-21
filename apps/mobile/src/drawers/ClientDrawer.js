@@ -314,6 +314,10 @@ export default function ClientDrawer({ clientId, clients, transactions, sessions
                 members={members}
                 groups={groups}
                 onEditClient={() => setEditing(true)}
+                /* «פרטים נוספים» and «הערות» edit in place now instead of
+                   opening the whole form — same as web. Passed straight
+                   through: the sections do their own optimistic save. */
+                onUpdateClient={updateClient}
                 onEditTx={setEditTx}
                 onEditSession={setEditSession}
                 onEditTask={setEditTask}

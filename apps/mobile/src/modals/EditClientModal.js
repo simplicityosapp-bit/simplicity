@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, Children, cloneElement } from 'react'
 import { View, Text, TextInput, Pressable, StyleSheet, Alert } from 'react-native'
-import { User, MapPin, CalendarDays, Wallet, Users, ChevronDown } from 'lucide-react-native'
+import { User, CalendarDays, Wallet, Users, ChevronDown } from 'lucide-react-native'
 import { isr } from '@simplicity/core'
 import Sheet from '../components/Sheet'
 import Select from '../components/Select'
@@ -35,11 +35,8 @@ const blank = (client, snap) => ({
   adjustment: String(Number(client?.balance_adjustment) || 0),
   phone: client?.phone || '',
   email: client?.email || '',
-  address: client?.address || '',
-  birth_date: client?.birth_date || '',
   project_id: client?.project_id || '',
   group_id: client?.group_id || '',
-  notes: client?.notes || '',
   recurring_day: client?.recurring_day != null ? String(client.recurring_day) : '',
   recurring_time: client?.recurring_time || '',
   recurring_end_time: client?.recurring_end_time || '',
@@ -155,11 +152,8 @@ export default function EditClientModal({ open, onClose, onSave, client, rawPaid
         has_custom_price: form.total_due !== '',
         phone: form.phone.trim() || null,
         email: form.email.trim() || null,
-        address: form.address.trim() || null,
-        birth_date: form.birth_date || null,
         project_id: form.project_id || null,
         group_id: form.group_id || null,
-        notes: form.notes.trim() || null,
         recurring_day: form.recurring_day !== '' ? Number(form.recurring_day) : null,
         recurring_time: form.recurring_day !== '' ? (form.recurring_time || null) : null,
         /* A fixed meeting needs a day; with no day the times are inert, so
@@ -233,19 +227,16 @@ export default function EditClientModal({ open, onClose, onSave, client, rawPaid
         <Field label={C('email')}>
           <TextInput style={styles.input} value={form.email} onChangeText={(v) => set('email', v)} placeholder={C('emailPlaceholder')} placeholderTextColor={colors.textFaint} keyboardType="email-address" autoCapitalize="none" />
         </Field>
-        <Field label={C('notesOptional')}>
-          <TextInput style={[styles.input, styles.textarea]} value={form.notes} onChangeText={(v) => set('notes', v)} multiline placeholderTextColor={colors.textFaint} />
-        </Field>
+        {/* Notes, address and birth date are NOT here any more. The client
+            card edits all three in place through its own section pencils, so
+            each has exactly one owner — carrying a second copy here meant the
+            same field had two editors with two different save gestures, and
+            let this sheet write over a value the card had just set. It also
+            wrote `notes` without the `notes_updated_at` stamp the card prints
+            beside it, so a note edited here showed fresh text under a stale
+            date. Same split the web form already made. */}
       </Section>
 
-      <Section Icon={MapPin} title={T('secMoreDetails')} summary={form.address} open={openSecs.has('more')} onToggle={() => toggleSec('more')}>
-        <Field label={C('address')}>
-          <TextInput style={styles.input} value={form.address} onChangeText={(v) => set('address', v)} placeholder={C('addressPlaceholder')} placeholderTextColor={colors.textFaint} />
-        </Field>
-        <Field label={C('birthDate')}>
-          <TextInput style={styles.input} value={form.birth_date} onChangeText={(v) => set('birth_date', v)} placeholder="YYYY-MM-DD" placeholderTextColor={colors.textFaint} />
-        </Field>
-      </Section>
 
       <Section Icon={CalendarDays} title={T('secScheduling')} summary={schedSummary} open={openSecs.has('scheduling')} onToggle={() => toggleSec('scheduling')}>
         <Select label={T('meetingType')} value={form.meeting_type_id} onChange={pickMeetingType} placeholder={C('none')}
@@ -420,7 +411,6 @@ const styles = StyleSheet.create({
   label: { fontSize: 13, color: colors.textSub },
   input: { borderWidth: 1, borderColor: colors.border, borderRadius: 12, paddingVertical: 11, paddingHorizontal: 14, fontSize: 15, color: colors.text, backgroundColor: colors.card },
   inputErr: { borderColor: colors.danger },
-  textarea: { minHeight: 64, textAlignVertical: 'top' },
   row2: { flexDirection: 'row', gap: 12 },
   hint: { fontSize: 11, color: colors.textFaint },
   clearLink: { fontSize: 13, color: colors.brand, fontWeight: '500' },

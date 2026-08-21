@@ -7,7 +7,9 @@
   "retrying": "Chargement…",
   "ring": {
     "kicker": "Du rythme",
-    "sub": "{{pct}} % de l'objectif"
+    "sub": "{{pct}} % de l'objectif",
+    "infoLabel": "Ce que signifie le score",
+    "infoText": "Le score pondéré de tous vos objectifs, tenant compte du rythme : quelle part de ce qui était attendu jusqu'ici vous avez couvert. 100% = pile dans le rythme. En dessous, «X% de l'objectif» est la progression vers la cible complète."
   },
   "section": {
     "byCategory": "Répartition par catégorie",
@@ -31,7 +33,9 @@
   },
   "overview": {
     "note": "Tendances relatives · 30 derniers jours — chaque courbe sur sa propre échelle (0–100). Un lien visuel n'est pas une causalité.",
-    "noneSelected": "Choisissez au moins une mesure ci-dessus pour voir un graphique."
+    "noneSelected": "Choisissez au moins une mesure ci-dessus pour voir un graphique.",
+    "pickQuestion": "Choisir une question quotidienne pour le graphique",
+    "noQuestions": "Pour ajouter une question quotidienne au graphique, il en faut une active — Réglages → Questions quotidiennes."
   },
   "corr": {
     "moveTogether": "<0>{{driver}}</0> et <1>{{outcome}}</1> ont tendance à évoluer ensemble (quand l'un est élevé, l'autre l'est aussi).",

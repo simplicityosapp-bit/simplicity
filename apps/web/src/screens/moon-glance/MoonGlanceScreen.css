@@ -392,7 +392,22 @@
   font-family: var(--mg-font);
   font-size: calc(11px * var(--text-scale));
   line-height: 1.5;
-  color: var(--mist);
+  /* --stone, not --mist. At 11px this is normal-size text and needs 4.5:1;
+     --mist is #7C8590 after dark, which measures 3.80:1 on the night card —
+     under the bar for the one line on the card that explains how to read the
+     chart above it. --stone clears it in both themes. */
+  color: var(--stone);
+}
+/* Both charts' x span, so "30 days" is a date range and not a claim. Sits
+   flush under the plot, oldest at the reading start. */
+.mg-axis {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 4px;
+  font-family: var(--mg-font);
+  font-size: calc(10px * var(--text-scale));
+  color: var(--stone);
+  font-variant-numeric: tabular-nums;
 }
 
 /* ── Correlations "patterns to explore" (§8.2) ─────────────────── */

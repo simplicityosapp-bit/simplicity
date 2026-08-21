@@ -941,7 +941,7 @@
         },
         {
           "title": "Ce qui bouge ensemble",
-          "body": "Un graphique qui affiche plusieurs mesures ensemble sur le même axe. Utilisez les boutons pour choisir quoi afficher : revenu, prospects, séances, score ou point quotidien. Par défaut, le revenu et le score sont affichés. Chaque ligne est mise à l'échelle de sa propre plage (0–100), de sorte que vous pouvez comparer la forme de la tendance même entre des éléments mesurés différemment (₪, décomptes, 1–10). S'il n'y a pas assez de données, vous verrez « Pas encore assez de données pour le graphique »."
+          "body": "Cette section se trouve sous « Aller plus loin », en bas de l'écran — appuyez pour l'ouvrir. Un graphique qui affiche plusieurs mesures ensemble sur le même axe. Utilisez les boutons pour choisir quoi afficher : revenu, prospects, séances, score ou point quotidien. Par défaut, le revenu et le score sont affichés. Chaque ligne est mise à l'échelle de sa propre plage (0–100), de sorte que vous pouvez comparer la forme de la tendance même entre des éléments mesurés différemment (₪, décomptes, 1–10). S'il n'y a pas assez de données, vous verrez « Pas encore assez de données pour le graphique »."
         },
         {
           "title": "Sélectionner un point quotidien dans le graphique",
@@ -949,7 +949,7 @@
         },
         {
           "title": "Liens à explorer",
-          "body": "Le système vérifie automatiquement s'il existe un lien entre les questions numériques du point quotidien (échelle 1–10) — principalement entre deux questions quotidiennes, et en principe aussi avec le revenu, les prospects et les séances. La plupart du temps, vous verrez « Aucun lien significatif dans les données pour le moment », et c'est tout à fait normal. Lorsqu'un schéma stable apparaît, il est présenté comme une carte décrivant que les mesures « ont tendance à évoluer ensemble » ou « évoluent en sens inverse », avec une étiquette de force (fort, modéré ou subtil), un nombre de points et un petit nuage de points."
+          "body": "Cette section se trouve sous « Aller plus loin », en bas de l'écran — appuyez pour l'ouvrir. Le système vérifie automatiquement s'il existe un lien entre les questions numériques du point quotidien (échelle 1–10) — principalement entre deux questions quotidiennes, et en principe aussi avec le revenu, les prospects et les séances. La plupart du temps, vous verrez « Aucun lien significatif dans les données pour le moment », et c'est tout à fait normal. Lorsqu'un schéma stable apparaît, il est présenté comme une carte décrivant que les mesures « ont tendance à évoluer ensemble » ou « évoluent en sens inverse », avec une étiquette de force (fort, modéré ou subtil), un nombre de points et un petit nuage de points."
         },
         {
           "title": "Naviguer vers Rapports et Objectifs",

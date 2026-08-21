@@ -537,7 +537,12 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
            remaining entry re-opens this sheet once the income form closes. */
         open={actionModal === 'adjust' || (!!headAdjust && actionModal !== 'payment')}
         onClose={() => { setActionModal(null); shiftAdjust() }}
+        client={client}
         balance={balance}
+        /* Sessions are not money: they carry no reason and live on the client
+           row, so the edit sheet writes them straight through rather than as
+           an adjustment. */
+        onSaveClient={(patch) => onUpdateClient?.(client.id, patch)}
         presetAmount={headAdjust?.amount ?? null}
         presetReason={headAdjust?.reason ?? null}
         moreQueued={adjustQueue.length > 1}

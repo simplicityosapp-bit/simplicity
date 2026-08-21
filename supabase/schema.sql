@@ -613,14 +613,17 @@ CREATE TABLE public.goal_entries (
   note text,
   created_at timestamp with time zone NOT NULL DEFAULT now(),
   updated_at timestamp with time zone NOT NULL DEFAULT now(),
-  deleted_at timestamp with time zone
+  deleted_at timestamp with time zone,
+  goal_id uuid
 );
 ALTER TABLE public.goal_entries ADD CONSTRAINT goal_entries_pkey PRIMARY KEY (id);
 ALTER TABLE public.goal_entries ADD CONSTRAINT goal_entries_category_id_fkey FOREIGN KEY (category_id) REFERENCES goal_categories(id) ON DELETE CASCADE;
+ALTER TABLE public.goal_entries ADD CONSTRAINT goal_entries_goal_id_fkey FOREIGN KEY (goal_id) REFERENCES goals(id) ON DELETE CASCADE;
 ALTER TABLE public.goal_entries ADD CONSTRAINT goal_entries_group_id_fkey FOREIGN KEY (group_id) REFERENCES groups(id) ON DELETE SET NULL;
 ALTER TABLE public.goal_entries ADD CONSTRAINT goal_entries_project_id_fkey FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE SET NULL;
 ALTER TABLE public.goal_entries ADD CONSTRAINT goal_entries_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 CREATE INDEX idx_goal_entries_category ON public.goal_entries USING btree (category_id);
+CREATE INDEX idx_goal_entries_goal ON public.goal_entries USING btree (goal_id);
 CREATE INDEX idx_goal_entries_date ON public.goal_entries USING btree (date);
 CREATE INDEX idx_goal_entries_user ON public.goal_entries USING btree (user_id);
 CREATE INDEX idx_goal_entries_project ON public.goal_entries USING btree (project_id);

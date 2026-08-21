@@ -3,6 +3,12 @@
   "movement": "תנועה",
   "tagline": "כל יעד — כיוון, לא לחץ.",
   "title": "יעדים",
+  "timeFrame": {
+    "monthly": "חודשי",
+    "weekly": "שבועי",
+    "byDate": "עד {{date}}",
+    "deadline": "יעד"
+  },
   "newGoalAria": "יעד חדש",
   "newGoal": "+ יעד חדש",
   "loading": "טוען יעדים…",

@@ -3,6 +3,12 @@
   "movement": "Évolution",
   "tagline": "Chaque objectif est une direction, pas une pression.",
   "title": "Objectifs",
+  "timeFrame": {
+    "monthly": "Mensuel",
+    "weekly": "Hebdomadaire",
+    "byDate": "Avant le {{date}}",
+    "deadline": "Objectif"
+  },
   "newGoalAria": "Nouvel objectif",
   "newGoal": "+ Nouvel objectif",
   "loading": "Chargement des objectifs…",

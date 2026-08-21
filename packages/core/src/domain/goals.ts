@@ -7,10 +7,21 @@ import { moonGetData, type MoonData, type ScoredGoal } from './moon'
 import { isr } from './finance'
 import { fmtShortDate } from './dates'
 
+/* Resolved through i18n, NOT returned as Hebrew literals. This function used to
+   hand back 'חודשי' / 'שבועי' / `עד <date>` / 'יעד' and both the web GoalCard
+   and the mobile one drop it straight into a card subtitle, so an English
+   reader got "Monthly income · חודשי". Resolved at call time (the callers run
+   it during render and subscribe to i18n) rather than returned as a key,
+   because the deadline form composes a date into the sentence and the two
+   consumers would each have to rebuild it. */
 export function timeFrameLabel(goal: { time_frame?: string; target_date?: string | null }): string {
-  if (goal.time_frame === 'monthly') return 'חודשי'
-  if (goal.time_frame === 'weekly') return 'שבועי'
-  if (goal.time_frame === 'deadline') return goal.target_date ? `עד ${fmtShortDate(goal.target_date)}` : 'יעד'
+  if (goal.time_frame === 'monthly') return i18n.t('goals:timeFrame.monthly')
+  if (goal.time_frame === 'weekly') return i18n.t('goals:timeFrame.weekly')
+  if (goal.time_frame === 'deadline') {
+    return goal.target_date
+      ? i18n.t('goals:timeFrame.byDate', { date: fmtShortDate(goal.target_date) })
+      : i18n.t('goals:timeFrame.deadline')
+  }
   return ''
 }
 

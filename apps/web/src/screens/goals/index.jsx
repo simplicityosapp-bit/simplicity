@@ -29,7 +29,14 @@ import './GoalsScreen.css'
 
 /* The generic "אחר — עדכון ידני" bucket now lives in lib/goalPresets as
    MANUAL_CATEGORY, shared with onboarding (which used to create its own
-   parallel one) and named in the user's language. */
+   parallel one) and named in the user's language.
+
+   SUB-GOALS ARE DORMANT. goals.parent_goal_id exists in the schema and
+   moonGetData filters children out of the score, but nothing in the app can
+   create one — every writer sends parent_goal_id: null, and production holds
+   zero. The filter is not dead code and must stay: the day sub-goals do ship,
+   a parent scoring its children on top of itself would double-count. This is a
+   schema affordance with no UI, not a feature that broke. */
 
 export default function GoalsScreen() {
   const { t } = useT('goals')
@@ -73,7 +80,9 @@ export default function GoalsScreen() {
   const resolveCategoryId = async (metricKey) => {
     if (metricKey === OTHER_METRIC_KEY) return resolveManualCategoryId(categories, addCategory)
     const preset = CATEGORY_PRESETS.find((p) => p.key === metricKey)
-    if (!preset) throw new Error('מדד לא מוכר')
+    /* Surfaced to the user via common.saveFailed({error}), so it cannot be a
+       Hebrew literal — every other language would read it verbatim. */
+    if (!preset) throw new Error(t('unknownMetric'))
     const existing = categories.find((c) => c.data_source === preset.data_source)
     if (existing) return existing.id
     const created = await addCategory(presetToCategory(preset))

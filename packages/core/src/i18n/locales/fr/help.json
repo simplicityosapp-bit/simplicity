@@ -587,93 +587,117 @@
     },
     "tasks": {
       "title": "Tâches",
-      "intro": "Un seul écran pour deux types de choses à faire. Les « Tâches » sont des choses à faire sans date précise. Les « Rappels » sont tout ce qui est lié à un jour et une heure. Basculez entre eux d'un seul appui sur le sélecteur en haut.",
+      "intro": "Un seul écran pour tout ce qui reste ouvert. Les « Tâches » sont des choses à faire, avec une échéance ou sans. Les « Rappels » sont liés à un jour et une heure et peuvent se répéter. « Tout » affiche les deux dans une seule liste classée par urgence, et c'est ce qui s'ouvre à l'arrivée.",
       "features": [
         {
-          "title": "Basculer entre Tâches et Rappels",
-          "body": "Sous le titre se trouve un sélecteur à deux boutons : Tâches et Rappels. Une tâche est une chose à faire, sans date. Un rappel est tout ce qui est lié à un jour et une heure. Chaque côté a son propre résumé, son filtre et sa liste, et le bouton d'ajout change en conséquence (« + Nouvelle tâche » / « + Nouveau rappel »). Basculer de côté réinitialise aussi le filtre sur « Ouvertes »."
+          "title": "Trois vues : Tout, Tâches, Rappels",
+          "body": "En haut de la carte de résumé se trouve un sélecteur à trois boutons. « Tout » est la vue par défaut, parce qu'elle répond à « qu'est-ce qui est ouvert maintenant » sans vous obliger à choisir d'abord une moitié. « Tâches » et « Rappels » sont l'endroit où organiser un type en profondeur. Changer de vue remet le filtre sur « Ouvertes », et le bouton d'ajout suit la vue : dans « Tout » il ajoute une tâche."
+        },
+        {
+          "title": "Comment la liste « Tout » est classée",
+          "body": "La liste se divise en six groupes, de haut en bas : En retard, Aujourd'hui, Urgent, Cette semaine, Plus tard, Sans date. Une échéance déjà passée ou qui tombe aujourd'hui l'emporte sur tout. Juste derrière viennent les tâches marquées « Urgent » — y compris celles qui n'ont aucune date — pour qu'elles ne coulent pas au fond, sous des rappels qui n'arrivent que dans des semaines. Un groupe vide ne s'affiche pas."
+        },
+        {
+          "title": "Ce qui décide de l'ordre dans un groupe",
+          "body": "Les trois groupes du haut se lisent à l'horloge : « En retard » commence par la dette la plus ancienne, et « Aujourd'hui » est un plan de journée. Dans les groupes du dessous, la priorité mène et la date ne fait que départager, parce que plus rien n'y brûle. Un rappel est lu comme « Normal » : il n'a pas de priorité propre, et il n'entre jamais dans le groupe « Urgent »."
+        },
+        {
+          "title": "Le menu « Affichage »",
+          "body": "Le bouton à côté des onglets rassemble tout ce qui change la liste : le groupement, le filtre par catégorie, la sélection multiple et la gestion de vos statuts et catégories. Ce qui est actif s'affiche sur le bouton lui-même même quand le menu est fermé, pour qu'aucun filtre ne se cache. Dans « Tout » vous pouvez grouper par urgence (par défaut), date ou priorité ; dans « Tâches » par priorité, projet ou catégorie ; les rappels sont toujours groupés par date."
         },
         {
           "title": "Ajouter une tâche",
-          "body": "Du côté Tâches, cliquez sur « + Nouvelle tâche ». Renseignez « Que faut-il faire ? » (requis) et choisissez une priorité (Urgente / Normale / Faible). Vous pouvez la lier à un projet et à un client, et si vous avez défini des statuts ou des catégories, vous pouvez aussi les sélectionner. Vous pouvez aussi définir une échéance et une heure, ou la laisser sans : les deux sont valables."
+          "body": "Appuyez sur « + Nouvelle tâche », remplissez « Que faut-il faire ? » (obligatoire) et choisissez une priorité : Urgent, Normal ou Faible. Vous pouvez ajouter une échéance et une heure, ou vous en passer : les deux conviennent. Sous « Plus de détails » vous pouvez la relier à un projet et à un client, écrire une explication et, si vous avez défini des statuts ou des catégories, les choisir aussi."
         },
         {
-          "title": "Priorité et regroupement",
-          "body": "Il y a trois niveaux de priorité : Urgente, Normale et Faible. Les tâches sont triées dans cet ordre, et chaque groupe a son propre point de couleur et son compteur — Urgente en rouge, Normale en ambre, Faible en vert."
+          "title": "La priorité et les pastilles de couleur",
+          "body": "Trois niveaux : Urgent, Normal et Faible. La pastille au bout de chaque ligne indique toujours le groupe dans lequel cette ligne se trouve, si bien que le titre du groupe en est la légende. Quand vous ne groupez pas par priorité, une tâche urgente le dit avec des mots : une étiquette « Urgent » sur la ligne elle-même."
         },
         {
-          "title": "Terminer une tâche et annuler",
-          "body": "Cliquer sur le cercle à côté d'une tâche la marque comme terminée ; cliquer de nouveau la ramène. Après chaque action, une notification d'annulation apparaît (« Tâche terminée » / « Tâche rétablie ») au cas où vous auriez cliqué par erreur. Marquer une tâche comme terminée efface tout statut personnalisé ouvert qui lui est associé. La rétablir comme active ne restaure pas le statut — vous pouvez le choisir à nouveau en modification."
+          "title": "Terminer une tâche et revenir en arrière",
+          "body": "Appuyer sur le cercle la marque comme faite, et appuyer à nouveau la ramène. Un message d'annulation apparaît après chaque appui, au cas où vous vous seriez trompé. Marquer comme fait efface un statut personnalisé ouvert ; la rouvrir ne le rétablit pas, mais vous pouvez le rechoisir dans la fenêtre d'édition."
         },
         {
-          "title": "Modifier une tâche",
-          "body": "Cliquer sur l'icône crayon sur une ligne de tâche ouvre la fenêtre « Modifier la tâche ». Elle a exactement les mêmes champs que lors de l'ajout — titre, priorité, projet, client, et si vous les avez configurés, statut et catégorie."
+          "title": "Modifier, renommer vite et supprimer",
+          "body": "Le crayon sur la ligne ouvre la fenêtre d'édition, avec les mêmes champs que celle d'ajout et un bouton de suppression en bas. Pour ne changer que le titre, double-cliquez dessus et modifiez-le sur place, sans rien ouvrir. Tout ce que vous supprimez part à la corbeille et reste restaurable pendant 30 jours."
         },
         {
-          "title": "Filtrer les tâches",
-          "body": "Sous le résumé, il y a trois onglets : Ouvertes, Terminées, Toutes. Si vous avez des catégories, une rangée de pastilles apparaît aussi pour filtrer par catégorie (y compris une pastille « Toutes »). Cliquer une deuxième fois sur la même catégorie efface le filtre."
+          "title": "Reporter à demain",
+          "body": "Une ligne dont le moment est arrivé ou passé porte une icône de calendrier qui la repousse à demain, à la même heure. Le report se mesure depuis aujourd'hui et non depuis l'ancienne date : même une chose en retard de trois semaines passe vraiment à demain au lieu de rester en retard. Il y a un message d'annulation."
+        },
+        {
+          "title": "Recherche",
+          "body": "La loupe ouvre un champ de recherche qui parcourt le titre, les détails et le nom du client ou du projet lié. Fermer le champ efface la recherche, pour qu'aucun filtre ne reste actif derrière une icône refermée."
+        },
+        {
+          "title": "Sélection multiple",
+          "body": "Par « Affichage » puis « Sélection multiple », le cercle de chaque ligne devient une case à cocher. Vous pouvez choisir des tâches et des rappels ensemble, puis les marquer comme faits, leur attribuer une catégorie ou les supprimer — le tout d'un coup, depuis une barre d'actions qui flotte au-dessus de la liste. Changer de filtre ou lancer une recherche vide la sélection, pour que vous ne supprimiez pas des lignes que vous ne voyez plus."
+        },
+        {
+          "title": "Filtrer par statut",
+          "body": "Au-dessus de la liste, deux onglets : « Ouvertes » et « Terminées ». Les rappels en ont un troisième, « Récurrentes », qui montre le planning permanent, groupé par jour de la semaine, mensuel et tous les X jours. La liste « Terminées » est classée depuis la dernière chose que vous avez finie."
         },
         {
           "title": "Statuts et catégories",
-          "body": "Le bouton « Statuts et catégories » (du côté Tâches) ouvre une fenêtre où vous ajoutez et supprimez vos propres statuts et catégories, chacun avec un nom et une couleur. Chaque statut est lié soit à « Ouvertes » soit à « Terminées » afin que les compteurs de l'écran d'accueil restent exacts. La suppression demande d'abord confirmation, et ne supprime pas les tâches elles-mêmes — elles restent simplement sans cette étiquette. Il y a aussi ici une option d'annulation pour une récupération immédiate."
+          "body": "Par « Affichage » puis « Statuts et catégories », vous ajoutez et supprimez vos propres statuts et catégories, chacun avec un nom et une couleur. Chaque statut appartient soit à « Ouvertes » soit à « Terminées », pour que les compteurs de l'accueil restent justes. La suppression demande confirmation et n'efface pas les tâches : elles perdent simplement cette étiquette. Ces mêmes catégories sont les pastilles de filtre de ce menu, et plusieurs peuvent être actives à la fois."
         },
         {
-          "title": "Tout supprimer les terminées",
-          "body": "Dans l'onglet « Terminées », un bouton « Tout supprimer » supprime tous les éléments terminés en une fois (après confirmation). Ils vont à la Corbeille et peuvent être restaurés sous 30 jours. Il n'y a pas de bouton de suppression pour une tâche individuelle ici."
+          "title": "Supprimer ce qui est terminé",
+          "body": "L'onglet « Terminées » comporte un bouton « Supprimer les terminées » qui efface d'un coup ce que la liste affiche — avec un filtre de catégorie actif, seulement ce qui s'y trouve. Tout part à la corbeille et reste restaurable pendant 30 jours."
         },
         {
           "title": "Ajouter un rappel",
-          "body": "Du côté Rappels, cliquez sur « + Nouveau rappel ». Renseignez « De quoi dois-je me souvenir ? », choisissez la fréquence de répétition (Ponctuel / Hebdomadaire / Mensuel / Tous les X jours), et réglez le moment. Pour les rappels récurrents, vous pouvez ajouter une date de fin, le lier à un client et écrire des détails supplémentaires."
+          "body": "Dans la vue des rappels, appuyez sur « + Nouveau rappel », remplissez « À propos de quoi vous rappeler ? », choisissez la fréquence (une fois / hebdomadaire / mensuel / tous les X jours) et définissez le moment. Un rappel récurrent accepte une date de fin, peut être relié à un client et porter des détails supplémentaires."
         },
         {
-          "title": "Le moment change selon la récurrence",
-          "body": "Choisissez d'abord la fréquence de répétition du rappel, puis le champ de moment approprié apparaît. Ponctuel demande une date et une heure. Hebdomadaire demande un jour de la semaine et une heure. Mensuel demande un jour du mois (1 à 31) et une heure. Tous les X jours demande une date de début, une heure et un nombre de jours."
+          "title": "Les champs de moment suivent la répétition",
+          "body": "Vous choisissez d'abord la fréquence du rappel, puis le champ de moment correspondant apparaît. Une fois demande une date et une heure. Hebdomadaire demande un jour de la semaine et une heure. Mensuel demande un jour du mois (1–31) et une heure. Tous les X jours demande une date de début, une heure et un nombre de jours."
         },
         {
           "title": "Terminer et faire avancer les rappels",
-          "body": "Lorsque vous marquez un rappel ponctuel comme effectué, il passe dans « Terminés ». Un rappel récurrent n'est pas marqué comme effectué — il passe automatiquement à la prochaine occurrence (« Rappel avancé »). Il continue de sauter jusqu'à ce que la prochaine occurrence tombe après la date de fin que vous avez définie. Il y a aussi une option d'annulation ici."
+          "body": "Un rappel unique que vous cochez passe dans « Terminées ». Un rappel récurrent n'est jamais marqué comme fait : il saute tout seul à son prochain moment (« Rappel avancé ») et continue jusqu'à ce que ce moment tombe après la date de fin que vous avez fixée. Là aussi, il y a un message d'annulation."
         },
         {
-          "title": "Onglets et regroupement des rappels",
-          "body": "Les rappels ont trois onglets : Ouverts, Récurrents, Terminés. « Ouverts » trie par urgence — En retard, Aujourd'hui, Cette semaine, Plus tard. « Récurrents » affiche le calendrier fixe, trié par jour de la semaine, mensuel et tous les X jours."
-        },
-        {
-          "title": "Carte de résumé",
-          "body": "Au-dessus de la liste se trouve une carte de résumé avec trois chiffres : Ouvertes, un chiffre qui change selon le côté où vous êtes — « Urgentes » pour les tâches (priorité Urgente) ou « En retard » pour les rappels (un rappel dont l'heure est passée et qui est encore ouvert) — et Terminées."
+          "title": "La carte de résumé",
+          "body": "Au-dessus de la liste, une carte de résumé avec trois nombres : ouvertes, un nombre qui change selon la vue — « Urgentes » dans Tâches, « En retard » dans Rappels et dans « Tout » — et terminées. Les trois sont comptés à l'intérieur du filtre de catégorie actif, si bien que la carte décrit toujours la liste qui se trouve juste en dessous."
         }
       ],
       "tips": [
-        "Une tâche, c'est pour quelque chose sans date. Dès que vous avez besoin d'un jour et d'une heure précis, basculez vers Rappels et ajoutez-en un là. C'est aussi ce qui apparaîtra dans le carte « Tâches et rappels » sur l'écran d'accueil.",
-        "Liez une tâche à un client pour l'y rattacher. Les séances avec une date sont gérées dans le Calendrier, pas ici.",
-        "Configurez vos statuts et catégories une fois dans « Statuts et catégories », puis filtrez facilement par catégorie à l'aide des pastilles au-dessus de la liste.",
-        "Un rappel récurrent ne disparaît pas quand vous le marquez — il passe à la prochaine occurrence. Si plusieurs occurrences manquées se sont accumulées, vous verrez un badge ×N à côté du titre dans l'onglet « Ouverts ».",
-        "Vous avez marqué quelque chose par erreur ? Une fenêtre d'annulation apparaît juste après chaque clic sur le cercle pour rétablir l'état précédent.",
-        "Pour arrêter un rappel récurrent après une certaine date, ajoutez-lui une « Date de fin » — soit lors de l'ajout, soit en modification."
+        "Une tâche peut avoir une échéance ou non : les deux conviennent. Ce qui distingue un rappel, c'est qu'il a toujours une heure et qu'il peut se répéter.",
+        "Une tâche marquée « Urgent » sans date ne coule pas au fond : dans « Tout » elle a un groupe à elle, juste après « Aujourd'hui ».",
+        "Reliez une tâche à un client pour la rattacher à lui — la recherche la retrouvera alors aussi par son nom. Les rendez-vous datés se gèrent dans le calendrier, pas ici.",
+        "Définissez vos statuts et catégories une seule fois via « Affichage », et vous pourrez ensuite filtrer par catégorie depuis ce même menu : plusieurs catégories peuvent être actives ensemble.",
+        "Un rappel récurrent ne disparaît pas quand vous le cochez : il saute à son prochain moment. Si plusieurs moments se sont accumulés sans être traités, une étiquette ×N apparaît à côté du titre dans l'onglet « Ouvertes ».",
+        "Coché par erreur ? Juste après chaque appui sur le cercle, un message d'annulation apparaît et rétablit l'état précédent."
       ],
       "faq": [
         {
           "q": "Où définir une échéance pour une tâche ?",
-          "a": "La fenêtre « Nouvelle tâche » (et celle d'édition) comporte un champ « Échéance » et une heure. La date seule suffit : l'heure est fixée à 09:00, et effacer la date supprime l'échéance. Une tâche sans date est tout à fait normale ; la différence avec un rappel est que celui-ci a toujours une heure et peut se répéter."
+          "a": "La fenêtre « Nouvelle tâche » (et celle d'édition) comporte un interrupteur « + Ajouter une échéance » qui ouvre un champ « Échéance » et une heure. La date seule suffit : l'heure est fixée à 09:00, et retirer le champ efface l'échéance. Une tâche sans date est tout à fait valable ; dans « Tout » elle apparaît sous « Sans date », sauf si vous l'avez marquée « Urgent »."
+        },
+        {
+          "q": "Pourquoi une tâche urgente passe-t-elle devant un rappel prévu plus tôt ?",
+          "a": "Parce que la liste est classée par urgence, et pas seulement par date. Une échéance passée ou qui tombe aujourd'hui l'emporte toujours sur tout, mais au-delà, une tâche marquée « Urgent » remonte au-dessus du travail à venir, même quand le rappel est prévu plus tôt. Si vous préférez une chronologie pure, passez « Affichage » sur un groupement par « Date »."
+        },
+        {
+          "q": "Pourquoi une tâche que j'ai fixée à aujourd'hui apparaît-elle « En retard » ?",
+          "a": "Quand vous fixez une date sans heure, l'application inscrit 09:00 — et à partir de cette heure l'échéance compte comme passée. S'il est important que la tâche reste sous « Aujourd'hui », donnez-lui une heure plus tardive dans le champ d'heure situé à côté de la date."
         },
         {
           "q": "Comment supprimer une seule tâche ?",
-          "a": "Il n'y a pas de bouton de suppression pour une ligne individuelle ici. Marquez-la comme terminée, allez dans l'onglet « Terminées » et cliquez sur « Tout supprimer ». Tout ce qui est supprimé va à la Corbeille et peut être restauré sous 30 jours."
+          "a": "Ouvrez-la avec le crayon et utilisez le bouton de suppression en bas de la fenêtre. Pour en supprimer plusieurs d'un coup, il y a « Affichage » puis « Sélection multiple ». Tout part à la corbeille et reste restaurable pendant 30 jours."
         },
         {
-          "q": "J'ai marqué un rappel récurrent comme effectué — pourquoi n'est-il pas passé dans « Terminés » ?",
-          "a": "C'est ainsi que cela doit fonctionner. Un rappel récurrent passe à la prochaine occurrence au lieu d'être marqué comme effectué, de sorte qu'il revient sans cesse. Il ne s'arrête que lorsque la prochaine occurrence tombe après la date de fin que vous avez définie."
+          "q": "J'ai coché un rappel récurrent — pourquoi n'est-il pas passé dans « Terminées » ?",
+          "a": "C'est le comportement prévu. Un rappel récurrent saute tout seul à son prochain moment au lieu d'être marqué comme fait, pour qu'il continue de revenir. Il ne s'arrête que lorsque ce prochain moment tombe après la date de fin que vous avez fixée."
         },
         {
-          "q": "J'ai supprimé un statut ou une catégorie — qu'advient-il des tâches qui leur sont affectées ?",
-          "a": "Les tâches demeurent. Elles perdent simplement cette étiquette et apparaissent sans statut ni catégorie. Le statut ou la catégorie lui-même peut être restauré immédiatement via la fenêtre d'annulation."
+          "q": "J'ai supprimé un statut ou une catégorie — qu'arrive-t-il aux tâches concernées ?",
+          "a": "Les tâches restent. Elles perdent simplement cette étiquette et apparaissent sans statut ni catégorie. Le statut ou la catégorie eux-mêmes peuvent être rétablis aussitôt depuis le message d'annulation."
         },
         {
-          "q": "Comment trier la liste des tâches ?",
-          "a": "Les tâches sont automatiquement triées par priorité — Urgente, puis Normale, puis Faible — avec un compteur pour chaque groupe, et par échéance au sein de chaque groupe. Le menu « Affichage » permet de grouper par projet ou catégorie, et dans « Tout » vous pouvez choisir entre un groupement par date et par urgence."
-        },
-        {
-          "q": "Quelle est la différence entre « Urgentes » et « En retard » dans le résumé ?",
-          "a": "C'est le même emplacement dans la carte de résumé, mais il change selon le côté que vous consultez. Pour les tâches, il compte les tâches ouvertes de priorité « Urgente ». Pour les rappels, il compte les rappels ouverts dont l'heure est déjà passée."
+          "q": "Quelle différence entre « Urgentes » et « En retard » dans le résumé ?",
+          "a": "C'est la même case de la carte de résumé, qui change selon la vue. Dans Tâches, elle compte les tâches ouvertes de priorité « Urgent ». Dans Rappels et dans « Tout », elle compte ce dont le moment est passé et qui reste ouvert."
         }
       ]
     },

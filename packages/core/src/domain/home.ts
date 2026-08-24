@@ -14,7 +14,7 @@
 
 import i18n from '../i18n'
 import { financeQuery, currentMonthRange, type Tx } from './finance'
-import { clientBalance, effectiveClientMeta, type Client, type ClientSession, type GroupMembership, type Group } from './clients'
+import { clientBalance, effectiveClientMeta, getClientMemberships, type Client, type ClientSession, type GroupMembership, type Group } from './clients'
 
 const DAY = 86400000
 const ils = (n: number): string => {
@@ -89,6 +89,10 @@ export interface HomeTask {
   deleted_at?: string | null
   status?: string
   priority?: string
+  /* Added when tasksAndReminders moved here: this type predates tasks
+     carrying a deadline at all, which is why nextTasks only ever sorted by
+     priority. The merged card ranks by it. */
+  due_at?: string | null
   project_id?: string | null
   client_id?: string | null
 }
@@ -104,7 +108,7 @@ export interface TileFilters {
 export const DEFAULT_TILE_FILTERS: TileFilters = {
   clients: { statuses: ['active', 'wandering'], projectIds: [], groupIds: [] },
   net: { timeRange: 'thisMonth', type: 'both', projectIds: [], groupIds: [], categoryIds: [] },
-  today: { kinds: ['meeting', 'calendar', 'followup'] },
+  today: { kinds: ['meeting', 'calendar', 'followup', 'reminder'] },
 }
 
 export function getTileFilters(prefs?: { tileFilters?: Partial<TileFilters> } | null): TileFilters {
@@ -135,24 +139,40 @@ export interface HomeChips {
   _txCount: number
 }
 
+/* True when the client belongs to any of `groupIds` — by their own group_id
+   or through a membership. An empty filter matches everything. */
+export function clientInGroups(c: HomeClient, groupIds?: string[], membersData: GroupMembership[] = []): boolean {
+  if (!groupIds?.length) return true
+  if (c.group_id && groupIds.includes(c.group_id)) return true
+  return getClientMemberships(c.id as string, membersData).some((m) => !!m.group_id && groupIds.includes(m.group_id))
+}
+
 /* Filter-aware computation of the home tiles that show a number (clients
    count / net). Each tile reads its slice from the resolved filters. */
 export function homeChips(
   now: Date = new Date(),
-  data?: { clients?: HomeClient[]; transactions?: Tx[] },
+  data?: { clients?: HomeClient[]; transactions?: Tx[]; members?: GroupMembership[]; groups?: Group[] },
   filters: TileFilters = DEFAULT_TILE_FILTERS,
 ): HomeChips {
-  const { clients = [], transactions } = data || {}
+  const { clients = [], transactions, members = [], groups = [] } = data || {}
   const f = {
     clients: { ...DEFAULT_TILE_FILTERS.clients, ...(filters.clients || {}) },
     net: { ...DEFAULT_TILE_FILTERS.net, ...(filters.net || {}) },
   }
 
+  /* Status MUST come from effectiveClientMeta, never the raw `status_meta` /
+     `status` columns: a client whose status is driven by their group carries a
+     stale own-status, so reading it directly made this chip disagree with the
+     clients screen — the same bug web fixed here long ago and this copy never
+     got. Two other functions in THIS file already read it correctly.
+     The group filter also only matched a client's OWN group_id, so filtering
+     by a group missed everyone who belongs to it through a membership;
+     clientInGroups checks both, as web does. */
   const activeClients = live(clients).filter((c) => {
-    const meta = c.status_meta || c.status
-    if (f.clients.statuses?.length && (!meta || !f.clients.statuses.includes(meta))) return false
+    const meta = effectiveClientMeta(c as Client, members, groups)
+    if (f.clients.statuses?.length && !f.clients.statuses.includes(meta)) return false
     if (f.clients.projectIds?.length && !f.clients.projectIds.includes(c.project_id as string)) return false
-    if (f.clients.groupIds?.length && !f.clients.groupIds.includes(c.group_id as string)) return false
+    if (!clientInGroups(c, f.clients.groupIds, members)) return false
     return true
   }).length
 
@@ -193,14 +213,14 @@ export interface TodayItem {
   meeting?: HomeMeeting
 }
 
-const TODAY_KINDS = ['meeting', 'calendar', 'followup']
+const TODAY_KINDS = ['meeting', 'calendar', 'followup', 'reminder']
 
 export function todayItems(
   now: Date = new Date(),
-  data: { meetings?: HomeMeeting[]; calendarEvents?: HomeCalEvent[]; leads?: HomeLead[]; clients?: HomeClient[]; groups?: HomeGroup[] } = {},
+  data: { meetings?: HomeMeeting[]; calendarEvents?: HomeCalEvent[]; leads?: HomeLead[]; clients?: HomeClient[]; groups?: HomeGroup[]; reminders?: HomeReminder[] } = {},
   filter: { kinds?: string[] } = {},
 ): TodayItem[] {
-  const { meetings = [], calendarEvents = [], leads = [], clients = [], groups = [] } = data
+  const { meetings = [], calendarEvents = [], leads = [], clients = [], groups = [], reminders = [] } = data
   const kinds = filter.kinds && filter.kinds.length ? filter.kinds : TODAY_KINDS
   const pad = (n: number): string => String(n).padStart(2, '0')
   const todayKey = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`
@@ -244,6 +264,18 @@ export function todayItems(
         id: `fu-${l.id}`, kind: 'followup', when: `${todayKey}T09:00:00`,
         title: l.name || '', phone: l.phone || '', leadId: l.id,
       }))
+  }
+
+  if (kinds.includes('reminder')) {
+    /* Today's reminders — the same recurring/one-off expansion the calendar
+       feed uses (remindersUpcoming), narrowed to today (daysAhead 0, no cap).
+       This branch, and 'reminder' in TODAY_KINDS, were simply absent here, so
+       the mobile לו"ז silently omitted a whole kind that its own calendar
+       shows. Not passed includeOverdue: the agenda is today, and a past-due
+       reminder belongs on the tasks card, not in today's schedule. */
+    remindersUpcoming(now, reminders, 0, 0).forEach((r) => out.push({
+      id: `rem-${r.id}`, kind: 'reminder', when: r.when, title: r.title || '',
+    }))
   }
 
   return out.sort((a, b) => new Date(a.when).getTime() - new Date(b.when).getTime())
@@ -319,7 +351,6 @@ export function attentionItems(
     transactions?: Tx[]
     scheduled_meetings?: HomeMeeting[]
     clients?: AttnClient[]
-    tasks?: HomeTask[]
     goals?: HomeGoal[]
     categories?: HomeCategory[]
     sessions?: ClientSession[]
@@ -329,7 +360,7 @@ export function attentionItems(
   },
 ): AttentionItem[] {
   const {
-    transactions = [], scheduled_meetings = [], clients = [], tasks = [], goals = [],
+    transactions = [], scheduled_meetings = [], clients = [], goals = [],
     categories = [], sessions = [], leads = [], members = [], groups = [],
   } = data || {}
   const T = (key: string, opts?: Record<string, unknown>): string => i18n.t(`home:widgets.attention.rows.${key}`, opts)
@@ -353,8 +384,12 @@ export function attentionItems(
     items.push({ icon: 'Target', text: T('goalGap', { amount: ils(goal - inc), days: daysLeft, count: daysLeft }), target: 'goals' })
   }
 
-  const urgent = live(tasks).filter((t) => t.status !== 'done' && t.priority === 'high').length
-  if (urgent) items.push({ icon: 'AlertCircle', text: T('urgentTasks', { count: urgent }), target: 'tasks' })
+  /* No urgent-tasks row. This widget collects what needs handling, and
+     urgent tasks qualify — but the "משימות ותזכורות" card on the same screen
+     already leads with them and states its own "X באיחור" count, so a row
+     here made the home screen say the same thing three times. Web never
+     carried this row; mobile is the one that gained it, and the merged card
+     it now has removes the last reason to keep it (owner, 2026-08-24). */
 
   const staleClients = clientsNeedingAttention(45, now, { clients, sessions, members, groups })
   if (staleClients.length) items.push({ icon: 'Clock', text: T('staleClients', { count: staleClients.length }), target: 'clients', kind: 'people', rowId: 'staleClients', entity: 'client', waKey: 'client', people: staleClients.map((c) => ({ id: c.id as string, name: c.name as string, phone: c.phone || '' })) })
@@ -495,4 +530,101 @@ export function remindersUpcoming(now: Date = new Date(), remindersData: HomeRem
   })
   out.sort((a, b) => a.when.getTime() - b.when.getTime())
   return limit ? out.slice(0, limit) : out
+}
+
+/* One row of the merged tasks+reminders card. `bucket` rides along so the
+   widget can count for its summary without re-deriving any of the ranking,
+   and the raw task rides along because the row acts on it. */
+export interface TaskOrReminder {
+  id: string
+  kind: 'task' | 'reminder'
+  title: string
+  when: string | Date | null
+  priority?: string | null
+  task?: HomeTask
+  reminderId?: string
+  bucket?: string
+}
+
+
+/* ── Tasks + reminders, one list ────────────────────────────────
+   The home "משימות ותזכורות" widget. Reminders used to have a card of their
+   own sitting right next to the tasks card, which split one question — what
+   do I still owe? — across two boxes with two different summaries.
+
+   Ordered by PRESSURE, over both kinds: overdue → today → flagged urgent →
+   the rest, soonest first, undated last. Home used to sort tasks by priority
+   alone and render no date at all, even though `tasks.due_at` exists and the
+   tasks screen buckets by it — so a task due this morning sat below one
+   merely flagged urgent with no deadline.
+
+   A reminder CAN be late here (owner decision 2026-08-24, reversing the
+   2026-07-19 rule for this card only). The old asymmetry — only a task can
+   be overdue, and remindersUpcoming never looks back — was made about the
+   CALENDAR, where a reminder really is not history. This card is the list of
+   what you owe, and a reminder you set for yesterday and never ticked is
+   owed. It was showing on the tasks screen under "באיחור" and nowhere here.
+   Same threshold the tasks screen uses, so the two now agree exactly: a
+   moment that has passed is late, whether it is 09:00 this morning or last
+   Tuesday. The calendar keeps the old rule — see remindersUpcoming.
+
+   Lives here rather than in apps/web so BOTH homes can use it — the rewiring
+   this module's own header note has been waiting for, done for one function.
+   apps/mobile carried two separate cards until it could reach this. */
+export function tasksAndReminders(
+  limit = 0,
+  data: { tasks?: HomeTask[]; reminders?: HomeReminder[] } = {},
+  now: Date = new Date(),
+): TaskOrReminder[] {
+  const { tasks = [], reminders = [] } = data
+  const dayEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0, 0)
+  const items: TaskOrReminder[] = []
+
+  live(tasks)
+    .filter((t) => t.status !== 'done')
+    .forEach((t) => items.push({
+      id: `task-${t.id}`, kind: 'task', title: t.title || '',
+      when: t.due_at || null, priority: t.priority, task: t,
+    }))
+
+  remindersUpcoming(now, reminders, 60, 0, true).forEach((r) => items.push({
+    id: `rem-${r.id}`, kind: 'reminder', title: r.title || '',
+    when: r.when, reminderId: r.id,
+  }))
+
+  const ts = (it: TaskOrReminder): number | null => {
+    if (!it.when) return null
+    const d = new Date(it.when)
+    return Number.isNaN(+d) ? null : +d
+  }
+  items.forEach((it) => {
+    const w = ts(it)
+    if (w === null) it.bucket = 'undated'
+    else if (w < +now) it.bucket = 'overdue'
+    else if (w < +dayEnd) it.bucket = 'today'
+    else it.bucket = 'upcoming'
+  })
+
+  const BUCKET_RANK: Record<string, number> = { overdue: 0, today: 1, upcoming: 3, undated: 3 }
+  const rank = (it: TaskOrReminder): number => {
+    const base = BUCKET_RANK[it.bucket as string]
+    /* A task flagged urgent jumps ahead of undated/later work, but never
+       ahead of something with a deadline that has passed or lands today. */
+    if (base === 3 && it.kind === 'task' && it.priority === 'high') return 2
+    return base
+  }
+
+  items.sort((a, b) => {
+    const ra = rank(a), rb = rank(b)
+    if (ra !== rb) return ra - rb
+    const da = ts(a) ?? Infinity
+    const db = ts(b) ?? Infinity
+    if (da !== db) return da - db
+    /* Same moment: a task (which you act on) before a reminder (which only
+       tells you something), then by priority. */
+    if (a.kind !== b.kind) return a.kind === 'task' ? -1 : 1
+    return (PORDER[a.priority as string] ?? 1) - (PORDER[b.priority as string] ?? 1)
+  })
+
+  return limit ? items.slice(0, limit) : items
 }

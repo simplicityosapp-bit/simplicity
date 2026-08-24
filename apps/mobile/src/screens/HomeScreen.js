@@ -15,7 +15,6 @@ import TileDrillModal from '../modals/TileDrillModal'
 import { colors, space } from '../theme/theme'
 import AttentionWidget from './home/AttentionWidget'
 import NextTasksWidget from './home/NextTasksWidget'
-import RemindersWidget from './home/RemindersWidget'
 import MoonWidget, { MoonExpansion } from './home/MoonWidget'
 import QuoteWidget from './home/QuoteWidget'
 import InsightsWidget from './home/InsightsWidget'
@@ -24,7 +23,10 @@ import QuickRow from './home/QuickRow'
 // Home — greeting + net/clients/today chips (shared core homeChips) + the
 // widget stack, over the per-screen background photo (Warm Precision theme).
 // Default widget order = web WIDGET_REGISTRY; prefs.widgets.list overrides it.
-const DEFAULT_WIDGET_ORDER = ['quote', 'moon', 'insights', 'quick-row', 'attention', 'reminders', 'next-tasks', 'chips']
+// 'reminders' is gone from both: web dropped that id when it merged the two
+// cards, so for any account whose prefs came from web the mobile reminders
+// card was already unreachable — the id simply was not in the stored list.
+const DEFAULT_WIDGET_ORDER = ['quote', 'moon', 'insights', 'quick-row', 'attention', 'next-tasks', 'chips']
 
 export default function HomeScreen() {
   const nav = useNavigation()
@@ -59,10 +61,10 @@ export default function HomeScreen() {
     () => ({ transactions, scheduled_meetings: meetings, clients, tasks, goals, categories, sessions, leads, members, groups }),
     [transactions, meetings, clients, tasks, goals, categories, sessions, leads, members, groups],
   )
-  const chips = useMemo(() => homeChips(new Date(), { clients, transactions }, filters), [clients, transactions, filters])
+  const chips = useMemo(() => homeChips(new Date(), { clients, transactions, members, groups }, filters), [clients, transactions, members, groups, filters])
   const today = useMemo(
-    () => todayItems(new Date(), { meetings, calendarEvents, leads, clients, groups }, filters.today),
-    [meetings, calendarEvents, leads, clients, groups, filters.today],
+    () => todayItems(new Date(), { meetings, calendarEvents, leads, clients, groups, reminders }, filters.today),
+    [meetings, calendarEvents, leads, clients, groups, reminders, filters.today],
   )
   const netStr = isr(chips.net)
   const netLbl = filters.net?.type === 'income'
@@ -88,8 +90,7 @@ export default function HomeScreen() {
         <AttentionWidget key="attention" data={attentionData} projects={projects} financeCategories={financeCategories}
           onApproveTx={(id2) => setTransactionStatus(id2, 'confirmed')} onSkipTx={(id2) => setTransactionStatus(id2, 'skipped')} onDeleteTx={deleteTransaction} />
       )
-      case 'reminders': return <RemindersWidget key="reminders" reminders={reminders} onComplete={completeReminder} />
-      case 'next-tasks': return <NextTasksWidget key="next-tasks" tasks={tasks} onToggle={toggleTask} />
+      case 'next-tasks': return <NextTasksWidget key="next-tasks" tasks={tasks} reminders={reminders} onToggle={toggleTask} onCompleteReminder={completeReminder} />
       case 'chips': return (
         <View key="chips" style={styles.chips}>
           <Chip value={String(today.length)} label={i18n.t('home:widgets.chips.meetings')} Icon={CalendarClock} onPress={() => setOpenTile('today')}

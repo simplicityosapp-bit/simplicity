@@ -14,10 +14,17 @@
       screen buckets by it. A task due this morning sat below one merely
       flagged urgent with no deadline at all.
 
-   2. A reminder is NEVER overdue. remindersUpcoming() refuses to look back
-      past today on purpose (owner decision 2026-07-19: reminders are action
-      items, not history), so a reminder set for 09:00 and read at 14:00 is
-      still today's — not a failure.
+   2. A reminder CAN be overdue here — reversed 2026-08-24, and the reason
+      is worth keeping. The old rule (a reminder is never late; the window
+      never looks back past today) was an owner decision from 2026-07-19 made
+      about the CALENDAR: reminders are action items, not history, so the grid
+      does not backfill them. remindersUpcoming applied it to every caller —
+      and this card is not a calendar, it is the list of what you owe. The
+      result was a reminder set for yesterday sitting on the tasks screen under
+      "באיחור" and appearing NOWHERE on the home screen.
+      The calendar keeps the old rule; only callers passing includeOverdue see
+      a past-due reminder. Home and the tasks screen now use one threshold, so
+      the same row can never read "היום" on one and "באיחור" on the other.
 
    Fixtures use local Date constructors; the code buckets by local parts.
    Run: npm test
@@ -78,28 +85,52 @@ describe('tasksAndReminders — both kinds in one list', () => {
   })
 })
 
-describe('tasksAndReminders — a reminder is never late', () => {
-  it('leaves yesterday\'s reminder out entirely', () => {
-    /* remindersUpcoming() never looks back past today — the owner rule. */
-    expect(ids).not.toContain('rem-rem-yesterday')
+/* ── REVERSED, deliberately (owner decision 2026-08-24) ──────────────
+   This block used to pin the opposite: a reminder was never overdue and
+   yesterday's never appeared at all. That rule came from 2026-07-19 and it
+   was made about the CALENDAR — reminders are action items, not history, so
+   the grid does not backfill them. remindersUpcoming applied it to every
+   caller, and this card is not a calendar: it is the list of what you owe.
+   A reminder set for yesterday and never ticked was showing on the tasks
+   screen under "באיחור" and nowhere on the home screen at all.
+
+   The calendar keeps the old rule. Only the callers that pass
+   includeOverdue see a past-due reminder — see remindersUpcoming. */
+describe('tasksAndReminders — a reminder CAN be late', () => {
+  it('surfaces yesterday\'s untouched reminder instead of dropping it', () => {
+    expect(ids).toContain('rem-rem-yesterday')
+    expect(find('rem-rem-yesterday').bucket).toBe('overdue')
   })
 
-  it('buckets a reminder from EARLIER TODAY as today, not overdue', () => {
-    /* 09:00 read at 14:00 is still today's business. Only a task can be
-       late; ranking a reminder overdue would quietly reverse the rule. */
-    expect(find('rem-rem-earlier-today').bucket).toBe('today')
+  it('counts a moment that has passed TODAY as late, matching the tasks screen', () => {
+    /* 09:00 read at 14:00. The two surfaces now use one threshold, so the
+       same reminder can never read "היום" here and "באיחור" there. */
+    expect(find('rem-rem-earlier-today').bucket).toBe('overdue')
   })
 
-  it('never produces an overdue reminder at all', () => {
+  it('still leaves a reminder still to come alone', () => {
+    expect(find('rem-rem-later-today').bucket).toBe('today')
+    expect(find('rem-rem-next-week').bucket).toBe('upcoming')
+  })
+
+  it('never marks a COMPLETED reminder late, however old', () => {
+    expect(ids).not.toContain('rem-rem-done')
+  })
+
+  it('has both kinds in the overdue band now, not tasks alone', () => {
     const overdue = items.filter((i) => i.bucket === 'overdue')
-    expect(overdue.length).toBeGreaterThan(0)
-    for (const it of overdue) expect(it.kind).toBe('task')
+    expect(overdue.some((i) => i.kind === 'task')).toBe(true)
+    expect(overdue.some((i) => i.kind === 'reminder')).toBe(true)
   })
 })
 
 describe('tasksAndReminders — ordered by pressure', () => {
-  it('puts overdue tasks first, oldest deadline leading', () => {
-    expect(ids.slice(0, 2)).toEqual(['task-overdue-days', 'task-overdue-hours'])
+  it('puts everything overdue first, oldest leading, both kinds interleaved', () => {
+    /* 19th 12:00 · 20th 09:00 · 21st 09:00 · 21st 10:00 — the clock decides,
+       not the kind. */
+    expect(ids.slice(0, 4)).toEqual([
+      'task-overdue-days', 'rem-rem-yesterday', 'rem-rem-earlier-today', 'task-overdue-hours',
+    ])
   })
 
   it('THE regression: a low-priority task due today outranks an undated urgent one', () => {
@@ -109,7 +140,7 @@ describe('tasksAndReminders — ordered by pressure', () => {
 
   it('interleaves today\'s reminders with today\'s tasks by time', () => {
     const today = items.filter((i) => i.bucket === 'today').map((i) => i.id)
-    expect(today).toEqual(['rem-rem-earlier-today', 'task-due-today-late', 'rem-rem-later-today'])
+    expect(today).toEqual(['task-due-today-late', 'rem-rem-later-today'])
   })
 
   it('lifts a task flagged urgent above later, unflagged work', () => {
@@ -129,10 +160,11 @@ describe('tasksAndReminders — ordered by pressure', () => {
   it('produces the full expected order', () => {
     expect(ids).toEqual([
       'task-overdue-days',      // deadline passed, days ago
+      'rem-rem-yesterday',      // reminder from yesterday, never ticked
+      'rem-rem-earlier-today',  // reminder at 09:00, read at 14:00
       'task-overdue-hours',     // deadline passed, this morning
-      'rem-rem-earlier-today',  // today 09:00
-      'task-due-today-late',    // today 18:00
-      'rem-rem-later-today',    // today 20:00
+      'task-due-today-late',    // today 18:00, still to come
+      'rem-rem-later-today',    // today 20:00, still to come
       'task-high-next-week',    // urgent with a deadline
       'task-high-undated',      // urgent without one
       'task-med-tomorrow',      // the rest, soonest first — 22nd…

@@ -457,8 +457,8 @@
   height: 15px;
   padding: 0 3px;
   border-radius: 999px;
-  background: var(--clay);
-  color: #fff;
+  background: var(--clay-solid);
+  color: var(--on-accent);
   font-family: var(--mg-font);
   font-size: calc(9px * var(--text-scale));
   font-weight: 700;
@@ -611,8 +611,8 @@
   height: 15px;
   padding: 0 3px;
   border-radius: 999px;
-  background: var(--clay);
-  color: #fff;
+  background: var(--clay-solid);
+  color: var(--on-accent);
   font-family: var(--mg-font);
   font-size: calc(9px * var(--text-scale));
   font-weight: 700;

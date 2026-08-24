@@ -46,11 +46,11 @@
   font-weight: 500;
   padding: 3px 10px;
   border-radius: 999px;
-  background: rgba(44, 38, 33, 0.07);
+  background: var(--meta-chip-bg);
   color: var(--stone);
 }
-.lpm-badge.is-live { background: color-mix(in srgb, var(--sage) 24%, transparent); color: var(--ink); }
-.lpm-badge.is-auto { background: color-mix(in srgb, var(--terracotta) 18%, transparent); color: var(--ink); }
+.lpm-badge.is-live { background: color-mix(in srgb, var(--sage) 24%, var(--pure-white)); color: var(--espresso); }
+.lpm-badge.is-auto { background: color-mix(in srgb, var(--terracotta) 18%, var(--pure-white)); color: var(--espresso); }
 
 .lpm-card-actions { display: flex; align-items: center; gap: 8px; }
 
@@ -61,12 +61,12 @@
   height: 36px;
   border-radius: 10px;
   border: 1px solid var(--mg-card-border-color, rgba(44, 38, 33, 0.12));
-  background: var(--mg-btn-secondary-bg, rgba(255, 252, 247, 0.6));
+  background: var(--meta-chip-bg);
   color: var(--stone);
   cursor: pointer;
   text-decoration: none;
 }
-.lpm-icon-btn:hover { background: var(--mg-btn-secondary-bg-hover); color: var(--ink); }
+.lpm-icon-btn:hover { background: var(--mg-btn-secondary-bg-hover); color: var(--espresso); }
 .lpm-icon-btn.danger:hover { color: var(--terracotta); }
 
 .lpm-edit-btn {
@@ -76,8 +76,8 @@
   padding: 8px 16px;
   border-radius: 10px;
   border: 1px solid var(--mg-card-border-color, rgba(44, 38, 33, 0.12));
-  background: var(--mg-btn-secondary-bg, rgba(255, 252, 247, 0.6));
-  color: var(--ink);
+  background: var(--meta-chip-bg);
+  color: var(--espresso);
   cursor: pointer;
 }
 .lpm-edit-btn:hover { background: var(--mg-btn-secondary-bg-hover); }
@@ -199,7 +199,7 @@
   display: grid; place-items: center;
   width: 22px; height: 18px; padding: 0;
   border: 1px solid rgba(44, 38, 33, 0.12); border-radius: 6px;
-  background: var(--mg-btn-secondary-bg, rgba(255, 252, 247, 0.6));
+  background: var(--meta-chip-bg);
   color: var(--stone); cursor: pointer;
 }
 .lpb-mini:disabled { opacity: 0.35; cursor: default; }
@@ -308,7 +308,7 @@
   font: inherit; font-size: 14px; font-weight: 500;
   padding: 8px 14px; border-radius: 10px;
   border: 1px solid var(--mg-card-border-color, rgba(44, 38, 33, 0.12));
-  background: var(--mg-btn-secondary-bg, rgba(255, 252, 247, 0.6));
+  background: var(--meta-chip-bg);
   /* Frost the translucent pill so it reads as system glass (matches the
      .lpe-settings panel below it), not flat transparency. */
   -webkit-backdrop-filter: var(--mg-card-blur);

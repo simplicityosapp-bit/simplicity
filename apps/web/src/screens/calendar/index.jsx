@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { AlertTriangle, ArrowLeft, Calendar, CloudOff } from 'lucide-react'
 import { ROUTES } from '../../lib/routes'
-import { remindersUpcoming } from '../../lib/homeData'
+import { remindersUpcoming } from '@simplicity/core'
 import { fmtShortDate, fmtTime } from '@simplicity/core'
 import { useReminders } from '../../hooks/useReminders'
 import { useScheduledMeetings } from '../../hooks/useScheduledMeetings'
@@ -288,7 +288,7 @@ export default function CalendarScreen() {
 
   /* Opening an event stamps whether its time has already passed. "האם הפגישה
      התקיימה?" is a past-tense question, and the home review widget only ever
-     asks it for meetings whose scheduled_at is behind us (homeData's
+     asks it for meetings whose scheduled_at is behind us (core home.ts's
      pastMeetings rule) — the calendar has to use the same cut, or a tap on
      next week's meeting offers to confirm it, which materialises a session
      and bills a per-session client for a meeting that hasn't happened.

@@ -1,6 +1,6 @@
 /* ════════════════════════════════════════════════════════════════
    ATTENTION-ROW-ACTIONS SUITE — every row in the home "דרושה תשומת
-   לב" widget must DO something when clicked (lib/homeData
+   לב" widget must DO something when clicked (core domain/home + lib/attentionRows
    attentionRowAction + attentionItems).
 
    Guards the regression where a refactor pointed the widget handler at
@@ -11,7 +11,8 @@
    Run: npm test
    ════════════════════════════════════════════════════════════════ */
 import { describe, it, expect } from 'vitest'
-import { attentionItems, attentionRowAction } from '../src/lib/homeData'
+import { attentionItems } from '@simplicity/core'
+import { attentionRowAction } from '../src/lib/attentionRows'
 import { ROUTES } from '../src/lib/routes'
 
 describe('attentionRowAction — the item shapes attentionItems() actually emits', () => {

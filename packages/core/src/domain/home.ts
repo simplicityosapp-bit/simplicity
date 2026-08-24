@@ -139,6 +139,24 @@ export interface HomeChips {
   _txCount: number
 }
 
+/* Rank for every attention row, lowest first. Rows come from two places —
+   this module and the web widget — and are sorted into ONE list, so the
+   ordering has to be stated once. bookings/invoices/duplicates are the
+   widget-built rows; they have no rule here, only a place in the order. */
+export const ATTENTION_PRIORITY: Record<string, number> = {
+  bookings:        10,
+  pendingLeads:    15,
+  dueFollowups:    20,
+  pendingMeetings: 30,
+  pendingTx:       35,
+  invoices:        40,
+  balance:         60,
+  staleClients:    70,
+  staleLeads:      75,
+  duplicates:      80,
+  goalGap:         90,
+}
+
 /* True when the client belongs to any of `groupIds` — by their own group_id
    or through a membership. An empty filter matches everything. */
 export function clientInGroups(c: HomeClient, groupIds?: string[], membersData: GroupMembership[] = []): boolean {
@@ -340,6 +358,10 @@ export interface AttentionItem {
   /* Stable identity for a row, independent of its (count-bearing) label —
      lets an open people-modal re-resolve its row as the list shrinks. */
   rowId?: string
+  /* Rank in the merged list — see ATTENTION_PRIORITY. Every row carries one
+     now; before, none did, which is why apps/web could not use this version:
+     it sorts widget-built rows and these into a single list by priority. */
+  priority?: number
   entity?: string
   waKey?: string
   people?: AttentionPerson[]
@@ -367,21 +389,21 @@ export function attentionItems(
   const items: AttentionItem[] = []
 
   const pending = (transactions || []).filter((t) => !t.deleted_at && t.status === 'pending')
-  if (pending.length) items.push({ icon: 'Wallet', text: T('pendingTx', { count: pending.length }), target: 'finance', kind: 'pendingTx' })
+  if (pending.length) items.push({ rowId: 'pendingTx', priority: ATTENTION_PRIORITY.pendingTx, icon: 'Wallet', text: T('pendingTx', { count: pending.length }), target: 'finance', kind: 'pendingTx' })
 
   const pastMeetings = (scheduled_meetings || []).filter(
     (m) => m.status === 'pending' && new Date(m.scheduled_at).getTime() <= now.getTime(),
   )
-  if (pastMeetings.length) items.push({ icon: 'Calendar', text: T('pendingMeetings', { count: pastMeetings.length }), target: 'calendar', kind: 'pendingMeetings' })
+  if (pastMeetings.length) items.push({ rowId: 'pendingMeetings', priority: ATTENTION_PRIORITY.pendingMeetings, icon: 'Calendar', text: T('pendingMeetings', { count: pastMeetings.length }), target: 'calendar', kind: 'pendingMeetings' })
 
   const withBalance = live(clients).filter((c) => effectiveClientMeta(c, members, groups) !== 'past' && clientBalance(c, transactions, sessions, members, groups).balance > 0)
-  if (withBalance.length) items.push({ icon: 'Wallet', text: T('balance', { count: withBalance.length }), target: 'clients' })
+  if (withBalance.length) items.push({ rowId: 'balance', priority: ATTENTION_PRIORITY.balance, icon: 'Wallet', text: T('balance', { count: withBalance.length }), target: 'clients' })
 
   const goal = monthlyIncomeGoal({ goals, categories })
   const { inc } = monthNet(now, { transactions })
   if (goal > 0 && inc < goal) {
     const daysLeft = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate() - now.getDate()
-    items.push({ icon: 'Target', text: T('goalGap', { amount: ils(goal - inc), days: daysLeft, count: daysLeft }), target: 'goals' })
+    items.push({ rowId: 'goalGap', priority: ATTENTION_PRIORITY.goalGap, icon: 'Target', text: T('goalGap', { amount: ils(goal - inc), days: daysLeft, count: daysLeft }), target: 'goals' })
   }
 
   /* No urgent-tasks row. This widget collects what needs handling, and
@@ -392,22 +414,26 @@ export function attentionItems(
      it now has removes the last reason to keep it (owner, 2026-08-24). */
 
   const staleClients = clientsNeedingAttention(45, now, { clients, sessions, members, groups })
-  if (staleClients.length) items.push({ icon: 'Clock', text: T('staleClients', { count: staleClients.length }), target: 'clients', kind: 'people', rowId: 'staleClients', entity: 'client', waKey: 'client', people: staleClients.map((c) => ({ id: c.id as string, name: c.name as string, phone: c.phone || '' })) })
+  if (staleClients.length) items.push({ priority: ATTENTION_PRIORITY.staleClients, icon: 'Clock', text: T('staleClients', { count: staleClients.length }), target: 'clients', kind: 'people', rowId: 'staleClients', entity: 'client', waKey: 'client', people: staleClients.map((c) => ({ id: c.id as string, name: c.name as string, phone: c.phone || '' })) })
 
   const officialLeads = live(leads).filter((l) => !l.pending_review)
   const pendingLeads = live(leads).filter((l) => l.pending_review)
-  if (pendingLeads.length) items.push({ icon: 'Bell', text: T('pendingLeads', { count: pendingLeads.length }), target: 'leads', kind: 'pendingLeads' })
+  if (pendingLeads.length) items.push({ rowId: 'pendingLeads', priority: ATTENTION_PRIORITY.pendingLeads, icon: 'Bell', text: T('pendingLeads', { count: pendingLeads.length }), target: 'leads', kind: 'pendingLeads' })
 
   const staleLeads = leadsNeedingAttention(45, now, officialLeads)
-  if (staleLeads.length) items.push({ icon: 'Clock', text: T('staleLeads', { count: staleLeads.length }), target: 'leads', kind: 'people', rowId: 'staleLeads', entity: 'lead', waKey: 'lead', people: staleLeads.map((l) => ({ id: l.id, name: l.name || '', phone: l.phone || '' })) })
+  if (staleLeads.length) items.push({ priority: ATTENTION_PRIORITY.staleLeads, icon: 'Clock', text: T('staleLeads', { count: staleLeads.length }), target: 'leads', kind: 'people', rowId: 'staleLeads', entity: 'lead', waKey: 'lead', people: staleLeads.map((l) => ({ id: l.id, name: l.name || '', phone: l.phone || '' })) })
 
   const todayYmd = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
   const dueFollowups = officialLeads.filter(
     (l) => l.status_meta === 'in_process' && l.follow_up_date && String(l.follow_up_date).slice(0, 10) <= todayYmd,
   )
-  if (dueFollowups.length) items.push({ icon: 'Bell', text: T('dueFollowups', { count: dueFollowups.length }), target: 'leads', kind: 'people', rowId: 'dueFollowups', entity: 'lead', waKey: 'lead', people: dueFollowups.map((l) => ({ id: l.id, name: l.name || '', phone: l.phone || '' })) })
+  if (dueFollowups.length) items.push({ priority: ATTENTION_PRIORITY.dueFollowups, icon: 'Bell', text: T('dueFollowups', { count: dueFollowups.length }), target: 'leads', kind: 'people', rowId: 'dueFollowups', entity: 'lead', waKey: 'lead', people: dueFollowups.map((l) => ({ id: l.id, name: l.name || '', phone: l.phone || '' })) })
 
-  return items
+  /* Most urgent first — see ATTENTION_PRIORITY. Insertion order used to leak
+     through as display order, which is how a soft 45-day nudge ended up
+     sitting above money waiting for approval. This copy never sorted at all,
+     because it never carried a priority to sort by. */
+  return items.sort((a, b) => (a.priority ?? 0) - (b.priority ?? 0))
 }
 
 /* ── Next open tasks (by priority) ─────────────────────────────── */

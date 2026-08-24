@@ -1,6 +1,6 @@
 /* ════════════════════════════════════════════════════════════════
    TODAY-ITEMS SUITE — the pure logic behind the home "פגישות היום"
-   chip + drill panel (lib/homeData.todayItems). Merges scheduled
+   chip + drill panel (core domain/home todayItems). Merges scheduled
    meetings + synced calendar events + lead follow-ups for TODAY,
    honouring the `kinds` filter, and sorts by time. Uses LOCAL date
    parts, so fixtures are built with the local Date constructor to
@@ -8,7 +8,7 @@
    Run: npm test
    ════════════════════════════════════════════════════════════════ */
 import { describe, it, expect } from 'vitest'
-import { todayItems } from '../src/lib/homeData'
+import { todayItems } from '@simplicity/core'
 
 const now = new Date(2026, 5, 25, 12, 0, 0) // local 2026-06-25 noon
 const at = (h, m = 0, day = 25) => new Date(2026, 5, day, h, m, 0).toISOString()

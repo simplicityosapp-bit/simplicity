@@ -11,7 +11,8 @@
    Run: npm test
    ════════════════════════════════════════════════════════════════ */
 import { describe, it, expect } from 'vitest'
-import { attentionItems, attentionRowAction, ATTENTION_PRIORITY } from '../src/lib/homeData'
+import { attentionItems, ATTENTION_PRIORITY } from '@simplicity/core'
+import { attentionRowAction } from '../src/lib/attentionRows'
 import { ROUTES } from '../src/lib/routes'
 
 const now = new Date(2026, 6, 21, 12, 0, 0) // local 2026-07-21 noon
@@ -92,7 +93,7 @@ describe('attentionItems — ranked by urgency', () => {
 
 describe('attentionRowAction — the generic popup kind the widget rows use', () => {
   /* bookings / invoices / calendar-duplicates are built in AttentionWidget
-     (they need hooks homeData has no access to) but ride the same list. */
+     (they need hooks core has no access to) but ride the same list. */
   it('routes a popup row to its own target', () => {
     expect(attentionRowAction({ kind: 'popup', popup: 'bookings' })).toEqual({ type: 'popup', popup: 'bookings' })
     expect(attentionRowAction({ kind: 'popup', popup: 'invoices' })).toEqual({ type: 'popup', popup: 'invoices' })

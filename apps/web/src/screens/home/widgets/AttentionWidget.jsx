@@ -1,7 +1,8 @@
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Wallet, Calendar, Target, AlertCircle, Clock, Bell, ChevronLeft, ChevronDown, CalendarClock, FileDown, BellOff, Check } from 'lucide-react'
-import { attentionItems, attentionRowAction, ATTENTION_PRIORITY } from '../../../lib/homeData'
+import { attentionItems, ATTENTION_PRIORITY } from '@simplicity/core'
+import { attentionRowAction } from '../../../lib/attentionRows'
 import { ROUTES } from '../../../lib/routes'
 import { pushUndo } from '../../../lib/undo'
 import { useWhatsAppMessage } from '../../../hooks/useWhatsAppMessage'
@@ -151,7 +152,7 @@ export default function AttentionWidget() {
   const visible = open ? rows : rows.slice(0, PREVIEW)
   const expandable = totalCount > PREVIEW
 
-  /* What a row does is decided by attentionRowAction (in homeData, tested
+  /* What a row does is decided by attentionRowAction (in lib/attentionRows, tested
      against the real item shapes) so the handler and the data can't drift —
      a past drift pointed this at `it.target` while items carried `it.to` and
      killed every navigating row. Here we only execute the resolved action. */

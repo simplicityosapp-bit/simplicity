@@ -64,7 +64,7 @@ const GROUP_BY = ['priority', 'project', 'category']
    task marked נמוך. The calendar stops meaning anything.
 
    Pressure is both axes at once, and it is the ranking the home widget has
-   used since it merged the two cards (see tasksAndReminders in lib/homeData).
+   used since it merged the two cards (see tasksAndReminders in core domain/home).
    Until now the screen that widget links to ordered the very same rows
    differently — the same דחוף task sat third at home and last here. */
 const ALL_GROUP_BY = ['pressure', 'date', 'priority']

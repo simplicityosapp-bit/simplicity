@@ -62,7 +62,12 @@
   border: none; border-radius: 9px; cursor: pointer;
   color: var(--stone); background: transparent;
   transition: background 0.15s ease, color 0.15s ease;
+  position: relative;
 }
+/* 30px → 44px of target, paint untouched — see .m-close. The wizard header
+   gives it 20px/22px of padding to grow into, and the only neighbour is
+   .rw-head-txt, which is two <p>s. */
+.rw-x::after { content: ''; position: absolute; inset: -7px; }
 .rw-x:hover { background: rgba(42, 37, 32, 0.07); color: var(--espresso); }
 [data-theme="dark"] .rw-x:hover { background: rgba(240, 235, 224, 0.1); }
 

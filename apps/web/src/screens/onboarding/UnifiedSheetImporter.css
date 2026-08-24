@@ -26,7 +26,12 @@
 .usi-id { flex: 1; min-width: 0; }
 .usi-name { margin: 0; font-family: var(--mg-font); font-size: calc(14px * var(--text-scale)); font-weight: 700; color: var(--espresso); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .usi-file { margin: 1px 0 0; font-family: var(--mg-font); font-size: calc(11px * var(--text-scale)); color: var(--stone); }
-.usi-x { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%; border: none; background: transparent; color: var(--stone); cursor: pointer; flex-shrink: 0; }
+.usi-x { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%; border: none; background: transparent; color: var(--stone); cursor: pointer; flex-shrink: 0; position: relative; }
+/* 24px, and it DELETES a sheet from the import — the smallest target in the
+   app doing one of the more expensive things in it. 10px a side takes it to
+   44 and stays inside .usi-card's own 14px/16px padding, so it cannot reach
+   the neighbouring sheet's remove button. */
+.usi-x::after { content: ''; position: absolute; inset: -10px; }
 .usi-x:hover { color: var(--clay-on-dark); }
 
 .usi-field { margin-top: 12px; }

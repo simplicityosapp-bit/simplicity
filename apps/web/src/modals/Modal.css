@@ -786,8 +786,10 @@
 [data-theme="dark"] .m-pill.on {
   color: var(--ink-on-accent);
 }
-.m-pill.on.income { background: var(--sage); border-color: var(--sage); color: var(--on-accent); }
-.m-pill.on.expense { background: var(--clay); border-color: var(--clay); color: var(--on-accent); }
+/* Solid, not raw: white on --sage was 2.61:1 by day and 3.25:1 at night —
+   below even the terracotta brand baseline — and white on --clay 4.32:1. */
+.m-pill.on.income { background: var(--sage-solid); border-color: var(--sage-solid); color: var(--on-accent); }
+.m-pill.on.expense { background: var(--clay-solid); border-color: var(--clay-solid); color: var(--on-accent); }
 
 /* ── Color picker ──────────────────────────────────────────────── */
 .m-colors {
@@ -883,7 +885,8 @@
   transform: scale(0.97);
 }
 .m-btn-save.danger {
-  background: var(--clay);
+  /* 4.32:1 on raw --clay; --clay-solid takes it to 6.79:1. */
+  background: var(--clay-solid);
   color: var(--on-accent);
 }
 .m-btn-delete {

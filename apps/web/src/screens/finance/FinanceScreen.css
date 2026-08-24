@@ -442,51 +442,20 @@
   padding: 1px 8px;
   border-radius: 10px;
 }
-/* These three used to be a 10%-alpha tint, so what they really rendered
-   against was the WALLPAPER behind the glass card, not the card. Sampled on
-   the finance day image the pay pill came out 1.05:1 against its own card —
-   invisible, which is what a beta user reported — with its label at 1.52:1.
-
-   The fill is OPAQUE now, which is the actual fix: the label's contrast stops
-   depending on the wallpaper, the screen or the time of day. The accent moved
-   from the text to the fill so the text can be --espresso and clear the 4.5:1
-   that 10px needs; the tint still tells the three apart.
-
-   The tint strength has to differ per theme and it is not cosmetic. The card
-   is translucent, so by day it renders MID and a pale pill separates from it,
-   while at night it renders DARK and only a saturated one does. One value
-   cannot serve both. */
-.f-tx-tag.skip,
-.f-tx-tag.credited,
-.f-tx-tag.pay { color: var(--espresso); }
 .f-tx-tag.skip {
-  background: color-mix(in srgb, var(--stone) 25%, var(--pure-white));
-  border: 0.5px solid color-mix(in srgb, var(--stone) 45%, var(--pure-white));
+  color: var(--mist);
+  background: color-mix(in srgb, var(--stone) 10%, transparent);
+  border: 0.5px solid color-mix(in srgb, var(--stone) 25%, transparent);
 }
 .f-tx-tag.credited {
-  background: color-mix(in srgb, var(--clay) 25%, var(--pure-white));
-  border: 0.5px solid color-mix(in srgb, var(--clay) 45%, var(--pure-white));
+  color: var(--clay-on-dark);
+  background: color-mix(in srgb, var(--clay) 10%, transparent);
+  border: 0.5px solid color-mix(in srgb, var(--clay) 30%, transparent);
 }
 .f-tx-tag.pay {
-  background: color-mix(in srgb, var(--sage) 25%, var(--pure-white));
-  border: 0.5px solid color-mix(in srgb, var(--sage) 45%, var(--pure-white));
-}
-/* Night values are per-pill and were measured, not guessed. --stone is LIGHT
-   at night, so the same 60% that suits sage makes a pale chip that drops the
-   label to 3.2:1. --clay is a deep wine sitting almost on the card's own
-   luminance, so no mix separates it by fill at all (1.02–1.47 across the whole
-   range) — it gets its edge from --clay-on-dark in the border instead. */
-[data-theme="dark"] .f-tx-tag.skip {
-  background: color-mix(in srgb, var(--stone) 40%, var(--pure-white));
-  border-color: color-mix(in srgb, var(--stone) 60%, var(--pure-white));
-}
-[data-theme="dark"] .f-tx-tag.credited {
-  background: color-mix(in srgb, var(--clay) 85%, var(--pure-white));
-  border-color: color-mix(in srgb, var(--clay-on-dark) 55%, var(--pure-white));
-}
-[data-theme="dark"] .f-tx-tag.pay {
-  background: color-mix(in srgb, var(--sage) 60%, var(--pure-white));
-  border-color: color-mix(in srgb, var(--sage) 80%, var(--pure-white));
+  color: var(--sage);
+  background: color-mix(in srgb, var(--sage) 10%, transparent);
+  border: 0.5px solid color-mix(in srgb, var(--sage) 25%, transparent);
 }
 .f-tx-meta-text {
   font-family: var(--mg-font);

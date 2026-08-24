@@ -62,7 +62,7 @@
   padding: 6px 10px;
   border-radius: 999px;
   border: 1px solid color-mix(in srgb, var(--sage) 55%, transparent);
-  background: color-mix(in srgb, var(--sage) 22%, transparent);
+  background: color-mix(in srgb, var(--sage) 20%, var(--pure-white));
   backdrop-filter: var(--mg-card-blur);
   font-family: var(--mg-font);
   font-size: calc(12px * var(--text-scale));
@@ -130,8 +130,12 @@
   font-weight: 600;
   flex-shrink: 0;
 }
-.f-pending-amt.inc { color: color-mix(in srgb, var(--sage) 90%, var(--espresso)); }
+/* On the opaque .val-chip these need more --espresso than the old 90% gave:
+   sage sat at 3.04:1 against the chip. Clay is the mirror image — it reads by
+   day and disappears at night, so it hands over to --clay-on-dark there. */
+.f-pending-amt.inc { color: color-mix(in srgb, var(--sage) 65%, var(--espresso)); }
 .f-pending-amt.exp { color: color-mix(in srgb, var(--clay) 90%, var(--espresso)); }
+[data-theme="dark"] .f-pending-amt.exp { color: var(--clay-on-dark); }
 /* Coloured-value pill (beta 10/06) — same .val-chip lift as the regular tx
    amounts, so pending amounts don't blend into the glass/photo either. */
 .f-pending-amt.inc,

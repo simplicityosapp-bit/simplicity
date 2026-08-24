@@ -167,7 +167,7 @@
   padding: 6px 13px;
   border-radius: 999px;
   border: 1px solid var(--divider);
-  background: var(--meta-chip-bg);
+  background: var(--mg-card-bg);
   -webkit-backdrop-filter: var(--mg-card-blur);
   backdrop-filter: var(--mg-card-blur);
   font-family: var(--mg-font);
@@ -223,7 +223,7 @@
   padding: 6px 14px;
   border-radius: 999px;
   border: 1px solid var(--divider);
-  background: var(--meta-chip-bg);
+  background: var(--mg-card-bg);
   -webkit-backdrop-filter: var(--mg-card-blur);
   backdrop-filter: var(--mg-card-blur);
   font-family: var(--mg-font);
@@ -544,9 +544,12 @@
   font-size: calc(12px * var(--text-scale));
   font-weight: 500;
   color: var(--stone);
-  background: var(--meta-chip-bg);
+  background: color-mix(in srgb, var(--espresso) 6%, transparent);
   border-radius: 10px;
   padding: 1px 9px;
+}
+[data-theme="dark"] .lead-col-count {
+  background: color-mix(in srgb, var(--bone) 6%, transparent);
 }
 .lead-col-body {
   display: flex;
@@ -726,13 +729,13 @@
   padding: 4px 10px;
   border-radius: 999px;
   border: 1px solid color-mix(in srgb, var(--sage) 38%, transparent);
-  background: color-mix(in srgb, var(--sage) 18%, var(--pure-white));
+  background: color-mix(in srgb, var(--sage) 15%, transparent);
   font-family: var(--mg-font);
   font-size: calc(11px * var(--text-scale));
   font-weight: 600;
   color: color-mix(in srgb, var(--sage) 55%, var(--ink));
 }
-[data-theme="dark"] .lead-converted { color: color-mix(in srgb, var(--sage) 65%, var(--espresso)); }
+[data-theme="dark"] .lead-converted { color: var(--sage); }
 
 /* "הפיכה ללקוח" CTA — soft chip at the bottom of every non-converted
    card, on the card itself rather than behind an overflow menu.
@@ -929,7 +932,7 @@
   text-align: center;
   padding: 2px 8px;
   border-radius: 999px;
-  background: color-mix(in srgb, var(--terracotta) 20%, var(--pure-white));
+  background: color-mix(in srgb, var(--terracotta) 20%, transparent);
   color: var(--espresso);
 }
 .l-pending-list { display: flex; flex-direction: column; gap: 10px; }

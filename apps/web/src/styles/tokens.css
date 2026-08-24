@@ -27,28 +27,10 @@
   --clay:         #B5634E;             /* סכנה — אזהרות אמיתיות בלבד */
   /* Structure */
   --divider:      rgba(42, 37, 32, 0.06); /* קווי הפרדה ברשימות */
-  /* Pill behind COLOURED values (numbers/labels) so a coloured token does not
-     blend into the photo background. Applied via the .val-chip utility.
-
-     This used to be rgba(255,255,255,0.5) by day and 0.10 at night, described
-     as "NOT opaque, just enough lift for legibility". Measured against the real
-     per-screen wallpapers, that lift did not work: a semi-transparent fill
-     composites down to the PHOTO, not to the card, so the pill inherited
-     whatever was behind it. The finance amount landed at 1.43:1 and the goals
-     entry button at 1.92:1 by day, where their ~13px labels need 4.5:1. It was
-     already the second attempt at this same problem (beta 10/06 and 01/08).
-
-     Opaque is the fix: it is the only way the contrast stops depending on the
-     wallpaper, the screen and the time of day. --pure-white is the elevated
-     surface token and remaps itself at night (#242A33), so ONE definition
-     serves both themes and the dark override below is no longer needed. */
-  --val-chip-bg:  var(--pure-white);
-  /* Neutral metadata chip — counts, tags, filter pills. These used to paint
-     themselves with --mg-card-bg (the CARD glass) or a low-alpha tint, which
-     made them glass-on-glass: the wallpaper came through twice and the label
-     rode on whatever photo sat behind it. Measured by day that put project
-     and lead tags at 2.2-2.8:1. Opaque, and both tokens remap for night. */
-  --meta-chip-bg: color-mix(in srgb, var(--stone) 10%, var(--pure-white));
+  /* Semi-transparent white pill behind COLOURED values (numbers/labels) so
+     a coloured token doesn't blend into the photo background — NOT opaque,
+     just enough lift for legibility. Applied via the .val-chip utility. */
+  --val-chip-bg:  rgba(255, 255, 255, 0.5);
   --sidebar-dark: #1F1B17;             /* רקע התפריט הצדדי */
   /* Contrast text — colour that sits ON a filled accent (button/pill). */
   --on-accent:     #FFFFFF;            /* light text on a saturated accent (sage/clay/terracotta) */
@@ -61,10 +43,6 @@
      Mixed toward --ink, never --espresso — espresso flips in dark mode.
      Fills only; plain --sage stays the tint + text colour. */
   --sage-solid:    color-mix(in srgb, var(--sage) 70%, var(--ink));
-  /* Clay twin of --sage-solid, for a filled danger/warning pill that carries
-     white text. Mixed toward --ink for the same reason: --espresso is
-     near-WHITE at night and would erase the fill. */
-  --clay-solid:    color-mix(in srgb, var(--clay) 70%, var(--ink));
   /* Amber and moon, same job and same rule — a WHITE label on a solid fill of
      the raw accent does not read in light mode: --amber-warn carries white at
      2.2:1 (the worst in the palette) and --moon-deep at 5.4:1 but only until
@@ -329,6 +307,7 @@
   --clay: #6E3D49;                           /* סכנה — Deep Wine */
   --clay-on-dark: #D98C76;                   /* legible danger TEXT on dark glass (deep wine is unreadable as text) */
   --divider: rgba(240, 235, 224, 0.14);      /* מפריד — bumped from 0.06 so accordions/borders read */
+  --val-chip-bg: rgba(255, 255, 255, 0.10);  /* coloured-value pill — subtle white lift on dark */
   /* Surfaces. These two had NO dark mapping, so anything painting a surface with
      them stayed near-white at night while its text flipped to near-white too —
      48 usages, worst in the page builder (~1.19:1). Mapped to the night palette:

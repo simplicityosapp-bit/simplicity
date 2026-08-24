@@ -12,7 +12,7 @@
   padding: 2px 8px;
   border-radius: 999px;
   border: var(--mg-card-border);
-  background: var(--mg-card-bg);
+  background: var(--meta-chip-bg);
   font-family: var(--mg-font);
   font-size: var(--mg-micro);
   font-weight: 500;

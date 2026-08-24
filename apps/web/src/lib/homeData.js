@@ -414,6 +414,8 @@ function nextEveryXDaysOccurrence(r, start) {
   d.setDate(d.getDate() + steps * x)
   return d
 }
+/* The three that repeat; anything else (including 'none') is a one-off. */
+const RECURRING = ['weekly', 'monthly_date', 'every_x_days']
 function nextReminderOccurrence(r, start) {
   if (r.recurrence_type === 'weekly') return nextWeeklyOccurrence(r, start)
   if (r.recurrence_type === 'monthly_date') return nextMonthlyDateOccurrence(r, start)
@@ -425,12 +427,23 @@ function nextReminderOccurrence(r, start) {
    days / top 5) so existing callers don't change behaviour; the
    calendar passes wider params to cover its grid views.
 
-   ⚠️ The window deliberately STARTS AT TODAY. Past-dated reminders are never
-   surfaced — including on the calendar grid, where past MEETINGS *do* show.
-   That asymmetry is an OWNER DECISION (2026-07-19): reminders are action items,
-   not history, so the calendar doesn't backfill them. This is intended
-   behaviour, not a bug — please don't "fix" it. */
-export function remindersUpcoming(now = new Date(), remindersData = [], daysAhead = 60, limit = 5) {
+   ⚠️ The window STARTS AT TODAY, so a one-off reminder whose moment has passed
+   is not surfaced — including on the calendar grid, where past MEETINGS *do*
+   show. That asymmetry is an OWNER DECISION (2026-07-19): reminders are action
+   items, not history, so the calendar does not backfill them. Still true, and
+   still not a bug — please don't "fix" it for the calendar.
+
+   `includeOverdue` is the exception, for the callers that are a LIST OF WHAT
+   YOU OWE rather than a picture of the calendar. The decision above was made
+   about the grid; applying it to the home card meant a reminder you set for
+   yesterday and never ticked appeared on the tasks screen under "באיחור" and
+   nowhere on the home screen at all — silently dropped from the one surface a
+   coach reads first (owner decision 2026-08-24).
+
+   Only ONE-OFF reminders can be past-due here. A recurring one is resolved by
+   nextReminderOccurrence, which always rolls forward from `start`, so it has no
+   backlog to surface — its next slot is simply its next slot. */
+export function remindersUpcoming(now = new Date(), remindersData = [], daysAhead = 60, limit = 5, includeOverdue = false) {
   const start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0)
   const end = new Date(now.getFullYear(), now.getMonth(), now.getDate() + daysAhead, 23, 59, 59)
   const out = []
@@ -438,7 +451,19 @@ export function remindersUpcoming(now = new Date(), remindersData = [], daysAhea
     if (!['pending', 'triggered'].includes(r.status)) return
     if (r.end_date && new Date(r.end_date) < start) return
     const occ = nextReminderOccurrence(r, start)
-    if (occ && occ >= start && occ <= end) out.push({ id: r.id, title: r.title, when: occ, linked_to_type: r.linked_to_type, linked_to_id: r.linked_to_id })
+    if (occ && occ >= start && occ <= end) {
+      out.push({ id: r.id, title: r.title, when: occ, linked_to_type: r.linked_to_type, linked_to_id: r.linked_to_id })
+      return
+    }
+    /* Past-due, and only for the callers that asked. Tested on the recurrence
+       type rather than on "occ < start" so it stays right if `start` ever stops
+       being local midnight — the three recurring resolvers clamp to `start`
+       only because it is. */
+    if (!includeOverdue || RECURRING.includes(r.recurrence_type)) return
+    const at = new Date(r.scheduled_at)
+    if (!Number.isNaN(+at) && at < start) {
+      out.push({ id: r.id, title: r.title, when: at, linked_to_type: r.linked_to_type, linked_to_id: r.linked_to_id })
+    }
   })
   out.sort((a, b) => a.when - b.when)
   return limit ? out.slice(0, limit) : out
@@ -458,11 +483,15 @@ const PORDER = { high: 0, medium: 1, low: 2 }
    tasks screen buckets by it — so a task due this morning sat below one
    merely flagged urgent with no deadline.
 
-   ONE asymmetry, deliberate: a reminder is never ranked overdue. Reminders
-   are action items, not history — remindersUpcoming() refuses to look back
-   past today for exactly that reason (owner decision, see its comment), and
-   a reminder set for 09:00 that you read at 14:00 is still today's, not a
-   failure. Only a task can be late.
+   A reminder CAN be late here (owner decision 2026-08-24, reversing the
+   2026-07-19 rule for this card only). The old asymmetry — only a task can
+   be overdue, and remindersUpcoming never looks back — was made about the
+   CALENDAR, where a reminder really is not history. This card is the list of
+   what you owe, and a reminder you set for yesterday and never ticked is
+   owed. It was showing on the tasks screen under "באיחור" and nowhere here.
+   Same threshold the tasks screen uses, so the two now agree exactly: a
+   moment that has passed is late, whether it is 09:00 this morning or last
+   Tuesday. The calendar keeps the old rule — see remindersUpcoming.
 
    Each item carries `bucket` so the widget can count for its summary without
    re-deriving any of this, and the raw row so it can act on it. */
@@ -478,7 +507,7 @@ export function tasksAndReminders(limit = 0, data = {}, now = new Date()) {
       when: t.due_at || null, priority: t.priority, task: t,
     }))
 
-  remindersUpcoming(now, reminders, 60, 0).forEach((r) => items.push({
+  remindersUpcoming(now, reminders, 60, 0, true).forEach((r) => items.push({
     id: `rem-${r.id}`, kind: 'reminder', title: r.title || '',
     when: r.when, reminderId: r.id,
   }))
@@ -491,7 +520,7 @@ export function tasksAndReminders(limit = 0, data = {}, now = new Date()) {
   items.forEach((it) => {
     const w = ts(it)
     if (w === null) it.bucket = 'undated'
-    else if (it.kind === 'task' && w < +now) it.bucket = 'overdue'
+    else if (w < +now) it.bucket = 'overdue'
     else if (w < +dayEnd) it.bucket = 'today'
     else it.bucket = 'upcoming'
   })

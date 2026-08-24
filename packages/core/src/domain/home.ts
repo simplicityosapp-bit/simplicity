@@ -446,6 +446,8 @@ function nextEveryXDaysOccurrence(r: HomeReminder, start: Date): Date | null {
   d.setDate(d.getDate() + steps * x)
   return d
 }
+/* The three that repeat; anything else (including 'none') is a one-off. */
+const RECURRING = ['weekly', 'monthly_date', 'every_x_days']
 function nextReminderOccurrence(r: HomeReminder, start: Date): Date | null {
   if (r.recurrence_type === 'weekly') return nextWeeklyOccurrence(r, start)
   if (r.recurrence_type === 'monthly_date') return nextMonthlyDateOccurrence(r, start)
@@ -454,8 +456,25 @@ function nextReminderOccurrence(r: HomeReminder, start: Date): Date | null {
 }
 
 /* Next occurrence of each pending/triggered reminder within the lookahead
-   window (default 60d / top 5), sorted soonest-first. */
-export function remindersUpcoming(now: Date = new Date(), remindersData: HomeReminder[] = [], daysAhead = 60, limit = 5): UpcomingReminder[] {
+   window (default 60d / top 5), sorted soonest-first.
+
+   ⚠️ The window STARTS AT TODAY, so a one-off reminder whose moment has passed
+   is not surfaced — including on the calendar grid, where past MEETINGS *do*
+   show. That asymmetry is an OWNER DECISION (2026-07-19): reminders are action
+   items, not history, so the calendar does not backfill them. Still true, and
+   still not a bug — please don't "fix" it for the calendar.
+
+   `includeOverdue` is the exception, for the callers that are a LIST OF WHAT
+   YOU OWE rather than a picture of the calendar. The decision above was made
+   about the grid; applying it to the home card meant a reminder you set for
+   yesterday and never ticked appeared on the tasks screen under "באיחור" and
+   nowhere on the home screen at all — silently dropped from the one surface a
+   coach reads first (owner decision 2026-08-24).
+
+   Only ONE-OFF reminders can be past-due here. A recurring one is resolved by
+   nextReminderOccurrence, which always rolls forward from `start`, so it has no
+   backlog to surface — its next slot is simply its next slot. */
+export function remindersUpcoming(now: Date = new Date(), remindersData: HomeReminder[] = [], daysAhead = 60, limit = 5, includeOverdue = false): UpcomingReminder[] {
   const start = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0)
   const end = new Date(now.getFullYear(), now.getMonth(), now.getDate() + daysAhead, 23, 59, 59)
   const out: UpcomingReminder[] = []
@@ -463,7 +482,16 @@ export function remindersUpcoming(now: Date = new Date(), remindersData: HomeRem
     if (!r.status || !['pending', 'triggered'].includes(r.status)) return
     if (r.end_date && new Date(r.end_date) < start) return
     const occ = nextReminderOccurrence(r, start)
-    if (occ && occ >= start && occ <= end) out.push({ id: r.id, title: r.title, when: occ, linked_to_type: r.linked_to_type, linked_to_id: r.linked_to_id })
+    if (occ && occ >= start && occ <= end) {
+      out.push({ id: r.id, title: r.title, when: occ, linked_to_type: r.linked_to_type, linked_to_id: r.linked_to_id })
+      return
+    }
+    /* Past-due, and only for the callers that asked — see the note above. */
+    if (!includeOverdue || RECURRING.includes(r.recurrence_type as string)) return
+    const at = new Date(r.scheduled_at as string)
+    if (!Number.isNaN(+at) && at < start) {
+      out.push({ id: r.id, title: r.title, when: at, linked_to_type: r.linked_to_type, linked_to_id: r.linked_to_id })
+    }
   })
   out.sort((a, b) => a.when.getTime() - b.when.getTime())
   return limit ? out.slice(0, limit) : out

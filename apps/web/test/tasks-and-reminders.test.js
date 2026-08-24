@@ -1,6 +1,6 @@
 /* ════════════════════════════════════════════════════════════════
    TASKS-AND-REMINDERS SUITE — the home "משימות ותזכורות" widget
-   (lib/homeData tasksAndReminders).
+   (core domain/home tasksAndReminders).
 
    Two cards used to sit side by side — open tasks, and upcoming reminders —
    splitting one question (what do I still owe?) across two boxes with two
@@ -30,7 +30,7 @@
    Run: npm test
    ════════════════════════════════════════════════════════════════ */
 import { describe, it, expect } from 'vitest'
-import { tasksAndReminders } from '../src/lib/homeData'
+import { tasksAndReminders } from '@simplicity/core'
 
 const now = new Date(2026, 6, 21, 14, 0, 0) // Tue 2026-07-21, 14:00 local
 const at = (day, h, m = 0) => new Date(2026, 6, day, h, m, 0).toISOString()

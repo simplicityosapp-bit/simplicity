@@ -1,6 +1,6 @@
 /* ════════════════════════════════════════════════════════════════
    STALE-CLIENTS SUITE — the 45-day rule behind the home "דרושה
-   תשומת לב" row (lib/homeData.clientsNeedingAttention).
+   תשומת לב" row (core domain/home clientsNeedingAttention).
 
    Guards the three ways this rule went wrong in production:
      1. it read the legacy `clients.status` mirror instead of the
@@ -14,7 +14,7 @@
    Run: npm test
    ════════════════════════════════════════════════════════════════ */
 import { describe, it, expect } from 'vitest'
-import { clientsNeedingAttention } from '../src/lib/homeData'
+import { clientsNeedingAttention } from '@simplicity/core'
 
 const now = new Date(2026, 5, 25, 12, 0, 0) // local 2026-06-25 noon
 const daysAgo = (n) => new Date(now.getTime() - n * 86400000).toISOString()

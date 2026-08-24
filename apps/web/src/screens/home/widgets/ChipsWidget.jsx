@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { CalendarClock, Wallet, Users } from 'lucide-react'
-import { homeChips, getTileFilters, todayItems } from '../../../lib/homeData'
+import { homeChips, getTileFilters, todayItems } from '@simplicity/core'
 import { useClients } from '../../../hooks/useClients'
 import { useGroups } from '../../../hooks/useGroups'
 import { useGroupMembers } from '../../../hooks/useGroupMembers'

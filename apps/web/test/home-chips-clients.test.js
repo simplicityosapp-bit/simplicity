@@ -1,6 +1,6 @@
 /* ════════════════════════════════════════════════════════════════
    HOME-CHIPS-CLIENTS SUITE — the לקוחות chip must agree with the
-   clients screen (lib/homeData homeChips + clientInGroups).
+   clients screen (core domain/home homeChips + clientInGroups).
 
    Two silent divergences are guarded here:
 
@@ -18,7 +18,7 @@
    Run: npm test
    ════════════════════════════════════════════════════════════════ */
 import { describe, it, expect } from 'vitest'
-import { homeChips, clientInGroups, attentionItems } from '../src/lib/homeData'
+import { homeChips, clientInGroups, attentionItems } from '@simplicity/core'
 
 const now = new Date(2026, 6, 21, 12, 0, 0) // local 2026-07-21 noon
 const countClients = (data, filters) => homeChips(now, data, filters).activeClients

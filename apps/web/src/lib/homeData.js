@@ -10,6 +10,11 @@
 import i18n from '@simplicity/core/i18n'
 import { ROUTES } from './routes'
 import { financeQuery, currentMonthRange, clientBalance, effectiveClientMeta, getClientMemberships } from '@simplicity/core'
+/* tasksAndReminders now lives in core so apps/mobile can merge its two home
+   cards into the one this powers — the rewiring this file's core twin has had
+   a note about since it was written. Re-exported rather than re-pointing every
+   caller: the home widgets go on importing it from here. */
+export { tasksAndReminders } from '@simplicity/core'
 
 const DAY = 86400000
 const live = (a) => (a || []).filter((r) => !r.deleted_at)
@@ -469,82 +474,4 @@ export function remindersUpcoming(now = new Date(), remindersData = [], daysAhea
   return limit ? out.slice(0, limit) : out
 }
 
-/* Priority order for the final tie-break in tasksAndReminders. */
-const PORDER = { high: 0, medium: 1, low: 2 }
 
-/* ── Tasks + reminders, one list ────────────────────────────────
-   The home "משימות ותזכורות" widget. Reminders used to have a card of their
-   own sitting right next to the tasks card, which split one question — what
-   do I still owe? — across two boxes with two different summaries.
-
-   Ordered by PRESSURE, over both kinds: overdue → today → flagged urgent →
-   the rest, soonest first, undated last. Home used to sort tasks by priority
-   alone and render no date at all, even though `tasks.due_at` exists and the
-   tasks screen buckets by it — so a task due this morning sat below one
-   merely flagged urgent with no deadline.
-
-   A reminder CAN be late here (owner decision 2026-08-24, reversing the
-   2026-07-19 rule for this card only). The old asymmetry — only a task can
-   be overdue, and remindersUpcoming never looks back — was made about the
-   CALENDAR, where a reminder really is not history. This card is the list of
-   what you owe, and a reminder you set for yesterday and never ticked is
-   owed. It was showing on the tasks screen under "באיחור" and nowhere here.
-   Same threshold the tasks screen uses, so the two now agree exactly: a
-   moment that has passed is late, whether it is 09:00 this morning or last
-   Tuesday. The calendar keeps the old rule — see remindersUpcoming.
-
-   Each item carries `bucket` so the widget can count for its summary without
-   re-deriving any of this, and the raw row so it can act on it. */
-export function tasksAndReminders(limit = 0, data = {}, now = new Date()) {
-  const { tasks = [], reminders = [] } = data
-  const dayEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0, 0)
-  const items = []
-
-  live(tasks)
-    .filter((t) => t.status !== 'done')
-    .forEach((t) => items.push({
-      id: `task-${t.id}`, kind: 'task', title: t.title || '',
-      when: t.due_at || null, priority: t.priority, task: t,
-    }))
-
-  remindersUpcoming(now, reminders, 60, 0, true).forEach((r) => items.push({
-    id: `rem-${r.id}`, kind: 'reminder', title: r.title || '',
-    when: r.when, reminderId: r.id,
-  }))
-
-  const ts = (it) => {
-    if (!it.when) return null
-    const d = new Date(it.when)
-    return Number.isNaN(+d) ? null : +d
-  }
-  items.forEach((it) => {
-    const w = ts(it)
-    if (w === null) it.bucket = 'undated'
-    else if (w < +now) it.bucket = 'overdue'
-    else if (w < +dayEnd) it.bucket = 'today'
-    else it.bucket = 'upcoming'
-  })
-
-  const BUCKET_RANK = { overdue: 0, today: 1, upcoming: 3, undated: 3 }
-  const rank = (it) => {
-    const base = BUCKET_RANK[it.bucket]
-    /* A task flagged urgent jumps ahead of undated/later work, but never
-       ahead of something with a deadline that has passed or lands today. */
-    if (base === 3 && it.kind === 'task' && it.priority === 'high') return 2
-    return base
-  }
-
-  items.sort((a, b) => {
-    const ra = rank(a), rb = rank(b)
-    if (ra !== rb) return ra - rb
-    const da = ts(a) ?? Infinity
-    const db = ts(b) ?? Infinity
-    if (da !== db) return da - db
-    /* Same moment: a task (which you act on) before a reminder (which only
-       tells you something), then by priority. */
-    if (a.kind !== b.kind) return a.kind === 'task' ? -1 : 1
-    return (PORDER[a.priority] ?? 1) - (PORDER[b.priority] ?? 1)
-  })
-
-  return limit ? items.slice(0, limit) : items
-}

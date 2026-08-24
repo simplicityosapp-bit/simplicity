@@ -421,14 +421,15 @@ html[dir="rtl"] .cd-stat-l {
   margin-bottom: 14px;
   padding: 9px 16px;
   border-radius: var(--mg-btn-radius);
-  border: 0.5px solid rgba(139, 168, 136, 0.4);
+  border: 0.5px solid color-mix(in srgb, var(--sage) 40%, var(--pure-white));
   background: var(--val-chip-bg);
-  color: var(--sage);
+  /* --val-chip-bg is opaque now, so raw --sage on it reads 2.61:1. */
+  color: color-mix(in srgb, var(--sage) 65%, var(--espresso));
   font: 500 var(--mg-caption) / 1 var(--mg-font);
   cursor: pointer;
   transition: background 0.15s ease;
 }
-.cd-pay-request:hover { background: rgba(139, 168, 136, 0.14); }
+.cd-pay-request:hover { background: color-mix(in srgb, var(--sage) 14%, var(--pure-white)); }
 
 /* ── Categories + sections ─────────────────────────────────────── */
 .cd-group {

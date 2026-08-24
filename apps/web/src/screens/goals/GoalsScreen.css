@@ -221,7 +221,10 @@
   cursor: pointer;
 }
 .g-entry-add {
-  color: var(--terracotta);
+  /* Raw --terracotta is 3.24:1 as text on the opaque chip — the same figure
+     the design notes flag for terracotta at small sizes. Mixed toward
+     --espresso it clears 4.5 in both themes without losing the accent. */
+  color: color-mix(in srgb, var(--terracotta) 70%, var(--espresso));
   /* Terracotta text on a transparent fill blended into the glass goal card
      and got lost (beta 11/06). Lift onto the same --val-chip-bg backdrop used
      for coloured values/labels so the entry button reads as a chip. */

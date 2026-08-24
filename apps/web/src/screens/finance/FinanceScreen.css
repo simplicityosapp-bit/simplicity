@@ -500,12 +500,17 @@
   font-size: calc(15px * var(--text-scale));
   font-variant-numeric: tabular-nums;
 }
+/* Raw --sage is 2.61:1 on the opaque .val-chip and raw --clay-on-dark 4.32:1,
+   both short of the 4.5 a 15px amount needs. Same split as the pending rows:
+   sage mixes toward --espresso in both themes, clay only works by day and
+   hands over to --clay-on-dark at night. */
 .f-tx-amt.inc {
-  color: var(--sage);
+  color: color-mix(in srgb, var(--sage) 65%, var(--espresso));
 }
 .f-tx-amt.exp {
-  color: var(--clay-on-dark);
+  color: color-mix(in srgb, var(--clay) 90%, var(--espresso));
 }
+[data-theme="dark"] .f-tx-amt.exp { color: var(--clay-on-dark); }
 /* Coloured-value pill (beta 10/06) — a semi-transparent white lift so the
    sage/clay amounts don't blend into the glass/photo. Same treatment as the
    global .val-chip; this is the first prominent spot it's applied to. */

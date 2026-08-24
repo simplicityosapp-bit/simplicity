@@ -84,6 +84,25 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  /* Anchors the hit area below. Without it the pseudo-element would
+     resolve against whatever ancestor happens to be positioned, which is
+     an invisible tap target the size of the sheet. */
+  position: relative;
+}
+/* The way OUT of every modal in the app was a 30px target — under the 44px
+   minimum, at the very top of a sheet, and on a phone it is reached with the
+   thumb stretched furthest. The circle stays 30px on purpose: it sits beside
+   an 18px title and a 44px disc would out-shout it, and growing the button
+   would push .m-head taller on every modal. So only the TARGET grows — the
+   same trick .tc-edit and .t-search-open already use, and the web answer to
+   the hitSlop the mobile sheet's own close button carries.
+   7px a side over 30px = 44. It stays inside .m-head's 20px padding on the
+   outer edge, and the only thing on the other side is the title, which is a
+   <p>. */
+.m-close::after {
+  content: '';
+  position: absolute;
+  inset: -7px;
 }
 [data-theme="dark"] .m-close {
   background: rgba(36, 42, 51, 0.5);

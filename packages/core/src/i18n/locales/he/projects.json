@@ -1,5 +1,8 @@
 {
-  "count": "{{count}} פרויקטים",
+  "count_one": "פרויקט אחד",
+  "count_two": "שני פרויקטים",
+  "count_many": "{{count}} פרויקטים",
+  "count_other": "{{count}} פרויקטים",
   "phase": "בנייה",
   "tagline": "מיקוד יוצר תוצאות.",
   "title": "פרויקטים",
@@ -22,13 +25,19 @@
     "cumulative": "מצטבר"
   },
   "loading": "טוען פרויקטים…",
-  "loadError": "שגיאה בטעינת הפרויקטים: {{error}}",
+  "loadError": "לא הצלחנו לטעון את הפרויקטים כרגע.",
+  "retry": "טעינה מחדש",
+  "retrying": "טוען…",
   "empty": {
     "text": "אין עדיין פרויקטים. הפרויקט הראשון שלך מתחיל כאן.",
     "add": "הוסף/י פרויקט",
     "add_male": "הוסף פרויקט",
     "add_female": "הוסיפי פרויקט",
-    "whyImportant": "למה זה חשוב?"
+    "whyImportant": "למה זה חשוב?",
+    "allEnded_one": "כל הפרויקטים שלך הסתיימו.",
+    "allEnded_two": "כל הפרויקטים שלך הסתיימו.",
+    "allEnded_many": "כל הפרויקטים שלך הסתיימו.",
+    "allEnded_other": "כל הפרויקטים שלך הסתיימו."
   },
   "delete": {
     "title": "מחיקת פרויקט",
@@ -36,11 +45,12 @@
     "confirm": "מחק"
   },
   "card": {
-    "active": "פעילה",
+    "active": "פעיל",
     "editTitle": "ערוך פרויקט",
     "deleteTitle": "מחק פרויקט",
     "clients": "לקוחות",
-    "tasks": "משימות"
+    "tasks": "משימות",
+    "ended": "הסתיים"
   },
   "detail": {
     "days": [
@@ -53,11 +63,18 @@
       "שבת"
     ],
     "notFound": "הפרויקט לא נמצא.",
+    "sectionLoading": "טוען…",
     "back": "חזרה",
     "editAria": "עריכת פרויקט",
     "metaActive": "פעיל׊׉",
-    "metaWandering": "{{count}} בהפסקה",
-    "metaGroups": "{{count}} קבוצות",
+    "metaWandering_one": "אחד בהפסקה",
+    "metaWandering_two": "שניים בהפסקה",
+    "metaWandering_many": "{{count}} בהפסקה",
+    "metaWandering_other": "{{count}} בהפסקה",
+    "metaGroups_one": "קבוצה אחת",
+    "metaGroups_two": "שתי קבוצות",
+    "metaGroups_many": "{{count}} קבוצות",
+    "metaGroups_other": "{{count}} קבוצות",
     "stats": {
       "clients": "לקוחות",
       "incomeMonth": "הכנסה החודש",
@@ -74,9 +91,15 @@
       "add_male": "הוסף",
       "add_female": "הוסיפי",
       "editAria": "עריכת קבוצה",
-      "members": "{{count}} חברים",
+      "members_one": "חבר אחד",
+      "members_two": "שני חברים",
+      "members_many": "{{count}} חברים",
+      "members_other": "{{count}} חברים",
       "pricePerSession": "{{price}} לפגישה",
-      "pricePackage": "{{price}} / {{count}} פגישות",
+      "pricePackage_one": "{{price}} / פגישה אחת",
+      "pricePackage_two": "{{price}} / שתי פגישות",
+      "pricePackage_many": "{{price}} / {{count}} פגישות",
+      "pricePackage_other": "{{price}} / {{count}} פגישות",
       "noMembers": "עדיין אין חברים",
       "fallbackClient": "(לקוח/ה)",
       "removeMemberAria": "הסר {{name}}",
@@ -109,12 +132,13 @@
       "overdue": "באיחור",
       "completeAria": "סמן כבוצעה",
       "deleteAria": "מחק תזכורת",
-      "add": "תזכורת לפרויקט +"
+      "add": "תזכורת לפרויקט +",
+      "countTitle": "{{open}} תזכורות פעילות מתוך {{total}}"
     },
     "leads": {
       "title": "לידים",
       "empty": "אין לידים משויכים לפרויקט זה.",
-      "openAria": "פתיחת מסך הלידים — {{name}}"
+      "openAria": "פתיחת הליד {{name}}"
     },
     "leadPages": {
       "title": "דפי נחיתה",
@@ -137,8 +161,10 @@
     },
     "statusChange": {
       "title": "שינוי סטטוס קבוצה",
-      "messageOne": "שינוי הסטטוס ל-\"{{status}}\" יעביר {{count}} לקוח ל-\"{{meta}}\". להמשיך?",
-      "messageMany": "שינוי הסטטוס ל-\"{{status}}\" יעביר {{count}} לקוחות ל-\"{{meta}}\". להמשיך?",
+      "message_one": "שינוי הסטטוס ל-\"{{status}}\" יעביר לקוח אחד ל-\"{{meta}}\". להמשיך?",
+      "message_two": "שינוי הסטטוס ל-\"{{status}}\" יעביר שני לקוחות ל-\"{{meta}}\". להמשיך?",
+      "message_many": "שינוי הסטטוס ל-\"{{status}}\" יעביר {{count}} לקוחות ל-\"{{meta}}\". להמשיך?",
+      "message_other": "שינוי הסטטוס ל-\"{{status}}\" יעביר {{count}} לקוחות ל-\"{{meta}}\". להמשיך?",
       "confirm": "שנה סטטוס"
     },
     "meta": {
@@ -179,7 +205,13 @@
         "high": "דחוף",
         "medium": "רגיל",
         "low": "נמוך"
-      }
+      },
+      "countTitle": "{{open}} משימות פתוחות מתוך {{total}}"
     }
+  },
+  "scope": {
+    "aria": "סינון פרויקטים",
+    "active": "פעילים",
+    "all": "הכל"
   }
 }

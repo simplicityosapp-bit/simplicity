@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import Modal from './Modal'
+import { useDiscardGuard, isDirty } from './useDiscardGuard'
 import { useT } from '../i18n/useT'
 import { CATEGORY_SWATCHES as COLORS } from '../lib/palette'
 import { Box, Txt, Btn, Input } from '../components/ui'
@@ -11,6 +12,11 @@ export default function AddProjectModal({ open, onClose, onSave }) {
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
   const close = () => { setForm(blank()); setErr(''); setBusy(false); onClose() }
+  /* Escape, the overlay and the X all route through one onClose, so a typed-in
+     name used to vanish on a single stray tap without a word. `color` is NOT
+     skipped: blank() seeds the first swatch, but picking a different one is
+     the user's work and worth asking about. */
+  const guard = useDiscardGuard(isDirty(form, blank()), close)
 
   const submit = async () => {
     if (!form.name.trim()) { setErr(t('common.nameRequired')); return }
@@ -26,7 +32,7 @@ export default function AddProjectModal({ open, onClose, onSave }) {
   }
 
   return (
-    <Modal open={open} onClose={close} title={t('addProject.title')}>
+    <Modal open={open} onClose={guard.requestClose} onSubmit={submit} title={t('addProject.title')}>
       <Box className="m-field">
         <Box as="label" className="m-label">{t('addProject.projectName')}</Box>
         <Input
@@ -55,9 +61,10 @@ export default function AddProjectModal({ open, onClose, onSave }) {
       {err && <Txt as="p" className="m-error">{err}</Txt>}
 
       <Box className="m-actions">
-        <Btn type="button" className="m-btn-cancel" onClick={close}>{t('common.cancel')}</Btn>
+        <Btn type="button" className="m-btn-cancel" onClick={guard.requestClose}>{t('common.cancel')}</Btn>
         <Btn type="button" className="m-btn-save" onClick={submit} disabled={busy}>{busy ? t('common.saving') : t('common.save')}</Btn>
       </Box>
+      {guard.confirm}
     </Modal>
   )
 }

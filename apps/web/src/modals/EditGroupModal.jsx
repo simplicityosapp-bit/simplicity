@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Trash2 } from 'lucide-react'
 import Modal from './Modal'
+import { useDiscardGuard, isDirty } from './useDiscardGuard'
 import DateField from '../components/DateField'
 import { GROUP_BILLING_MODES } from '@simplicity/core'
 import { useT } from '../i18n/useT'
@@ -27,6 +28,24 @@ export default function EditGroupModal({ open, onClose, onSave, onDelete, group 
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }))
+
+  /* Pristine = the group as it stands, so only the coach's own edits count as
+     dirty. Declared before the early return — a hook cannot sit after a
+     conditional return, and an absent group simply makes it not dirty. */
+  const pristine = {
+    name: group?.name || '',
+    color: group?.color || COLORS[0],
+    billing_mode: group?.billing_mode || 'package',
+    package_price: group?.package_price ?? '',
+    package_sessions: group?.package_sessions ?? '',
+    price_per_session: group?.price_per_session ?? '',
+    recurring_day: group?.recurring_day == null ? '' : String(group.recurring_day),
+    recurring_time: group?.recurring_time || '',
+    recurring_end_time: group?.recurring_end_time || '',
+    recurring_start_date: group?.recurring_start_date || '',
+    recurring_end_date: group?.recurring_end_date || '',
+  }
+  const guard = useDiscardGuard(!!group && isDirty(form, pristine), onClose)
 
   if (!group) return <Modal open={open} onClose={onClose} title={t('editGroup.title')} />
 
@@ -66,7 +85,7 @@ export default function EditGroupModal({ open, onClose, onSave, onDelete, group 
   }
 
   return (
-    <Modal open={open} onClose={onClose} title={t('editGroup.title')}>
+    <Modal open={open} onClose={guard.requestClose} onSubmit={submit} title={t('editGroup.title')}>
       <Box className="m-field">
         <Box as="label" className="m-label">{t('editGroup.groupName')}</Box>
         <Input
@@ -155,7 +174,7 @@ export default function EditGroupModal({ open, onClose, onSave, onDelete, group 
       {err && <Txt as="p" className="m-error">{err}</Txt>}
 
       <Box className="m-actions">
-        <Btn type="button" className="m-btn-cancel" onClick={onClose}>{t('common.cancel')}</Btn>
+        <Btn type="button" className="m-btn-cancel" onClick={guard.requestClose}>{t('common.cancel')}</Btn>
         <Btn type="button" className="m-btn-save" onClick={submit} disabled={busy}>{busy ? t('common.saving') : t('common.save')}</Btn>
       </Box>
       {onDelete && (
@@ -163,6 +182,7 @@ export default function EditGroupModal({ open, onClose, onSave, onDelete, group 
           <Trash2 size={15} strokeWidth={1.7} aria-hidden="true" /> {t('editGroup.deleteGroup')}
         </Btn>
       )}
+      {guard.confirm}
     </Modal>
   )
 }

@@ -3,7 +3,7 @@ import { View, Text, Pressable, StyleSheet, ScrollView, ActivityIndicator, Refre
 import { useRoute, useNavigation } from '@react-navigation/native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Pencil, Users, CalendarDays, Plus, ChevronDown, X, Check } from 'lucide-react-native'
-import { financeQuery, currentMonthRange, isr, fmtShortDate, statusMetaOf } from '@simplicity/core'
+import { financeQuery, currentMonthRange, isr, fmtShortDate, statusMetaOf, scopeToProject } from '@simplicity/core'
 import i18n from '../lib/i18n'
 import Screen from '../components/Screen'
 import Card from '../components/Card'
@@ -41,19 +41,20 @@ export default function ProjectDetailScreen() {
   const groupIds = useMemo(() => new Set(groups.map((g) => g.id)), [groups])
   const activeCount = clients.filter((c) => statusMetaOf(c) === 'active').length
   const wanderingCount = clients.filter((c) => statusMetaOf(c) === 'wandering').length
-  // A tx belongs to this project if it's tagged to it OR its client is a member —
-  // no "untagged only" guard, so a tx tagged to another project but whose client is
-  // here still counts (matches web project-detail monthIncome).
+  // Shared scoping rule (core domain/projects.ts): tagged to the project, or —
+  // only when the row carries NO project_id of its own — belonging to one of its
+  // clients. The "no untagged-only guard" this used to copy from web double-counted
+  // a tx tagged to another project whose client sits here; both sides use the
+  // guarded rule now, so the card and this screen report the same number.
   const projectTx = useMemo(
-    () => transactions.filter((t) => t.project_id === projectId || projClientIds.has(t.client_id)),
+    () => scopeToProject(transactions, projectId, projClientIds),
     [transactions, projectId, projClientIds],
   )
-  const monthIncome = useMemo(() => {
-    const allIncome = financeQuery({ type: 'income', ...currentMonthRange(), source: transactions })
-    return allIncome
-      .filter((f) => f.project_id === projectId || (f.client_id && projClientIds.has(f.client_id)))
-      .reduce((s, f) => s + f.amount, 0)
-  }, [transactions, projectId, projClientIds])
+  const monthIncome = useMemo(() => scopeToProject(
+    financeQuery({ type: 'income', ...currentMonthRange(), source: transactions }),
+    projectId,
+    projClientIds,
+  ).reduce((s, f) => s + f.amount, 0), [transactions, projectId, projClientIds])
   const recentSessions = useMemo(
     () => sessions
       .filter((s) => projClientIds.has(s.client_id) || groupIds.has(s.group_id))
@@ -105,7 +106,9 @@ export default function ProjectDetailScreen() {
     }
     Alert.alert(
       D('statusChange.title', { defaultValue: 'שינוי סטטוס קבוצה' }),
-      D(willFlip.length === 1 ? 'statusChange.messageOne' : 'statusChange.messageMany', {
+      // i18next picks the plural form from `count` — a two-branch ternary
+      // cannot express Hebrew's dual. Same change as web.
+      D('statusChange.message', {
         status: D(`status.${newStatus}`),
         count: willFlip.length,
         meta: D(`meta.${targetMeta}`),
@@ -137,7 +140,10 @@ export default function ProjectDetailScreen() {
             <Text style={styles.hname} numberOfLines={1}>{project?.name || ''}</Text>
             {project ? (
               <Text style={styles.hmeta} numberOfLines={1}>
-                {`${activeCount} ${D('metaActive', { defaultValue: 'פעיל' })}${wanderingCount > 0 ? ` · ${D('metaWandering', { count: wanderingCount })}` : ''} · ${D('metaGroups', { count: groups.length })}`}
+                {/* Client status only — the stats card below states the group
+                    count, and this line used to repeat it verbatim. Same
+                    change as web. */}
+                {`${activeCount} ${D('metaActive', { defaultValue: 'פעיל' })}${wanderingCount > 0 ? ` · ${D('metaWandering', { count: wanderingCount })}` : ''}`}
               </Text>
             ) : null}
           </View>

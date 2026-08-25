@@ -25,11 +25,13 @@ import { Box, Txt, Btn } from '../../components/ui'
 /* Project-scoped twin of the home QuickRow. A single "תנועה מהירה" CTA
    drives the launcher → Add* modal flow, where every Add* opened from
    here pre-fills the current project so the user doesn't have to re-pick
-   the binding they're clearly already in. Filtering rules:
+   the binding they're clearly already in. Every one of these SEEDS the form's
+   own project field — none of them overwrites the saved payload. Client, task
+   and goal used to do the latter (`onSave: p => add({ ...p, project_id })`),
+   which meant the project picker was visible, editable, and ignored: pick
+   another project and the row still landed in this one, silently. Rules:
      - transaction: defaults.project_id = projectId
-     - client: onSave wraps payload with project_id
-     - task: onSave wraps payload with project_id
-     - goal: onSave wraps payload with project_id
+     - client / task / goal: initialProject = projectId
      - reminder: defaultLinkedTo = { type: 'project', id }
      - meeting: not project-scoped (meetings bind to a client)
      - lead / new project: not surfaced — they don't fit this
@@ -87,14 +89,16 @@ export default function ProjectQuickRow({ projectId, projectName }) {
         onClose={close}
         projects={projects}
         statuses={clientStatuses}
-        onSave={async (payload) => addClient({ ...payload, project_id: projectId })}
+        initialProject={projectId}
+        onSave={addClient}
       />
       <AddTaskModal
         open={active === 'task'}
         onClose={close}
         projects={projects}
         clients={clients}
-        onSave={async (payload) => addTask({ ...payload, project_id: projectId })}
+        initialProject={projectId}
+        onSave={addTask}
       />
       <AddGoalModal
         open={active === 'goal'}
@@ -103,7 +107,8 @@ export default function ProjectQuickRow({ projectId, projectName }) {
         projects={projects}
         questions={questions}
         onAddQuestion={addQuestion}
-        onSave={async (payload) => addGoal({ ...payload, project_id: projectId })}
+        initialProject={projectId}
+        onSave={addGoal}
       />
       <AddReminderModal
         open={active === 'reminder'}

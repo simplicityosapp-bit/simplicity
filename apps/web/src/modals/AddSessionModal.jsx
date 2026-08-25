@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Trash2 } from 'lucide-react'
 import DateField from '../components/DateField'
 import Modal from './Modal'
+import { useDiscardGuard, isDirty } from './useDiscardGuard'
 import ConfirmModal from './ConfirmModal'
 import { showToast } from '../lib/toast'
 import { useT } from '../i18n/useT'
@@ -38,6 +39,9 @@ export default function AddSessionModal({ open, onClose, onSave, onDelete, clien
   const [confirmDelete, setConfirmDelete] = useState(false)
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }))
   const close = () => { setForm(fromSession(session)); setErr(''); setBusy(false); onClose() }
+  /* Compared against what the form OPENED with — the session for an edit,
+     today's date for a new one — so neither counts as the user's typing. */
+  const guard = useDiscardGuard(isDirty(form, fromSession(session), ['date']), close)
 
   const submit = async () => {
     if (!form.date) { setErr(t('session.dateRequired')); return }
@@ -59,7 +63,7 @@ export default function AddSessionModal({ open, onClose, onSave, onDelete, clien
 
   return (
     <>
-    <Modal open={open} onClose={close} title={isEdit ? t('session.titleEdit') : t('session.titleNew')}>
+    <Modal open={open} onClose={guard.requestClose} onSubmit={submit} title={isEdit ? t('session.titleEdit') : t('session.titleNew')}>
       {subject && (
         <Txt as="p" className="m-sub">
           <Txt className="m-sub-dot" style={{ background: subjectColor }} />
@@ -87,7 +91,7 @@ export default function AddSessionModal({ open, onClose, onSave, onDelete, clien
             <Trash2 size={15} strokeWidth={1.8} aria-hidden="true" /> {t('session.delete')}
           </Btn>
         )}
-        <Btn type="button" className="m-btn-cancel" onClick={close}>{t('common.cancel')}</Btn>
+        <Btn type="button" className="m-btn-cancel" onClick={guard.requestClose}>{t('common.cancel')}</Btn>
         <Btn type="button" className="m-btn-save" onClick={submit} disabled={busy}>{busy ? t('common.saving') : t('common.save')}</Btn>
       </Box>
     </Modal>
@@ -104,6 +108,8 @@ export default function AddSessionModal({ open, onClose, onSave, onDelete, clien
       danger
       onConfirm={async () => { await onDelete(session.id); onClose() }}
     />
+    {/* Out here for the same reason as the delete confirm above. */}
+    {guard.confirm}
     </>
   )
 }

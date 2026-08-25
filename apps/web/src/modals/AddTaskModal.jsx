@@ -33,20 +33,22 @@ const dueParts = (iso) => {
 const blank = () => ({ title: '', description: '', priority: null, project_id: '', client_id: '', status_id: '', category_id: '', due_date: '', due_time: '' })
 /* `initialDue` seeds the due date/time of a NEW task (the calendar's day grid
    passes the slot the user tapped). It is deliberately separate from `task`:
-   passing a stub task to carry a date would flip the modal into edit mode. */
-const fromTask = (t, initialDue = null) => (t
+   passing a stub task to carry a date would flip the modal into edit mode.
+   `initialProject` seeds the project the same way, for callers that open the
+   form from inside one — see the note on the component. */
+const fromTask = (t, initialDue = null, initialProject = '') => (t
   ? { title: t.title || '', description: t.description || '', priority: t.priority || null, project_id: t.project_id || '', client_id: t.client_id || '', status_id: t.status_id || '', category_id: t.category_id || '', ...dueParts(t.due_at) }
-  : { ...blank(), ...dueParts(initialDue) })
+  : { ...blank(), project_id: initialProject || '', ...dueParts(initialDue) })
 
 /* onSave is async (Supabase insert/update). Pass `task` to edit an existing one.
    `onDelete(id)` is optional — supplied only where the caller owns a delete
    (the tasks screen); without it the modal shows no delete action, exactly as
    before. Deleting is a soft-delete → Trash, so the confirm says so. */
-export default function AddTaskModal({ open, onClose, onSave, onDelete, projects = [], clients = [], statuses = [], categories = [], task = null, initialDue = null }) {
+export default function AddTaskModal({ open, onClose, onSave, onDelete, projects = [], clients = [], statuses = [], categories = [], task = null, initialDue = null, initialProject = '' }) {
   const isEdit = !!task
   const { t } = useT('modalsTask')
   const { prefs } = useUserPreferences()
-  const [form, setForm] = useState(() => fromTask(task, initialDue))
+  const [form, setForm] = useState(() => fromTask(task, initialDue, initialProject))
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
@@ -58,28 +60,32 @@ export default function AddTaskModal({ open, onClose, onSave, onDelete, projects
      — an edited task bound to a project, a description already written — so a
      value is never hidden behind a closed lid. Same rule the lead and
      transaction forms use. */
-  const detailsPrefilled = !!(task && (task.project_id || task.client_id || task.status_id || task.category_id || task.description))
+  const detailsPrefilled = !!(initialProject || (task && (task.project_id || task.client_id || task.status_id || task.category_id || task.description)))
   const [detailsOpen, setDetailsOpen] = useState(detailsPrefilled)
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }))
-  const close = () => { setForm(fromTask(task, initialDue)); setShowDue(openWithDue); setDetailsOpen(detailsPrefilled); setErr(''); setBusy(false); onClose() }
+  const close = () => { setForm(fromTask(task, initialDue, initialProject)); setShowDue(openWithDue); setDetailsOpen(detailsPrefilled); setErr(''); setBusy(false); onClose() }
   /* Escape, the overlay and the X used to bin a written-out task without a
      word. Compared against the state the form OPENED with — which for an edit
      is the task itself and for a new one may already carry a tapped calendar
      slot, so neither counts as the user's own typing. */
   /* Survives a refresh mid-form. NEW tasks only: this modal doubles as the
      editor, and restoring a stale edit over whatever the row holds now would
-     be worse than losing it. Seeded on the calendar slot the caller tapped,
-     so a draft never lands on a different day than the one you opened. */
+     be worse than losing it. Seeded on the calendar slot the caller tapped AND
+     on the project the caller opened from, so a draft never lands on a
+     different day — or in a different project — than the one you opened. */
   const draft = useFormDraft({
     name: 'task',
     form,
     setForm,
-    blank: fromTask(null, initialDue),
+    blank: fromTask(null, initialDue, initialProject),
     enabled: open && !isEdit,
-    seed: { due: initialDue || '' },
+    /* seed feeds the draft's storage KEY, so only add the project when there
+       is one — otherwise every caller's key shifts and drafts already in
+       flight are orphaned for no reason. */
+    seed: initialProject ? { due: initialDue || '', project: initialProject } : { due: initialDue || '' },
   })
   const guard = useDiscardGuard(
-    isDirty(form, fromTask(task, initialDue)),
+    isDirty(form, fromTask(task, initialDue, initialProject)),
     () => { draft.clear(); close() },
   )
   /* A rejected save should put the field it rejected back on screen. */

@@ -29,6 +29,22 @@
   margin-bottom: 16px;
 }
 
+/* Active / all filter. Wears the shared .mg-toggle chrome (screens.css) so it
+   reads as the same control as the hero's monthly/cumulative switch — the two
+   sit within a card's height of each other and must not look like two
+   different kinds of thing. Sits inline at the list's start edge rather than
+   absolutely, like the hero one: it has nothing to overlap. */
+.p-scope {
+  display: inline-flex;
+  gap: 2px;
+  padding: 2px;
+  margin: 0 0 12px;
+  border-radius: var(--mg-chip-radius);
+  background: var(--mg-card-bg);
+  border: 0.5px solid var(--divider);
+  backdrop-filter: var(--mg-card-blur);
+}
+
 /* Scope toggle sits in the free corner opposite the title. */
 .p-hero .mg-toggle {
   position: absolute;
@@ -151,6 +167,17 @@
   background: rgba(240, 235, 224, 0.06);
   border-color: rgba(240, 235, 224, 0.1);
 }
+/* Finished. --espresso, not --ink: --ink has no dark remap and would go
+   invisible at night (see the note atop LeadPagesScreen.css). */
+.ps-tag.ended {
+  background: color-mix(in srgb, var(--clay) 16%, transparent);
+  border-color: color-mix(in srgb, var(--clay) 34%, transparent);
+  color: var(--espresso);
+}
+/* The card itself steps back — still fully readable and clickable, just no
+   longer competing with the running work above it. */
+.pc.is-ended { opacity: 0.72; }
+.pc.is-ended:hover { opacity: 1; }
 .pc-edit,
 .pc-del {
   position: relative;

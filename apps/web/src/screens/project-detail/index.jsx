@@ -1,13 +1,14 @@
 import { useMemo, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import {
-  ChevronRight, ChevronDown, Plus, Pencil, Check, CalendarPlus, X, Trash2, Bell, GripVertical, Link2, ChevronLeft, Sprout, UserPlus,
+  ChevronRight, ChevronDown, Plus, Pencil, Check, CalendarCheck, X, Trash2, Bell, GripVertical, Link2, ChevronLeft, Sprout, UserPlus,
 } from 'lucide-react'
 import { useProjects } from '../../hooks/useProjects'
 import { useSitePages } from '../../hooks/useSitePages'
 import { useLeads } from '../../hooks/useLeads'
 import { useLeadStatuses } from '../../hooks/useLeadStatuses'
 import { useClients } from '../../hooks/useClients'
+import { useClientStatuses } from '../../hooks/useClientStatuses'
 import { useGroups } from '../../hooks/useGroups'
 import { useGroupMembers } from '../../hooks/useGroupMembers'
 import { useSessions } from '../../hooks/useSessions'
@@ -18,7 +19,7 @@ import { useScheduledMeetings } from '../../hooks/useScheduledMeetings'
 import { usePointerDnd } from '../../hooks/usePointerDnd'
 import { useT } from '../../i18n/useT'
 import { Trans } from 'react-i18next'
-import { statusMetaOf, metaTitle, statusMetaOfLead, isPendingReview, financeQuery, currentMonthRange, isr } from '@simplicity/core'
+import { statusMetaOf, metaTitle, statusMetaOfLead, isPendingReview, financeQuery, currentMonthRange, isr, belongsToProject, scopeToProject } from '@simplicity/core'
 import { staleScheduledMeetingIds } from '../../lib/scheduledMeetings'
 import { buildRoute, ROUTES } from '../../lib/routes'
 import LoadingSplash from '../../components/LoadingSplash'
@@ -65,20 +66,24 @@ export default function ProjectDetailScreen() {
   const { t } = useT('projects')
   const { id } = useParams()
   const navigate = useNavigate()
-  const { projects, updateProject, loading: projectsLoading } = useProjects()
+  const { projects, updateProject, removeProject, loading: projectsLoading } = useProjects()
   /* Lead pages live on the unified page engine (site_pages, kind='lead') since
      migration 0068 — the legacy lead_pages table is only a backup. Read the live
      source so this section matches what the /pages/lead builder actually edits. */
-  const { pages: sitePages } = useSitePages()
-  const { leads: leadList } = useLeads()
+  const { pages: sitePages, loading: pagesLoading } = useSitePages()
+  const { leads: leadList, loading: leadsLoading } = useLeads()
   const { statuses: leadStatuses } = useLeadStatuses()
-  const { clients, addClient, updateClient, removeClient, refetch: refetchClients } = useClients()
-  const { groups, addGroup, updateGroup, removeGroup, refetch: refetchGroups } = useGroups()
+  const { clients, loading: clientsLoading, addClient, updateClient, removeClient, refetch: refetchClients } = useClients()
+  /* The same sub-statuses the quick-add row on this very screen already offered.
+     This section passed an empty list, so "לקוח/ה לפרויקט" was the one add-client
+     form in the app with no status to pick. */
+  const { statuses: clientStatuses } = useClientStatuses()
+  const { groups, loading: groupsLoading, addGroup, updateGroup, removeGroup, refetch: refetchGroups } = useGroups()
   const { members, addMember, removeMember, refetch: refetchMembers } = useGroupMembers()
   const { sessions, addSession, updateSession, removeSession, refetch: refetchSessions } = useSessions()
   const { transactions } = useTransactions()
-  const { reminders, addReminder, completeReminder, removeReminder, refetch: refetchReminders } = useReminders()
-  const { tasks, addTask, toggleTask, removeTask } = useTasks()
+  const { reminders, loading: remindersLoading, addReminder, completeReminder, removeReminder, refetch: refetchReminders } = useReminders()
+  const { tasks, loading: tasksLoading, addTask, toggleTask, removeTask } = useTasks()
   const { meetings: scheduledMeetings, removeMeeting, refetch: refetchMeetings } = useScheduledMeetings()
 
   /* When a group's recurring slot changes or is cleared, drop the future
@@ -119,6 +124,7 @@ export default function ProjectDetailScreen() {
   const [addMemberFor, setAddMemberFor] = useState(null)
   const [logSessionFor, setLogSessionFor] = useState(null)
   const [editProjectOpen, setEditProjectOpen] = useState(false)
+  const [pendingDeleteProject, setPendingDeleteProject] = useState(false)
   const [showAddClient, setShowAddClient] = useState(false)
   const [showAddReminder, setShowAddReminder] = useState(false)
   const [showAddTask, setShowAddTask] = useState(false)
@@ -164,12 +170,16 @@ export default function ProjectDetailScreen() {
     return { activeCount: a, wanderingCount: w }
   }, [projectClients])
 
-  const monthIncome = useMemo(() => {
-    const projClientIds = new Set(projectClients.map((c) => c.id))
-    return financeQuery({ type: 'income', ...currentMonthRange(), source: transactions })
-      .filter((t) => t.project_id === id || (t.client_id && projClientIds.has(t.client_id)))
-      .reduce((s, t) => s + t.amount, 0)
-  }, [transactions, projectClients, id])
+  /* Ids of this project's clients — the fallback half of the scoping rule. */
+  const projClientIds = useMemo(() => new Set(projectClients.map((c) => c.id)), [projectClients])
+
+  const monthIncome = useMemo(() => (
+    scopeToProject(
+      financeQuery({ type: 'income', ...currentMonthRange(), source: transactions }),
+      id,
+      projClientIds,
+    ).reduce((s, t) => s + t.amount, 0)
+  ), [transactions, projClientIds, id])
 
   /* Reminders linked to this project (any status). */
   const projectReminders = useMemo(
@@ -179,10 +189,14 @@ export default function ProjectDetailScreen() {
   const activeReminders = projectReminders.filter((r) => r.status === 'pending' || r.status === 'triggered')
 
   /* Tasks tied to this project (any status). Open count drives the section
-     badge; completed ones still list (struck through) so nothing is hidden. */
+     badge; completed ones still list (struck through) so nothing is hidden.
+     Same scoping rule as the projects-list card — a task on a client of this
+     project counts here too, which is what the card has always shown and what
+     this section used to miss (it read project_id alone, so a card saying
+     "3 משימות" opened onto a section saying none). */
   const projectTasks = useMemo(
-    () => tasks.filter((t) => !t.deleted_at && t.project_id === id),
-    [tasks, id],
+    () => tasks.filter((t) => !t.deleted_at && belongsToProject(t, id, projClientIds)),
+    [tasks, id, projClientIds],
   )
   const openTaskCount = projectTasks.filter((t) => t.status !== 'done').length
 
@@ -453,10 +467,14 @@ export default function ProjectDetailScreen() {
             <Txt className="pd-color" style={{ background: project.color || 'var(--sage)' }} />
             <Txt as="p" className="pd-name">{project.name}</Txt>
           </Box>
+          {/* Client status only. The group count used to end this line too,
+              twenty pixels above the stats card that states it again — two
+              identical numbers, and a reader checking whether they agree.
+              The stats card owns the counts; this line owns the split the
+              stats card cannot show (active vs paused). */}
           <Txt as="p" className="pd-meta">
             {activeCount} <MG text={t('detail.metaActive')} />
             {wanderingCount > 0 && ` · ${t('detail.metaWandering', { count: wanderingCount })}`}
-            {' · '}{t('detail.metaGroups', { count: projectGroups.length })}
           </Txt>
         </Box>
         <Btn type="button" className="pd-edit" onClick={() => setEditProjectOpen(true)} aria-label={t('detail.editAria')}>
@@ -491,15 +509,17 @@ export default function ProjectDetailScreen() {
 
       {/* ── Groups section ────────────────────────────────── */}
       <Box as="section" className="pd-section">
-        <Btn type="button" className="pd-sec-head" onClick={() => toggleSec('groups')}>
+        <Btn type="button" className="pd-sec-head" onClick={() => toggleSec('groups')} aria-expanded={openSec.groups} aria-controls={openSec.groups ? 'pd-sec-groups' : undefined}>
           <Txt as="p" className="pd-sec-title">
             {t('detail.groups.title')} {projectGroups.length > 0 && <Txt className="pd-sec-count">{projectGroups.length}</Txt>}
           </Txt>
           <ChevronDown size={16} strokeWidth={1.6} className={`pd-sec-chev${openSec.groups ? ' open' : ''}`} aria-hidden="true" />
         </Btn>
         {openSec.groups && (
-          <Box className="pd-sec-body">
-            {projectGroups.length === 0 ? (
+          <Box id="pd-sec-groups" className="pd-sec-body">
+            {groupsLoading ? (
+              <Txt as="p" className="pd-empty">{t('detail.sectionLoading')}</Txt>
+            ) : projectGroups.length === 0 ? (
               <Txt as="p" className="pd-empty">{t('detail.groups.empty', { add: t('detail.groups.add') })}</Txt>
             ) : (
               projectGroups.map((g) => {
@@ -581,7 +601,10 @@ export default function ProjectDetailScreen() {
                         title={t('detail.groups.pastSessions')}
                         aria-label={t('detail.groups.pastSessions')}
                       >
-                        <CalendarPlus size={13} strokeWidth={1.8} aria-hidden="true" />
+                        {/* Was CalendarPlus — an icon that says ADD a meeting,
+                            on a control that only ever SHOWS the ones already
+                            logged. */}
+                        <CalendarCheck size={13} strokeWidth={1.8} aria-hidden="true" />
                       </Btn>
                       <Btn
                         type="button"
@@ -613,7 +636,7 @@ export default function ProjectDetailScreen() {
                                 onClick={() => setPendingDeleteSession(s)}
                                 aria-label={t('detail.groups.deleteSessionAria')}
                               >
-                                <X size={11} strokeWidth={2} aria-hidden="true" />
+                                <Trash2 size={11} strokeWidth={2} aria-hidden="true" />
                               </Btn>
                             </Box>
                           ))
@@ -633,15 +656,17 @@ export default function ProjectDetailScreen() {
 
       {/* ── Clients section ───────────────────────────────── */}
       <Box as="section" className="pd-section">
-        <Btn type="button" className="pd-sec-head" onClick={() => toggleSec('clients')}>
+        <Btn type="button" className="pd-sec-head" onClick={() => toggleSec('clients')} aria-expanded={openSec.clients} aria-controls={openSec.clients ? 'pd-sec-clients' : undefined}>
           <Txt as="p" className="pd-sec-title">
             {t('detail.clients.title')} {projectClients.length > 0 && <Txt className="pd-sec-count">{projectClients.length}</Txt>}
           </Txt>
           <ChevronDown size={16} strokeWidth={1.6} className={`pd-sec-chev${openSec.clients ? ' open' : ''}`} aria-hidden="true" />
         </Btn>
         {openSec.clients && (
-          <Box className="pd-sec-body">
-            {projectClients.length === 0 ? (
+          <Box id="pd-sec-clients" className="pd-sec-body">
+            {clientsLoading ? (
+              <Txt as="p" className="pd-empty">{t('detail.sectionLoading')}</Txt>
+            ) : projectClients.length === 0 ? (
               <Txt as="p" className="pd-empty">{t('detail.clients.empty')}</Txt>
             ) : (
               projectClients.map((c) => {
@@ -677,29 +702,45 @@ export default function ProjectDetailScreen() {
 
       {/* ── Tasks section ─────────────────────────────────── */}
       <Box as="section" className="pd-section">
-        <Btn type="button" className="pd-sec-head" onClick={() => toggleSec('tasks')}>
+        <Btn type="button" className="pd-sec-head" onClick={() => toggleSec('tasks')} aria-expanded={openSec.tasks} aria-controls={openSec.tasks ? 'pd-sec-tasks' : undefined}>
           <Txt as="p" className="pd-sec-title">
             {t('detail.tasks.title')}{' '}
-            <Txt className="pd-sec-count">
+            {/* One number: what is still open. It used to read "2 / 5", a
+                format nothing on screen explained — a reader has to guess
+                whether the second number is a total, a target or a page.
+                The full picture moves to the tooltip and the accessible name,
+                where it can be a sentence instead of a slash. */}
+            <Txt
+              className="pd-sec-count"
+              title={t('detail.tasks.countTitle', { open: openTaskCount, total: projectTasks.length })}
+              aria-label={t('detail.tasks.countTitle', { open: openTaskCount, total: projectTasks.length })}
+            >
               {openTaskCount}
-              {projectTasks.length > openTaskCount ? ` / ${projectTasks.length}` : ''}
             </Txt>
           </Txt>
           <ChevronDown size={16} strokeWidth={1.6} className={`pd-sec-chev${openSec.tasks ? ' open' : ''}`} aria-hidden="true" />
         </Btn>
         {openSec.tasks && (
-          <Box className="pd-sec-body">
-            {projectTasks.length === 0 ? (
+          <Box id="pd-sec-tasks" className="pd-sec-body">
+            {tasksLoading ? (
+              <Txt as="p" className="pd-empty">{t('detail.sectionLoading')}</Txt>
+            ) : projectTasks.length === 0 ? (
               <Txt as="p" className="pd-empty">{t('detail.tasks.empty')}</Txt>
             ) : (
               projectTasks.map((tk) => {
                 const isDone = tk.status === 'done'
+                /* A task can sit here because it was tagged to the project, or
+                   because it belongs to one of its clients. Name the client on
+                   the second kind — without it those rows read as tasks the
+                   coach never filed against this project. */
+                const viaClient = !tk.project_id && tk.client_id ? clientById.get(tk.client_id) : null
                 return (
                   <Box key={tk.id} className="pd-rem-row">
                     <Box className="pd-rem-id">
                       <Txt as="p" className={`pd-rem-title${isDone ? ' done' : ''}`}>{tk.title}</Txt>
                       <Txt as="p" className="pd-rem-meta">
                         {t(`detail.tasks.priority.${tk.priority || 'medium'}`)}
+                        {viaClient && ` · ${viaClient.name}`}
                         {isDone && ` · ${t('detail.tasks.done')}`}
                       </Txt>
                     </Box>
@@ -719,7 +760,7 @@ export default function ProjectDetailScreen() {
                       aria-label={t('detail.tasks.deleteAria')}
                       title={t('detail.tasks.deleteAria')}
                     >
-                      <X size={13} strokeWidth={1.8} aria-hidden="true" />
+                      <Trash2 size={13} strokeWidth={1.8} aria-hidden="true" />
                     </Btn>
                   </Box>
                 )
@@ -734,19 +775,24 @@ export default function ProjectDetailScreen() {
 
       {/* ── Reminders section ─────────────────────────────── */}
       <Box as="section" className="pd-section">
-        <Btn type="button" className="pd-sec-head" onClick={() => toggleSec('reminders')}>
+        <Btn type="button" className="pd-sec-head" onClick={() => toggleSec('reminders')} aria-expanded={openSec.reminders} aria-controls={openSec.reminders ? 'pd-sec-reminders' : undefined}>
           <Txt as="p" className="pd-sec-title">
             {t('detail.reminders.title')}{' '}
-            <Txt className="pd-sec-count">
+            <Txt
+              className="pd-sec-count"
+              title={t('detail.reminders.countTitle', { open: activeReminders.length, total: projectReminders.length })}
+              aria-label={t('detail.reminders.countTitle', { open: activeReminders.length, total: projectReminders.length })}
+            >
               {activeReminders.length}
-              {projectReminders.length > activeReminders.length ? ` / ${projectReminders.length}` : ''}
             </Txt>
           </Txt>
           <ChevronDown size={16} strokeWidth={1.6} className={`pd-sec-chev${openSec.reminders ? ' open' : ''}`} aria-hidden="true" />
         </Btn>
         {openSec.reminders && (
-          <Box className="pd-sec-body">
-            {projectReminders.length === 0 ? (
+          <Box id="pd-sec-reminders" className="pd-sec-body">
+            {remindersLoading ? (
+              <Txt as="p" className="pd-empty">{t('detail.sectionLoading')}</Txt>
+            ) : projectReminders.length === 0 ? (
               <Txt as="p" className="pd-empty">{t('detail.reminders.empty')}</Txt>
             ) : (
               projectReminders.map((r) => {
@@ -786,7 +832,7 @@ export default function ProjectDetailScreen() {
                       aria-label={t('detail.reminders.deleteAria')}
                       title={t('detail.reminders.deleteAria')}
                     >
-                      <X size={13} strokeWidth={1.8} aria-hidden="true" />
+                      <Trash2 size={13} strokeWidth={1.8} aria-hidden="true" />
                     </Btn>
                   </Box>
                 )
@@ -801,15 +847,17 @@ export default function ProjectDetailScreen() {
 
       {/* ── Leads section ─────────────────────────────────── */}
       <Box as="section" className="pd-section">
-        <Btn type="button" className="pd-sec-head" onClick={() => toggleSec('leads')}>
+        <Btn type="button" className="pd-sec-head" onClick={() => toggleSec('leads')} aria-expanded={openSec.leads} aria-controls={openSec.leads ? 'pd-sec-leads' : undefined}>
           <Txt as="p" className="pd-sec-title">
             {t('detail.leads.title')} {projectLeads.length > 0 && <Txt className="pd-sec-count">{projectLeads.length}</Txt>}
           </Txt>
           <ChevronDown size={16} strokeWidth={1.6} className={`pd-sec-chev${openSec.leads ? ' open' : ''}`} aria-hidden="true" />
         </Btn>
         {openSec.leads && (
-          <Box className="pd-sec-body">
-            {projectLeads.length === 0 ? (
+          <Box id="pd-sec-leads" className="pd-sec-body">
+            {leadsLoading ? (
+              <Txt as="p" className="pd-empty">{t('detail.sectionLoading')}</Txt>
+            ) : projectLeads.length === 0 ? (
               <Txt as="p" className="pd-empty">{t('detail.leads.empty')}</Txt>
             ) : (
               projectLeads.map((l) => {
@@ -821,7 +869,12 @@ export default function ProjectDetailScreen() {
                     key={l.id}
                     type="button"
                     className="pd-leadpage-row"
-                    onClick={() => navigate(ROUTES.LEADS)}
+                    /* Lands ON this lead, not on the board. The row shows a
+                       name and reads as a link to it; sending the user to a
+                       full kanban to find that name again by eye was the
+                       opposite of what it promised. Same nav-state shape the
+                       lead-pages row below already uses. */
+                    onClick={() => navigate(ROUTES.LEADS, { state: { openLeadId: l.id } })}
                     aria-label={t('detail.leads.openAria', { name: l.name })}
                   >
                     <Sprout size={15} strokeWidth={1.7} className="pd-leadpage-icon" aria-hidden="true" />
@@ -838,15 +891,17 @@ export default function ProjectDetailScreen() {
 
       {/* ── Lead pages section ────────────────────────────── */}
       <Box as="section" className="pd-section">
-        <Btn type="button" className="pd-sec-head" onClick={() => toggleSec('leadPages')}>
+        <Btn type="button" className="pd-sec-head" onClick={() => toggleSec('leadPages')} aria-expanded={openSec.leadPages} aria-controls={openSec.leadPages ? 'pd-sec-leadPages' : undefined}>
           <Txt as="p" className="pd-sec-title">
             {t('detail.leadPages.title')} {projectLeadPages.length > 0 && <Txt className="pd-sec-count">{projectLeadPages.length}</Txt>}
           </Txt>
           <ChevronDown size={16} strokeWidth={1.6} className={`pd-sec-chev${openSec.leadPages ? ' open' : ''}`} aria-hidden="true" />
         </Btn>
         {openSec.leadPages && (
-          <Box className="pd-sec-body">
-            {projectLeadPages.length === 0 ? (
+          <Box id="pd-sec-leadPages" className="pd-sec-body">
+            {pagesLoading ? (
+              <Txt as="p" className="pd-empty">{t('detail.sectionLoading')}</Txt>
+            ) : projectLeadPages.length === 0 ? (
               <Txt as="p" className="pd-empty">
                 {t('detail.leadPages.empty')}{' '}
                 <Btn type="button" className="pd-link-inline" onClick={() => navigate(buildRoute(ROUTES.SITE_PAGE_KIND, { kind: 'lead' }))}>
@@ -896,6 +951,7 @@ export default function ProjectDetailScreen() {
         onClose={() => setEditProjectOpen(false)}
         project={project}
         onSave={updateProject}
+        onDelete={() => { setEditProjectOpen(false); setPendingDeleteProject(true) }}
       />
       <AddGroupMemberModal
         open={!!addMemberFor}
@@ -916,13 +972,18 @@ export default function ProjectDetailScreen() {
         nextNum={logSessionFor ? sessions.filter((s) => s.group_id === logSessionFor.id).length + 1 : null}
         onSave={logGroupSession}
       />
+      {/* The project is SEEDED, not forced: the form shows its project picker
+          pre-set to this one and saves whatever the user leaves there. It used
+          to spread the payload and overwrite project_id afterwards, so picking
+          a different project in a visible field did nothing, silently. */}
       <AddClientModal
         key={`add-client-${id}`}
         open={showAddClient}
         onClose={() => setShowAddClient(false)}
         projects={projects}
-        statuses={[]}
-        onSave={async (payload) => addClient({ ...payload, project_id: id })}
+        statuses={clientStatuses}
+        initialProject={id}
+        onSave={addClient}
       />
       <AddReminderModal
         open={showAddReminder}
@@ -937,7 +998,8 @@ export default function ProjectDetailScreen() {
         onClose={() => setShowAddTask(false)}
         projects={projects}
         clients={clients}
-        onSave={async (payload) => addTask({ ...payload, project_id: id })}
+        initialProject={id}
+        onSave={addTask}
       />
       <DeleteGroupModal
         key={pendingDeleteGroup?.id}
@@ -946,6 +1008,19 @@ export default function ProjectDetailScreen() {
         group={pendingDeleteGroup}
         counts={pendingDeleteGroup ? deleteGroupCounts(pendingDeleteGroup) : null}
         onConfirm={(choices) => { if (pendingDeleteGroup) runDeleteGroup(pendingDeleteGroup, choices) }}
+      />
+      {/* Deleting the project we are standing in. Same wording and the same
+          undo toast as the list card's delete (useProjects registers it), but
+          the screen has to leave afterwards — the route it lives on no longer
+          resolves, and staying would fall through to "הפרויקט לא נמצא". */}
+      <ConfirmModal
+        open={pendingDeleteProject}
+        onClose={() => setPendingDeleteProject(false)}
+        title={t('delete.title')}
+        message={t('delete.message', { name: project.name })}
+        confirmLabel={t('delete.confirm')}
+        danger
+        onConfirm={async () => { await removeProject(project.id); navigate(ROUTES.PROJECTS) }}
       />
       <ConfirmModal
         open={!!pendingDeleteSession}
@@ -965,12 +1040,17 @@ export default function ProjectDetailScreen() {
         danger
         onConfirm={() => { if (pendingDeleteReminder) removeReminder(pendingDeleteReminder.id) }}
       />
+      {/* The message was a hand-rolled plural (`length === 1 ? messageOne :
+          messageMany`), which can only ever know two forms — so Hebrew's DUAL
+          fell through to the plural and two clients read "2 לקוחות" instead of
+          "שני לקוחות". i18next picks the form from `count` now, and the locale
+          files carry all four categories Hebrew needs. */}
       <ConfirmModal
         open={!!pendingStatusChange}
         onClose={() => setPendingStatusChange(null)}
         title={t('detail.statusChange.title')}
         message={pendingStatusChange
-          ? t(pendingStatusChange.willFlip.length === 1 ? 'detail.statusChange.messageOne' : 'detail.statusChange.messageMany', {
+          ? t('detail.statusChange.message', {
               status: STATUS_LABEL[pendingStatusChange.newStatus],
               count: pendingStatusChange.willFlip.length,
               meta: META_LABEL[pendingStatusChange.targetMeta],

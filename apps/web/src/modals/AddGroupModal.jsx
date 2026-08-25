@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import Modal from './Modal'
+import { useDiscardGuard, isDirty } from './useDiscardGuard'
 import DateField from '../components/DateField'
 import { GROUP_BILLING_MODES } from '@simplicity/core'
 import { useT } from '../i18n/useT'
@@ -22,6 +23,10 @@ export default function AddGroupModal({ open, onClose, onSave, project }) {
   const [busy, setBusy] = useState(false)
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }))
   const close = () => { setForm(blank()); setErr(''); setBusy(false); onClose() }
+  /* Escape / overlay / X all route through one onClose — without this a
+     filled-in group went away on a stray tap, silently. billing_mode is
+     skipped: blank() seeds it, so its opening value is the form's own. */
+  const guard = useDiscardGuard(isDirty(form, blank(), ['billing_mode']), close)
 
   const submit = async () => {
     if (!form.name.trim()) { setErr(t('common.nameRequired')); return }
@@ -64,7 +69,7 @@ export default function AddGroupModal({ open, onClose, onSave, project }) {
   const nameMissing = !!err && !form.name.trim()
 
   return (
-    <Modal open={open} onClose={close} title={t('addGroup.title')}>
+    <Modal open={open} onClose={guard.requestClose} onSubmit={submit} title={t('addGroup.title')}>
       {project && (
         <Txt as="p" className="m-sub">
           <Txt className="m-sub-dot" style={{ background: project.color || 'var(--stone)' }} />
@@ -178,9 +183,10 @@ export default function AddGroupModal({ open, onClose, onSave, project }) {
       {err && <Txt as="p" className="m-error">{err}</Txt>}
 
       <Box className="m-actions">
-        <Btn type="button" className="m-btn-cancel" onClick={close}>{t('common.cancel')}</Btn>
+        <Btn type="button" className="m-btn-cancel" onClick={guard.requestClose}>{t('common.cancel')}</Btn>
         <Btn type="button" className="m-btn-save" onClick={submit} disabled={busy}>{busy ? t('common.saving') : t('common.save')}</Btn>
       </Box>
+      {guard.confirm}
     </Modal>
   )
 }

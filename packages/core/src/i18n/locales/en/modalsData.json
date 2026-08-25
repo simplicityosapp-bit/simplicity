@@ -211,7 +211,12 @@
   },
   "editProject": {
     "title": "Edit project",
-    "projectName": "Project name"
+    "projectName": "Project name",
+    "deleteProject": "Delete project",
+    "status": "Status",
+    "statusActive": "Active",
+    "statusEnded": "Finished",
+    "statusEndedHint": "The project leaves the active list. Its data, clients and transactions stay exactly as they are."
   },
   "quickUpdate": {
     "title": "Update a goal",

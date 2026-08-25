@@ -1,11 +1,12 @@
 import { useMemo, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import {
-  ChevronRight, ChevronDown, Plus, Pencil, Check, CalendarCheck, X, Trash2, Bell, GripVertical, Link2, ChevronLeft, Sprout, UserPlus,
+  ChevronRight, ChevronDown, Plus, Pencil, Check, CalendarCheck, CalendarClock, Users, X, Trash2, Bell, GripVertical, Link2, ChevronLeft, Sprout, UserPlus,
 } from 'lucide-react'
 import { useProjects } from '../../hooks/useProjects'
 import { useSitePages } from '../../hooks/useSitePages'
 import { useLeads } from '../../hooks/useLeads'
+import { useLeadSources } from '../../hooks/useLeadSources'
 import { useLeadStatuses } from '../../hooks/useLeadStatuses'
 import { useClients } from '../../hooks/useClients'
 import { useClientStatuses } from '../../hooks/useClientStatuses'
@@ -19,7 +20,7 @@ import { useScheduledMeetings } from '../../hooks/useScheduledMeetings'
 import { usePointerDnd } from '../../hooks/usePointerDnd'
 import { useT } from '../../i18n/useT'
 import { Trans } from 'react-i18next'
-import { statusMetaOf, metaTitle, statusMetaOfLead, isPendingReview, financeQuery, currentMonthRange, isr, belongsToProject, scopeToProject } from '@simplicity/core'
+import { statusMetaOf, metaTitle, statusMetaOfLead, isPendingReview, financeQuery, currentMonthRange, isr, belongsToProject, scopeToProject, upcomingProjectMeetings } from '@simplicity/core'
 import { staleScheduledMeetingIds } from '../../lib/scheduledMeetings'
 import { buildRoute, ROUTES } from '../../lib/routes'
 import LoadingSplash from '../../components/LoadingSplash'
@@ -38,6 +39,7 @@ import AddSessionModal from '../../modals/AddSessionModal'
 import AddClientModal from '../../modals/AddClientModal'
 import AddReminderModal from '../../modals/AddReminderModal'
 import AddTaskModal from '../../modals/AddTaskModal'
+import AddLeadModal from '../../modals/AddLeadModal'
 import DeleteGroupModal from '../../modals/DeleteGroupModal'
 import ConfirmModal from '../../modals/ConfirmModal'
 import Modal from '../../modals/Modal'
@@ -71,7 +73,8 @@ export default function ProjectDetailScreen() {
      migration 0068 — the legacy lead_pages table is only a backup. Read the live
      source so this section matches what the /pages/lead builder actually edits. */
   const { pages: sitePages, loading: pagesLoading } = useSitePages()
-  const { leads: leadList, loading: leadsLoading } = useLeads()
+  const { leads: leadList, loading: leadsLoading, addLead } = useLeads()
+  const { sources: leadSources } = useLeadSources()
   const { statuses: leadStatuses } = useLeadStatuses()
   const { clients, loading: clientsLoading, addClient, updateClient, removeClient, refetch: refetchClients } = useClients()
   /* The same sub-statuses the quick-add row on this very screen already offered.
@@ -84,7 +87,7 @@ export default function ProjectDetailScreen() {
   const { transactions } = useTransactions()
   const { reminders, loading: remindersLoading, addReminder, completeReminder, removeReminder, refetch: refetchReminders } = useReminders()
   const { tasks, loading: tasksLoading, addTask, toggleTask, removeTask } = useTasks()
-  const { meetings: scheduledMeetings, removeMeeting, refetch: refetchMeetings } = useScheduledMeetings()
+  const { meetings: scheduledMeetings, removeMeeting, refetch: refetchMeetings, loading: meetingsLoading } = useScheduledMeetings()
 
   /* When a group's recurring slot changes or is cleared, drop the future
      pending meetings generated for the OLD slot so stale occurrences don't
@@ -114,7 +117,10 @@ export default function ProjectDetailScreen() {
   const META_LABEL = { active: t('detail.meta.active'), past: t('detail.meta.past') }
 
   /* Section accordion + per-group sessions expand state. */
-  const [openSec, setOpenSec] = useState({ groups: true, clients: true, leads: false, tasks: false, reminders: false, leadPages: false })
+  /* `meetings` opens by default alongside groups and clients: what is
+     scheduled next is the thing a coach walks into a project to check, and a
+     section collapsed behind a chevron would not answer that. */
+  const [openSec, setOpenSec] = useState({ groups: true, clients: true, meetings: true, leads: false, tasks: false, reminders: false, leadPages: false })
   const [openGroupSessions, setOpenGroupSessions] = useState(() => new Set())
 
   /* Modal/dialog state. */
@@ -128,6 +134,7 @@ export default function ProjectDetailScreen() {
   const [showAddClient, setShowAddClient] = useState(false)
   const [showAddReminder, setShowAddReminder] = useState(false)
   const [showAddTask, setShowAddTask] = useState(false)
+  const [showAddLead, setShowAddLead] = useState(false)
   const [pendingDeleteSession, setPendingDeleteSession] = useState(null)
   const [pendingDeleteReminder, setPendingDeleteReminder] = useState(null)
   /* Pending group status change (when ≥1 client will flip) → confirm dialog. */
@@ -173,13 +180,31 @@ export default function ProjectDetailScreen() {
   /* Ids of this project's clients — the fallback half of the scoping rule. */
   const projClientIds = useMemo(() => new Set(projectClients.map((c) => c.id)), [projectClients])
 
-  const monthIncome = useMemo(() => (
-    scopeToProject(
-      financeQuery({ type: 'income', ...currentMonthRange(), source: transactions }),
+  /* The same monthly/cumulative choice the projects LIST offers. The screen
+     used to be locked to the current month, and the guide had to apologise for
+     it in prose ("שים/י לב: תמיד מחושבת לחודש הנוכחי") — when the manual has to
+     explain away a gap, the gap is the bug. Kept as local state rather than
+     carried through the route: the two screens answer different questions and
+     a coach who wants all-time here does not necessarily want it there. */
+  const [incomeScope, setIncomeScope] = useState('monthly')
+
+  /* Income, expenses and what is left. Expenses use the SAME scoping rule as
+     income — tagged to the project, or (only when untagged) to one of its
+     clients — because a project's cost and its revenue have to be counted the
+     same way or the difference between them is not a number that means
+     anything. The screen showed revenue alone, so "is this project worth it"
+     was a question it could not answer. */
+  const money = useMemo(() => {
+    const range = incomeScope === 'monthly' ? currentMonthRange() : {}
+    const sum = (type) => scopeToProject(
+      financeQuery({ type, ...range, source: transactions }),
       id,
       projClientIds,
     ).reduce((s, t) => s + t.amount, 0)
-  ), [transactions, projClientIds, id])
+    const income = sum('income')
+    const expense = sum('expense')
+    return { income, expense, net: income - expense }
+  }, [incomeScope, transactions, projClientIds, id])
 
   /* Reminders linked to this project (any status). */
   const projectReminders = useMemo(
@@ -194,6 +219,29 @@ export default function ProjectDetailScreen() {
      project counts here too, which is what the card has always shown and what
      this section used to miss (it read project_id alone, so a card saying
      "3 משימות" opened onto a section saying none). */
+  /* Upcoming meetings for this project. A meeting binds to a SUBJECT — a
+     client or a group — never to a project, so the project's meetings are the
+     ones whose subject is one of its groups or one of its clients.
+     `useScheduledMeetings` was already loaded on this screen and used for
+     nothing but the group-delete cascade; this is the same data, shown.
+
+     Only `pending` and only in the future: a confirmed meeting has become a
+     session and a skipped one did not happen, and both belong to history, not
+     to "what is coming". */
+  const upcomingMeetings = useMemo(() => {
+    const groupIds = new Set(projectGroups.map((g) => g.id))
+    const clientIds = new Set(projectClients.map((c) => c.id))
+    // eslint-disable-next-line react-hooks/purity -- "is it still in the future" is an at-render question, same as the overdue check on the reminder rows below.
+    const now = Date.now()
+    return upcomingProjectMeetings(scheduledMeetings, groupIds, clientIds, now)
+  }, [scheduledMeetings, projectGroups, projectClients])
+
+  /* Capped so a weekly group running for a year does not bury the sections
+     below it. The overflow is STATED rather than silently dropped — a list
+     that quietly stops at six reads as "that is all of them". */
+  const MEETINGS_SHOWN = 6
+  const meetingsOverflow = Math.max(0, upcomingMeetings.length - MEETINGS_SHOWN)
+
   const projectTasks = useMemo(
     () => tasks.filter((t) => !t.deleted_at && belongsToProject(t, id, projClientIds)),
     [tasks, id, projClientIds],
@@ -483,18 +531,55 @@ export default function ProjectDetailScreen() {
         </Box>
       </Box>
 
-      <Box as="section" className="pd-stats">
-        <Box className="pd-stat">
+      {/* Who is in the project. The money moved to its own card below so the
+          same figure never appears in two places. */}
+      <Box as="section" className="pd-stats pd-stats-2">
+        <Box className="pd-stat divided-end">
           <Txt as="p" className="pd-stat-v mono">{projectClients.length}</Txt>
           <Txt as="p" className="pd-stat-l">{t('detail.stats.clients')}</Txt>
-        </Box>
-        <Box className="pd-stat divided">
-          <Txt as="p" className="pd-stat-v mono">{isr(monthIncome)}</Txt>
-          <Txt as="p" className="pd-stat-l">{t('detail.stats.incomeMonth')}</Txt>
         </Box>
         <Box className="pd-stat">
           <Txt as="p" className="pd-stat-v mono">{projectGroups.length}</Txt>
           <Txt as="p" className="pd-stat-l">{t('detail.stats.groups')}</Txt>
+        </Box>
+      </Box>
+
+      {/* Income, expenses, and what is left — the question the screen could
+          not answer before, because it showed revenue alone. The toggle scopes
+          all three together; a net built from a month of income and a lifetime
+          of costs would be worse than no net at all. */}
+      <Box as="section" className="pd-money">
+        <Box className="mg-toggle pd-money-toggle" role="tablist" aria-label={t('range.aria')}>
+          <Btn
+            type="button"
+            role="tab"
+            aria-selected={incomeScope === 'monthly'}
+            className={`mg-toggle-btn${incomeScope === 'monthly' ? ' on' : ''}`}
+            onClick={() => setIncomeScope('monthly')}
+          >
+            {t('range.monthly')}
+          </Btn>
+          <Btn
+            type="button"
+            role="tab"
+            aria-selected={incomeScope === 'cumulative'}
+            className={`mg-toggle-btn${incomeScope === 'cumulative' ? ' on' : ''}`}
+            onClick={() => setIncomeScope('cumulative')}
+          >
+            {t('range.cumulative')}
+          </Btn>
+        </Box>
+        <Box className="pd-stat">
+          <Txt as="p" className="pd-stat-v mono pd-money-in">{isr(money.income)}</Txt>
+          <Txt as="p" className="pd-stat-l">{t('detail.stats.income')}</Txt>
+        </Box>
+        <Box className="pd-stat divided">
+          <Txt as="p" className="pd-stat-v mono pd-money-out">{isr(money.expense)}</Txt>
+          <Txt as="p" className="pd-stat-l">{t('detail.stats.expenses')}</Txt>
+        </Box>
+        <Box className="pd-stat">
+          <Txt as="p" className={`pd-stat-v mono${money.net < 0 ? ' pd-money-neg' : ''}`}>{isr(money.net)}</Txt>
+          <Txt as="p" className="pd-stat-l">{t('detail.stats.net')}</Txt>
         </Box>
       </Box>
 
@@ -700,6 +785,65 @@ export default function ProjectDetailScreen() {
         )}
       </Box>
 
+      {/* ── Upcoming meetings ─────────────────────────────── */}
+      <Box as="section" className="pd-section">
+        <Btn type="button" className="pd-sec-head" onClick={() => toggleSec('meetings')} aria-expanded={openSec.meetings} aria-controls={openSec.meetings ? 'pd-sec-meetings' : undefined}>
+          <Txt as="p" className="pd-sec-title">
+            {t('detail.meetings.title')} {upcomingMeetings.length > 0 && <Txt className="pd-sec-count">{upcomingMeetings.length}</Txt>}
+          </Txt>
+          <ChevronDown size={16} strokeWidth={1.6} className={`pd-sec-chev${openSec.meetings ? ' open' : ''}`} aria-hidden="true" />
+        </Btn>
+        {openSec.meetings && (
+          <Box id="pd-sec-meetings" className="pd-sec-body">
+            {meetingsLoading ? (
+              <Txt as="p" className="pd-empty">{t('detail.sectionLoading')}</Txt>
+            ) : upcomingMeetings.length === 0 ? (
+              <Txt as="p" className="pd-empty">{t('detail.meetings.empty')}</Txt>
+            ) : (
+              <>
+                {upcomingMeetings.slice(0, MEETINGS_SHOWN).map((m) => {
+                  const isGroup = m.subject_type === 'group'
+                  const subject = isGroup
+                    ? projectGroups.find((g) => g.id === m.subject_id)
+                    : clientById.get(m.subject_id)
+                  return (
+                    <Btn
+                      key={m.id}
+                      type="button"
+                      className="pd-leadpage-row"
+                      onClick={() => navigate(ROUTES.CALENDAR)}
+                      aria-label={t('detail.meetings.openAria', {
+                        name: subject?.name || t('detail.meetings.untitled'),
+                        date: fmtShortDate(m.scheduled_at),
+                        time: fmtTime(m.scheduled_at),
+                      })}
+                    >
+                      {isGroup
+                        ? <Users size={15} strokeWidth={1.7} className="pd-leadpage-icon" aria-hidden="true" />
+                        : <CalendarClock size={15} strokeWidth={1.7} className="pd-leadpage-icon" aria-hidden="true" />}
+                      <Txt className="pd-leadpage-name">{subject?.name || t('detail.meetings.untitled')}</Txt>
+                      <Txt className="pd-meeting-when mono">
+                        {fmtShortDate(m.scheduled_at)} · {fmtTime(m.scheduled_at)}
+                      </Txt>
+                      <DueInTag date={m.scheduled_at} />
+                      <ChevronLeft size={15} strokeWidth={1.7} className="pd-leadpage-chev" aria-hidden="true" />
+                    </Btn>
+                  )
+                })}
+                {meetingsOverflow > 0 && (
+                  <Txt as="p" className="pd-empty">
+                    {t('detail.meetings.more', { count: meetingsOverflow })}{' '}
+                    <Btn type="button" className="pd-link-inline" onClick={() => navigate(ROUTES.CALENDAR)}>
+                      {t('detail.meetings.toCalendar')}
+                    </Btn>
+                  </Txt>
+                )}
+              </>
+            )}
+          </Box>
+        )}
+      </Box>
+
       {/* ── Tasks section ─────────────────────────────────── */}
       <Box as="section" className="pd-section">
         <Btn type="button" className="pd-sec-head" onClick={() => toggleSec('tasks')} aria-expanded={openSec.tasks} aria-controls={openSec.tasks ? 'pd-sec-tasks' : undefined}>
@@ -885,6 +1029,11 @@ export default function ProjectDetailScreen() {
                 )
               })
             )}
+            {/* The one section that listed things without offering to add one.
+                Seeds the project, like every other adder on this screen. */}
+            <Btn className="mg-add-section" type="button" onClick={() => setShowAddLead(true)}>
+              <Sprout size={16} strokeWidth={1.8} aria-hidden="true" /> {t('detail.leads.add')}
+            </Btn>
           </Box>
         )}
       </Box>
@@ -1000,6 +1149,16 @@ export default function ProjectDetailScreen() {
         clients={clients}
         initialProject={id}
         onSave={addTask}
+      />
+      <AddLeadModal
+        open={showAddLead}
+        onClose={() => setShowAddLead(false)}
+        sources={leadSources}
+        statuses={leadStatuses}
+        projects={projects}
+        groups={groups}
+        initialProject={id}
+        onSave={addLead}
       />
       <DeleteGroupModal
         key={pendingDeleteGroup?.id}

@@ -503,6 +503,10 @@
           "body": "En haut de l'écran, un sélecteur « Mensuel » / « Cumulé » modifie la période des revenus. En mode « Mensuel », les chiffres affichent le revenu du mois en cours. En mode « Cumulé », ils affichent tous les revenus depuis le début jusqu'à aujourd'hui."
         },
         {
+          "title": "Rechercher et trier la liste",
+          "body": "À partir de six projets, une zone de recherche et un menu de tri apparaissent au-dessus de la liste. La recherche porte sur le nom du projet, ne tient pas compte de la casse, et chaque mot ajouté restreint davantage. Vous pouvez trier par « Plus récents » (par défaut), « Par nom », « Revenus les plus élevés » ou « Le plus de clients ». Si la recherche ne trouve rien, un message apparaît avec un bouton pour l'effacer."
+        },
+        {
           "title": "Résumé des projets",
           "body": "La carte « Résumé des projets » en haut de l'écran indique combien de projets existent, combien de clients leur sont affectés et le revenu total (« Revenu mensuel » ou « Revenu cumulé », selon le sélecteur)."
         },
@@ -523,20 +527,24 @@
           "body": "Dès qu'un projet est terminé, un sélecteur « Actifs » / « Tous » apparaît au-dessus de la liste (avec le nombre de projets terminés à côté). « Actifs » est la valeur par défaut. Si tous les projets sont terminés, la liste le dit et propose un bouton pour les afficher. Ce sélecteur ne fait que masquer et afficher des cartes — il ne change pas les chiffres du « Résumé des projets »."
         },
         {
-          "title": "Écran de projet : en-tête et statistiques",
-          "body": "En haut du projet figurent son nom avec la pastille de couleur et, en dessous, le nombre de clients actifs (et ceux « en pause », s'il y en a). À côté, une carte présente trois statistiques : clients, « Revenus ce mois-ci » et groupes. La flèche revient à la liste des projets et le crayon ouvre « Modifier le projet ». À noter : « Revenus ce mois-ci » dans un projet correspond toujours au mois en cours et n'est pas affecté par le sélecteur mensuel/cumulé de l'écran principal."
+          "title": "Écran de projet : en-tête, personnes et argent",
+          "body": "En haut du projet figurent son nom avec la pastille de couleur et, en dessous, le nombre de clients actifs (et ceux « en pause », s'il y en a). En dessous, deux cartes : la première compte les clients et les groupes, la seconde montre l'argent — revenus, dépenses et net. La flèche revient à la liste des projets et le crayon ouvre « Modifier le projet »."
+        },
+        {
+          "title": "Revenus, dépenses et net",
+          "body": "La carte financière affiche trois chiffres : ce que le projet a rapporté, ce qu'il a coûté, et ce qu'il reste. Les deux côtés sont comptés exactement de la même façon — transactions rattachées au projet, ou transactions de clients qui lui appartiennent — sinon la différence entre eux ne voudrait rien dire. Un sélecteur « Mensuel » / « Cumulé » dans le coin de la carte déplace les trois chiffres ensemble entre le mois en cours et tout depuis le début. Un net négatif est coloré."
         },
         {
           "title": "Anneau de vue d'ensemble du projet",
-          "body": "Si vous avez lié des objectifs à ce projet, un anneau avec un pourcentage apparaît en haut de l'écran — dans quelle mesure vous tenez le rythme exigé par ces objectifs d'ici la fin de la période, et en dessous la part de l'objectif déjà atteinte. Toucher l'anneau ouvre un détail par objectif avec deux barres chacun : le rythme et l'atteint. Si le projet n'a pas d'objectifs, l'anneau n'apparaît tout simplement pas. Les objectifs se créent et se mettent à jour sur l'écran Objectifs."
+          "body": "Si vous avez lié des objectifs à ce projet, un anneau avec un pourcentage apparaît en haut de l'écran — dans quelle mesure vous tenez le rythme exigé par ces objectifs d'ici la fin de la période, et en dessous la part de l'objectif déjà atteinte. Toucher l'anneau ouvre un détail par objectif avec deux barres chacun : le rythme et l'atteint. Si le projet n'a pas encore d'objectifs, un bouton « Définir un objectif » apparaît à la place de l'anneau et ouvre le formulaire avec le projet déjà renseigné. Les mises à jour de progression se font sur l'écran Objectifs."
         },
         {
           "title": "Ajout rapide dans le projet",
           "body": "Chaque écran de projet comporte un bouton « Ajout rapide » qui ouvre un sélecteur : transaction, client, tâche, objectif, rappel ou rendez-vous. Ce que vous choisissez s'ouvre avec le projet en cours déjà renseigné dans son champ projet — mais vous pouvez le changer dans le formulaire, et ce que vous y laissez est ce qui sera enregistré. (Un rendez-vous est lié à un client et non à un projet, il n'a donc pas de champ projet.)"
         },
         {
-          "title": "Graphique du revenu cumulé",
-          "body": "Sous la ligne d'ajout, un graphique « Revenu cumulé — Ce mois-ci » montre comment le revenu du projet s'est accumulé au cours du mois, avec le total à côté du titre. S'il n'y a pas de revenu ce mois-ci, « Aucun revenu pour ce projet ce mois-ci. » s'affiche."
+          "title": "Graphique d'évolution des revenus",
+          "body": "Sous la ligne d'ajout, un graphique « Évolution des revenus — ce mois-ci » montre comment le revenu du projet s'est accumulé au cours du mois, avec le total à côté du titre. S'il n'y a pas de revenu ce mois-ci, « Aucun revenu pour ce projet ce mois-ci. » s'affiche. À noter : ce graphique porte toujours sur le mois en cours — il ne suit pas le sélecteur mensuel/cumulé de la carte de statistiques au-dessus."
         },
         {
           "title": "Groupes dans un projet",
@@ -559,6 +567,10 @@
           "body": "La section « Clients » affiche tous les clients du projet, avec leur étiquette de groupe ou une étiquette « Privé » s'ils ne sont pas dans un groupe. Cliquer sur un client ouvre sa fiche client, et « + Ajouter un client au projet » ajoute un nouveau client préalablement lié au projet."
         },
         {
+          "title": "Rendez-vous à venir",
+          "body": "La section « Rendez-vous à venir » rassemble les rendez-vous futurs du projet — ceux de ses groupes et de ses clients. Chaque ligne affiche le nom, la date et l'heure, et une étiquette indiquant dans combien de jours il tombe. La section est ouverte par défaut, et toucher une ligne ouvre le calendrier. Six rendez-vous au maximum sont listés ; s'il y en a davantage, le nombre restant est indiqué avec un lien vers le calendrier. Un rendez-vous confirmé ou passé n'est plus à venir et n'apparaît pas ici."
+        },
+        {
           "title": "Tâches du projet",
           "body": "La section « Tâches » rassemble les tâches du projet — celles que vous lui avez rattachées directement et celles de ses clients (le nom du client apparaît alors sous le titre de la tâche). Le nombre à côté de « Tâches » indique combien sont encore ouvertes ; le survol donne le tableau complet (« 2 tâches ouvertes sur 5 »). Chaque tâche a un ✓ pour la marquer terminée (un second appui la rouvre) et une corbeille pour la supprimer, avec un message d'annulation juste après. « Ajouter une tâche » ouvre une nouvelle tâche déjà liée au projet."
         },
@@ -568,7 +580,7 @@
         },
         {
           "title": "Prospects du projet",
-          "body": "La section « Prospects » affiche les prospects rattachés au projet, chacun avec son classement. Toucher un prospect l'ouvre directement dans sa fiche d'édition sur l'écran Prospects. Les prospects venus d'une page de captation et encore en attente de validation n'apparaissent pas ici — ils se trouvent dans la section des validations de l'écran Prospects. Le projet d'un prospect se définit dans son propre formulaire."
+          "body": "La section « Prospects » affiche les prospects rattachés au projet, chacun avec son classement. Toucher un prospect l'ouvre directement dans sa fiche d'édition sur l'écran Prospects, et « + Prospect pour le projet » ouvre un nouveau prospect déjà rattaché. Les prospects venus d'une page de captation et encore en attente de validation n'apparaissent pas ici — ils se trouvent dans la section des validations de l'écran Prospects."
         },
         {
           "title": "Pages de prospects du projet",

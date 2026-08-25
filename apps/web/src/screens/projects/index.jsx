@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
-import { FolderOpen, FolderPlus, Folder, CloudOff, RotateCcw } from 'lucide-react'
-import { financeQuery, isr, currentMonthRange, projectClientIdSet, scopeToProject, belongsToProject } from '@simplicity/core'
+import { FolderOpen, FolderPlus, Folder, CloudOff, RotateCcw, Search } from 'lucide-react'
+import { financeQuery, isr, currentMonthRange, projectClientIdSet, scopeToProject, belongsToProject, matchProject, sortProjectCards, PROJECT_SORTS } from '@simplicity/core'
 import { useProjects } from '../../hooks/useProjects'
 import { useClients } from '../../hooks/useClients'
 import { useGroups } from '../../hooks/useGroups'
@@ -14,9 +14,14 @@ import EditProjectModal from '../../modals/EditProjectModal'
 import ConfirmModal from '../../modals/ConfirmModal'
 import Coachmark from '../../components/Coachmark'
 import { coachmarkText } from '../../lib/coachmarks'
-import { Box, Txt, Btn } from '../../components/ui'
+import SelectMenu from '../../components/SelectMenu'
+import { Box, Txt, Btn, Input } from '../../components/ui'
 import { useT } from '../../i18n/useT'
 import './ProjectsScreen.css'
+
+/* Below this many projects the whole list is visible at a glance and a
+   search box would be chrome for its own sake. */
+const TOOLBAR_FROM = 6
 
 export default function ProjectsScreen() {
   const { t, gender } = useT('projects')
@@ -36,6 +41,8 @@ export default function ProjectsScreen() {
      about the list, and retro-editing the month's income would be a false
      financial report (owner decision 2026-08-25). */
   const [scope, setScope] = useState('active')
+  const [query, setQuery] = useState('')
+  const [sort, setSort] = useState('recent')
   const [showAdd, setShowAdd] = useState(false)
   const [pendingDelete, setPendingDelete] = useState(null)
   const [editProject, setEditProject] = useState(null)
@@ -77,7 +84,16 @@ export default function ProjectsScreen() {
      on purpose. Rows written before migration 0111 carry no status and are
      active, so `!== 'ended'` rather than `=== 'active'`. */
   const endedCount = projects.filter((p) => p.status === 'ended').length
-  const visibleCards = scope === 'all' ? cards : cards.filter((c) => c.project.status !== 'ended')
+  const scopedCards = scope === 'all' ? cards : cards.filter((c) => c.project.status !== 'ended')
+  /* Search then sort, both in core so the rules are one thing and testable.
+     `searching` distinguishes "no projects match what you typed" from "this
+     project list is empty", which are different problems with different
+     answers. */
+  const searching = query.trim() !== ''
+  const visibleCards = useMemo(
+    () => sortProjectCards(scopedCards.filter((c) => matchProject(c.project, query)), sort),
+    [scopedCards, query, sort],
+  )
 
   const incomeLabel = view === 'monthly' ? t('hero.incomeMonthly') : t('hero.incomeCumulative')
   const cardIncomeLabel = view === 'monthly' ? t('cardIncome.monthly') : t('cardIncome.cumulative')
@@ -127,6 +143,30 @@ export default function ProjectsScreen() {
           </Box>
         </Box>
       </Box>
+
+      {/* The toolbar appears only once there is something to search THROUGH.
+          Below the threshold the whole list fits on screen and a search box is
+          one more control standing between a coach and four cards. */}
+      {projects.length >= TOOLBAR_FROM && (
+        <Box className="p-toolbar">
+          <Box className="l-search p-search">
+            <Search size={16} strokeWidth={1.6} aria-hidden="true" />
+            <Input
+              type="search"
+              placeholder={t('searchPlaceholder')}
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              aria-label={t('searchAria')}
+            />
+          </Box>
+          <SelectMenu
+            value={sort}
+            onChange={setSort}
+            options={PROJECT_SORTS.map((s) => ({ value: s, label: t(`sort.${s}`) }))}
+            ariaLabel={t('sort.aria')}
+          />
+        </Box>
+      )}
 
       {/* Only worth showing once something is actually hidden. A coach with no
           finished projects gets no extra control to reason about. */}
@@ -182,6 +222,17 @@ export default function ProjectsScreen() {
               <Txt as="summary">{t('empty.whyImportant')}</Txt>
               <Txt as="p" className="empty-reminder-body">{coachmarkText('add-project', gender).detail}</Txt>
             </Box>
+          </Box>
+        ) : visibleCards.length === 0 && searching ? (
+          /* Typed something that matches nothing. Distinct from both empty
+             states below — the list is not empty, the query is just too
+             narrow — so it offers to clear the query, not to add a project. */
+          <Box className="empty">
+            <Txt className="empty-icon"><Search size={36} strokeWidth={1.4} aria-hidden="true" /></Txt>
+            <Txt as="p" className="empty-text">{t('empty.noMatch', { query: query.trim() })}</Txt>
+            <Btn className="empty-action" type="button" onClick={() => setQuery('')}>
+              {t('empty.clearSearch')}
+            </Btn>
           </Box>
         ) : visibleCards.length === 0 ? (
           /* Every project the user has is finished. Distinct from the

@@ -265,3 +265,23 @@
   font-weight: 500;
   color: var(--stone);
 }
+
+/* ── Search + sort toolbar ────────────────────────────────────────
+   Appears only past TOOLBAR_FROM projects (see index.jsx). The search field
+   reuses .l-search from the leads board so the two boxes are the same object
+   — same height, same glass, same placeholder colour — rather than a
+   near-copy that drifts. Only the layout around it is local. */
+.p-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 12px;
+}
+.p-toolbar > .p-search { flex: 1 1 auto; min-width: 0; }
+/* The sort menu keeps its intrinsic width and never squeezes the search. */
+.p-toolbar > :not(.p-search) { flex: 0 0 auto; }
+
+@media (max-width: 480px) {
+  .p-toolbar { flex-wrap: wrap; }
+  .p-toolbar > .p-search { flex: 1 1 100%; }
+}

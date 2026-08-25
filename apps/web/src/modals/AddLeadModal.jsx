@@ -18,9 +18,13 @@ const blank = () => ({ name: '', phone: '', source_id: '', project_id: '', group
    the user can optionally pick a sub-status, tie the lead to a project, and —
    when that project has groups — to a specific group. onAddSource (optional)
    enables inline source creation so the user never leaves the modal. */
-export default function AddLeadModal({ open, onClose, onSave, sources = [], statuses = [], projects = [], groups = [], onAddSource }) {
+/* `initialProject` seeds the project of a NEW lead, for callers that open the
+   form from inside one (the project screen's leads section). It SEEDS the
+   field — the user can still change it, and whatever is in the field is what
+   gets saved. */
+export default function AddLeadModal({ open, onClose, onSave, sources = [], statuses = [], projects = [], groups = [], onAddSource, initialProject = '' }) {
   const { t } = useT('modalsClient')
-  const [form, setForm] = useState(blank)
+  const [form, setForm] = useState(() => ({ ...blank(), project_id: initialProject || '' }))
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
   const [creatingSource, setCreatingSource] = useState(false)
@@ -28,15 +32,15 @@ export default function AddLeadModal({ open, onClose, onSave, sources = [], stat
   const [sourceBusy, setSourceBusy] = useState(false)
   /* The optional half of the form. Closed unless something inside it is
      already filled by a caller-supplied default. */
-  const [detailsOpen, setDetailsOpen] = useState(false)
+  const [detailsOpen, setDetailsOpen] = useState(!!initialProject)
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }))
   /* Changing the project clears the group — a group only makes sense
      inside the project it belongs to. */
   const setProject = (v) => setForm((f) => ({ ...f, project_id: v, group_id: '' }))
   const close = () => {
-    setForm(blank()); setErr(''); setBusy(false)
+    setForm({ ...blank(), project_id: initialProject || '' }); setErr(''); setBusy(false)
     setCreatingSource(false); setNewSourceName(''); setSourceBusy(false)
-    setDetailsOpen(false)
+    setDetailsOpen(!!initialProject)
     onClose()
   }
 

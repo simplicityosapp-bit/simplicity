@@ -84,9 +84,26 @@ describe('the guide does not offer controls the screen does not render', () => {
 })
 
 describe('every section of the project screen is documented', () => {
-  /* The six accordions the screen renders. Their headings come from these
-     keys, so the guide can be checked against the same source the UI uses. */
-  const SECTIONS = ['groups', 'clients', 'tasks', 'reminders', 'leads', 'leadPages']
+  /* The accordions the screen renders. Their headings come from these keys,
+     so the guide is checked against the same source the UI reads.
+
+     This list is derived from the SCREEN, not hand-maintained: a hardcoded
+     list is exactly how `meetings` slipped through undocumented the first
+     time — the section shipped, the guide did not mention it, and a fixed
+     array of six names had nothing to say about a seventh. */
+  const screenSrc = readFileSync(
+    new URL('../src/screens/project-detail/index.jsx', import.meta.url), 'utf8',
+  )
+  const SECTIONS = [...new Set(
+    [...screenSrc.matchAll(/toggleSec\('(\w+)'\)/g)].map((m) => m[1]),
+  )]
+
+  it('found the screen\'s sections to check against', () => {
+    /* Guards the derivation itself: if toggleSec is ever renamed, the list
+       silently empties and every assertion below passes vacuously. */
+    expect(SECTIONS.length).toBeGreaterThanOrEqual(7)
+    expect(SECTIONS).toContain('meetings')
+  })
 
   LOCALES.forEach((lang) => {
     it(`${lang} names all six`, () => {

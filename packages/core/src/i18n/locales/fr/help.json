@@ -425,7 +425,7 @@
         },
         {
           "title": "Modèles récurrents (ordres permanents)",
-          "body": "Dans la section « Modèles récurrents », vous configurez des transactions qui se répètent automatiquement : « Selon un calendrier » (mensuel un jour précis, ou hebdomadaire un jour de la semaine précis, avec une date de fin facultative) ou « Après une séance » (crée une transaction en attente d'approbation pour chaque séance avec le client que vous choisissez, et se ferme automatiquement si la séance est passée). À partir de ces modèles, le système génère des transactions qui attendent votre approbation."
+          "body": "Dans la section « Modèles récurrents », vous configurez des transactions qui se répètent automatiquement : « Selon un calendrier » (mensuel un jour précis, ou hebdomadaire un jour de la semaine précis, avec une date de fin facultative) ou « Après une séance » (crée une transaction en attente d'approbation pour chaque séance avec le client que vous choisissez, et se ferme automatiquement si la séance est passée). À partir de ces modèles, le système génère des transactions qui attendent votre approbation. Supprimer une transaction créée par la règle met aussi la règle en pause — sinon elle la recréerait aussitôt ; la boîte de dialogue le dit avant. Si seule cette occurrence ne convient pas, « Non, cela n’a pas eu lieu » la retire de la liste en attente et la règle continue le mois suivant."
         },
         {
           "title": "Mettre en pause, modifier et supprimer un modèle",

@@ -11,7 +11,10 @@ import { Box, Txt, Btn } from '../../components/ui'
    tx with confirm + skip + click-to-edit, plus a bulk "אשר הכל" button
    that confirms every visible pending row. Hidden when nothing's
    pending. */
-export default function PendingSection({ transactions, clients = [], projects = [], categories = [], onApprove, onSkip, onEdit, onDelete, embedded = false }) {
+/* `activeRuleIds` — ids of the recurring templates still generating. A row
+   one of them owns cannot simply be deleted (the rule refills the slot), so
+   its delete carries a different dialog; see lib/recurringTx.js. */
+export default function PendingSection({ transactions, clients = [], projects = [], categories = [], activeRuleIds, onApprove, onSkip, onEdit, onDelete, embedded = false }) {
   const { t } = useT('finance')
   const [bulkBusy, setBulkBusy] = useState(false)
   /* "אשר הכל" confirms every row at once — income and expenses alike — and
@@ -21,6 +24,7 @@ export default function PendingSection({ transactions, clients = [], projects = 
      doesn't), and it used to delete on one tap while the finance list asked
      first — same action, two different levels of care. It asks here too. */
   const [pendingDelete, setPendingDelete] = useState(null)
+  const ruleBacked = !!(pendingDelete?.recurring_id && activeRuleIds?.has(pendingDelete.recurring_id))
   if (!transactions.length) return null
 
   /* Sequential await so optimistic state updates in setStatus don't trample
@@ -164,11 +168,11 @@ export default function PendingSection({ transactions, clients = [], projects = 
       <ConfirmModal
         open={!!pendingDelete}
         onClose={() => setPendingDelete(null)}
-        title={t('deleteTx.title')}
+        title={t(ruleBacked ? 'deleteTx.recurringTitle' : 'deleteTx.title')}
         message={pendingDelete
-          ? t('deleteTx.message', { desc: pendingDelete.desc || t('pending.noDesc'), amount: isr(pendingDelete.amount) })
+          ? t(ruleBacked ? 'deleteTx.recurringMessage' : 'deleteTx.message', { desc: pendingDelete.desc || t('pending.noDesc'), amount: isr(pendingDelete.amount) })
           : ''}
-        confirmLabel={t('deleteTx.confirm')}
+        confirmLabel={t(ruleBacked ? 'deleteTx.recurringConfirm' : 'deleteTx.confirm')}
         danger
         onConfirm={() => { if (pendingDelete) return onDelete(pendingDelete.id) }}
       />

@@ -24,7 +24,7 @@ const dateInputValue = (value) => {
 }
 
 /* Edit a transaction — type / amount / date / desc / status / client / project / category. */
-export default function EditTransactionModal({ open, onClose, onSave, onIssued, tx, clients = [], projects = [], categories = [], onDelete, onSaveAsClient }) {
+export default function EditTransactionModal({ open, onClose, onSave, onIssued, tx, clients = [], projects = [], categories = [], activeRuleIds, onDelete, onSaveAsClient }) {
   const { t } = useT('modalsData')
   const { t: ts } = useT('modalsSystem') // shared modal chrome (discard prompt)
   const STATUSES = [
@@ -48,6 +48,9 @@ export default function EditTransactionModal({ open, onClose, onSave, onIssued, 
   const [savingClient, setSavingClient] = useState(false)
   /* Deleting money asks first — the undo toast is a safety net, not a prompt. */
   const [confirmDelete, setConfirmDelete] = useState(false)
+  /* Is a still-generating recurring rule behind this row? Then the delete is
+     not a plain delete and the dialog has to say so (see lib/recurringTx.js). */
+  const ruleBacked = !!(tx?.recurring_id && activeRuleIds?.has(tx.recurring_id))
   /* Escape / the overlay / the X used to throw away a half-finished edit
      without a word. They route through here instead; an untouched form still
      closes immediately, so the guard only appears when there is something to
@@ -248,16 +251,18 @@ export default function EditTransactionModal({ open, onClose, onSave, onIssued, 
       </Box>
 
       {/* Names what is about to go, and only closes the editor once the delete
-          is actually confirmed — cancelling leaves the form exactly as it was. */}
+          is actually confirmed — cancelling leaves the form exactly as it was.
+          A row a live recurring rule still owns gets the warning instead: the
+          delete pauses that rule, and «דילוג» is the other door. */}
       <ConfirmModal
         open={confirmDelete}
         onClose={() => setConfirmDelete(false)}
-        title={t('editTx.deleteConfirm.title')}
-        message={t('editTx.deleteConfirm.message', {
+        title={t(ruleBacked ? 'deleteTx.recurringTitle' : 'editTx.deleteConfirm.title')}
+        message={t(ruleBacked ? 'deleteTx.recurringMessage' : 'editTx.deleteConfirm.message', {
           desc: tx.desc || t('editTx.deleteConfirm.noDesc'),
           amount: isr(tx.amount),
         })}
-        confirmLabel={t('editTx.deleteConfirm.confirm')}
+        confirmLabel={t(ruleBacked ? 'deleteTx.recurringConfirm' : 'editTx.deleteConfirm.confirm')}
         danger
         onConfirm={async () => { await onDelete(tx.id); onClose() }}
       />

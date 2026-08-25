@@ -9,6 +9,7 @@ import { useRecurringGeneration } from '../../hooks/useRecurringGeneration'
 import { useCategories } from '../../hooks/useCategories'
 import { useScheduledMeetings } from '../../hooks/useScheduledMeetings'
 import { useInvestments } from '../../hooks/useInvestments'
+import { removeTransactionAndRule } from '../../lib/recurringTx'
 import { useUserPreferences } from '../../hooks/useUserPreferences'
 import { exportTransactionsCSV } from '../../lib/export'
 import { CATEGORY_COLORS } from '../../lib/api/categories'
@@ -49,7 +50,7 @@ const sameMonth = (dateStr, month) => {
 
 export default function FinanceScreen() {
   const { t } = useT('finance')
-  const { transactions, loading, error, addTransaction, editTransaction, setStatus, removeTransaction, refetch } = useTransactions()
+  const { transactions, loading, error, addTransaction, editTransaction, setStatus, removeTransaction, putBackTransaction, refetch } = useTransactions()
   const { clients, addClient } = useClients()
   const { projects } = useProjects()
   const { groups } = useGroups()
@@ -66,10 +67,27 @@ export default function FinanceScreen() {
      pair — so the delete is routed through it whenever a record points at the
      row being removed, and left alone for every ordinary transaction. */
   const { investments, undoInvestment } = useInvestments()
+  /* Two kinds of transaction cannot simply be soft-deleted. An investment's
+     expense has a record pointing at it; a recurring occurrence has a rule
+     that will refill its slot the moment the row leaves the list. Both are
+     routed to the helper that owns the pair, so the delete sticks and one
+     undo covers it. Everything else is an ordinary delete. */
   const dropTransaction = (id) => {
     const linked = (investments || []).find((r) => r.transaction_id === id)
-    return linked ? undoInvestment(linked.id) : removeTransaction(id)
+    if (linked) return undoInvestment(linked.id)
+    const tx = (transactions || []).find((x) => x.id === id)
+    if (!tx) return removeTransaction(id)
+    return removeTransactionAndRule({
+      tx, templates, removeTransaction, putBackTransaction, updateRecurring,
+      label: t('deleteTx.undoRule'),
+    })
   }
+  /* The rules that are still generating — the ones whose occurrence needs the
+     warning rather than the plain delete dialog. */
+  const activeRuleIds = useMemo(
+    () => new Set((templates || []).filter((r) => !r.deleted_at && r.active).map((r) => r.id)),
+    [templates],
+  )
   const showSkipped = prefs?.financeShowSkipped !== false
   const setShowSkipped = (v) => updatePrefs?.({ financeShowSkipped: v })
   /* Which management sections are expanded. Both start closed — they are
@@ -322,6 +340,7 @@ export default function FinanceScreen() {
                   onSkip={(id) => setStatus(id, 'skipped')}
                   onUnskip={(id) => setStatus(id, 'pending')}
                   onEdit={setEditTx}
+                  activeRuleIds={activeRuleIds}
                   onDelete={dropTransaction}
                 />
               </>
@@ -374,6 +393,7 @@ export default function FinanceScreen() {
         categories={categories}
         onSave={editTransaction}
         onIssued={refetch}
+        activeRuleIds={activeRuleIds}
         onDelete={dropTransaction}
         onSaveAsClient={async (tx) => {
           /* Promote an ad-hoc receipt recipient into a real ACTIVE client, then

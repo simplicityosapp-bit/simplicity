@@ -13,7 +13,11 @@ const GROUP_KEYS = ['confirmed', 'skipped']
    and from every status (a pending row in March has to be findable too, and
    the month-scoped pending card can't show it), so they render as one list
    ordered by date rather than grouped by status, with full dates. */
-export default function TransactionList({ transactions, clients, projects, categories, showSkipped = true, flat = false, emptyText, onApprove, onSkip, onUnskip, onEdit, onDelete }) {
+/* `activeRuleIds` — ids of the recurring templates that are still generating.
+   A transaction one of them owns cannot simply be deleted (the rule refills
+   the slot), so its delete carries a different dialog and a different action;
+   see lib/recurringTx.js. */
+export default function TransactionList({ transactions, clients, projects, categories, showSkipped = true, flat = false, emptyText, activeRuleIds, onApprove, onSkip, onUnskip, onEdit, onDelete }) {
   const { t } = useT('finance')
   /* Deleting money is a two-step now, like deleting a category or a recurring
      template. The dialog lives here rather than in the card so a list of 80
@@ -21,6 +25,7 @@ export default function TransactionList({ transactions, clients, projects, categ
      keeps a stable onDelete identity. */
   const [pendingDelete, setPendingDelete] = useState(null)
   const requestDelete = useCallback((tx) => setPendingDelete(tx), [])
+  const ruleBacked = !!(pendingDelete?.recurring_id && activeRuleIds?.has(pendingDelete.recurring_id))
 
   const visible = flat
     ? transactions
@@ -80,17 +85,20 @@ export default function TransactionList({ transactions, clients, projects, categ
         )
       })}
 
+      {/* A row a live rule still owns gets the other dialog: deleting it
+          pauses the rule, and saying so is the only way the choice between
+          "delete" and "skip" can be made knowingly. */}
       <ConfirmModal
         open={!!pendingDelete}
         onClose={() => setPendingDelete(null)}
-        title={t('deleteTx.title')}
+        title={t(ruleBacked ? 'deleteTx.recurringTitle' : 'deleteTx.title')}
         message={pendingDelete
-          ? t('deleteTx.message', {
+          ? t(ruleBacked ? 'deleteTx.recurringMessage' : 'deleteTx.message', {
               desc: pendingDelete.desc || t('tx.noDesc'),
               amount: isr(pendingDelete.amount),
             })
           : ''}
-        confirmLabel={t('deleteTx.confirm')}
+        confirmLabel={t(ruleBacked ? 'deleteTx.recurringConfirm' : 'deleteTx.confirm')}
         danger
         onConfirm={() => { if (pendingDelete) return onDelete(pendingDelete.id) }}
       />

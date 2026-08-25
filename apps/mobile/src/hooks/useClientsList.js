@@ -165,6 +165,13 @@ export function useClientsList() {
   const deleteTask = useCallback((id) => softDelete('tasks', 'tasks', id), [softDelete])
   const updateTransaction = useCallback((id, patch) => patchRow('transactions', 'transactions', id, patch), [patchRow])
   const deleteTransaction = useCallback((id) => softDelete('transactions', 'transactions', id), [softDelete])
+  /* Put a soft-deleted transaction back — the recurring-rule delete owns a
+     composite undo covering the row AND the rule it paused. */
+  const restoreTransaction = useCallback(async (id) => {
+    const { error: e } = await supabase.from('transactions').update({ deleted_at: null }).eq('id', id)
+    load()
+    if (e) throw e
+  }, [load])
   const updateReminder = useCallback((id, patch) => patchRow('reminders', 'reminders', id, patch), [patchRow])
   const deleteReminder = useCallback((id) => softDelete('reminders', 'reminders', id), [softDelete])
   // Per-group membership patch (group_members.total_override / has_custom_price) —
@@ -175,7 +182,7 @@ export function useClientsList() {
     ...state, loading, error, refetch: load,
     addClient, addTransaction, addSession, addMeeting,
     updateClient, deleteClient,
-    updateSession, deleteSession, updateTask, deleteTask, updateTransaction, deleteTransaction,
+    updateSession, deleteSession, updateTask, deleteTask, updateTransaction, deleteTransaction, restoreTransaction,
     updateReminder, deleteReminder, updateMember,
   }
 }

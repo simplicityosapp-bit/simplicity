@@ -14,6 +14,8 @@ import ClientDrawerSections from './ClientDrawerSections'
 import { useFormOptions } from '../lib/formOptions'
 import { pushUndo } from '../lib/undo'
 import { usePaymentPlans } from '../hooks/usePaymentPlans'
+import { useRecurring } from '../hooks/useRecurring'
+import { confirmRemoveTransaction } from '../lib/recurringTx'
 import i18n from '../lib/i18n'
 import { colors } from '../theme/theme'
 
@@ -30,7 +32,7 @@ const STATUS_PILL = {
 const STATUS_ORDER = ['active', 'wandering', 'past', 'no_status']
 const initials = (name) => (name || '').split(' ').map((w) => w[0] || '').join('').slice(0, 2).toUpperCase()
 
-export default function ClientDrawer({ clientId, clients, transactions, sessions, members, groups, tasks = [], reminders = [], onClose, updateClient, deleteClient, addTransaction, addSession, updateSession, deleteSession, updateTask, deleteTask, updateTransaction, deleteTransaction, updateReminder, deleteReminder, updateMember }) {
+export default function ClientDrawer({ clientId, clients, transactions, sessions, members, groups, tasks = [], reminders = [], onClose, updateClient, deleteClient, addTransaction, addSession, updateSession, deleteSession, updateTask, deleteTask, updateTransaction, deleteTransaction, restoreTransaction, updateReminder, deleteReminder, updateMember }) {
   const insets = useSafeAreaInsets()
   const { projects } = useFormOptions()
   const [editing, setEditing] = useState(false)
@@ -60,6 +62,9 @@ export default function ClientDrawer({ clientId, clients, transactions, sessions
   // Payment-plan glance for the hint under the hero (the full plan lives in the
   // sections' PaymentPlanSection; this mirrors web's small summary line).
   const { plans, installments } = usePaymentPlans()
+  /* The rules that are still generating — a payment one of them owns needs the
+     warning, not the plain delete (see lib/recurringTx.js). */
+  const { templates, updateRecurring } = useRecurring()
   const plan = client ? (plans.find((p) => p.client_id === client.id) || null) : null
   const planBal = plan ? planBalance(plan, planInstallments(plan.id, installments)) : null
 
@@ -419,12 +424,18 @@ export default function ClientDrawer({ clientId, clients, transactions, sessions
         onSave={(patch) => updateTask(editTask.id, patch)}
         onDelete={() => { deleteTask(editTask.id); setEditTask(null) }}
       />
+      {/* Same guard as the finance screen: a payment a LIVE recurring rule
+          still owns cannot just be deleted — the rule refills the slot on the
+          next web load — so the delete asks first and pauses the rule. */}
       <AddTransactionModal
         open={!!editTx}
         tx={editTx}
         onClose={() => setEditTx(null)}
         onSave={(payload) => updateTransaction(editTx.id, payload)}
-        onDelete={() => { deleteTransaction(editTx.id); setEditTx(null) }}
+        onDelete={() => confirmRemoveTransaction({
+          tx: editTx, templates, deleteTransaction, restoreTransaction, updateRecurring,
+          afterDelete: () => setEditTx(null),
+        })}
       />
       <AddReminderModal
         open={!!editReminder}

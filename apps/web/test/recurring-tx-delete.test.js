@@ -100,3 +100,24 @@ describe('removeTransactionAndRule', () => {
     expect(updateRecurring).not.toHaveBeenCalled()
   })
 })
+
+/* The mobile app hand-mirrors lib/recurringTx.js — it cannot import the web
+   copy, and its own file pulls in react-native, so this compares the SOURCE of
+   the one function both platforms must agree on. Drift between mirrored copies
+   is the failure mode this repo keeps hitting; a one-line divergence here means
+   one platform refills a slot the other retired. */
+describe('the mobile mirror stays in step', () => {
+  it('has a byte-identical owningTemplate', async () => {
+    const { readFileSync } = await import('node:fs')
+    const { fileURLToPath } = await import('node:url')
+    const { dirname, join } = await import('node:path')
+    const here = dirname(fileURLToPath(import.meta.url))
+    const grab = (p) => {
+      const src = readFileSync(join(here, p), 'utf8')
+      const start = src.indexOf('export function owningTemplate')
+      expect(start, `owningTemplate not found in ${p}`).toBeGreaterThan(-1)
+      return src.slice(start, src.indexOf('\n}', start) + 2).replace(/\r\n/g, '\n')
+    }
+    expect(grab('../../mobile/src/lib/recurringTx.js')).toBe(grab('../src/lib/recurringTx.js'))
+  })
+})

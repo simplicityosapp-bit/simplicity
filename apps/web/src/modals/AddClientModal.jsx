@@ -9,10 +9,13 @@ import { useMeetingTypes } from '../hooks/useMeetingTypes'
 import { useT } from '../i18n/useT'
 import { Box, Txt, Btn } from '../components/ui'
 
-const blank = () => ({
+/* `initialProject` pre-fills the project for callers that open this form from
+   inside one. It is a SEED, not a lock — the picker stays live and whatever the
+   user leaves in it is what gets saved. */
+const blank = (initialProject = '') => ({
   name: '', status: 'active', status_id: '', sessions: '', price_per_session: '',
   billing_mode: 'package',
-  phone: '', email: '', address: '', birth_date: '', project_id: '', group_id: '',
+  phone: '', email: '', address: '', birth_date: '', project_id: initialProject || '', group_id: '',
   recurring_day: '', recurring_time: '',
   meeting_type_id: '', price_overridden: false,
 })
@@ -20,26 +23,35 @@ const blank = () => ({
 /* onSave is async (Supabase insert). Sub-status is optional — the user can
    define sub-statuses per meta-category in Settings. Form body is the shared
    <ClientFormFields> so it stays identical to the onboarding client step. */
-export default function AddClientModal({ open, onClose, onSave, projects = [], statuses = [] }) {
+export default function AddClientModal({ open, onClose, onSave, projects = [], statuses = [], initialProject = '' }) {
   const { t } = useT('modalsClient')
   const { types: meetingTypes, refetch: refetchMeetingTypes } = useMeetingTypes()
-  const [form, setForm] = useState(blank)
+  const [form, setForm] = useState(() => blank(initialProject))
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
   const [manageTypes, setManageTypes] = useState(false)
   const set = (k, v) => { setForm((f) => ({ ...f, [k]: v })); if (err) setErr('') }
   const setMeta = (k) => { setForm((f) => ({ ...f, status: k, status_id: '' })); if (err) setErr('') }
-  const close = () => { setForm(blank()); setErr(''); setBusy(false); onClose() }
-  /* Survives a refresh mid-form. Nothing to seed — this modal takes no
-     caller-supplied values. */
-  const draft = useFormDraft({ name: 'client', form, setForm, blank: blank(), enabled: open })
+  const close = () => { setForm(blank(initialProject)); setErr(''); setBusy(false); onClose() }
+  /* Survives a refresh mid-form. Seeded on the project the caller opened from,
+     so a draft started inside one project never restores inside another. */
+  const draft = useFormDraft({
+    name: 'client',
+    form,
+    setForm,
+    blank: blank(initialProject),
+    enabled: open,
+    /* seed feeds the draft's storage KEY — added only when a project was
+       actually seeded, so the plain callers keep the key they already use. */
+    seed: initialProject ? { project: initialProject } : undefined,
+  })
   /* Escape, the overlay and the X used to bin a filled-in client without a
      word — and this is the longest of the add forms once "more" is open.
      billing_mode and status are skipped: blank() seeds both, so their opening
      values are the form's own, not the user's.
      Discarding drops the draft too: "leave without saving" has to mean it. */
   const guard = useDiscardGuard(
-    isDirty(form, blank(), ['status', 'billing_mode']),
+    isDirty(form, blank(initialProject), ['status', 'billing_mode']),
     () => { draft.clear(); close() },
   )
   /* A rejected save should put the field it rejected back on screen. */

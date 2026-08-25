@@ -2,7 +2,7 @@ import { useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { Sparkles } from 'lucide-react'
 import { useTransactions } from '../../hooks/useTransactions'
 import { useClients } from '../../hooks/useClients'
-import { financeDailyBuckets, isr } from '@simplicity/core'
+import { financeDailyBuckets, isr, projectClientIdSet, scopeToProject } from '@simplicity/core'
 import { useT } from '../../i18n/useT'
 import { Box, Txt } from '../../components/ui'
 
@@ -44,13 +44,12 @@ export default function ProjectIncomeChart({ projectId }) {
 
   const now = useMemo(() => new Date(), [])
   const buckets = useMemo(() => {
-    const projClientIds = new Set(clients.filter((c) => c.project_id === projectId).map((c) => c.id))
-    /* financeDailyBuckets only accepts a single projectId filter, so
-       prefilter our source to "tx tied to project OR tied to a client
-       of the project" before passing it in. */
-    const scopedTx = transactions.filter(
-      (t) => t.project_id === projectId || (t.client_id && projClientIds.has(t.client_id)),
-    )
+    const projClientIds = projectClientIdSet(clients, projectId)
+    /* financeDailyBuckets only accepts a single projectId filter, so prefilter
+       our source with the shared scoping rule (domain/projects.ts) before
+       passing it in — the same rule the card and the stat above use, so the
+       chart's total and "הכנסה החודש" can't drift apart. */
+    const scopedTx = scopeToProject(transactions, projectId, projClientIds)
     return financeDailyBuckets(now.getFullYear(), now.getMonth(), { source: scopedTx })
   }, [transactions, clients, projectId, now])
 

@@ -1,5 +1,6 @@
 {
-  "count": "{{count}} projects",
+  "count_one": "{{count}} project",
+  "count_other": "{{count}} projects",
   "phase": "Building",
   "tagline": "Focus creates results.",
   "title": "Projects",
@@ -22,11 +23,15 @@
     "cumulative": "Total"
   },
   "loading": "Loading projects…",
-  "loadError": "Couldn't load projects: {{error}}",
+  "loadError": "We couldn't load your projects right now.",
+  "retry": "Reload",
+  "retrying": "Loading…",
   "empty": {
     "text": "No projects yet. Your first project starts here.",
     "add": "Add a project",
-    "whyImportant": "Why does this matter?"
+    "whyImportant": "Why does this matter?",
+    "allEnded_one": "All your projects are finished.",
+    "allEnded_other": "All your projects are finished."
   },
   "delete": {
     "title": "Delete project",
@@ -38,7 +43,8 @@
     "editTitle": "Edit project",
     "deleteTitle": "Delete project",
     "clients": "Clients",
-    "tasks": "Tasks"
+    "tasks": "Tasks",
+    "ended": "Finished"
   },
   "detail": {
     "days": [
@@ -51,11 +57,14 @@
       "Saturday"
     ],
     "notFound": "Project not found.",
+    "sectionLoading": "Loading…",
     "back": "Back",
     "editAria": "Edit project",
     "metaActive": "active",
-    "metaWandering": "{{count}} paused",
-    "metaGroups": "{{count}} groups",
+    "metaWandering_one": "{{count}} paused",
+    "metaWandering_other": "{{count}} paused",
+    "metaGroups_one": "{{count}} group",
+    "metaGroups_other": "{{count}} groups",
     "stats": {
       "clients": "Clients",
       "incomeMonth": "Income this month",
@@ -70,9 +79,11 @@
       "empty": "No groups yet. {{add}} a group to get started.",
       "add": "Add",
       "editAria": "Edit group",
-      "members": "{{count}} members",
+      "members_one": "{{count}} member",
+      "members_other": "{{count}} members",
       "pricePerSession": "{{price}} per session",
-      "pricePackage": "{{price}} / {{count}} sessions",
+      "pricePackage_one": "{{price}} / {{count}} session",
+      "pricePackage_other": "{{price}} / {{count}} sessions",
       "noMembers": "No members yet",
       "fallbackClient": "(client)",
       "removeMemberAria": "Remove {{name}}",
@@ -105,12 +116,13 @@
       "overdue": "Overdue",
       "completeAria": "Mark as done",
       "deleteAria": "Delete reminder",
-      "add": "Project reminder +"
+      "add": "Project reminder +",
+      "countTitle": "{{open}} of {{total}} reminders still active"
     },
     "leads": {
       "title": "Leads",
       "empty": "No leads linked to this project.",
-      "openAria": "Open the leads screen — {{name}}"
+      "openAria": "Open lead {{name}}"
     },
     "leadPages": {
       "title": "Lead pages",
@@ -133,8 +145,8 @@
     },
     "statusChange": {
       "title": "Change group status",
-      "messageOne": "Changing the status to \"{{status}}\" will move {{count}} client to \"{{meta}}\". Continue?",
-      "messageMany": "Changing the status to \"{{status}}\" will move {{count}} clients to \"{{meta}}\". Continue?",
+      "message_one": "Changing the status to \"{{status}}\" will move {{count}} client to \"{{meta}}\". Continue?",
+      "message_other": "Changing the status to \"{{status}}\" will move {{count}} clients to \"{{meta}}\". Continue?",
       "confirm": "Change status"
     },
     "meta": {
@@ -175,7 +187,13 @@
         "high": "High",
         "medium": "Normal",
         "low": "Low"
-      }
+      },
+      "countTitle": "{{open}} of {{total}} tasks still open"
     }
+  },
+  "scope": {
+    "aria": "Filter projects",
+    "active": "Active",
+    "all": "All"
   }
 }

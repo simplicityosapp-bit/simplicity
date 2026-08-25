@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import { View, Text, Pressable, StyleSheet, ScrollView, ActivityIndicator, RefreshControl } from 'react-native'
 import { useNavigation } from '@react-navigation/native'
 import { FolderOpen, Users } from 'lucide-react-native'
-import { financeQuery, isr, currentMonthRange } from '@simplicity/core'
+import { financeQuery, isr, currentMonthRange, projectClientIdSet, scopeToProject, belongsToProject } from '@simplicity/core'
 import i18n from '../lib/i18n'
 import Screen from '../components/Screen'
 import ScreenHead from '../components/ScreenHead'
@@ -29,11 +29,9 @@ export default function ProjectsScreen() {
       .filter((f) => projIdSet.has(f.project_id) || (f.client_id && clientProjMap.has(f.client_id)))
       .reduce((s, f) => s + f.amount, 0)
     const cards = projects.map((p) => {
-      const projClientIds = new Set(clients.filter((c) => c.project_id === p.id).map((c) => c.id))
-      const income = allIncome
-        .filter((f) => f.project_id === p.id || (!f.project_id && f.client_id && projClientIds.has(f.client_id)))
-        .reduce((s, f) => s + f.amount, 0)
-      const openTasks = tasks.filter((t) => t.status !== 'done' && (t.project_id === p.id || (!t.project_id && t.client_id && projClientIds.has(t.client_id)))).length
+      const projClientIds = projectClientIdSet(clients, p.id)
+      const income = scopeToProject(allIncome, p.id, projClientIds).reduce((s, f) => s + f.amount, 0)
+      const openTasks = tasks.filter((t) => t.status !== 'done' && belongsToProject(t, p.id, projClientIds)).length
       const groupsCount = groups.filter((g) => g.project_id === p.id).length
       return { project: p, clientsCount: projClientIds.size, income, openTasks, groupsCount }
     })
@@ -87,10 +85,16 @@ export default function ProjectsScreen() {
                   <View style={styles.cardHead}>
                     <View style={[styles.dot, { backgroundColor: c.project.color || colors.brand }]} />
                     <Text style={styles.cardName} numberOfLines={1}>{c.project.name}</Text>
-                    {c.groupsCount ? (
+                    {/* A finished project (migration 0111) says so first — it
+                        changes how every number on the card reads. Mobile has no
+                        active/all filter yet, so it SHOWS ended projects and
+                        labels them rather than hiding them silently. */}
+                    {c.project.status === 'ended' ? (
+                      <View style={styles.tagEnded}><Text style={styles.tagEndedText}>{i18n.t('projects:card.ended', { defaultValue: 'הסתיים' })}</Text></View>
+                    ) : c.groupsCount ? (
                       <View style={styles.tag}><Users size={11} strokeWidth={1.6} color={colors.textSub} /><Text style={styles.tagText}>{c.groupsCount}</Text></View>
                     ) : (
-                      <View style={styles.tag}><Text style={styles.tagText}>{i18n.t('projects:card.active', { defaultValue: 'פעילה' })}</Text></View>
+                      <View style={styles.tag}><Text style={styles.tagText}>{i18n.t('projects:card.active', { defaultValue: 'פעיל' })}</Text></View>
                     )}
                   </View>
                   <View style={styles.cardStats}>
@@ -156,6 +160,11 @@ const styles = StyleSheet.create({
   cardName: { fontSize: 16, fontWeight: '600', color: colors.text, flex: 1 },
   tag: { flexDirection: 'row', alignItems: 'center', gap: 3, paddingVertical: 3, paddingHorizontal: 8, borderRadius: 999, backgroundColor: colors.fill },
   tagText: { fontSize: 11, fontWeight: '500', color: colors.textSub },
+  /* Finished project — the clay/danger hue at low opacity, matching the web
+     card's .ps-tag.ended. Text uses the theme's primary ink so it flips with
+     dark mode instead of staying near-black on a dark chip. */
+  tagEnded: { paddingVertical: 3, paddingHorizontal: 8, borderRadius: 999, backgroundColor: 'rgba(181, 99, 78, 0.16)' },
+  tagEndedText: { fontSize: 11, fontWeight: '500', color: colors.text },
   cardStats: { flexDirection: 'row' },
   cardStat: { flex: 1, alignItems: 'center', gap: 3 },
   cardStatDivided: { borderLeftWidth: StyleSheet.hairlineWidth, borderRightWidth: StyleSheet.hairlineWidth, borderColor: colors.divider },

@@ -9,7 +9,7 @@ const KEY = ['projects']
 
 export function useProjects() {
   const qc = useQueryClient()
-  const { data, isLoading, error, refetch } = useQuery({ queryKey: KEY, queryFn: listProjects })
+  const { data, isLoading, isFetching, error, fetchStatus, refetch } = useQuery({ queryKey: KEY, queryFn: listProjects })
   const projects = data ?? []
 
   const addProject = useCallback(async (payload) => {
@@ -33,5 +33,20 @@ export function useProjects() {
     } catch { qc.invalidateQueries({ queryKey: KEY }) }
   }, [qc])
 
-  return { projects, loading: isLoading, error: error?.message ?? null, addProject, updateProject, removeProject, refetch }
+  /* `unreachable` names the two ways this read can come back with nothing to
+     say: it failed, or it never ran (offline → fetchStatus 'paused', which is
+     neither loading nor an error). Without it the screen renders `[]` as fact
+     and tells the user they have no projects. Same contract as the other
+     twelve hooks — see useClients / useReportsData. */
+  return {
+    projects,
+    loading: isLoading,
+    unreachable: !!error || (fetchStatus === 'paused' && data === undefined),
+    refetching: isFetching,
+    error: error?.message ?? null,
+    addProject,
+    updateProject,
+    removeProject,
+    refetch,
+  }
 }

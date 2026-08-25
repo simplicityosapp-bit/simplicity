@@ -19,14 +19,17 @@ const QUESTION_ICONS = ['🫧', '⚡', '🌙', '🎯', '🏃', '📚', '🧘', '
    resolves the chosen key to a real category, creating it on demand. */
 export const OTHER_METRIC_KEY = 'other'
 
-const blank = () => ({
+/* `initialProject` pre-fills the project for callers that open this form from
+   inside one. A SEED, not a lock — the picker stays live and what the user
+   leaves in it is what gets saved. */
+const blank = (initialProject = '') => ({
   metric_key: '',
   label: '',
   time_frame: 'monthly',
   target_value: '',
   target_date: '',
   importance: 3,
-  project_id: '',
+  project_id: initialProject || '',
   group_id: '',
   tracking_method: 'manual',
   tracked_by_question_id: '',
@@ -43,7 +46,7 @@ const blank = () => ({
 /* onSave is async — it resolves metric_key to a category, then inserts the
    goal. For the manual metric ("אחר") the user picks a tracking method: manual
    entries, or linked to a daily question (yes/no or slider). */
-export default function AddGoalModal({ open, onClose, onSave, projects = [], groups = [], questions = [], onAddQuestion }) {
+export default function AddGoalModal({ open, onClose, onSave, projects = [], groups = [], questions = [], onAddQuestion, initialProject = '' }) {
   const { t, gender } = useT('modalsData')
   const TIME_FRAMES = [
     { k: 'monthly', l: t('addGoal.tf.monthly') },
@@ -57,19 +60,31 @@ export default function AddGoalModal({ open, onClose, onSave, projects = [], gro
     { k: 'yes_no', l: t('addGoal.yesNo') },
   ]
   const METRICS = [...CATEGORY_PRESETS, { key: OTHER_METRIC_KEY, name: t('addGoal.otherMetricName'), icon: '📝', measurement_type: 'manual' }]
-  const [form, setForm] = useState(blank)
+  const [form, setForm] = useState(() => blank(initialProject))
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }))
-  const [detailsOpen, setDetailsOpen] = useState(false)
-  const close = () => { setForm(blank()); setDetailsOpen(false); setErr(''); setBusy(false); onClose() }
+  /* Opens showing the details lid when something inside it already carries a
+     value — here, a project seeded by the caller — so a seeded value is never
+     hidden behind a closed lid. */
+  const [detailsOpen, setDetailsOpen] = useState(!!initialProject)
+  const close = () => { setForm(blank(initialProject)); setDetailsOpen(!!initialProject); setErr(''); setBusy(false); onClose() }
   /* The four shared behaviours the lead, task and transaction forms have had
      since 09/08 and this one — the LONGEST add form in the app — had none of.
      Closing it binned a fully written-out goal without a word and with nothing
      to come back to. This form only ever creates, so the draft has no edit case
      to guard against. */
-  const draft = useFormDraft({ name: 'goal', form, setForm, blank: blank(), enabled: open })
-  const guard = useDiscardGuard(isDirty(form, blank()), () => { draft.clear(); close() })
+  const draft = useFormDraft({
+    name: 'goal',
+    form,
+    setForm,
+    blank: blank(initialProject),
+    enabled: open,
+    /* seed feeds the draft's storage KEY — added only when a project was
+       actually seeded, so the plain callers keep the key they already use. */
+    seed: initialProject ? { project: initialProject } : undefined,
+  })
+  const guard = useDiscardGuard(isDirty(form, blank(initialProject)), () => { draft.clear(); close() })
   /* A rejected save should put the field it rejected back on screen. */
   useScrollToError(err)
 

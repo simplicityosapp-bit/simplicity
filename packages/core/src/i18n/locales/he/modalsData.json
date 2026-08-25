@@ -231,7 +231,12 @@
   },
   "editProject": {
     "title": "עריכת פרויקט",
-    "projectName": "שם הפרויקט"
+    "projectName": "שם הפרויקט",
+    "deleteProject": "מחיקת הפרויקט",
+    "status": "סטטוס",
+    "statusActive": "פעיל",
+    "statusEnded": "הסתיים",
+    "statusEndedHint": "הפרויקט ייצא מרשימת הפעילים. הנתונים, הלקוחות והתנועות שלו נשארים כמו שהם."
   },
   "quickUpdate": {
     "title": "עדכון יעד",

@@ -211,7 +211,12 @@
   },
   "editProject": {
     "title": "Modifier le projet",
-    "projectName": "Nom du projet"
+    "projectName": "Nom du projet",
+    "deleteProject": "Supprimer le projet",
+    "status": "Statut",
+    "statusActive": "Actif",
+    "statusEnded": "Terminé",
+    "statusEndedHint": "Le projet quitte la liste des projets actifs. Ses données, clients et transactions restent inchangés."
   },
   "quickUpdate": {
     "title": "Mettre à jour un objectif",

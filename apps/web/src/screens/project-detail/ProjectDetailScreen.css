@@ -82,6 +82,7 @@
 }
 .pd-back,
 .pd-edit {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -94,6 +95,21 @@
   color: var(--stone);
   cursor: pointer;
   flex-shrink: 0;
+}
+/* ── Grown pointer targets ────────────────────────────────────────
+   The same separation the project CARD already makes (ProjectsScreen.css,
+   .pc-edit/.pc-del): what you SEE keeps its size, what you HIT grows into
+   space where there is nothing else to hit. Nothing in the layout moves.
+
+   These two paint 36px and sit at the two ends of .pd-head, which carries
+   12px block / 14px inline padding and a 10px flex gap. Growing 4px all
+   round reaches 44 and still stops short of the title between them — the
+   gap contributes 5px per side and only 4 is taken. */
+.pd-back::after,
+.pd-edit::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
 }
 .pd-head-id { flex: 1; min-width: 0; }
 .pd-h-row { display: flex; align-items: center; gap: 8px; }
@@ -411,6 +427,7 @@
   color: var(--stone);
 }
 .pd-rem-btn {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -422,6 +439,20 @@
   color: var(--stone);
   cursor: pointer;
 }
+/* 28px painted → 44 tall. The row carries 9px block padding, so an 8px
+   growth stops 1px short of the divider and cannot reach the target of the
+   row above or below — two rows' targets would otherwise meet in the middle
+   and one of these buttons DELETES.
+   Inline: 4px between them (exactly half the 8px flex gap, so the pair meets
+   at the midpoint and never overlaps), and the last button alone runs out to
+   the row's own edge, which is free padding. */
+.pd-rem-btn::after {
+  content: '';
+  position: absolute;
+  inset-block: -8px;
+  inset-inline: -4px;
+}
+.pd-rem-btn:last-of-type::after { inset-inline-end: -8px; }
 .pd-rem-btn:hover {
   background: rgba(42, 37, 32, 0.05);
   color: var(--espresso);
@@ -493,6 +524,7 @@
   color: var(--espresso);
 }
 .gc-icon-btn {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -504,6 +536,20 @@
   color: var(--stone);
   cursor: pointer;
   opacity: 0.6;
+}
+/* 26px painted → 43×40 hit area, grown ASYMMETRICALLY on purpose. Upward
+   there is the card's own 14px padding and nothing to collide with. Downward
+   there is only the 6px margin before .gc-status-row — three status pills
+   that CHANGE THE GROUP'S LIFECYCLE — so the growth stops at 5px and never
+   reaches them. Inline-end runs out to the card edge (free padding); the
+   start side takes 4px of the 8px header gap. */
+.gc-icon-btn::after {
+  content: '';
+  position: absolute;
+  inset-block-start: -12px;
+  inset-block-end: -5px;
+  inset-inline-start: -4px;
+  inset-inline-end: -10px;
 }
 .gc-icon-btn:active { transform: scale(0.9); }
 .gc-meta {
@@ -542,6 +588,7 @@
 }
 [data-theme="dark"] .gc-chip { background: rgba(240, 235, 224, 0.06); }
 .gc-chip-x {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -552,6 +599,18 @@
   background: transparent;
   color: var(--stone);
   cursor: pointer;
+}
+/* The smallest control on the screen — and it REMOVES a client from a group.
+   18px painted → 24×24, which clears the WCAG 2.5.8 AA floor.
+   It deliberately stops there rather than reaching 44 like its neighbours:
+   member chips wrap in a 6px grid, so a target grown past 3px per side would
+   overlap the chip beside or beneath it and a mis-tap would remove the WRONG
+   person. Going bigger means making the chip itself taller — a change to a
+   shared pill, not a hit-area fix — so it is left for a design pass. */
+.gc-chip-x::after {
+  content: '';
+  position: absolute;
+  inset: -3px;
 }
 .gc-chip-x:hover { color: var(--clay-on-dark); }
 .gc-actions { display: flex; gap: 6px; padding-top: 10px; border-top: 1px solid var(--divider); }
@@ -597,7 +656,7 @@
   padding: 12px 14px;
   margin-bottom: 8px;
   border-radius: 12px;
-  border: 1px solid rgba(44, 38, 33, 0.08);
+  border: 1px solid var(--divider);
   background: var(--mg-card-bg);
   -webkit-backdrop-filter: var(--mg-card-blur);
   backdrop-filter: var(--mg-card-blur);
@@ -607,14 +666,21 @@
 .pd-leadpage-row:hover { background: var(--mg-row-hover-bg); }
 .pd-leadpage-icon { color: var(--stone); flex: none; }
 .pd-leadpage-name { flex: 1 1 auto; min-width: 0; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* This block never got the dark-mode pass the rest of the file had: hardcoded
+   warm-brown rgba fills with no [data-theme="dark"] twin, and a label painted
+   in --ink — which, unlike --espresso, is NOT remapped at night. The "פעיל"
+   badge measured 1.42:1 on a published lead page in dark mode. --espresso
+   flips with the theme and reads 11.8:1 light / 10.9:1 dark on the same tint,
+   so the soft look survives and the label comes back. */
 .pd-leadpage-badge {
   flex: none;
-  font-size: 12px;
+  font-size: calc(12px * var(--text-scale));
   font-weight: 500;
   padding: 2px 9px;
   border-radius: 999px;
-  background: rgba(44, 38, 33, 0.07);
+  background: rgba(42, 37, 32, 0.07);
   color: var(--stone);
 }
-.pd-leadpage-badge.live { background: color-mix(in srgb, var(--sage) 24%, transparent); color: var(--ink); }
+[data-theme="dark"] .pd-leadpage-badge { background: rgba(240, 235, 224, 0.07); }
+.pd-leadpage-badge.live { background: color-mix(in srgb, var(--sage) 24%, transparent); color: var(--espresso); }
 .pd-leadpage-chev { color: var(--stone); flex: none; }

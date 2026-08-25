@@ -1,5 +1,6 @@
 {
-  "count": "{{count}} proyectos",
+  "count_one": "{{count}} proyecto",
+  "count_other": "{{count}} proyectos",
   "phase": "En construcción",
   "tagline": "El enfoque crea resultados.",
   "title": "Proyectos",
@@ -22,11 +23,15 @@
     "cumulative": "Total"
   },
   "loading": "Cargando proyectos…",
-  "loadError": "No se pudieron cargar los proyectos: {{error}}",
+  "loadError": "No pudimos cargar tus proyectos en este momento.",
+  "retry": "Recargar",
+  "retrying": "Cargando…",
   "empty": {
     "text": "Aún no hay proyectos. Tu primer proyecto empieza aquí.",
     "add": "Añadir un proyecto",
-    "whyImportant": "¿Por qué es importante?"
+    "whyImportant": "¿Por qué es importante?",
+    "allEnded_one": "Todos tus proyectos han finalizado.",
+    "allEnded_other": "Todos tus proyectos han finalizado."
   },
   "delete": {
     "title": "Eliminar proyecto",
@@ -38,7 +43,8 @@
     "editTitle": "Editar proyecto",
     "deleteTitle": "Eliminar proyecto",
     "clients": "Clientes",
-    "tasks": "Tareas"
+    "tasks": "Tareas",
+    "ended": "Finalizado"
   },
   "detail": {
     "days": [
@@ -51,11 +57,14 @@
       "Sábado"
     ],
     "notFound": "Proyecto no encontrado.",
+    "sectionLoading": "Cargando…",
     "back": "Atrás",
     "editAria": "Editar proyecto",
     "metaActive": "activos",
-    "metaWandering": "{{count}} en pausa",
-    "metaGroups": "{{count}} grupos",
+    "metaWandering_one": "{{count}} en pausa",
+    "metaWandering_other": "{{count}} en pausa",
+    "metaGroups_one": "{{count}} grupo",
+    "metaGroups_other": "{{count}} grupos",
     "stats": {
       "clients": "Clientes",
       "incomeMonth": "Ingresos este mes",
@@ -70,9 +79,11 @@
       "empty": "Aún no hay grupos. {{add}} un grupo para empezar.",
       "add": "Añadir",
       "editAria": "Editar grupo",
-      "members": "{{count}} miembros",
+      "members_one": "{{count}} miembro",
+      "members_other": "{{count}} miembros",
       "pricePerSession": "{{price}} por sesión",
-      "pricePackage": "{{price}} / {{count}} sesiones",
+      "pricePackage_one": "{{price}} / {{count}} sesión",
+      "pricePackage_other": "{{price}} / {{count}} sesiones",
       "noMembers": "Aún no hay miembros",
       "fallbackClient": "(cliente)",
       "removeMemberAria": "Eliminar {{name}}",
@@ -105,12 +116,13 @@
       "overdue": "Atrasado",
       "completeAria": "Marcar como hecho",
       "deleteAria": "Eliminar recordatorio",
-      "add": "Recordatorio del proyecto +"
+      "add": "Recordatorio del proyecto +",
+      "countTitle": "{{open}} de {{total}} recordatorios activos"
     },
     "leads": {
       "title": "Prospectos",
       "empty": "No hay prospectos vinculados a este proyecto.",
-      "openAria": "Abrir la pantalla de prospectos — {{name}}"
+      "openAria": "Abrir el prospecto {{name}}"
     },
     "leadPages": {
       "title": "Páginas de captación",
@@ -133,8 +145,8 @@
     },
     "statusChange": {
       "title": "Cambiar estado del grupo",
-      "messageOne": "Cambiar el estado a «{{status}}» moverá {{count}} cliente a «{{meta}}». ¿Continuar?",
-      "messageMany": "Cambiar el estado a «{{status}}» moverá {{count}} clientes a «{{meta}}». ¿Continuar?",
+      "message_one": "Cambiar el estado a «{{status}}» moverá {{count}} cliente a «{{meta}}». ¿Continuar?",
+      "message_other": "Cambiar el estado a «{{status}}» moverá {{count}} clientes a «{{meta}}». ¿Continuar?",
       "confirm": "Cambiar estado"
     },
     "meta": {
@@ -175,7 +187,13 @@
         "high": "Alta",
         "medium": "Normal",
         "low": "Baja"
-      }
+      },
+      "countTitle": "{{open}} de {{total}} tareas pendientes"
     }
+  },
+  "scope": {
+    "aria": "Filtrar proyectos",
+    "active": "Activos",
+    "all": "Todos"
   }
 }

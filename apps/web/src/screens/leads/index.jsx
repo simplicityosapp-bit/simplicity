@@ -1,5 +1,5 @@
 import { useCallback, useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { Leaf, ArrowLeft, TrendingUp, ChevronLeft, Bell, SlidersHorizontal, Search, Magnet, UserPlus } from 'lucide-react'
 import { ROUTES } from '../../lib/routes'
 import { useLeads } from '../../hooks/useLeads'
@@ -56,6 +56,7 @@ function computeStats(list, now = new Date()) {
 export default function LeadsScreen() {
   const { t } = useT('leads')
   const navigate = useNavigate()
+  const location = useLocation()
   const { leads: leadList, loading, error, addLead, updateLead, removeLead } = useLeads()
   const { pages: leadPages } = useLeadPages()
   const { sources, addSource, updateSource, removeSource } = useLeadSources()
@@ -106,6 +107,19 @@ export default function LeadsScreen() {
   const [query, setQuery] = useState('')
   const [showAdd, setShowAdd] = useState(false)
   const [editLead, setEditLead] = useState(null)
+  /* Deep-open: a caller (the project screen's leads section) passes `openLeadId`
+     in nav state to land on THAT lead instead of on the board — tapping a named
+     lead there used to drop the user on the full kanban to find the name again
+     by eye. Seeded once, then DERIVED rather than written into state from an
+     effect: useLeads may not have arrived on the first render, and the lead
+     simply resolves on the render where it does. Same shape the page builder
+     uses for `editPageId` (site-pages/Builder.jsx). */
+  const [deepLinkLeadId, setDeepLinkLeadId] = useState(location.state?.openLeadId || null)
+  const openLead = editLead
+    || (deepLinkLeadId ? leadList.find((l) => l.id === deepLinkLeadId) || null : null)
+  /* Closing has to clear BOTH, or the deep link would re-derive it straight
+     back open on the next render. */
+  const closeLead = useCallback(() => { setEditLead(null); setDeepLinkLeadId(null) }, [])
   const [convertLead, setConvertLead] = useState(null)
   const [pendingDeleteLead, setPendingDeleteLead] = useState(null)
   const [followupLead, setFollowupLead] = useState(null)
@@ -452,10 +466,10 @@ export default function LeadsScreen() {
       />
       <AddLeadModal open={showAdd} onClose={() => setShowAdd(false)} sources={sources} statuses={leadStatuses} projects={projects} groups={groups} onAddSource={handleAddSource} onSave={addLead} />
       <EditLeadModal
-        key={editLead?.id}
-        open={!!editLead}
-        onClose={() => setEditLead(null)}
-        lead={editLead}
+        key={openLead?.id}
+        open={!!openLead}
+        onClose={closeLead}
+        lead={openLead}
         statuses={leadStatuses}
         sources={sources}
         projects={projects}

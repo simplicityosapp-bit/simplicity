@@ -322,6 +322,14 @@ export default function CalendarScreen() {
     meeting: ev.raw, updateMeeting, removeSession, putBackSession,
     label: t('toast.meetingCanceled'),
   })
+  /* Deleting an already-confirmed meeting — the same unwinding a third time
+     (status → skipped, materialised session soft-deleted, one undo), worded
+     as a deletion because that is what the coach asked for: the meeting off
+     the calendar and its documentation off the client's card. */
+  const deleteMeeting = (ev) => skipScheduledMeeting({
+    meeting: ev.raw, updateMeeting, removeSession, putBackSession,
+    label: t('toast.meetingDeleted'),
+  })
 
   /* "Did the meeting happen?" for a per-session client → offer a one-off charge.
      Billing a per-session client = logging the meeting as a held session
@@ -522,6 +530,7 @@ export default function CalendarScreen() {
         onFollowupDone={markFollowupDone}
         onRescheduleMeeting={rescheduleMeeting}
         onCancelMeeting={cancelMeeting}
+        onDeleteMeeting={deleteMeeting}
       />
       <CalendarDuplicateModal
         open={showDuplicates}

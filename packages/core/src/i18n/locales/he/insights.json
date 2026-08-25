@@ -56,7 +56,11 @@
   "history": {
     "title": "היסטוריה",
     "empty": "אין עדיין תשובות בהיסטוריה.",
-    "deletedQuestion": "שאלה שנמחקה"
+    "deletedQuestion": "שאלה שנמחקה",
+    "deleteAria": "מחיקת התשובה",
+    "deleteTitle": "מחיקת תשובה",
+    "deleteMessage": "למחוק את התשובה {{value}} מ־{{date}}? אפשר לשחזר אותה מסל המיחזור עד 30 יום.",
+    "deleteConfirm": "מחק"
   },
   "delete": {
     "title": "מחיקת שאלה",

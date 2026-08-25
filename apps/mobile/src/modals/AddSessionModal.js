@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
-import { View, Text, TextInput, Pressable, StyleSheet } from 'react-native'
+import { View, Text, TextInput, Pressable, StyleSheet, Alert } from 'react-native'
+import { Trash2 } from 'lucide-react-native'
 import Sheet from '../components/Sheet'
 import i18n from '../lib/i18n'
 import { colors } from '../theme/theme'
@@ -7,6 +8,9 @@ import { colors } from '../theme/theme'
 // Log/edit a past session (mirrors web AddSessionModal): when + summary + notes.
 // The caller composes the full sessions row (client_id / subject_type / num);
 // onSave gets { date: ISO, summary, notes }.
+// `onDelete(id)` is optional and only shows in EDIT mode — a documented meeting
+// was the one record you could write but never take back. Soft delete, so it is
+// recoverable from the trash for 30 days.
 const todayStr = () => {
   const d = new Date()
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
@@ -15,7 +19,7 @@ const fromSession = (s) => (s
   ? { date: s.date ? new Date(s.date).toISOString().slice(0, 10) : todayStr(), summary: s.summary || '', notes: s.notes || '' }
   : { date: todayStr(), summary: '', notes: '' })
 
-export default function AddSessionModal({ open, onClose, onSave, client, nextNum, session = null }) {
+export default function AddSessionModal({ open, onClose, onSave, onDelete, client, nextNum, session = null }) {
   const isEdit = !!session
   const [form, setForm] = useState(() => fromSession(session))
   const [err, setErr] = useState('')
@@ -23,6 +27,25 @@ export default function AddSessionModal({ open, onClose, onSave, client, nextNum
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }))
   useEffect(() => { if (open) { setForm(fromSession(session)); setErr(''); setBusy(false) } }, [open, session])
   const close = () => { setErr(''); setBusy(false); onClose() }
+
+  const remove = () => {
+    if (busy || !onDelete || !session?.id) return
+    Alert.alert(
+      i18n.t('modalsTask:session.deleteTitle'),
+      i18n.t('modalsTask:session.deleteMessage'),
+      [
+        { text: i18n.t('modalsTask:common.cancel'), style: 'cancel' },
+        {
+          text: i18n.t('modalsTask:session.deleteConfirm'),
+          style: 'destructive',
+          onPress: async () => {
+            setBusy(true)
+            try { await onDelete(session.id); close() } catch (e) { setBusy(false); setErr(i18n.t('modalsTask:common.saveFailed', { error: e.message || i18n.t('modalsTask:common.tryAgain') })) }
+          },
+        },
+      ],
+    )
+  }
 
   const submit = async () => {
     if (!form.date) { setErr(i18n.t('modalsTask:session.dateRequired')); return }
@@ -73,6 +96,11 @@ export default function AddSessionModal({ open, onClose, onSave, client, nextNum
       {err ? <Text style={styles.error}>{err}</Text> : null}
 
       <View style={styles.actions}>
+        {isEdit && onDelete ? (
+          <Pressable style={styles.delete} onPress={remove} disabled={busy} hitSlop={6}>
+            <Trash2 size={18} strokeWidth={1.8} color={colors.danger} />
+          </Pressable>
+        ) : null}
         <Pressable style={styles.cancel} onPress={close}><Text style={styles.cancelText}>{i18n.t('modalsTask:common.cancel')}</Text></Pressable>
         <Pressable style={[styles.save, busy && styles.saveOff]} onPress={submit} disabled={busy}>
           <Text style={styles.saveText}>{busy ? i18n.t('modalsTask:common.saving') : i18n.t('modalsTask:common.save')}</Text>
@@ -92,6 +120,7 @@ const styles = StyleSheet.create({
   textarea: { minHeight: 76, textAlignVertical: 'top' },
   error: { color: colors.danger, fontSize: 13 },
   actions: { flexDirection: 'row', alignItems: 'center', gap: 12, marginTop: 4 },
+  delete: { width: 46, paddingVertical: 13, borderRadius: 12, borderWidth: 1, borderColor: colors.border, alignItems: 'center' },
   cancel: { flex: 1, paddingVertical: 13, borderRadius: 12, borderWidth: 1, borderColor: colors.border, alignItems: 'center' },
   cancelText: { fontSize: 15, color: colors.textSub },
   save: { flex: 1, paddingVertical: 13, borderRadius: 12, backgroundColor: colors.btnBg, alignItems: 'center' },

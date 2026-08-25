@@ -93,14 +93,31 @@ export default function ClientsScreen() {
   const { clients: clientList, loading, error, addClient, updateClient, removeClient } = useClients()
   const { projects } = useProjects()
   const { transactions, addTransaction, editTransaction, removeTransaction, refetch, error: txError } = useTransactions()
-  const { tasks, editTask } = useTasks()
-  const { reminders, editReminder, addReminder } = useReminders()
+  /* The delete halves are here because the client card's task / reminder
+     rows open the very same editors the tasks screen opens — and those
+     editors already carry a delete. Without them a task or a reminder
+     reached from a client was the one copy you could not remove. */
+  const { tasks, editTask, removeTask } = useTasks()
+  const { reminders, editReminder, addReminder, removeReminder } = useReminders()
   /* Client whose reminder sheet is open, straight from its card. */
   const [remindClient, setRemindClient] = useState(null)
-  const { sessions, addSession, updateSession, error: sessionsError } = useSessions()
+  const { sessions, addSession, updateSession, removeSession, error: sessionsError } = useSessions()
   /* No addMeeting here any more — the client file stopped offering "קביעת
-     פגישה". `meetings` and `removeMeeting` stay for the stale-slot sweep. */
-  const { meetings, removeMeeting } = useScheduledMeetings()
+     פגישה". `meetings` and `removeMeeting` stay for the stale-slot sweep;
+     `updateMeeting` unlinks a meeting whose session is being deleted. */
+  const { meetings, updateMeeting, removeMeeting } = useScheduledMeetings()
+
+  /* Deleting a documented session from the client card also has to CLEAR the
+     link on the scheduled meeting that materialised it — scheduled_meetings
+     .session_id would otherwise keep pointing at a row that is no longer
+     there, and confirmScheduledMeeting reads exactly that field to decide a
+     session already exists. The meeting itself is left as it is: the calendar
+     entry is its own record, with its own delete. */
+  const handleRemoveSession = async (id) => {
+    await removeSession(id)
+    const linked = (meetings || []).filter((m) => m.session_id === id)
+    for (const m of linked) updateMeeting(m.id, { session_id: null }).catch(() => {})
+  }
   const { groups, error: groupsError } = useGroups()
 
   /* When a client's recurring slot changes or is cleared, drop the future
@@ -640,8 +657,11 @@ export default function ClientsScreen() {
         onRemoveTransaction={removeTransaction}
         onIssued={refetch}
         onEditSession={updateSession}
+        onRemoveSession={handleRemoveSession}
         onEditTask={editTask}
+        onRemoveTask={removeTask}
         onEditReminder={editReminder}
+        onRemoveReminder={removeReminder}
       />
 
       <AddClientModal

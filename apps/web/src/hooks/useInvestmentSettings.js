@@ -139,14 +139,15 @@ export function computeInvestment(
   /* Tracks the month ON SCREEN, not the basis month. When the basis has fallen
      back, the two differ on purpose: "what you set aside during August" is
      still an August question even while the target is quoting July. */
-  const investedInMonth = total(rows.filter((r) => {
+  const rowsInMonth = rows.filter((r) => {
     if (!r?.invested_on) return false
     /* toLocalDate, not new Date — invested_on is a DATE column, and reading it
        as UTC midnight would file the 1st under the previous month west of
        Greenwich, so "invested this month" would quietly drop it. */
     const ts = toLocalDate(r.invested_on).getTime()
     return ts >= selected.from.getTime() && ts <= selected.to.getTime()
-  }))
+  })
+  const investedInMonth = total(rowsInMonth)
   const investedTotal = total(rows)
 
   /* No transactions in the basis month at all — distinct from a real zero, and
@@ -190,6 +191,12 @@ export function computeInvestment(
     investmentsKnown,
     /* What the summary line prints, per the active view. */
     investedAmount: cfg.view === 'cumulative' ? investedTotal : investedInMonth,
+    /* The rows BEHIND that figure, newest first — the same set, per view, so a
+       list built from this can never disagree with the total above it. Until
+       now nothing returned them, which is why `undoInvestment` existed with no
+       surface that could call it: recording money was one-way. */
+    investedRows: (cfg.view === 'cumulative' ? rows.slice() : rowsInMonth.slice())
+      .sort((a, b) => toLocalDate(b.invested_on).getTime() - toLocalDate(a.invested_on).getTime()),
     hasData,
   }
 }

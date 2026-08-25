@@ -205,7 +205,12 @@
     "moreQueued": "Vous avez modifié « Payé » et « Solde » — après cet ajustement, un second s'ouvrira pour l'autre modification.",
     "writeOffs": "Dette annulée",
     "unexplained": "Ajustement non détaillé",
-    "unexplainedSub": "enregistré hors de cet écran"
+    "unexplainedSub": "enregistré hors de cet écran",
+    "deleteAria": "Supprimer l'ajustement",
+    "deleteTitle": "Supprimer l'ajustement",
+    "deleteMessage": "Supprimer l'ajustement de {{amount}} ? Le montant retourne d'où il a été déplacé.",
+    "deleteConfirm": "Supprimer",
+    "undoDeleted": "Ajustement supprimé"
   },
   "plan": {
     "title": "Échéancier",

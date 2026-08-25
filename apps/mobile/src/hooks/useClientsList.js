@@ -152,6 +152,15 @@ export function useClientsList() {
   }, [patchRow, state.clients])
   const deleteClient = useCallback((id) => softDelete('clients', 'clients', id), [softDelete])
   const updateSession = useCallback((id, patch) => patchRow('sessions', 'sessions', id, patch), [patchRow])
+  /* Deleting a documented session also CLEARS the link on any scheduled
+     meeting that materialised it — scheduled_meetings.session_id would
+     otherwise point at a row that is no longer there, and confirming a meeting
+     reads exactly that field to decide a session already exists. Non-fatal:
+     the delete itself has already landed. Mirrors web handleRemoveSession. */
+  const deleteSession = useCallback(async (id) => {
+    await softDelete('sessions', 'sessions', id)
+    try { await supabase.from('scheduled_meetings').update({ session_id: null }).eq('session_id', id) } catch { /* link left behind — harmless */ }
+  }, [softDelete])
   const updateTask = useCallback((id, patch) => patchRow('tasks', 'tasks', id, patch), [patchRow])
   const deleteTask = useCallback((id) => softDelete('tasks', 'tasks', id), [softDelete])
   const updateTransaction = useCallback((id, patch) => patchRow('transactions', 'transactions', id, patch), [patchRow])
@@ -166,7 +175,7 @@ export function useClientsList() {
     ...state, loading, error, refetch: load,
     addClient, addTransaction, addSession, addMeeting,
     updateClient, deleteClient,
-    updateSession, updateTask, deleteTask, updateTransaction, deleteTransaction,
+    updateSession, deleteSession, updateTask, deleteTask, updateTransaction, deleteTransaction,
     updateReminder, deleteReminder, updateMember,
   }
 }

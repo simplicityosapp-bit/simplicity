@@ -555,6 +555,26 @@ html[dir="rtl"] .cd-stat-l {
 [data-theme="dark"] .cd-row-edit:hover { background: rgba(240, 235, 224, 0.05); }
 .cd-row-edit:active { transform: scale(0.99); }
 .cd-row-editicon { flex-shrink: 0; color: var(--terracotta); }
+/* An adjustment row can't be "opened" the way a payment or a task can — there
+   is nothing to edit, only to take back — so in the panel's edit mode it grows
+   a delete instead of becoming a button. Same quiet circular target the goals
+   and insights histories use for the same job. */
+.cd-row-del {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: var(--stone);
+  cursor: pointer;
+  flex-shrink: 0;
+  margin-inline-end: -6px;
+}
+.cd-row-del:hover { color: var(--clay); }
+.cd-row-del:active { transform: scale(0.9); }
 .cd-row-dot {
   width: 8px;
   height: 8px;

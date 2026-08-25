@@ -182,12 +182,16 @@ export default function CalendarScreen() {
       )}
 
       <AddMeetingModal open={adding} clients={clients} onClose={() => setAdding(false)} onSave={addMeeting} />
+      {/* onDeleteMeeting is skipMeeting on purpose: deleting a confirmed
+          meeting is the same unwinding as skipping it — status → skipped,
+          materialised session dropped — only worded as a deletion. */}
       <EventDetailsModal
         open={!!detail}
         event={detail}
         onClose={() => setDetail(null)}
         onConfirmMeeting={handleConfirm}
         onSkipMeeting={skipMeeting}
+        onDeleteMeeting={skipMeeting}
         onUpdateEvent={updateEvent}
         onDeleteEvent={deleteEvent}
         billClient={billClient}

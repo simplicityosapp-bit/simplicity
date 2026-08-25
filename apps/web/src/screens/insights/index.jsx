@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Sparkles, Check, ChevronDown, ChevronUp, RotateCcw, Plus, Pencil, Trash2, Activity } from 'lucide-react'
+import { Sparkles, Check, ChevronDown, ChevronUp, RotateCcw, Plus, Pencil, Trash2, Activity, X } from 'lucide-react'
 import { useUserQuestions } from '../../hooks/useUserQuestions'
 import { useDailyAnswers } from '../../hooks/useDailyAnswers'
 import { useUserPreferences } from '../../hooks/useUserPreferences'
@@ -211,7 +211,7 @@ function QuestionCard({ question, idx, latestAnswerToday, onSubmit, busy, draft,
 export default function InsightsScreen() {
   const { t, gender } = useT('insights')
   const { questions, loading: questionsLoading, error: questionsError, addQuestion, updateQuestion, toggleActive, removeQuestion } = useUserQuestions()
-  const { answers, addAnswer } = useDailyAnswers()
+  const { answers, addAnswer, removeAnswer } = useDailyAnswers()
   const { prefs, update: updatePrefs } = useUserPreferences()
   const [drafts, setDrafts] = useState({}) /* qId → slider draft */
   const [busy, setBusy] = useState({})     /* qId → bool */
@@ -219,6 +219,7 @@ export default function InsightsScreen() {
   const [showAddQuestion, setShowAddQuestion] = useState(false)
   const [editQuestion, setEditQuestion] = useState(null)
   const [pendingDelete, setPendingDelete] = useState(null)
+  const [pendingDeleteAnswer, setPendingDeleteAnswer] = useState(null) // history row awaiting confirm
 
   /* Keep the controlled toggle in sync if prefs hydrate after mount. */
   // eslint-disable-next-line react-hooks/set-state-in-effect -- keep the controlled toggle in sync when prefs hydrate after mount.
@@ -403,6 +404,18 @@ export default function InsightsScreen() {
                         <Txt className="ins-history-date">{fmtShortDate(a.date)}</Txt>
                         <Txt className="ins-history-val mono">{a.value_num != null ? a.value_num : (a.value_text || '—')}</Txt>
                       </Txt>
+                      {/* The history was read-only, and re-answering only
+                          upserts TODAY — so a value logged on the wrong day
+                          stayed in the correlations for good. Same affordance
+                          the goals history has carried all along. */}
+                      <Btn
+                        type="button"
+                        className="ins-history-del"
+                        onClick={() => setPendingDeleteAnswer(a)}
+                        aria-label={t('history.deleteAria')}
+                      >
+                        <X size={13} strokeWidth={1.8} aria-hidden="true" />
+                      </Btn>
                     </Box>
                   )
                 })}
@@ -433,6 +446,20 @@ export default function InsightsScreen() {
         confirmLabel={t('delete.confirm')}
         danger
         onConfirm={() => { if (pendingDelete) removeQuestion(pendingDelete.id) }}
+      />
+      <ConfirmModal
+        open={!!pendingDeleteAnswer}
+        onClose={() => setPendingDeleteAnswer(null)}
+        title={t('history.deleteTitle')}
+        message={pendingDeleteAnswer
+          ? t('history.deleteMessage', {
+            value: pendingDeleteAnswer.value_num != null ? pendingDeleteAnswer.value_num : (pendingDeleteAnswer.value_text || '—'),
+            date: fmtShortDate(pendingDeleteAnswer.date),
+          })
+          : ''}
+        confirmLabel={t('history.deleteConfirm')}
+        danger
+        onConfirm={() => { if (pendingDeleteAnswer) return removeAnswer(pendingDeleteAnswer.id) }}
       />
     </Box>
   )

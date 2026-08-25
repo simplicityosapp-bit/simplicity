@@ -293,3 +293,69 @@
   opacity: 0.45;
   cursor: default;
 }
+
+/* ── The record's own rows ──────────────────────────────────────
+   Folded away under the figure: the total is the answer, the list is the
+   audit. Deliberately quieter than everything above it — smaller type, no
+   fill — so opening it never competes with the confirm button. */
+.inv-hist { margin-top: 4px; }
+.inv-hist-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 0;
+  border: none;
+  background: none;
+  color: var(--stone);
+  font-family: var(--mg-font);
+  font-size: var(--mg-caption);
+  cursor: pointer;
+}
+.inv-hist-count {
+  font-family: var(--mg-font-num);
+  font-variant-numeric: tabular-nums;
+  opacity: 0.75;
+}
+.inv-hist-chev { transition: transform 0.15s; }
+.inv-hist-toggle.open .inv-hist-chev { transform: rotate(180deg); }
+.inv-hist-list {
+  display: flex;
+  flex-direction: column;
+  margin-top: 2px;
+}
+.inv-hist-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 0;
+  border-top: 1px solid var(--divider);
+}
+.inv-hist-row:first-child { border-top: none; }
+.inv-hist-date {
+  flex: 1;
+  font-family: var(--mg-font);
+  font-size: calc(12px * var(--text-scale));
+  color: var(--stone);
+}
+.inv-hist-amt {
+  font-family: var(--mg-font-num);
+  font-size: calc(13px * var(--text-scale));
+  color: var(--espresso);
+  font-variant-numeric: tabular-nums;
+}
+.inv-hist-del {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: var(--stone);
+  cursor: pointer;
+  flex-shrink: 0;
+  margin-inline-end: -6px;
+}
+.inv-hist-del:hover { color: var(--clay); }
+.inv-hist-del:active { transform: scale(0.9); }

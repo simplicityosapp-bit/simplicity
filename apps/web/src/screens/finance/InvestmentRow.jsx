@@ -1,9 +1,10 @@
 import { useMemo, useRef, useState } from 'react'
-import { ChevronDown, Sprout, Check, Bell, BellRing, Info } from 'lucide-react'
+import { ChevronDown, Sprout, Check, Bell, BellRing, Info, X } from 'lucide-react'
 import { isr, fmtMonthYear, fmtShortDate } from '@simplicity/core'
 import { useInvestmentSettings } from '../../hooks/useInvestmentSettings'
 import { useReminders } from '../../hooks/useReminders'
 import AddReminderModal from '../../modals/AddReminderModal'
+import ConfirmModal from '../../modals/ConfirmModal'
 import RecordInvestmentModal from '../../modals/RecordInvestmentModal'
 import { useT } from '../../i18n/useT'
 import { Box, Txt, Btn, Input } from '../../components/ui'
@@ -51,6 +52,12 @@ export default function InvestmentRow({ month = null }) {
   const [editing, setEditing] = useState(false)
   const [remindOpen, setRemindOpen] = useState(false)
   const [recordOpen, setRecordOpen] = useState(false)
+  /* The record was write-only: "השקעתי" wrote a row plus its expense and there
+     was no list anywhere, so a mistap could never be taken back. `histOpen`
+     folds that list open under the figure; `confirmRow` holds the one awaiting
+     its confirm, because removing it also removes real money from the ledger. */
+  const [histOpen, setHistOpen] = useState(false)
+  const [confirmRow, setConfirmRow] = useState(null)
   const investingRef = useRef(false)
   const { reminders, addReminder } = useReminders()
 
@@ -66,6 +73,7 @@ export default function InvestmentRow({ month = null }) {
     settings, setBase, setPercent, setView,
     baseAmount, targetAmount, investedAmount, baseWasNegative, hasData,
     basisFellBack, basisMonth, selectedMonth, isCurrentMonth, recordInvestment,
+    investedRows, undoInvestment,
   } = useInvestmentSettings(month)
 
   const shownPct = sliding ?? settings.percent
@@ -336,8 +344,66 @@ export default function InvestmentRow({ month = null }) {
               </Btn>
             </Box>
           </Box>
+
+          {/* The rows behind the figure above — folded away, because the total
+              is the answer and the list is the audit. It follows the same
+              חודשי/מצטבר view, so it can never itemise a different period from
+              the number it sits under. Offered only when there is something to
+              show: an empty toggle would just be another closed drawer. */}
+          {(investedRows || []).length > 0 && (
+            <Box className="inv-hist">
+              <Btn
+                type="button"
+                className={`inv-hist-toggle${histOpen ? ' open' : ''}`}
+                onClick={() => setHistOpen((o) => !o)}
+                aria-expanded={histOpen}
+              >
+                {t('investment.historyTitle')}
+                <Txt className="inv-hist-count">{investedRows.length}</Txt>
+                <ChevronDown size={14} strokeWidth={1.7} className="inv-hist-chev" aria-hidden="true" />
+              </Btn>
+              {histOpen && (
+                <Box className="inv-hist-list">
+                  {investedRows.map((r) => (
+                    <Box key={r.id} className="inv-hist-row">
+                      <Txt className="inv-hist-date">{r.invested_on ? fmtShortDate(r.invested_on) : '—'}</Txt>
+                      <Txt className="inv-hist-amt mono">{isr(Number(r.amount) || 0)}</Txt>
+                      <Btn
+                        type="button"
+                        className="inv-hist-del"
+                        onClick={() => setConfirmRow(r)}
+                        aria-label={t('investment.deleteAria')}
+                      >
+                        <X size={13} strokeWidth={1.8} aria-hidden="true" />
+                      </Btn>
+                    </Box>
+                  ))}
+                </Box>
+              )}
+            </Box>
+          )}
         </Box>
       )}
+
+      {/* Deleting the record takes its EXPENSE with it — that pair is what
+          "השקעתי" created, and leaving the expense behind would keep shrinking
+          next month's base for money the user says was never set aside. Both
+          are soft-deleted, so the trash holds them for 30 days and the hook's
+          undo toast is the immediate way back. */}
+      <ConfirmModal
+        open={!!confirmRow}
+        onClose={() => setConfirmRow(null)}
+        title={t('investment.deleteTitle')}
+        message={confirmRow
+          ? t('investment.deleteMessage', {
+            amount: isr(Number(confirmRow.amount) || 0),
+            date: confirmRow.invested_on ? fmtShortDate(confirmRow.invested_on) : '—',
+          })
+          : ''}
+        confirmLabel={t('investment.deleteConfirm')}
+        danger
+        onConfirm={() => { if (confirmRow) return undoInvestment(confirmRow.id) }}
+      />
 
       {/* The app's own reminder sheet rather than a bespoke one: it already
           offers one-off / weekly / monthly, validates the timing and writes to

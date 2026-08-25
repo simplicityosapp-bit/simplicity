@@ -42,7 +42,9 @@
       "session": "Sesión eliminada",
       "sitePage": "Página eliminada",
       "task": "Tarea eliminada",
-      "transaction": "Transacción eliminada"
+      "transaction": "Transacción eliminada",
+      "answer": "Respuesta eliminada",
+      "adjustment": "Ajuste eliminado"
     }
   },
   "errors": {

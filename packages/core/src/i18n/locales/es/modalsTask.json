@@ -81,8 +81,10 @@
     "summaryPlaceholder": "¿Qué surgió? ¿Cuál es el siguiente paso?",
     "notes": "Notas privadas (opcional)",
     "notesPlaceholder": "Una nota para ti",
+    "delete": "Eliminar sesión",
     "deleteTitle": "Eliminar sesión",
-    "deleteMessage": "¿Eliminar la sesión registrada?"
+    "deleteMessage": "¿Eliminar la sesión registrada? Puedes restaurarla desde la papelera durante 30 días.",
+    "deleteConfirm": "Eliminar"
   },
   "meeting": {
     "title": "Programar una cita",
@@ -191,6 +193,8 @@
     "reschedule": "Cambiar fecha",
     "cancelMeeting": "Cancelar cita",
     "cancelMeetingConfirm": "¿Cancelar esta cita?",
+    "deleteMeeting": "Eliminar cita",
+    "deleteMeetingConfirm": "¿Seguro? Se eliminan la cita y su registro",
     "moveRequired": "Elige una fecha y una hora.",
     "moveFailed": "No pudimos mover la cita — puede que ya haya una a esa hora.",
     "yes": "Sí",

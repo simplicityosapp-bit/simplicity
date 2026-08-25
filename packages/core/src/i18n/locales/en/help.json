@@ -246,7 +246,7 @@
         },
         {
           "title": "Adjustments — a discount, an import fix, cash that was never booked",
-          "body": "The \"Adjustment\" button below the billing summary opens the card's own numbers exactly as they read — \"Scheduled\" and \"Held\", \"Paid\" and \"Balance\" — only now you can correct them. Everything updates as you type: raising \"Paid\" drops \"Balance\" straight away, and changing the session counts re-bills the client. Each money figure that moves gets its own question: \"Paid\" can be an \"Imported data fix\" or a \"Payment received, never recorded\", while lowering \"Balance\" is always recorded as a discount — an amount forgiven without claiming anyone paid. Changing both at once saves in one go and files two rows, because each is a different reason. A line appears for everything that will change before you save, and you can add a note (\"cash at the session\"). Sessions are not money: they are written straight to the client with no reason, and a hand-edited \"Held\" is stored as the gap against what the app actually logged. Every money adjustment appears as a dated row under Payments, so the total above always adds up to what is listed beneath it; written-off debt sits in its own group, since it is not part of \"Total paid\". An adjustment never reaches your finance reports; if the money really did arrive, use \"Record as income instead\"."
+          "body": "The \"Adjustment\" button below the billing summary opens the card's own numbers exactly as they read — \"Scheduled\" and \"Held\", \"Paid\" and \"Balance\" — only now you can correct them. Everything updates as you type: raising \"Paid\" drops \"Balance\" straight away, and changing the session counts re-bills the client. Each money figure that moves gets its own question: \"Paid\" can be an \"Imported data fix\" or a \"Payment received, never recorded\", while lowering \"Balance\" is always recorded as a discount — an amount forgiven without claiming anyone paid. Changing both at once saves in one go and files two rows, because each is a different reason. A line appears for everything that will change before you save, and you can add a note (\"cash at the session\"). Sessions are not money: they are written straight to the client with no reason, and a hand-edited \"Held\" is stored as the gap against what the app actually logged. Every money adjustment appears as a dated row under Payments, so the total above always adds up to what is listed beneath it; written-off debt sits in its own group, since it is not part of \"Total paid\". An adjustment never reaches your finance reports; if the money really did arrive, use \"Record as income instead\". The pencil beside \"Payments\" gives every adjustment row a delete button, and removing one puts the amount back where it was moved from."
         },
         {
           "title": "Selecting several clients at once",
@@ -723,7 +723,7 @@
         },
         {
           "title": "Clicking an event — details and actions",
-          "body": "Clicking an event opens \"Event Details\". For a pending session you will be asked \"Did this session take place?\" — \"Yes\" confirms it and \"No\" skips it. For a session already confirmed, you will see \"Session confirmed.\". For a reminder you can \"Mark as done\" or \"Delete\" (deletion requires two clicks — you need to confirm \"Sure? Delete\"). For a lead follow-up you can click \"Follow-up done\"."
+          "body": "Clicking an event opens \"Event Details\". For a pending session you will be asked \"Did this session take place?\" — \"Yes\" confirms it and \"No\" skips it. For a session already confirmed, you will see \"Session confirmed.\" next to \"Delete meeting\" — a two-tap delete that removes both the meeting from the calendar and the session it created on the client card, with an immediate undo. For a reminder you can \"Mark as done\" or \"Delete\" (deletion requires two clicks — you need to confirm \"Sure? Delete\"). For a lead follow-up you can click \"Follow-up done\"."
         },
         {
           "title": "Google Calendar events",
@@ -902,7 +902,7 @@
         },
         {
           "title": "History",
-          "body": "At the bottom of the screen you can expand \"History\" to see the last 30 answers, newest first, with the icon, question wording, date, and value. If you opened it, it stays open on your next visits."
+          "body": "At the bottom of the screen you can expand \"History\" to see the last 30 answers, newest first, with the icon, question wording, date, and value. If you opened it, it stays open on your next visits. Each answer has a delete button, for one logged on the wrong day — it is kept in the trash for 30 days."
         },
         {
           "title": "Managing questions in Settings",

@@ -42,7 +42,9 @@
       "session": "Session deleted",
       "sitePage": "Page deleted",
       "task": "Task deleted",
-      "transaction": "Transaction deleted"
+      "transaction": "Transaction deleted",
+      "answer": "Answer deleted",
+      "adjustment": "Adjustment removed"
     }
   },
   "errors": {

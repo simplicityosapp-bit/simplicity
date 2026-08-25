@@ -83,8 +83,10 @@
     "summaryPlaceholder": "מה עלה בפגישה? מה הצעד הבא?",
     "notes": "הערות פרטיות (אופציונלי)",
     "notesPlaceholder": "הערה לעצמך",
+    "delete": "מחיקת הפגישה",
     "deleteTitle": "מחיקת פגישה",
-    "deleteMessage": "למחוק את הפגישה שתועדה?"
+    "deleteMessage": "למחוק את הפגישה שתועדה? אפשר לשחזר אותה מסל המיחזור עד 30 יום.",
+    "deleteConfirm": "מחק"
   },
   "meeting": {
     "title": "תיאום פגישה",
@@ -205,6 +207,8 @@
     "reschedule": "שינוי מועד",
     "cancelMeeting": "ביטול פגישה",
     "cancelMeetingConfirm": "לבטל את הפגישה?",
+    "deleteMeeting": "מחיקת הפגישה",
+    "deleteMeetingConfirm": "בטוח? הפגישה והתיעוד יימחקו",
     "moveRequired": "יש לבחור תאריך ושעה.",
     "moveFailed": "לא הצלחנו להעביר את הפגישה — ייתכן שכבר יש פגישה במועד הזה.",
     "yes": "כן",

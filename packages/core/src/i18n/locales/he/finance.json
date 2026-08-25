@@ -228,6 +228,12 @@
     "recordNoFuture": "אי אפשר לרשום השקעה בתאריך עתידי",
     "recordCancel": "ביטול",
     "recordConfirm": "שמירה",
-    "recordSaving": "שומר…"
+    "recordSaving": "שומר…",
+    "historyTitle": "רישומי השקעה",
+    "historyEmpty": "עוד לא נרשמה השקעה בתקופה הזאת.",
+    "deleteAria": "מחיקת הרישום",
+    "deleteTitle": "מחיקת רישום השקעה",
+    "deleteMessage": "למחוק את הרישום על {{amount}} מ־{{date}}? גם ההוצאה שנוצרה איתו תימחק. אפשר לשחזר מסל המיחזור עד 30 יום.",
+    "deleteConfirm": "מחק"
   }
 }

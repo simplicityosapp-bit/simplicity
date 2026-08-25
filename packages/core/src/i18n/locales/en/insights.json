@@ -46,7 +46,11 @@
   "history": {
     "title": "History",
     "empty": "No answers in your history yet.",
-    "deletedQuestion": "Deleted question"
+    "deletedQuestion": "Deleted question",
+    "deleteAria": "Delete answer",
+    "deleteTitle": "Delete answer",
+    "deleteMessage": "Delete the answer {{value}} from {{date}}? You can restore it from the trash for 30 days.",
+    "deleteConfirm": "Delete"
   },
   "delete": {
     "title": "Delete question",

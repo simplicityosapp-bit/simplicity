@@ -44,7 +44,9 @@
       "session": "הפגישה נמחקה",
       "sitePage": "הדף נמחק",
       "task": "המשימה נמחקה",
-      "transaction": "התנועה נמחקה"
+      "transaction": "התנועה נמחקה",
+      "answer": "התשובה נמחקה",
+      "adjustment": "ההתאמה בוטלה"
     }
   },
   "errors": {

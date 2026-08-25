@@ -246,7 +246,7 @@
         },
         {
           "title": "Ajustes: un descuento, una corrección de importación, efectivo sin registrar",
-          "body": "El botón «Ajuste», debajo del resumen de facturación, abre los números de la ficha tal como están —«Programadas» y «Realizadas», «Pagado» y «Saldo»— solo que ahora puedes corregirlos. Todo se actualiza mientras escribes: subir «Pagado» baja «Saldo» al instante, y cambiar las sesiones vuelve a calcular el total a pagar. Cada cifra de dinero que se mueve tiene su propia pregunta: «Pagado» puede ser una «Corrección de datos importados» o un «Pago recibido, no registrado», mientras que bajar «Saldo» se registra siempre como descuento: un importe condonado sin afirmar que alguien haya pagado. Cambiar ambos a la vez se guarda de una sola vez y genera dos filas, porque cada una es un motivo distinto. Antes de guardar aparece una línea por cada cosa que va a cambiar, y puedes añadir una nota («efectivo en la sesión»). Las sesiones no son dinero: se guardan directamente en el cliente sin motivo, y unas «Realizadas» editadas a mano se guardan como la diferencia frente a lo que la app registró. Cada ajuste de dinero aparece como una fila con fecha en Pagos, de modo que el total de arriba siempre cuadra con lo que hay debajo; la deuda condonada va en su propio grupo, porque no forma parte del «Total pagado». Un ajuste nunca llega a tus informes financieros; si el dinero sí entró, usa «Registrar como ingreso en su lugar»."
+          "body": "El botón «Ajuste», debajo del resumen de facturación, abre los números de la ficha tal como están —«Programadas» y «Realizadas», «Pagado» y «Saldo»— solo que ahora puedes corregirlos. Todo se actualiza mientras escribes: subir «Pagado» baja «Saldo» al instante, y cambiar las sesiones vuelve a calcular el total a pagar. Cada cifra de dinero que se mueve tiene su propia pregunta: «Pagado» puede ser una «Corrección de datos importados» o un «Pago recibido, no registrado», mientras que bajar «Saldo» se registra siempre como descuento: un importe condonado sin afirmar que alguien haya pagado. Cambiar ambos a la vez se guarda de una sola vez y genera dos filas, porque cada una es un motivo distinto. Antes de guardar aparece una línea por cada cosa que va a cambiar, y puedes añadir una nota («efectivo en la sesión»). Las sesiones no son dinero: se guardan directamente en el cliente sin motivo, y unas «Realizadas» editadas a mano se guardan como la diferencia frente a lo que la app registró. Cada ajuste de dinero aparece como una fila con fecha en Pagos, de modo que el total de arriba siempre cuadra con lo que hay debajo; la deuda condonada va en su propio grupo, porque no forma parte del «Total pagado». Un ajuste nunca llega a tus informes financieros; si el dinero sí entró, usa «Registrar como ingreso en su lugar». El lápiz junto a «Pagos» añade un botón de eliminar a cada fila de ajuste, y quitarlo devuelve el importe al lugar del que se movió."
         },
         {
           "title": "Seleccionar varios clientes a la vez",
@@ -723,7 +723,7 @@
         },
         {
           "title": "Hacer clic en un evento: detalles y acciones",
-          "body": "Al hacer clic en un evento se abre «Detalles del evento». Para una sesión pendiente se te preguntará «¿Se realizó esta sesión?»: «Sí» la confirma y «No» la salta. Para una sesión ya confirmada, verás «Sesión confirmada.». Para un recordatorio puedes «Marcar como hecho» o «Eliminar» (la eliminación requiere dos clics: tienes que confirmar «¿Seguro? Eliminar»). Para un seguimiento de prospecto puedes hacer clic en «Seguimiento hecho»."
+          "body": "Al hacer clic en un evento se abre «Detalles del evento». Para una sesión pendiente se te preguntará «¿Se realizó esta sesión?»: «Sí» la confirma y «No» la salta. Para una sesión ya confirmada, verás «Sesión confirmada.» junto a «Eliminar cita»: una eliminación en dos toques que quita la cita del calendario y el registro que creó en la ficha del cliente, con deshacer inmediato. Para un recordatorio puedes «Marcar como hecho» o «Eliminar» (la eliminación requiere dos clics: tienes que confirmar «¿Seguro? Eliminar»). Para un seguimiento de prospecto puedes hacer clic en «Seguimiento hecho»."
         },
         {
           "title": "Eventos de Google Calendar",
@@ -902,7 +902,7 @@
         },
         {
           "title": "Historial",
-          "body": "En la parte inferior de la pantalla puedes desplegar «Historial» para ver las últimas 30 respuestas, las más recientes primero, con el icono, la redacción de la pregunta, la fecha y el valor. Si lo abriste, permanece abierto en tus próximas visitas."
+          "body": "En la parte inferior de la pantalla puedes desplegar «Historial» para ver las últimas 30 respuestas, las más recientes primero, con el icono, la redacción de la pregunta, la fecha y el valor. Si lo abriste, permanece abierto en tus próximas visitas. Cada respuesta tiene un botón de eliminar, por si se registró en el día equivocado: se guarda en la papelera 30 días."
         },
         {
           "title": "Gestionar preguntas en Ajustes",

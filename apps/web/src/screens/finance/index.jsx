@@ -8,6 +8,7 @@ import { useRecurring } from '../../hooks/useRecurring'
 import { useRecurringGeneration } from '../../hooks/useRecurringGeneration'
 import { useCategories } from '../../hooks/useCategories'
 import { useScheduledMeetings } from '../../hooks/useScheduledMeetings'
+import { useInvestments } from '../../hooks/useInvestments'
 import { useUserPreferences } from '../../hooks/useUserPreferences'
 import { exportTransactionsCSV } from '../../lib/export'
 import { CATEGORY_COLORS } from '../../lib/api/categories'
@@ -57,6 +58,18 @@ export default function FinanceScreen() {
   const { categories, addCategory, removeCategory } = useCategories()
   const { meetings: scheduledMeetings, loading: scheduledMeetingsLoading } = useScheduledMeetings()
   const { prefs, update: updatePrefs } = useUserPreferences()
+  /* Deleting the EXPENSE that an investment created has to take the
+     investment record with it. The pair is what «השקעתי» wrote; leaving the
+     record behind kept the widget claiming money had been set aside with no
+     outgoing anywhere to show for it. undoInvestment owns both sides — it
+     soft-deletes the transaction silently and registers ONE undo for the
+     pair — so the delete is routed through it whenever a record points at the
+     row being removed, and left alone for every ordinary transaction. */
+  const { investments, undoInvestment } = useInvestments()
+  const dropTransaction = (id) => {
+    const linked = (investments || []).find((r) => r.transaction_id === id)
+    return linked ? undoInvestment(linked.id) : removeTransaction(id)
+  }
   const showSkipped = prefs?.financeShowSkipped !== false
   const setShowSkipped = (v) => updatePrefs?.({ financeShowSkipped: v })
   /* Which management sections are expanded. Both start closed — they are
@@ -309,7 +322,7 @@ export default function FinanceScreen() {
                   onSkip={(id) => setStatus(id, 'skipped')}
                   onUnskip={(id) => setStatus(id, 'pending')}
                   onEdit={setEditTx}
-                  onDelete={removeTransaction}
+                  onDelete={dropTransaction}
                 />
               </>
             )}
@@ -361,7 +374,7 @@ export default function FinanceScreen() {
         categories={categories}
         onSave={editTransaction}
         onIssued={refetch}
-        onDelete={removeTransaction}
+        onDelete={dropTransaction}
         onSaveAsClient={async (tx) => {
           /* Promote an ad-hoc receipt recipient into a real ACTIVE client, then
              link the transaction to it. status + status_meta are NOT NULL on

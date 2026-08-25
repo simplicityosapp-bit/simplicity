@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
 import { Trans } from 'react-i18next'
-import { ChevronDown, Pencil, Check } from 'lucide-react'
+import { ChevronDown, Pencil, Check, X } from 'lucide-react'
 import { getClientMemberships, financeQuery, isConfirmedTx, isr, fmtShortDate, fmtTime } from '@simplicity/core'
 import { useT } from '../../i18n/useT'
 import PaymentPlanSection from './PaymentPlanSection'
 import DateField from '../../components/DateField'
 import DueInTag from '../../components/DueInTag'
+import ConfirmModal from '../../modals/ConfirmModal'
 import { Box, Txt, Btn, Input, Textarea } from '../../components/ui'
 
 const DAY_KEYS = [0, 1, 2, 3, 4, 5, 6]
@@ -99,13 +100,16 @@ function InlineForm({ onSave, onCancel, saving, error, children }) {
   )
 }
 
-export default function ClientDrawerSections({ client: c, balance, txns, tasks = [], reminders = [], sessions = [], members = [], groups = [], adjustments = [], modalOpen = false, onEditTx, onEditClient, onEditSession, onEditTask, onEditReminder, onUpdateClient }) {
+export default function ClientDrawerSections({ client: c, balance, txns, tasks = [], reminders = [], sessions = [], members = [], groups = [], adjustments = [], modalOpen = false, onRemoveAdjustment, onEditTx, onEditClient, onEditSession, onEditTask, onEditReminder, onUpdateClient }) {
   const { t } = useT('clients')
   /* Which panel is currently in edit mode (one at a time). The header
      pencil toggles it; in edit mode the panel's rows become tappable and
      open the matching editor. */
   const [editKey, setEditKey] = useState(null)
   const toggleEdit = (k) => setEditKey((p) => (p === k ? null : k))
+  /* Adjustment row awaiting its delete confirm. Money moves with it, so the
+     confirm names the amount rather than asking a generic "are you sure". */
+  const [confirmAdjust, setConfirmAdjust] = useState(null)
 
   /* ── inline single-value editing ──
      The three sections below (recurring slot / more details / notes) used to
@@ -215,6 +219,38 @@ export default function ClientDrawerSections({ client: c, balance, txns, tasks =
     .forEach((t) => events.push({ type: 'task', date: t.completed_at, label: t.title, sub: '', edit: onEditTask ? () => onEditTask(t) : null }))
   events.sort((a, b) => new Date(b.date) - new Date(a.date))
 
+  /* One adjustment row, rendered identically under "שולם" and under
+     "מחיקות חוב" — the two groups print the same shape and only the sign of
+     the amount differs, so they share this rather than keeping two copies in
+     step by hand. The delete rides the payments panel's own edit mode (the
+     pencil beside the heading), which is where every other row in that panel
+     already becomes actionable. */
+  const adjustRow = (a, amountText) => (
+    <Box key={a.id} className="cd-row">
+      <Txt className="cd-row-dot cd-dot-adjust" />
+      <Box className="cd-row-body">
+        <Txt as="p" className="cd-row-title">
+          {a.reason === 'legacy' ? t('adjust.legacyRow') : t(`adjust.row.${a.reason}`)}
+          {a.note ? <Txt className="cd-row-note"> · {a.note}</Txt> : null}
+        </Txt>
+        <Txt as="p" className="cd-row-sub">
+          {a.occurred_on ? fmtShortDate(a.occurred_on) : t('adjust.noDate')}
+        </Txt>
+      </Box>
+      <Txt className="cd-row-amt mono">{amountText}</Txt>
+      {editKey === 'pay' && onRemoveAdjustment && (
+        <Btn
+          type="button"
+          className="cd-row-del"
+          onClick={() => setConfirmAdjust(a)}
+          aria-label={t('adjust.deleteAria')}
+        >
+          <X size={13} strokeWidth={1.8} aria-hidden="true" />
+        </Btn>
+      )}
+    </Box>
+  )
+
   return (
     <>
       <Box className="cd-group">
@@ -323,10 +359,15 @@ export default function ClientDrawerSections({ client: c, balance, txns, tasks =
           )}
         </Section>
 
+        {/* The pencil also has to appear for a client whose only rows in this
+            panel are adjustments — a hand-corrected «שולם» with no transaction
+            behind it is exactly the case that needs taking back, and gating on
+            `payments.length` alone hid the delete precisely there. */}
         <Section
           title={t('sections.payments')}
           count={payments.length}
-          onEdit={onEditTx && payments.length ? () => toggleEdit('pay') : undefined}
+          onEdit={(onEditTx && payments.length) || (onRemoveAdjustment && adjustments.length)
+            ? () => toggleEdit('pay') : undefined}
           editing={editKey === 'pay'}
         >
           <Box className="cd-pay-summary">
@@ -339,24 +380,9 @@ export default function ClientDrawerSections({ client: c, balance, txns, tasks =
               forgiveness inside a total it was never part of. The 'balance'
               ones get their own group below. A 'legacy' row predates migration
               0095 and has no date or reason to show. */}
-          {paidAdjustments.map((a) => (
-            <Box key={a.id} className="cd-row">
-              <Txt className="cd-row-dot cd-dot-adjust" />
-              <Box className="cd-row-body">
-                <Txt as="p" className="cd-row-title">
-                  {a.reason === 'legacy' ? t('adjust.legacyRow') : t(`adjust.row.${a.reason}`)}
-                  {a.note ? <Txt className="cd-row-note"> · {a.note}</Txt> : null}
-                </Txt>
-                <Txt as="p" className="cd-row-sub">
-                  {a.occurred_on ? fmtShortDate(a.occurred_on) : t('adjust.noDate')}
-                </Txt>
-              </Box>
-              {/* Sign comes from the AMOUNT, not the kind — a correction
-                  downward is a negative 'paid' adjustment and must not render
-                  with a +. */}
-              <Txt className="cd-row-amt mono">{signed(a.amount)}</Txt>
-            </Box>
-          ))}
+          {/* Sign comes from the AMOUNT, not the kind — a correction downward
+              is a negative 'paid' adjustment and must not render with a +. */}
+          {paidAdjustments.map((a) => adjustRow(a, signed(a.amount)))}
           {unexplainedPaid != null && (
             <Box className="cd-row">
               <Txt className="cd-row-dot cd-dot-adjust" />
@@ -413,21 +439,7 @@ export default function ClientDrawerSections({ client: c, balance, txns, tasks =
                   <Txt className="cd-row-amt mono">{signed(-unexplainedBalance)}</Txt>
                 </Box>
               )}
-              {balanceAdjustments.map((a) => (
-                <Box key={a.id} className="cd-row">
-                  <Txt className="cd-row-dot cd-dot-adjust" />
-                  <Box className="cd-row-body">
-                    <Txt as="p" className="cd-row-title">
-                      {a.reason === 'legacy' ? t('adjust.legacyRow') : t(`adjust.row.${a.reason}`)}
-                      {a.note ? <Txt className="cd-row-note"> · {a.note}</Txt> : null}
-                    </Txt>
-                    <Txt as="p" className="cd-row-sub">
-                      {a.occurred_on ? fmtShortDate(a.occurred_on) : t('adjust.noDate')}
-                    </Txt>
-                  </Box>
-                  <Txt className="cd-row-amt mono">{signed(-a.amount)}</Txt>
-                </Box>
-              ))}
+              {balanceAdjustments.map((a) => adjustRow(a, signed(-a.amount)))}
             </>
           )}
         </Section>
@@ -665,6 +677,19 @@ export default function ClientDrawerSections({ client: c, balance, txns, tasks =
           )}
         </Section>
       </Box>
+
+      {/* Names the amount, because deleting an adjustment MOVES MONEY — the
+          card's «שולם» or «יתרה» goes back to where it was before the row was
+          written. The undo toast the hook registers is the way back. */}
+      <ConfirmModal
+        open={!!confirmAdjust}
+        onClose={() => setConfirmAdjust(null)}
+        title={t('adjust.deleteTitle')}
+        message={confirmAdjust ? t('adjust.deleteMessage', { amount: isr(Math.abs(Number(confirmAdjust.amount) || 0)) }) : ''}
+        confirmLabel={t('adjust.deleteConfirm')}
+        danger
+        onConfirm={() => { if (confirmAdjust) return onRemoveAdjustment?.(confirmAdjust) }}
+      />
     </>
   )
 }

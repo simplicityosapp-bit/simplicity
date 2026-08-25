@@ -81,8 +81,10 @@
     "summaryPlaceholder": "What came up? What's the next step?",
     "notes": "Private notes (optional)",
     "notesPlaceholder": "A note to yourself",
+    "delete": "Delete session",
     "deleteTitle": "Delete session",
-    "deleteMessage": "Delete the recorded session?"
+    "deleteMessage": "Delete the recorded session? You can restore it from the trash for 30 days.",
+    "deleteConfirm": "Delete"
   },
   "meeting": {
     "title": "Schedule a meeting",
@@ -191,6 +193,8 @@
     "reschedule": "Reschedule",
     "cancelMeeting": "Cancel meeting",
     "cancelMeetingConfirm": "Cancel this meeting?",
+    "deleteMeeting": "Delete meeting",
+    "deleteMeetingConfirm": "Sure? The meeting and its record go",
     "moveRequired": "Pick a date and a time.",
     "moveFailed": "Could not move the meeting — there may already be one at that time.",
     "yes": "Yes",

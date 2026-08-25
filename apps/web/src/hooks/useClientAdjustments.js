@@ -96,5 +96,57 @@ export function useClientAdjustments() {
     return row
   }, [qc, refreshClients])
 
-  return { adjustments: data ?? [], loading: isLoading, error: error?.message || null, addAdjustment }
+  /* Remove an adjustment and take its money back with it. The row is only the
+     EXPLANATION — clients.paid_adjustment / balance_adjustment is what
+     clientBalance actually reads — so deleting the row alone would leave the
+     figure standing with nothing behind it (the card would print it as
+     "התאמה ללא פירוט"). Both move, or neither does.
+
+     Order is the mirror of addAdjustment's, and deliberately the other way
+     round. There the scalar goes first because a wrong balance is worse than a
+     missing note. Here the ROW goes first for the same reason: if the scalar
+     write then fails, the number is still exactly what it was — correct, just
+     unexplained — whereas moving the money first and failing to retire the row
+     would leave a row claiming an amount that is no longer there, which the
+     card renders as a phantom negative gap. A failed scalar write puts the row
+     straight back, so the pair can't drift either way. */
+  const removeAdjustment = useCallback(async (client, adjustment, { undoLabel = '' } = {}) => {
+    const delta = Number(adjustment?.amount) || 0
+    const col = COLUMN[adjustment?.kind]
+    if (!col || !client || !adjustment?.id) throw new Error('invalid adjustment')
+    await removeClientAdjustment(adjustment.id)
+    qc.setQueryData(KEY, (prev) => (prev ?? []).filter((a) => a.id !== adjustment.id))
+    /* Fresh, not the React prop — same reason as addAdjustment: the prop lags
+       the clients refetch, and two removals in a row would both read the
+       pre-first value and the second would overwrite the first. */
+    const before = Number((await getClientScalar(client.id, col)) ?? client[col]) || 0
+    try {
+      await updateClient(client.id, { [col]: before - delta })
+    } catch (e) {
+      await restoreClientAdjustment(adjustment.id).catch(() => {})
+      qc.invalidateQueries({ queryKey: KEY })
+      throw e
+    }
+    refreshClients()
+
+    pushUndo({
+      label: undoLabel,
+      undo: async () => {
+        await restoreClientAdjustment(adjustment.id).catch(() => {})
+        /* The exact prior scalar, not `+ delta` — a concurrent edit in the
+           meantime must not compound. */
+        await updateClient(client.id, { [col]: before }).catch(() => {})
+        qc.invalidateQueries({ queryKey: KEY })
+        refreshClients()
+      },
+      redo: async () => {
+        await removeClientAdjustment(adjustment.id).catch(() => {})
+        await updateClient(client.id, { [col]: before - delta }).catch(() => {})
+        qc.invalidateQueries({ queryKey: KEY })
+        refreshClients()
+      },
+    })
+  }, [qc, refreshClients])
+
+  return { adjustments: data ?? [], loading: isLoading, error: error?.message || null, addAdjustment, removeAdjustment }
 }

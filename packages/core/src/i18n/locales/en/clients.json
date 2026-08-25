@@ -205,7 +205,12 @@
     "moreQueued": "You changed both «Paid» and «Balance» — once this adjustment is done, a second one opens for the other change.",
     "writeOffs": "Written off",
     "unexplained": "Unitemised adjustment",
-    "unexplainedSub": "recorded outside this screen"
+    "unexplainedSub": "recorded outside this screen",
+    "deleteAria": "Delete adjustment",
+    "deleteTitle": "Delete adjustment",
+    "deleteMessage": "Delete the {{amount}} adjustment? The amount goes back where it was moved from.",
+    "deleteConfirm": "Delete",
+    "undoDeleted": "Adjustment removed"
   },
   "plan": {
     "title": "Payment plan",

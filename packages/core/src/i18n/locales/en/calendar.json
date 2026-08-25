@@ -121,7 +121,8 @@
     "followupDone": "Follow-up marked done",
     "actionFailed": "Action failed — please try again.",
     "meetingRescheduled": "Meeting moved",
-    "meetingCanceled": "Meeting cancelled"
+    "meetingCanceled": "Meeting cancelled",
+    "meetingDeleted": "Meeting deleted"
   },
   "kinds": {
     "followup": "Follow-up",

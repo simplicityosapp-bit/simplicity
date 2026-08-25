@@ -208,6 +208,12 @@
     "recordNoFuture": "Un investissement ne peut pas être enregistré à une date future",
     "recordCancel": "Annuler",
     "recordConfirm": "Enregistrer",
-    "recordSaving": "Enregistrement…"
+    "recordSaving": "Enregistrement…",
+    "historyTitle": "Investissements enregistrés",
+    "historyEmpty": "Rien d'enregistré pour cette période.",
+    "deleteAria": "Supprimer l'enregistrement",
+    "deleteTitle": "Supprimer l'enregistrement d'investissement",
+    "deleteMessage": "Supprimer l'enregistrement de {{amount}} du {{date}} ? La dépense créée avec lui part aussi. Vous pourrez restaurer les deux depuis la corbeille pendant 30 jours.",
+    "deleteConfirm": "Supprimer"
   }
 }

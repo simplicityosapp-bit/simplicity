@@ -29,10 +29,12 @@ const toTimePart = (d) => (d instanceof Date && !Number.isNaN(d.getTime())
    decides whether confirming a meeting also touches linked transactions.
    Google-synced events can be CLAIMED here: editing or deleting one owns
    it (owned=true), so the change survives future syncs (migration 0023). */
-export default function EventDetailsModal({ open, onClose, event, billClient, onConfirmMeeting, onSkipMeeting, onBillSession, onCompleteReminder, onRemoveReminder, onUpdateEvent, onDeleteEvent, onCancelBooking, onFollowupDone, onRescheduleMeeting, onCancelMeeting }) {
+export default function EventDetailsModal({ open, onClose, event, billClient, onConfirmMeeting, onSkipMeeting, onBillSession, onCompleteReminder, onRemoveReminder, onUpdateEvent, onDeleteEvent, onCancelBooking, onFollowupDone, onRescheduleMeeting, onCancelMeeting, onDeleteMeeting }) {
   const { t } = useT('modalsTask')
   /* Two-step delete confirm (resets per event — parent keys the modal on
-     event.id). No undo path here, so the second tap is the safety net. */
+     event.id). Shared by the calendar-event delete, the reminder delete and
+     the confirmed-meeting delete. For the first two the second tap IS the
+     safety net — they register no undo; the meeting delete does. */
   const [confirmDel, setConfirmDel] = useState(false)
   const [confirmCancelBk, setConfirmCancelBk] = useState(false) // two-step "cancel booking"
   const [editing, setEditing] = useState(false)
@@ -248,8 +250,31 @@ export default function EventDetailsModal({ open, onClose, event, billClient, on
         </Box>
       )}
 
+      {/* A confirmed meeting was a dead end: one sentence saying it happened
+          and nothing to do about it. Answering "כן" by mistake — or on the
+          wrong occurrence — left the meeting on the calendar and its
+          materialised session on the client's card with no way back once the
+          undo toast had gone. The delete flips it to 'skipped' (a status the
+          calendar feed renders nowhere) and drops that session with it, all
+          reversible from the one undo the helper registers. */}
       {isMeeting && event.status === 'confirmed' && !billStep && (
-        <Txt as="p" className="evt-detail-status sage">{t('event.meetingConfirmed')}</Txt>
+        <>
+          <Txt as="p" className="evt-detail-status sage">{t('event.meetingConfirmed')}</Txt>
+          {onDeleteMeeting && (
+            <Box className="evt-detail-row">
+              <Box className="evt-detail-actions">
+                <Btn
+                  type="button"
+                  className="evt-detail-btn skip"
+                  onClick={confirmDel ? handle(onDeleteMeeting) : () => setConfirmDel(true)}
+                >
+                  <Trash2 size={15} strokeWidth={2} aria-hidden="true" />
+                  {confirmDel ? t('event.deleteMeetingConfirm') : t('event.deleteMeeting')}
+                </Btn>
+              </Box>
+            </Box>
+          )}
+        </>
       )}
 
       {isCalendar && !editing && event.booking && (

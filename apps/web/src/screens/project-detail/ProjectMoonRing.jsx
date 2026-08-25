@@ -1,5 +1,9 @@
 import { useMemo, useState } from 'react'
+import { Target } from 'lucide-react'
 import { moonGetData, moonReflection } from '@simplicity/core'
+import { useProjects } from '../../hooks/useProjects'
+import { useUserQuestions } from '../../hooks/useUserQuestions'
+import AddGoalModal from '../../modals/AddGoalModal'
 import { useGoals } from '../../hooks/useGoals'
 import { useGoalCategories } from '../../hooks/useGoalCategories'
 import { useGoalEntries } from '../../hooks/useGoalEntries'
@@ -26,7 +30,9 @@ const CIRCUMFERENCE = 2 * Math.PI * RADIUS
    on the top row (locked right) and let the panel wrap full-width beneath it. */
 export default function ProjectMoonRing({ projectId }) {
   const { t, gender } = useT('projects')
-  const { goals } = useGoals()
+  const { goals, addGoal } = useGoals()
+  const { projects } = useProjects()
+  const { questions, addQuestion } = useUserQuestions()
   const { categories } = useGoalCategories()
   const { entries } = useGoalEntries()
   const { transactions } = useTransactions()
@@ -37,6 +43,7 @@ export default function ProjectMoonRing({ projectId }) {
   const { groups } = useGroups()
   const { members } = useGroupMembers()
   const [expanded, setExpanded] = useState(false)
+  const [addGoalOpen, setAddGoalOpen] = useState(false)
 
   const projectGoals = useMemo(
     () => goals.filter((g) => !g.deleted_at && g.project_id === projectId),
@@ -48,8 +55,41 @@ export default function ProjectMoonRing({ projectId }) {
   )
   const { overall, scored } = useMemo(() => moonGetData(new Date(), data), [data])
 
-  /* No goals tied to this project → nothing to show. */
-  if (!overall) return null
+  /* No goals tied to this project. The ring used to return null here, which
+     meant a project without goals showed no trace that goals could be tied to
+     one at all — the feature was invisible to exactly the people who had not
+     found it yet. A chip in the ring's place says it exists and opens the
+     goal form with this project already filled in.
+
+     Adding is safe from here, unlike UPDATING: goal entries are written
+     through useGoalEntries, which is local component state this instance
+     never sees, so a progress update made here would leave the ring stale
+     (see the note in ProjectQuickRow). A new goal goes through useGoals —
+     the shared cache — so the ring picks it up on the next render. */
+  if (!overall) {
+    return (
+      <>
+        <Btn
+          type="button"
+          className="pd-moon-empty"
+          onClick={() => setAddGoalOpen(true)}
+        >
+          <Target size={20} strokeWidth={1.6} aria-hidden="true" />
+          <Txt className="pd-moon-empty-text">{t('detail.moon.addGoal')}</Txt>
+        </Btn>
+        <AddGoalModal
+          open={addGoalOpen}
+          onClose={() => setAddGoalOpen(false)}
+          categories={categories}
+          projects={projects}
+          questions={questions}
+          onAddQuestion={addQuestion}
+          initialProject={projectId}
+          onSave={addGoal}
+        />
+      </>
+    )
+  }
 
   const conf = overall.confidence ?? 0
   const pure = overall.pure

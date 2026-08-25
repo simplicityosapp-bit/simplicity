@@ -31,7 +31,9 @@
     "add": "Add a project",
     "whyImportant": "Why does this matter?",
     "allEnded_one": "All your projects are finished.",
-    "allEnded_other": "All your projects are finished."
+    "allEnded_other": "All your projects are finished.",
+    "noMatch": "No project matches \"{{query}}\".",
+    "clearSearch": "Clear search"
   },
   "delete": {
     "title": "Delete project",
@@ -68,7 +70,11 @@
     "stats": {
       "clients": "Clients",
       "incomeMonth": "Income this month",
-      "groups": "Groups"
+      "groups": "Groups",
+      "incomeTotal": "Income to date",
+      "income": "Income",
+      "expenses": "Expenses",
+      "net": "Net"
     },
     "undo": {
       "groupDeleted": "Group deleted",
@@ -109,6 +115,15 @@
       "private": "Private",
       "addToProject": "Add <mg>client</mg> to project"
     },
+    "meetings": {
+      "title": "Upcoming meetings",
+      "empty": "No meetings scheduled for this project.",
+      "untitled": "(untitled)",
+      "openAria": "Open the calendar — {{name}}, {{date}} at {{time}}",
+      "more_one": "And one more.",
+      "more_other": "And {{count}} more.",
+      "toCalendar": "To the calendar"
+    },
     "reminders": {
       "title": "Linked reminders",
       "empty": "No linked reminders",
@@ -122,7 +137,8 @@
     "leads": {
       "title": "Leads",
       "empty": "No leads linked to this project.",
-      "openAria": "Open lead {{name}}"
+      "openAria": "Open lead {{name}}",
+      "add": "+ Lead for this project"
     },
     "leadPages": {
       "title": "Lead pages",
@@ -161,9 +177,9 @@
       "moveHere": "Move here"
     },
     "chart": {
-      "title": "Cumulative income — this month",
+      "title": "Income through the month",
       "empty": "No income for this project this month.",
-      "aria": "Cumulative project income by day of month"
+      "aria": "Project income across the days of the month"
     },
     "quick": {
       "add": "Quick add",
@@ -173,7 +189,8 @@
       "aria": "Project at-a-glance {{percent}}%",
       "ofPace": "of pace",
       "percentOfGoal": "{{percent}}% of goal",
-      "expandedEmpty": "No active goals with data this month yet."
+      "expandedEmpty": "No active goals with data this month yet.",
+      "addGoal": "Set a goal for this project"
     },
     "tasks": {
       "title": "Tasks",
@@ -195,5 +212,14 @@
     "aria": "Filter projects",
     "active": "Active",
     "all": "All"
+  },
+  "searchPlaceholder": "Search projects…",
+  "searchAria": "Search projects",
+  "sort": {
+    "aria": "Sort projects",
+    "recent": "Newest",
+    "name": "By name",
+    "income": "Highest income",
+    "clients": "Most clients"
   }
 }

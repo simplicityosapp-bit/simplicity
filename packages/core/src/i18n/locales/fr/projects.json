@@ -31,7 +31,9 @@
     "add": "Ajouter un projet",
     "whyImportant": "Pourquoi est-ce important ?",
     "allEnded_one": "Tous vos projets sont terminés.",
-    "allEnded_other": "Tous vos projets sont terminés."
+    "allEnded_other": "Tous vos projets sont terminés.",
+    "noMatch": "Aucun projet ne correspond à « {{query}} ».",
+    "clearSearch": "Effacer la recherche"
   },
   "delete": {
     "title": "Supprimer le projet",
@@ -68,7 +70,11 @@
     "stats": {
       "clients": "Clients",
       "incomeMonth": "Revenu ce mois-ci",
-      "groups": "Groupes"
+      "groups": "Groupes",
+      "incomeTotal": "Revenus cumulés",
+      "income": "Revenus",
+      "expenses": "Dépenses",
+      "net": "Net"
     },
     "undo": {
       "groupDeleted": "Groupe supprimé",
@@ -109,6 +115,15 @@
       "private": "Privé",
       "addToProject": "Ajouter un <mg>client</mg> au projet"
     },
+    "meetings": {
+      "title": "Rendez-vous à venir",
+      "empty": "Aucun rendez-vous prévu pour ce projet.",
+      "untitled": "(sans nom)",
+      "openAria": "Ouvrir le calendrier — {{name}}, le {{date}} à {{time}}",
+      "more_one": "Et un de plus.",
+      "more_other": "Et {{count}} de plus.",
+      "toCalendar": "Vers le calendrier"
+    },
     "reminders": {
       "title": "Rappels liés",
       "empty": "Aucun rappel lié",
@@ -122,7 +137,8 @@
     "leads": {
       "title": "Prospects",
       "empty": "Aucun prospect lié à ce projet.",
-      "openAria": "Ouvrir le prospect {{name}}"
+      "openAria": "Ouvrir le prospect {{name}}",
+      "add": "+ Prospect pour le projet"
     },
     "leadPages": {
       "title": "Pages de prospects",
@@ -161,9 +177,9 @@
       "moveHere": "Déplacer ici"
     },
     "chart": {
-      "title": "Revenu cumulé — ce mois-ci",
+      "title": "Évolution des revenus — ce mois-ci",
       "empty": "Aucun revenu pour ce projet ce mois-ci.",
-      "aria": "Revenu cumulé du projet par jour du mois"
+      "aria": "Revenus du projet au fil des jours du mois"
     },
     "quick": {
       "add": "Ajout rapide",
@@ -173,7 +189,8 @@
       "aria": "Aperçu du projet {{percent}} %",
       "ofPace": "du rythme",
       "percentOfGoal": "{{percent}} % de l'objectif",
-      "expandedEmpty": "Aucun objectif actif avec des données ce mois-ci pour l'instant."
+      "expandedEmpty": "Aucun objectif actif avec des données ce mois-ci pour l'instant.",
+      "addGoal": "Définir un objectif"
     },
     "tasks": {
       "title": "Tâches",
@@ -195,5 +212,14 @@
     "aria": "Filtrer les projets",
     "active": "Actifs",
     "all": "Tous"
+  },
+  "searchPlaceholder": "Rechercher un projet…",
+  "searchAria": "Rechercher un projet",
+  "sort": {
+    "aria": "Trier les projets",
+    "recent": "Plus récents",
+    "name": "Par nom",
+    "income": "Revenus les plus élevés",
+    "clients": "Le plus de clients"
   }
 }

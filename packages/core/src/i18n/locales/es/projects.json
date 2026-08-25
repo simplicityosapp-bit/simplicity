@@ -31,7 +31,9 @@
     "add": "Añadir un proyecto",
     "whyImportant": "¿Por qué es importante?",
     "allEnded_one": "Todos tus proyectos han finalizado.",
-    "allEnded_other": "Todos tus proyectos han finalizado."
+    "allEnded_other": "Todos tus proyectos han finalizado.",
+    "noMatch": "Ningún proyecto coincide con \"{{query}}\".",
+    "clearSearch": "Borrar búsqueda"
   },
   "delete": {
     "title": "Eliminar proyecto",
@@ -68,7 +70,11 @@
     "stats": {
       "clients": "Clientes",
       "incomeMonth": "Ingresos este mes",
-      "groups": "Grupos"
+      "groups": "Grupos",
+      "incomeTotal": "Ingresos totales",
+      "income": "Ingresos",
+      "expenses": "Gastos",
+      "net": "Neto"
     },
     "undo": {
       "groupDeleted": "Grupo eliminado",
@@ -109,6 +115,15 @@
       "private": "Privado",
       "addToProject": "Añadir <mg>cliente</mg> al proyecto"
     },
+    "meetings": {
+      "title": "Reuniones programadas",
+      "empty": "No hay reuniones programadas para este proyecto.",
+      "untitled": "(sin nombre)",
+      "openAria": "Abrir el calendario — {{name}}, {{date}} a las {{time}}",
+      "more_one": "Y una más.",
+      "more_other": "Y {{count}} más.",
+      "toCalendar": "Al calendario"
+    },
     "reminders": {
       "title": "Recordatorios vinculados",
       "empty": "No hay recordatorios vinculados",
@@ -122,7 +137,8 @@
     "leads": {
       "title": "Prospectos",
       "empty": "No hay prospectos vinculados a este proyecto.",
-      "openAria": "Abrir el prospecto {{name}}"
+      "openAria": "Abrir el prospecto {{name}}",
+      "add": "+ Prospecto para el proyecto"
     },
     "leadPages": {
       "title": "Páginas de captación",
@@ -161,9 +177,9 @@
       "moveHere": "Mover aquí"
     },
     "chart": {
-      "title": "Ingresos acumulados — este mes",
+      "title": "Evolución de ingresos — este mes",
       "empty": "No hay ingresos para este proyecto este mes.",
-      "aria": "Ingresos acumulados del proyecto por día del mes"
+      "aria": "Ingresos del proyecto a lo largo de los días del mes"
     },
     "quick": {
       "add": "Añadir rápido",
@@ -173,7 +189,8 @@
       "aria": "Vista rápida del proyecto {{percent}}%",
       "ofPace": "del ritmo",
       "percentOfGoal": "{{percent}}% del objetivo",
-      "expandedEmpty": "Aún no hay objetivos activos con datos este mes."
+      "expandedEmpty": "Aún no hay objetivos activos con datos este mes.",
+      "addGoal": "Definir un objetivo"
     },
     "tasks": {
       "title": "Tareas",
@@ -195,5 +212,14 @@
     "aria": "Filtrar proyectos",
     "active": "Activos",
     "all": "Todos"
+  },
+  "searchPlaceholder": "Buscar proyectos…",
+  "searchAria": "Buscar proyectos",
+  "sort": {
+    "aria": "Ordenar proyectos",
+    "recent": "Más recientes",
+    "name": "Por nombre",
+    "income": "Mayores ingresos",
+    "clients": "Más clientes"
   }
 }

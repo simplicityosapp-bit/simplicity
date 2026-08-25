@@ -60,8 +60,11 @@ describe('the screen keeps the summary unfiltered', () => {
   const src = read('src/screens/projects/index.jsx')
 
   it('filters the cards, not the totals', () => {
-    /* visibleCards is the filtered list; totals is computed from `projects`. */
-    expect(src).toMatch(/const visibleCards = scope === 'all'/)
+    /* The active/all filter narrows the CARDS into `scopedCards`; `totals` is
+       computed from the full `projects` list a few lines above and never
+       touches either. (Search and sort then narrow scopedCards further into
+       visibleCards — see project-search-sort.test.js.) */
+    expect(src).toMatch(/const scopedCards = scope === 'all' \? cards : cards\.filter/)
     expect(src).toMatch(/visibleCards\.map/)
   })
 

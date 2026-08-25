@@ -503,6 +503,10 @@
           "body": "En la parte superior de la pantalla hay un interruptor «Mensual» / «Acumulado» que cambia el rango de los ingresos. En modo «Mensual» los números muestran los ingresos del mes actual. En modo «Acumulado» muestran todos los ingresos desde el principio hasta hoy."
         },
         {
+          "title": "Buscar y ordenar la lista",
+          "body": "A partir de seis proyectos, aparecen encima de la lista un cuadro de búsqueda y un menú de orden. La búsqueda es por nombre de proyecto, no distingue mayúsculas, y cada palabra que añades reduce más. Puedes ordenar por \"Más recientes\" (por defecto), \"Por nombre\", \"Mayores ingresos\" o \"Más clientes\". Si la búsqueda no encuentra nada, aparece un mensaje con un botón para borrarla."
+        },
+        {
           "title": "Resumen de proyectos",
           "body": "La tarjeta «Resumen de proyectos» en la parte superior de la pantalla muestra cuántos proyectos existen, cuántos clientes están asignados a ellos y los ingresos totales («Ingresos mensuales» o «Ingresos acumulados», según el interruptor)."
         },
@@ -523,20 +527,24 @@
           "body": "En cuanto hay un proyecto finalizado, aparece encima de la lista un interruptor \"Activos\" / \"Todos\" (con el número de proyectos finalizados al lado). \"Activos\" es el valor por defecto. Si todos los proyectos han finalizado, la lista lo dice y ofrece un botón para mostrarlos. Este interruptor solo oculta y muestra tarjetas — no cambia los números del \"Resumen de proyectos\"."
         },
         {
-          "title": "Pantalla de proyecto: encabezado y estadísticas",
-          "body": "Arriba del proyecto aparece su nombre con el punto de color, y debajo cuántos clientes activos tiene (y los que están \"en pausa\", si los hay). Al lado hay una tarjeta con tres estadísticas: clientes, \"Ingresos este mes\" y grupos. La flecha vuelve a la lista de proyectos y el lápiz abre \"Editar proyecto\". Nota: \"Ingresos este mes\" dentro del proyecto siempre corresponde al mes actual, y no le afecta el interruptor mensual/acumulado de la pantalla principal."
+          "title": "Pantalla de proyecto: encabezado, personas y dinero",
+          "body": "Arriba del proyecto aparece su nombre con el punto de color, y debajo cuántos clientes activos tiene (y los que están \"en pausa\", si los hay). Debajo hay dos tarjetas: la primera cuenta clientes y grupos, la segunda muestra el dinero — ingresos, gastos y neto. La flecha vuelve a la lista de proyectos y el lápiz abre \"Editar proyecto\"."
+        },
+        {
+          "title": "Ingresos, gastos y neto",
+          "body": "La tarjeta de dinero muestra tres cifras: cuánto ingresó el proyecto, cuánto costó y cuánto queda. Ambos lados se cuentan exactamente igual — transacciones etiquetadas al proyecto, o transacciones de clientes que le pertenecen — de lo contrario la diferencia entre ellos no significaría nada. Un interruptor \"Mensual\" / \"Total\" en la esquina de la tarjeta mueve las tres cifras juntas entre el mes actual y todo desde el principio. Un neto por debajo de cero se colorea."
         },
         {
           "title": "Anillo de visión general del proyecto",
-          "body": "Si has vinculado objetivos a este proyecto, aparece arriba un anillo con un porcentaje — qué tan bien mantienes el ritmo que esos objetivos exigen hasta el final del período, y debajo cuánto del objetivo ya se ha logrado. Al tocar el anillo se abre un desglose por objetivo con dos barras cada uno: ritmo y logro. Si el proyecto no tiene objetivos, el anillo simplemente no aparece. Los objetivos se crean y actualizan en la pantalla Objetivos."
+          "body": "Si has vinculado objetivos a este proyecto, aparece arriba un anillo con un porcentaje — qué tan bien mantienes el ritmo que esos objetivos exigen hasta el final del período, y debajo cuánto del objetivo ya se ha logrado. Al tocar el anillo se abre un desglose por objetivo con dos barras cada uno: ritmo y logro. Si el proyecto aún no tiene objetivos, en lugar del anillo aparece un botón \"Definir un objetivo\" que abre el formulario con el proyecto ya rellenado. Las actualizaciones de progreso se hacen en la pantalla Objetivos."
         },
         {
           "title": "Añadir rápido dentro del proyecto",
           "body": "Cada pantalla de proyecto tiene un botón \"Añadir rápido\" que abre un selector: transacción, cliente, tarea, objetivo, recordatorio o reunión. Lo que elijas se abre con el proyecto actual ya puesto en su campo de proyecto — pero puedes cambiarlo en el formulario, y lo que dejes ahí es lo que se guarda. (Una reunión se vincula a un cliente y no a un proyecto, por lo que no tiene campo de proyecto.)"
         },
         {
-          "title": "Gráfico de ingresos acumulados",
-          "body": "Debajo de la fila de añadir hay un gráfico «Ingresos acumulados — este mes» que muestra cómo se acumularon los ingresos del proyecto a lo largo del mes, con el total junto al encabezado. Si no hay ingresos este mes, se muestra «No hay ingresos para este proyecto este mes.»."
+          "title": "Gráfico de evolución de ingresos",
+          "body": "Debajo de la fila de añadir hay un gráfico «Ingresos acumulados — este mes» que muestra cómo se acumularon los ingresos del proyecto a lo largo del mes, con el total junto al encabezado. Si no hay ingresos este mes, se muestra «No hay ingresos para este proyecto este mes.». Nota: este gráfico siempre cubre el mes actual — no sigue el interruptor mensual/total de la tarjeta de estadísticas de arriba."
         },
         {
           "title": "Grupos en un proyecto",
@@ -559,6 +567,10 @@
           "body": "La sección «Clientes» muestra todos los clientes del proyecto, con su etiqueta de grupo o una etiqueta «Privado» si no están en un grupo. Al hacer clic en un cliente se abre su ficha, y «+ Añadir cliente al proyecto» añade un nuevo cliente que queda vinculado al proyecto de antemano."
         },
         {
+          "title": "Reuniones programadas",
+          "body": "La sección \"Reuniones programadas\" reúne las reuniones futuras del proyecto — las de sus grupos y las de sus clientes. Cada fila muestra el nombre, la fecha y la hora, y una etiqueta que dice en cuántos días es. La sección está abierta por defecto, y al tocar una fila se abre el calendario. Se listan hasta seis reuniones; si hay más, se indica cuántas quedan con un enlace al calendario. Una reunión confirmada u omitida ya no es futura y no aparece aquí."
+        },
+        {
           "title": "Tareas del proyecto",
           "body": "La sección \"Tareas\" reúne las tareas del proyecto — tanto las que etiquetaste directamente como las tareas de sus clientes (en ese caso el nombre del cliente aparece bajo el título de la tarea). El número junto a \"Tareas\" es cuántas siguen abiertas; al pasar el cursor se ve el cuadro completo (\"2 de 5 tareas pendientes\"). Cada tarea tiene un ✓ para marcarla como completada (tocar de nuevo la reabre) y una papelera para eliminarla, y aparece un mensaje de deshacer justo después. \"Añadir tarea\" abre una tarea nueva ya vinculada al proyecto."
         },
@@ -568,7 +580,7 @@
         },
         {
           "title": "Prospectos del proyecto",
-          "body": "La sección \"Prospectos\" muestra los prospectos asignados al proyecto, cada uno con su clasificación. Al tocar un prospecto se abre directamente en su ficha de edición en la pantalla de Prospectos. Los prospectos que llegaron de una página de captación y siguen esperando aprobación no aparecen aquí — están en la sección de aprobaciones de la pantalla de Prospectos. El proyecto de un prospecto se define en su propio formulario."
+          "body": "La sección \"Prospectos\" muestra los prospectos asignados al proyecto, cada uno con su clasificación. Al tocar un prospecto se abre directamente en su ficha de edición en la pantalla de Prospectos, y \"+ Prospecto para el proyecto\" abre uno nuevo ya vinculado. Los prospectos que llegaron de una página de captación y siguen esperando aprobación no aparecen aquí — están en la sección de aprobaciones de la pantalla de Prospectos."
         },
         {
           "title": "Páginas de captación del proyecto",

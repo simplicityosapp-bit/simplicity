@@ -503,6 +503,10 @@
           "body": "At the top of the screen there's a \"Monthly\" / \"Cumulative\" toggle that changes the revenue range. In \"Monthly\" mode the numbers show the current month's income. In \"Cumulative\" mode they show all income from the beginning to today."
         },
         {
+          "title": "Search and sort the list",
+          "body": "From six projects upwards, a search box and a sort menu appear above the list. Search is by project name, is case-insensitive, and every word you add narrows further. You can sort by \"Newest\" (the default), \"By name\", \"Highest income\" or \"Most clients\". If the search finds nothing, a message appears with a button to clear it."
+        },
+        {
           "title": "Projects Summary",
           "body": "The \"Projects Summary\" card at the top of the screen shows how many projects exist, how many clients are assigned to them, and total revenue (\"Monthly Income\" or \"Cumulative Income\", depending on the toggle)."
         },
@@ -523,20 +527,24 @@
           "body": "As soon as one project is finished, an \"Active\" / \"All\" switch appears above the list (with the number of finished projects beside it). \"Active\" is the default. If every project is finished, the list says so and offers a button to show them. This switch only hides and shows cards — it does not change the numbers in \"Projects summary\"."
         },
         {
-          "title": "Project screen: header and stats",
-          "body": "The top of a project shows its name with the colour dot, and beneath it how many active clients it has (and any \"paused\" ones). Beside that is a card with three stats: clients, \"Income this month\" and groups. The arrow returns to the projects list and the pencil opens \"Edit project\". Note: \"Income this month\" inside a project is always the current month, and is not affected by the monthly/cumulative switch on the main screen."
+          "title": "Project screen: header, people and money",
+          "body": "The top of a project shows its name with the colour dot, and beneath it how many active clients it has (and any \"paused\" ones). Below that are two cards: the first counts clients and groups, the second shows the money — income, expenses and net. The arrow returns to the projects list and the pencil opens \"Edit project\"."
+        },
+        {
+          "title": "Income, expenses and net",
+          "body": "The money card shows three figures: what the project brought in, what it cost, and what is left. Both sides are counted exactly the same way — transactions tagged to the project, or transactions of clients belonging to it — otherwise the difference between them would mean nothing. A \"Monthly\" / \"To date\" switch in the card's corner moves all three together between the current month and everything since the start. A net below zero is coloured."
         },
         {
           "title": "Project overview ring",
-          "body": "If you have linked goals to this project, a ring with a percentage appears at the top of the screen — how well you are keeping the pace those goals need by the end of the period, with how much of the goal is already achieved below it. Tapping the ring opens a per-goal breakdown with two bars each: pace and achievement. If the project has no goals, the ring simply does not appear. Goals are created and updated on the Goals screen."
+          "body": "If you have linked goals to this project, a ring with a percentage appears at the top of the screen — how well you are keeping the pace those goals need by the end of the period, with how much of the goal is already achieved below it. Tapping the ring opens a per-goal breakdown with two bars each: pace and achievement. If the project has no goals yet, a \"Set a goal for this project\" button appears in the ring's place and opens the goal form with the project already filled in. Progress updates are made on the Goals screen."
         },
         {
           "title": "Quick add inside a project",
           "body": "Every project screen has a \"Quick add\" button that opens a picker: transaction, client, task, goal, reminder or meeting. Whatever you choose opens with the current project already filled into its project field — but you can change it in the form, and whatever you leave there is what gets saved. (A meeting is linked to a client rather than a project, so it has no project field.)"
         },
         {
-          "title": "Cumulative Income Chart",
-          "body": "Below the add row there's a \"Cumulative Income — This Month\" chart showing how the project's income accumulated over the month, with the total beside the heading. If there's no income this month, \"No income for this project this month.\" is shown."
+          "title": "Income-through-the-month chart",
+          "body": "Below the add row there's an \"Income through the month\" chart showing how the project's income accumulated over the month, with the total beside the heading. If there's no income this month, \"No income for this project this month.\" is shown. Note this chart always covers the current month — it does not follow the monthly/to-date switch on the stats card above it."
         },
         {
           "title": "Groups in a Project",
@@ -559,6 +567,10 @@
           "body": "The \"Clients\" section shows all clients in the project, with their group tag or a \"Private\" tag if they're not in a group. Clicking a client opens their client card, and \"+ Add Client to Project\" adds a new client who is pre-linked to the project."
         },
         {
+          "title": "Upcoming meetings",
+          "body": "The \"Upcoming meetings\" section gathers the project's future meetings — those of its groups and of its clients. Each row shows the name, the date and time, and a tag saying how many days away it is. The section is open by default, and tapping a row opens the calendar. Up to six meetings are listed; if there are more, the count is stated with a link to the calendar. A confirmed or skipped meeting is no longer upcoming and does not appear here."
+        },
+        {
           "title": "Project tasks",
           "body": "The \"Tasks\" section gathers the project's tasks — both the ones you tagged to it directly and tasks belonging to its clients (in which case the client's name appears under the task title). The number beside \"Tasks\" is how many are still open; hovering it shows the full picture (\"2 of 5 tasks still open\"). Each task has a ✓ to mark it done (tapping again reopens it) and a bin to delete it, and an undo message appears right after a delete. \"Add task\" opens a new task already linked to the project."
         },
@@ -568,7 +580,7 @@
         },
         {
           "title": "Project leads",
-          "body": "The \"Leads\" section shows the leads assigned to the project, each with its classification. Tapping a lead opens it directly in its edit card on the Leads screen. Leads that arrived from a landing page and are still awaiting approval do not appear here — they sit in the approvals section of the Leads screen. A lead's project is set in the lead's own form."
+          "body": "The \"Leads\" section shows the leads assigned to the project, each with its classification. Tapping a lead opens it directly in its edit card on the Leads screen, and \"+ Lead for this project\" opens a new lead already tied to the project. Leads that arrived from a lead page and are still awaiting approval do not appear here — they sit in the approvals section of the Leads screen."
         },
         {
           "title": "Project lead pages",

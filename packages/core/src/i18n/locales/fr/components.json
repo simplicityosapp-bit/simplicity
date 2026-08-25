@@ -42,7 +42,9 @@
       "session": "Séance supprimée",
       "sitePage": "Page supprimée",
       "task": "Tâche supprimée",
-      "transaction": "Transaction supprimée"
+      "transaction": "Transaction supprimée",
+      "answer": "Réponse supprimée",
+      "adjustment": "Ajustement supprimé"
     }
   },
   "errors": {

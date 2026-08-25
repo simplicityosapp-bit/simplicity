@@ -211,7 +211,12 @@
     "moreQueued": "שינית גם «שולם» וגם «יתרה» — אחרי ההתאמה הזאת תיפתח עוד אחת לשינוי השני.",
     "writeOffs": "מחיקות חוב",
     "unexplained": "התאמה ללא פירוט",
-    "unexplainedSub": "נרשמה מחוץ למסך הזה"
+    "unexplainedSub": "נרשמה מחוץ למסך הזה",
+    "deleteAria": "מחיקת ההתאמה",
+    "deleteTitle": "מחיקת התאמה",
+    "deleteMessage": "למחוק את ההתאמה על {{amount}}? הסכום יוחזר למקום שממנו הוזז.",
+    "deleteConfirm": "מחק",
+    "undoDeleted": "ההתאמה בוטלה"
   },
   "plan": {
     "title": "פריסת תשלומים",

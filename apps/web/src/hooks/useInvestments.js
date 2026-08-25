@@ -6,6 +6,7 @@ import {
   removeInvestment as apiRemoveInvestment, restoreInvestment,
 } from '../lib/api/investments'
 import { useTransactions } from './useTransactions'
+import { restoreTransaction } from '../lib/api/transactions'
 import { useCategories } from './useCategories'
 import { pushUndo } from '../lib/undo'
 import { showError } from '../lib/toast'
@@ -102,22 +103,39 @@ export function useInvestments() {
   }, [ensureCategory, addTransaction, removeTransaction, qc])
 
   /* Soft-delete the pair together — from the user's side "השקעתי" was one
-     action, so undoing it is one action too. Both are restorable. */
+     action, so undoing it is one action too. Both are restorable.
+
+     This went a long time with no caller (the widget recorded money and never
+     listed it), and two halves of that promise were never true in practice:
+     the transaction was removed WITHOUT `silent`, so its own undo replaced
+     this one (pushUndo is single-level) and the toast that survived restored
+     only the transaction — while this undo restored only the investment. Both
+     directions now move the pair. */
   const undoInvestment = useCallback(async (id) => {
     const row = (qc.getQueryData(KEY) ?? []).find((r) => r.id === id)
     if (!row) return
+    const txId = row.transaction_id || null
     qc.setQueryData(KEY, (prev) => (prev ?? []).filter((r) => r.id !== id))
     try {
       await apiRemoveInvestment(id)
-      if (row.transaction_id) await removeTransaction(row.transaction_id).catch(() => {})
+      if (txId) await removeTransaction(txId, { silent: true }).catch(() => {})
       pushUndo({
         label: i18n.t('finance:investment.undoLabel'),
         undo: async () => {
-          try { await restoreInvestment(id) } finally { qc.invalidateQueries({ queryKey: KEY }) }
+          try {
+            await restoreInvestment(id)
+            if (txId) await restoreTransaction(txId).catch(() => {})
+          } finally {
+            qc.invalidateQueries({ queryKey: KEY })
+            qc.invalidateQueries({ queryKey: ['transactions'] })
+          }
         },
         redo: async () => {
           qc.setQueryData(KEY, (prev) => (prev ?? []).filter((r) => r.id !== id))
-          try { await apiRemoveInvestment(id) } catch { qc.invalidateQueries({ queryKey: KEY }) }
+          try {
+            await apiRemoveInvestment(id)
+            if (txId) await removeTransaction(txId, { silent: true }).catch(() => {})
+          } catch { qc.invalidateQueries({ queryKey: KEY }) }
         },
       })
     } catch {

@@ -121,7 +121,8 @@
     "followupDone": "Seguimiento marcado como hecho",
     "actionFailed": "La acción falló. Inténtalo de nuevo.",
     "meetingRescheduled": "Cita reprogramada",
-    "meetingCanceled": "Cita cancelada"
+    "meetingCanceled": "Cita cancelada",
+    "meetingDeleted": "Cita eliminada"
   },
   "kinds": {
     "followup": "Seguimiento",

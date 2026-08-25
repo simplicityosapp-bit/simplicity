@@ -81,8 +81,10 @@
     "summaryPlaceholder": "Qu'est-ce qui est ressorti ? Quelle est la prochaine étape ?",
     "notes": "Notes privées (facultatif)",
     "notesPlaceholder": "Une note pour vous-même",
+    "delete": "Supprimer la séance",
     "deleteTitle": "Supprimer la séance",
-    "deleteMessage": "Supprimer la séance enregistrée ?"
+    "deleteMessage": "Supprimer la séance enregistrée ? Vous pourrez la restaurer depuis la corbeille pendant 30 jours.",
+    "deleteConfirm": "Supprimer"
   },
   "meeting": {
     "title": "Planifier un rendez-vous",
@@ -191,6 +193,8 @@
     "reschedule": "Reporter",
     "cancelMeeting": "Annuler le rendez-vous",
     "cancelMeetingConfirm": "Annuler ce rendez-vous ?",
+    "deleteMeeting": "Supprimer le rendez-vous",
+    "deleteMeetingConfirm": "Sûr ? Le rendez-vous et son compte rendu partent",
     "moveRequired": "Choisissez une date et une heure.",
     "moveFailed": "Impossible de déplacer le rendez-vous — il y en a peut-être déjà un à cette heure.",
     "yes": "Oui",

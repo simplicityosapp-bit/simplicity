@@ -30,7 +30,7 @@ const STATUS_PILL = {
 const STATUS_ORDER = ['active', 'wandering', 'past', 'no_status']
 const initials = (name) => (name || '').split(' ').map((w) => w[0] || '').join('').slice(0, 2).toUpperCase()
 
-export default function ClientDrawer({ clientId, clients, transactions, sessions, members, groups, tasks = [], reminders = [], onClose, updateClient, deleteClient, addTransaction, addSession, updateSession, updateTask, deleteTask, updateTransaction, deleteTransaction, updateReminder, deleteReminder, updateMember }) {
+export default function ClientDrawer({ clientId, clients, transactions, sessions, members, groups, tasks = [], reminders = [], onClose, updateClient, deleteClient, addTransaction, addSession, updateSession, deleteSession, updateTask, deleteTask, updateTransaction, deleteTransaction, updateReminder, deleteReminder, updateMember }) {
   const insets = useSafeAreaInsets()
   const { projects } = useFormOptions()
   const [editing, setEditing] = useState(false)
@@ -410,6 +410,7 @@ export default function ClientDrawer({ clientId, clients, transactions, sessions
         client={client}
         onClose={() => setEditSession(null)}
         onSave={(patch) => updateSession(editSession.id, patch)}
+        onDelete={deleteSession}
       />
       <AddTaskModal
         open={!!editTask}

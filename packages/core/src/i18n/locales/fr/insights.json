@@ -46,7 +46,11 @@
   "history": {
     "title": "Historique",
     "empty": "Aucune réponse dans votre historique pour l'instant.",
-    "deletedQuestion": "Question supprimée"
+    "deletedQuestion": "Question supprimée",
+    "deleteAria": "Supprimer la réponse",
+    "deleteTitle": "Supprimer la réponse",
+    "deleteMessage": "Supprimer la réponse {{value}} du {{date}} ? Vous pourrez la restaurer depuis la corbeille pendant 30 jours.",
+    "deleteConfirm": "Supprimer"
   },
   "delete": {
     "title": "Supprimer la question",

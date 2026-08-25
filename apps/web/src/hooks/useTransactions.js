@@ -39,12 +39,20 @@ export function useTransactions() {
     }
   }, [qc])
 
-  const removeTransaction = useCallback(async (id) => {
+  /* `silent` suppresses the stand-alone "transaction deleted" undo — the same
+     escape hatch useSessions.removeSession carries, and for the same reason:
+     pushUndo is single-level, so a caller that deletes this row AS PART of a
+     larger action (an investment record and the expense it created) has to own
+     the one undo that covers both, or the last registration wins and the rest
+     is stranded half-applied. */
+  const removeTransaction = useCallback(async (id, { silent = false } = {}) => {
     const row = (qc.getQueryData(KEY) ?? []).find((t) => t.id === id)
     qc.setQueryData(KEY, (prev) => (prev ?? []).filter((t) => t.id !== id))
     try {
       await apiRemoveTx(id)
-      registerDeleteUndo({ qc, key: KEY, row, label: i18n.t('components:undo.deleted.transaction'), restoreFn: restoreTransaction, deleteFn: apiRemoveTx })
+      if (!silent) {
+        registerDeleteUndo({ qc, key: KEY, row, label: i18n.t('components:undo.deleted.transaction'), restoreFn: restoreTransaction, deleteFn: apiRemoveTx })
+      }
     } catch { qc.invalidateQueries({ queryKey: KEY }) }
   }, [qc])
 

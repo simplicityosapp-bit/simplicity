@@ -17,7 +17,7 @@ const pad = (n) => String(n).padStart(2, '0')
 const datePart = (iso) => { const d = new Date(iso); return Number.isNaN(d.getTime()) ? '' : `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}` }
 const timePart = (iso) => { const d = new Date(iso); return Number.isNaN(d.getTime()) ? '' : `${pad(d.getHours())}:${pad(d.getMinutes())}` }
 
-export default function EventDetailsModal({ open, onClose, event, onConfirmMeeting, onSkipMeeting, onUpdateEvent, onDeleteEvent, billClient = null, onBillSession }) {
+export default function EventDetailsModal({ open, onClose, event, onConfirmMeeting, onSkipMeeting, onUpdateEvent, onDeleteEvent, onDeleteMeeting, billClient = null, onBillSession }) {
   const [editing, setEditing] = useState(false)
   const [form, setForm] = useState({ title: '', date: '', start: '', end: '' })
   const [err, setErr] = useState('')
@@ -74,6 +74,15 @@ export default function EventDetailsModal({ open, onClose, event, onConfirmMeeti
       { text: T('delete'), style: 'destructive', onPress: run(onDeleteEvent) },
     ])
   }
+  // A confirmed meeting was a dead end here too — one line saying it happened
+  // and nothing to do about it. Deleting flips it to 'skipped' (rendered
+  // nowhere) and drops the session it materialised, mirroring web.
+  const confirmDeleteMeeting = () => {
+    Alert.alert(T('deleteMeeting'), T('deleteMeetingConfirm'), [
+      { text: i18n.t('modalsData:common.cancel', { defaultValue: 'ביטול' }), style: 'cancel' },
+      { text: T('delete'), style: 'destructive', onPress: run(onDeleteMeeting) },
+    ])
+  }
 
   return (
     <Sheet open={open} onClose={onClose} title={T('title')}>
@@ -119,7 +128,16 @@ export default function EventDetailsModal({ open, onClose, event, onConfirmMeeti
         </View>
       ) : null}
       {isMeeting && event.status === 'confirmed' && !billStep ? (
-        <Text style={styles.confirmed}>{T('meetingConfirmed')}</Text>
+        <View style={styles.block}>
+          <Text style={styles.confirmed}>{T('meetingConfirmed')}</Text>
+          {onDeleteMeeting ? (
+            <View style={styles.actions}>
+              <Pressable style={[styles.btn, styles.skip]} onPress={confirmDeleteMeeting} disabled={busy}>
+                <Trash2 size={15} strokeWidth={2} color={colors.danger} /><Text style={styles.skipText}>{T('deleteMeeting')}</Text>
+              </Pressable>
+            </View>
+          ) : null}
+        </View>
       ) : null}
 
       {/* Calendar event — edit (reschedule) / delete */}

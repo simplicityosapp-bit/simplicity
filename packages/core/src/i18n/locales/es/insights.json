@@ -46,7 +46,11 @@
   "history": {
     "title": "Historial",
     "empty": "Aún no hay respuestas en tu historial.",
-    "deletedQuestion": "Pregunta eliminada"
+    "deletedQuestion": "Pregunta eliminada",
+    "deleteAria": "Eliminar respuesta",
+    "deleteTitle": "Eliminar respuesta",
+    "deleteMessage": "¿Eliminar la respuesta {{value}} del {{date}}? Puedes restaurarla desde la papelera durante 30 días.",
+    "deleteConfirm": "Eliminar"
   },
   "delete": {
     "title": "Eliminar pregunta",

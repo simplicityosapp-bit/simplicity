@@ -121,7 +121,8 @@
     "followupDone": "Relance marquée comme faite",
     "actionFailed": "L'action a échoué. Réessayez.",
     "meetingRescheduled": "Rendez-vous reporté",
-    "meetingCanceled": "Rendez-vous annulé"
+    "meetingCanceled": "Rendez-vous annulé",
+    "meetingDeleted": "Rendez-vous supprimé"
   },
   "kinds": {
     "followup": "Suivi",

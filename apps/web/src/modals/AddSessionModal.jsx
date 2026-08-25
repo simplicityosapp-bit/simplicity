@@ -1,6 +1,8 @@
 import { useState } from 'react'
+import { Trash2 } from 'lucide-react'
 import DateField from '../components/DateField'
 import Modal from './Modal'
+import ConfirmModal from './ConfirmModal'
 import { showToast } from '../lib/toast'
 import { useT } from '../i18n/useT'
 import { Box, Txt, Btn, Input, Textarea } from '../components/ui'
@@ -18,8 +20,14 @@ const fromSession = (s) => (s
 
 /* Log a past session. The caller composes the full row (client_id or group_id,
    subject_type, num). This modal collects when + summary + notes. Subject is
-   either a client (drawer flow) or a group (group flow). */
-export default function AddSessionModal({ open, onClose, onSave, client, group, nextNum, session = null }) {
+   either a client (drawer flow) or a group (group flow).
+
+   `onDelete(id)` is optional and only shows in EDIT mode — a documented
+   meeting used to be the one record in the app you could write but never take
+   back, so a mistyped or duplicated session was stuck on the client's card
+   (and in their session count) for good. Same shape as AddTaskModal's delete:
+   a soft delete, recoverable from the trash for 30 days. */
+export default function AddSessionModal({ open, onClose, onSave, onDelete, client, group, nextNum, session = null }) {
   const subject = group || client
   const subjectColor = group ? (group.color || 'var(--stone)') : 'var(--sage)'
   const isEdit = !!session
@@ -27,6 +35,7 @@ export default function AddSessionModal({ open, onClose, onSave, client, group, 
   const [form, setForm] = useState(() => fromSession(session))
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
+  const [confirmDelete, setConfirmDelete] = useState(false)
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }))
   const close = () => { setForm(fromSession(session)); setErr(''); setBusy(false); onClose() }
 
@@ -49,6 +58,7 @@ export default function AddSessionModal({ open, onClose, onSave, client, group, 
   }
 
   return (
+    <>
     <Modal open={open} onClose={close} title={isEdit ? t('session.titleEdit') : t('session.titleNew')}>
       {subject && (
         <Txt as="p" className="m-sub">
@@ -72,9 +82,28 @@ export default function AddSessionModal({ open, onClose, onSave, client, group, 
       {err && <Txt as="p" className="m-error">{err}</Txt>}
 
       <Box className="m-actions">
+        {onDelete && session?.id && (
+          <Btn type="button" className="m-btn-delete-inline" onClick={() => setConfirmDelete(true)}>
+            <Trash2 size={15} strokeWidth={1.8} aria-hidden="true" /> {t('session.delete')}
+          </Btn>
+        )}
         <Btn type="button" className="m-btn-cancel" onClick={close}>{t('common.cancel')}</Btn>
         <Btn type="button" className="m-btn-save" onClick={submit} disabled={busy}>{busy ? t('common.saving') : t('common.save')}</Btn>
       </Box>
     </Modal>
+
+    {/* Sibling of the sheet, NOT a child — every .m-sheet shares z-index 510,
+        so paint order is DOM order and a nested Modal's portal lands UNDER its
+        parent's. Same reason AddTaskModal keeps its confirm out here. */}
+    <ConfirmModal
+      open={confirmDelete}
+      onClose={() => setConfirmDelete(false)}
+      title={t('session.deleteTitle')}
+      message={t('session.deleteMessage')}
+      confirmLabel={t('session.deleteConfirm')}
+      danger
+      onConfirm={async () => { await onDelete(session.id); onClose() }}
+    />
+    </>
   )
 }

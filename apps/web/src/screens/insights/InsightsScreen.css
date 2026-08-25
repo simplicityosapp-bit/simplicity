@@ -445,3 +445,20 @@
   color: var(--espresso);
   font-variant-numeric: tabular-nums;
 }
+/* Matches .g-entry-del on the goals history — the same row, the same action,
+   so it gets the same quiet circular hit target rather than a second look. */
+.ins-history-del {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: var(--stone);
+  cursor: pointer;
+  flex-shrink: 0;
+  margin-inline-start: -4px;
+}
+.ins-history-del:active { transform: scale(0.9); }

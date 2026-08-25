@@ -208,6 +208,12 @@
     "recordNoFuture": "No se puede registrar una inversión con fecha futura",
     "recordCancel": "Cancelar",
     "recordConfirm": "Guardar",
-    "recordSaving": "Guardando…"
+    "recordSaving": "Guardando…",
+    "historyTitle": "Inversiones registradas",
+    "historyEmpty": "Aún no hay nada registrado en este periodo.",
+    "deleteAria": "Eliminar el registro",
+    "deleteTitle": "Eliminar registro de inversión",
+    "deleteMessage": "¿Eliminar el registro de {{amount}} del {{date}}? El gasto creado con él también se elimina. Puedes restaurar ambos desde la papelera durante 30 días.",
+    "deleteConfirm": "Eliminar"
   }
 }

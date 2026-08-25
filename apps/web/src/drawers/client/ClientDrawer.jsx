@@ -31,7 +31,7 @@ const STATUS_KEY = {
 const initials = (name) =>
   (name || '').split(' ').map((w) => w[0] || '').join('').slice(0, 2).toUpperCase()
 
-export default function ClientDrawer({ client, onClose, onDelete, projects = [], txns, tasks, reminders, sessions = [], members = [], groups = [], statuses = [], categories = [], clients = [], onLogSession, onAddPayment, onUpdateClient, onUpdateMember, onEditTransaction, onRemoveTransaction, onEditSession, onEditTask, onEditReminder, onIssued }) {
+export default function ClientDrawer({ client, onClose, onDelete, projects = [], txns, tasks, reminders, sessions = [], members = [], groups = [], statuses = [], categories = [], clients = [], onLogSession, onAddPayment, onUpdateClient, onUpdateMember, onEditTransaction, onRemoveTransaction, onEditSession, onRemoveSession, onEditTask, onRemoveTask, onEditReminder, onRemoveReminder, onIssued }) {
   const { t } = useT('clients')
   const waMsg = useWhatsAppMessage()
   const open = !!client
@@ -57,7 +57,7 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
   const headAdjust = adjustQueue[0] || null
   const queueAdjust = (entry) => setAdjustQueue((q) => [...q, entry])
   const shiftAdjust = () => setAdjustQueue((q) => (q.length ? q.slice(1) : q))
-  const { adjustments, addAdjustment } = useClientAdjustments()
+  const { adjustments, addAdjustment, removeAdjustment } = useClientAdjustments()
   const scrollRef = useRef(null)
 
   const clientAdjustments = client ? adjustments.filter((a) => a.client_id === client.id) : []
@@ -68,6 +68,15 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
       kind, reason, amount, note,
       undoLabel: t('adjust.undoLabel', { amount: isr(Math.abs(Number(amount) || 0)) }),
     })
+  }
+
+  /* An adjustment was write-only: once its undo toast faded, a mistyped «שולם»
+     correction sat on the card for good. Removing it takes the money back with
+     it — the hook keeps the row and the scalar in lockstep, so the card's
+     total still adds up afterwards. */
+  const dropAdjustment = async (adjustment) => {
+    if (!client || !adjustment) return
+    await removeAdjustment(client, adjustment, { undoLabel: t('adjust.undoDeleted') })
   }
 
   useEffect(() => {
@@ -361,7 +370,7 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
                   in place. `modalOpen` closes any inline editor when a modal
                   takes over — otherwise a draft left open underneath could be
                   saved afterwards and overwrite what the modal just wrote. */}
-              <ClientDrawerSections key={client.id} modalOpen={!!actionModal} client={client} balance={balance} txns={txns} tasks={tasks} reminders={reminders} sessions={sessions} members={members} groups={groups} adjustments={clientAdjustments} onEditTx={setEditTx} onEditClient={() => setActionModal('edit')} onEditSession={setEditSession} onEditTask={setEditTask} onEditReminder={setEditReminder} onUpdateClient={onUpdateClient} />
+              <ClientDrawerSections key={client.id} modalOpen={!!actionModal} client={client} balance={balance} txns={txns} tasks={tasks} reminders={reminders} sessions={sessions} members={members} groups={groups} adjustments={clientAdjustments} onRemoveAdjustment={dropAdjustment} onEditTx={setEditTx} onEditClient={() => setActionModal('edit')} onEditSession={setEditSession} onEditTask={setEditTask} onEditReminder={setEditReminder} onUpdateClient={onUpdateClient} />
             </Box>
           </>
         )}
@@ -508,6 +517,7 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
         client={client}
         session={editSession}
         onSave={(patch) => onEditSession?.(editSession.id, patch)}
+        onDelete={onRemoveSession}
       />
       <AddTaskModal
         key={`edit-task-${editTask?.id}`}
@@ -517,6 +527,7 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
         projects={projects}
         clients={clients}
         onSave={(patch) => onEditTask?.(editTask.id, patch)}
+        onDelete={onRemoveTask}
       />
       <AddReminderModal
         key={`edit-rem-${editReminder?.id}`}
@@ -525,6 +536,7 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
         reminder={editReminder}
         clients={clients}
         onSave={(patch) => onEditReminder?.(editReminder.id, patch)}
+        onDelete={onRemoveReminder}
       />
 
       {/* Manual adjustment — opened either from the billing hero, or seeded

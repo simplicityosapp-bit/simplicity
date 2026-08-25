@@ -58,6 +58,15 @@ export function useFinanceData() {
     if (e) { load(); throw e }
   }, [load])
 
+  /* Put a soft-deleted transaction back. Needed by the recurring-rule delete,
+     which owns a composite undo covering the transaction AND the rule it
+     paused (see lib/recurringTx.js). */
+  const restoreTransaction = useCallback(async (id) => {
+    const { error: e } = await supabase.from('transactions').update({ deleted_at: null }).eq('id', id)
+    load()
+    if (e) throw e
+  }, [load])
+
   // Set a transaction's status (pending → confirmed/skipped, or unskip → pending).
   const setStatus = useCallback((id, status) => updateTransaction(id, { status }), [updateTransaction])
 
@@ -77,5 +86,5 @@ export function useFinanceData() {
     if (e) { load(); throw e }
   }, [load])
 
-  return { transactions, clients, categories, loading, error, refetch: load, addTransaction, updateTransaction, deleteTransaction, setStatus, addCategory, removeCategory }
+  return { transactions, clients, categories, loading, error, refetch: load, addTransaction, updateTransaction, deleteTransaction, restoreTransaction, setStatus, addCategory, removeCategory }
 }

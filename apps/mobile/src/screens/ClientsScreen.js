@@ -61,7 +61,7 @@ export default function ClientsScreen() {
   const {
     clients, transactions, sessions, members, groups, tasks, reminders, loading, error, refetch,
     addClient, addTransaction, addSession, updateClient, deleteClient,
-    updateSession, deleteSession, updateTask, deleteTask, updateTransaction, deleteTransaction,
+    updateSession, deleteSession, updateTask, deleteTask, updateTransaction, deleteTransaction, restoreTransaction,
     updateReminder, deleteReminder, updateMember,
   } = useClientsList()
   const { projects } = useFormOptions()
@@ -461,6 +461,7 @@ export default function ClientsScreen() {
         deleteTask={deleteTask}
         updateTransaction={updateTransaction}
         deleteTransaction={deleteTransaction}
+        restoreTransaction={restoreTransaction}
         updateReminder={updateReminder}
         deleteReminder={deleteReminder}
         updateMember={updateMember}

@@ -15,6 +15,7 @@ import RecurringModal from '../modals/RecurringModal'
 import FinanceChart from './finance/FinanceChart'
 import { colors } from '../theme/theme'
 import { useFinanceData } from '../hooks/useFinanceData'
+import { confirmRemoveTransaction } from '../lib/recurringTx'
 import { useRecurring } from '../hooks/useRecurring'
 import { useFormOptions } from '../lib/formOptions'
 import { usePreferences } from '../hooks/usePreferences'
@@ -28,7 +29,7 @@ const isConfirmed = (t) => t.status === 'confirmed' && !t.invoice_credited_at
 // expense categories from the breakdown header. (Recurring templates, chart and
 // invoice imports are a later increment.)
 export default function FinanceScreen() {
-  const { transactions, clients, categories, loading, error, refetch, addTransaction, updateTransaction, deleteTransaction, setStatus, addCategory, removeCategory } = useFinanceData()
+  const { transactions, clients, categories, loading, error, refetch, addTransaction, updateTransaction, deleteTransaction, restoreTransaction, setStatus, addCategory, removeCategory } = useFinanceData()
   const { projects, refetch: refetchFormOptions } = useFormOptions()
   // Inline category creation from the add-transaction modal: create + refresh the
   // shared lookup so the new category shows in the picker (mirrors web onCreateCategory).
@@ -76,6 +77,15 @@ export default function FinanceScreen() {
   const projectOf = useMemo(() => new Map(clients.filter((c) => c.project_id).map((c) => [c.id, c.project_id])), [clients])
   const projectById = useMemo(() => Object.fromEntries((projects || []).map((p) => [p.id, p])), [projects])
   const liveTemplates = useMemo(() => templates.filter((t) => !t.deleted_at), [templates])
+
+  /* Deleting money asks first — a bare trash tap here was the last place in
+     the app that didn't ask. And a row a LIVE recurring rule still owns gets
+     the other dialog: the rule would refill the slot on the next web load, so
+     the delete pauses it. Both live in the helper, which the client drawer
+     calls too. */
+  const confirmDeleteTx = useCallback((tx, afterDelete) => confirmRemoveTransaction({
+    tx, templates, deleteTransaction, restoreTransaction, updateRecurring, afterDelete,
+  }), [templates, deleteTransaction, restoreTransaction, updateRecurring])
 
   const { inc, exp, net } = useMemo(() => monthNet(monthDate, { transactions }), [monthDate, transactions])
   const prev = useMemo(() => monthNet(new Date(monthDate.getFullYear(), monthDate.getMonth() - 1, 1), { transactions }), [monthDate, transactions])
@@ -162,7 +172,7 @@ export default function FinanceScreen() {
           <View style={styles.actions}>
             <Pressable style={styles.approve} onPress={() => setStatus(t.id, 'confirmed')} hitSlop={6}><Check size={16} strokeWidth={2.2} color={colors.positive} /></Pressable>
             <Pressable style={styles.skip} onPress={() => setStatus(t.id, 'skipped')} hitSlop={6}><SkipForward size={15} strokeWidth={1.8} color={colors.textFaint} /></Pressable>
-            <Pressable style={styles.skip} onPress={() => deleteTransaction(t.id)} hitSlop={6}><Trash2 size={15} strokeWidth={1.8} color={colors.danger} /></Pressable>
+            <Pressable style={styles.skip} onPress={() => confirmDeleteTx(t)} hitSlop={6}><Trash2 size={15} strokeWidth={1.8} color={colors.danger} /></Pressable>
           </View>
         ) : (
           <Text style={[styles.amount, { color: income ? colors.positive : colors.textSub }, t.invoice_credited_at && styles.creditedAmount]}>{income ? '+' : '−'}{isr(t.amount)}</Text>
@@ -323,7 +333,7 @@ export default function FinanceScreen() {
         categories={categories}
         onClose={() => setEditing(null)}
         onSave={(patch) => updateTransaction(editing.id, patch)}
-        onDelete={() => deleteTransaction(editing.id)}
+        onDelete={() => confirmDeleteTx(editing, () => setEditing(null))}
       />
       <FinanceCategoriesModal open={manageCat} categories={categories} onClose={() => setManageCat(false)} onAdd={addCategory} onRemove={removeCategory} />
       <RecurringModal open={addRec} onClose={() => setAddRec(false)} onSave={addRecurring} />

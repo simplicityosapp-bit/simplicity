@@ -495,8 +495,8 @@
           "body": "Click \"+ New Project\" (or \"Add Project\" when the screen is empty) to open the \"New Project\" window. All you define is a project name and a color from a palette of eight. There are no date, budget, or description fields."
         },
         {
-          "title": "Project Card",
-          "body": "Each project is displayed as a card with a color dot, name, and three numbers: how many clients, how much revenue (in the range you've selected), and how many open tasks. Clicking the card opens the full project screen."
+          "title": "Project card",
+          "body": "Each project appears as a card with a colour dot, a name and three numbers: how many clients, how much revenue (in the range you picked) and how many open tasks. Next to the name is a tag: it shows the group count if the project has groups, \"Finished\" if the project is done, and \"Active\" otherwise. Tapping the card opens the full project screen."
         },
         {
           "title": "Monthly or Cumulative",
@@ -511,16 +511,28 @@
           "body": "The revenue on each card is calculated automatically from income transactions linked to the project — or linked to a client who belongs to the project. You don't need to enter amounts manually on the project itself. The open task count also comes from tasks belonging to the project or its clients."
         },
         {
-          "title": "Edit and Delete from the Card",
-          "body": "Each card has a pencil button (\"Edit Project\") that opens the \"Edit Project\" window to change the name and color, and an X button (\"Delete Project\"). Deletion asks for confirmation and notes that clients and transactions will remain — just without the project assignment."
+          "title": "Editing and deleting from the card",
+          "body": "Every card has a pencil button (\"Edit project\") that opens the \"Edit project\" dialog for the name, colour and status, and a bin button (\"Delete project\"). Deleting asks for confirmation and reminds you that the clients and transactions stay — they just lose the project link. You can also delete from inside the project itself: the pencil at the top of the screen opens the same dialog, and \"Delete project\" sits at the bottom of it."
         },
         {
-          "title": "Project Screen: Header and Stats",
-          "body": "Inside the project, the header shows the number of active clients (and \"Paused\" clients if any) and the number of groups, along with three stats: clients, \"Income This Month\", and groups. The pencil button at the top opens \"Edit Project\". Note: \"Income This Month\" inside the project screen always shows the current month — it is not affected by the monthly/cumulative toggle on the main screen."
+          "title": "Project status: active or finished",
+          "body": "Every project has a status — \"Active\" or \"Finished\" — set in the \"Edit project\" dialog. A project marked finished leaves the active list and its card gets a \"Finished\" tag. Nothing else moves: its clients, groups, tasks and transactions stay exactly as they are, and the \"Projects summary\" at the top of the screen keeps counting it — money that came in really came in, and closing a project does not change that. Note this differs from a group's status: finishing a project does not change any client's status."
         },
         {
-          "title": "Quick Add Inside a Project",
-          "body": "Every project screen has a row with \"Quick Add\" and \"Update Goal\". \"Quick Add\" opens a selection tray, and when you choose a transaction, client, task, goal, reminder, or session — they open already linked to the current project, so you don't need to select it again. \"Update Goal\" opens a list of goals for a quick update."
+          "title": "Active or all",
+          "body": "As soon as one project is finished, an \"Active\" / \"All\" switch appears above the list (with the number of finished projects beside it). \"Active\" is the default. If every project is finished, the list says so and offers a button to show them. This switch only hides and shows cards — it does not change the numbers in \"Projects summary\"."
+        },
+        {
+          "title": "Project screen: header and stats",
+          "body": "The top of a project shows its name with the colour dot, and beneath it how many active clients it has (and any \"paused\" ones). Beside that is a card with three stats: clients, \"Income this month\" and groups. The arrow returns to the projects list and the pencil opens \"Edit project\". Note: \"Income this month\" inside a project is always the current month, and is not affected by the monthly/cumulative switch on the main screen."
+        },
+        {
+          "title": "Project overview ring",
+          "body": "If you have linked goals to this project, a ring with a percentage appears at the top of the screen — how well you are keeping the pace those goals need by the end of the period, with how much of the goal is already achieved below it. Tapping the ring opens a per-goal breakdown with two bars each: pace and achievement. If the project has no goals, the ring simply does not appear. Goals are created and updated on the Goals screen."
+        },
+        {
+          "title": "Quick add inside a project",
+          "body": "Every project screen has a \"Quick add\" button that opens a picker: transaction, client, task, goal, reminder or meeting. Whatever you choose opens with the current project already filled into its project field — but you can change it in the form, and whatever you leave there is what gets saved. (A meeting is linked to a client rather than a project, so it has no project field.)"
         },
         {
           "title": "Cumulative Income Chart",
@@ -547,14 +559,27 @@
           "body": "The \"Clients\" section shows all clients in the project, with their group tag or a \"Private\" tag if they're not in a group. Clicking a client opens their client card, and \"+ Add Client to Project\" adds a new client who is pre-linked to the project."
         },
         {
-          "title": "Linked Reminders",
-          "body": "The \"Linked Reminders\" section gathers all reminders linked to the project, shows how many are active out of the total, and lets you mark a reminder as done, delete it (with confirmation), or add a new reminder to the project. An overdue reminder is marked \"Overdue\", and a completed one is marked \"Done\"."
+          "title": "Project tasks",
+          "body": "The \"Tasks\" section gathers the project's tasks — both the ones you tagged to it directly and tasks belonging to its clients (in which case the client's name appears under the task title). The number beside \"Tasks\" is how many are still open; hovering it shows the full picture (\"2 of 5 tasks still open\"). Each task has a ✓ to mark it done (tapping again reopens it) and a bin to delete it, and an undo message appears right after a delete. \"Add task\" opens a new task already linked to the project."
+        },
+        {
+          "title": "Linked reminders",
+          "body": "The \"Linked reminders\" section gathers the reminders tied to the project. The number beside the heading is how many are still active; hovering it shows how many out of how many. You can mark a reminder done, delete it (with confirmation) or add a new one for the project. A reminder past its time is marked \"Overdue\", a completed one \"Done\", and one coming up soon gets a tag saying how many days away it is."
+        },
+        {
+          "title": "Project leads",
+          "body": "The \"Leads\" section shows the leads assigned to the project, each with its classification. Tapping a lead opens it directly in its edit card on the Leads screen. Leads that arrived from a landing page and are still awaiting approval do not appear here — they sit in the approvals section of the Leads screen. A lead's project is set in the lead's own form."
+        },
+        {
+          "title": "Project lead pages",
+          "body": "The \"Lead pages\" section shows the public lead pages assigned to the project, each with a \"Live\" or \"Draft\" tag. Tapping a page opens it straight in the editor. If no pages are assigned, there is a link to create one. The pages themselves are built and managed on the Pages screen."
         }
       ],
       "tips": [
         "For income and clients to appear in a project — link transactions, clients, and sessions to it. Revenue is also calculated from transactions belonging to linked clients, not just transactions tagged directly to the project.",
         "Toggle between \"Monthly\" and \"Cumulative\" on the main screen to see either this month's income or all-time income. Note that inside the project screen, the \"Income This Month\" stat always shows the current month.",
         "Deleted a project by mistake? An undo notification appears right after deletion, and either way the clients and transactions remain in the system.",
+        "When a project ends, mark it \"Finished\" rather than deleting it. It leaves the list but all its history stays, and its income keeps counting in the summary and the reports.",
         "Add clients, transactions, and reminders via \"Quick Add\" inside the project — everything will automatically be linked to the current project, no manual selection needed.",
         "Before changing a group's status to \"Ended\", be aware that it may move all group members to \"Former\" status. The system will ask for confirmation and show how many clients will be affected."
       ],
@@ -564,8 +589,8 @@
           "a": "You can't — a project only has a name and a color. There are no budget, date, or description fields for projects. Financial tracking comes automatically from linked transactions. (Start and end dates exist only for groups within a project, not for the project itself.)"
         },
         {
-          "q": "How do I filter projects by status (active/completed)?",
-          "a": "Projects don't have a status, and you can't filter by status. Status (Active / In Development / Ended) exists only for groups within a project. The \"Active\" label on a project card is fixed — it's not a changeable status."
+          "q": "How do I filter projects by status (active/finished)?",
+          "a": "Open \"Edit project\" (the pencil on the card, or at the top of the project screen) and choose \"Active\" or \"Finished\". As soon as one project is finished, an \"Active\" / \"All\" switch appears above the list — \"Active\" is the default and \"All\" brings the finished ones back. The filter touches the list only: \"Projects summary\" keeps counting every project, so revenue that already came in does not vanish from the report. Note this differs from a group's status (active / in development / ended), which does affect the group members' status."
         },
         {
           "q": "The revenue in a project doesn't look right — why?",

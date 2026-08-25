@@ -12,6 +12,8 @@ import Modal from '../../../modals/Modal'
 import PendingSection from '../../finance/PendingSection'
 import MeetingConfirmList from './MeetingConfirmList'
 import { useTransactions } from '../../../hooks/useTransactions'
+import { useRecurring } from '../../../hooks/useRecurring'
+import { removeTransactionAndRule } from '../../../lib/recurringTx'
 import { useScheduledMeetings } from '../../../hooks/useScheduledMeetings'
 import { useClients } from '../../../hooks/useClients'
 import { useGroups } from '../../../hooks/useGroups'
@@ -47,9 +49,22 @@ const ICONS = { Wallet, Calendar, Target, AlertCircle, Clock, Bell, FileDown, Ca
    Settings. They now sit in <HomeGenerators/>, mounted by HomeScreen itself. */
 export default function AttentionWidget() {
   const { t, lang } = useT('home')
+  /* The pending-transactions popup borrows the finance screen's own section,
+     so the undo label for a delete that pauses a rule comes from that
+     namespace too — one wording, wherever the delete is pressed. */
+  const { t: tf } = useT('finance')
   const navigate = useNavigate()
   const waMsg = useWhatsAppMessage()
-  const { transactions, setStatus: setTxStatus, removeTransaction } = useTransactions()
+  const { transactions, setStatus: setTxStatus, removeTransaction, putBackTransaction } = useTransactions()
+  /* A pending row here is usually the OUTPUT of a recurring rule, so deleting
+     it without stopping the rule just brought it straight back on the next
+     mount — which is exactly what this widget kept nagging about. Routed
+     through the shared helper so home and finance behave identically. */
+  const { templates, updateRecurring } = useRecurring()
+  const activeRuleIds = useMemo(
+    () => new Set((templates || []).filter((r) => !r.deleted_at && r.active).map((r) => r.id)),
+    [templates],
+  )
   const { meetings, updateMeeting } = useScheduledMeetings()
   const { clients, updateClient } = useClients()
   const { groups } = useGroups()
@@ -271,9 +286,17 @@ export default function AttentionWidget() {
             clients={clients}
             projects={projects}
             categories={financeCategories}
+            activeRuleIds={activeRuleIds}
             onApprove={(id) => setTxStatus(id, 'confirmed')}
             onSkip={(id) => setTxStatus(id, 'skipped')}
-            onDelete={(id) => removeTransaction(id)}
+            onDelete={(id) => removeTransactionAndRule({
+              tx: (transactions || []).find((x) => x.id === id),
+              templates,
+              removeTransaction,
+              putBackTransaction,
+              updateRecurring,
+              label: tf('deleteTx.undoRule'),
+            })}
           />
         )}
       </Modal>

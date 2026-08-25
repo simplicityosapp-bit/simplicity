@@ -144,7 +144,11 @@
   "deleteTx": {
     "title": "Supprimer la transaction",
     "message": "Supprimer « {{desc}} » de {{amount}} ?",
-    "confirm": "Supprimer"
+    "confirm": "Supprimer",
+    "recurringTitle": "Supprimer une transaction récurrente",
+    "recurringMessage": "« {{desc}} » de {{amount}} provient d’une règle récurrente. La supprimer met aussi cette règle en pause, sinon elle recréerait la transaction. Si seule cette occurrence ne convient pas, « Non, cela n’a pas eu lieu » la retire de la liste en attente et laisse la règle active.",
+    "recurringConfirm": "Supprimer et mettre en pause",
+    "undoRule": "Transaction supprimée, règle en pause"
   },
   "showSkipped_one": "Afficher {{count}} qui n'a pas eu lieu",
   "showSkipped_other": "Afficher {{count}} qui n'ont pas eu lieu",

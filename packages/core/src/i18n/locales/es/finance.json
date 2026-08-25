@@ -144,7 +144,11 @@
   "deleteTx": {
     "title": "Eliminar transacción",
     "message": "¿Eliminar \"{{desc}}\" por {{amount}}?",
-    "confirm": "Eliminar"
+    "confirm": "Eliminar",
+    "recurringTitle": "Eliminar una transacción recurrente",
+    "recurringMessage": "«{{desc}}» por {{amount}} proviene de una regla recurrente. Eliminarla también pausa esa regla; de lo contrario volvería a crear la transacción. Si solo esta aparición no corresponde, «No, no ocurrió» la quita de la lista pendiente y deja la regla activa.",
+    "recurringConfirm": "Eliminar y pausar",
+    "undoRule": "Transacción eliminada, regla pausada"
   },
   "showSkipped_one": "Mostrar {{count}} que no ocurrió",
   "showSkipped_other": "Mostrar {{count}} que no ocurrieron",

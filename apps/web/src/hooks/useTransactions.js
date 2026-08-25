@@ -56,5 +56,12 @@ export function useTransactions() {
     } catch { qc.invalidateQueries({ queryKey: KEY }) }
   }, [qc])
 
-  return { transactions, loading: isLoading, unreachable: !!error || (fetchStatus === 'paused' && data === undefined), error: error?.message ?? null, addTransaction, editTransaction, setStatus, removeTransaction, refetch }
+  /* Put a soft-deleted transaction back. Needed by the callers that own a
+     composite undo (see removeTransaction's `silent`) — the investment pair
+     and the recurring-rule delete. Mirrors useSessions.putBackSession. */
+  const putBackTransaction = useCallback(async (id) => {
+    try { await restoreTransaction(id) } finally { qc.invalidateQueries({ queryKey: KEY }) }
+  }, [qc])
+
+  return { transactions, loading: isLoading, unreachable: !!error || (fetchStatus === 'paused' && data === undefined), error: error?.message ?? null, addTransaction, editTransaction, setStatus, removeTransaction, putBackTransaction, refetch }
 }

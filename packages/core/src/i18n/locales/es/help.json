@@ -425,7 +425,7 @@
         },
         {
           "title": "Plantillas recurrentes (órdenes permanentes)",
-          "body": "En la sección «Plantillas recurrentes» configuras transacciones que se repiten automáticamente: «Por calendario» (mensual en un día concreto, o semanal en un día de la semana concreto, con una fecha de fin opcional) o «Tras una sesión» (crea una transacción que espera aprobación por cada sesión con el cliente que elijas, y se cierra automáticamente si la sesión se salta). A partir de estas plantillas el sistema genera transacciones que esperan tu aprobación."
+          "body": "En la sección «Plantillas recurrentes» configuras transacciones que se repiten automáticamente: «Por calendario» (mensual en un día concreto, o semanal en un día de la semana concreto, con una fecha de fin opcional) o «Tras una sesión» (crea una transacción que espera aprobación por cada sesión con el cliente que elijas, y se cierra automáticamente si la sesión se salta). A partir de estas plantillas el sistema genera transacciones que esperan tu aprobación. Eliminar una transacción creada por la regla también pausa la regla; de lo contrario la recrearía de inmediato, y el diálogo lo advierte antes. Si solo esa aparición no corresponde, «No, no ocurrió» la quita de la lista pendiente y la regla sigue el mes siguiente."
         },
         {
           "title": "Pausar, editar y eliminar una plantilla",

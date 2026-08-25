@@ -144,7 +144,11 @@
   "deleteTx": {
     "title": "Delete transaction",
     "message": "Delete \"{{desc}}\" for {{amount}}?",
-    "confirm": "Delete"
+    "confirm": "Delete",
+    "recurringTitle": "Delete a recurring transaction",
+    "recurringMessage": "\"{{desc}}\" for {{amount}} came from a recurring rule. Deleting it also pauses that rule — otherwise it just creates the transaction again. If only this one occurrence is wrong, \"No, it didn’t\" takes it off the pending list and leaves the rule running.",
+    "recurringConfirm": "Delete and pause",
+    "undoRule": "Transaction deleted, rule paused"
   },
   "showSkipped_one": "Show {{count}} that didn't happen",
   "showSkipped_other": "Show {{count}} that didn't happen",

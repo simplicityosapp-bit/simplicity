@@ -425,7 +425,7 @@
         },
         {
           "title": "Recurring Templates (Standing Orders)",
-          "body": "In the \"Recurring Templates\" section you set up transactions that repeat automatically: \"By schedule\" (monthly on a specific day, or weekly on a specific day of the week, with an optional end date) or \"After a session\" (creates a transaction awaiting approval for every session with the client you choose, and closes automatically if the session is skipped). The system generates transactions from these that wait for your approval."
+          "body": "In the \"Recurring Templates\" section you set up transactions that repeat automatically: \"By schedule\" (monthly on a specific day, or weekly on a specific day of the week, with an optional end date) or \"After a session\" (creates a transaction awaiting approval for every session with the client you choose, and closes automatically if the session is skipped). The system generates transactions from these that wait for your approval. Deleting a transaction the rule created also pauses the rule — otherwise it would recreate it immediately; the dialog says so first. If only that one occurrence is wrong, \"No, it didn’t\" takes it off the pending list and the rule carries on next month."
         },
         {
           "title": "Pausing, Editing, and Deleting a Template",

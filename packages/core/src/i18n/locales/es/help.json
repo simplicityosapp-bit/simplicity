@@ -496,7 +496,7 @@
         },
         {
           "title": "Tarjeta de proyecto",
-          "body": "Cada proyecto se muestra como una tarjeta con un punto de color, el nombre y tres números: cuántos clientes, cuántos ingresos (en el rango que hayas seleccionado) y cuántas tareas abiertas. Al hacer clic en la tarjeta se abre la pantalla completa del proyecto."
+          "body": "Cada proyecto aparece como una tarjeta con un punto de color, un nombre y tres números: cuántos clientes, cuántos ingresos (en el rango elegido) y cuántas tareas abiertas. Junto al nombre hay una etiqueta: muestra el número de grupos si el proyecto tiene grupos, \"Finalizado\" si el proyecto terminó, y \"Activo\" en los demás casos. Al tocar la tarjeta se abre la pantalla completa del proyecto."
         },
         {
           "title": "Mensual o acumulado",
@@ -512,15 +512,27 @@
         },
         {
           "title": "Editar y eliminar desde la tarjeta",
-          "body": "Cada tarjeta tiene un botón de lápiz («Editar proyecto») que abre la ventana «Editar proyecto» para cambiar el nombre y el color, y un botón X («Eliminar proyecto»). La eliminación pide confirmación y advierte de que los clientes y las transacciones permanecerán, solo que sin la asignación del proyecto."
+          "body": "Cada tarjeta tiene un botón de lápiz (\"Editar proyecto\") que abre la ventana \"Editar proyecto\" para el nombre, el color y el estado, y un botón de papelera (\"Eliminar proyecto\"). Eliminar pide confirmación y recuerda que los clientes y las transacciones se quedan — solo pierden el vínculo con el proyecto. También puedes eliminar desde dentro del propio proyecto: el lápiz en la parte superior abre la misma ventana, y \"Eliminar proyecto\" está al final de ella."
         },
         {
-          "title": "Pantalla del proyecto: encabezado y estadísticas",
-          "body": "Dentro del proyecto, el encabezado muestra el número de clientes activos (y los clientes «En pausa» si los hay) y el número de grupos, junto con tres estadísticas: clientes, «Ingresos este mes» y grupos. El botón de lápiz en la parte superior abre «Editar proyecto». Nota: «Ingresos este mes» dentro de la pantalla del proyecto siempre muestra el mes actual; no se ve afectado por el interruptor mensual/acumulado de la pantalla principal."
+          "title": "Estado del proyecto: activo o finalizado",
+          "body": "Cada proyecto tiene un estado — \"Activo\" o \"Finalizado\" — que se cambia en la ventana \"Editar proyecto\". Un proyecto marcado como finalizado sale de la lista de activos y su tarjeta recibe la etiqueta \"Finalizado\". Nada más se mueve: sus clientes, grupos, tareas y transacciones se mantienen igual, y el \"Resumen de proyectos\" sigue contándolo — el dinero que entró realmente entró, y cerrar un proyecto no cambia eso. Ten en cuenta que esto es distinto del estado de un grupo: finalizar un proyecto no cambia el estado de ningún cliente."
         },
         {
-          "title": "Añadir rápido dentro de un proyecto",
-          "body": "Cada pantalla de proyecto tiene una fila con «Añadir rápido» y «Actualizar objetivo». «Añadir rápido» abre una bandeja de selección, y cuando eliges una transacción, cliente, tarea, objetivo, recordatorio o sesión, se abren ya vinculados al proyecto actual, así que no necesitas seleccionarlo de nuevo. «Actualizar objetivo» abre una lista de objetivos para una actualización rápida."
+          "title": "Activos o todos",
+          "body": "En cuanto hay un proyecto finalizado, aparece encima de la lista un interruptor \"Activos\" / \"Todos\" (con el número de proyectos finalizados al lado). \"Activos\" es el valor por defecto. Si todos los proyectos han finalizado, la lista lo dice y ofrece un botón para mostrarlos. Este interruptor solo oculta y muestra tarjetas — no cambia los números del \"Resumen de proyectos\"."
+        },
+        {
+          "title": "Pantalla de proyecto: encabezado y estadísticas",
+          "body": "Arriba del proyecto aparece su nombre con el punto de color, y debajo cuántos clientes activos tiene (y los que están \"en pausa\", si los hay). Al lado hay una tarjeta con tres estadísticas: clientes, \"Ingresos este mes\" y grupos. La flecha vuelve a la lista de proyectos y el lápiz abre \"Editar proyecto\". Nota: \"Ingresos este mes\" dentro del proyecto siempre corresponde al mes actual, y no le afecta el interruptor mensual/acumulado de la pantalla principal."
+        },
+        {
+          "title": "Anillo de visión general del proyecto",
+          "body": "Si has vinculado objetivos a este proyecto, aparece arriba un anillo con un porcentaje — qué tan bien mantienes el ritmo que esos objetivos exigen hasta el final del período, y debajo cuánto del objetivo ya se ha logrado. Al tocar el anillo se abre un desglose por objetivo con dos barras cada uno: ritmo y logro. Si el proyecto no tiene objetivos, el anillo simplemente no aparece. Los objetivos se crean y actualizan en la pantalla Objetivos."
+        },
+        {
+          "title": "Añadir rápido dentro del proyecto",
+          "body": "Cada pantalla de proyecto tiene un botón \"Añadir rápido\" que abre un selector: transacción, cliente, tarea, objetivo, recordatorio o reunión. Lo que elijas se abre con el proyecto actual ya puesto en su campo de proyecto — pero puedes cambiarlo en el formulario, y lo que dejes ahí es lo que se guarda. (Una reunión se vincula a un cliente y no a un proyecto, por lo que no tiene campo de proyecto.)"
         },
         {
           "title": "Gráfico de ingresos acumulados",
@@ -547,14 +559,27 @@
           "body": "La sección «Clientes» muestra todos los clientes del proyecto, con su etiqueta de grupo o una etiqueta «Privado» si no están en un grupo. Al hacer clic en un cliente se abre su ficha, y «+ Añadir cliente al proyecto» añade un nuevo cliente que queda vinculado al proyecto de antemano."
         },
         {
+          "title": "Tareas del proyecto",
+          "body": "La sección \"Tareas\" reúne las tareas del proyecto — tanto las que etiquetaste directamente como las tareas de sus clientes (en ese caso el nombre del cliente aparece bajo el título de la tarea). El número junto a \"Tareas\" es cuántas siguen abiertas; al pasar el cursor se ve el cuadro completo (\"2 de 5 tareas pendientes\"). Cada tarea tiene un ✓ para marcarla como completada (tocar de nuevo la reabre) y una papelera para eliminarla, y aparece un mensaje de deshacer justo después. \"Añadir tarea\" abre una tarea nueva ya vinculada al proyecto."
+        },
+        {
           "title": "Recordatorios vinculados",
-          "body": "La sección «Recordatorios vinculados» reúne todos los recordatorios vinculados al proyecto, muestra cuántos están activos del total, y te permite marcar un recordatorio como hecho, eliminarlo (con confirmación) o añadir un nuevo recordatorio al proyecto. Un recordatorio vencido se marca como «Vencido», y uno completado se marca como «Hecho»."
+          "body": "La sección \"Recordatorios vinculados\" reúne los recordatorios ligados al proyecto. El número junto al título es cuántos siguen activos; al pasar el cursor se ve cuántos de cuántos. Puedes marcar un recordatorio como hecho, eliminarlo (con confirmación) o añadir uno nuevo para el proyecto. Un recordatorio vencido se marca \"Atrasado\", uno completado \"Hecho\", y uno próximo recibe una etiqueta que dice en cuántos días es."
+        },
+        {
+          "title": "Prospectos del proyecto",
+          "body": "La sección \"Prospectos\" muestra los prospectos asignados al proyecto, cada uno con su clasificación. Al tocar un prospecto se abre directamente en su ficha de edición en la pantalla de Prospectos. Los prospectos que llegaron de una página de captación y siguen esperando aprobación no aparecen aquí — están en la sección de aprobaciones de la pantalla de Prospectos. El proyecto de un prospecto se define en su propio formulario."
+        },
+        {
+          "title": "Páginas de captación del proyecto",
+          "body": "La sección \"Páginas de captación\" muestra las páginas públicas asignadas al proyecto, cada una con una etiqueta \"Activa\" o \"Borrador\". Al tocar una página se abre directamente en el editor. Si no hay páginas asignadas, hay un enlace para crear una. Las páginas se construyen y gestionan en la pantalla Páginas."
         }
       ],
       "tips": [
         "Para que los ingresos y los clientes aparezcan en un proyecto, vincula transacciones, clientes y sesiones a él. Los ingresos también se calculan a partir de las transacciones que pertenecen a clientes vinculados, no solo de las transacciones etiquetadas directamente al proyecto.",
         "Alterna entre «Mensual» y «Acumulado» en la pantalla principal para ver los ingresos de este mes o de todo el tiempo. Ten en cuenta que dentro de la pantalla del proyecto, la estadística «Ingresos este mes» siempre muestra el mes actual.",
         "¿Eliminaste un proyecto por error? Aparece una notificación de deshacer justo después de eliminarlo, y en cualquier caso los clientes y las transacciones permanecen en el sistema.",
+        "Cuando un proyecto termina, márcalo como \"Finalizado\" en lugar de eliminarlo. Sale de la lista pero conserva todo su historial, y sus ingresos siguen contando en el resumen y en los informes.",
         "Añade clientes, transacciones y recordatorios con «Añadir rápido» dentro del proyecto: todo quedará vinculado automáticamente al proyecto actual, sin selección manual.",
         "Antes de cambiar el estado de un grupo a «Finalizado», ten en cuenta que puede mover a todos los miembros del grupo al estado «Antiguo». El sistema pedirá confirmación y mostrará a cuántos clientes afectará."
       ],
@@ -564,8 +589,8 @@
           "a": "No puedes: un proyecto solo tiene un nombre y un color. No hay campos de presupuesto, fecha ni descripción para los proyectos. El seguimiento financiero proviene automáticamente de las transacciones vinculadas. (Las fechas de inicio y fin existen solo para los grupos dentro de un proyecto, no para el proyecto en sí.)"
         },
         {
-          "q": "¿Cómo filtro los proyectos por estado (activo/completado)?",
-          "a": "Los proyectos no tienen estado, y no puedes filtrar por estado. El estado (Activo / En desarrollo / Finalizado) existe solo para los grupos dentro de un proyecto. La etiqueta «Activo» en una tarjeta de proyecto es fija; no es un estado que se pueda cambiar."
+          "q": "¿Cómo filtro los proyectos por estado (activo/finalizado)?",
+          "a": "Abre \"Editar proyecto\" (el lápiz en la tarjeta o arriba en la pantalla del proyecto) y elige \"Activo\" o \"Finalizado\". En cuanto hay un proyecto finalizado, aparece encima de la lista un interruptor \"Activos\" / \"Todos\" — \"Activos\" es el valor por defecto y \"Todos\" devuelve también los finalizados. El filtro afecta solo a la lista: el \"Resumen de proyectos\" sigue contando todos los proyectos, para que los ingresos que ya entraron no desaparezcan del informe. Ten en cuenta que esto es distinto del estado de un grupo (activo / en desarrollo / finalizado), que sí afecta al estado de los miembros."
         },
         {
           "q": "Los ingresos de un proyecto no parecen correctos, ¿por qué?",

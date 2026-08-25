@@ -496,7 +496,7 @@
         },
         {
           "title": "Carte de projet",
-          "body": "Chaque projet est affiché comme une carte avec un point de couleur, un nom et trois chiffres : combien de clients, combien de revenus (sur la période sélectionnée) et combien de tâches ouvertes. Cliquer sur la carte ouvre l'écran complet du projet."
+          "body": "Chaque projet apparaît sous forme de carte avec une pastille de couleur, un nom et trois chiffres : combien de clients, combien de revenus (dans la plage choisie) et combien de tâches ouvertes. À côté du nom se trouve une étiquette : elle affiche le nombre de groupes si le projet en a, « Terminé » si le projet est achevé, et « Actif » sinon. Toucher la carte ouvre l'écran complet du projet."
         },
         {
           "title": "Mensuel ou cumulé",
@@ -512,15 +512,27 @@
         },
         {
           "title": "Modifier et supprimer depuis la carte",
-          "body": "Chaque carte a un bouton crayon (« Modifier le projet ») qui ouvre la fenêtre « Modifier le projet » pour changer le nom et la couleur, et un bouton X (« Supprimer le projet »). La suppression demande confirmation et note que les clients et les transactions demeureront — simplement sans l'affectation au projet."
+          "body": "Chaque carte a un bouton crayon (« Modifier le projet ») qui ouvre la fenêtre « Modifier le projet » pour le nom, la couleur et le statut, et un bouton corbeille (« Supprimer le projet »). La suppression demande confirmation et rappelle que les clients et les transactions restent — ils perdent simplement le lien avec le projet. Vous pouvez aussi supprimer depuis le projet lui-même : le crayon en haut de l'écran ouvre la même fenêtre, et « Supprimer le projet » se trouve en bas."
         },
         {
-          "title": "Écran du projet : en-tête et statistiques",
-          "body": "À l'intérieur du projet, l'en-tête indique le nombre de clients actifs (et les clients « En pause » s'il y en a) et le nombre de groupes, avec trois statistiques : clients, « Revenu ce mois-ci » et groupes. Le bouton crayon en haut ouvre « Modifier le projet ». Note : « Revenu ce mois-ci » à l'intérieur de l'écran du projet affiche toujours le mois en cours — il n'est pas affecté par le sélecteur mensuel/cumulé de l'écran principal."
+          "title": "Statut du projet : actif ou terminé",
+          "body": "Chaque projet a un statut — « Actif » ou « Terminé » — que l'on change dans la fenêtre « Modifier le projet ». Un projet marqué terminé quitte la liste des projets actifs et sa carte reçoit l'étiquette « Terminé ». Rien d'autre ne bouge : ses clients, groupes, tâches et transactions restent tels quels, et le « Résumé des projets » continue de le compter — l'argent entré est bien entré, et clore un projet n'y change rien. Notez que c'est différent du statut d'un groupe : terminer un projet ne change le statut d'aucun client."
         },
         {
-          "title": "Ajout rapide dans un projet",
-          "body": "Chaque écran de projet comporte une ligne avec « Ajout rapide » et « Mettre à jour un objectif ». « Ajout rapide » ouvre un volet de sélection, et lorsque vous choisissez une transaction, un client, une tâche, un objectif, un rappel ou une séance — ils s'ouvrent déjà liés au projet actuel, sans que vous ayez à le resélectionner. « Mettre à jour un objectif » ouvre une liste d'objectifs pour une mise à jour rapide."
+          "title": "Actifs ou tous",
+          "body": "Dès qu'un projet est terminé, un sélecteur « Actifs » / « Tous » apparaît au-dessus de la liste (avec le nombre de projets terminés à côté). « Actifs » est la valeur par défaut. Si tous les projets sont terminés, la liste le dit et propose un bouton pour les afficher. Ce sélecteur ne fait que masquer et afficher des cartes — il ne change pas les chiffres du « Résumé des projets »."
+        },
+        {
+          "title": "Écran de projet : en-tête et statistiques",
+          "body": "En haut du projet figurent son nom avec la pastille de couleur et, en dessous, le nombre de clients actifs (et ceux « en pause », s'il y en a). À côté, une carte présente trois statistiques : clients, « Revenus ce mois-ci » et groupes. La flèche revient à la liste des projets et le crayon ouvre « Modifier le projet ». À noter : « Revenus ce mois-ci » dans un projet correspond toujours au mois en cours et n'est pas affecté par le sélecteur mensuel/cumulé de l'écran principal."
+        },
+        {
+          "title": "Anneau de vue d'ensemble du projet",
+          "body": "Si vous avez lié des objectifs à ce projet, un anneau avec un pourcentage apparaît en haut de l'écran — dans quelle mesure vous tenez le rythme exigé par ces objectifs d'ici la fin de la période, et en dessous la part de l'objectif déjà atteinte. Toucher l'anneau ouvre un détail par objectif avec deux barres chacun : le rythme et l'atteint. Si le projet n'a pas d'objectifs, l'anneau n'apparaît tout simplement pas. Les objectifs se créent et se mettent à jour sur l'écran Objectifs."
+        },
+        {
+          "title": "Ajout rapide dans le projet",
+          "body": "Chaque écran de projet comporte un bouton « Ajout rapide » qui ouvre un sélecteur : transaction, client, tâche, objectif, rappel ou rendez-vous. Ce que vous choisissez s'ouvre avec le projet en cours déjà renseigné dans son champ projet — mais vous pouvez le changer dans le formulaire, et ce que vous y laissez est ce qui sera enregistré. (Un rendez-vous est lié à un client et non à un projet, il n'a donc pas de champ projet.)"
         },
         {
           "title": "Graphique du revenu cumulé",
@@ -547,14 +559,27 @@
           "body": "La section « Clients » affiche tous les clients du projet, avec leur étiquette de groupe ou une étiquette « Privé » s'ils ne sont pas dans un groupe. Cliquer sur un client ouvre sa fiche client, et « + Ajouter un client au projet » ajoute un nouveau client préalablement lié au projet."
         },
         {
+          "title": "Tâches du projet",
+          "body": "La section « Tâches » rassemble les tâches du projet — celles que vous lui avez rattachées directement et celles de ses clients (le nom du client apparaît alors sous le titre de la tâche). Le nombre à côté de « Tâches » indique combien sont encore ouvertes ; le survol donne le tableau complet (« 2 tâches ouvertes sur 5 »). Chaque tâche a un ✓ pour la marquer terminée (un second appui la rouvre) et une corbeille pour la supprimer, avec un message d'annulation juste après. « Ajouter une tâche » ouvre une nouvelle tâche déjà liée au projet."
+        },
+        {
           "title": "Rappels liés",
-          "body": "La section « Rappels liés » rassemble tous les rappels liés au projet, indique combien sont actifs sur le total, et permet de marquer un rappel comme effectué, de le supprimer (avec confirmation) ou d'ajouter un nouveau rappel au projet. Un rappel en retard est marqué « En retard », et un rappel terminé est marqué « Effectué »."
+          "body": "La section « Rappels liés » rassemble les rappels rattachés au projet. Le nombre à côté du titre indique combien sont encore actifs ; le survol indique combien sur combien. Vous pouvez marquer un rappel comme fait, le supprimer (avec confirmation) ou en ajouter un nouveau pour le projet. Un rappel dépassé est marqué « En retard », un rappel effectué « Fait », et un rappel proche reçoit une étiquette indiquant dans combien de jours il tombe."
+        },
+        {
+          "title": "Prospects du projet",
+          "body": "La section « Prospects » affiche les prospects rattachés au projet, chacun avec son classement. Toucher un prospect l'ouvre directement dans sa fiche d'édition sur l'écran Prospects. Les prospects venus d'une page de captation et encore en attente de validation n'apparaissent pas ici — ils se trouvent dans la section des validations de l'écran Prospects. Le projet d'un prospect se définit dans son propre formulaire."
+        },
+        {
+          "title": "Pages de prospects du projet",
+          "body": "La section « Pages de prospects » affiche les pages publiques rattachées au projet, chacune avec une étiquette « En ligne » ou « Brouillon ». Toucher une page l'ouvre directement dans l'éditeur. Si aucune page n'est rattachée, un lien permet d'en créer une. Les pages elles-mêmes se construisent et se gèrent sur l'écran Pages."
         }
       ],
       "tips": [
         "Pour que les revenus et les clients apparaissent dans un projet — liez-y des transactions, des clients et des séances. Le revenu est aussi calculé à partir des transactions appartenant aux clients liés, pas seulement des transactions étiquetées directement au projet.",
         "Alternez entre « Mensuel » et « Cumulé » sur l'écran principal pour voir le revenu de ce mois-ci ou le revenu de tous les temps. Notez qu'à l'intérieur de l'écran du projet, la statistique « Revenu ce mois-ci » affiche toujours le mois en cours.",
         "Vous avez supprimé un projet par erreur ? Une notification d'annulation apparaît juste après la suppression, et de toute façon les clients et les transactions demeurent dans le système.",
+        "Quand un projet se termine, marquez-le « Terminé » plutôt que de le supprimer. Il quitte la liste mais tout son historique reste, et ses revenus continuent de compter dans le résumé et les rapports.",
         "Ajoutez des clients, des transactions et des rappels via « Ajout rapide » à l'intérieur du projet — tout sera automatiquement lié au projet actuel, sans sélection manuelle.",
         "Avant de changer le statut d'un groupe en « Terminé », sachez que cela peut déplacer tous les membres du groupe vers le statut « Ancien ». Le système demandera confirmation et indiquera combien de clients seront concernés."
       ],
@@ -565,7 +590,7 @@
         },
         {
           "q": "Comment filtrer les projets par statut (actif/terminé) ?",
-          "a": "Les projets n'ont pas de statut, et vous ne pouvez pas filtrer par statut. Le statut (Actif / En développement / Terminé) n'existe que pour les groupes au sein d'un projet. L'étiquette « Actif » sur une carte de projet est fixe — ce n'est pas un statut modifiable."
+          "a": "Ouvrez « Modifier le projet » (le crayon sur la carte ou en haut de l'écran du projet) et choisissez « Actif » ou « Terminé ». Dès qu'un projet est terminé, un sélecteur « Actifs » / « Tous » apparaît au-dessus de la liste — « Actifs » est la valeur par défaut et « Tous » ramène aussi les projets terminés. Le filtre ne concerne que la liste : le « Résumé des projets » continue de compter tous les projets, afin que les revenus déjà encaissés ne disparaissent pas du rapport. Notez que c'est différent du statut d'un groupe (active / en développement / terminée), qui affecte bien le statut des membres."
         },
         {
           "q": "Le revenu d'un projet ne semble pas correct — pourquoi ?",

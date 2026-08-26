@@ -17,6 +17,7 @@ import { useGroupMembers } from '../../hooks/useGroupMembers'
 import MoonDualBars from '../../components/MoonDualBars'
 import { useT } from '../../i18n/useT'
 import { Box, Txt, Btn } from '../../components/ui'
+import '../../components/MoonGlance.css'
 
 const RADIUS = 42
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS
@@ -26,8 +27,11 @@ const CIRCUMFERENCE = 2 * Math.PI * RADIUS
    the chip expands a per-goal breakdown (pace + goal %), exactly like home but
    scoped to this project. Renders nothing when the project has no goals.
 
-   Returns a fragment (chip + expanded panel) so the parent can lay the chip out
-   on the top row (locked right) and let the panel wrap full-width beneath it. */
+   Chip + panel are wrapped in .moon-block, exactly as MoonWidget wraps them on
+   home: the panel is a POPOVER (position:absolute, anchored to the block), so
+   without that positioned wrapper it had nothing to hang from. This used to
+   return a bare fragment and the parent tried to place the panel with flex
+   order — which an out-of-flow element ignores. */
 export default function ProjectMoonRing({ projectId }) {
   const { t, gender } = useT('projects')
   const { goals, addGoal } = useGoals()
@@ -68,7 +72,7 @@ export default function ProjectMoonRing({ projectId }) {
      the shared cache — so the ring picks it up on the next render. */
   if (!overall) {
     return (
-      <>
+      <Box className="moon-block pd-moon-block">
         <Btn
           type="button"
           className="pd-moon-empty"
@@ -87,7 +91,7 @@ export default function ProjectMoonRing({ projectId }) {
           initialProject={projectId}
           onSave={addGoal}
         />
-      </>
+      </Box>
     )
   }
 
@@ -96,7 +100,7 @@ export default function ProjectMoonRing({ projectId }) {
   const dash = (Math.min(100, Math.max(0, conf)) / 100) * CIRCUMFERENCE
 
   return (
-    <>
+    <Box className="moon-block pd-moon-block">
       <Btn
         type="button"
         className="moon-chip pd-moon-chip"
@@ -133,6 +137,6 @@ export default function ProjectMoonRing({ projectId }) {
           )}
         </Box>
       )}
-    </>
+    </Box>
   )
 }

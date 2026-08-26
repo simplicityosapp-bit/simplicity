@@ -186,26 +186,27 @@
   min-width: 0;
   margin: 0;
 }
-.pd-moon-chip {
+/* The flex item in the header row is the BLOCK, not the chip: the chip and
+   its popover travel together, and .moon-block is the positioned ancestor
+   the popover anchors to (components/MoonGlance.css). */
+.pd-moon-block {
   order: 0;
   flex-shrink: 0;
+}
+/* Slightly smaller than the 132px home chip so it sits level with the title
+   card beside it. Size only — everything else comes from .moon-chip. */
+.pd-moon-chip {
   width: 112px;
   height: 112px;
   margin: 0;
   padding: 0;
   font: inherit;
 }
-.pd-moon-expanded {
-  order: 2;
-  flex-basis: 100%;
-}
 
 /* Stands where the ring would, at the ring's exact footprint, so a project
    that gains its first goal does not reflow the header row. Dashed rather
    than filled — it is an invitation, not a reading. */
 .pd-moon-empty {
-  order: 0;
-  flex-shrink: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -770,10 +771,11 @@
 .pd-stats-2 { grid-template-columns: 1fr 1fr; padding-top: 14px; }
 .pd-stat.divided-end { border-inline-end: 1px solid var(--divider); }
 
-.pd-money-in  { color: var(--sage); }
-.pd-money-out { color: var(--clay-on-dark); }
-/* Net is the headline of the card, so it keeps the primary ink — until it
-   goes negative, which is the one number here worth alarming about. */
+/* The figures stay in the primary ink, like every other number on the screen
+   — the green/red pair I first gave them made the card read as a status
+   readout rather than as three facts, and set it apart from the stats card
+   beside it (owner call). The ONE exception is a net below zero, which is not
+   decoration: it changes what the number means. */
 .pd-money-neg { color: var(--clay-on-dark); }
 
 /* ── Direction-aware chevrons ─────────────────────────────────────

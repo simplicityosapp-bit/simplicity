@@ -10,6 +10,7 @@ import {
 import i18n from '../lib/i18n'
 import Screen from '../components/Screen'
 import ScreenHead from '../components/ScreenHead'
+import ScreenCount from '../components/ScreenCount'
 import Card from '../components/Card'
 import AddQuestionModal from '../modals/AddQuestionModal'
 import { colors } from '../theme/theme'
@@ -146,6 +147,8 @@ export default function InsightsScreen() {
   const [editQ, setEditQ] = useState(null)
   const nextOrder = questions.reduce((m, q) => Math.max(m, (q.order ?? 0) + 1), 0)
   const usedTemplateKeys = questions.map((q) => q.template_key).filter(Boolean)
+  /* The figure the header chip used to carry — see components/ScreenCount. */
+  const activeQuestionCount = questions.filter((q) => q.active).length
 
   return (
     <Screen name="moon">
@@ -166,6 +169,7 @@ export default function InsightsScreen() {
             onAdd={() => setShowAdd(true)}
             addLabel={i18n.t('settings:questions.add', { defaultValue: 'הוספת שאלה' })}
           />
+          <ScreenCount>{questions.length ? T('activeCount', { count: activeQuestionCount, defaultValue: `${activeQuestionCount} שאלות` }) : null}</ScreenCount>
           {error ? <Text style={styles.error}>{error}</Text> : null}
 
           {mirror.length ? (

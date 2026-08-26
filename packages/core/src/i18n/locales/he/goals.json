@@ -1,5 +1,8 @@
 {
-  "countLabel": "{{count}} יעדים",
+  "countLabel_one": "יעד אחד",
+  "countLabel_two": "שני יעדים",
+  "countLabel_many": "{{count}} יעדים",
+  "countLabel_other": "{{count}} יעדים",
   "movement": "תנועה",
   "tagline": "כל יעד — כיוון, לא לחץ.",
   "title": "יעדים",

@@ -1,6 +1,7 @@
 {
   "title": "How are you today",
-  "activeCount": "{{count}} active",
+  "activeCount_one": "1 active question",
+  "activeCount_other": "{{count}} active questions",
   "dailyInsights": "Daily insights",
   "tagline": "Listening to yourself, one day at a time.",
   "mirror": {

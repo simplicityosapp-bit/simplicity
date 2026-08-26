@@ -6,6 +6,7 @@ import { clientBalance, effectiveClientMeta, paidForClients, sessionsCountForCli
 import i18n from '../lib/i18n'
 import Screen from '../components/Screen'
 import ScreenHead from '../components/ScreenHead'
+import ScreenCount from '../components/ScreenCount'
 import Card from '../components/Card'
 import { Glass, GlassPressable } from '../components/Glass'
 import Sheet from '../components/Sheet'
@@ -261,6 +262,7 @@ export default function ClientsScreen() {
             onAdd={() => setAdding(true)}
             addLabel={i18n.t('clients:addClientAria', { defaultValue: 'הוספת לקוח' })}
           />
+          <ScreenCount>{i18n.t('clients:countLabel', { count: total, defaultValue: `${total} לקוחות` })}</ScreenCount>
           {error ? <Text style={styles.error}>{error}</Text> : null}
 
           {/* Controls — sort + group-by toggle + select (glass like the cards) */}

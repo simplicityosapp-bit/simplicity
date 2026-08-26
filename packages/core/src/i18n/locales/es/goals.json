@@ -1,5 +1,6 @@
 {
-  "countLabel": "{{count}} objetivos",
+  "countLabel_one": "1 objetivo",
+  "countLabel_other": "{{count}} objetivos",
   "movement": "Movimiento",
   "tagline": "Cada objetivo es una dirección, no una presión.",
   "title": "Objetivos",

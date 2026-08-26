@@ -1,5 +1,6 @@
 {
-  "countLabel": "{{count}} goals",
+  "countLabel_one": "1 goal",
+  "countLabel_other": "{{count}} goals",
   "movement": "Movement",
   "tagline": "Every goal is a direction, not pressure.",
   "title": "Goals",

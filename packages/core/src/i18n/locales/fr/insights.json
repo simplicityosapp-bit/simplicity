@@ -1,6 +1,7 @@
 {
   "title": "Comment allez-vous aujourd'hui",
-  "activeCount": "{{count}} actives",
+  "activeCount_one": "1 question active",
+  "activeCount_other": "{{count}} questions actives",
   "dailyInsights": "Observations quotidiennes",
   "tagline": "S'écouter soi-même, un jour à la fois.",
   "mirror": {

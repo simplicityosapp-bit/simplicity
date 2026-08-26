@@ -1,6 +1,7 @@
 {
   "title": "Clientes",
-  "countLabel": "{{count}} clientes",
+  "countLabel_one": "1 cliente",
+  "countLabel_other": "{{count}} clientes",
   "summary": "Resumen",
   "tagline": "Las relaciones sólidas crean resultados.",
   "addClientAria": "Añadir cliente",

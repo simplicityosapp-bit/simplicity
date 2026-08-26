@@ -1,6 +1,9 @@
 {
   "title": "מה איתך היום",
-  "activeCount": "{{count}} פעילות",
+  "activeCount_one": "שאלה אחת פעילה",
+  "activeCount_two": "שתי שאלות פעילות",
+  "activeCount_many": "{{count}} שאלות פעילות",
+  "activeCount_other": "{{count}} שאלות פעילות",
   "dailyInsights": "תובנות יומיות",
   "tagline": "הקשבה לעצמך, יום אחרי יום.",
   "mirror": {

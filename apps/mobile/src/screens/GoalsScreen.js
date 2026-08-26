@@ -6,6 +6,7 @@ import { Star } from 'lucide-react-native'
 import i18n from '../lib/i18n'
 import Screen from '../components/Screen'
 import ScreenHead from '../components/ScreenHead'
+import ScreenCount from '../components/ScreenCount'
 import Card from '../components/Card'
 import AddGoalModal from '../modals/AddGoalModal'
 import EditGoalModal from '../modals/EditGoalModal'
@@ -50,6 +51,7 @@ export default function GoalsScreen() {
             onAdd={() => setShowAdd(true)}
             addLabel={i18n.t('goals:newGoalAria', { defaultValue: 'יעד חדש' })}
           />
+          <ScreenCount>{i18n.t('goals:countLabel', { count: goals.length, defaultValue: `${goals.length} יעדים` })}</ScreenCount>
           {error ? <Text style={styles.error}>{error}</Text> : null}
           {cats.length ? (
             cats.map(({ category, goals: scored }) => (

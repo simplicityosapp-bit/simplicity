@@ -1,6 +1,7 @@
 {
   "title": "¿Cómo estás hoy?",
-  "activeCount": "{{count}} activas",
+  "activeCount_one": "1 pregunta activa",
+  "activeCount_other": "{{count}} preguntas activas",
   "dailyInsights": "Ideas diarias",
   "tagline": "Escucharte, un día a la vez.",
   "mirror": {

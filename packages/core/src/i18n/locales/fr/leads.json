@@ -1,5 +1,6 @@
 {
-  "countLabel": "{{count}} prospects",
+  "countLabel_one": "1 prospect",
+  "countLabel_other": "{{count}} prospects",
   "tabLeads": "Prospects",
   "tabStatuses": "Statuts",
   "title": "Prospects",

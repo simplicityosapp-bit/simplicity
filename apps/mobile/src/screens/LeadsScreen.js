@@ -9,6 +9,7 @@ import { useConfigTaxonomy } from '../hooks/useConfigTaxonomy'
 import i18n from '../lib/i18n'
 import Screen from '../components/Screen'
 import ScreenHead from '../components/ScreenHead'
+import ScreenCount from '../components/ScreenCount'
 import Card from '../components/Card'
 import { Glass, GlassPressable } from '../components/Glass'
 import Sheet from '../components/Sheet'
@@ -118,6 +119,9 @@ export default function LeadsScreen() {
     }
     return g
   }, [official, filter, query])
+  /* The figure the header chip used to carry — see components/ScreenCount.
+     Sums the visible buckets, so it follows the filters and the search. */
+  const totalLeads = LEAD_META.reduce((n, m) => n + (buckets[m.key]?.length || 0), 0)
   // Open follow-ups — due (date ≤ today) AND still in_process.
   const dueFollowups = useMemo(() => {
     const ymd = todayYmd()
@@ -216,6 +220,7 @@ export default function LeadsScreen() {
             onAdd={() => setAdding(true)}
             addLabel={i18n.t('leads:newLeadAria', { defaultValue: 'ליד חדש' })}
           />
+          <ScreenCount>{i18n.t('leads:countLabel', { count: totalLeads, defaultValue: `${totalLeads} לידים` })}</ScreenCount>
           {error ? <Text style={styles.error}>{error}</Text> : null}
 
           <View style={styles.viewToggle}>

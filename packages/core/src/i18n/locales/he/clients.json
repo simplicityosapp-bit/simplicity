@@ -1,6 +1,9 @@
 {
   "title": "לקוחות",
-  "countLabel": "{{count}} לקוחות",
+  "countLabel_one": "לקוח׌ אחד׌",
+  "countLabel_two": "{{count}} לקוחות",
+  "countLabel_many": "{{count}} לקוחות",
+  "countLabel_other": "{{count}} לקוחות",
   "summary": "סיכום",
   "tagline": "בניית קשרים יוצרת תוצאות.",
   "addClientAria": "הוספת לקוח",

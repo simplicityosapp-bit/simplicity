@@ -1,5 +1,8 @@
 {
-  "countLabel": "{{count}} לידים",
+  "countLabel_one": "ליד אחד",
+  "countLabel_two": "{{count}} לידים",
+  "countLabel_many": "{{count}} לידים",
+  "countLabel_other": "{{count}} לידים",
   "tabLeads": "לידים",
   "tabStatuses": "סטטוסים",
   "title": "לידים",

@@ -1,5 +1,6 @@
 {
-  "countLabel": "{{count}} leads",
+  "countLabel_one": "1 lead",
+  "countLabel_other": "{{count}} leads",
   "tabLeads": "Leads",
   "tabStatuses": "Statuses",
   "title": "Leads",

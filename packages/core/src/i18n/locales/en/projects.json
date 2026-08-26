@@ -190,7 +190,11 @@
       "ofPace": "of pace",
       "percentOfGoal": "{{percent}}% of goal",
       "expandedEmpty": "No active goals with data this month yet.",
-      "addGoal": "Set a goal for this project"
+      "addGoal": "Set a goal for this project",
+      "ended_one": "Goal ended",
+      "ended_other": "{{count}} goals ended",
+      "endedAria_one": "The project goal has ended — open the goals screen",
+      "endedAria_other": "{{count}} project goals have ended — open the goals screen"
     },
     "tasks": {
       "title": "Tasks",

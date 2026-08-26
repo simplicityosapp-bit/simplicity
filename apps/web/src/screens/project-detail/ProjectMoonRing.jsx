@@ -1,5 +1,7 @@
 import { useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Target } from 'lucide-react'
+import { ROUTES } from '../../lib/routes'
 import { moonGetData, moonReflection } from '@simplicity/core'
 import { useProjects } from '../../hooks/useProjects'
 import { useUserQuestions } from '../../hooks/useUserQuestions'
@@ -34,6 +36,7 @@ const CIRCUMFERENCE = 2 * Math.PI * RADIUS
    order — which an out-of-flow element ignores. */
 export default function ProjectMoonRing({ projectId }) {
   const { t, gender } = useT('projects')
+  const navigate = useNavigate()
   const { goals, addGoal } = useGoals()
   const { projects } = useProjects()
   const { questions, addQuestion } = useUserQuestions()
@@ -57,7 +60,7 @@ export default function ProjectMoonRing({ projectId }) {
     () => ({ goals: projectGoals, categories, entries, transactions, sessions, clients, leads, answers, members, groups }),
     [projectGoals, categories, entries, transactions, sessions, clients, leads, answers, members, groups],
   )
-  const { overall, scored } = useMemo(() => moonGetData(new Date(), data), [data])
+  const { overall, scored, ended } = useMemo(() => moonGetData(new Date(), data), [data])
 
   /* No goals tied to this project. The ring used to return null here, which
      meant a project without goals showed no trace that goals could be tied to
@@ -70,6 +73,39 @@ export default function ProjectMoonRing({ projectId }) {
      never sees, so a progress update made here would leave the ring stale
      (see the note in ProjectQuickRow). A new goal goes through useGoals —
      the shared cache — so the ring picks it up on the next render. */
+  /* `overall` is null whenever no goal is LIVE — which covers two different
+     situations that were being shown as one. moonGetData hands back `ended`
+     separately for exactly this reason (a goal closes on its DATE, not on
+     reaching 100%), and nothing had consumed it.
+
+       · goals exist but every one of them has ended → say so. Offering
+         "set a goal for this project" here is a false statement: there are
+         goals, they are simply over, and the answer is to reopen or extend
+         one on the goals screen.
+       · no goals at all → the invitation.
+
+     Home collapses these two as well (MoonWidget: `hasGoals = !!overall`),
+     so its "—" chip offers to set a goal to someone who already has one.
+     Same gap, its own screen. */
+  if (!overall && ended.length > 0) {
+    return (
+      <Box className="moon-block pd-moon-block">
+        <Btn
+          type="button"
+          className="moon-chip moon-chip-empty pd-moon-chip"
+          onClick={() => navigate(ROUTES.GOALS)}
+          aria-label={t('detail.moon.endedAria', { count: ended.length })}
+        >
+          <svg className="moon-svg" viewBox="0 0 100 100" aria-hidden="true">
+            <circle className="moon-track" cx="50" cy="50" r={RADIUS} />
+          </svg>
+          <Box className="moon-chip-num mono">—</Box>
+          <Box className="moon-chip-label">{t('detail.moon.ended', { count: ended.length })}</Box>
+        </Btn>
+      </Box>
+    )
+  }
+
   if (!overall) {
     return (
       <Box className="moon-block pd-moon-block">

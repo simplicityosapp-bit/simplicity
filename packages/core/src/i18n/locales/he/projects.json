@@ -210,7 +210,15 @@
       "ofPace": "מהקצב",
       "percentOfGoal": "{{percent}}% מהיעד",
       "expandedEmpty": "אין עדיין יעדים פעילים עם נתונים החודש.",
-      "addGoal": "הגדרת יעד לפרויקט"
+      "addGoal": "הגדרת יעד לפרויקט",
+      "ended_one": "היעד הסתיים",
+      "ended_two": "{{count}} יעדים הסתיימו",
+      "ended_many": "{{count}} יעדים הסתיימו",
+      "ended_other": "{{count}} יעדים הסתיימו",
+      "endedAria_one": "יעד הפרויקט הסתיים — פתיחת מסך היעדים",
+      "endedAria_two": "{{count}} יעדי הפרויקט הסתיימו — פתיחת מסך היעדים",
+      "endedAria_many": "{{count}} יעדי הפרויקט הסתיימו — פתיחת מסך היעדים",
+      "endedAria_other": "{{count}} יעדי הפרויקט הסתיימו — פתיחת מסך היעדים"
     },
     "tasks": {
       "title": "משימות",

@@ -190,7 +190,11 @@
       "ofPace": "del ritmo",
       "percentOfGoal": "{{percent}}% del objetivo",
       "expandedEmpty": "Aún no hay objetivos activos con datos este mes.",
-      "addGoal": "Definir un objetivo"
+      "addGoal": "Definir un objetivo",
+      "ended_one": "Objetivo finalizado",
+      "ended_other": "{{count}} objetivos finalizados",
+      "endedAria_one": "El objetivo del proyecto ha finalizado — abrir la pantalla de objetivos",
+      "endedAria_other": "{{count}} objetivos del proyecto han finalizado — abrir la pantalla de objetivos"
     },
     "tasks": {
       "title": "Tareas",

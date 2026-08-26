@@ -575,8 +575,8 @@
           "body": "La section « Tâches » rassemble les tâches du projet — celles que vous lui avez rattachées directement et celles de ses clients (le nom du client apparaît alors sous le titre de la tâche). Le nombre à côté de « Tâches » indique combien sont encore ouvertes ; le survol donne le tableau complet (« 2 tâches ouvertes sur 5 »). Chaque tâche a un ✓ pour la marquer terminée (un second appui la rouvre) et une corbeille pour la supprimer, avec un message d'annulation juste après. « Ajouter une tâche » ouvre une nouvelle tâche déjà liée au projet."
         },
         {
-          "title": "Rappels liés",
-          "body": "La section « Rappels liés » rassemble les rappels rattachés au projet. Le nombre à côté du titre indique combien sont encore actifs ; le survol indique combien sur combien. Vous pouvez marquer un rappel comme fait, le supprimer (avec confirmation) ou en ajouter un nouveau pour le projet. Un rappel dépassé est marqué « En retard », un rappel effectué « Fait », et un rappel proche reçoit une étiquette indiquant dans combien de jours il tombe."
+          "title": "Rappels du projet",
+          "body": "La section « Rappels » rassemble les rappels rattachés au projet. Le nombre à côté du titre indique combien sont encore actifs ; le survol indique combien sur combien. Vous pouvez marquer un rappel comme fait, le supprimer (avec confirmation) ou en ajouter un nouveau pour le projet. Un rappel dépassé est marqué « En retard », un rappel effectué « Fait », et un rappel proche reçoit une étiquette indiquant dans combien de jours il tombe."
         },
         {
           "title": "Prospects du projet",

@@ -775,3 +775,21 @@
 /* Net is the headline of the card, so it keeps the primary ink — until it
    goes negative, which is the one number here worth alarming about. */
 .pd-money-neg { color: var(--clay-on-dark); }
+
+/* ── Direction-aware chevrons ─────────────────────────────────────
+   These arrows are hardcoded glyphs: ChevronRight for "back" and
+   ChevronLeft for "forward into this row". Both are correct in Hebrew and
+   both point the WRONG WAY in en/es/fr, which DirManager serves with
+   dir="ltr" on <html>.
+
+   Flipped in CSS rather than by branching the icon in JSX: a chevron is
+   its own mirror image, the rule reaches every one of them at once, and it
+   cannot drift out of sync with the language the way a component-level
+   check would. Scoped to this screen's arrows only — the app-wide sweep of
+   hardcoded directional icons is its own job. */
+[dir="ltr"] .pd-back svg,
+[dir="ltr"] .pd-leadpage-chev { transform: scaleX(-1); }
+
+/* Dark mode never got these two hovers, so the feedback vanished at night. */
+[data-theme="dark"] .pd-rem-btn:hover { background: rgba(240, 235, 224, 0.06); }
+[data-theme="dark"] .pd-leadpage-row:hover { background: rgba(240, 235, 224, 0.05); }

@@ -53,6 +53,11 @@
   z-index: 2;
 }
 .p-hero-title {
+  /* Reserves the toggle's corner. The switch above is absolutely positioned,
+     so it took no space and the title ran underneath it — invisible in Hebrew
+     (short title, short switch) but reachable in French at the "large" text
+     size, where "Résumé des projets" is long enough to arrive. */
+  padding-inline-end: 130px;
   margin: 0 0 14px;
   font-family: var(--mg-font);
   font-size: calc(11px * var(--text-scale));

@@ -125,7 +125,7 @@
       "toCalendar": "To the calendar"
     },
     "reminders": {
-      "title": "Linked reminders",
+      "title": "Reminders",
       "empty": "No linked reminders",
       "done": "Done",
       "overdue": "Overdue",

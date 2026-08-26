@@ -47,10 +47,14 @@ export default function ProjectsScreen() {
         <View style={styles.center}><ActivityIndicator color={colors.brand} /></View>
       ) : (
         <ScrollView contentContainerStyle={styles.content} refreshControl={<RefreshControl refreshing={loading} onRefresh={refetch} tintColor={colors.brand} />}>
+          {/* Screen name + its icon, nothing else — the owner's header rule
+              (2026-07-29), which web adopted and mobile had not. The project
+              count it used to carry is stated by the summary card a few pixels
+              below, and the tagline was slogan.
+              NOTE: the other nine mobile screens still pass meta/tagline here;
+              ScreenHead keeps supporting both until they are swept too. */}
           <ScreenHead
             title={i18n.t('projects:title', { defaultValue: 'פרויקטים' })}
-            meta={[i18n.t('projects:count', { count: projects.length, defaultValue: `${projects.length} פרויקטים` })]}
-            tagline={i18n.t('projects:tagline', { defaultValue: 'מיקוד יוצר תוצאות.' })}
             onAdd={() => setShowAdd(true)}
             addLabel={i18n.t('projects:newAria', { defaultValue: 'פרויקט חדש' })}
           />

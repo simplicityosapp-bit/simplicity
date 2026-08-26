@@ -48,8 +48,8 @@
   },
   "card": {
     "active": "פעיל",
-    "editTitle": "ערוך פרויקט",
-    "deleteTitle": "מחק פרויקט",
+    "editTitle": "עריכת פרויקט",
+    "deleteTitle": "מחיקת פרויקט",
     "clients": "לקוחות",
     "tasks": "משימות",
     "ended": "הסתיים"
@@ -108,16 +108,16 @@
       "pricePackage_other": "{{price}} / {{count}} פגישות",
       "noMembers": "עדיין אין חברים",
       "fallbackClient": "(לקוח/ה)",
-      "removeMemberAria": "הסר {{name}}",
+      "removeMemberAria": "הסרת {{name}}",
       "removeMemberFallback": "חבר",
-      "addMember": "הוסף חבר",
-      "logSession": "תעד פגישה",
+      "addMember": "הוספת חבר",
+      "logSession": "תיעוד פגישה",
       "pastSessions": "פגישות שהתקיימו",
-      "deleteGroup": "מחק קבוצה",
+      "deleteGroup": "מחיקת קבוצה",
       "pastSessionsTitle": "פגישות שהתקיימו",
       "pastSessionsCount": "פגישות שהתקיימו ({{count}})",
       "noSessions": "אין פגישות מתועדות עדיין",
-      "deleteSessionAria": "מחק פגישה",
+      "deleteSessionAria": "מחיקת פגישה",
       "newGroup": "קבוצה חדשה"
     },
     "status": {
@@ -143,12 +143,12 @@
       "toCalendar": "ללוח השנה"
     },
     "reminders": {
-      "title": "תזכורות מקושרות",
+      "title": "תזכורות",
       "empty": "אין תזכורות מקושרות",
       "done": "בוצעה",
       "overdue": "באיחור",
-      "completeAria": "סמן כבוצעה",
-      "deleteAria": "מחק תזכורת",
+      "completeAria": "סימון כבוצעה",
+      "deleteAria": "מחיקת תזכורת",
       "add": "תזכורת לפרויקט +",
       "countTitle": "{{open}} תזכורות פעילות מתוך {{total}}"
     },
@@ -217,8 +217,8 @@
       "empty": "אין משימות משויכות לפרויקט.",
       "add": "הוספת משימה",
       "done": "הושלמה",
-      "completeAria": "סמן כהושלמה",
-      "reopenAria": "החזר לפתוחה",
+      "completeAria": "סימון כהושלמה",
+      "reopenAria": "החזרה לפתוחה",
       "deleteAria": "מחיקת משימה",
       "priority": {
         "high": "דחוף",

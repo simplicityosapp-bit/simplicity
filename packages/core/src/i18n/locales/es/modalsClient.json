@@ -39,7 +39,17 @@
     "day6": "Sábado",
     "leadStageOptional": "Etiqueta (opcional)",
     "leadStageOptional_in_process": "Etapa (opcional)",
-    "leadStageOptional_not_relevant": "Motivo (opcional)"
+    "leadStageOptional_not_relevant": "Motivo (opcional)",
+    "colorNames": {
+      "teal": "Verde azulado",
+      "cyan": "Cian",
+      "purple": "Morado",
+      "sage": "Salvia",
+      "terracotta": "Terracota",
+      "amber": "Ámbar",
+      "clay": "Arcilla",
+      "green": "Verde"
+    }
   },
   "addClient": {
     "titleLabel": "Nuevo cliente",

@@ -39,7 +39,17 @@
     "day6": "Samedi",
     "leadStageOptional": "Libellé (facultatif)",
     "leadStageOptional_in_process": "Étape (facultatif)",
-    "leadStageOptional_not_relevant": "Motif (facultatif)"
+    "leadStageOptional_not_relevant": "Motif (facultatif)",
+    "colorNames": {
+      "teal": "Sarcelle",
+      "cyan": "Cyan",
+      "purple": "Violet",
+      "sage": "Sauge",
+      "terracotta": "Terre cuite",
+      "amber": "Ambre",
+      "clay": "Argile",
+      "green": "Vert"
+    }
   },
   "addClient": {
     "titleLabel": "Nouveau client",

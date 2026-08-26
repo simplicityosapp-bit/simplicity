@@ -575,8 +575,8 @@
           "body": "La sección \"Tareas\" reúne las tareas del proyecto — tanto las que etiquetaste directamente como las tareas de sus clientes (en ese caso el nombre del cliente aparece bajo el título de la tarea). El número junto a \"Tareas\" es cuántas siguen abiertas; al pasar el cursor se ve el cuadro completo (\"2 de 5 tareas pendientes\"). Cada tarea tiene un ✓ para marcarla como completada (tocar de nuevo la reabre) y una papelera para eliminarla, y aparece un mensaje de deshacer justo después. \"Añadir tarea\" abre una tarea nueva ya vinculada al proyecto."
         },
         {
-          "title": "Recordatorios vinculados",
-          "body": "La sección \"Recordatorios vinculados\" reúne los recordatorios ligados al proyecto. El número junto al título es cuántos siguen activos; al pasar el cursor se ve cuántos de cuántos. Puedes marcar un recordatorio como hecho, eliminarlo (con confirmación) o añadir uno nuevo para el proyecto. Un recordatorio vencido se marca \"Atrasado\", uno completado \"Hecho\", y uno próximo recibe una etiqueta que dice en cuántos días es."
+          "title": "Recordatorios del proyecto",
+          "body": "La sección \"Recordatorios\" reúne los recordatorios ligados al proyecto. El número junto al título es cuántos siguen activos; al pasar el cursor se ve cuántos de cuántos. Puedes marcar un recordatorio como hecho, eliminarlo (con confirmación) o añadir uno nuevo para el proyecto. Un recordatorio vencido se marca \"Atrasado\", uno completado \"Hecho\", y uno próximo recibe una etiqueta que dice en cuántos días es."
         },
         {
           "title": "Prospectos del proyecto",

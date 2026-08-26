@@ -21,7 +21,17 @@
     "none": "Aucun",
     "noCategory": "Aucune catégorie",
     "color": "Couleur",
-    "icon": "Icône"
+    "icon": "Icône",
+    "colorNames": {
+      "teal": "Sarcelle",
+      "cyan": "Cyan",
+      "purple": "Violet",
+      "sage": "Sauge",
+      "terracotta": "Terre cuite",
+      "amber": "Ambre",
+      "clay": "Argile",
+      "green": "Vert"
+    }
   },
   "tx": {
     "titleNew": "Nouvelle transaction",

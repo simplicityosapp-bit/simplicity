@@ -65,7 +65,7 @@ export default function MoonWidget() {
      themselves with the name the user chose (goal.label, falling back to
      the category name like GoalCard does). Per beta decision 04/06/2026:
      per-goal bars, not per-category. */
-  const { overall, scored } = useMemo(() => moonGetData(new Date(), data), [data])
+  const { overall, scored, ended } = useMemo(() => moonGetData(new Date(), data), [data])
 
   /* Persist today's moon-glance score as a daily snapshot. Upserts on
      (user_id, date) so multiple recomputes within a day just overwrite
@@ -94,7 +94,33 @@ export default function MoonWidget() {
     ? (pure != null ? t('widgets.moon.percentOfGoal', { percent: pure }) : t('widgets.moon.glance'))
     : t('widgets.moon.setGoal')
 
-  /* Empty-state — go straight to /goals; no expansion available. */
+  /* Two DIFFERENT quiet states, not one. `overall` is null whenever no goal
+     is live, which is true both for someone who has never set a goal and for
+     someone whose goals have all ENDED — a goal closes on its target date,
+     not on reaching 100%, so a finished quarter lands here routinely.
+     Telling that second person to "set a goal" is false and pushes them to
+     create a duplicate instead of extending what they have. moonGetData has
+     always returned `ended` separately for exactly this. */
+  if (!hasGoals && ended.length > 0) {
+    return (
+      <Box
+        className="moon-chip moon-chip-empty"
+        role="button"
+        tabIndex={0}
+        onClick={() => navigate(ROUTES.GOALS)}
+        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate(ROUTES.GOALS) } }}
+        aria-label={t('widgets.moon.endedAria', { count: ended.length })}
+      >
+        <svg className="moon-svg" viewBox="0 0 100 100" aria-hidden="true">
+          <circle className="moon-track" cx="50" cy="50" r={RADIUS} />
+        </svg>
+        <Box className="moon-chip-num mono">—</Box>
+        <Box className="moon-chip-label">{t('widgets.moon.ended', { count: ended.length })}</Box>
+      </Box>
+    )
+  }
+
+  /* Never set one — the invitation. Straight to /goals; nothing to expand. */
   if (!hasGoals) {
     return (
       <Box
@@ -102,6 +128,9 @@ export default function MoonWidget() {
         role="button"
         tabIndex={0}
         onClick={() => navigate(ROUTES.GOALS)}
+        /* role="button" + tabIndex reached this chip by keyboard but nothing
+           activated it — Enter and Space do nothing on a div. */
+        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate(ROUTES.GOALS) } }}
         aria-label={t('widgets.moon.setGoalAria')}
       >
         <svg className="moon-svg" viewBox="0 0 100 100" aria-hidden="true">

@@ -118,7 +118,11 @@
       "expandedEmpty": "Aún no hay objetivos activos con datos este mes.",
       "fullDetail": "Detalle completo",
       "logEntry": "Registrar avance",
-      "logEntryAria": "Registrar avance de {{name}}"
+      "logEntryAria": "Registrar avance de {{name}}",
+      "ended_one": "Objetivo finalizado",
+      "ended_other": "{{count}} objetivos finalizados",
+      "endedAria_one": "El objetivo ha finalizado — abrir la pantalla de objetivos",
+      "endedAria_other": "{{count}} objetivos han finalizado — abrir la pantalla de objetivos"
     },
     "nextTasks": {
       "title": "Tareas y recordatorios",

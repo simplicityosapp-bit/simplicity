@@ -156,7 +156,15 @@
       "expandedEmpty": "אין עדיין יעדים פעילים עם נתונים החודש.",
       "fullDetail": "פירוט מלא",
       "logEntry": "עדכון היעד",
-      "logEntryAria": "עדכון היעד {{name}}"
+      "logEntryAria": "עדכון היעד {{name}}",
+      "ended_one": "היעד הסתיים",
+      "ended_two": "{{count}} יעדים הסתיימו",
+      "ended_many": "{{count}} יעדים הסתיימו",
+      "ended_other": "{{count}} יעדים הסתיימו",
+      "endedAria_one": "היעד הסתיים — פתיחת מסך היעדים",
+      "endedAria_two": "{{count}} יעדים הסתיימו — פתיחת מסך היעדים",
+      "endedAria_many": "{{count}} יעדים הסתיימו — פתיחת מסך היעדים",
+      "endedAria_other": "{{count}} יעדים הסתיימו — פתיחת מסך היעדים"
     },
     "nextTasks": {
       "title": "משימות ותזכורות",

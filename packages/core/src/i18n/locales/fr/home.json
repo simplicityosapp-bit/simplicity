@@ -118,7 +118,11 @@
       "expandedEmpty": "Aucun objectif actif avec des données ce mois-ci pour l'instant.",
       "fullDetail": "Détail complet",
       "logEntry": "Enregistrer un progrès",
-      "logEntryAria": "Enregistrer un progrès pour {{name}}"
+      "logEntryAria": "Enregistrer un progrès pour {{name}}",
+      "ended_one": "Objectif terminé",
+      "ended_other": "{{count}} objectifs terminés",
+      "endedAria_one": "L'objectif est terminé — ouvrir l'écran des objectifs",
+      "endedAria_other": "{{count}} objectifs sont terminés — ouvrir l'écran des objectifs"
     },
     "nextTasks": {
       "title": "Tâches et rappels",

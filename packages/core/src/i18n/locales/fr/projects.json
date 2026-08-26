@@ -125,7 +125,7 @@
       "toCalendar": "Vers le calendrier"
     },
     "reminders": {
-      "title": "Rappels liés",
+      "title": "Rappels",
       "empty": "Aucun rappel lié",
       "done": "Fait",
       "overdue": "En retard",

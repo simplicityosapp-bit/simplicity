@@ -575,8 +575,8 @@
           "body": "The \"Tasks\" section gathers the project's tasks — both the ones you tagged to it directly and tasks belonging to its clients (in which case the client's name appears under the task title). The number beside \"Tasks\" is how many are still open; hovering it shows the full picture (\"2 of 5 tasks still open\"). Each task has a ✓ to mark it done (tapping again reopens it) and a bin to delete it, and an undo message appears right after a delete. \"Add task\" opens a new task already linked to the project."
         },
         {
-          "title": "Linked reminders",
-          "body": "The \"Linked reminders\" section gathers the reminders tied to the project. The number beside the heading is how many are still active; hovering it shows how many out of how many. You can mark a reminder done, delete it (with confirmation) or add a new one for the project. A reminder past its time is marked \"Overdue\", a completed one \"Done\", and one coming up soon gets a tag saying how many days away it is."
+          "title": "Project reminders",
+          "body": "The \"Reminders\" section gathers the reminders tied to the project. The number beside the heading is how many are still active; hovering it shows how many out of how many. You can mark a reminder done, delete it (with confirmation) or add a new one for the project. A reminder past its time is marked \"Overdue\", a completed one \"Done\", and one coming up soon gets a tag saying how many days away it is."
         },
         {
           "title": "Project leads",

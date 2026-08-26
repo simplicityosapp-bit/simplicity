@@ -2,7 +2,7 @@ import { useState } from 'react'
 import Modal from './Modal'
 import { useDiscardGuard, isDirty } from './useDiscardGuard'
 import { useT } from '../i18n/useT'
-import { CATEGORY_SWATCHES as COLORS } from '../lib/palette'
+import { CATEGORY_SWATCHES as COLORS, swatchKey } from '../lib/palette'
 import { Box, Txt, Btn, Input } from '../components/ui'
 const blank = () => ({ name: '', color: COLORS[0] })
 
@@ -51,7 +51,7 @@ export default function AddProjectModal({ open, onClose, onSave }) {
               type="button"
               className={`m-color${form.color === c ? ' on' : ''}`}
               style={{ background: c }}
-              aria-label={c}
+              aria-label={t(`common.colorNames.${swatchKey(c)}`, { defaultValue: c })}
               onClick={() => setForm((f) => ({ ...f, color: c }))}
             />
           ))}

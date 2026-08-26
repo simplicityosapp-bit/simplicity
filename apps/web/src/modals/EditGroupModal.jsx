@@ -5,7 +5,7 @@ import { useDiscardGuard, isDirty } from './useDiscardGuard'
 import DateField from '../components/DateField'
 import { GROUP_BILLING_MODES } from '@simplicity/core'
 import { useT } from '../i18n/useT'
-import { CATEGORY_SWATCHES as COLORS } from '../lib/palette'
+import { CATEGORY_SWATCHES as COLORS, swatchKey } from '../lib/palette'
 import { Box, Txt, Btn, Input } from '../components/ui'
 
 const DAYS = [0, 1, 2, 3, 4, 5, 6]
@@ -166,7 +166,7 @@ export default function EditGroupModal({ open, onClose, onSave, onDelete, group 
         <Box as="label" className="m-label">{t('editGroup.color')}</Box>
         <Box className="m-colors">
           {COLORS.map((c) => (
-            <Btn key={c} type="button" className={`m-color${form.color === c ? ' on' : ''}`} style={{ background: c }} aria-label={c} onClick={() => set('color', c)} />
+            <Btn key={c} type="button" className={`m-color${form.color === c ? ' on' : ''}`} style={{ background: c }} aria-label={t(`common.colorNames.${swatchKey(c)}`, { defaultValue: c })} onClick={() => set('color', c)} />
           ))}
         </Box>
       </Box>

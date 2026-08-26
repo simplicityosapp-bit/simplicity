@@ -21,7 +21,17 @@
     "none": "Ninguno",
     "noCategory": "Sin categoría",
     "color": "Color",
-    "icon": "Icono"
+    "icon": "Icono",
+    "colorNames": {
+      "teal": "Verde azulado",
+      "cyan": "Cian",
+      "purple": "Morado",
+      "sage": "Salvia",
+      "terracotta": "Terracota",
+      "amber": "Ámbar",
+      "clay": "Arcilla",
+      "green": "Verde"
+    }
   },
   "tx": {
     "titleNew": "Nueva transacción",

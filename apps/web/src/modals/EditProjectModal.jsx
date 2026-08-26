@@ -3,7 +3,7 @@ import { Trash2 } from 'lucide-react'
 import Modal from './Modal'
 import { useDiscardGuard, isDirty } from './useDiscardGuard'
 import { useT } from '../i18n/useT'
-import { CATEGORY_SWATCHES as COLORS } from '../lib/palette'
+import { CATEGORY_SWATCHES as COLORS, swatchKey } from '../lib/palette'
 import { Box, Txt, Btn, Input } from '../components/ui'
 
 /* Edit a project — name + color.
@@ -68,7 +68,7 @@ export default function EditProjectModal({ open, onClose, onSave, onDelete, proj
               type="button"
               className={`m-color${form.color === c ? ' on' : ''}`}
               style={{ background: c }}
-              aria-label={c}
+              aria-label={t(`common.colorNames.${swatchKey(c)}`, { defaultValue: c })}
               onClick={() => setForm((f) => ({ ...f, color: c }))}
             />
           ))}

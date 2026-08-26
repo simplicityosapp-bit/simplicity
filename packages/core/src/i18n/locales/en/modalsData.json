@@ -21,7 +21,17 @@
     "none": "None",
     "noCategory": "No category",
     "color": "Color",
-    "icon": "Icon"
+    "icon": "Icon",
+    "colorNames": {
+      "teal": "Teal",
+      "cyan": "Cyan",
+      "purple": "Purple",
+      "sage": "Sage",
+      "terracotta": "Terracotta",
+      "amber": "Amber",
+      "clay": "Clay",
+      "green": "Green"
+    }
   },
   "tx": {
     "titleNew": "New transaction",

@@ -23,7 +23,17 @@
     "none": "ללא",
     "noCategory": "ללא קטגוריה",
     "color": "צבע",
-    "icon": "אייקון"
+    "icon": "אייקון",
+    "colorNames": {
+      "teal": "טורקיז",
+      "cyan": "תכלת",
+      "purple": "סגול",
+      "sage": "ירוק מרווה",
+      "terracotta": "טרקוטה",
+      "amber": "ענבר",
+      "clay": "חימר",
+      "green": "ירוק"
+    }
   },
   "tx": {
     "titleNew": "תנועה חדשה",

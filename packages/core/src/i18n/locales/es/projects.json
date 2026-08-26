@@ -125,7 +125,7 @@
       "toCalendar": "Al calendario"
     },
     "reminders": {
-      "title": "Recordatorios vinculados",
+      "title": "Recordatorios",
       "empty": "No hay recordatorios vinculados",
       "done": "Hecho",
       "overdue": "Atrasado",

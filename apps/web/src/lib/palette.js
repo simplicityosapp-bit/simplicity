@@ -18,3 +18,29 @@ export const CATEGORY_SWATCHES = [
   '#B5634E', // clay
   '#4a9a6a', // green
 ]
+
+/* ── Naming a swatch ──────────────────────────────────────────────
+   Every colour picker in the app rendered `aria-label={c}`, so a screen
+   reader announced the raw hex — "number 0 e 9 8 8 8" — for each of the
+   eight buttons. This maps a swatch to a stable key so the label can be a
+   colour NAME, translated like everything else.
+
+   Keyed by hex rather than by index: the array order is a layout decision
+   and a reorder must not silently rename every colour. An unknown value
+   (an old row, a colour picked before this list settled) returns null, and
+   callers fall back to the hex — an odd label beats a wrong one. */
+const SWATCH_KEYS = {
+  '#0e9888': 'teal',
+  '#0099aa': 'cyan',
+  '#7a5cb8': 'purple',
+  '#8BA888': 'sage',
+  '#C97B5E': 'terracotta',
+  '#D4A574': 'amber',
+  '#B5634E': 'clay',
+  '#4a9a6a': 'green',
+}
+
+export function swatchKey(hex) {
+  return SWATCH_KEYS[hex] || SWATCH_KEYS[String(hex).toUpperCase()]
+    || SWATCH_KEYS[String(hex).toLowerCase()] || null
+}

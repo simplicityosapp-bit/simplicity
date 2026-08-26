@@ -114,27 +114,78 @@ describe('the component branches on it', () => {
   })
 })
 
+describe('home draws the same three states', () => {
+  const home = readFileSync(
+    new URL('../src/screens/home/widgets/MoonWidget.jsx', import.meta.url), 'utf8',
+  )
+
+  it('reads `ended` and branches on it before the no-goals case', () => {
+    expect(home).toMatch(/const \{ overall, scored, ended \} = useMemo\(\(\) => moonGetData/)
+    const endedAt = home.indexOf('if (!hasGoals && ended.length > 0)')
+    const noneAt = home.indexOf('if (!hasGoals) {')
+    expect(endedAt).toBeGreaterThan(-1)
+    expect(endedAt).toBeLessThan(noneAt)
+  })
+
+  it('the ended chip does not offer to set a goal', () => {
+    const block = home.slice(
+      home.indexOf('if (!hasGoals && ended.length > 0)'),
+      home.indexOf('if (!hasGoals) {'),
+    )
+    expect(block).toMatch(/widgets\.moon\.ended/)
+    expect(block).not.toMatch(/setGoal/)
+  })
+
+  it('both quiet chips can be activated from the keyboard', () => {
+    /* They are role="button" divs, so Enter/Space need wiring by hand — the
+       invitation chip could be tabbed to but not activated at all.
+
+       Each block is isolated by its own aria-label rather than by slicing to
+       a line-ending-sensitive marker: the file is CRLF and an indexOf on a
+       '\n' literal silently returns -1, which turns slice() into "the rest of
+       the file" and the assertion into one that cannot fail. */
+    const blocks = [
+      /aria-label=\{t\('widgets\.moon\.endedAria'/,
+      /aria-label=\{t\('widgets\.moon\.setGoalAria'\)\}/,
+    ].map((re) => {
+      const at = home.search(re)
+      expect(at, `block not found: ${re}`).toBeGreaterThan(-1)
+      /* Walk back to the opening <Box of that element. */
+      return home.slice(home.lastIndexOf('<Box', at), at)
+    })
+    for (const b of blocks) expect(b).toMatch(/onKeyDown=/)
+    /* And nothing else in the file grew a stray handler. */
+    expect((home.match(/onKeyDown=/g) || []).length).toBe(2)
+  })
+})
+
 describe('the copy counts properly in every language', () => {
   beforeAll(async () => {
     await initI18n({ lng: 'he' })
     await Promise.all(['en', 'es', 'fr'].map(loadLanguage))
   })
 
-  it('has singular and plural for the ended label', () => {
+  it('has singular and plural for the ended label, on both screens', () => {
     for (const lng of ['he', 'en', 'es', 'fr']) {
-      const t = i18n.getFixedT(lng, 'projects')
-      for (const key of ['detail.moon.ended', 'detail.moon.endedAria']) {
+      const tp = i18n.getFixedT(lng, 'projects')
+      const th = i18n.getFixedT(lng, 'home')
+      for (const [t, key] of [
+        [tp, 'detail.moon.ended'], [tp, 'detail.moon.endedAria'],
+        [th, 'widgets.moon.ended'], [th, 'widgets.moon.endedAria'],
+      ]) {
         expect(t(key, { count: 1 }), `${lng}:${key}:1`).not.toBe(key)
         expect(t(key, { count: 3 }), `${lng}:${key}:3`).not.toBe(key)
       }
       /* One goal must not read "1 goals". */
-      expect(t('detail.moon.ended', { count: 1 })).not.toMatch(/\b1\b/)
+      expect(tp('detail.moon.ended', { count: 1 })).not.toMatch(/\b1\b/)
+      expect(th('widgets.moon.ended', { count: 1 })).not.toMatch(/\b1\b/)
     }
   })
 
   it('Hebrew uses its dual for two', () => {
-    const t = i18n.getFixedT('he', 'projects')
-    expect(t('detail.moon.ended', { count: 2 })).toBeTruthy()
-    expect(t('detail.moon.ended', { count: 2 })).not.toBe('detail.moon.ended')
+    for (const [ns, key] of [['projects', 'detail.moon.ended'], ['home', 'widgets.moon.ended']]) {
+      const t = i18n.getFixedT('he', ns)
+      expect(t(key, { count: 2 }), `${ns}:${key}`).not.toBe(key)
+    }
   })
 })

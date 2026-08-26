@@ -12,6 +12,7 @@ const DAYS = [0, 1, 2, 3, 4, 5, 6]
 
 export default function EditGroupModal({ open, onClose, onSave, onDelete, group }) {
   const { t } = useT('modalsClient')
+  const { t: tc } = useT('common')
   const [form, setForm] = useState(() => ({
     name: group?.name || '',
     color: group?.color || COLORS[0],
@@ -166,7 +167,7 @@ export default function EditGroupModal({ open, onClose, onSave, onDelete, group 
         <Box as="label" className="m-label">{t('editGroup.color')}</Box>
         <Box className="m-colors">
           {COLORS.map((c) => (
-            <Btn key={c} type="button" className={`m-color${form.color === c ? ' on' : ''}`} style={{ background: c }} aria-label={t(`common.colorNames.${swatchKey(c)}`, { defaultValue: c })} onClick={() => set('color', c)} />
+            <Btn key={c} type="button" className={`m-color${form.color === c ? ' on' : ''}`} style={{ background: c }} aria-label={tc(`colorNames.${swatchKey(c)}`, { defaultValue: c })} onClick={() => set('color', c)} />
           ))}
         </Box>
       </Box>

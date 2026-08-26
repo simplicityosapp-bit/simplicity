@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Plus, X } from 'lucide-react'
 import Modal from './Modal'
 import ConfirmModal from './ConfirmModal'
-import { CATEGORY_SWATCHES as COLORS } from '../lib/palette'
+import { CATEGORY_SWATCHES as COLORS, swatchKey } from '../lib/palette'
 import { useT } from '../i18n/useT'
 import { useUserPreferences } from '../hooks/useUserPreferences'
 import { Box, Txt, Btn, Input } from '../components/ui'
@@ -32,6 +32,7 @@ export default function TaskTaxonomyModal({
   onAddCategory, onRemoveCategory,
 }) {
   const { t } = useT('modalsTask')
+  const { t: tc } = useT('common')
   const { prefs, update: updatePrefs } = useUserPreferences()
   const defaultPriority = prefs?.tasks?.default_priority || 'medium'
   const [sName, setSName] = useState('')
@@ -98,7 +99,7 @@ export default function TaskTaxonomyModal({
         </Box>
         <Box className="m-colors">
           {COLORS.map((c) => (
-            <Btn key={c} type="button" className={`m-color${sColor === c ? ' on' : ''}`} style={{ background: c }} aria-label={c} onClick={() => setSColor(c)} />
+            <Btn key={c} type="button" className={`m-color${sColor === c ? ' on' : ''}`} style={{ background: c }} aria-label={tc(`colorNames.${swatchKey(c)}`, { defaultValue: c })} onClick={() => setSColor(c)} />
           ))}
         </Box>
         <Box className="m-tax-add">
@@ -145,7 +146,7 @@ export default function TaskTaxonomyModal({
         <Box as="label" className="m-label">{t('taxonomy.newCategory')}</Box>
         <Box className="m-colors">
           {COLORS.map((c) => (
-            <Btn key={c} type="button" className={`m-color${cColor === c ? ' on' : ''}`} style={{ background: c }} aria-label={c} onClick={() => setCColor(c)} />
+            <Btn key={c} type="button" className={`m-color${cColor === c ? ' on' : ''}`} style={{ background: c }} aria-label={tc(`colorNames.${swatchKey(c)}`, { defaultValue: c })} onClick={() => setCColor(c)} />
           ))}
         </Box>
         <Box className="m-tax-add">

@@ -163,8 +163,6 @@ export default function InsightsScreen() {
         <ScrollView contentContainerStyle={styles.content} refreshControl={<RefreshControl refreshing={loading} onRefresh={refetch} tintColor={colors.brand} />}>
           <ScreenHead
             title={T('title', { defaultValue: 'מה איתך היום' })}
-            meta={questions.length ? [T('activeCount', { count: questions.filter((q) => q.active).length, defaultValue: `${questions.filter((q) => q.active).length} שאלות` })] : []}
-            tagline={T('tagline', { defaultValue: 'מראה יומית קטנה.' })}
             onAdd={() => setShowAdd(true)}
             addLabel={i18n.t('settings:questions.add', { defaultValue: 'הוספת שאלה' })}
           />

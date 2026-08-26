@@ -258,8 +258,6 @@ export default function ClientsScreen() {
         >
           <ScreenHead
             title={i18n.t('clients:title', { defaultValue: 'לקוחות' })}
-            meta={[i18n.t('clients:countLabel', { count: total, defaultValue: `${total} לקוחות` }), i18n.t('clients:summary', { defaultValue: 'סיכום' })]}
-            tagline={i18n.t('clients:tagline', { defaultValue: 'בניית קשרים יוצרת תוצאות.' })}
             onAdd={() => setAdding(true)}
             addLabel={i18n.t('clients:addClientAria', { defaultValue: 'הוספת לקוח' })}
           />

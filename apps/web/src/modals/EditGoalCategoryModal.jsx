@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Trash2 } from 'lucide-react'
 import Modal from './Modal'
 import { useT } from '../i18n/useT'
-import { CATEGORY_SWATCHES as COLORS } from '../lib/palette'
+import { CATEGORY_SWATCHES as COLORS, swatchKey } from '../lib/palette'
 import { Box, Txt, Btn, Input } from '../components/ui'
 
 const ICONS = ['💰', '🤝', '🌱', '✨', '🎨', '🏃', '📚', '🧘', '✍️', '💡', '⭐']
@@ -13,6 +13,7 @@ const ICONS = ['💰', '🤝', '🌱', '✨', '🎨', '🏃', '📚', '🧘', '�
    The parent passes key={category.id} so this remounts per category. */
 export default function EditGoalCategoryModal({ open, onClose, category, onSave, onDelete }) {
   const { t } = useT('modalsData')
+  const { t: tc } = useT('common')
   const [form, setForm] = useState(() => ({
     name: category?.name || '',
     icon: category?.icon || ICONS[0],
@@ -62,7 +63,7 @@ export default function EditGoalCategoryModal({ open, onClose, category, onSave,
         <Box as="label" className="m-label">{t('common.color')}</Box>
         <Box className="m-colors">
           {COLORS.map((c) => (
-            <Btn key={c} type="button" className={`m-color${form.color === c ? ' on' : ''}`} style={{ background: c }} aria-label={c} onClick={() => set('color', c)} />
+            <Btn key={c} type="button" className={`m-color${form.color === c ? ' on' : ''}`} style={{ background: c }} aria-label={tc(`colorNames.${swatchKey(c)}`, { defaultValue: c })} onClick={() => set('color', c)} />
           ))}
         </Box>
       </Box>

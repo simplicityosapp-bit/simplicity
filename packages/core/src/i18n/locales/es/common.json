@@ -26,5 +26,21 @@
     "client": "cliente",
     "client_new": "Cliente nuevo",
     "agree": "acepto"
+  },
+  "colorNames": {
+    "teal": "Verde azulado",
+    "cyan": "Cian",
+    "purple": "Morado",
+    "sage": "Salvia",
+    "terracotta": "Terracota",
+    "amber": "Ámbar",
+    "clay": "Arcilla",
+    "green": "Verde",
+    "emerald": "Esmeralda",
+    "azure": "Azul celeste",
+    "orange": "Naranja",
+    "coral": "Coral",
+    "gold": "Dorado",
+    "pink": "Rosa"
   }
 }

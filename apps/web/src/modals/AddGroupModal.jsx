@@ -18,6 +18,7 @@ const blank = () => ({
    define the membership tuition. Recurring day/time are optional. */
 export default function AddGroupModal({ open, onClose, onSave, project }) {
   const { t } = useT('modalsClient')
+  const { t: tc } = useT('common')
   const [form, setForm] = useState(blank)
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
@@ -175,7 +176,7 @@ export default function AddGroupModal({ open, onClose, onSave, project }) {
         <Box as="label" className="m-label">{t('addGroup.color')}</Box>
         <Box className="m-colors">
           {COLORS.map((c) => (
-            <Btn key={c} type="button" className={`m-color${form.color === c ? ' on' : ''}`} style={{ background: c }} aria-label={t(`common.colorNames.${swatchKey(c)}`, { defaultValue: c })} onClick={() => set('color', c)} />
+            <Btn key={c} type="button" className={`m-color${form.color === c ? ' on' : ''}`} style={{ background: c }} aria-label={tc(`colorNames.${swatchKey(c)}`, { defaultValue: c })} onClick={() => set('color', c)} />
           ))}
         </Box>
       </Box>

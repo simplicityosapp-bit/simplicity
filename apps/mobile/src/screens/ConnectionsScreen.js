@@ -42,7 +42,6 @@ export default function ConnectionsScreen() {
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <ScreenHead
           title={T('title', 'חיבורים')}
-          tagline={T('tagline', 'ערוצי התקשורת והאינטגרציות שלך.')}
         />
 
         {/* WhatsApp — editable click-to-chat templates */}

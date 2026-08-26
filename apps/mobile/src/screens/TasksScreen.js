@@ -162,11 +162,6 @@ export default function TasksScreen() {
         >
           <ScreenHead
             title={isTasks ? i18n.t('tasks:tasks') : i18n.t('tasks:reminders')}
-            meta={[
-              isTasks ? i18n.t('tasks:meta.open', { n: openCount }) : i18n.t('tasks:meta.openReminders', { n: openCount }),
-              i18n.t('tasks:meta.done', { n: doneCount }),
-            ]}
-            tagline={i18n.t('tasks:tagline')}
             onAdd={() => setAdding(true)}
             addLabel={isTasks ? i18n.t('tasks:add.taskAria') : i18n.t('tasks:add.reminderAria')}
           />

@@ -118,7 +118,6 @@ export default function LeadsScreen() {
     }
     return g
   }, [official, filter, query])
-  const total = LEAD_META.reduce((s, m) => s + (buckets[m.key]?.length || 0), 0)
   // Open follow-ups — due (date ≤ today) AND still in_process.
   const dueFollowups = useMemo(() => {
     const ymd = todayYmd()
@@ -214,8 +213,6 @@ export default function LeadsScreen() {
         >
           <ScreenHead
             title={i18n.t('leads:title', { defaultValue: 'לידים' })}
-            meta={[i18n.t('leads:countLabel', { count: total, defaultValue: `${total} לידים` })]}
-            tagline={i18n.t('leads:tagline', { defaultValue: 'טיפוח קשרים מוביל לתוצאות.' })}
             onAdd={() => setAdding(true)}
             addLabel={i18n.t('leads:newLeadAria', { defaultValue: 'ליד חדש' })}
           />

@@ -30,6 +30,7 @@ export const CATEGORY_SWATCHES = [
    (an old row, a colour picked before this list settled) returns null, and
    callers fall back to the hex — an odd label beats a wrong one. */
 const SWATCH_KEYS = {
+  /* CATEGORY_SWATCHES — project / group / goal-category pickers. */
   '#0e9888': 'teal',
   '#0099aa': 'cyan',
   '#7a5cb8': 'purple',
@@ -38,6 +39,17 @@ const SWATCH_KEYS = {
   '#D4A574': 'amber',
   '#B5634E': 'clay',
   '#4a9a6a': 'green',
+  /* CATEGORY_COLORS (lib/api/categories) — the lead-source picker draws
+     from a different list that happens to serve the same control. Both
+     belong here so one lookup covers every swatch in the app. */
+  '#00c878': 'emerald',
+  '#0099cc': 'azure',
+  '#d07040': 'orange',
+  '#8855cc': 'purple',
+  '#e05560': 'coral',
+  '#c8a040': 'gold',
+  '#00aaaa': 'teal',
+  '#cc5588': 'pink',
 }
 
 export function swatchKey(hex) {

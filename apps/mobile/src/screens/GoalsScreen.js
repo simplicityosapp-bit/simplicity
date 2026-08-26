@@ -47,8 +47,6 @@ export default function GoalsScreen() {
         >
           <ScreenHead
             title={i18n.t('goals:title', { defaultValue: 'יעדים' })}
-            meta={[i18n.t('goals:countLabel', { count: goals.length, defaultValue: `${goals.length} יעדים` })]}
-            tagline={i18n.t('goals:tagline', { defaultValue: 'כל יעד — כיוון, לא לחץ.' })}
             onAdd={() => setShowAdd(true)}
             addLabel={i18n.t('goals:newGoalAria', { defaultValue: 'יעד חדש' })}
           />

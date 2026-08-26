@@ -15,6 +15,7 @@ import { Box, Txt, Btn, Input } from '../components/ui'
    every group already offered it from inside. */
 export default function EditProjectModal({ open, onClose, onSave, onDelete, project }) {
   const { t } = useT('modalsData')
+  const { t: tc } = useT('common')
   const [form, setForm] = useState(() => ({
     name: project?.name || '',
     color: project?.color || COLORS[0],
@@ -68,7 +69,7 @@ export default function EditProjectModal({ open, onClose, onSave, onDelete, proj
               type="button"
               className={`m-color${form.color === c ? ' on' : ''}`}
               style={{ background: c }}
-              aria-label={t(`common.colorNames.${swatchKey(c)}`, { defaultValue: c })}
+              aria-label={tc(`colorNames.${swatchKey(c)}`, { defaultValue: c })}
               onClick={() => setForm((f) => ({ ...f, color: c }))}
             />
           ))}

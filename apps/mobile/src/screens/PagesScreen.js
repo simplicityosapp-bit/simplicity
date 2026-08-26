@@ -36,8 +36,6 @@ export default function PagesScreen() {
         <ScrollView contentContainerStyle={styles.content} refreshControl={<RefreshControl refreshing={loading} onRefresh={refetch} tintColor={colors.brand} />}>
           <ScreenHead
             title={i18n.t('nav:extras.sitePages', { defaultValue: 'דפים ציבוריים' })}
-            meta={[i18n.t('nav:items.sitePagesSub', { defaultValue: 'בנו דפי נחיתה, טפסים ותורים' })]}
-            tagline={i18n.t('pages:mobileHint')}
           />
           {error ? <Text style={styles.error}>{error}</Text> : null}
 

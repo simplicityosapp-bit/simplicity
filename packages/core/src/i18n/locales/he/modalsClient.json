@@ -41,17 +41,7 @@
     "day6": "שבת",
     "leadStageOptional": "סיווג (אופציונלי)",
     "leadStageOptional_in_process": "שלב (אופציונלי)",
-    "leadStageOptional_not_relevant": "סיבה (אופציונלי)",
-    "colorNames": {
-      "teal": "טורקיז",
-      "cyan": "תכלת",
-      "purple": "סגול",
-      "sage": "ירוק מרווה",
-      "terracotta": "טרקוטה",
-      "amber": "ענבר",
-      "clay": "חימר",
-      "green": "ירוק"
-    }
+    "leadStageOptional_not_relevant": "סיבה (אופציונלי)"
   },
   "addClient": {
     "titleLabel": "לקוח חדש",

@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import Modal from './Modal'
 import { useT } from '../i18n/useT'
-import { CATEGORY_SWATCHES as COLORS } from '../lib/palette'
+import { CATEGORY_SWATCHES as COLORS, swatchKey } from '../lib/palette'
 import { Box, Txt, Btn, Input } from '../components/ui'
 
 const ICONS = ['🎨', '🏃', '📚', '🧘', '✍️', '🌱', '💡', '⭐']
@@ -11,6 +11,7 @@ const blank = () => ({ name: '', icon: ICONS[0], color: COLORS[0] })
    etc.) are added as one-tap presets, not here. graph_type defaults to 'delta'. */
 export default function AddGoalCategoryModal({ open, onClose, onSave }) {
   const { t } = useT('modalsData')
+  const { t: tc } = useT('common')
   const [form, setForm] = useState(blank)
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
@@ -67,7 +68,7 @@ export default function AddGoalCategoryModal({ open, onClose, onSave }) {
               type="button"
               className={`m-color${form.color === c ? ' on' : ''}`}
               style={{ background: c }}
-              aria-label={c}
+              aria-label={tc(`colorNames.${swatchKey(c)}`, { defaultValue: c })}
               onClick={() => set('color', c)}
             />
           ))}

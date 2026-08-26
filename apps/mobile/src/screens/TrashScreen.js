@@ -59,8 +59,6 @@ export default function TrashScreen() {
         >
           <ScreenHead
             title={i18n.t('trash:title', { defaultValue: 'סל מיחזור' })}
-            meta={[i18n.t('trash:itemCount', { count: totalCount, defaultValue: `${totalCount} פריטים` }), i18n.t('trash:keptDays', { defaultValue: 'נשמרים 30 יום' })]}
-            tagline={i18n.t('trash:stillReversible', { defaultValue: 'כל מחיקה כאן עוד הפיכה.' })}
           />
           {error ? <Text style={styles.error}>{i18n.t('trash:error', { error, defaultValue: error })}</Text> : null}
 

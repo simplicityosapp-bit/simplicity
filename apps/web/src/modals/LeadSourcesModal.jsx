@@ -3,6 +3,7 @@ import { Plus, X } from 'lucide-react'
 import Modal from './Modal'
 import ConfirmModal from './ConfirmModal'
 import { CATEGORY_COLORS } from '../lib/api/categories'
+import { swatchKey } from '../lib/palette'
 import ColorDotPicker from '../components/ColorDotPicker'
 import { useT } from '../i18n/useT'
 import { Box, Txt, Btn, Input } from '../components/ui'
@@ -12,6 +13,7 @@ import { Box, Txt, Btn, Input } from '../components/ui'
    the hook still queues an undo afterwards. */
 export default function LeadSourcesModal({ open, onClose, sources = [], onAdd, onUpdate, onRemove }) {
   const { t } = useT('leads')
+  const { t: tc } = useT('common')
   const [name, setName] = useState('')
   const [color, setColor] = useState(CATEGORY_COLORS[0])
   const [busy, setBusy] = useState(false)
@@ -75,7 +77,7 @@ export default function LeadSourcesModal({ open, onClose, sources = [], onAdd, o
               type="button"
               className={`m-color${color === c ? ' on' : ''}`}
               style={{ background: c }}
-              aria-label={c}
+              aria-label={tc(`colorNames.${swatchKey(c)}`, { defaultValue: c })}
               onClick={() => setColor(c)}
             />
           ))}

@@ -38,5 +38,21 @@
     "agree": "מסכים/ה",
     "agree_male": "מסכים",
     "agree_female": "מסכימה"
+  },
+  "colorNames": {
+    "teal": "טורקיז",
+    "cyan": "תכלת",
+    "purple": "סגול",
+    "sage": "ירוק מרווה",
+    "terracotta": "טרקוטה",
+    "amber": "ענבר",
+    "clay": "חימר",
+    "green": "ירוק",
+    "emerald": "ירוק אזמרגד",
+    "azure": "כחול שמיים",
+    "orange": "כתום",
+    "coral": "אלמוג",
+    "gold": "זהב",
+    "pink": "ורוד"
   }
 }

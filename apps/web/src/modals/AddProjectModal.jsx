@@ -8,6 +8,7 @@ const blank = () => ({ name: '', color: COLORS[0] })
 
 export default function AddProjectModal({ open, onClose, onSave }) {
   const { t } = useT('modalsData')
+  const { t: tc } = useT('common')
   const [form, setForm] = useState(blank)
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
@@ -51,7 +52,7 @@ export default function AddProjectModal({ open, onClose, onSave }) {
               type="button"
               className={`m-color${form.color === c ? ' on' : ''}`}
               style={{ background: c }}
-              aria-label={t(`common.colorNames.${swatchKey(c)}`, { defaultValue: c })}
+              aria-label={tc(`colorNames.${swatchKey(c)}`, { defaultValue: c })}
               onClick={() => setForm((f) => ({ ...f, color: c }))}
             />
           ))}

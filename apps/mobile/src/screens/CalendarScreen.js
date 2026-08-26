@@ -116,7 +116,6 @@ export default function CalendarScreen() {
         >
           <ScreenHead
             title={i18n.t('calendar:title', { defaultValue: 'יומן' })}
-            tagline={i18n.t('calendar:tagline', { defaultValue: 'יום אחרי יום, צעד אחרי צעד.' })}
             onAdd={() => setAdding(true)}
             addLabel={i18n.t('calendar:newEventAria', { defaultValue: 'פגישה חדשה' })}
           />

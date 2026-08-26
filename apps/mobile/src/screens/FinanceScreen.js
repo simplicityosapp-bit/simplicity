@@ -193,8 +193,6 @@ export default function FinanceScreen() {
         >
           <ScreenHead
             title={i18n.t('finance:title', { defaultValue: 'כסף' })}
-            meta={[i18n.t('finance:countLabel', { count: monthTxs.length }), i18n.t('finance:snapshot', { defaultValue: 'תמונת מצב' })]}
-            tagline={i18n.t('finance:tagline', { defaultValue: 'הפעולות שלך יוצרות תוצאות טובות.' })}
             onAdd={() => setAdding(true)}
             addLabel={i18n.t('finance:newTxAria', { defaultValue: 'תנועה חדשה' })}
           />

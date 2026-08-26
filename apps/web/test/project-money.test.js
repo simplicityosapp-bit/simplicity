@@ -62,13 +62,15 @@ describe('the scoping rule itself', () => {
 })
 
 describe('what the card shows', () => {
-  it('flags a negative net and nothing else', () => {
-    /* Income and expenses always carry their own colour; net stays in the
-       primary ink until it goes below zero, which is the one figure here
-       worth alarming about. */
+  it('colours a negative net and NOTHING else', () => {
+    /* The figures sit in the primary ink like every other number on the
+       screen. The green/red pair they first shipped with made the card read
+       as a status readout and set it apart from the stats card beside it
+       (owner call). A net below zero keeps its colour — that is not
+       decoration, it changes what the number means. */
     expect(src).toMatch(/money\.net < 0 \? ' pd-money-neg' : ''/)
-    expect(src).toMatch(/pd-money-in/)
-    expect(src).toMatch(/pd-money-out/)
+    expect(src).not.toMatch(/pd-money-in/)
+    expect(src).not.toMatch(/pd-money-out/)
   })
 
   it('does not repeat income in the stats card above it', () => {

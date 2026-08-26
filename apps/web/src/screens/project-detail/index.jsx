@@ -586,11 +586,11 @@ export default function ProjectDetailScreen() {
           </Btn>
         </Box>
         <Box className="pd-stat">
-          <Txt as="p" className="pd-stat-v mono pd-money-in">{isr(money.income)}</Txt>
+          <Txt as="p" className="pd-stat-v mono">{isr(money.income)}</Txt>
           <Txt as="p" className="pd-stat-l">{t('detail.stats.income')}</Txt>
         </Box>
         <Box className="pd-stat divided">
-          <Txt as="p" className="pd-stat-v mono pd-money-out">{isr(money.expense)}</Txt>
+          <Txt as="p" className="pd-stat-v mono">{isr(money.expense)}</Txt>
           <Txt as="p" className="pd-stat-l">{t('detail.stats.expenses')}</Txt>
         </Box>
         <Box className="pd-stat">

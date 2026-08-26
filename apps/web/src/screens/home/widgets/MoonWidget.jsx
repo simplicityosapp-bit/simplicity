@@ -19,6 +19,7 @@ import InfoPopover from '../../../components/InfoPopover'
 import MoonDualBars from '../../../components/MoonDualBars'
 import { useT } from '../../../i18n/useT'
 import { Box, Txt, Btn } from '../../../components/ui'
+import '../../../components/MoonGlance.css'
 
 /* Moon-glance mini — a single chip with the pace-based confidence
    percentage inside a soft circular ring. The progress arc renders

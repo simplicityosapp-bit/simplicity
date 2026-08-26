@@ -31,6 +31,7 @@ import { restoreClient } from '../../lib/api/clients'
 import { restoreGroupMember } from '../../lib/api/groupMembers'
 import { insertScheduledMeeting } from '../../lib/api/scheduledMeetings'
 import { pushUndo } from '../../lib/undo'
+import { loadOpenSections, saveOpenSections } from '../../lib/openSections'
 import AddGroupModal from '../../modals/AddGroupModal'
 import EditGroupModal from '../../modals/EditGroupModal'
 import EditProjectModal from '../../modals/EditProjectModal'
@@ -63,6 +64,17 @@ const fmtTime = (d) => {
   return `${String(dt.getHours()).padStart(2, '0')}:${String(dt.getMinutes()).padStart(2, '0')}`
 }
 const isoDate = (d) => new Date(d).toISOString().slice(0, 10)
+
+/* Shared across projects on purpose: "I work out of reminders" is a habit of
+   the person, not a property of one project — so one state rather than a map
+   that grows with every project and has to be pruned when one is deleted.
+   The storage rules live in lib/openSections.js. */
+const OPEN_SEC_KEY = 'mg-open-sec:project-detail'
+const DEFAULT_OPEN_SEC = {
+  groups: true, clients: true, meetings: true,
+  leads: false, tasks: false, reminders: false, leadPages: false,
+}
+const loadOpenSec = () => loadOpenSections(OPEN_SEC_KEY, DEFAULT_OPEN_SEC)
 
 export default function ProjectDetailScreen() {
   const { t } = useT('projects')
@@ -116,11 +128,11 @@ export default function ProjectDetailScreen() {
   }
   const META_LABEL = { active: t('detail.meta.active'), past: t('detail.meta.past') }
 
-  /* Section accordion + per-group sessions expand state. */
-  /* `meetings` opens by default alongside groups and clients: what is
+  /* Section accordion + per-group sessions expand state.
+     `meetings` opens by default alongside groups and clients: what is
      scheduled next is the thing a coach walks into a project to check, and a
      section collapsed behind a chevron would not answer that. */
-  const [openSec, setOpenSec] = useState({ groups: true, clients: true, meetings: true, leads: false, tasks: false, reminders: false, leadPages: false })
+  const [openSec, setOpenSec] = useState(loadOpenSec)
   const [openGroupSessions, setOpenGroupSessions] = useState(() => new Set())
 
   /* Modal/dialog state. */
@@ -265,7 +277,11 @@ export default function ProjectDetailScreen() {
     )
   }
 
-  const toggleSec = (k) => setOpenSec((s) => ({ ...s, [k]: !s[k] }))
+  const toggleSec = (k) => setOpenSec((s) => {
+    const next = { ...s, [k]: !s[k] }
+    saveOpenSections(OPEN_SEC_KEY, next)
+    return next
+  })
   const toggleGroupSessions = (gid) => {
     setOpenGroupSessions((prev) => {
       const next = new Set(prev)

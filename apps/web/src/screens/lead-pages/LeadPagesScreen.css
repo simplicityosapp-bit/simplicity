@@ -393,56 +393,6 @@
 .lpe-edit::placeholder { color: #9b9389; opacity: 1; }
 .lpe-center { text-align: center; }
 
-.lpe-fields { display: flex; flex-direction: column; gap: 12px; margin-bottom: 8px; }
-
-/* Field card — calm by default, lifts + shows accent when active. */
-.lpe-field {
-  position: relative;
-  padding: 12px 12px 12px 14px;
-  border-radius: 14px;
-  border: 1px solid transparent;
-  transition: border-color 0.12s ease, background 0.12s ease, box-shadow 0.12s ease;
-}
-.lpe-field:hover { background: rgba(44, 38, 33, 0.025); }
-.lpe-field.is-active {
-  background: rgba(255, 255, 255, 0.5);
-  border-color: rgba(44, 38, 33, 0.1);
-  box-shadow: 0 2px 14px rgba(42, 37, 32, 0.07);
-}
-/* Accent bar on the active card (inline-start = right in RTL). */
-.lpe-field.is-active::before {
-  content: '';
-  position: absolute;
-  inset-block: 10px;
-  inset-inline-start: 0;
-  width: 4px;
-  border-radius: 4px;
-  background: var(--lp-brand);
-}
-.lpe-field-label { font-weight: 500; margin-bottom: 8px; }
-
-/* Disabled answer-area preview — clearly inert. */
-.lpe-preview {
-  pointer-events: none;
-  background: rgba(44, 38, 33, 0.03);
-  opacity: 0.7;
-}
-
-.lpe-field-controls {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-top: 12px;
-  padding-top: 12px;
-  border-top: 1px solid rgba(44, 38, 33, 0.08);
-}
-.lpe-type { flex: 0 0 130px; }
-.lpe-req {
-  display: inline-flex; align-items: center; gap: 5px;
-  font-size: 13px; color: var(--stone); cursor: pointer; white-space: nowrap;
-}
-.lpe-req input { width: 16px; height: 16px; accent-color: var(--lp-brand); }
-.lpe-ctrl-spacer { flex: 1 1 auto; }
 .lpe-ctrl-btn {
   display: grid; place-items: center;
   width: 32px; height: 32px; padding: 0;
@@ -453,16 +403,6 @@
 .lpe-ctrl-btn:disabled { opacity: 0.35; cursor: default; }
 .lpe-ctrl-btn.danger:hover { color: var(--terracotta); border-color: color-mix(in srgb, var(--terracotta) 40%, transparent); }
 
-.lpe-add {
-  display: inline-flex; align-items: center; gap: 6px;
-  margin: 4px auto 20px;
-  font: inherit; font-size: 14px; font-weight: 500;
-  padding: 9px 18px; border-radius: 10px;
-  border: 1px dashed color-mix(in srgb, var(--lp-brand) 40%, rgba(44, 38, 33, 0.2));
-  background: transparent; color: var(--espresso); cursor: pointer;
-}
-.lpe-add:hover { background: color-mix(in srgb, var(--lp-brand) 8%, transparent); }
-
 .lpe-submit-preview { cursor: default; text-align: center; opacity: 0.92; }
 
 .lpe-bottom-actions { display: flex; justify-content: flex-end; gap: 12px; margin-top: 20px; }
@@ -472,8 +412,6 @@
 @media (prefers-color-scheme: dark) {
   .lpe-edit:hover { background: rgba(255, 255, 255, 0.06); }
   .lpe-edit:focus { background: rgba(255, 255, 255, 0.08); }
-  .lpe-field.is-active { background: rgba(255, 255, 255, 0.05); border-color: rgba(255, 255, 255, 0.12); }
-  .lpe-preview { background: rgba(255, 255, 255, 0.05); }
   .lpe-ctrl-btn { background: rgba(255, 255, 255, 0.06); }
 }
 
@@ -493,39 +431,6 @@
   flex: none;
 }
 .lpe-slug-input { border-radius: 12px 0 0 12px; flex: 1 1 auto; min-width: 0; }
-
-/* Choice field — canvas preview marks + the options editor. */
-.lpe-choice-preview { display: flex; flex-direction: column; gap: 9px; padding: 4px 2px; }
-.lpe-choice-opt { display: flex; align-items: center; gap: 9px; }
-.lpe-choice-opt-label { font-size: 15px; color: var(--espresso); }
-.lpe-choice-mark {
-  width: 17px; height: 17px; flex: none;
-  border: 2px solid color-mix(in srgb, var(--lp-brand) 55%, var(--stone));
-  border-radius: 5px;
-  background: transparent;
-}
-.lpe-choice-mark.radio { border-radius: 50%; }
-
-.lpe-options {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-top: 10px;
-  padding-top: 12px;
-  border-top: 1px solid rgba(44, 38, 33, 0.08);
-}
-.lpe-option-row { display: flex; align-items: center; gap: 8px; }
-.lpe-option-row .lpe-choice-mark { width: 15px; height: 15px; }
-.lpe-option-input { flex: 1 1 auto; min-width: 0; }
-.lpe-add-option {
-  align-self: flex-start;
-  display: inline-flex; align-items: center; gap: 5px;
-  font: inherit; font-size: 13px; font-weight: 500;
-  padding: 6px 12px; border-radius: 9px;
-  border: 1px dashed color-mix(in srgb, var(--lp-brand) 40%, rgba(44, 38, 33, 0.2));
-  background: transparent; color: var(--espresso); cursor: pointer;
-}
-.lpe-add-option:hover { background: color-mix(in srgb, var(--lp-brand) 8%, transparent); }
 
 /* Advanced-design controls (background gallery, sliders, segments). */
 .lpe-design { display: flex; flex-direction: column; gap: 14px; }

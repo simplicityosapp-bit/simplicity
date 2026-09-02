@@ -6,18 +6,24 @@
 //  does the whole job, so "catch schema.sql up" is one command.
 //
 //  Usage:
-//    node supabase/dump-schema.mjs [--watermark 0111] [--out supabase/schema.sql]
-//    node supabase/dump-schema.mjs --bundle <captured.json>   # no DB access needed
+//    node supabase/dump-schema.mjs [--watermark 0113] [--out supabase/schema.sql]
+//    node supabase/dump-schema.mjs --bundle <captured.json>   # no DB access at all
 //
-//  Needs a direct Postgres connection (DDL metadata is not reachable via
-//  PostgREST). Provide SUPABASE_DB_URL as an env var, or as a line in
-//  .env.local / env.download at the repo root:
-//    SUPABASE_DB_URL=postgresql://postgres:<PW>@db.<ref>.supabase.co:5432/postgres
+//  DDL metadata is not reachable through PostgREST, so this needs real SQL. It
+//  finds it one of two ways, in this order:
+//
+//    1. SUPABASE_DB_URL — an env var, or a line in supabase/.env (gitignored;
+//       see supabase/.env.example). One socket, fastest.
+//    2. The Supabase CLI, if the project has been linked:
+//         supabase link --project-ref <ref>
+//       The password then lives in the CLI's own credential store and NOT in any
+//       file in this repo, which is the better arrangement — prefer it.
 //
 //  READ-ONLY. Issues nothing but SELECT. Never prints the connection string.
 // ════════════════════════════════════════════════════════════════
 
 import { createRequire } from 'node:module'
+import { execSync } from 'node:child_process'
 import { readFileSync, writeFileSync, readdirSync } from 'node:fs'
 import { dirname, join, isAbsolute } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
@@ -101,11 +107,65 @@ const outPath = isAbsolute(outArg) ? outArg : join(repo, outArg)
 // way: the bundle is exactly the rows the queries below return.
 const bundleArg = argOf('--bundle', null)
 
+/* Two ways to reach the database, returning identical rows.
+
+   The CLI transport is the one to reach for: `supabase link` stores the password
+   in the CLI's own credential store, so nothing has to sit in a file here. The
+   direct connection stays because it is faster (one socket instead of one
+   process per query) and because it works without the CLI installed.
+
+   execSync is deliberate: it blocks, so the Promise.all below degrades to
+   running the queries one at a time rather than spawning fourteen CLI processes
+   at once. Slower, and the only sane thing to do with a subprocess transport. */
+function cliTransport(workdir) {
+  const all = async (sql) => {
+    // A fixed command string with the directory passed as `cwd`, not as an
+    // argument: `supabase` may be a .cmd shim on Windows, which needs a shell,
+    // and a shell plus an interpolated path is how a directory name with a
+    // space (or worse) turns into a second command.
+    const out = execSync('supabase db query --linked --output json',
+      { cwd: workdir, input: sql, encoding: 'utf8', maxBuffer: 256 * 1024 * 1024, stdio: ['pipe', 'pipe', 'pipe'] })
+    // The CLI prints a JSON object; anything before the first "{" is noise
+    // (version notices and the like) and anything after the object is too.
+    const start = out.indexOf('{')
+    const end = out.lastIndexOf('}')
+    if (start < 0 || end < start) throw new Error(`unparseable CLI output for: ${sql.slice(0, 60)}…`)
+    const parsed = JSON.parse(out.slice(start, end + 1))
+    if (!Array.isArray(parsed.rows)) throw new Error('CLI returned no rows array')
+    return parsed.rows
+  }
+  return { all, close: async () => {} }
+}
+
+async function pgTransport() {
+  const pg = await loadPg()
+  const client = new pg.Client({ connectionString: loadDbUrl(), ssl: { rejectUnauthorized: false } })
+  await client.connect()
+  return { all: async (sql) => (await client.query(sql)).rows, close: () => client.end() }
+}
+
+function linkedWorkdir() {
+  for (const root of [repo, mainCheckout()].filter(Boolean)) {
+    try {
+      if (readFileSync(join(root, 'supabase', '.temp', 'project-ref'), 'utf8').trim()) return root
+    } catch { /* not linked here — try the next root */ }
+  }
+  return null
+}
+
 async function readFromDatabase() {
-const pg = await loadPg()
-const client = new pg.Client({ connectionString: loadDbUrl(), ssl: { rejectUnauthorized: false } })
-await client.connect()
-const all = async (sql) => (await client.query(sql)).rows
+const linked = linkedWorkdir()
+let hasDbUrl = true
+try { loadDbUrl() } catch { hasDbUrl = false }
+if (!hasDbUrl && !linked) {
+  throw new Error(
+    'No way to reach the database. Either:\n' +
+    '  supabase link --project-ref <ref>        (password prompted, stored by the CLI)\n' +
+    '  or put SUPABASE_DB_URL in supabase/.env  (see supabase/.env.example)',
+  )
+}
+const { all, close } = hasDbUrl ? await pgTransport() : cliTransport(linked)
+console.log(hasDbUrl ? 'reading via direct connection' : `reading via supabase CLI (linked at ${linked})`)
 
 // Everything below is a plain SELECT against pg_catalog / information_schema.
 const [
@@ -195,7 +255,7 @@ const [
        order by c.relname`),
 ])
 
-await client.end()
+await close()
 return { exts, funcs, cols, cons, idxs, trigs, rls, pols, comments,
          tableGrants, funcGrants, buckets, realtime, replident }
 }

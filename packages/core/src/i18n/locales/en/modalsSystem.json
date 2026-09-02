@@ -30,6 +30,7 @@
     "title": "Reset account — delete all data",
     "confirmWord": "delete",
     "step1": "This will delete <0>all the data in your account</0>: clients, projects, groups, leads, transactions and recurring expenses, categories, tasks, goals and goal entries, daily questions and their answers, recorded sessions, notes, reminders, statuses and sources.",
+    "step1c": "In addition, <0>connections to external services will be disconnected</0>: Google Calendar — and the authorisation will be revoked at Google too — and the invoicing service.",
     "step1b": "<0>This action can't be undone.</0> Onboarding will start over so you can begin from scratch.",
     "step2": "To confirm for good, {{type}} <0>{{word}}</0> in the box. This is the final confirmation — everything is deleted right after.",
     "typeVerb": "type the word",

@@ -24,6 +24,9 @@
 //    status     { }                                            → { status }
 //    test       { }                                            → { ok, status }
 //    issue          { transaction_id, doc_type }               → { ok, document }
+//    issue-candidates { transaction_id }                        → { ok, candidates }
+//    issue-clear    { transaction_id }                          → { ok }
+//    issue-link     { transaction_id, document_id, ... }        → { ok, document }
 //    import-approve { import_id }                               → { ok, transaction_id }
 //    import-dismiss { import_id }                               → { ok }
 //    disconnect     { }                                         → { ok, status }
@@ -100,11 +103,14 @@ async function loadInvoiceIntegration(userId: string) {
 // ── HTTP entry ──────────────────────────────────────────────────
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors })
+  // Hoisted so the error mapper at the bottom can tell which action failed —
+  // only `issue` writes a claim, so only `issue` can leave a row in doubt.
+  let action = ''
   try {
     const userId = await getUserId(req)
     if (!userId) return json({ error: 'unauthorized' }, 401)
     const body = await req.json().catch(() => ({}))
-    const action = body.action
+    action = String(body.action ?? '')
 
     if (action === 'connect') {
       // Tier gate (billing model, migration 0075): invoicing is a paid
@@ -313,28 +319,174 @@ Deno.serve(async (req) => {
           },
         )
       } catch (e) {
-        // Release the claim so a retry is possible (only while no real doc is recorded).
-        await admin.from('transactions').update({ invoice_synced_at: null })
-          .eq('id', transaction_id).eq('user_id', userId).is('invoice_document_id', null)
+        // Releasing the claim is what makes a retry possible — and a retry against
+        // a provider that DID create the document mints a SECOND real tax document,
+        // with its own running number, sent to a real customer and reported to the
+        // authorities. The only fix for that is a manual credit note.
+        //
+        // So the claim comes off only when the provider's own answer proves nothing
+        // was created (see ProviderError.settled). A timeout, a 5xx, or a success
+        // body we could not read all mean "maybe", and "maybe" is treated as "yes".
+        // The row is then left in doubt — invoice_synced_at set, invoice_document_id
+        // still null — which is the state `issue-resolve` below exists to clear.
+        if (e instanceof ProviderError && e.settled) {
+          await admin.from('transactions').update({ invoice_synced_at: null })
+            .eq('id', transaction_id).eq('user_id', userId).is('invoice_document_id', null)
+        } else {
+          console.error('invoices issue: outcome unknown, holding the claim on', transaction_id, e)
+        }
         if (e instanceof ProviderError && e.code === 'invalid_credentials') await setCredsInvalid(integ.id, true, integ.credentials_invalid_at)
         throw e
       }
       // The document was created → credentials are definitely valid.
       await setCredsInvalid(integ.id, false, integ.credentials_invalid_at)
 
-      // Record what was issued. If THIS fails, the real document already exists,
-      // so log loudly and still return the number rather than losing it.
-      const { error: linkErr } = await admin.from('transactions').update({
+      // Record what was issued. The document is REAL from here on, so losing this
+      // write is expensive twice over: the transaction stays un-issuable forever
+      // (the claim blocks it) and invoice-poll, which dedups on
+      // invoice_document_id, sees an unknown document and stages it as fresh
+      // income — the same money counted twice. A transient write failure is worth
+      // several attempts before we accept that.
+      const linkPatch = {
         invoice_provider: integ.provider,
         invoice_document_id: result.id,
         invoice_document_number: result.number,
         invoice_document_type: result.type,
         invoice_document_url: result.url,
         invoice_synced_at: new Date().toISOString(),
-      }).eq('id', transaction_id).eq('user_id', userId)
-      if (linkErr) console.error('invoices issue: document issued but failed to link', result.id, linkErr)
+      }
+      let linkErr = null
+      for (let attempt = 1; attempt <= 3; attempt++) {
+        const { error } = await admin.from('transactions').update(linkPatch)
+          .eq('id', transaction_id).eq('user_id', userId)
+        linkErr = error
+        if (!error) break
+        console.error(`invoices issue: link attempt ${attempt}/3 failed for document ${result.id}`, error)
+        if (attempt < 3) await new Promise((r) => setTimeout(r, attempt * 400))
+      }
+      if (linkErr) {
+        // Out of retries. The number is returned either way so it is never lost to
+        // the user, and `link_failed` tells the client to offer the repair now,
+        // while it still holds the only copy of the document's identity.
+        console.error('invoices issue: document issued but NOT linked', result.id, linkErr)
+      }
 
-      return json({ ok: true, document: { number: result.number, url: result.url, type: result.type } })
+      return json({
+        ok: true,
+        document: { id: result.id, number: result.number, url: result.url, type: result.type },
+        ...(linkErr ? { link_failed: true } : {}),
+      })
+    }
+
+    /* ── Repairing a transaction left in doubt ──────────────────────────
+       Both actions below operate ONLY on the in-doubt state: invoice_synced_at
+       set (the claim) with invoice_document_id still null. That guard is what
+       stops either of them from touching a healthy, already-issued row.
+
+       A transaction reaches that state two ways, and the user resolves both the
+       same way — by looking at their own invoice account and telling us what is
+       actually there:
+         • `issue` could not determine whether a document was created (C2), or
+         • the document was created but linking it here failed (C3). */
+    if (action === 'issue-clear') {
+      // "I checked — there is no document." Release the claim so issuing can be
+      // retried. Deliberately NOT automatic: only the user can see their own
+      // account at the provider, and guessing here is what mints a duplicate.
+      const transaction_id = String(body.transaction_id ?? '')
+      if (!transaction_id) return json({ error: 'missing_transaction' }, 400)
+      const { data: cleared } = await admin.from('transactions')
+        .update({ invoice_synced_at: null })
+        .eq('id', transaction_id).eq('user_id', userId)
+        .is('invoice_document_id', null).not('invoice_synced_at', 'is', null)
+        .select('id').maybeSingle()
+      if (!cleared) return json({ error: 'not_in_doubt' }, 409)
+      return json({ ok: true })
+    }
+
+    if (action === 'issue-candidates') {
+      // The ONE provider call in the repair path, and only ever on an explicit
+      // click. Both providers bill per API call, and a background loop against
+      // this endpoint is what ran up real charges before migration 0077 moved
+      // polling to daily and made it opt-in — so this stays user-initiated and
+      // is never retried on a timer.
+      //
+      // It answers "what did you actually create around the time my issuance
+      // failed?", which is the only way to learn the provider's internal
+      // document id. The user's own running number is not that id, and putting
+      // the wrong value on the transaction would break `credit` later.
+      const transaction_id = String(body.transaction_id ?? '')
+      if (!transaction_id) return json({ error: 'missing_transaction' }, 400)
+
+      const integ = await loadInvoiceIntegration(userId)
+      if (!integ) return json({ error: 'not_connected' }, 400)
+
+      const { data: tx } = await admin.from('transactions')
+        .select('id, amount, invoice_synced_at, invoice_document_id')
+        .eq('id', transaction_id).eq('user_id', userId).maybeSingle()
+      if (!tx) return json({ error: 'transaction_not_found' }, 404)
+      if (tx.invoice_document_id || !tx.invoice_synced_at) return json({ error: 'not_in_doubt' }, 409)
+
+      // Look back from the claim, with a day of slack for clock skew and for a
+      // provider that dates the document rather than the request.
+      const since = new Date(new Date(tx.invoice_synced_at).getTime() - 86400000).toISOString()
+      const docs = await getProvider(integ.provider).listDocumentsSince(
+        { apiKey: integ.api_key, apiSecret: integ.api_secret, environment: integ.environment }, since, true)
+
+      // Anything already attached to one of this user's transactions is not a
+      // candidate — it belongs to a different, healthy row.
+      const { data: linkedRows } = await admin.from('transactions')
+        .select('invoice_document_id').eq('user_id', userId).eq('invoice_provider', integ.provider)
+        .not('invoice_document_id', 'is', null)
+      const taken = new Set((linkedRows ?? []).map((r: any) => String(r.invoice_document_id)))
+      const amount = Number(tx.amount)
+
+      const candidates = docs
+        .filter((d) => !taken.has(d.externalId))
+        .map((d) => ({
+          id: d.externalId, number: d.number, type: d.docType, amount: d.amount,
+          date: d.date, customer_name: d.customerName, url: d.url,
+          // A hint for the UI, not a decision: same amount is a strong signal,
+          // but the user confirms which document is theirs.
+          amount_matches: Number.isFinite(amount) && Number(d.amount) === amount,
+        }))
+      return json({ ok: true, candidates })
+    }
+
+    if (action === 'issue-link') {
+      // "The document exists — here it is." Attaches a document the user found at
+      // the provider. This also settles the double-count risk: once the id is on
+      // the transaction, invoice-poll dedups against it instead of staging the
+      // same document as new income.
+      const transaction_id = String(body.transaction_id ?? '')
+      const document_id = String(body.document_id ?? '').trim()
+      const doc_type = String(body.document_type ?? '')
+      if (!transaction_id) return json({ error: 'missing_transaction' }, 400)
+      if (!document_id) return json({ error: 'missing_document' }, 400)
+      if (!['invoice_receipt', 'receipt', 'invoice'].includes(doc_type)) return json({ error: 'bad_doc_type' }, 400)
+
+      const integ = await loadInvoiceIntegration(userId)
+      if (!integ) return json({ error: 'not_connected' }, 400)
+
+      // Refuse an id already attached elsewhere — one document, one transaction.
+      const { data: taken } = await admin.from('transactions')
+        .select('id').eq('user_id', userId).eq('invoice_provider', integ.provider)
+        .eq('invoice_document_id', document_id).maybeSingle()
+      if (taken) return json({ error: 'document_already_linked' }, 409)
+
+      const number = String(body.document_number ?? '').trim() || document_id
+      const url = String(body.document_url ?? '').trim() || null
+      const { data: linked } = await admin.from('transactions').update({
+        invoice_provider: integ.provider,
+        invoice_document_id: document_id,
+        invoice_document_number: number,
+        invoice_document_type: doc_type,
+        invoice_document_url: url,
+        invoice_synced_at: new Date().toISOString(),
+      }).eq('id', transaction_id).eq('user_id', userId)
+        .is('invoice_document_id', null).not('invoice_synced_at', 'is', null)
+        .select('id').maybeSingle()
+      if (!linked) return json({ error: 'not_in_doubt' }, 409)
+      return json({ ok: true, document: { id: document_id, number, url, type: doc_type } })
     }
 
     if (action === 'credit') {
@@ -475,7 +627,15 @@ Deno.serve(async (req) => {
       console.error('invoices provider error:', e.code, e.message)
       // `detail` is a sanitized one-liner (the provider's own errorMessage for
       // the user's account) — safe to surface so a failed issuance is actionable.
-      return json({ error: e.code, ...(e.detail ? { detail: e.detail } : {}) }, e.code === 'invalid_credentials' ? 400 : 502)
+      // `outcome_unknown` says the claim was deliberately left standing because
+      // we could not tell whether a document was created: the client must offer
+      // the repair (check the provider, then link or clear) rather than a retry,
+      // which is the one action that could mint a duplicate tax document.
+      return json({
+        error: e.code,
+        ...(action === 'issue' && !e.settled ? { outcome_unknown: true } : {}),
+        ...(e.detail ? { detail: e.detail } : {}),
+      }, e.code === 'invalid_credentials' ? 400 : 502)
     }
     console.error('invoices error:', e)
     return json({ error: 'request_failed' }, 500)

@@ -16,6 +16,7 @@
    ════════════════════════════════════════════════════════════════ */
 
 import { supabase } from '../supabase'
+import { callGoogleCalendar, callInvoices } from './integrations'
 
 /* Tables with a deleted_at column — soft-deleted. Order doesn't matter
    (rows stay, so FKs remain valid). */
@@ -39,19 +40,58 @@ const HARD_DELETE_TABLES = [
    - user_preferences — the caller resets the onboarding flow separately.
    - feedback — team-owned communication, not the user's app content (and the
      browser has no DELETE policy on it anyway).
-   - user_integrations — Google OAuth tokens live in a service-role-only vault
-     (RLS policy-none), so the browser can't delete them; disconnecting Google
-     on reset needs a server-side step (TODO).
    The dead client_notes / session_attachments / reminder_occurrences tables
-   were removed from the lists above (0 rows, no writers; dropped via migration). */
+   were removed from the lists above (0 rows, no writers; dropped via migration).
+
+   user_integrations USED to be on this list, with a TODO. It held the Google
+   refresh token and the invoice API key + secret in a service-role-only vault
+   the browser cannot delete from — so "מחיקת כל הנתונים" left Simplicity still
+   listed as an authorised app on the user's Google account and still holding
+   their invoicing credentials. The user believed they had disconnected; they
+   had not. Now disconnectIntegrations() below does it through the same
+   server-side actions the settings screen already uses. */
 
 /* A filter that matches every row the caller can see (RLS already scopes
    to the user). PostgREST refuses an unfiltered update/delete, so we pass
    a tautology on the always-present id column. */
 const ALL_ROWS = (q) => q.not('id', 'is', null)
 
+/* Third-party credentials, cleared through the SAME server-side actions the
+   connections screen calls — no new endpoint, and no second implementation to
+   drift. `google-calendar` revokes the refresh token at Google before deleting
+   our copy, which is the part that actually removes Simplicity from the user's
+   authorised-apps list; deleting the row alone would leave the grant standing.
+   `invoices` drops the provider key + secret.
+
+   Failures are collected rather than thrown so one unreachable provider cannot
+   stop the data wipe — the caller reports everything that did not clear.
+
+   NOT included: the Grow payment connection. It is the one integration this
+   session is not authorised to touch, and there are zero Grow rows in the
+   database today, so nothing is left behind in practice. It must be added here
+   when the Grow work is picked up — the shape is one more entry in this list. */
+const INTEGRATION_DISCONNECTS = [
+  ['Google Calendar', () => callGoogleCalendar('disconnect')],
+  ['שירות החשבוניות', () => callInvoices('disconnect')],
+]
+
+async function disconnectIntegrations(failed) {
+  for (const [label, run] of INTEGRATION_DISCONNECTS) {
+    try {
+      await run()
+    } catch (e) {
+      failed.push(`${label}: ${e?.message ?? 'disconnect failed'}`)
+    }
+  }
+}
+
 export async function resetAllUserData() {
   const failed = []
+
+  /* Credentials first: they are the only thing here that grants access to a
+     system OUTSIDE Simplicity, so they should stop being valid even if a later
+     step fails. */
+  await disconnectIntegrations(failed)
 
   /* Hard-delete the child/log tables first. */
   for (const table of HARD_DELETE_TABLES) {

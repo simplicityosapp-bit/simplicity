@@ -30,6 +30,7 @@
     "title": "Réinitialiser le compte — supprimer toutes les données",
     "confirmWord": "supprimer",
     "step1": "Cette action supprimera <0>toutes les données de votre compte</0> : clients, projets, groupes, prospects, transactions et dépenses récurrentes, catégories, tâches, objectifs et entrées d'objectifs, questions quotidiennes et leurs réponses, séances enregistrées, notes, rappels, statuts et sources.",
+    "step1c": "De plus, <0>les connexions aux services externes seront déconnectées</0> : Google Agenda — et l'autorisation sera également révoquée chez Google — ainsi que le service de facturation.",
     "step1b": "<0>Cette action est irréversible.</0> L'intégration recommencera depuis le début afin que vous puissiez repartir de zéro.",
     "step2": "Pour confirmer définitivement, {{type}} <0>{{word}}</0> dans le champ. Ceci est la confirmation finale — tout est supprimé aussitôt après.",
     "typeVerb": "saisissez le mot",

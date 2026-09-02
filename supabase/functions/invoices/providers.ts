@@ -89,10 +89,20 @@ export interface CreditNoteInput {
 export class ProviderError extends Error {
   code: 'invalid_credentials' | 'provider_unreachable' | 'provider_error'
   detail?: string
-  constructor(code: ProviderError['code'], message: string, detail?: string) {
+  /* TRUE only when we KNOW the provider created nothing — it rejected the
+     request before acting, or never received it at all. Callers that issue real
+     tax documents use this to decide whether a retry is safe.
+
+     It defaults to FALSE, and that default is the whole point: a timeout, a 5xx
+     or a malformed success body all mean "the document may or may not exist",
+     and the only safe reading of "may" is "assume it does". Set it to true at a
+     new throw site ONLY if the provider's own answer proves nothing happened. */
+  settled: boolean
+  constructor(code: ProviderError['code'], message: string, detail?: string, settled = false) {
     super(message)
     this.code = code
     this.detail = detail
+    this.settled = settled
   }
 }
 
@@ -166,8 +176,14 @@ export interface InvoiceProvider {
      when the provider has no catalog wired — the UI falls back to free text. */
   listItems(creds: InvoiceCredentials): Promise<CatalogItem[]>
   /* Route B (polling): documents created at/after `sinceISO`, as FetchedDoc[].
-     Providers that push a webhook instead (SUMIT) return []. */
-  listDocumentsSince(creds: InvoiceCredentials, sinceISO: string): Promise<FetchedDoc[]>
+     Providers that push a webhook instead (SUMIT) return [].
+
+     `strict` changes ONLY the failure behaviour. The poller wants the forgiving
+     default — a bad round trip degrades to [] and the next run retries. The
+     repair flow wants the opposite: there, an empty array is read by a human as
+     "your provider created nothing", so a lookup that failed MUST raise rather
+     than answer that question wrongly. */
+  listDocumentsSince(creds: InvoiceCredentials, sinceISO: string, strict?: boolean): Promise<FetchedDoc[]>
 }
 
 // ── Green Invoice (morning) ───────────────────────────────────────
@@ -196,14 +212,16 @@ class GreenInvoiceProvider implements InvoiceProvider {
         body: JSON.stringify({ id: creds.apiKey, secret: creds.apiSecret }),
       })
     } catch (e) {
-      throw new ProviderError('provider_unreachable', `green-invoice unreachable: ${e}`)
+      // Settled: minting the token is a separate call that PRECEDES /documents,
+      // so any failure here means the create request was never sent at all.
+      throw new ProviderError('provider_unreachable', `green-invoice unreachable: ${e}`, undefined, true)
     }
     if (res.status === 401 || res.status === 403) {
-      throw new ProviderError('invalid_credentials', `green-invoice rejected credentials (${res.status})`)
+      throw new ProviderError('invalid_credentials', `green-invoice rejected credentials (${res.status})`, undefined, true)
     }
-    if (!res.ok) throw new ProviderError('provider_error', `green-invoice token error ${res.status}: ${await res.text()}`)
+    if (!res.ok) throw new ProviderError('provider_error', `green-invoice token error ${res.status}: ${await res.text()}`, undefined, true)
     const data = (await res.json().catch(() => ({}))) as { token?: string }
-    if (!data.token) throw new ProviderError('provider_error', 'green-invoice returned no token')
+    if (!data.token) throw new ProviderError('provider_error', 'green-invoice returned no token', undefined, true)
     return data.token
   }
 
@@ -274,7 +292,11 @@ class GreenInvoiceProvider implements InvoiceProvider {
     }
     if (!res.ok) {
       const bodyText = await res.text()
-      throw new ProviderError('provider_error', `green-invoice create error ${res.status}: ${bodyText}`, providerErrorDetail(bodyText))
+      // A 4xx is morning refusing the document (validation, business rules) —
+      // nothing was created, so a retry is safe. A 5xx broke somewhere inside
+      // morning and may well have created it first; that one stays unsettled.
+      throw new ProviderError('provider_error', `green-invoice create error ${res.status}: ${bodyText}`,
+        providerErrorDetail(bodyText), res.status < 500)
     }
     const data = (await res.json().catch(() => ({}))) as any
     if (!data.id) throw new ProviderError('provider_error', 'green-invoice returned no document id')
@@ -349,8 +371,10 @@ class GreenInvoiceProvider implements InvoiceProvider {
     }
   }
 
-  async listDocumentsSince(creds: InvoiceCredentials, sinceISO: string): Promise<FetchedDoc[]> {
-    // morning /documents/search. UNVERIFIED — degrade to [] on any failure.
+  async listDocumentsSince(creds: InvoiceCredentials, sinceISO: string, strict = false): Promise<FetchedDoc[]> {
+    // morning /documents/search. UNVERIFIED — degrade to [] on any failure,
+    // EXCEPT under `strict` (see the interface): the repair flow must not read
+    // a failed lookup as "no document exists".
     const TYPE: Record<number, DocType> = { 305: 'invoice', 320: 'invoice_receipt', 400: 'receipt' }
     try {
       const token = await this.token(creds)
@@ -359,7 +383,11 @@ class GreenInvoiceProvider implements InvoiceProvider {
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({ fromDate: sinceISO.slice(0, 10), pageSize: 100 }),
       })
-      if (!res.ok) { console.error('green-invoice search error', res.status); return [] }
+      if (!res.ok) {
+        console.error('green-invoice search error', res.status)
+        if (strict) throw new ProviderError('provider_error', `green-invoice search error ${res.status}`)
+        return []
+      }
       const data = (await res.json().catch(() => ({}))) as any
       const items = Array.isArray(data?.items) ? data.items : (Array.isArray(data) ? data : [])
       return items.map((it: any) => ({
@@ -373,7 +401,11 @@ class GreenInvoiceProvider implements InvoiceProvider {
         url: it?.url?.origin ?? (typeof it?.url === 'string' ? it.url : null),
         raw: it,
       })).filter((d: FetchedDoc) => d.externalId && d.docType)
-    } catch (e) { console.error('green-invoice search failed', e); return [] }
+    } catch (e) {
+      console.error('green-invoice search failed', e)
+      if (strict) throw (e instanceof ProviderError ? e : new ProviderError('provider_unreachable', `green-invoice search failed: ${e}`))
+      return []
+    }
   }
 }
 
@@ -401,11 +433,15 @@ class SumitProvider implements InvoiceProvider {
     } catch (e) {
       throw new ProviderError('provider_unreachable', `sumit unreachable: ${e}`)
     }
-    if (res.status === 401 || res.status === 403) throw new ProviderError('invalid_credentials', `sumit rejected credentials (${res.status})`)
-    if (!res.ok) throw new ProviderError('provider_error', `sumit http ${res.status}`)
+    if (res.status === 401 || res.status === 403) throw new ProviderError('invalid_credentials', `sumit rejected credentials (${res.status})`, undefined, true)
+    // 4xx = SUMIT refused the request outright; 5xx = it failed mid-flight and
+    // may have acted before failing, so that stays unsettled.
+    if (!res.ok) throw new ProviderError('provider_error', `sumit http ${res.status}`, undefined, res.status < 500)
     // SUMIT returns HTTP 200 even on failure — the result is in the Status envelope (0 = success).
     const data = (await res.json().catch(() => ({}))) as { Status?: number; UserErrorMessage?: string; Data?: any }
-    if (data.Status !== 0) throw new ProviderError('provider_error', `sumit status ${data.Status}: ${data.UserErrorMessage ?? ''}`)
+    // A non-zero Status is SUMIT's own structured refusal, returned after it read
+    // and declined the request — proof that nothing was created.
+    if (data.Status !== 0) throw new ProviderError('provider_error', `sumit status ${data.Status}: ${data.UserErrorMessage ?? ''}`, undefined, true)
     return data.Data
   }
 
@@ -506,7 +542,7 @@ class SumitProvider implements InvoiceProvider {
   // accounting/documents/list endpoint — so the key+secret alone are enough for
   // auto-import (no per-user SUMIT trigger needed). Income types only (0/1/2);
   // credit docs (5/6/7) are excluded.
-  async listDocumentsSince(creds: InvoiceCredentials, sinceISO: string): Promise<FetchedDoc[]> {
+  async listDocumentsSince(creds: InvoiceCredentials, sinceISO: string, strict = false): Promise<FetchedDoc[]> {
     const from = (sinceISO || '').slice(0, 10) || new Date(Date.now() - 7 * 86400000).toISOString().slice(0, 10)
     const to = new Date().toISOString().slice(0, 10)
     let data
@@ -519,6 +555,7 @@ class SumitProvider implements InvoiceProvider {
       })
     } catch (e) {
       console.error('sumit list failed', e)
+      if (strict) throw e // the repair flow needs the difference between "none" and "unknown"
       return [] // degrade quietly — the next scheduled poll retries
     }
     const byNum: Record<number, DocType> = { 0: 'invoice', 1: 'invoice_receipt', 2: 'receipt' }

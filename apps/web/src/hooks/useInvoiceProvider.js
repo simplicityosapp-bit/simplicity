@@ -96,6 +96,36 @@ export function useInvoiceProvider() {
     return callInvoices('credit', { transaction_id: transactionId, reason })
   }, [])
 
+  /* ── Repairing a transaction left in doubt ────────────────────────────
+     An issuance whose outcome could not be determined leaves the claim in
+     place on purpose, because retrying could mint a second real tax document.
+     These three resolve that state; all are user-initiated, never automatic. */
+
+  /* Ask the provider what it actually created around the failed attempt — the
+     only way to learn the internal document id (the running number the user
+     can see is NOT it). One billed API call per click, so call it on an
+     explicit action and never on render or a timer. */
+  const issueCandidates = useCallback(async (transactionId) => {
+    const r = await callInvoices('issue-candidates', { transaction_id: transactionId })
+    return r?.candidates ?? []
+  }, [])
+
+  /* "There is no document" — release the claim so issuing can be retried. */
+  const clearIssueClaim = useCallback(async (transactionId) => {
+    return callInvoices('issue-clear', { transaction_id: transactionId })
+  }, [])
+
+  /* "This is the document" — attach one the provider confirmed exists. */
+  const linkIssuedDocument = useCallback(async (transactionId, doc) => {
+    return callInvoices('issue-link', {
+      transaction_id: transactionId,
+      document_id: doc.id,
+      document_number: doc.number,
+      document_type: doc.type,
+      document_url: doc.url,
+    })
+  }, [])
+
   /* The connected provider's product/service catalog (for the issuance picker),
      cached for the session — re-opening the picker (same or another transaction)
      resolves from cache instead of re-fetching every time. */
@@ -160,6 +190,9 @@ export function useInvoiceProvider() {
     loadStatus,
     issueDocument,
     creditDocument,
+    issueCandidates,
+    clearIssueClaim,
+    linkIssuedDocument,
     loadItems,
     setAutoImport,
     setScheduledScan,

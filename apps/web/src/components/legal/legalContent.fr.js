@@ -1,8 +1,8 @@
 /* French legal content — AI translation of the Hebrew source, PENDING HUMAN LEGAL REVIEW. Faithful translation; Israeli law governs. Structure mirrors legalContent.js. */
 import { PRIVACY_VERSION, DPA_VERSION, TERMS_VERSION } from '../../lib/legal'
 
-export const PRIVACY_META = `Simplicity · Version ${PRIVACY_VERSION} · Bêta · Mis à jour : juin 2026`
-export const TERMS_META = `Simplicity · Version ${TERMS_VERSION} · Bêta · Mis à jour : juin 2026`
+export const PRIVACY_META = `Simplicity · Version ${PRIVACY_VERSION} · Mis à jour : août 2026`
+export const TERMS_META = `Simplicity · Version ${TERMS_VERSION} · Mis à jour : août 2026`
 export const DPA_META = `Accord de traitement des données · Version ${DPA_VERSION} · juin 2026`
 
 export const PRIVACY_BLOCKS = [
@@ -120,7 +120,7 @@ export const PRIVACY_BLOCKS = [
   { t: `Pour les requêtes en matière de protection de la vie privée, il est également possible de s'adresser à notre délégué à la protection des données (DPO) à l'adresse de courriel ci-dessus.` },
   { t: `Nous répondrons dans un délai raisonnable — jusqu'à 30 jours, conformément aux exigences de la loi.` },
 
-  { t: `La présente politique entre en vigueur à compter de sa publication. Version ${PRIVACY_VERSION} — Bêta.` },
+  { t: `La présente politique entre en vigueur à compter de sa publication. Version ${PRIVACY_VERSION}.` },
 ]
 
 export const TERMS_BLOCKS = [
@@ -152,7 +152,7 @@ export const TERMS_BLOCKS = [
   { t: `Transférer le compte à un tiers.` },
 
   { h: `5. Paiement et abonnement` },
-  { t: `Pendant la période de bêta, le Service est fourni gratuitement aux Utilisateurs invités.` },
+  { t: `À ce stade, le Service est fourni gratuitement à tous les Utilisateurs.` },
   { t: `Lors du lancement d'une version commerciale :` },
   { t: `La tarification sera publiée à l'avance dans l'Application.` },
   { t: `Un préavis d'au moins 30 jours sera donné avant l'entrée en vigueur de toute facturation.` },
@@ -209,7 +209,7 @@ export const TERMS_BLOCKS = [
   { t: `Courriel : simplicity.os.app@gmail.com` },
   { t: `Nous répondrons dans un délai de 14 jours ouvrables.` },
 
-  { t: `Les présentes conditions entrent en vigueur à compter de leur publication. Version ${TERMS_VERSION} — Bêta.` },
+  { t: `Les présentes conditions entrent en vigueur à compter de leur publication. Version ${TERMS_VERSION}.` },
 ]
 
 export const DPA_BLOCKS = [

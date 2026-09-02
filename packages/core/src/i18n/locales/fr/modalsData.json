@@ -42,6 +42,8 @@
     "saved": "Transaction enregistrée",
     "savedAndIssued": "Transaction enregistrée et {{doc}} émis{{num}}",
     "numPrefix": " n° {{num}}",
+    "issueOutcomeUnknown": "Transaction enregistrée, mais l'émission du document n'est pas confirmée — ouvrez la transaction pour vérifier et terminer",
+    "issuedNotLinked": "Le document a été émis{{num}} mais n'a pas été lié à la transaction — ouvrez-la pour le lier",
     "issueFailed": "Transaction enregistrée, mais l'émission a échoué — vous pouvez l'émettre depuis la modification",
     "recipientAdHoc": "Nouveau client",
     "recipientHint": "Renseignez les informations pour émettre un reçu — vous pourrez l'enregistrer comme client ensuite.",

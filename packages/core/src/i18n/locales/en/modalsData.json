@@ -42,6 +42,8 @@
     "saved": "Transaction saved",
     "savedAndIssued": "Transaction saved and {{doc}} issued{{num}}",
     "numPrefix": " no. {{num}}",
+    "issueOutcomeUnknown": "Transaction saved, but whether the document was issued is unclear — open the transaction to check and finish",
+    "issuedNotLinked": "The document was issued{{num}} but wasn't linked to the transaction — open it to link",
     "issueFailed": "Transaction saved, but issuing failed — you can issue it from edit",
     "recipientAdHoc": "New client",
     "recipientHint": "Fill in details to issue a receipt — you can save as a client afterwards.",

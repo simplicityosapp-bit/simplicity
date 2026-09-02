@@ -67,6 +67,15 @@
 
 .lpm-card-actions { display: flex; align-items: center; gap: 8px; }
 
+/* Opaque enough to read as pills. Both buttons asked for
+   --mg-btn-secondary-bg, which IS --mg-card-bg — the very glass .lpm-card is
+   painted with — so they were glass on identical glass and dissolved into the
+   card. The written fallback (0.6 cream) never applied: the token is defined,
+   so var() never reaches it. Same discovery as .lpb-toggle below, and the fix
+   is the explicit higher-alpha pair .inv-remind / .mg-menu-btn already use for
+   exactly this — a secondary control sitting on a card — rather than a new
+   token. The :hover tokens stay: they are distinct from the card in both
+   themes, which is why only the resting state vanished. */
 .lpm-icon-btn {
   display: inline-grid;
   place-items: center;
@@ -74,7 +83,7 @@
   height: 36px;
   border-radius: 10px;
   border: 1px solid var(--mg-card-border-color, rgba(44, 38, 33, 0.12));
-  background: var(--mg-btn-secondary-bg, rgba(255, 252, 247, 0.6));
+  background: rgba(255, 250, 240, 0.72);
   color: var(--stone);
   cursor: pointer;
   text-decoration: none;
@@ -89,11 +98,20 @@
   padding: 8px 16px;
   border-radius: 10px;
   border: 1px solid var(--mg-card-border-color, rgba(44, 38, 33, 0.12));
-  background: var(--mg-btn-secondary-bg, rgba(255, 252, 247, 0.6));
+  background: rgba(255, 250, 240, 0.72);
   color: var(--espresso);
   cursor: pointer;
 }
 .lpm-edit-btn:hover { background: var(--mg-btn-secondary-bg-hover); }
+
+/* Dark mode needs its own fill for the same reason — --mg-card-bg there is a
+   dark 48% that the cream pill above would blaze against — and its own border,
+   because the light-ink 0.12 edge is invisible on a dark card. */
+[data-theme="dark"] .lpm-icon-btn,
+[data-theme="dark"] .lpm-edit-btn {
+  background: rgba(20, 18, 14, 0.72);
+  border-color: rgba(240, 235, 224, 0.20);
+}
 
 .lpm-empty-cta {
   display: inline-flex;

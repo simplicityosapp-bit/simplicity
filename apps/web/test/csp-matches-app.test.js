@@ -80,6 +80,25 @@ describe('Content-Security-Policy matches the app it protects', () => {
     }
   })
 
+  it('sends violations somewhere — the whole point of Report-Only', () => {
+    /* Report-Only without a destination is decoration: the browser blocks
+       nothing AND tells nobody. That is how a stale hash and a missing frame
+       host survived for months. */
+    const d = cspDirectives()
+    const endpoint = '/api/csp-report'
+    expect(d['report-uri'], 'legacy reporting (Firefox, Safari)').toEqual([endpoint])
+    expect(d['report-to'], 'Reporting API group (Chrome)').toEqual(['csp'])
+
+    const json = JSON.parse(read('vercel.json'))
+    const reporting = (json.headers ?? [])
+      .flatMap((rule) => rule.headers ?? [])
+      .find((h) => h.key === 'Reporting-Endpoints')
+    expect(reporting, 'Reporting-Endpoints header exists').toBeTruthy()
+    // The group named in report-to must be the one the header defines, or
+    // Chrome silently drops every report.
+    expect(reporting.value).toContain(`csp="${endpoint}"`)
+  })
+
   it('keeps the directives that make the policy worth having', () => {
     const d = cspDirectives()
     expect(d['object-src']).toEqual(["'none'"])

@@ -1,5 +1,7 @@
 import { useEffect } from 'react'
 import { generateScheduledMeetings } from '../lib/scheduledMeetings'
+import i18n from '@simplicity/core/i18n'
+import { showToast } from '../lib/toast'
 
 /* MODULE-LEVEL latch shared across EVERY mount of this hook. The engine
    mounts on BOTH the home screen (AttentionWidget) and the calendar, and a
@@ -38,10 +40,17 @@ export function useScheduledMeetingsGeneration({ clients, groups, members, meeti
     if (!due.length) return
     generatingGlobal = true
     ;(async () => {
+      let failed = 0
       try {
         for (const payload of due) {
-          try { await addMeeting(payload) } catch { /* non-fatal */ }
+          try { await addMeeting(payload) } catch { failed += 1 }
         }
+        /* One message for the pass, not one per row. This engine's browser copy
+           only looks back 14 days, so unlike the recurring one it cannot always
+           recover on its own — the nightly scheduled-meetings-cron is what
+           closes that gap. All the more reason to say something now rather than
+           rely on a job the user cannot see. */
+        if (failed) showToast(i18n.t('components:generateFailed.meetings'), 'error')
       } finally {
         generatingGlobal = false
       }

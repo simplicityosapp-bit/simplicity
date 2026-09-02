@@ -1,4 +1,8 @@
 {
+  "generateFailed": {
+    "transactions": "Certaines transactions récurrentes n'ont pas été créées. Nous réessaierons.",
+    "meetings": "Certaines réunions planifiées n'ont pas été créées. Nous réessaierons."
+  },
   "writeFailed": "Cela n'a pas été enregistré. Ce que vous voyez est ce qu'a le serveur.",
   "dateField": {
     "placeholder": "Choisissez une date",

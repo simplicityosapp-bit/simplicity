@@ -36,6 +36,7 @@
 //  the app's confirm flow — kept out of the public surface on purpose.
 // ════════════════════════════════════════════════════════════════
 import { createClient } from 'jsr:@supabase/supabase-js@2'
+import { allowedReturnOrigins, returnOrigin } from './returnOrigin.ts'
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
 const SERVICE_ROLE = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
@@ -55,44 +56,10 @@ function json(body: unknown, status = 200) {
 
 const str = (v: unknown) => (v == null ? '' : String(v)).trim()
 
-/* ── Where the payment page may send the visitor back to ────────────────
-   The return origin arrives in the REQUEST BODY of a public, unauthenticated
-   endpoint, which makes it attacker-chosen. It used to be accepted on the
-   strength of `/^https?:\/\//` alone, so a crafted booking could land a payer —
-   after a genuine payment on a genuine Grow page — on a site of the attacker's
-   choosing, primed to ask them to "confirm their card details". The payment
-   itself is unaffected; the redirect is the whole attack.
-
-   So: an exact match against this list, or the canonical origin instead. Never
-   a prefix test, which `https://simplicity-os.com.evil.test` would satisfy.
-   BOOKING_RETURN_ORIGINS (comma-separated) adds preview/staging origins without
-   a code change: `supabase secrets set BOOKING_RETURN_ORIGINS=https://…`.
-
-   No client sends `origin` today — every caller already falls through to the
-   canonical value — so this narrows an unused input rather than changing any
-   real booking's behaviour. */
-const CANONICAL_ORIGIN = 'https://simplicity-os.com'
-const ALLOWED_RETURN_ORIGINS = new Set([
-  CANONICAL_ORIGIN,
-  ...(Deno.env.get('BOOKING_RETURN_ORIGINS') ?? '')
-    .split(',').map((s) => s.trim()).filter(Boolean),
-])
-
-/* Parse, then compare the URL's own `origin`. Going through URL is what makes
-   the check honest: it strips any path or query, and it resolves the userinfo
-   trick — `https://simplicity-os.com@evil.test` has origin `https://evil.test`,
-   which a string comparison on the raw value would have waved through. */
-function returnOrigin(raw: unknown): string {
-  const value = str(raw)
-  if (!value) return CANONICAL_ORIGIN
-  let parsed: URL
-  try { parsed = new URL(value) } catch { return CANONICAL_ORIGIN }
-  if (!ALLOWED_RETURN_ORIGINS.has(parsed.origin)) {
-    console.warn('booking-intake: rejected return origin', parsed.origin)
-    return CANONICAL_ORIGIN
-  }
-  return parsed.origin
-}
+/* Where the payment page may send the visitor back to — the rules, and the
+   reasoning behind them, live in ./returnOrigin.ts so they can be tested.
+   Only the environment lookup belongs here. */
+const ALLOWED_RETURN_ORIGINS = allowedReturnOrigins(Deno.env.get('BOOKING_RETURN_ORIGINS'))
 
 const MAX_ANSWER_LEN = 2000
 /* Cap on how many declared fields one submission may write, mirroring
@@ -564,7 +531,7 @@ Deno.serve(async (req) => {
       user_id: page.user_id, booking_id: inserted.id, source: 'booking',
       amount: price, description: desc, status: 'pending',
     }).select('id').single()
-    const base = returnOrigin(body?.origin)
+    const base = returnOrigin(body?.origin, ALLOWED_RETURN_ORIGINS)
     const slugOrId = page.slug || page.id
     const link = pr ? await createGrowLink(grow, {
       amount: price, description: desc, name, phone: phoneVal, email: emailVal,

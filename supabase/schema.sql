@@ -1,6 +1,6 @@
 -- ════════════════════════════════════════════════════════════════
 --  schema.sql — the complete public schema, introspected from the LIVE database
---  Watermark: migration 0113.  Generated: 2026-09-01
+--  Watermark: migration 0113.  Generated: 2026-09-02
 --  Regenerate with:  node supabase/dump-schema.mjs --watermark <NNNN>
 --
 --  THIS FILE RUNS. It rebuilds an empty Postgres database into this schema —
@@ -721,11 +721,11 @@ CREATE TABLE public.bookings (
   payment_status text NOT NULL DEFAULT 'none'::text,
   payment_deadline timestamp with time zone
 );
+ALTER TABLE public.bookings ADD CONSTRAINT bookings_pkey PRIMARY KEY (id);
+ALTER TABLE public.bookings ADD CONSTRAINT bookings_payment_status_chk CHECK ((payment_status = ANY (ARRAY['none'::text, 'awaiting'::text, 'paid'::text])));
 ALTER TABLE public.bookings ADD CONSTRAINT bookings_status_chk CHECK ((status = ANY (ARRAY['pending'::text, 'confirmed'::text, 'rejected'::text, 'cancelled'::text])));
 ALTER TABLE public.bookings ADD CONSTRAINT bookings_window_chk CHECK ((ends_at > starts_at));
-ALTER TABLE public.bookings ADD CONSTRAINT bookings_pkey PRIMARY KEY (id);
 ALTER TABLE public.bookings ADD CONSTRAINT bookings_no_overlap EXCLUDE USING gist (user_id WITH =, tstzrange(starts_at, ends_at) WITH &&) WHERE ((status = ANY (ARRAY['pending'::text, 'confirmed'::text])));
-ALTER TABLE public.bookings ADD CONSTRAINT bookings_payment_status_chk CHECK ((payment_status = ANY (ARRAY['none'::text, 'awaiting'::text, 'paid'::text])));
 
 -- ══ calendar_events ═══════════════════════════════════════
 CREATE TABLE public.calendar_events (
@@ -748,8 +748,8 @@ CREATE TABLE public.calendar_events (
   group_id uuid,
   owned boolean NOT NULL DEFAULT false
 );
-ALTER TABLE public.calendar_events ADD CONSTRAINT calendar_events_user_event_uniq UNIQUE (user_id, google_event_id);
 ALTER TABLE public.calendar_events ADD CONSTRAINT calendar_events_pkey PRIMARY KEY (id);
+ALTER TABLE public.calendar_events ADD CONSTRAINT calendar_events_user_event_uniq UNIQUE (user_id, google_event_id);
 
 -- ══ categories ════════════════════════════════════════════
 CREATE TABLE public.categories (
@@ -777,10 +777,10 @@ CREATE TABLE public.client_adjustments (
   updated_at timestamp with time zone NOT NULL DEFAULT now(),
   deleted_at timestamp with time zone
 );
-ALTER TABLE public.client_adjustments ADD CONSTRAINT client_adjustments_kind_check CHECK ((kind = ANY (ARRAY['paid'::text, 'balance'::text])));
-ALTER TABLE public.client_adjustments ADD CONSTRAINT client_adjustments_reason_check CHECK ((reason = ANY (ARRAY['discount'::text, 'import_fix'::text, 'unrecorded_payment'::text, 'legacy'::text])));
 ALTER TABLE public.client_adjustments ADD CONSTRAINT client_adjustments_pkey PRIMARY KEY (id);
+ALTER TABLE public.client_adjustments ADD CONSTRAINT client_adjustments_kind_check CHECK ((kind = ANY (ARRAY['paid'::text, 'balance'::text])));
 ALTER TABLE public.client_adjustments ADD CONSTRAINT client_adjustments_kind_reason_check CHECK ((((reason = 'discount'::text) AND (kind = 'balance'::text)) OR ((reason = 'import_fix'::text) AND (kind = 'paid'::text)) OR ((reason = 'unrecorded_payment'::text) AND (kind = 'paid'::text)) OR (reason = 'legacy'::text)));
+ALTER TABLE public.client_adjustments ADD CONSTRAINT client_adjustments_reason_check CHECK ((reason = ANY (ARRAY['discount'::text, 'import_fix'::text, 'unrecorded_payment'::text, 'legacy'::text])));
 COMMENT ON TABLE public.client_adjustments IS 'Ledger EXPLAINING clients.paid_adjustment / balance_adjustment. Those columns stay the source of truth for clientBalance(); every write updates the scalar and appends a row here. reason=legacy marks rows backfilled by migration 0095, whose original date and reason are unknown.';
 
 -- ══ client_status_log ═════════════════════════════════════
@@ -871,12 +871,12 @@ CREATE TABLE public.community_events (
   ends_at timestamp with time zone,
   created_at timestamp with time zone NOT NULL DEFAULT now()
 );
-ALTER TABLE public.community_events ADD CONSTRAINT community_events_title_check CHECK (((char_length(btrim(title)) > 0) AND (char_length(title) <= 140)));
-ALTER TABLE public.community_events ADD CONSTRAINT community_events_description_check CHECK (((description IS NULL) OR (char_length(description) <= 1000)));
-ALTER TABLE public.community_events ADD CONSTRAINT community_events_location_check CHECK (((location IS NULL) OR (char_length(location) <= 200)));
-ALTER TABLE public.community_events ADD CONSTRAINT community_events_link_check CHECK (((link IS NULL) OR ((char_length(link) <= 300) AND (link ~* '^https?://'::text))));
-ALTER TABLE public.community_events ADD CONSTRAINT community_events_check CHECK (((ends_at IS NULL) OR (ends_at >= starts_at)));
 ALTER TABLE public.community_events ADD CONSTRAINT community_events_pkey PRIMARY KEY (id);
+ALTER TABLE public.community_events ADD CONSTRAINT community_events_check CHECK (((ends_at IS NULL) OR (ends_at >= starts_at)));
+ALTER TABLE public.community_events ADD CONSTRAINT community_events_description_check CHECK (((description IS NULL) OR (char_length(description) <= 1000)));
+ALTER TABLE public.community_events ADD CONSTRAINT community_events_link_check CHECK (((link IS NULL) OR ((char_length(link) <= 300) AND (link ~* '^https?://'::text))));
+ALTER TABLE public.community_events ADD CONSTRAINT community_events_location_check CHECK (((location IS NULL) OR (char_length(location) <= 200)));
+ALTER TABLE public.community_events ADD CONSTRAINT community_events_title_check CHECK (((char_length(btrim(title)) > 0) AND (char_length(title) <= 140)));
 
 -- ══ community_message_mentions ════════════════════════════
 CREATE TABLE public.community_message_mentions (
@@ -896,9 +896,9 @@ CREATE TABLE public.community_message_reactions (
   emoji text NOT NULL,
   created_at timestamp with time zone NOT NULL DEFAULT now()
 );
-ALTER TABLE public.community_message_reactions ADD CONSTRAINT community_message_reactions_emoji_check CHECK (((char_length(btrim(emoji)) >= 1) AND (char_length(btrim(emoji)) <= 16)));
 ALTER TABLE public.community_message_reactions ADD CONSTRAINT community_message_reactions_pkey PRIMARY KEY (id);
 ALTER TABLE public.community_message_reactions ADD CONSTRAINT community_message_reactions_uniq UNIQUE (message_id, user_id, emoji);
+ALTER TABLE public.community_message_reactions ADD CONSTRAINT community_message_reactions_emoji_check CHECK (((char_length(btrim(emoji)) >= 1) AND (char_length(btrim(emoji)) <= 16)));
 
 -- ══ community_message_reports ═════════════════════════════
 CREATE TABLE public.community_message_reports (
@@ -908,9 +908,9 @@ CREATE TABLE public.community_message_reports (
   reason text,
   created_at timestamp with time zone NOT NULL DEFAULT now()
 );
-ALTER TABLE public.community_message_reports ADD CONSTRAINT community_message_reports_reason_check CHECK (((reason IS NULL) OR (char_length(reason) <= 500)));
 ALTER TABLE public.community_message_reports ADD CONSTRAINT community_message_reports_pkey PRIMARY KEY (id);
 ALTER TABLE public.community_message_reports ADD CONSTRAINT community_message_reports_uniq UNIQUE (message_id, reporter_id);
+ALTER TABLE public.community_message_reports ADD CONSTRAINT community_message_reports_reason_check CHECK (((reason IS NULL) OR (char_length(reason) <= 500)));
 
 -- ══ community_messages ════════════════════════════════════
 CREATE TABLE public.community_messages (
@@ -922,8 +922,8 @@ CREATE TABLE public.community_messages (
   reply_to_id uuid,
   pinned_at timestamp with time zone
 );
-ALTER TABLE public.community_messages ADD CONSTRAINT community_messages_content_check CHECK ((char_length(btrim(content)) > 0));
 ALTER TABLE public.community_messages ADD CONSTRAINT community_messages_pkey PRIMARY KEY (id);
+ALTER TABLE public.community_messages ADD CONSTRAINT community_messages_content_check CHECK ((char_length(btrim(content)) > 0));
 
 -- ══ community_notifications ═══════════════════════════════
 CREATE TABLE public.community_notifications (
@@ -935,8 +935,8 @@ CREATE TABLE public.community_notifications (
   read_at timestamp with time zone,
   created_at timestamp with time zone NOT NULL DEFAULT now()
 );
-ALTER TABLE public.community_notifications ADD CONSTRAINT community_notifications_type_check CHECK ((type = 'mention'::text));
 ALTER TABLE public.community_notifications ADD CONSTRAINT community_notifications_pkey PRIMARY KEY (id);
+ALTER TABLE public.community_notifications ADD CONSTRAINT community_notifications_type_check CHECK ((type = 'mention'::text));
 
 -- ══ community_profiles ════════════════════════════════════
 CREATE TABLE public.community_profiles (
@@ -951,14 +951,14 @@ CREATE TABLE public.community_profiles (
   specialties text[],
   link text
 );
-ALTER TABLE public.community_profiles ADD CONSTRAINT community_profiles_display_name_check CHECK ((char_length(btrim(display_name)) > 0));
 ALTER TABLE public.community_profiles ADD CONSTRAINT community_profiles_pkey PRIMARY KEY (id);
 ALTER TABLE public.community_profiles ADD CONSTRAINT community_profiles_user_uniq UNIQUE (user_id);
 ALTER TABLE public.community_profiles ADD CONSTRAINT community_profiles_bio_len CHECK (((bio IS NULL) OR (char_length(bio) <= 300)));
-ALTER TABLE public.community_profiles ADD CONSTRAINT community_profiles_headline_len CHECK (((headline IS NULL) OR (char_length(headline) <= 80)));
-ALTER TABLE public.community_profiles ADD CONSTRAINT community_profiles_specialties_bounds CHECK (((specialties IS NULL) OR ((COALESCE(array_length(specialties, 1), 0) <= 8) AND (char_length(array_to_string(specialties, ','::text)) <= 200))));
-ALTER TABLE public.community_profiles ADD CONSTRAINT community_profiles_link_shape CHECK (((link IS NULL) OR ((char_length(link) <= 200) AND (link ~* '^https?://'::text))));
+ALTER TABLE public.community_profiles ADD CONSTRAINT community_profiles_display_name_check CHECK ((char_length(btrim(display_name)) > 0));
 ALTER TABLE public.community_profiles ADD CONSTRAINT community_profiles_display_name_len CHECK ((char_length(display_name) <= 60));
+ALTER TABLE public.community_profiles ADD CONSTRAINT community_profiles_headline_len CHECK (((headline IS NULL) OR (char_length(headline) <= 80)));
+ALTER TABLE public.community_profiles ADD CONSTRAINT community_profiles_link_shape CHECK (((link IS NULL) OR ((char_length(link) <= 200) AND (link ~* '^https?://'::text))));
+ALTER TABLE public.community_profiles ADD CONSTRAINT community_profiles_specialties_bounds CHECK (((specialties IS NULL) OR ((COALESCE(array_length(specialties, 1), 0) <= 8) AND (char_length(array_to_string(specialties, ','::text)) <= 200))));
 
 -- ══ community_reserved_names ══════════════════════════════
 CREATE TABLE public.community_reserved_names (
@@ -968,10 +968,10 @@ CREATE TABLE public.community_reserved_names (
   note text,
   created_at timestamp with time zone NOT NULL DEFAULT now()
 );
-ALTER TABLE public.community_reserved_names ADD CONSTRAINT community_reserved_names_mode_chk CHECK ((match_mode = ANY (ARRAY['contains'::text, 'exact'::text])));
-ALTER TABLE public.community_reserved_names ADD CONSTRAINT community_reserved_names_pattern_chk CHECK ((normalize_display_name(pattern) <> ''::text));
 ALTER TABLE public.community_reserved_names ADD CONSTRAINT community_reserved_names_pkey PRIMARY KEY (id);
 ALTER TABLE public.community_reserved_names ADD CONSTRAINT community_reserved_names_pattern_uniq UNIQUE (pattern);
+ALTER TABLE public.community_reserved_names ADD CONSTRAINT community_reserved_names_mode_chk CHECK ((match_mode = ANY (ARRAY['contains'::text, 'exact'::text])));
+ALTER TABLE public.community_reserved_names ADD CONSTRAINT community_reserved_names_pattern_chk CHECK ((normalize_display_name(pattern) <> ''::text));
 
 -- ══ daily_answers ═════════════════════════════════════════
 CREATE TABLE public.daily_answers (
@@ -1005,13 +1005,13 @@ CREATE TABLE public.feedback (
   notes text
 );
 ALTER TABLE public.feedback ADD CONSTRAINT feedback_pkey PRIMARY KEY (id);
+ALTER TABLE public.feedback ADD CONSTRAINT feedback_classification_check CHECK (((classification IS NULL) OR (classification = ANY (ARRAY['bug'::text, 'dev'::text, 'unclear'::text]))));
 ALTER TABLE public.feedback ADD CONSTRAINT feedback_message_check CHECK ((char_length(btrim(message)) > 0));
-ALTER TABLE public.feedback ADD CONSTRAINT feedback_type_check CHECK (((type IS NULL) OR (type = ANY (ARRAY['bug'::text, 'idea'::text, 'praise'::text, 'other'::text]))));
-ALTER TABLE public.feedback ADD CONSTRAINT feedback_status_check CHECK ((status = ANY (ARRAY['new'::text, 'in_progress'::text, 'waiting_decision'::text, 'done'::text, 'rejected'::text])));
 ALTER TABLE public.feedback ADD CONSTRAINT feedback_platform_check CHECK (((platform IS NULL) OR (platform = ANY (ARRAY['mobile'::text, 'desktop'::text, 'both'::text, 'unknown'::text]))));
 ALTER TABLE public.feedback ADD CONSTRAINT feedback_source_check CHECK ((source = ANY (ARRAY['app'::text, 'email'::text, 'manual'::text])));
-ALTER TABLE public.feedback ADD CONSTRAINT feedback_classification_check CHECK (((classification IS NULL) OR (classification = ANY (ARRAY['bug'::text, 'dev'::text, 'unclear'::text]))));
+ALTER TABLE public.feedback ADD CONSTRAINT feedback_status_check CHECK ((status = ANY (ARRAY['new'::text, 'in_progress'::text, 'waiting_decision'::text, 'done'::text, 'rejected'::text])));
 ALTER TABLE public.feedback ADD CONSTRAINT feedback_surface_check CHECK (((surface IS NULL) OR (surface = ANY (ARRAY['technical'::text, 'design'::text, 'both'::text]))));
+ALTER TABLE public.feedback ADD CONSTRAINT feedback_type_check CHECK (((type IS NULL) OR (type = ANY (ARRAY['bug'::text, 'idea'::text, 'praise'::text, 'other'::text]))));
 
 -- ══ goal_categories ═══════════════════════════════════════
 CREATE TABLE public.goal_categories (
@@ -1137,8 +1137,8 @@ CREATE TABLE public.investments (
   updated_at timestamp with time zone NOT NULL DEFAULT now(),
   deleted_at timestamp with time zone
 );
-ALTER TABLE public.investments ADD CONSTRAINT investments_amount_check CHECK ((amount >= (0)::numeric));
 ALTER TABLE public.investments ADD CONSTRAINT investments_pkey PRIMARY KEY (id);
+ALTER TABLE public.investments ADD CONSTRAINT investments_amount_check CHECK ((amount >= (0)::numeric));
 COMMENT ON TABLE public.investments IS 'Record of money the user confirmed investing, for the finance screen''s investment-percentage widget. Each row normally links to the expense transaction it created (transaction_id, SET NULL on delete so the record survives). The widget excludes these transaction ids from its base so the target does not shrink itself month over month. Created by migration 0105.';
 
 -- ══ landing_events ════════════════════════════════════════
@@ -1272,8 +1272,8 @@ CREATE TABLE public.moon_snapshots (
   created_at timestamp with time zone NOT NULL DEFAULT now(),
   updated_at timestamp with time zone NOT NULL DEFAULT now()
 );
-ALTER TABLE public.moon_snapshots ADD CONSTRAINT moon_snapshots_user_date_uniq UNIQUE (user_id, date);
 ALTER TABLE public.moon_snapshots ADD CONSTRAINT moon_snapshots_pkey PRIMARY KEY (id);
+ALTER TABLE public.moon_snapshots ADD CONSTRAINT moon_snapshots_user_date_uniq UNIQUE (user_id, date);
 
 -- ══ payment_installments ══════════════════════════════════
 CREATE TABLE public.payment_installments (
@@ -1291,8 +1291,8 @@ CREATE TABLE public.payment_installments (
   updated_at timestamp with time zone NOT NULL DEFAULT now(),
   deleted_at timestamp with time zone
 );
-ALTER TABLE public.payment_installments ADD CONSTRAINT payment_installments_method_chk CHECK (((payment_method IS NULL) OR (payment_method = ANY (ARRAY['bank_transfer'::text, 'cash'::text, 'credit_card'::text, 'app'::text, 'other'::text]))));
 ALTER TABLE public.payment_installments ADD CONSTRAINT payment_installments_pkey PRIMARY KEY (id);
+ALTER TABLE public.payment_installments ADD CONSTRAINT payment_installments_method_chk CHECK (((payment_method IS NULL) OR (payment_method = ANY (ARRAY['bank_transfer'::text, 'cash'::text, 'credit_card'::text, 'app'::text, 'other'::text]))));
 
 -- ══ payment_plans ═════════════════════════════════════════
 CREATE TABLE public.payment_plans (
@@ -1329,10 +1329,10 @@ CREATE TABLE public.payment_requests (
   created_at timestamp with time zone NOT NULL DEFAULT now(),
   updated_at timestamp with time zone NOT NULL DEFAULT now()
 );
-ALTER TABLE public.payment_requests ADD CONSTRAINT payment_requests_source_check CHECK ((source = ANY (ARRAY['client'::text, 'transaction'::text, 'installment'::text, 'booking'::text])));
-ALTER TABLE public.payment_requests ADD CONSTRAINT payment_requests_amount_check CHECK ((amount > (0)::numeric));
-ALTER TABLE public.payment_requests ADD CONSTRAINT payment_requests_status_check CHECK ((status = ANY (ARRAY['pending'::text, 'paid'::text, 'expired'::text, 'cancelled'::text, 'failed'::text])));
 ALTER TABLE public.payment_requests ADD CONSTRAINT payment_requests_pkey PRIMARY KEY (id);
+ALTER TABLE public.payment_requests ADD CONSTRAINT payment_requests_amount_check CHECK ((amount > (0)::numeric));
+ALTER TABLE public.payment_requests ADD CONSTRAINT payment_requests_source_check CHECK ((source = ANY (ARRAY['client'::text, 'transaction'::text, 'installment'::text, 'booking'::text])));
+ALTER TABLE public.payment_requests ADD CONSTRAINT payment_requests_status_check CHECK ((status = ANY (ARRAY['pending'::text, 'paid'::text, 'expired'::text, 'cancelled'::text, 'failed'::text])));
 
 -- ══ pending_grow_imports ══════════════════════════════════
 CREATE TABLE public.pending_grow_imports (
@@ -1350,9 +1350,9 @@ CREATE TABLE public.pending_grow_imports (
   created_at timestamp with time zone NOT NULL DEFAULT now(),
   updated_at timestamp with time zone NOT NULL DEFAULT now()
 );
-ALTER TABLE public.pending_grow_imports ADD CONSTRAINT pending_grow_imports_status_check CHECK ((status = ANY (ARRAY['pending'::text, 'imported'::text, 'dismissed'::text])));
 ALTER TABLE public.pending_grow_imports ADD CONSTRAINT pending_grow_imports_pkey PRIMARY KEY (id);
 ALTER TABLE public.pending_grow_imports ADD CONSTRAINT pending_grow_imports_uniq UNIQUE (user_id, grow_transaction_id);
+ALTER TABLE public.pending_grow_imports ADD CONSTRAINT pending_grow_imports_status_check CHECK ((status = ANY (ARRAY['pending'::text, 'imported'::text, 'dismissed'::text])));
 
 -- ══ pending_invoice_imports ═══════════════════════════════
 CREATE TABLE public.pending_invoice_imports (
@@ -1374,9 +1374,9 @@ CREATE TABLE public.pending_invoice_imports (
   created_at timestamp with time zone NOT NULL DEFAULT now(),
   updated_at timestamp with time zone NOT NULL DEFAULT now()
 );
-ALTER TABLE public.pending_invoice_imports ADD CONSTRAINT pending_invoice_imports_status_check CHECK ((status = ANY (ARRAY['pending'::text, 'imported'::text, 'dismissed'::text])));
 ALTER TABLE public.pending_invoice_imports ADD CONSTRAINT pending_invoice_imports_pkey PRIMARY KEY (id);
 ALTER TABLE public.pending_invoice_imports ADD CONSTRAINT pending_invoice_imports_uniq UNIQUE (user_id, provider, external_document_id);
+ALTER TABLE public.pending_invoice_imports ADD CONSTRAINT pending_invoice_imports_status_check CHECK ((status = ANY (ARRAY['pending'::text, 'imported'::text, 'dismissed'::text])));
 
 -- ══ projects ══════════════════════════════════════════════
 CREATE TABLE public.projects (
@@ -1389,8 +1389,8 @@ CREATE TABLE public.projects (
   deleted_at timestamp with time zone,
   status text NOT NULL DEFAULT 'active'::text
 );
-ALTER TABLE public.projects ADD CONSTRAINT projects_status_check CHECK ((status = ANY (ARRAY['active'::text, 'ended'::text])));
 ALTER TABLE public.projects ADD CONSTRAINT projects_pkey PRIMARY KEY (id);
+ALTER TABLE public.projects ADD CONSTRAINT projects_status_check CHECK ((status = ANY (ARRAY['active'::text, 'ended'::text])));
 COMMENT ON COLUMN public.projects.status IS 'Project lifecycle: active | ended. Filters the projects list; never cascades to the project''s clients (migration 0111).';
 
 -- ══ quotes ════════════════════════════════════════════════
@@ -1454,9 +1454,9 @@ CREATE TABLE public.reminders (
   category_id uuid
 );
 ALTER TABLE public.reminders ADD CONSTRAINT reminders_pkey PRIMARY KEY (id);
+ALTER TABLE public.reminders ADD CONSTRAINT reminders_linked_to_type_check CHECK ((linked_to_type = ANY (ARRAY['client'::text, 'project'::text, 'group'::text, 'task'::text, 'transaction'::text, 'lead'::text, 'period'::text, 'investment'::text])));
 ALTER TABLE public.reminders ADD CONSTRAINT reminders_recurrence_type_check CHECK ((recurrence_type = ANY (ARRAY['none'::text, 'weekly'::text, 'monthly_date'::text, 'every_x_days'::text])));
 ALTER TABLE public.reminders ADD CONSTRAINT reminders_status_check CHECK ((status = ANY (ARRAY['pending'::text, 'triggered'::text, 'completed'::text, 'dismissed'::text, 'snoozed'::text])));
-ALTER TABLE public.reminders ADD CONSTRAINT reminders_linked_to_type_check CHECK ((linked_to_type = ANY (ARRAY['client'::text, 'project'::text, 'group'::text, 'task'::text, 'transaction'::text, 'lead'::text, 'period'::text, 'investment'::text])));
 
 -- ══ report_tallies ════════════════════════════════════════
 CREATE TABLE public.report_tallies (
@@ -1481,10 +1481,10 @@ CREATE TABLE public.scheduled_meetings (
   updated_at timestamp with time zone NOT NULL DEFAULT now(),
   duration_minutes integer
 );
+ALTER TABLE public.scheduled_meetings ADD CONSTRAINT scheduled_meetings_pkey PRIMARY KEY (id);
 ALTER TABLE public.scheduled_meetings ADD CONSTRAINT scheduled_meetings_duration_check CHECK (((duration_minutes IS NULL) OR (duration_minutes > 0)));
 ALTER TABLE public.scheduled_meetings ADD CONSTRAINT scheduled_meetings_status_check CHECK ((status = ANY (ARRAY['pending'::text, 'confirmed'::text, 'skipped'::text, 'expired'::text])));
 ALTER TABLE public.scheduled_meetings ADD CONSTRAINT scheduled_meetings_subject_type_check CHECK ((subject_type = ANY (ARRAY['client'::text, 'group'::text])));
-ALTER TABLE public.scheduled_meetings ADD CONSTRAINT scheduled_meetings_pkey PRIMARY KEY (id);
 COMMENT ON COLUMN public.scheduled_meetings.duration_minutes IS 'Length of this meeting in minutes. NULL = fall back to the subject''s recurring_end_time, then to the 60-minute default the day view assumes.';
 
 -- ══ sessions ══════════════════════════════════════════════
@@ -1524,8 +1524,8 @@ CREATE TABLE public.site_pages (
   deleted_at timestamp with time zone,
   published_snapshot jsonb
 );
-ALTER TABLE public.site_pages ADD CONSTRAINT site_pages_kind_chk CHECK ((kind = ANY (ARRAY['landing'::text, 'lead'::text, 'booking'::text])));
 ALTER TABLE public.site_pages ADD CONSTRAINT site_pages_pkey PRIMARY KEY (id);
+ALTER TABLE public.site_pages ADD CONSTRAINT site_pages_kind_chk CHECK ((kind = ANY (ARRAY['landing'::text, 'lead'::text, 'booking'::text])));
 ALTER TABLE public.site_pages ADD CONSTRAINT site_pages_slug_format CHECK (((slug IS NULL) OR (slug ~ '^[a-z0-9](?:[a-z0-9-]{1,38}[a-z0-9])$'::text)));
 
 -- ══ task_categories ═══════════════════════════════════════
@@ -1615,10 +1615,10 @@ CREATE TABLE public.transactions (
   scheduled_meeting_id uuid
 );
 ALTER TABLE public.transactions ADD CONSTRAINT transactions_pkey PRIMARY KEY (id);
+ALTER TABLE public.transactions ADD CONSTRAINT transactions_amount_valid CHECK (((amount >= (0)::numeric) AND (amount <= '1000000000000'::numeric)));
+ALTER TABLE public.transactions ADD CONSTRAINT transactions_payment_method_check CHECK (((payment_method IS NULL) OR (payment_method = ANY (ARRAY['bank_transfer'::text, 'cash'::text, 'credit_card'::text, 'app'::text, 'other'::text]))));
 ALTER TABLE public.transactions ADD CONSTRAINT transactions_status_check CHECK ((status = ANY (ARRAY['confirmed'::text, 'pending'::text, 'skipped'::text])));
 ALTER TABLE public.transactions ADD CONSTRAINT transactions_type_check CHECK ((type = ANY (ARRAY['income'::text, 'expense'::text])));
-ALTER TABLE public.transactions ADD CONSTRAINT transactions_payment_method_check CHECK (((payment_method IS NULL) OR (payment_method = ANY (ARRAY['bank_transfer'::text, 'cash'::text, 'credit_card'::text, 'app'::text, 'other'::text]))));
-ALTER TABLE public.transactions ADD CONSTRAINT transactions_amount_valid CHECK (((amount >= (0)::numeric) AND (amount <= '1000000000000'::numeric)));
 COMMENT ON COLUMN public.transactions.payment_method IS 'How the money moved: bank_transfer | cash | credit_card | app (Bit/PayBox) | other | NULL (not set). Same key set as lib/invoiceDocs.js PAY_METHODS.';
 
 -- ══ user_consent ══════════════════════════════════════════
@@ -1662,10 +1662,10 @@ CREATE TABLE public.user_integrations (
   scheduled_scan boolean NOT NULL DEFAULT false,
   grow_import_enabled boolean NOT NULL DEFAULT false
 );
-ALTER TABLE public.user_integrations ADD CONSTRAINT user_integrations_user_provider_uniq UNIQUE (user_id, provider);
 ALTER TABLE public.user_integrations ADD CONSTRAINT user_integrations_pkey PRIMARY KEY (id);
-ALTER TABLE public.user_integrations ADD CONSTRAINT user_integrations_environment_check CHECK (((environment IS NULL) OR (environment = ANY (ARRAY['sandbox'::text, 'production'::text]))));
+ALTER TABLE public.user_integrations ADD CONSTRAINT user_integrations_user_provider_uniq UNIQUE (user_id, provider);
 ALTER TABLE public.user_integrations ADD CONSTRAINT user_integrations_business_type_check CHECK (((business_type IS NULL) OR (business_type = ANY (ARRAY['exempt'::text, 'licensed'::text]))));
+ALTER TABLE public.user_integrations ADD CONSTRAINT user_integrations_environment_check CHECK (((environment IS NULL) OR (environment = ANY (ARRAY['sandbox'::text, 'production'::text]))));
 
 -- ══ user_preferences ══════════════════════════════════════
 CREATE TABLE public.user_preferences (
@@ -1675,8 +1675,8 @@ CREATE TABLE public.user_preferences (
   created_at timestamp with time zone NOT NULL DEFAULT now(),
   updated_at timestamp with time zone NOT NULL DEFAULT now()
 );
-ALTER TABLE public.user_preferences ADD CONSTRAINT user_preferences_user_uniq UNIQUE (user_id);
 ALTER TABLE public.user_preferences ADD CONSTRAINT user_preferences_pkey PRIMARY KEY (id);
+ALTER TABLE public.user_preferences ADD CONSTRAINT user_preferences_user_uniq UNIQUE (user_id);
 
 -- ══ user_questions ════════════════════════════════════════
 CREATE TABLE public.user_questions (
@@ -1725,19 +1725,20 @@ CREATE TABLE public.user_subscriptions (
   created_at timestamp with time zone NOT NULL DEFAULT now(),
   updated_at timestamp with time zone NOT NULL DEFAULT now()
 );
-ALTER TABLE public.user_subscriptions ADD CONSTRAINT user_subscriptions_tier_chk CHECK ((tier = ANY (ARRAY['free'::text, 'basic'::text, 'premium'::text])));
 ALTER TABLE public.user_subscriptions ADD CONSTRAINT user_subscriptions_pkey PRIMARY KEY (id);
 ALTER TABLE public.user_subscriptions ADD CONSTRAINT user_subscriptions_user_uniq UNIQUE (user_id);
+ALTER TABLE public.user_subscriptions ADD CONSTRAINT user_subscriptions_tier_chk CHECK ((tier = ANY (ARRAY['free'::text, 'basic'::text, 'premium'::text])));
 
 -- ════════════════════════════════════════════════════════════════
 --  FOREIGN KEYS — after every table exists
 -- ════════════════════════════════════════════════════════════════
+ALTER TABLE public.app_sessions ADD CONSTRAINT app_sessions_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 ALTER TABLE public.booking_pages ADD CONSTRAINT booking_pages_project_id_fkey FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE SET NULL;
 ALTER TABLE public.booking_pages ADD CONSTRAINT booking_pages_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
-ALTER TABLE public.bookings ADD CONSTRAINT bookings_page_id_fkey FOREIGN KEY (page_id) REFERENCES booking_pages(id) ON DELETE SET NULL;
-ALTER TABLE public.bookings ADD CONSTRAINT bookings_meeting_type_id_fkey FOREIGN KEY (meeting_type_id) REFERENCES meeting_types(id) ON DELETE SET NULL;
-ALTER TABLE public.bookings ADD CONSTRAINT bookings_lead_id_fkey FOREIGN KEY (lead_id) REFERENCES leads(id) ON DELETE SET NULL;
 ALTER TABLE public.bookings ADD CONSTRAINT bookings_event_id_fkey FOREIGN KEY (event_id) REFERENCES calendar_events(id) ON DELETE SET NULL;
+ALTER TABLE public.bookings ADD CONSTRAINT bookings_lead_id_fkey FOREIGN KEY (lead_id) REFERENCES leads(id) ON DELETE SET NULL;
+ALTER TABLE public.bookings ADD CONSTRAINT bookings_meeting_type_id_fkey FOREIGN KEY (meeting_type_id) REFERENCES meeting_types(id) ON DELETE SET NULL;
+ALTER TABLE public.bookings ADD CONSTRAINT bookings_page_id_fkey FOREIGN KEY (page_id) REFERENCES booking_pages(id) ON DELETE SET NULL;
 ALTER TABLE public.bookings ADD CONSTRAINT bookings_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 ALTER TABLE public.calendar_events ADD CONSTRAINT calendar_events_client_id_fkey FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE SET NULL;
 ALTER TABLE public.calendar_events ADD CONSTRAINT calendar_events_group_id_fkey FOREIGN KEY (group_id) REFERENCES groups(id) ON DELETE SET NULL;
@@ -1745,34 +1746,39 @@ ALTER TABLE public.calendar_events ADD CONSTRAINT calendar_events_lead_id_fkey F
 ALTER TABLE public.calendar_events ADD CONSTRAINT calendar_events_project_id_fkey FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE SET NULL;
 ALTER TABLE public.calendar_events ADD CONSTRAINT calendar_events_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 ALTER TABLE public.categories ADD CONSTRAINT categories_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
-ALTER TABLE public.client_adjustments ADD CONSTRAINT client_adjustments_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 ALTER TABLE public.client_adjustments ADD CONSTRAINT client_adjustments_client_id_fkey FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE CASCADE;
+ALTER TABLE public.client_adjustments ADD CONSTRAINT client_adjustments_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 ALTER TABLE public.client_status_log ADD CONSTRAINT client_status_log_client_id_fkey FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE CASCADE;
 ALTER TABLE public.client_status_log ADD CONSTRAINT client_status_log_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 ALTER TABLE public.client_statuses ADD CONSTRAINT client_statuses_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 ALTER TABLE public.clients ADD CONSTRAINT clients_group_id_fkey FOREIGN KEY (group_id) REFERENCES groups(id) ON DELETE SET NULL;
+ALTER TABLE public.clients ADD CONSTRAINT clients_meeting_type_id_fkey FOREIGN KEY (meeting_type_id) REFERENCES meeting_types(id) ON DELETE SET NULL;
 ALTER TABLE public.clients ADD CONSTRAINT clients_project_id_fkey FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE SET NULL;
 ALTER TABLE public.clients ADD CONSTRAINT clients_status_id_fkey FOREIGN KEY (status_id) REFERENCES client_statuses(id) ON DELETE SET NULL;
 ALTER TABLE public.clients ADD CONSTRAINT clients_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
-ALTER TABLE public.clients ADD CONSTRAINT clients_meeting_type_id_fkey FOREIGN KEY (meeting_type_id) REFERENCES meeting_types(id) ON DELETE SET NULL;
 ALTER TABLE public.community_events ADD CONSTRAINT community_events_created_by_fkey FOREIGN KEY (created_by) REFERENCES auth.users(id) ON DELETE CASCADE;
-ALTER TABLE public.community_message_mentions ADD CONSTRAINT community_message_mentions_message_id_fkey FOREIGN KEY (message_id) REFERENCES community_messages(id) ON DELETE CASCADE;
 ALTER TABLE public.community_message_mentions ADD CONSTRAINT community_message_mentions_mentioned_user_id_fkey FOREIGN KEY (mentioned_user_id) REFERENCES community_profiles(user_id) ON DELETE CASCADE;
+ALTER TABLE public.community_message_mentions ADD CONSTRAINT community_message_mentions_message_id_fkey FOREIGN KEY (message_id) REFERENCES community_messages(id) ON DELETE CASCADE;
 ALTER TABLE public.community_message_reactions ADD CONSTRAINT community_message_reactions_message_id_fkey FOREIGN KEY (message_id) REFERENCES community_messages(id) ON DELETE CASCADE;
 ALTER TABLE public.community_message_reactions ADD CONSTRAINT community_message_reactions_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 ALTER TABLE public.community_message_reports ADD CONSTRAINT community_message_reports_message_id_fkey FOREIGN KEY (message_id) REFERENCES community_messages(id) ON DELETE CASCADE;
 ALTER TABLE public.community_message_reports ADD CONSTRAINT community_message_reports_reporter_id_fkey FOREIGN KEY (reporter_id) REFERENCES auth.users(id) ON DELETE CASCADE;
-ALTER TABLE public.community_messages ADD CONSTRAINT community_messages_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
-ALTER TABLE public.community_messages ADD CONSTRAINT community_messages_requires_profile FOREIGN KEY (user_id) REFERENCES community_profiles(user_id) ON DELETE CASCADE;
 ALTER TABLE public.community_messages ADD CONSTRAINT community_messages_reply_to_id_fkey FOREIGN KEY (reply_to_id) REFERENCES community_messages(id) ON DELETE SET NULL;
-ALTER TABLE public.community_notifications ADD CONSTRAINT community_notifications_recipient_id_fkey FOREIGN KEY (recipient_id) REFERENCES auth.users(id) ON DELETE CASCADE;
+ALTER TABLE public.community_messages ADD CONSTRAINT community_messages_requires_profile FOREIGN KEY (user_id) REFERENCES community_profiles(user_id) ON DELETE CASCADE;
+ALTER TABLE public.community_messages ADD CONSTRAINT community_messages_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 ALTER TABLE public.community_notifications ADD CONSTRAINT community_notifications_actor_id_fkey FOREIGN KEY (actor_id) REFERENCES community_profiles(user_id) ON DELETE SET NULL;
 ALTER TABLE public.community_notifications ADD CONSTRAINT community_notifications_message_id_fkey FOREIGN KEY (message_id) REFERENCES community_messages(id) ON DELETE CASCADE;
+ALTER TABLE public.community_notifications ADD CONSTRAINT community_notifications_recipient_id_fkey FOREIGN KEY (recipient_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 ALTER TABLE public.community_profiles ADD CONSTRAINT community_profiles_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 ALTER TABLE public.daily_answers ADD CONSTRAINT daily_answers_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 ALTER TABLE public.daily_answers ADD CONSTRAINT daily_answers_user_question_id_fkey FOREIGN KEY (user_question_id) REFERENCES user_questions(id) ON DELETE CASCADE;
 ALTER TABLE public.feedback ADD CONSTRAINT feedback_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 ALTER TABLE public.goal_categories ADD CONSTRAINT goal_categories_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
+ALTER TABLE public.goal_entries ADD CONSTRAINT goal_entries_category_id_fkey FOREIGN KEY (category_id) REFERENCES goal_categories(id) ON DELETE CASCADE;
+ALTER TABLE public.goal_entries ADD CONSTRAINT goal_entries_goal_id_fkey FOREIGN KEY (goal_id) REFERENCES goals(id) ON DELETE CASCADE;
+ALTER TABLE public.goal_entries ADD CONSTRAINT goal_entries_group_id_fkey FOREIGN KEY (group_id) REFERENCES groups(id) ON DELETE SET NULL;
+ALTER TABLE public.goal_entries ADD CONSTRAINT goal_entries_project_id_fkey FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE SET NULL;
+ALTER TABLE public.goal_entries ADD CONSTRAINT goal_entries_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 ALTER TABLE public.goals ADD CONSTRAINT goals_category_id_fkey FOREIGN KEY (category_id) REFERENCES goal_categories(id) ON DELETE CASCADE;
 ALTER TABLE public.goals ADD CONSTRAINT goals_group_id_fkey FOREIGN KEY (group_id) REFERENCES groups(id) ON DELETE SET NULL;
 ALTER TABLE public.goals ADD CONSTRAINT goals_parent_goal_id_fkey FOREIGN KEY (parent_goal_id) REFERENCES goals(id) ON DELETE CASCADE;
@@ -1784,10 +1790,10 @@ ALTER TABLE public.group_members ADD CONSTRAINT group_members_group_id_fkey FORE
 ALTER TABLE public.group_members ADD CONSTRAINT group_members_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 ALTER TABLE public.groups ADD CONSTRAINT groups_project_id_fkey FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE;
 ALTER TABLE public.groups ADD CONSTRAINT groups_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
-ALTER TABLE public.investments ADD CONSTRAINT investments_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 ALTER TABLE public.investments ADD CONSTRAINT investments_transaction_id_fkey FOREIGN KEY (transaction_id) REFERENCES transactions(id) ON DELETE SET NULL;
-ALTER TABLE public.lead_pages ADD CONSTRAINT lead_pages_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
+ALTER TABLE public.investments ADD CONSTRAINT investments_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 ALTER TABLE public.lead_pages ADD CONSTRAINT lead_pages_project_id_fkey FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE SET NULL;
+ALTER TABLE public.lead_pages ADD CONSTRAINT lead_pages_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 ALTER TABLE public.lead_sources ADD CONSTRAINT lead_sources_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 ALTER TABLE public.lead_status_log ADD CONSTRAINT lead_status_log_from_status_id_fkey FOREIGN KEY (from_status_id) REFERENCES lead_statuses(id) ON DELETE SET NULL;
 ALTER TABLE public.lead_status_log ADD CONSTRAINT lead_status_log_lead_id_fkey FOREIGN KEY (lead_id) REFERENCES leads(id) ON DELETE CASCADE;
@@ -1796,36 +1802,39 @@ ALTER TABLE public.lead_status_log ADD CONSTRAINT lead_status_log_user_id_fkey F
 ALTER TABLE public.lead_statuses ADD CONSTRAINT lead_statuses_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 ALTER TABLE public.leads ADD CONSTRAINT leads_converted_to_client_id_fkey FOREIGN KEY (converted_to_client_id) REFERENCES clients(id) ON DELETE SET NULL;
 ALTER TABLE public.leads ADD CONSTRAINT leads_group_id_fkey FOREIGN KEY (group_id) REFERENCES groups(id) ON DELETE SET NULL;
+ALTER TABLE public.leads ADD CONSTRAINT leads_page_id_fkey FOREIGN KEY (page_id) REFERENCES lead_pages(id) ON DELETE SET NULL;
 ALTER TABLE public.leads ADD CONSTRAINT leads_project_id_fkey FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE SET NULL;
 ALTER TABLE public.leads ADD CONSTRAINT leads_source_id_fkey FOREIGN KEY (source_id) REFERENCES lead_sources(id) ON DELETE SET NULL;
 ALTER TABLE public.leads ADD CONSTRAINT leads_status_id_fkey FOREIGN KEY (status_id) REFERENCES lead_statuses(id) ON DELETE SET NULL;
 ALTER TABLE public.leads ADD CONSTRAINT leads_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
-ALTER TABLE public.leads ADD CONSTRAINT leads_page_id_fkey FOREIGN KEY (page_id) REFERENCES lead_pages(id) ON DELETE SET NULL;
 ALTER TABLE public.meeting_types ADD CONSTRAINT meeting_types_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 ALTER TABLE public.moon_snapshots ADD CONSTRAINT moon_snapshots_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
-ALTER TABLE public.payment_installments ADD CONSTRAINT payment_installments_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 ALTER TABLE public.payment_installments ADD CONSTRAINT payment_installments_plan_id_fkey FOREIGN KEY (plan_id) REFERENCES payment_plans(id) ON DELETE CASCADE;
 ALTER TABLE public.payment_installments ADD CONSTRAINT payment_installments_transaction_id_fkey FOREIGN KEY (transaction_id) REFERENCES transactions(id) ON DELETE SET NULL;
-ALTER TABLE public.payment_plans ADD CONSTRAINT payment_plans_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
+ALTER TABLE public.payment_installments ADD CONSTRAINT payment_installments_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 ALTER TABLE public.payment_plans ADD CONSTRAINT payment_plans_client_id_fkey FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE CASCADE;
 ALTER TABLE public.payment_plans ADD CONSTRAINT payment_plans_project_id_fkey FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE SET NULL;
-ALTER TABLE public.payment_requests ADD CONSTRAINT payment_requests_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
+ALTER TABLE public.payment_plans ADD CONSTRAINT payment_plans_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 ALTER TABLE public.payment_requests ADD CONSTRAINT payment_requests_client_id_fkey FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE SET NULL;
-ALTER TABLE public.payment_requests ADD CONSTRAINT payment_requests_transaction_id_fkey FOREIGN KEY (transaction_id) REFERENCES transactions(id) ON DELETE SET NULL;
 ALTER TABLE public.payment_requests ADD CONSTRAINT payment_requests_installment_id_fkey FOREIGN KEY (installment_id) REFERENCES payment_installments(id) ON DELETE SET NULL;
-ALTER TABLE public.pending_grow_imports ADD CONSTRAINT pending_grow_imports_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
+ALTER TABLE public.payment_requests ADD CONSTRAINT payment_requests_transaction_id_fkey FOREIGN KEY (transaction_id) REFERENCES transactions(id) ON DELETE SET NULL;
+ALTER TABLE public.payment_requests ADD CONSTRAINT payment_requests_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 ALTER TABLE public.pending_grow_imports ADD CONSTRAINT pending_grow_imports_client_id_fkey FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE SET NULL;
 ALTER TABLE public.pending_grow_imports ADD CONSTRAINT pending_grow_imports_created_transaction_id_fkey FOREIGN KEY (created_transaction_id) REFERENCES transactions(id) ON DELETE SET NULL;
-ALTER TABLE public.pending_invoice_imports ADD CONSTRAINT pending_invoice_imports_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
+ALTER TABLE public.pending_grow_imports ADD CONSTRAINT pending_grow_imports_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 ALTER TABLE public.pending_invoice_imports ADD CONSTRAINT pending_invoice_imports_client_id_fkey FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE SET NULL;
 ALTER TABLE public.pending_invoice_imports ADD CONSTRAINT pending_invoice_imports_created_transaction_id_fkey FOREIGN KEY (created_transaction_id) REFERENCES transactions(id) ON DELETE SET NULL;
+ALTER TABLE public.pending_invoice_imports ADD CONSTRAINT pending_invoice_imports_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
+ALTER TABLE public.projects ADD CONSTRAINT projects_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 ALTER TABLE public.recurring_templates ADD CONSTRAINT recurring_templates_category_id_fkey FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE SET NULL;
 ALTER TABLE public.recurring_templates ADD CONSTRAINT recurring_templates_client_id_fkey FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE SET NULL;
 ALTER TABLE public.recurring_templates ADD CONSTRAINT recurring_templates_project_id_fkey FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE SET NULL;
 ALTER TABLE public.recurring_templates ADD CONSTRAINT recurring_templates_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
-ALTER TABLE public.reminders ADD CONSTRAINT reminders_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 ALTER TABLE public.reminders ADD CONSTRAINT reminders_category_id_fkey FOREIGN KEY (category_id) REFERENCES task_categories(id) ON DELETE SET NULL;
+ALTER TABLE public.reminders ADD CONSTRAINT reminders_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 ALTER TABLE public.report_tallies ADD CONSTRAINT report_tallies_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
+ALTER TABLE public.scheduled_meetings ADD CONSTRAINT scheduled_meetings_session_id_fkey FOREIGN KEY (session_id) REFERENCES sessions(id) ON DELETE SET NULL;
+ALTER TABLE public.scheduled_meetings ADD CONSTRAINT scheduled_meetings_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 ALTER TABLE public.sessions ADD CONSTRAINT sessions_client_id_fkey FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE CASCADE;
 ALTER TABLE public.sessions ADD CONSTRAINT sessions_group_id_fkey FOREIGN KEY (group_id) REFERENCES groups(id) ON DELETE CASCADE;
 ALTER TABLE public.sessions ADD CONSTRAINT sessions_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
@@ -1849,32 +1858,23 @@ ALTER TABLE public.user_preferences ADD CONSTRAINT user_preferences_user_id_fkey
 ALTER TABLE public.user_questions ADD CONSTRAINT user_questions_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 ALTER TABLE public.user_quotes ADD CONSTRAINT user_quotes_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 ALTER TABLE public.user_subscriptions ADD CONSTRAINT user_subscriptions_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
-ALTER TABLE public.goal_entries ADD CONSTRAINT goal_entries_category_id_fkey FOREIGN KEY (category_id) REFERENCES goal_categories(id) ON DELETE CASCADE;
-ALTER TABLE public.goal_entries ADD CONSTRAINT goal_entries_goal_id_fkey FOREIGN KEY (goal_id) REFERENCES goals(id) ON DELETE CASCADE;
-ALTER TABLE public.goal_entries ADD CONSTRAINT goal_entries_group_id_fkey FOREIGN KEY (group_id) REFERENCES groups(id) ON DELETE SET NULL;
-ALTER TABLE public.goal_entries ADD CONSTRAINT goal_entries_project_id_fkey FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE SET NULL;
-ALTER TABLE public.goal_entries ADD CONSTRAINT goal_entries_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
-ALTER TABLE public.projects ADD CONSTRAINT projects_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
-ALTER TABLE public.scheduled_meetings ADD CONSTRAINT scheduled_meetings_session_id_fkey FOREIGN KEY (session_id) REFERENCES sessions(id) ON DELETE SET NULL;
-ALTER TABLE public.scheduled_meetings ADD CONSTRAINT scheduled_meetings_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
-ALTER TABLE public.app_sessions ADD CONSTRAINT app_sessions_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 
 -- ════════════════════════════════════════════════════════════════
 --  INDEXES (172; constraint-backed indexes are created above)
 -- ════════════════════════════════════════════════════════════════
 CREATE INDEX app_sessions_created_at_idx ON public.app_sessions USING btree (created_at);
 CREATE INDEX app_sessions_user_id_idx ON public.app_sessions USING btree (user_id);
-CREATE INDEX idx_booking_pages_user ON public.booking_pages USING btree (user_id);
-CREATE UNIQUE INDEX idx_booking_pages_slug_unique ON public.booking_pages USING btree (lower(slug)) WHERE ((slug IS NOT NULL) AND (deleted_at IS NULL));
 CREATE INDEX idx_booking_pages_project ON public.booking_pages USING btree (project_id);
-CREATE INDEX idx_bookings_user ON public.bookings USING btree (user_id);
-CREATE INDEX idx_bookings_page ON public.bookings USING btree (page_id);
-CREATE INDEX idx_bookings_user_starts ON public.bookings USING btree (user_id, starts_at);
-CREATE INDEX idx_bookings_pending ON public.bookings USING btree (user_id) WHERE (status = 'pending'::text);
+CREATE UNIQUE INDEX idx_booking_pages_slug_unique ON public.booking_pages USING btree (lower(slug)) WHERE ((slug IS NOT NULL) AND (deleted_at IS NULL));
+CREATE INDEX idx_booking_pages_user ON public.booking_pages USING btree (user_id);
 CREATE INDEX idx_bookings_awaiting ON public.bookings USING btree (user_id, payment_deadline) WHERE ((status = 'pending'::text) AND (payment_status = 'awaiting'::text));
 CREATE INDEX idx_bookings_event ON public.bookings USING btree (event_id);
 CREATE INDEX idx_bookings_lead ON public.bookings USING btree (lead_id);
 CREATE INDEX idx_bookings_meeting_type ON public.bookings USING btree (meeting_type_id);
+CREATE INDEX idx_bookings_page ON public.bookings USING btree (page_id);
+CREATE INDEX idx_bookings_pending ON public.bookings USING btree (user_id) WHERE (status = 'pending'::text);
+CREATE INDEX idx_bookings_user ON public.bookings USING btree (user_id);
+CREATE INDEX idx_bookings_user_starts ON public.bookings USING btree (user_id, starts_at);
 CREATE INDEX idx_calendar_events_client ON public.calendar_events USING btree (client_id);
 CREATE INDEX idx_calendar_events_group ON public.calendar_events USING btree (group_id);
 CREATE INDEX idx_calendar_events_lead ON public.calendar_events USING btree (lead_id);
@@ -1882,40 +1882,40 @@ CREATE INDEX idx_calendar_events_project ON public.calendar_events USING btree (
 CREATE INDEX idx_calendar_events_start ON public.calendar_events USING btree (start_time);
 CREATE INDEX idx_calendar_events_user ON public.calendar_events USING btree (user_id);
 CREATE INDEX idx_categories_user ON public.categories USING btree (user_id);
-CREATE INDEX idx_client_adjustments_user ON public.client_adjustments USING btree (user_id);
 CREATE INDEX idx_client_adjustments_client ON public.client_adjustments USING btree (client_id);
+CREATE INDEX idx_client_adjustments_user ON public.client_adjustments USING btree (user_id);
 CREATE INDEX idx_client_status_log_client ON public.client_status_log USING btree (client_id);
 CREATE INDEX idx_client_status_log_user ON public.client_status_log USING btree (user_id);
 CREATE INDEX idx_client_status_log_user_changed ON public.client_status_log USING btree (user_id, changed_at);
 CREATE INDEX idx_client_statuses_user ON public.client_statuses USING btree (user_id);
+CREATE INDEX clients_attention_snoozed_at_idx ON public.clients USING btree (user_id, attention_snoozed_at) WHERE (attention_snoozed_at IS NOT NULL);
 CREATE INDEX idx_clients_group ON public.clients USING btree (group_id);
+CREATE INDEX idx_clients_meeting_type_id ON public.clients USING btree (meeting_type_id);
 CREATE INDEX idx_clients_project ON public.clients USING btree (project_id);
 CREATE INDEX idx_clients_status ON public.clients USING btree (status);
-CREATE INDEX idx_clients_user ON public.clients USING btree (user_id);
 CREATE INDEX idx_clients_status_id ON public.clients USING btree (status_id);
-CREATE INDEX idx_clients_meeting_type_id ON public.clients USING btree (meeting_type_id);
-CREATE INDEX clients_attention_snoozed_at_idx ON public.clients USING btree (user_id, attention_snoozed_at) WHERE (attention_snoozed_at IS NOT NULL);
-CREATE INDEX idx_community_events_starts ON public.community_events USING btree (starts_at);
+CREATE INDEX idx_clients_user ON public.clients USING btree (user_id);
 CREATE INDEX idx_community_events_created_by ON public.community_events USING btree (created_by);
+CREATE INDEX idx_community_events_starts ON public.community_events USING btree (starts_at);
 CREATE INDEX idx_community_mentions_user ON public.community_message_mentions USING btree (mentioned_user_id);
 CREATE INDEX idx_community_reactions_user ON public.community_message_reactions USING btree (user_id);
-CREATE INDEX idx_community_reports_message ON public.community_message_reports USING btree (message_id);
 CREATE INDEX idx_community_message_reports_reporter ON public.community_message_reports USING btree (reporter_id);
+CREATE INDEX idx_community_reports_message ON public.community_message_reports USING btree (message_id);
 CREATE INDEX idx_community_messages_created_at ON public.community_messages USING btree (created_at DESC);
-CREATE INDEX idx_community_messages_user ON public.community_messages USING btree (user_id);
-CREATE INDEX idx_community_messages_reply_to ON public.community_messages USING btree (reply_to_id) WHERE (reply_to_id IS NOT NULL);
 CREATE INDEX idx_community_messages_pinned ON public.community_messages USING btree (pinned_at) WHERE ((pinned_at IS NOT NULL) AND (deleted_at IS NULL));
-CREATE INDEX idx_community_notifications_recipient ON public.community_notifications USING btree (recipient_id, created_at DESC);
+CREATE INDEX idx_community_messages_reply_to ON public.community_messages USING btree (reply_to_id) WHERE (reply_to_id IS NOT NULL);
+CREATE INDEX idx_community_messages_user ON public.community_messages USING btree (user_id);
 CREATE INDEX idx_community_notifications_actor ON public.community_notifications USING btree (actor_id);
 CREATE INDEX idx_community_notifications_message ON public.community_notifications USING btree (message_id);
+CREATE INDEX idx_community_notifications_recipient ON public.community_notifications USING btree (recipient_id, created_at DESC);
 CREATE INDEX idx_daily_answers_date ON public.daily_answers USING btree (date);
 CREATE INDEX idx_daily_answers_question ON public.daily_answers USING btree (user_question_id);
 CREATE UNIQUE INDEX idx_daily_answers_uniq ON public.daily_answers USING btree (user_question_id, date) WHERE (deleted_at IS NULL);
 CREATE INDEX idx_daily_answers_user ON public.daily_answers USING btree (user_id);
+CREATE INDEX idx_feedback_classification ON public.feedback USING btree (classification);
 CREATE INDEX idx_feedback_created_at ON public.feedback USING btree (created_at DESC);
 CREATE INDEX idx_feedback_status ON public.feedback USING btree (status);
 CREATE INDEX idx_feedback_user ON public.feedback USING btree (user_id);
-CREATE INDEX idx_feedback_classification ON public.feedback USING btree (classification);
 CREATE INDEX idx_goal_categories_user ON public.goal_categories USING btree (user_id);
 CREATE INDEX idx_goal_entries_category ON public.goal_entries USING btree (category_id);
 CREATE INDEX idx_goal_entries_date ON public.goal_entries USING btree (date);
@@ -1925,88 +1925,88 @@ CREATE INDEX idx_goal_entries_project ON public.goal_entries USING btree (projec
 CREATE INDEX idx_goal_entries_user ON public.goal_entries USING btree (user_id);
 CREATE INDEX idx_goals_category ON public.goals USING btree (category_id);
 CREATE INDEX idx_goals_group ON public.goals USING btree (group_id);
-CREATE INDEX idx_goals_project ON public.goals USING btree (project_id);
-CREATE INDEX idx_goals_user ON public.goals USING btree (user_id);
-CREATE INDEX idx_goals_tracked_question ON public.goals USING btree (tracked_by_question_id);
 CREATE INDEX idx_goals_parent_goal ON public.goals USING btree (parent_goal_id);
+CREATE INDEX idx_goals_project ON public.goals USING btree (project_id);
+CREATE INDEX idx_goals_tracked_question ON public.goals USING btree (tracked_by_question_id);
+CREATE INDEX idx_goals_user ON public.goals USING btree (user_id);
 CREATE INDEX idx_group_members_client ON public.group_members USING btree (client_id);
 CREATE INDEX idx_group_members_group ON public.group_members USING btree (group_id);
 CREATE INDEX idx_group_members_user ON public.group_members USING btree (user_id);
 CREATE INDEX idx_groups_project ON public.groups USING btree (project_id);
 CREATE INDEX idx_groups_status ON public.groups USING btree (status);
 CREATE INDEX idx_groups_user ON public.groups USING btree (user_id);
-CREATE INDEX idx_investments_user ON public.investments USING btree (user_id);
 CREATE INDEX idx_investments_transaction ON public.investments USING btree (transaction_id);
+CREATE INDEX idx_investments_user ON public.investments USING btree (user_id);
 CREATE INDEX idx_landing_events_created ON public.landing_events USING btree (created_at);
 CREATE INDEX idx_landing_events_type_created ON public.landing_events USING btree (type, created_at);
-CREATE INDEX idx_lead_pages_user ON public.lead_pages USING btree (user_id);
 CREATE INDEX idx_lead_pages_project ON public.lead_pages USING btree (project_id);
 CREATE UNIQUE INDEX idx_lead_pages_slug_unique ON public.lead_pages USING btree (lower(slug)) WHERE ((slug IS NOT NULL) AND (deleted_at IS NULL));
+CREATE INDEX idx_lead_pages_user ON public.lead_pages USING btree (user_id);
 CREATE INDEX idx_lead_sources_user ON public.lead_sources USING btree (user_id);
+CREATE INDEX idx_lead_status_log_from ON public.lead_status_log USING btree (from_status_id);
 CREATE INDEX idx_lead_status_log_lead ON public.lead_status_log USING btree (lead_id);
+CREATE INDEX idx_lead_status_log_to ON public.lead_status_log USING btree (to_status_id);
 CREATE INDEX idx_lead_status_log_user ON public.lead_status_log USING btree (user_id);
 CREATE INDEX idx_lead_status_log_user_changed ON public.lead_status_log USING btree (user_id, changed_at);
-CREATE INDEX idx_lead_status_log_from ON public.lead_status_log USING btree (from_status_id);
-CREATE INDEX idx_lead_status_log_to ON public.lead_status_log USING btree (to_status_id);
 CREATE INDEX idx_lead_statuses_user ON public.lead_statuses USING btree (user_id);
-CREATE INDEX idx_leads_group ON public.leads USING btree (group_id);
-CREATE INDEX idx_leads_project ON public.leads USING btree (project_id);
-CREATE INDEX idx_leads_status ON public.leads USING btree (status);
-CREATE INDEX idx_leads_status_meta ON public.leads USING btree (status_meta);
-CREATE INDEX idx_leads_user ON public.leads USING btree (user_id);
-CREATE INDEX idx_leads_status_id ON public.leads USING btree (status_id);
-CREATE INDEX idx_leads_source ON public.leads USING btree (source_id);
 CREATE INDEX idx_leads_converted ON public.leads USING btree (converted_to_client_id);
+CREATE INDEX idx_leads_group ON public.leads USING btree (group_id);
 CREATE INDEX idx_leads_page ON public.leads USING btree (page_id);
 CREATE INDEX idx_leads_pending_review ON public.leads USING btree (user_id) WHERE pending_review;
+CREATE INDEX idx_leads_project ON public.leads USING btree (project_id);
+CREATE INDEX idx_leads_source ON public.leads USING btree (source_id);
+CREATE INDEX idx_leads_status ON public.leads USING btree (status);
+CREATE INDEX idx_leads_status_id ON public.leads USING btree (status_id);
+CREATE INDEX idx_leads_status_meta ON public.leads USING btree (status_meta);
+CREATE INDEX idx_leads_user ON public.leads USING btree (user_id);
 CREATE INDEX idx_meeting_types_user ON public.meeting_types USING btree (user_id);
 CREATE INDEX idx_moon_snapshots_date ON public.moon_snapshots USING btree (date);
 CREATE INDEX idx_moon_snapshots_user ON public.moon_snapshots USING btree (user_id);
-CREATE INDEX idx_payment_installments_user ON public.payment_installments USING btree (user_id);
 CREATE INDEX idx_payment_installments_plan ON public.payment_installments USING btree (plan_id);
 CREATE UNIQUE INDEX idx_payment_installments_plan_num ON public.payment_installments USING btree (plan_id, num) WHERE (deleted_at IS NULL);
 CREATE INDEX idx_payment_installments_transaction ON public.payment_installments USING btree (transaction_id);
-CREATE INDEX idx_payment_plans_user ON public.payment_plans USING btree (user_id);
+CREATE INDEX idx_payment_installments_user ON public.payment_installments USING btree (user_id);
 CREATE INDEX idx_payment_plans_client ON public.payment_plans USING btree (client_id);
 CREATE INDEX idx_payment_plans_project ON public.payment_plans USING btree (project_id);
-CREATE UNIQUE INDEX payment_requests_grow_tx_uniq ON public.payment_requests USING btree (user_id, grow_transaction_id) WHERE (grow_transaction_id IS NOT NULL);
-CREATE INDEX payment_requests_user ON public.payment_requests USING btree (user_id);
-CREATE INDEX payment_requests_client ON public.payment_requests USING btree (user_id, client_id);
+CREATE INDEX idx_payment_plans_user ON public.payment_plans USING btree (user_id);
 CREATE INDEX idx_payment_requests_client ON public.payment_requests USING btree (client_id);
 CREATE INDEX idx_payment_requests_installment ON public.payment_requests USING btree (installment_id);
 CREATE INDEX idx_payment_requests_transaction ON public.payment_requests USING btree (transaction_id);
-CREATE INDEX idx_pending_grow_imports_user ON public.pending_grow_imports USING btree (user_id);
-CREATE INDEX idx_pending_grow_imports_status ON public.pending_grow_imports USING btree (status);
+CREATE INDEX payment_requests_client ON public.payment_requests USING btree (user_id, client_id);
+CREATE UNIQUE INDEX payment_requests_grow_tx_uniq ON public.payment_requests USING btree (user_id, grow_transaction_id) WHERE (grow_transaction_id IS NOT NULL);
+CREATE INDEX payment_requests_user ON public.payment_requests USING btree (user_id);
 CREATE INDEX idx_pending_grow_imports_client ON public.pending_grow_imports USING btree (client_id);
 CREATE INDEX idx_pending_grow_imports_created_transaction ON public.pending_grow_imports USING btree (created_transaction_id);
-CREATE INDEX idx_pending_invoice_imports_user ON public.pending_invoice_imports USING btree (user_id);
-CREATE INDEX idx_pending_invoice_imports_status ON public.pending_invoice_imports USING btree (status);
+CREATE INDEX idx_pending_grow_imports_status ON public.pending_grow_imports USING btree (status);
+CREATE INDEX idx_pending_grow_imports_user ON public.pending_grow_imports USING btree (user_id);
 CREATE INDEX idx_pending_invoice_imports_client ON public.pending_invoice_imports USING btree (client_id);
 CREATE INDEX idx_pending_invoice_imports_created_tx ON public.pending_invoice_imports USING btree (created_transaction_id);
+CREATE INDEX idx_pending_invoice_imports_status ON public.pending_invoice_imports USING btree (status);
+CREATE INDEX idx_pending_invoice_imports_user ON public.pending_invoice_imports USING btree (user_id);
 CREATE INDEX idx_projects_user ON public.projects USING btree (user_id);
 CREATE INDEX projects_user_status_idx ON public.projects USING btree (user_id, status) WHERE (deleted_at IS NULL);
 CREATE UNIQUE INDEX idx_quotes_text_uniq ON public.quotes USING btree (text);
+CREATE INDEX idx_recurring_templates_category ON public.recurring_templates USING btree (category_id);
 CREATE INDEX idx_recurring_templates_client ON public.recurring_templates USING btree (client_id);
 CREATE INDEX idx_recurring_templates_project ON public.recurring_templates USING btree (project_id);
 CREATE INDEX idx_recurring_templates_user ON public.recurring_templates USING btree (user_id);
-CREATE INDEX idx_recurring_templates_category ON public.recurring_templates USING btree (category_id);
+CREATE INDEX idx_reminders_category ON public.reminders USING btree (category_id);
 CREATE INDEX idx_reminders_linked ON public.reminders USING btree (linked_to_type, linked_to_id);
 CREATE INDEX idx_reminders_status ON public.reminders USING btree (status);
 CREATE INDEX idx_reminders_user ON public.reminders USING btree (user_id);
-CREATE INDEX idx_reminders_category ON public.reminders USING btree (category_id);
 CREATE INDEX report_tallies_user_period_idx ON public.report_tallies USING btree (user_id, period);
+CREATE INDEX idx_scheduled_meetings_session ON public.scheduled_meetings USING btree (session_id);
 CREATE INDEX idx_scheduled_meetings_status ON public.scheduled_meetings USING btree (status);
 CREATE INDEX idx_scheduled_meetings_subject ON public.scheduled_meetings USING btree (subject_type, subject_id);
 CREATE INDEX idx_scheduled_meetings_user ON public.scheduled_meetings USING btree (user_id);
 CREATE UNIQUE INDEX scheduled_meetings_no_dup ON public.scheduled_meetings USING btree (user_id, subject_type, subject_id, scheduled_at) WHERE (status = 'pending'::text);
-CREATE INDEX idx_scheduled_meetings_session ON public.scheduled_meetings USING btree (session_id);
 CREATE INDEX idx_sessions_client ON public.sessions USING btree (client_id);
 CREATE INDEX idx_sessions_date ON public.sessions USING btree (date);
 CREATE INDEX idx_sessions_group ON public.sessions USING btree (group_id);
 CREATE INDEX idx_sessions_user ON public.sessions USING btree (user_id);
-CREATE INDEX idx_site_pages_user ON public.site_pages USING btree (user_id);
 CREATE UNIQUE INDEX idx_site_pages_kind_slug_unique ON public.site_pages USING btree (kind, lower(slug)) WHERE ((slug IS NOT NULL) AND (deleted_at IS NULL));
 CREATE INDEX idx_site_pages_project ON public.site_pages USING btree (project_id);
+CREATE INDEX idx_site_pages_user ON public.site_pages USING btree (user_id);
 CREATE INDEX idx_task_categories_user ON public.task_categories USING btree (user_id);
 CREATE INDEX idx_task_statuses_user ON public.task_statuses USING btree (user_id);
 CREATE INDEX idx_tasks_category_id ON public.tasks USING btree (category_id);
@@ -2016,17 +2016,17 @@ CREATE INDEX idx_tasks_status ON public.tasks USING btree (status);
 CREATE INDEX idx_tasks_status_id ON public.tasks USING btree (status_id);
 CREATE INDEX idx_tasks_user ON public.tasks USING btree (user_id);
 CREATE INDEX idx_tasks_user_due ON public.tasks USING btree (user_id, due_at) WHERE ((due_at IS NOT NULL) AND (deleted_at IS NULL));
+CREATE INDEX idx_transactions_category ON public.transactions USING btree (category_id);
 CREATE INDEX idx_transactions_client ON public.transactions USING btree (client_id);
 CREATE INDEX idx_transactions_date ON public.transactions USING btree (date);
+CREATE UNIQUE INDEX idx_transactions_invoice_doc_uniq ON public.transactions USING btree (user_id, invoice_provider, invoice_document_id) WHERE ((invoice_document_id IS NOT NULL) AND (deleted_at IS NULL));
 CREATE INDEX idx_transactions_project ON public.transactions USING btree (project_id);
+CREATE INDEX idx_transactions_recurring ON public.transactions USING btree (recurring_id);
+CREATE UNIQUE INDEX idx_transactions_recurring_meeting ON public.transactions USING btree (user_id, recurring_id, scheduled_meeting_id) WHERE ((recurring_id IS NOT NULL) AND (scheduled_meeting_id IS NOT NULL) AND (deleted_at IS NULL));
+CREATE UNIQUE INDEX idx_transactions_recurring_slot ON public.transactions USING btree (user_id, recurring_id, date) WHERE ((recurring_id IS NOT NULL) AND (scheduled_meeting_id IS NULL) AND (deleted_at IS NULL));
 CREATE INDEX idx_transactions_status ON public.transactions USING btree (status);
 CREATE INDEX idx_transactions_user ON public.transactions USING btree (user_id);
-CREATE INDEX idx_transactions_category ON public.transactions USING btree (category_id);
-CREATE INDEX idx_transactions_recurring ON public.transactions USING btree (recurring_id);
-CREATE UNIQUE INDEX idx_transactions_invoice_doc_uniq ON public.transactions USING btree (user_id, invoice_provider, invoice_document_id) WHERE ((invoice_document_id IS NOT NULL) AND (deleted_at IS NULL));
 CREATE UNIQUE INDEX transactions_grow_tx_uniq ON public.transactions USING btree (user_id, grow_transaction_id) WHERE (grow_transaction_id IS NOT NULL);
-CREATE UNIQUE INDEX idx_transactions_recurring_slot ON public.transactions USING btree (user_id, recurring_id, date) WHERE ((recurring_id IS NOT NULL) AND (scheduled_meeting_id IS NULL) AND (deleted_at IS NULL));
-CREATE UNIQUE INDEX idx_transactions_recurring_meeting ON public.transactions USING btree (user_id, recurring_id, scheduled_meeting_id) WHERE ((recurring_id IS NOT NULL) AND (scheduled_meeting_id IS NOT NULL) AND (deleted_at IS NULL));
 CREATE INDEX idx_user_consent_user ON public.user_consent USING btree (user_id);
 CREATE INDEX idx_user_integrations_user ON public.user_integrations USING btree (user_id);
 CREATE UNIQUE INDEX idx_user_integrations_webhook_token ON public.user_integrations USING btree (webhook_token) WHERE (webhook_token IS NOT NULL);
@@ -2044,9 +2044,9 @@ CREATE TRIGGER trg_calendar_events_updated BEFORE UPDATE ON public.calendar_even
 CREATE TRIGGER trg_categories_updated BEFORE UPDATE ON public.categories FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 CREATE TRIGGER trg_client_adjustments_updated BEFORE UPDATE ON public.client_adjustments FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 CREATE TRIGGER trg_client_statuses_updated BEFORE UPDATE ON public.client_statuses FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+CREATE TRIGGER trg_clients_stamp_status BEFORE INSERT OR UPDATE ON public.clients FOR EACH ROW EXECUTE FUNCTION clients_stamp_status_change();
 CREATE TRIGGER trg_clients_updated BEFORE UPDATE ON public.clients FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 CREATE TRIGGER trg_report_sync_client AFTER INSERT OR UPDATE ON public.clients FOR EACH ROW EXECUTE FUNCTION report_sync_client();
-CREATE TRIGGER trg_clients_stamp_status BEFORE INSERT OR UPDATE ON public.clients FOR EACH ROW EXECUTE FUNCTION clients_stamp_status_change();
 CREATE TRIGGER trg_community_notify_mention AFTER INSERT ON public.community_message_mentions FOR EACH ROW EXECUTE FUNCTION community_notify_on_mention();
 CREATE TRIGGER trg_community_messages_immutable BEFORE UPDATE ON public.community_messages FOR EACH ROW EXECUTE FUNCTION guard_immutable_columns('id', 'user_id', 'content', 'created_at');
 CREATE TRIGGER trg_community_profiles_reserved_name BEFORE UPDATE ON public.community_profiles FOR EACH ROW WHEN ((new.display_name IS DISTINCT FROM old.display_name)) EXECUTE FUNCTION community_profiles_guard_reserved_name();
@@ -2074,13 +2074,13 @@ CREATE TRIGGER trg_quotes_updated BEFORE UPDATE ON public.quotes FOR EACH ROW EX
 CREATE TRIGGER trg_recurring_templates_updated BEFORE UPDATE ON public.recurring_templates FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 CREATE TRIGGER trg_reminders_updated BEFORE UPDATE ON public.reminders FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 CREATE TRIGGER trg_scheduled_meetings_updated BEFORE UPDATE ON public.scheduled_meetings FOR EACH ROW EXECUTE FUNCTION set_updated_at();
-CREATE TRIGGER trg_sessions_updated BEFORE UPDATE ON public.sessions FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 CREATE TRIGGER trg_report_sync_session AFTER INSERT OR UPDATE ON public.sessions FOR EACH ROW EXECUTE FUNCTION report_sync_session();
+CREATE TRIGGER trg_sessions_updated BEFORE UPDATE ON public.sessions FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 CREATE TRIGGER trg_site_pages_updated BEFORE UPDATE ON public.site_pages FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 CREATE TRIGGER trg_task_categories_updated BEFORE UPDATE ON public.task_categories FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 CREATE TRIGGER trg_task_statuses_updated BEFORE UPDATE ON public.task_statuses FOR EACH ROW EXECUTE FUNCTION set_updated_at();
-CREATE TRIGGER trg_tasks_updated BEFORE UPDATE ON public.tasks FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 CREATE TRIGGER trg_report_sync_task AFTER INSERT OR UPDATE ON public.tasks FOR EACH ROW EXECUTE FUNCTION report_sync_task();
+CREATE TRIGGER trg_tasks_updated BEFORE UPDATE ON public.tasks FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 CREATE TRIGGER trg_transactions_updated BEFORE UPDATE ON public.transactions FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 CREATE TRIGGER trg_user_consent_stamp BEFORE INSERT ON public.user_consent FOR EACH ROW EXECUTE FUNCTION user_consent_stamp();
 CREATE TRIGGER trg_user_integrations_updated BEFORE UPDATE ON public.user_integrations FOR EACH ROW EXECUTE FUNCTION set_updated_at();

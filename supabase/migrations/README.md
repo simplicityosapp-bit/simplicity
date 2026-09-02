@@ -64,6 +64,13 @@ regenerate `../schema.sql`.**
 
 Next free number is **`0114`**.
 
+Both commands below need the CLI linked to the project. That is a one-time step,
+and the password it asks for is stored by the CLI rather than in any file here:
+
+```bash
+supabase link --project-ref rdurkakzyymxhocvhufw
+```
+
 ```bash
 supabase db query --linked -f supabase/migrations/0114_your_change.sql
 ```

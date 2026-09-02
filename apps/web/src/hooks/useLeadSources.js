@@ -2,6 +2,7 @@ import { useCallback } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { listLeadSources, insertLeadSource, updateLeadSource as apiUpdate, removeLeadSource as apiRemove, restoreLeadSource } from '../lib/api/leadSources'
 import { pushUndo } from '../lib/undo'
+import { revertWrite } from '../lib/revertWrite'
 
 /* React-Query-backed: read on the leads screen + filter modal. Public API unchanged. */
 const KEY = ['leadSources']
@@ -27,10 +28,10 @@ export function useLeadSources() {
         undo: async () => { try { await restoreLeadSource(id) } finally { qc.invalidateQueries({ queryKey: KEY }) } },
         redo: async () => {
           qc.setQueryData(KEY, (prev) => (prev ?? []).filter((s) => s.id !== id))
-          try { await apiRemove(id) } catch { qc.invalidateQueries({ queryKey: KEY }) }
+          try { await apiRemove(id) } catch { revertWrite(qc, { queryKey: KEY }) }
         },
       })
-    } catch { qc.invalidateQueries({ queryKey: KEY }) }
+    } catch { revertWrite(qc, { queryKey: KEY }) }
   }, [qc])
 
   /* Optimistic patch — the colour, today. `updateLeadSource` had shipped in
@@ -39,7 +40,7 @@ export function useLeadSources() {
      changed. */
   const updateSource = useCallback(async (id, patch) => {
     qc.setQueryData(KEY, (prev) => (prev ?? []).map((s) => (s.id === id ? { ...s, ...patch } : s)))
-    try { await apiUpdate(id, patch) } catch { qc.invalidateQueries({ queryKey: KEY }) }
+    try { await apiUpdate(id, patch) } catch { revertWrite(qc, { queryKey: KEY }) }
   }, [qc])
 
   return { sources, loading: isLoading, error: error?.message ?? null, addSource, updateSource, removeSource, refetch }

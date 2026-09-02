@@ -5,6 +5,7 @@
   "close": "Close",
   "back": "Back",
   "language": "Language",
+  "dataLoadError": "Some data didn't load, so parts of this screen may look empty by mistake.",
   "tryAgain": "Try again",
   "roles": {
     "therapist": "Therapist",

@@ -3,6 +3,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { listReminders, insertReminder, updateReminder, removeReminder as apiRemove, restoreReminder } from '../lib/api/reminders'
 import { isRecurring, nextScheduledAt } from '@simplicity/core'
 import { pushUndo } from '../lib/undo'
+import { revertWrite } from '../lib/revertWrite'
 
 /* React-Query-backed: home mounts this in BOTH QuickRow and the tasks-and-reminders widget —
    one shared cache instead of a fetch per consumer. Public API unchanged. */
@@ -39,7 +40,7 @@ export function useReminders() {
     const prev = { status: r.status, scheduled_at: r.scheduled_at }
     const apply = async (p) => {
       qc.setQueryData(KEY, (prevR) => (prevR ?? []).map((x) => (x.id === r.id ? { ...x, ...p } : x)).sort(bySchedule))
-      try { await updateReminder(r.id, p) } catch { qc.invalidateQueries({ queryKey: KEY }) }
+      try { await updateReminder(r.id, p) } catch { revertWrite(qc, { queryKey: KEY }) }
     }
     await apply(patch)
     /* Undo an accidental ✓ — restores the prior status/slot (a recurring
@@ -57,7 +58,7 @@ export function useReminders() {
       const row = await updateReminder(id, patch)
       qc.setQueryData(KEY, (prev) => (prev ?? []).map((r) => (r.id === id ? row : r)).sort(bySchedule))
       return row
-    } catch { qc.invalidateQueries({ queryKey: KEY }) }
+    } catch { revertWrite(qc, { queryKey: KEY }) }
   }, [qc])
 
   const removeReminder = useCallback(async (id) => {
@@ -70,10 +71,10 @@ export function useReminders() {
         undo: async () => { try { await restoreReminder(id) } finally { qc.invalidateQueries({ queryKey: KEY }) } },
         redo: async () => {
           qc.setQueryData(KEY, (prev) => (prev ?? []).filter((r) => r.id !== id))
-          try { await apiRemove(id) } catch { qc.invalidateQueries({ queryKey: KEY }) }
+          try { await apiRemove(id) } catch { revertWrite(qc, { queryKey: KEY }) }
         },
       })
-    } catch { qc.invalidateQueries({ queryKey: KEY }) }
+    } catch { revertWrite(qc, { queryKey: KEY }) }
   }, [qc])
 
   /* Bulk-clear every completed reminder (soft-delete → Trash, restorable 30

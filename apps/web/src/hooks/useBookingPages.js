@@ -6,6 +6,7 @@ import {
 } from '../lib/api/bookingPages'
 import { registerDeleteUndo } from '../lib/undoActions'
 import i18n from '@simplicity/core/i18n'
+import { revertWrite } from '../lib/revertWrite'
 
 /* React-Query-backed: shared cache across the builder + booking screens.
    Mirrors useLeadPages. */
@@ -34,7 +35,7 @@ export function useBookingPages() {
     try {
       await apiRemove(id)
       registerDeleteUndo({ qc, key: KEY, row, label: i18n.t('components:undo.deleted.bookingPage'), restoreFn: restoreBookingPage, deleteFn: apiRemove })
-    } catch { qc.invalidateQueries({ queryKey: KEY }) }
+    } catch { revertWrite(qc, { queryKey: KEY }) }
   }, [qc])
 
   return { pages, loading: isLoading, error: error?.message ?? null, addPage, updatePage, removePage, refetch }

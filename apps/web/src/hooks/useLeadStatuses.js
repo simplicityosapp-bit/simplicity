@@ -2,6 +2,7 @@ import { useCallback } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { listLeadStatuses, insertLeadStatus, updateLeadStatus as apiUpdate, removeLeadStatus as apiRemove, restoreLeadStatus } from '../lib/api/leadStatuses'
 import { pushUndo } from '../lib/undo'
+import { revertWrite } from '../lib/revertWrite'
 
 /* React-Query-backed: read on the leads screen + per card. Public API unchanged. */
 const KEY = ['leadStatuses']
@@ -27,16 +28,16 @@ export function useLeadStatuses() {
         undo: async () => { try { await restoreLeadStatus(id) } finally { qc.invalidateQueries({ queryKey: KEY }) } },
         redo: async () => {
           qc.setQueryData(KEY, (prev) => (prev ?? []).filter((s) => s.id !== id))
-          try { await apiRemove(id) } catch { qc.invalidateQueries({ queryKey: KEY }) }
+          try { await apiRemove(id) } catch { revertWrite(qc, { queryKey: KEY }) }
         },
       })
-    } catch { qc.invalidateQueries({ queryKey: KEY }) }
+    } catch { revertWrite(qc, { queryKey: KEY }) }
   }, [qc])
 
   /* Optimistic patch (used for drag-reorder sort_order). */
   const updateStatus = useCallback(async (id, patch) => {
     qc.setQueryData(KEY, (prev) => (prev ?? []).map((s) => (s.id === id ? { ...s, ...patch } : s)))
-    try { await apiUpdate(id, patch) } catch { qc.invalidateQueries({ queryKey: KEY }) }
+    try { await apiUpdate(id, patch) } catch { revertWrite(qc, { queryKey: KEY }) }
   }, [qc])
 
   return { statuses, loading: isLoading, error: error?.message ?? null, addStatus, updateStatus, removeStatus, refetch }

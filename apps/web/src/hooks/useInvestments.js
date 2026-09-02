@@ -10,6 +10,7 @@ import { restoreTransaction } from '../lib/api/transactions'
 import { useCategories } from './useCategories'
 import { pushUndo } from '../lib/undo'
 import { showError } from '../lib/toast'
+import { revertWrite } from '../lib/revertWrite'
 
 /* ════════════════════════════════════════════════════════════════
    useInvestments — the record behind the finance investment widget.
@@ -135,12 +136,10 @@ export function useInvestments() {
           try {
             await apiRemoveInvestment(id)
             if (txId) await removeTransaction(txId, { silent: true }).catch(() => {})
-          } catch { qc.invalidateQueries({ queryKey: KEY }) }
+          } catch { revertWrite(qc, { queryKey: KEY }) }
         },
       })
-    } catch {
-      qc.invalidateQueries({ queryKey: KEY })
-    }
+    } catch { revertWrite(qc, { queryKey: KEY }) }
   }, [qc, removeTransaction])
 
   return {

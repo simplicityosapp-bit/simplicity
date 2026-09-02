@@ -3,6 +3,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { listSessions, insertSession, updateSession as apiUpdate, removeSession as apiRemove, restoreSession } from '../lib/api/sessions'
 import { registerDeleteUndo } from '../lib/undoActions'
 import i18n from '@simplicity/core/i18n'
+import { revertWrite } from '../lib/revertWrite'
 
 /* React-Query-backed: shared across moon + attention widgets. Public API unchanged. */
 const KEY = ['sessions']
@@ -37,7 +38,7 @@ export function useSessions() {
       if (!silent) {
         registerDeleteUndo({ qc, key: KEY, row, label: i18n.t('components:undo.deleted.session'), restoreFn: restoreSession, deleteFn: apiRemove })
       }
-    } catch { qc.invalidateQueries({ queryKey: KEY }) }
+    } catch { revertWrite(qc, { queryKey: KEY }) }
     return row
   }, [qc])
 

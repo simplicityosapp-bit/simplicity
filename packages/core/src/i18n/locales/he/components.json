@@ -1,4 +1,5 @@
 {
+  "writeFailed": "הפעולה לא נשמרה. מה שמוצג עכשיו הוא מה ששמור בשרת.",
   "dateField": {
     "placeholder": "בחר/י תאריך",
     "placeholder_male": "בחר תאריך",

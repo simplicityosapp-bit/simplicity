@@ -1,6 +1,7 @@
 import { useCallback } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { listGroupMembers, insertGroupMember, updateGroupMember as apiUpdate, removeGroupMember as apiRemove } from '../lib/api/groupMembers'
+import { revertWrite } from '../lib/revertWrite'
 
 /* React-Query-backed: home mounts this in BOTH AttentionWidget and MoonWidget,
    and the clients screen reads it per card — one shared cache instead of a
@@ -20,13 +21,13 @@ export function useGroupMembers() {
 
   const removeMember = useCallback(async (id) => {
     qc.setQueryData(KEY, (prev) => (prev ?? []).filter((m) => m.id !== id))
-    try { await apiRemove(id) } catch { qc.invalidateQueries({ queryKey: KEY }) }
+    try { await apiRemove(id) } catch { revertWrite(qc, { queryKey: KEY }) }
   }, [qc])
 
   /* Optimistic patch — used for per-member billing override (total_override). */
   const updateMember = useCallback(async (id, patch) => {
     qc.setQueryData(KEY, (prev) => (prev ?? []).map((m) => (m.id === id ? { ...m, ...patch } : m)))
-    try { await apiUpdate(id, patch) } catch { qc.invalidateQueries({ queryKey: KEY }) }
+    try { await apiUpdate(id, patch) } catch { revertWrite(qc, { queryKey: KEY }) }
   }, [qc])
 
   return { members, loading: isLoading, unreachable: !!error || (fetchStatus === 'paused' && data === undefined), error: error?.message ?? null, addMember, updateMember, removeMember, refetch }

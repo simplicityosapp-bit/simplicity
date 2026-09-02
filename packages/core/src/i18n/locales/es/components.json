@@ -1,4 +1,5 @@
 {
+  "writeFailed": "No se guardó. Lo que ves ahora es lo que hay en el servidor.",
   "dateField": {
     "placeholder": "Elige una fecha",
     "dialogLabel": "Selector de fecha",

@@ -2,6 +2,7 @@ import { useCallback } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { listClientStatuses, insertClientStatus, updateClientStatus as apiUpdate, removeClientStatus as apiRemove, restoreClientStatus } from '../lib/api/clientStatuses'
 import { pushUndo } from '../lib/undo'
+import { revertWrite } from '../lib/revertWrite'
 
 /* React-Query-backed: read on the clients screen + per card. Public API unchanged. */
 const KEY = ['clientStatuses']
@@ -27,10 +28,10 @@ export function useClientStatuses() {
         undo: async () => { try { await restoreClientStatus(id) } finally { qc.invalidateQueries({ queryKey: KEY }) } },
         redo: async () => {
           qc.setQueryData(KEY, (prev) => (prev ?? []).filter((s) => s.id !== id))
-          try { await apiRemove(id) } catch { qc.invalidateQueries({ queryKey: KEY }) }
+          try { await apiRemove(id) } catch { revertWrite(qc, { queryKey: KEY }) }
         },
       })
-    } catch { qc.invalidateQueries({ queryKey: KEY }) }
+    } catch { revertWrite(qc, { queryKey: KEY }) }
   }, [qc])
 
   /* Optimistic patch — renaming, and moving a status between meta groups.
@@ -40,7 +41,7 @@ export function useClientStatuses() {
      it again. */
   const updateStatus = useCallback(async (id, patch) => {
     qc.setQueryData(KEY, (prev) => (prev ?? []).map((s) => (s.id === id ? { ...s, ...patch } : s)))
-    try { await apiUpdate(id, patch) } catch { qc.invalidateQueries({ queryKey: KEY }) }
+    try { await apiUpdate(id, patch) } catch { revertWrite(qc, { queryKey: KEY }) }
   }, [qc])
 
   return { statuses, loading: isLoading, error: error?.message ?? null, addStatus, updateStatus, removeStatus, refetch }

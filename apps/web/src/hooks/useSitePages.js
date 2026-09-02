@@ -6,6 +6,7 @@ import {
 } from '../lib/api/sitePages'
 import { registerDeleteUndo } from '../lib/undoActions'
 import i18n from '@simplicity/core/i18n'
+import { revertWrite } from '../lib/revertWrite'
 
 /* React-Query-backed: shared cache across the hub + editor. Mirrors
    useLeadPages / useBookingPages. One cache holds all kinds; the hub filters
@@ -35,7 +36,7 @@ export function useSitePages() {
     try {
       await apiRemove(id)
       registerDeleteUndo({ qc, key: KEY, row, label: i18n.t('components:undo.deleted.sitePage'), restoreFn: restoreSitePage, deleteFn: apiRemove })
-    } catch { qc.invalidateQueries({ queryKey: KEY }) }
+    } catch { revertWrite(qc, { queryKey: KEY }) }
   }, [qc])
 
   return { pages, loading: isLoading, error: error?.message ?? null, addPage, updatePage, removePage, refetch }

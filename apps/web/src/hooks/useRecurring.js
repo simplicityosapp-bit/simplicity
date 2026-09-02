@@ -7,6 +7,7 @@ import {
   restoreRecurring,
 } from '../lib/api/recurring'
 import { pushUndo } from '../lib/undo'
+import { revertWrite } from '../lib/revertWrite'
 
 /* React-Query-backed: shared cache instead of a fetch per mount, so an
    add/edit/delete of a recurring template shows across every consumer at once
@@ -40,10 +41,10 @@ export function useRecurring() {
         undo: async () => { try { await restoreRecurring(id) } finally { qc.invalidateQueries({ queryKey: KEY }) } },
         redo: async () => {
           qc.setQueryData(KEY, (prev) => (prev ?? []).filter((t) => t.id !== id))
-          try { await apiRemoveRecurring(id) } catch { qc.invalidateQueries({ queryKey: KEY }) }
+          try { await apiRemoveRecurring(id) } catch { revertWrite(qc, { queryKey: KEY }) }
         },
       })
-    } catch { qc.invalidateQueries({ queryKey: KEY }) }
+    } catch { revertWrite(qc, { queryKey: KEY }) }
   }, [qc])
 
   return { templates, loading: isLoading, error: error?.message ?? null, addRecurring, updateRecurring, removeRecurring, refetch }

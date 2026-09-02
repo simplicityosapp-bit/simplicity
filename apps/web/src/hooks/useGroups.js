@@ -3,6 +3,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { listGroups, insertGroup, updateGroup as apiUpdate, removeGroup as apiRemove, restoreGroup } from '../lib/api/groups'
 import { registerDeleteUndo } from '../lib/undoActions'
 import i18n from '@simplicity/core/i18n'
+import { revertWrite } from '../lib/revertWrite'
 
 /* React-Query-backed: shared across meeting-confirm + chips widgets. Public API unchanged. */
 const KEY = ['groups']
@@ -30,7 +31,7 @@ export function useGroups() {
     try {
       await apiRemove(id)
       registerDeleteUndo({ qc, key: KEY, row, label: i18n.t('components:undo.deleted.group'), restoreFn: restoreGroup, deleteFn: apiRemove })
-    } catch { qc.invalidateQueries({ queryKey: KEY }) }
+    } catch { revertWrite(qc, { queryKey: KEY }) }
   }, [qc])
 
   return { groups, loading: isLoading, unreachable: !!error || (fetchStatus === 'paused' && data === undefined), error: error?.message ?? null, addGroup, updateGroup, removeGroup, refetch }

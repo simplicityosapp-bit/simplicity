@@ -6,6 +6,7 @@ import {
   removeScheduledMeeting as apiRemove,
 } from '../lib/api/scheduledMeetings'
 import { pushUndo } from '../lib/undo'
+import { revertWrite } from '../lib/revertWrite'
 
 /* React-Query-backed: attention + meeting-confirm + quick-row widgets
    shared this fetch. Public API unchanged. */
@@ -57,11 +58,11 @@ export function useScheduledMeetings() {
           redo: async () => {
             const target = liveId
             qc.setQueryData(KEY, (prev) => (prev ?? []).filter((m) => m.id !== target))
-            try { await apiRemove(target) } catch { qc.invalidateQueries({ queryKey: KEY }) }
+            try { await apiRemove(target) } catch { revertWrite(qc, { queryKey: KEY }) }
           },
         })
       }
-    } catch { qc.invalidateQueries({ queryKey: KEY }) }
+    } catch { revertWrite(qc, { queryKey: KEY }) }
   }, [qc])
 
   return { meetings, loading: isLoading, error: error?.message ?? null, addMeeting, updateMeeting, removeMeeting, refetch }

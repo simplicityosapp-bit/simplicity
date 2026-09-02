@@ -3,6 +3,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { listGoalCategories, insertGoalCategory, updateGoalCategory, removeGoalCategory as apiRemove, restoreGoalCategory } from '../lib/api/goalCategories'
 import { registerDeleteUndo } from '../lib/undoActions'
 import i18n from '@simplicity/core/i18n'
+import { revertWrite } from '../lib/revertWrite'
 
 /* React-Query-backed: shared across moon/attention/quick-row widgets +
    moon-glance + finance chart. Public API unchanged. */
@@ -31,7 +32,7 @@ export function useGoalCategories() {
     try {
       await apiRemove(id)
       registerDeleteUndo({ qc, key: KEY, row, label: i18n.t('components:undo.deleted.goalCategory'), restoreFn: restoreGoalCategory, deleteFn: apiRemove })
-    } catch { qc.invalidateQueries({ queryKey: KEY }) }
+    } catch { revertWrite(qc, { queryKey: KEY }) }
   }, [qc])
 
   return { categories, loading: isLoading, unreachable: !!error || (fetchStatus === 'paused' && data === undefined), error: error?.message ?? null, addCategory, updateCategory, removeCategory, refetch }

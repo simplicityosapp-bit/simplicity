@@ -3,6 +3,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { listProjects, insertProject, updateProject as apiUpdateProject, removeProject as apiRemoveProject, restoreProject } from '../lib/api/projects'
 import { registerDeleteUndo } from '../lib/undoActions'
 import i18n from '@simplicity/core/i18n'
+import { revertWrite } from '../lib/revertWrite'
 
 /* React-Query-backed: shared cache across screens. Public API unchanged. */
 const KEY = ['projects']
@@ -30,7 +31,7 @@ export function useProjects() {
     try {
       await apiRemoveProject(id)
       registerDeleteUndo({ qc, key: KEY, row, label: i18n.t('components:undo.deleted.project'), restoreFn: restoreProject, deleteFn: apiRemoveProject })
-    } catch { qc.invalidateQueries({ queryKey: KEY }) }
+    } catch { revertWrite(qc, { queryKey: KEY }) }
   }, [qc])
 
   /* `unreachable` names the two ways this read can come back with nothing to

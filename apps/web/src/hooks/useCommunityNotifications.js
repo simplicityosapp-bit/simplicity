@@ -2,6 +2,7 @@ import { useCallback, useEffect } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase } from '../lib/supabase'
 import { listCommunityNotifications, markNotificationsRead } from '../lib/api/communityNotifications'
+import { revertWrite } from '../lib/revertWrite'
 
 /* ════════════════════════════════════════════════════════════════
    useCommunityNotifications — the member's in-app inbox + live unread badge.
@@ -37,7 +38,7 @@ export function useCommunityNotifications({ enabled = true } = {}) {
     if (!(qc.getQueryData(KEY) ?? []).some((n) => !n.read_at)) return
     const now = new Date().toISOString()
     qc.setQueryData(KEY, (prev) => (prev ?? []).map((n) => (n.read_at ? n : { ...n, read_at: now })))
-    try { await markNotificationsRead() } catch { qc.invalidateQueries({ queryKey: KEY }) }
+    try { await markNotificationsRead() } catch { revertWrite(qc, { queryKey: KEY }) }
   }, [qc])
 
   return { notifications, unreadCount, markAllRead, refetch }

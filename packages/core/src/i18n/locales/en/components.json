@@ -1,4 +1,8 @@
 {
+  "generateFailed": {
+    "transactions": "Some recurring transactions weren't created just now. We'll try again next time.",
+    "meetings": "Some scheduled meetings weren't created just now. We'll try again next time."
+  },
   "writeFailed": "That didn't save. What you see now is what the server has.",
   "dateField": {
     "placeholder": "Pick a date",

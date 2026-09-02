@@ -1,4 +1,8 @@
 {
+  "generateFailed": {
+    "transactions": "Algunas transacciones recurrentes no se crearon ahora. Lo intentaremos de nuevo.",
+    "meetings": "Algunas reuniones programadas no se crearon ahora. Lo intentaremos de nuevo."
+  },
   "writeFailed": "No se guardó. Lo que ves ahora es lo que hay en el servidor.",
   "dateField": {
     "placeholder": "Elige una fecha",

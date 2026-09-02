@@ -39,10 +39,33 @@
    2026-06-25: end-client data list (§4.2) extended — client address + date of
    birth added as optional fields (both plaintext, like name/phone/email; stored
    behind a "more details" toggle in the client card). Privacy 2.1→2.2 (forces
-   re-acceptance) — rule: any policy text change must bump version. */
-export const PRIVACY_VERSION = '2.2'
+   re-acceptance) — rule: any policy text change must bump version.
+   2026-08-27: terms §5 no longer describes a closed beta. "בתקופת הבטא השירות
+   מסופק ללא תשלום למשתמשים מוזמנים" was true of an invite-only beta and false of
+   a free public launch — someone signing up from the open site was agreeing to a
+   description of a different product. Now "בשלב זה השירות מסופק ללא תשלום לכלל
+   המשתמשים", which drops both the beta framing and the invitation, while "בשלב
+   זה" keeps the right to change it; the rest of §5 (pricing published in
+   advance, 30 days' notice before any charge) already covered that transition
+   and is unchanged. Same edit in en/es/fr. Terms 2.0→2.1 (forces re-acceptance)
+   — done BEFORE the public launch on purpose, so the prompt lands on the ~39
+   existing users rather than on the public a week after they sign up.
+   Same date: the "תקופת בטא" stamp came off both documents' header and closing
+   line (16 places across the four languages). Fixing §5 alone would have left
+   the terms contradicting themselves — a header declaring a beta two lines
+   above a §5 that says "לכלל המשתמשים" — and the same stamp sat on the privacy
+   policy, which is not a beta document either. The "updated" date moved to
+   August 2026 on both, because both were in fact edited today. The DPA carries
+   no beta stamp and is untouched, so DPA stays 2.0.
+   NOT touched: terms §7's 'AS IS "בתקופת הבטא"'. Dropping those two words would
+   widen a liability disclaimer from a finished period to all time — a change to
+   what the clause covers, not to how it reads, and one for a lawyer to make.
+   Privacy 2.2→2.3 by the rule above: its text changed, so its version moves.
+   Both bumps ride the same re-acceptance prompt, so this costs the user one
+   dialog, not two. */
+export const PRIVACY_VERSION = '2.3'
 export const DPA_VERSION = '2.0'
-export const TERMS_VERSION = '2.0'
+export const TERMS_VERSION = '2.1'
 
 /* The consent block written at signup / first acceptance. */
 export function buildConsent({ marketing = false } = {}) {

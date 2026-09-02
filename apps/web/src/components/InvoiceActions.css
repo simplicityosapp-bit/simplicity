@@ -184,3 +184,59 @@
 [data-theme="dark"] .inv-act-go { color: var(--ink-on-accent); }
 .inv-act-go:hover:not(:disabled) { background: var(--mg-btn-primary-bg-hover); }
 .inv-act-go:disabled { opacity: 0.55; cursor: default; }
+
+/* ── In doubt ──────────────────────────────────────────────────────
+   An issuance whose outcome the provider never confirmed. Deliberately
+   the loudest state in this component: it is the only one where doing
+   nothing can end in a duplicate tax document. Clay, not sage — this is
+   unfinished business, not a success. */
+.inv-act.in-doubt {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.inv-act-doubt-title {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin: 0;
+  font-size: calc(13px * var(--text-scale));
+  font-weight: 600;
+  color: var(--clay-on-dark);
+}
+
+/* Candidate documents pulled from the provider — one row per document,
+   picked by hand because only the user knows which one is theirs. */
+.inv-act-cands {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.inv-act-cand {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--divider);
+  border-radius: var(--radius-sm, 8px);
+  background: transparent;
+  font-family: var(--mg-font);
+  font-size: calc(13px * var(--text-scale));
+  color: inherit;
+  text-align: start;
+  cursor: pointer;
+}
+.inv-act-cand:hover:not(:disabled) {
+  border-color: var(--terracotta);
+  background: color-mix(in srgb, var(--terracotta) 8%, transparent);
+}
+.inv-act-cand:disabled { opacity: 0.55; cursor: default; }
+.inv-act-cand-meta {
+  font-size: calc(11px * var(--text-scale));
+  color: var(--stone);
+}

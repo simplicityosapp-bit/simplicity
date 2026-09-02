@@ -54,6 +54,13 @@ export default function ResetAccountModal({ open, onClose, onConfirm }) {
           <Txt>
             <Trans t={t} i18nKey="resetAccount.step1" components={[<strong key="0" />]} />
             <br />
+            {/* The integrations line is its own sentence because it is a
+                different kind of consequence: the others delete rows inside
+                Simplicity, this one revokes an authorisation the user granted
+                OUTSIDE it. Confirming an itemised list that omitted that would
+                be asking for consent to something the list did not describe. */}
+            <Trans t={t} i18nKey="resetAccount.step1c" components={[<strong key="0" />]} />
+            <br />
             <Trans t={t} i18nKey="resetAccount.step1b" values={{ enableTo: t('resetAccount.step1bEnable') }} components={[<strong key="0" />]} />
           </Txt>
         ) : (

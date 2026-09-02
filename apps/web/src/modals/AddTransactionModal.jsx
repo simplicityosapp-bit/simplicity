@@ -247,11 +247,25 @@ export default function AddTransactionModal({ open, onClose, onSave, clients = [
              the row doesn't offer a duplicate issue. Mirrors the per-tx edit
              flow's onIssued=refetch, done here for every mount site at once. */
           qc.invalidateQueries({ queryKey: ['transactions'] })
-          showToast(t('tx.savedAndIssued', { doc: docTypeLabel(docType), num: num ? t('tx.numPrefix', { num }) : '' }))
+          // The document is real but could not be recorded on the transaction.
+          // Saying "issued" alone would hide that; point at the edit screen,
+          // where the repair panel can attach it.
+          showToast(r?.link_failed
+            ? t('tx.issuedNotLinked', { num: num ? t('tx.numPrefix', { num }) : '' })
+            : t('tx.savedAndIssued', { doc: docTypeLabel(docType), num: num ? t('tx.numPrefix', { num }) : '' }),
+            r?.link_failed ? 'error' : undefined)
         } catch (e) {
-          // Surface the provider's real reason (e.detail) when present, instead
-          // of a bare "issue failed" — same actionable detail the per-tx flow shows.
-          showToast(e?.detail ? `${t('tx.issueFailed')} (${e.detail})` : t('tx.issueFailed'), 'error')
+          // "Failed" would be a lie when the provider never told us the outcome —
+          // the document may well exist. Send the user to the edit screen, where
+          // the repair panel resolves it, instead of implying nothing happened.
+          if (e?.outcomeUnknown) {
+            qc.invalidateQueries({ queryKey: ['transactions'] })
+            showToast(t('tx.issueOutcomeUnknown'), 'error')
+          } else {
+            // Surface the provider's real reason (e.detail) when present, instead
+            // of a bare "issue failed" — same actionable detail the per-tx flow shows.
+            showToast(e?.detail ? `${t('tx.issueFailed')} (${e.detail})` : t('tx.issueFailed'), 'error')
+          }
         }
       } else {
         showToast(t('tx.saved'))

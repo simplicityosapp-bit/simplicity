@@ -1,8 +1,8 @@
 /* English legal content — AI translation of the Hebrew source, PENDING HUMAN LEGAL REVIEW. Faithful translation; Israeli law governs. Structure mirrors legalContent.js. */
 import { PRIVACY_VERSION, DPA_VERSION, TERMS_VERSION } from '../../lib/legal'
 
-export const PRIVACY_META = `Simplicity · Version ${PRIVACY_VERSION} · Beta · Updated: June 2026`
-export const TERMS_META = `Simplicity · Version ${TERMS_VERSION} · Beta · Updated: June 2026`
+export const PRIVACY_META = `Simplicity · Version ${PRIVACY_VERSION} · Updated: August 2026`
+export const TERMS_META = `Simplicity · Version ${TERMS_VERSION} · Updated: August 2026`
 export const DPA_META = `Data Processing Agreement · Version ${DPA_VERSION} · June 2026`
 
 export const PRIVACY_BLOCKS = [
@@ -120,7 +120,7 @@ export const PRIVACY_BLOCKS = [
   { t: "For privacy-protection inquiries you may also contact our Data Protection Officer (DPO) at the email address above." },
   { t: "We will respond within a reasonable timeframe — up to 30 days, in accordance with the requirements of the law." },
 
-  { t: `This policy is effective as of the date of its publication. Version ${PRIVACY_VERSION} — Beta.` },
+  { t: `This policy is effective as of the date of its publication. Version ${PRIVACY_VERSION}.` },
 ]
 
 export const TERMS_BLOCKS = [
@@ -152,7 +152,7 @@ export const TERMS_BLOCKS = [
   { t: "Transferring the account to a third party." },
 
   { h: "5. Payment and Subscription" },
-  { t: "During the beta period the Service is provided free of charge to invited users." },
+  { t: "At this stage the Service is provided free of charge to all users." },
   { t: "Upon the launch of a commercial version:" },
   { t: "Pricing will be published in advance in the Application." },
   { t: "At least 30 days' notice will be given before any charge takes effect." },
@@ -209,7 +209,7 @@ export const TERMS_BLOCKS = [
   { t: "Email: simplicity.os.app@gmail.com" },
   { t: "We will respond within 14 business days." },
 
-  { t: `These terms are effective as of the date of their publication. Version ${TERMS_VERSION} — Beta.` },
+  { t: `These terms are effective as of the date of their publication. Version ${TERMS_VERSION}.` },
 ]
 
 export const DPA_BLOCKS = [

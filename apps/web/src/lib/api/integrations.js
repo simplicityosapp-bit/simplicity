@@ -26,6 +26,11 @@ export async function callGoogleCalendar(action, params = {}) {
 function fnError(body) {
   const err = new Error(body.error)
   if (body.detail) err.detail = body.detail
+  // Set when an issuance failed WITHOUT the provider telling us whether it
+  // created the document. The claim is deliberately still held server-side, so
+  // the UI must offer the repair flow instead of a retry — retrying is what
+  // would mint a duplicate tax document.
+  if (body.outcome_unknown) err.outcomeUnknown = true
   return err
 }
 

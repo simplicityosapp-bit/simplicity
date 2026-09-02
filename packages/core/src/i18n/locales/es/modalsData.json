@@ -42,6 +42,8 @@
     "saved": "Transacción guardada",
     "savedAndIssued": "Transacción guardada y {{doc}} emitido{{num}}",
     "numPrefix": " n.º {{num}}",
+    "issueOutcomeUnknown": "Transacción guardada, pero no está claro si se emitió el documento — abre la transacción para comprobarlo y terminar",
+    "issuedNotLinked": "El documento se emitió{{num}} pero no se vinculó a la transacción — ábrela para vincularlo",
     "issueFailed": "Transacción guardada, pero la emisión ha fallado — puedes emitirla desde la edición",
     "recipientAdHoc": "Cliente nuevo",
     "recipientHint": "Rellena los datos para emitir un recibo — puedes guardarlo como cliente después.",

@@ -7,8 +7,8 @@ import { PRIVACY_VERSION, DPA_VERSION, TERMS_VERSION } from '../../lib/legal'
    { h2 } sub-heading · { t } paragraph — rendered by LegalModal / LegalPage.
    ════════════════════════════════════════════════════════════════ */
 
-export const PRIVACY_META = `סימפליסיטי · גרסה ${PRIVACY_VERSION} · תקופת בטא · עודכן: יוני 2026`
-export const TERMS_META = `סימפליסיטי · גרסה ${TERMS_VERSION} · תקופת בטא · עודכן: יוני 2026`
+export const PRIVACY_META = `סימפליסיטי · גרסה ${PRIVACY_VERSION} · עודכן: אוגוסט 2026`
+export const TERMS_META = `סימפליסיטי · גרסה ${TERMS_VERSION} · עודכן: אוגוסט 2026`
 export const DPA_META = `Data Processing Agreement · גרסה ${DPA_VERSION} · יוני 2026`
 
 /* Privacy Policy v2.0 — full Hebrew text. Merged 2026-06-17 from new legal-SaaS
@@ -134,7 +134,7 @@ export const PRIVACY_BLOCKS = [
   { t: 'לפניות בנושא הגנת הפרטיות ניתן לפנות גם לממונה הגנת הפרטיות (DPO) שלנו בכתובת הדוא"ל לעיל.' },
   { t: 'נשיב בתוך פרק זמן סביר — עד 30 יום, בהתאם לדרישות הדין.' },
 
-  { t: `מדיניות זו בתוקף מיום פרסומה. גרסה ${PRIVACY_VERSION} — תקופת בטא.` },
+  { t: `מדיניות זו בתוקף מיום פרסומה. גרסה ${PRIVACY_VERSION}.` },
 ]
 
 /* Terms of Service v2.0 — full Hebrew text. Merged 2026-06-17 from new
@@ -173,7 +173,7 @@ export const TERMS_BLOCKS = [
   { t: 'העברת החשבון לצד שלישי.' },
 
   { h: '5. תשלום ומנוי' },
-  { t: 'בתקופת הבטא השירות מסופק ללא תשלום למשתמשים מוזמנים.' },
+  { t: 'בשלב זה השירות מסופק ללא תשלום לכלל המשתמשים.' },
   { t: 'עם השקת גרסה מסחרית:' },
   { t: 'התמחור יפורסם מראש באפליקציה.' },
   { t: 'תינתן הודעה של לפחות 30 יום לפני כניסת חיוב לתוקף.' },
@@ -230,7 +230,7 @@ export const TERMS_BLOCKS = [
   { t: 'דואר אלקטרוני: simplicity.os.app@gmail.com' },
   { t: 'נשיב בתוך 14 ימי עסקים.' },
 
-  { t: `תנאים אלו בתוקף מיום פרסומם. גרסה ${TERMS_VERSION} — תקופת בטא.` },
+  { t: `תנאים אלו בתוקף מיום פרסומם. גרסה ${TERMS_VERSION}.` },
 ]
 
 /* Data Processing Agreement (DPA) v2.0 — full Hebrew text. Upgraded 2026-06-17

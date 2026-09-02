@@ -30,6 +30,7 @@
     "title": "Restablecer la cuenta — eliminar todos los datos",
     "confirmWord": "eliminar",
     "step1": "Esto eliminará <0>todos los datos de tu cuenta</0>: clientes, proyectos, grupos, prospectos, transacciones y gastos recurrentes, categorías, tareas, objetivos y registros de objetivos, preguntas diarias y sus respuestas, sesiones registradas, notas, recordatorios, estados y fuentes.",
+    "step1c": "Además, <0>se desconectarán las conexiones a servicios externos</0>: Google Calendar — y la autorización también se revocará en Google — y el servicio de facturación.",
     "step1b": "<0>Esta acción no se puede deshacer.</0> La introducción empezará de nuevo para que puedas comenzar desde cero.",
     "step2": "Para confirmar definitivamente, {{type}} <0>{{word}}</0> en el cuadro. Esta es la confirmación final: todo se elimina justo después.",
     "typeVerb": "escribe la palabra",

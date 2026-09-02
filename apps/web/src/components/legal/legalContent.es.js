@@ -1,8 +1,8 @@
 /* Spanish legal content — AI translation of the Hebrew source, PENDING HUMAN LEGAL REVIEW. Faithful translation; Israeli law governs. Structure mirrors legalContent.js. */
 import { PRIVACY_VERSION, DPA_VERSION, TERMS_VERSION } from '../../lib/legal'
 
-export const PRIVACY_META = `Simplicity · Versión ${PRIVACY_VERSION} · Beta · Actualizado: junio de 2026`
-export const TERMS_META = `Simplicity · Versión ${TERMS_VERSION} · Beta · Actualizado: junio de 2026`
+export const PRIVACY_META = `Simplicity · Versión ${PRIVACY_VERSION} · Actualizado: agosto de 2026`
+export const TERMS_META = `Simplicity · Versión ${TERMS_VERSION} · Actualizado: agosto de 2026`
 export const DPA_META = `Acuerdo de Procesamiento de Datos · Versión ${DPA_VERSION} · junio de 2026`
 
 export const PRIVACY_BLOCKS = [
@@ -120,7 +120,7 @@ export const PRIVACY_BLOCKS = [
   { t: "Para consultas en materia de protección de la privacidad también puedes contactar a nuestro Delegado de Protección de Datos (DPO) en la dirección de correo electrónico indicada arriba." },
   { t: "Responderemos dentro de un plazo razonable, de hasta 30 días, conforme a los requisitos de la ley." },
 
-  { t: `Esta política entra en vigor a partir de la fecha de su publicación. Versión ${PRIVACY_VERSION} — Beta.` },
+  { t: `Esta política entra en vigor a partir de la fecha de su publicación. Versión ${PRIVACY_VERSION}.` },
 ]
 
 export const TERMS_BLOCKS = [
@@ -152,7 +152,7 @@ export const TERMS_BLOCKS = [
   { t: "Transferir la cuenta a un tercero." },
 
   { h: "5. Pago y suscripción" },
-  { t: "Durante el período beta, el Servicio se proporciona sin costo a los usuarios invitados." },
+  { t: "En esta etapa, el Servicio se proporciona sin costo a todos los usuarios." },
   { t: "Con el lanzamiento de una versión comercial:" },
   { t: "La tarificación se publicará por anticipado en la Aplicación." },
   { t: "Se dará un aviso de al menos 30 días antes de la entrada en vigor de los cargos." },
@@ -209,7 +209,7 @@ export const TERMS_BLOCKS = [
   { t: "Correo electrónico: simplicity.os.app@gmail.com" },
   { t: "Responderemos dentro de 14 días hábiles." },
 
-  { t: `Estos términos entran en vigor a partir de la fecha de su publicación. Versión ${TERMS_VERSION} — Beta.` },
+  { t: `Estos términos entran en vigor a partir de la fecha de su publicación. Versión ${TERMS_VERSION}.` },
 ]
 
 export const DPA_BLOCKS = [

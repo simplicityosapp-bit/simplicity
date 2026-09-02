@@ -3,6 +3,17 @@
 //  connector. Lets a user's OWN Claude (Desktop / Claude Code / Cowork)
 //  read — and later edit — their Simplicity data through MCP tools.
 // ════════════════════════════════════════════════════════════════
+//  ⛔ NOT DEPLOYED — removed from the deployment 27/08/2026 (owner decision).
+//     It had been live and public since 08/2026 while `mcp_tokens` did not
+//     exist, because migration 0109 was deliberately never run: every request
+//     therefore failed on a missing table. A public endpoint that cannot work
+//     is only an unmonitored surface, so it was deleted from the project until
+//     the token model is settled.
+//
+//     DO NOT redeploy this before running 0109 — read the migration's header
+//     first, and the open questions below. The order is: settle the token
+//     model → run 0109 → deploy → regenerate supabase/schema.sql.
+// ════════════════════════════════════════════════════════════════
 //  STAGE 2a — scoped tokens. Auth is a row in `mcp_tokens` (migration 0109),
 //  not an environment secret, so tokens are per-user, revocable, and carry a
 //  SCOPE that decides what the connector may do:

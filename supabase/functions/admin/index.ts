@@ -118,22 +118,40 @@ async function countRows(
   return count ?? 0
 }
 
-/* The 9-step onboarding flow (mirrors apps/web/src/lib/preferences.js). Kept in
-   sync by hand — if a step is added there, add it here too. */
+/* The onboarding flow, mirroring apps/web/src/lib/preferences.js. Kept in sync
+   by hand, which is exactly how it fell out of sync: the flow was cut from nine
+   steps to four-plus-finish, this copy was not, and the admin funnel spent that
+   time charting four steps (data_import / daily_questions / recurring / preview)
+   that no user could reach. Every one of them read as 100% drop-off, and the
+   percentages for the steps that DO exist were computed against the wrong
+   denominator. A funnel that invents stages is worse than no funnel — it is a
+   product decision made on a false number.
+
+   If the list in preferences.js changes again, change it here in the same
+   commit. There is no import to lean on: this runs on Deno in an edge function
+   and does not bundle the web app. */
 const ONBOARDING_STEPS = [
-  'profile', 'data_import', 'projects', 'clients', 'daily_questions',
-  'goals', 'recurring', 'preview', 'finish',
+  'profile', 'projects', 'clients', 'goals', 'finish',
 ]
 const STEP_LABELS: Record<string, string> = {
   profile: 'פרופיל',
-  data_import: 'ייבוא נתונים',
   projects: 'פרויקטים',
   clients: 'לקוחות',
-  daily_questions: 'שאלות יומיות',
   goals: 'יעדים',
-  recurring: 'הוראות קבע',
-  preview: 'תצוגה מקדימה',
   finish: 'סיום',
+}
+
+/* Retired step keys, mapped to the surviving step that follows the work they
+   used to do — the same table preferences.js uses to resume a parked user.
+   Without it, `indexOf` returns -1 for a stored value like 'recurring', the
+   Math.max below floors it to 0, and that user is silently reported as having
+   stalled on step one. Not hypothetical: users are parked on retired steps
+   right now, and each one would have been charted as a first-step drop-off. */
+const RETIRED_STEPS: Record<string, string> = {
+  data_import: 'projects',
+  daily_questions: 'goals',
+  recurring: 'goals',
+  preview: 'goals',
 }
 
 type AdminPerms = { delete_users: boolean; set_subscriber: boolean; manage_admins: boolean }
@@ -183,15 +201,19 @@ async function fetchAllUsers(admin: AdminClient): Promise<AuthUser[]> {
   return out
 }
 
-/* Furthest onboarding step a user reached, as an index into
-   ONBOARDING_STEPS. completed/skipped → past the last step (9). */
+/* Furthest onboarding step a user reached, as an index into ONBOARDING_STEPS.
+   completed/skipped → past the last step. A stored key that no longer exists is
+   resolved through RETIRED_STEPS first, so a user who parked mid-flow before the
+   redesign lands where their work actually got them rather than back at zero. */
 function onboardingProgress(ob: any): { index: number; label: string; done: boolean } {
   if (!ob || typeof ob !== 'object') {
     return { index: 0, label: STEP_LABELS.profile, done: false }
   }
   if (ob.completed_at) return { index: ONBOARDING_STEPS.length, label: 'הושלם', done: true }
   if (ob.skipped_at) return { index: ONBOARDING_STEPS.length, label: 'דילג', done: true }
-  const idx = Math.max(0, ONBOARDING_STEPS.indexOf(ob.step || 'profile'))
+  const stored = ob.step || 'profile'
+  const step = ONBOARDING_STEPS.includes(stored) ? stored : (RETIRED_STEPS[stored] ?? 'profile')
+  const idx = Math.max(0, ONBOARDING_STEPS.indexOf(step))
   return { index: idx, label: STEP_LABELS[ONBOARDING_STEPS[idx]] ?? 'פרופיל', done: false }
 }
 

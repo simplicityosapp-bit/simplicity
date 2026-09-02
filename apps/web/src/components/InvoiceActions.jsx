@@ -27,6 +27,8 @@ function errMsg(code, t) {
     case 'not_income': return t('actions.err.notIncome')
     case 'bad_amount': return t('actions.err.badAmount')
     case 'transaction_not_found': return t('actions.err.transactionNotFound')
+    case 'not_in_doubt': return t('actions.err.notInDoubt')
+    case 'document_already_linked': return t('actions.err.documentAlreadyLinked')
     case 'invalid_credentials': return t('actions.err.invalidCredentials')
     case 'provider_unreachable': return t('actions.err.providerUnreachable', { retry: t('actions.err.retry') })
     case 'provider_error': return t('actions.err.providerError')
@@ -79,6 +81,18 @@ function InvoiceActions({ tx, clientName, onIssued, formDirty = false }) {
   const [confirmIssue, setConfirmIssue] = useState(false) // two-step confirm (irreversible)
   const [err, setErr] = useState('')
 
+  /* "In doubt": an issuance whose outcome we could not determine, so the server
+     kept the claim rather than risk a duplicate document on retry. The row shows
+     invoice_synced_at with no invoice_document_id. Also entered mid-session from
+     a failed issue (outcome_unknown) or a document that was issued but couldn't
+     be linked (link_failed) — in the latter case we already know the document,
+     so it is offered directly instead of asking the provider. */
+  const [doubt, setDoubt] = useState(() => !!(tx?.invoice_synced_at && !tx?.invoice_document_id))
+  const [candidates, setCandidates] = useState(null) // null = not looked up yet
+  const [doubtBusy, setDoubtBusy] = useState(false)
+  const [doubtErr, setDoubtErr] = useState('')
+  const [confirmClear, setConfirmClear] = useState(false)
+
   const issueTimer = useRef(0)
   const pickerRef = useRef(null)
   const issuedRef = useRef(null)
@@ -117,6 +131,47 @@ function InvoiceActions({ tx, clientName, onIssued, formDirty = false }) {
     }
   }
 
+  /* ── Repair, for a transaction left in doubt ───────────────────────
+     Defined here, above the early returns, because the repair panel outranks
+     them: a transaction that may already carry a real tax document matters
+     more than a missing client or a stale credential warning. */
+
+  /* One billed provider call, only on this click — never on render. */
+  const doLookup = async () => {
+    setDoubtErr(''); setDoubtBusy(true)
+    try {
+      setCandidates(await inv.issueCandidates(tx.id))
+    } catch (e) {
+      setDoubtErr(errMsgWithDetail(e, t))
+    } finally { setDoubtBusy(false) }
+  }
+
+  const doLink = async (c) => {
+    setDoubtErr(''); setDoubtBusy(true)
+    try {
+      await inv.linkIssuedDocument(tx.id, c)
+      justIssuedRef.current = true
+      setIssued({ number: c.number, url: c.url, type: c.type })
+      setDoubt(false)
+      showToast(t('actions.doubt.linkedToast'))
+      onIssued?.()
+    } catch (e) {
+      setDoubtErr(errMsgWithDetail(e, t))
+    } finally { setDoubtBusy(false) }
+  }
+
+  const doClear = async () => {
+    setDoubtErr(''); setDoubtBusy(true)
+    try {
+      await inv.clearIssueClaim(tx.id)
+      setDoubt(false); setCandidates(null)
+      showToast(t('actions.doubt.clearedToast'))
+      onIssued?.()
+    } catch (e) {
+      setDoubtErr(errMsgWithDetail(e, t))
+    } finally { setDoubtBusy(false); setConfirmClear(false) }
+  }
+
   if (issued) {
     return (
       <>
@@ -149,6 +204,83 @@ function InvoiceActions({ tx, clientName, onIssued, formDirty = false }) {
           confirmLabel={t('actions.creditConfirm')}
           danger
           onConfirm={doCredit}
+        />
+      </>
+    )
+  }
+
+  /* The issuance never resolved. Offer the two answers only the user can give —
+     "the document exists, here it is" or "there is no document" — and never a
+     plain retry, which is what would mint a duplicate. */
+  if (doubt) {
+    return (
+      <>
+        <Box className="inv-act in-doubt" role="status" aria-live="polite">
+          <Txt as="p" className="inv-act-doubt-title">
+            <CircleAlert size={14} strokeWidth={1.8} aria-hidden="true" /> {t('actions.doubt.title')}
+          </Txt>
+          <Txt as="p" className="inv-act-hint-cap">{t('actions.doubt.body')}</Txt>
+
+          {candidates === null && (
+            <Box className="inv-act-picker-actions">
+              <Btn className="inv-act-go" disabled={doubtBusy} onClick={doLookup}>
+                {doubtBusy && <Loader2 size={14} className="inv-act-spin" aria-hidden="true" />}
+                {t('actions.doubt.check')}
+              </Btn>
+              <Btn className="inv-act-cancel" disabled={doubtBusy} onClick={() => setConfirmClear(true)}>
+                {t('actions.doubt.clearBtn')}
+              </Btn>
+            </Box>
+          )}
+
+          {Array.isArray(candidates) && candidates.length === 0 && (
+            <>
+              <Txt as="p" className="inv-act-hint-cap">{t('actions.doubt.none')}</Txt>
+              <Btn className="inv-act-go" disabled={doubtBusy} onClick={doClear}>
+                {t('actions.doubt.noneConfirm')}
+              </Btn>
+            </>
+          )}
+
+          {Array.isArray(candidates) && candidates.length > 0 && (
+            <>
+              <Txt as="p" className="inv-act-hint-cap">{t('actions.doubt.pick')}</Txt>
+              <Box as="ul" className="inv-act-cands">
+                {candidates.map((c) => (
+                  <Box as="li" key={c.id}>
+                    <Btn className="inv-act-cand" disabled={doubtBusy} onClick={() => doLink(c)}>
+                      <Txt>
+                        {docTypeLabel(c.type)}
+                        {c.number ? <> · <bdi>{c.number}</bdi></> : ''}
+                      </Txt>
+                      <Txt className="inv-act-cand-meta">
+                        {Number.isFinite(Number(c.amount)) ? isr(c.amount) : ''}
+                        {c.date ? ` · ${c.date}` : ''}
+                        {c.amount_matches ? ` · ${t('actions.doubt.amountMatches')}` : ''}
+                      </Txt>
+                    </Btn>
+                  </Box>
+                ))}
+              </Box>
+              <Btn className="inv-act-cancel" disabled={doubtBusy} onClick={() => setConfirmClear(true)}>
+                {t('actions.doubt.noneOfThese')}
+              </Btn>
+            </>
+          )}
+        </Box>
+        {doubtErr && (
+          <Txt as="p" className="inv-act-err" role="alert">
+            <CircleAlert size={13} strokeWidth={1.7} aria-hidden="true" /> {doubtErr}
+          </Txt>
+        )}
+        <ConfirmModal
+          open={confirmClear}
+          onClose={() => setConfirmClear(false)}
+          title={t('actions.doubt.clearModalTitle')}
+          message={t('actions.doubt.clearModalMessage')}
+          confirmLabel={t('actions.doubt.clearConfirm')}
+          danger
+          onConfirm={doClear}
         />
       </>
     )
@@ -227,6 +359,15 @@ function InvoiceActions({ tx, clientName, onIssued, formDirty = false }) {
       })
       const doc = r?.document
       const type = doc?.type || docType
+      if (r?.link_failed) {
+        // The document is real, but recording it here failed. We hold the only
+        // copy of its identity right now, so hand it straight to the repair
+        // panel as the single candidate rather than losing it on unmount.
+        setPicking(false)
+        setDoubt(true)
+        setCandidates([{ id: doc?.id, number: doc?.number, type, amount: tx?.amount, url: doc?.url, amount_matches: true }])
+        return
+      }
       justIssuedRef.current = true
       setIssued({ number: doc?.number, url: doc?.url, type })
       setPicking(false)
@@ -235,11 +376,16 @@ function InvoiceActions({ tx, clientName, onIssued, formDirty = false }) {
         : t('actions.issuedToast', { docType: docTypeLabel(type) }))
       onIssued?.()
     } catch (e) {
+      // The server could not tell whether a document was created and kept the
+      // claim. Switch to repair — a retry here is the one thing that could
+      // produce a second real tax document.
+      if (e?.outcomeUnknown) { setPicking(false); setConfirmIssue(false); setDoubt(true) }
       setErr(errMsgWithDetail(e, t))
     } finally {
       setBusy(false)
     }
   }
+
 
   /* Two-step confirm on the (irreversible) issue: first click arms + shows the
      amount, second click issues. Auto-disarms after 4s. When something looks

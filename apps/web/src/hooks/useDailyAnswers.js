@@ -6,6 +6,7 @@ import {
 } from '../lib/api/dailyAnswers'
 import { registerDeleteUndo } from '../lib/undoActions'
 import i18n from '@simplicity/core/i18n'
+import { revertWrite } from '../lib/revertWrite'
 
 /* React-Query-backed: shared across moon + insights widgets. Public API unchanged. */
 const KEY = ['dailyAnswers']
@@ -38,7 +39,7 @@ export function useDailyAnswers() {
     try {
       await apiRemove(id)
       registerDeleteUndo({ qc, key: KEY, row, label: i18n.t('components:undo.deleted.answer'), restoreFn: restoreDailyAnswer, deleteFn: apiRemove })
-    } catch { qc.invalidateQueries({ queryKey: KEY }) }
+    } catch { revertWrite(qc, { queryKey: KEY }) }
   }, [qc])
 
   return { answers, loading: isLoading, unreachable: !!error || (fetchStatus === 'paused' && data === undefined), error: error?.message ?? null, addAnswer, removeAnswer, refetch }

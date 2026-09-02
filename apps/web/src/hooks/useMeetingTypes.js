@@ -5,6 +5,7 @@ import {
   removeMeetingType as apiRemove, restoreMeetingType, applyMeetingTypePrice,
 } from '../lib/api/meetingTypes'
 import { pushUndo } from '../lib/undo'
+import { revertWrite } from '../lib/revertWrite'
 
 /* React-Query-backed: shared across the client add/edit forms, MeetingTypesModal,
    the calendar, booking-pages and the meeting-confirm list — one cache instead
@@ -62,10 +63,10 @@ export function useMeetingTypes() {
         undo: async () => { try { await restoreMeetingType(id) } finally { qc.invalidateQueries({ queryKey: KEY }) } },
         redo: async () => {
           qc.setQueryData(KEY, (prevList) => (prevList ?? []).filter((t) => t.id !== id))
-          try { await apiRemove(id) } catch { qc.invalidateQueries({ queryKey: KEY }) }
+          try { await apiRemove(id) } catch { revertWrite(qc, { queryKey: KEY }) }
         },
       })
-    } catch { qc.invalidateQueries({ queryKey: KEY }) }
+    } catch { revertWrite(qc, { queryKey: KEY }) }
   }, [qc])
 
   return { types, loading: isLoading, error: error?.message ?? null, addType, updateType, removeType, refetch }

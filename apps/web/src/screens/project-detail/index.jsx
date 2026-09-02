@@ -50,6 +50,7 @@ import MG from '../../components/MG'
 import ProjectQuickRow from './ProjectQuickRow'
 import ProjectIncomeChart from './ProjectIncomeChart'
 import ProjectMoonRing from './ProjectMoonRing'
+import DataLoadError from '../../components/DataLoadError'
 import './ProjectDetailScreen.css'
 import { Box, Txt, Btn } from '../../components/ui'
 
@@ -517,6 +518,10 @@ export default function ProjectDetailScreen() {
 
   return (
     <Box className="screen pd-screen">
+      {/* This screen joins clients, sessions, tasks, transactions and more into
+          one picture. A failure in any of them silently subtracts from that
+          picture rather than announcing itself. */}
+      <DataLoadError />
       {/* Top row: the at-a-glance ring locks to the right (like home), the
           title card fills the space to its left, and the expanded breakdown
           (when open) wraps full-width beneath both. */}

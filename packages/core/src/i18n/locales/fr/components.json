@@ -1,4 +1,5 @@
 {
+  "writeFailed": "Cela n'a pas été enregistré. Ce que vous voyez est ce qu'a le serveur.",
   "dateField": {
     "placeholder": "Choisissez une date",
     "dialogLabel": "Sélecteur de date",

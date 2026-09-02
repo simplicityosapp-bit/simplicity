@@ -5,6 +5,7 @@
   "close": "Cerrar",
   "back": "Atrás",
   "language": "Idioma",
+  "dataLoadError": "Algunos datos no se cargaron, así que partes de esta pantalla pueden verse vacías por error.",
   "tryAgain": "Inténtalo de nuevo",
   "roles": {
     "therapist": "Terapeuta",

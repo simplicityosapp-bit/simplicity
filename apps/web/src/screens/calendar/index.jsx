@@ -39,6 +39,7 @@ import CalendarDay from './CalendarDay'
 import CalendarWeek from './CalendarWeek'
 import CalendarMonth from './CalendarMonth'
 import Coachmark from '../../components/Coachmark'
+import DataLoadError from '../../components/DataLoadError'
 import { useT } from '../../i18n/useT'
 import './CalendarScreen.css'
 import { Box, Txt, Btn } from '../../components/ui'
@@ -386,6 +387,11 @@ export default function CalendarScreen() {
           <Btn className="cta-add" type="button" aria-label={t('newEventAria')} onClick={() => { setScheduleAt(null); setShowGate(true) }}>{t('newEvent')}</Btn>
         </Coachmark>
       </Box>
+
+      {/* First, because it is the more fundamental failure: the banner below
+          reports that GOOGLE stopped feeding events, this one reports that the
+          calendar's own data never arrived. An empty week means neither. */}
+      <DataLoadError />
 
       {/* A dead Google feed used to be indistinguishable from a quiet week.
           The background sync stays silent by design — it must never nag over a

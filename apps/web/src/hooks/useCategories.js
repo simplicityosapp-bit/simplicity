@@ -7,6 +7,7 @@ import {
 } from '../lib/api/categories'
 import { registerDeleteUndo } from '../lib/undoActions'
 import i18n from '@simplicity/core/i18n'
+import { revertWrite } from '../lib/revertWrite'
 
 /* React-Query-backed: shared across meeting-confirm + chips widgets + finance. Public API unchanged. */
 const KEY = ['categories']
@@ -34,7 +35,7 @@ export function useCategories() {
     try {
       await apiRemoveCategory(id)
       registerDeleteUndo({ qc, key: KEY, row, label: i18n.t('components:undo.deleted.category'), restoreFn: restoreCategory, deleteFn: apiRemoveCategory })
-    } catch { qc.invalidateQueries({ queryKey: KEY }) }
+    } catch { revertWrite(qc, { queryKey: KEY }) }
   }, [qc])
 
   return { categories, loading: isLoading, error: error?.message ?? null, addCategory, updateCategory, removeCategory, refetch }

@@ -6,6 +6,7 @@ import {
 import { registerDeleteUndo } from '../lib/undoActions'
 import i18n from '@simplicity/core/i18n'
 import { showError } from '../lib/toast'
+import { revertWrite } from '../lib/revertWrite'
 
 /* React-Query-backed: the finance + home widgets that each fetched the
    whole transactions table now share one cached fetch. Public API
@@ -53,7 +54,7 @@ export function useTransactions() {
       if (!silent) {
         registerDeleteUndo({ qc, key: KEY, row, label: i18n.t('components:undo.deleted.transaction'), restoreFn: restoreTransaction, deleteFn: apiRemoveTx })
       }
-    } catch { qc.invalidateQueries({ queryKey: KEY }) }
+    } catch { revertWrite(qc, { queryKey: KEY }) }
   }, [qc])
 
   /* Put a soft-deleted transaction back. Needed by the callers that own a

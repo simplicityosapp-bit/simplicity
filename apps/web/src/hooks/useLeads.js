@@ -3,6 +3,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { listLeads, insertLead, updateLead as apiUpdateLead, removeLead as apiRemoveLead, restoreLead } from '../lib/api/leads'
 import { registerDeleteUndo } from '../lib/undoActions'
 import i18n from '@simplicity/core/i18n'
+import { revertWrite } from '../lib/revertWrite'
 
 /* React-Query-backed: shared cache across screens. Public API unchanged. */
 const KEY = ['leads']
@@ -30,7 +31,7 @@ export function useLeads() {
     try {
       await apiRemoveLead(id)
       registerDeleteUndo({ qc, key: KEY, row, label: i18n.t('components:undo.deleted.lead'), restoreFn: restoreLead, deleteFn: apiRemoveLead })
-    } catch { qc.invalidateQueries({ queryKey: KEY }) }
+    } catch { revertWrite(qc, { queryKey: KEY }) }
   }, [qc])
 
   return { leads, loading: isLoading, unreachable: !!error || (fetchStatus === 'paused' && data === undefined), error: error?.message ?? null, addLead, updateLead, removeLead, refetch }

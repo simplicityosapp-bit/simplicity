@@ -2,6 +2,7 @@ import { useCallback } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { listUserQuestions, insertUserQuestion, updateUserQuestion, removeUserQuestion as apiRemove, restoreUserQuestion } from '../lib/api/userQuestions'
 import { pushUndo } from '../lib/undo'
+import { revertWrite } from '../lib/revertWrite'
 
 /* React-Query-backed so every surface that reads daily questions shares ONE
    cache. The Home launcher (QuickRow) and the Home daily-question slider
@@ -31,7 +32,7 @@ export function useUserQuestions() {
     qc.setQueryData(KEY, (prev) => (prev ?? []).map((x) => (x.id === q.id ? { ...x, active: !q.active } : x))) // optimistic
     try {
       await updateUserQuestion(q.id, { active: !q.active })
-    } catch { qc.invalidateQueries({ queryKey: KEY }) }
+    } catch { revertWrite(qc, { queryKey: KEY }) }
   }, [qc])
 
   const updateQuestion = useCallback(async (id, patch) => {
@@ -56,10 +57,10 @@ export function useUserQuestions() {
         },
         redo: async () => {
           qc.setQueryData(KEY, (prev) => (prev ?? []).filter((q) => q.id !== id))
-          try { await apiRemove(id) } catch { qc.invalidateQueries({ queryKey: KEY }) }
+          try { await apiRemove(id) } catch { revertWrite(qc, { queryKey: KEY }) }
         },
       })
-    } catch { qc.invalidateQueries({ queryKey: KEY }) }
+    } catch { revertWrite(qc, { queryKey: KEY }) }
   }, [qc])
 
   return { questions, loading: isLoading, error: error?.message ?? null, addQuestion, toggleActive, updateQuestion, removeQuestion, refetch }

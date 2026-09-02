@@ -4,6 +4,7 @@ import { listTasks, insertTask, updateTask, removeTask as apiRemoveTask, restore
 import { registerDeleteUndo } from '../lib/undoActions'
 import i18n from '@simplicity/core/i18n'
 import { pushUndo } from '../lib/undo'
+import { revertWrite } from '../lib/revertWrite'
 
 /* React-Query-backed: home widgets (attention, chips, next-tasks) shared
    the same task fetch. Public API unchanged. */
@@ -51,9 +52,7 @@ export function useTasks() {
       const row = await updateTask(id, patch)
       qc.setQueryData(KEY, (prev) => (prev ?? []).map((t) => (t.id === id ? row : t)))
       return row
-    } catch {
-      qc.invalidateQueries({ queryKey: KEY })
-    }
+    } catch { revertWrite(qc, { queryKey: KEY }) }
   }, [qc])
 
   /* Bulk-clear every completed task in one go. Soft-delete (deleted_at), so
@@ -89,7 +88,7 @@ export function useTasks() {
     try {
       await apiRemoveTask(id)
       registerDeleteUndo({ qc, key: KEY, row, label: i18n.t('components:undo.deleted.task'), restoreFn: restoreTask, deleteFn: apiRemoveTask })
-    } catch { qc.invalidateQueries({ queryKey: KEY }) }
+    } catch { revertWrite(qc, { queryKey: KEY }) }
   }, [qc])
 
   return { tasks, loading: isLoading, error: error?.message ?? null, addTask, toggleTask, editTask, removeTask, clearCompleted, refetch }

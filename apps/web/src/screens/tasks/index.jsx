@@ -733,7 +733,7 @@ export default function TasksScreen() {
             {isAll ? t('all') : (isTasks ? t('tasks') : t('reminders'))}
           </Txt>
         </Box>
-        <Coachmark id="add-task" radius="50%">
+        <Coachmark id="add-task" radius="50%" satisfied={tasks.length > 0 || reminders.length > 0}>
           {/* In the mixed view "+" adds a TASK — the screen's own entity, and
               the one you reach for far more often. A reminder is still one tap
               away through the תזכורות toggle. */}

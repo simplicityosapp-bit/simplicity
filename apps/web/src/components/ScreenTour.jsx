@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
+import { Compass } from 'lucide-react'
 import { useTours } from '../hooks/useTours'
 import { tourFor } from '../lib/tours'
+import { pendingSteps, recordShown } from '../lib/tourProgress'
 import MG from './MG'
 import { mgToReadable } from '../lib/multiGender'
 import { useT } from '../i18n/useT'
@@ -15,10 +17,22 @@ import { Box, Txt, Btn } from './ui'
    to a screen that has a tour (and hasn't been seen), it:
      1. polls the DOM until at least one step target exists,
      2. keeps only the steps whose target is actually rendered,
-     3. spotlights each in turn — dim scrim everywhere, glowing ring +
+     3. opens with one centred bubble and no spotlight — how many steps,
+        how long, how to leave — the first time a screen's tour starts.
+        The very first tour runs seconds after onboarding ends: without
+        this the screen simply dimmed and a ring lit up around a widget,
+        and nothing said what was happening or that it could be declined.
+        A tour resuming with the steps it still owes skips the opening,
+        and so does a one-step tour,
+     4. spotlights each in turn — dim scrim everywhere, glowing ring +
         bubble on the target,
-     4. advances on "הבנתי"/"דלג", ends on "דלג על הכל" or the last step,
-     5. marks the screen seen in prefs (no re-run).
+     5. advances on "הבנתי" (or a tap on the lit element), ends on "דלג על
+        הכל", Escape, or the last step,
+     6. records each step in prefs as it is acknowledged. A step whose
+        target isn't on screen yet — the finance chart before the first
+        transaction, a widget the user has turned off — waits for a later
+        visit instead of being skipped for good; "דלג על הכל" retires the
+        whole screen. See lib/tourProgress.js.
 
    It re-measures on resize/scroll and scrolls the target into view, so
    targets below the fold still get spotlighted correctly.
@@ -31,7 +45,7 @@ const VIEWPORT_PAD = 12    /* the bubble never comes closer than this to an edge
 const BUBBLE_H_GUESS = 178 /* first paint only, before the real height is known */
 
 export default function ScreenTour({ screenKey }) {
-  const { isSeen, markSeen } = useTours()
+  const { entryFor, setEntry, markSeen } = useTours()
   const { t: tr } = useT('components')
   /* Tour step title/body are i18n keys (guidance ns, prefixed). Resolve
      them gender-aware via useT, which applies the user's form of address
@@ -42,6 +56,16 @@ export default function ScreenTour({ screenKey }) {
   const [idx, setIdx] = useState(0)
   const [rect, setRect] = useState(null)
   const [active, setActive] = useState(false)
+  const [intro, setIntro] = useState(false)  /* the opening bubble is showing */
+  /* Where the screen was scrolled when the tour began. The last steps sit at
+     the bottom of the page: the tour scrolls there to spotlight them and used
+     to leave the user there, with the setup card and the top of the screen
+     out of view. The screen goes back to where the tour found it. */
+  const scrollAtStart = useRef(0)
+  const restoreScroll = useCallback(() => {
+    const el = document.querySelector('.screen')
+    if (el) el.scrollTo({ top: scrollAtStart.current, behavior: 'smooth' })
+  }, [])
   /* The bubble's REAL height, measured after it paints. The placement used to
      assume 150px; the bodies actually render 135-200px, and nothing clamped
      the result — so a target taller than the viewport pushed the bubble clean
@@ -56,28 +80,34 @@ export default function ScreenTour({ screenKey }) {
      targets (the screen may still be mounting / data still loading). */
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- reset tour state on screen change, then poll for the step targets.
-    setActive(false); setIdx(0); setRect(null); setSteps([])
+    setActive(false); setIntro(false); setIdx(0); setRect(null); setSteps([])
     const def = tourFor(screenKey)
-    if (!def || isSeen(screenKey)) return
+    const pending = pendingSteps(def, entryFor(screenKey))
+    if (!pending.length) return
 
     let tries = 0
     const timer = setInterval(() => {
       tries += 1
-      const present = def.filter((s) => document.querySelector(s.target))
+      const present = pending.filter((s) => document.querySelector(s.target))
       if (present.length) {
         clearInterval(timer)
-        /* Dropping a step whose target is absent is intended — a widget the
-           user turned off should not stall the walkthrough. Doing it in total
-           silence is not: the finance tour ran four of its five steps for
-           however long, because the recurring section's body is unmounted
-           while collapsed and nothing said so. Dev-only, so a real user still
-           never sees a word about it. */
-        if (import.meta.env.DEV && present.length < def.length) {
-          const missing = def.filter((s) => !present.includes(s)).map((s) => s.target)
-          console.warn(`[tour:${screenKey}] ${present.length}/${def.length} steps — no element for: ${missing.join(', ')}`)
+        /* A step whose target is absent waits for a later visit — a widget
+           the user turned off should not stall the walkthrough, and the
+           finance chart cannot be explained before the first transaction
+           exists. Saying so in dev keeps a selector that has quietly stopped
+           matching anything from hiding behind that rule (the recurring
+           section once did, for however long). A real user never sees this. */
+        if (import.meta.env.DEV && present.length < pending.length) {
+          const waiting = pending.filter((s) => !present.includes(s)).map((s) => s.target)
+          console.warn(`[tour:${screenKey}] ${present.length}/${pending.length} pending steps on screen — waiting for: ${waiting.join(', ')}`)
         }
         setSteps(present)
         setIdx(0)
+        /* Only when nothing on this screen has been shown before, and only
+           when there is a walk to introduce — a lone "+" step explains
+           itself, and a tour resuming its owed steps already met the user. */
+        setIntro(!entryFor(screenKey) && present.length >= 2)
+        scrollAtStart.current = document.querySelector('.screen')?.scrollTop || 0
         setActive(true)
       } else if (tries > 25) {
         clearInterval(timer) /* give up quietly — nothing to point at */
@@ -104,10 +134,10 @@ export default function ScreenTour({ screenKey }) {
      exactly what goes missing when the placement fails. */
   useEffect(() => {
     if (!active) return undefined
-    const onKey = (e) => { if (e.key === 'Escape') { setActive(false); markSeen(screenKey) } }
+    const onKey = (e) => { if (e.key === 'Escape') { setActive(false); markSeen(screenKey); restoreScroll() } }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [active, markSeen, screenKey])
+  }, [active, markSeen, screenKey, restoreScroll])
 
   const measure = useCallback(() => {
     if (!step) return
@@ -158,11 +188,57 @@ export default function ScreenTour({ screenKey }) {
     else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus() }
   }
 
-  if (!active || !step || !rect) return null
+  if (!active || !step) return null
 
-  const finish = () => { setActive(false); markSeen(screenKey) }
-  const next = () => { if (idx + 1 >= steps.length) finish(); else setIdx((i) => i + 1) }
+  /* Each step is recorded the moment it is acknowledged, so a reload mid-tour
+     resumes at the next step instead of replaying from the first. The entry
+     retires itself (flips to true) once every step of the screen has been
+     shown — see lib/tourProgress.js. */
+  const acknowledge = () => setEntry(screenKey, recordShown(entryFor(screenKey), tourFor(screenKey), [step.target]))
+  const skipAll = () => { setActive(false); markSeen(screenKey); restoreScroll() }
+  const next = () => {
+    acknowledge()
+    if (idx + 1 >= steps.length) { setActive(false); restoreScroll() }
+    else setIdx((i) => i + 1)
+  }
   const isLast = idx + 1 >= steps.length
+
+  /* The opening bubble: a plain scrim, the bubble centred, no counter. Its
+     primary begins the walk; its secondary is the same "דלג על הכל" every
+     later step offers, so the way out is learned on the first screen. */
+  if (intro) {
+    /* Each screen greets in its own words — "ברוכה הבאה הביתה" on the home
+       screen, a line about what lives here on the others — with the generic
+       opening as the fallback for a screen that has none. */
+    const introTitle = tr(`tour.intro.${screenKey}.title`, { defaultValue: tr('tour.introTitle') })
+    const introBody = tr(`tour.intro.${screenKey}.body`, { count: steps.length, defaultValue: tr('tour.introBody', { count: steps.length }) })
+    return createPortal(
+      <Box className="tour-root" role="dialog" aria-modal="true" aria-label={introTitle}>
+        <Box className="tour-scrim" aria-hidden="true" />
+        <Box
+          ref={bubbleRef}
+          tabIndex={-1}
+          onKeyDown={onBubbleKeyDown}
+          className="tour-bubble tour-bubble--intro"
+        >
+          <Txt as="p" className="tour-bubble-title">
+            <Compass size={16} strokeWidth={1.8} aria-hidden="true" /> {introTitle}
+          </Txt>
+          <Txt as="p" className="tour-bubble-body">{introBody}</Txt>
+          <Box className="tour-bubble-foot">
+            <Txt className="tour-bubble-count" aria-hidden="true" />
+            <Box className="tour-bubble-btns">
+              <Btn type="button" className="tour-skip-all" onClick={skipAll}>{tr('tour.skipAll')}</Btn>
+              <Btn type="button" className="tour-btn-next" onClick={() => setIntro(false)}>{tr('tour.start')}</Btn>
+            </Box>
+          </Box>
+        </Box>
+      </Box>,
+      document.body,
+    )
+  }
+
+  if (!rect) return null
 
   /* Spotlight box (the lit hole). */
   const sx = rect.left - SCRIM_PAD
@@ -229,13 +305,13 @@ export default function ScreenTour({ screenKey }) {
           <Box className="tour-bubble-btns">
             {/* "דלג על הכל" sits in the footer as a real peer of "הבנתי",
                not as a faint underlined link tucked underneath it. The home
-               tour is seven steps and it runs straight after a nine-step
-               onboarding — leaving is a legitimate choice at that point, and
+               tour is six steps and it runs straight after the onboarding
+               flow — leaving is a legitimate choice at that point, and
                it should not be the hardest thing on screen to find or to hit.
                ("דלג" alone used to live here too and merely advanced one step,
                duplicating "הבנתי"; that one is gone, this skips the tour.) */}
             {!isLast && (
-              <Btn type="button" className="tour-skip-all" onClick={finish}>{tr('tour.skipAll')}</Btn>
+              <Btn type="button" className="tour-skip-all" onClick={skipAll}>{tr('tour.skipAll')}</Btn>
             )}
             <Btn type="button" className="tour-btn-next" onClick={next}>
               {isLast ? tr('tour.done') : tr('tour.gotIt')}

@@ -8,10 +8,6 @@
       "bubble": "Add your first lead",
       "detail": "Leads are inquiries that haven't become clients yet."
     },
-    "add-lead-page": {
-      "bubble": "Create your first lead page",
-      "detail": "A public lead page collects inquiries straight into your leads — no login needed for the visitor."
-    },
     "add-project": {
       "bubble": "Start your first project",
       "detail": "Projects group clients and tasks under one shared goal."
@@ -35,13 +31,17 @@
   },
   "tour": {
     "home": {
+      "welcome": {
+        "title": "A few more things, when it suits you",
+        "body": "Import a file, daily questions, fixed expenses. Each opens its own screen and ticks itself off when done. None of it is required, and the card leaves once it's all done."
+      },
       "moon": {
         "title": "Overview",
         "body": "A quick look at how far along your goals are. Tap to see each one on its own, or open the full screen."
       },
       "insights": {
         "title": "Daily questions",
-        "body": "These are the questions you chose. Your answers build up over time on the \"How are you today\" screen, and new questions can be linked to goals on the Goals screen."
+        "body": "One short question a day, and over time a picture forms. Pick the questions in Settings; they can be tied to goals."
       },
       "quick-row": {
         "title": "Quick add",
@@ -49,7 +49,7 @@
       },
       "attention": {
         "title": "Needs attention",
-        "body": "Meetings to confirm, payments that have not come in yet, meetings doubled up in the calendar — the things it would be a shame to lose track of."
+        "body": "Meetings and transactions waiting for approval, clients who have gone quiet, goals behind pace. The things that shouldn't fall through the cracks."
       },
       "next-tasks": {
         "title": "Tasks and reminders",
@@ -57,7 +57,7 @@
       },
       "chips": {
         "title": "Quick numbers",
-        "body": "You choose which numbers show up here. Tap to open the picker."
+        "body": "Three numbers for a quick read. Tap one to open what's behind it, and choose what it counts."
       }
     },
     "clients": {
@@ -106,12 +106,6 @@
         "body": "Only the name is required — source, stage and notes can come later."
       }
     },
-    "leadPages": {
-      "add": {
-        "title": "New lead page",
-        "body": "Create a public lead page here — build the form, publish it, and share a link that collects leads straight to you."
-      }
-    },
     "projects": {
       "hero": {
         "title": "Projects summary",
@@ -128,8 +122,8 @@
     },
     "finance": {
       "chart": {
-        "title": "Cumulative income",
-        "body": "The line climbs with every payment that comes in. The dashed line is the monthly target — that is how you see whether the pace is holding."
+        "title": "This month's line",
+        "body": "Rises with every income and falls with every expense, day by day. The monthly goal is marked beside it, so you can see whether the pace holds."
       },
       "breakdown": {
         "title": "From where, to where",

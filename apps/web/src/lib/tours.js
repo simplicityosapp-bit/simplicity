@@ -39,6 +39,12 @@ i18n.addResourceBundle('fr', 'guidance', frGuidance, true, false)
    targets — no extra markup needed. Order follows top-to-bottom layout;
    missing widgets are skipped at runtime. */
 const HOME_TOUR = [
+  /* The setup card is not a widget — it is the tail of onboarding, and the
+     first thing a new account sees — so it is the first thing explained. It
+     carries no data-widget-id (the edit mode's drag code claims those), and
+     it retires itself once every task is done, so for an account that has
+     finished them this step simply never comes due. */
+  { target: '.home-welcome',                title: 'guidance:tour.home.welcome.title',   body: 'guidance:tour.home.welcome.body' },
   { target: '[data-widget-id="moon"]',      title: 'guidance:tour.home.moon.title',      body: 'guidance:tour.home.moon.body' },
   { target: '[data-widget-id="insights"]',  title: 'guidance:tour.home.insights.title',  body: 'guidance:tour.home.insights.body' },
   { target: '[data-widget-id="quick-row"]', title: 'guidance:tour.home.quick-row.title', body: 'guidance:tour.home.quick-row.body' },
@@ -75,10 +81,6 @@ const LEADS_TOUR = [
   { target: '.cta-add',       title: 'guidance:tour.leads.add.title',    body: 'guidance:tour.leads.add.body', radius: '50%', accent: 'sage' },
 ]
 
-const LEAD_PAGES_TOUR = [
-  { target: '.cta-add', title: 'guidance:tour.leadPages.add.title', body: 'guidance:tour.leadPages.add.body', radius: '50%', accent: 'sage' },
-]
-
 const PROJECTS_TOUR = [
   { target: '.p-hero', title: 'guidance:tour.projects.hero.title', body: 'guidance:tour.projects.hero.body' },
   { target: '.p-list', title: 'guidance:tour.projects.list.title', body: 'guidance:tour.projects.list.body' },
@@ -103,7 +105,6 @@ export const TOURS = {
   clients:  CLIENTS_TOUR,
   tasks:    TASKS_TOUR,
   leads:    LEADS_TOUR,
-  leadPages: LEAD_PAGES_TOUR,
   projects: PROJECTS_TOUR,
   finance:  FINANCE_TOUR,
 }

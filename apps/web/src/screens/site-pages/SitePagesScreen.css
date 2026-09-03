@@ -204,7 +204,14 @@
    They take the secondary-control glass every other such button now takes. */
 .spg-card-actions button, .spg-card-actions a {
   display: grid; place-items: center; width: var(--mg-icon-btn); height: var(--mg-icon-btn);
-  border: var(--mg-btn-secondary-border); background: var(--mg-btn-secondary-bg);
+  border: var(--mg-btn-secondary-border);
+  /* Deliberately a step quieter than the full control glass: these are five
+     icons on a thumbnail card, and at rest they should read as available
+     without competing with the preview. Mixing the control glass toward the
+     card glass lands about halfway between the two and — unlike a written
+     rgba — follows both themes on its own. Hover goes to the full
+     --mg-btn-secondary-bg-hover, so pointing at one is a visible change. */
+  background: color-mix(in srgb, var(--mg-btn-secondary-bg) 55%, var(--mg-card-bg));
   color: var(--spb-text-2, var(--stone)); border-radius: var(--mg-chip-radius); cursor: pointer;
   transition: background 0.15s, color 0.15s;
 }

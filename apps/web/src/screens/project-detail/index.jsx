@@ -17,6 +17,7 @@ import { useTransactions } from '../../hooks/useTransactions'
 import { useReminders } from '../../hooks/useReminders'
 import { useTasks } from '../../hooks/useTasks'
 import { useScheduledMeetings } from '../../hooks/useScheduledMeetings'
+import { useScheduledMeetingsGeneration } from '../../hooks/useScheduledMeetingsGeneration'
 import { usePointerDnd } from '../../hooks/usePointerDnd'
 import { useT } from '../../i18n/useT'
 import { Trans } from 'react-i18next'
@@ -96,12 +97,32 @@ export default function ProjectDetailScreen() {
      form in the app with no status to pick. */
   const { statuses: clientStatuses } = useClientStatuses()
   const { groups, loading: groupsLoading, addGroup, updateGroup, removeGroup, refetch: refetchGroups } = useGroups()
-  const { members, addMember, removeMember, refetch: refetchMembers } = useGroupMembers()
+  const { members, addMember, removeMember, refetch: refetchMembers, loading: membersLoading } = useGroupMembers()
   const { sessions, addSession, updateSession, removeSession, refetch: refetchSessions } = useSessions()
   const { transactions } = useTransactions()
   const { reminders, loading: remindersLoading, addReminder, completeReminder, removeReminder, refetch: refetchReminders } = useReminders()
   const { tasks, loading: tasksLoading, addTask, toggleTask, removeTask } = useTasks()
-  const { meetings: scheduledMeetings, removeMeeting, refetch: refetchMeetings, loading: meetingsLoading } = useScheduledMeetings()
+  const { meetings: scheduledMeetings, addMeeting, removeMeeting, refetch: refetchMeetings, loading: meetingsLoading } = useScheduledMeetings()
+
+  /* Materialise the recurring client/group slots into real pending meetings
+     while this screen is open — the same engine the home screen and the
+     calendar mount, and it belongs here for the same reason.
+
+     "פגישות מתוכננות" READS scheduled_meetings and nothing wrote them from
+     here. So a coach who gave a group its "ראשון 10:00" in the section right
+     above, and stayed on the page, was told the project has no upcoming
+     meetings: the slot existed, the rows did not, and the only way to make
+     them was to go and open some other screen, or wait for the nightly cron.
+     The section that stated the fact was the one place that could not
+     produce it.
+
+     Idempotent and latched across mounts (see the hook), so co-existing with
+     the other two is safe: whichever runs first materialises the rows, the
+     rest find nothing due. */
+  useScheduledMeetingsGeneration({
+    clients, groups, members, meetings: scheduledMeetings, addMeeting,
+    loading: meetingsLoading || clientsLoading || groupsLoading || membersLoading,
+  })
 
   /* When a group's recurring slot changes or is cleared, drop the future
      pending meetings generated for the OLD slot so stale occurrences don't

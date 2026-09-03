@@ -383,7 +383,7 @@ export default function CalendarScreen() {
             {t('title')}
           </Txt>
         </Box>
-        <Coachmark id="add-meeting" radius="50%">
+        <Coachmark id="add-meeting" radius="50%" satisfied={allEvents.length > 0}>
           <Btn className="cta-add" type="button" aria-label={t('newEventAria')} onClick={() => { setScheduleAt(null); setShowGate(true) }}>{t('newEvent')}</Btn>
         </Coachmark>
       </Box>

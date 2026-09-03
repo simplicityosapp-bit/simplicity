@@ -107,7 +107,7 @@ export default function ProjectsScreen() {
             {t('title')}
           </Txt>
         </Box>
-        <Coachmark id="add-project" radius="50%">
+        <Coachmark id="add-project" radius="50%" satisfied={projects.length > 0}>
           <Btn className="cta-add" aria-label={t('newAria')} onClick={() => (atProjectLimit ? goUpgrade() : setShowAdd(true))}>{t('new')}</Btn>
         </Coachmark>
       </Box>

@@ -273,7 +273,7 @@ export default function LeadsScreen() {
             look at the leads, it is the panel that edits the status names. An
             "add lead" button has nothing to add there. */}
         {view === 'kanban' && (
-          <Coachmark id="add-lead" radius="50%">
+          <Coachmark id="add-lead" radius="50%" satisfied={leadList.length > 0}>
             <Btn className="cta-add" type="button" aria-label={t('newLeadAria')} onClick={() => setShowAdd(true)}>{t('newLead')}</Btn>
           </Coachmark>
         )}

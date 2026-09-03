@@ -17,18 +17,28 @@ import { Txt } from './ui'
    so the child's DOM identity stays stable across the dismiss — the
    original click still reaches the button normally.
 
+   `satisfied` is the screen saying it has rows already. The copy is
+   first-touch copy — "הגדר/י יעד ראשון", "פתח/י את הפרויקט הראשון" — and
+   the flag exists because onboarding now CREATES a project, a client and
+   a goal before the user ever reaches those screens. Without it the first
+   visit to /goals pulsed at a "+" and offered to make a first goal beside
+   the goal the user had just made. Dismissal is by click, so nothing
+   about a row's existence could reach it.
+
    Props:
      - id:        coachmark id (key in prefs.coachmarks + registry).
      - placement: 'bottom' | 'top' | 'start' | 'end' (default bottom).
      - radius:    border-radius of the glow ring (default 20px; pass
                   '50%' for the circular .cta-add).
      - bubble:    override the registry bubble text (optional).
+     - satisfied: the screen already holds what the button creates, so
+                  there is nothing to introduce. Renders the child bare.
    ════════════════════════════════════════════════════════════════ */
 
-export default function Coachmark({ id, placement = 'bottom', radius, bubble, className = '', children }) {
+export default function Coachmark({ id, placement = 'bottom', radius, bubble, satisfied = false, className = '', children }) {
   const { isVirgin, dismiss } = useCoachmarks()
   const { gender } = useAddress()
-  const virgin = isVirgin(id)
+  const virgin = isVirgin(id) && !satisfied
   const text = bubble ?? coachmarkText(id, gender).bubble
 
   /* Capture-phase so we mark seen before the child's own handler runs;

@@ -89,7 +89,36 @@
   "tour": {
     "done": "Listo",
     "gotIt": "Entendido",
-    "skipAll": "Omitir todo"
+    "skipAll": "Omitir todo",
+    "introTitle": "Un vistazo rápido",
+    "introBody": "{{count}} pasos, menos de un minuto. Cada uno señala una cosa y explica para qué sirve. Puedes salir cuando quieras.",
+    "start": "Empecemos",
+    "intro": {
+      "home": {
+        "title": "Te damos la bienvenida a casa",
+        "body": "Esta es la pantalla de cada mañana: qué espera, qué urge y cómo va. {{count}} pasos cortos, y puedes salir cuando quieras."
+      },
+      "clients": {
+        "title": "Todos tus clientes, en un solo lugar",
+        "body": "Quién está activo, quién en pausa y cómo van los pagos de cada uno. {{count}} pasos cortos, y puedes salir cuando quieras."
+      },
+      "tasks": {
+        "title": "Lo que hay que recordar",
+        "body": "Tareas y recordatorios, para que nada se escape. {{count}} pasos cortos, y puedes salir cuando quieras."
+      },
+      "leads": {
+        "title": "Todavía no son clientes",
+        "body": "Consultas e interesados, según la etapa en la que están. {{count}} pasos cortos, y puedes salir cuando quieras."
+      },
+      "projects": {
+        "title": "El marco donde todo encaja",
+        "body": "Un proyecto reúne clientes, grupos e ingresos bajo un mismo nombre. {{count}} pasos cortos, y puedes salir cuando quieras."
+      },
+      "finance": {
+        "title": "El dinero, sin hojas de cálculo",
+        "body": "Ingresos, gastos y lo que queda a fin de mes. {{count}} pasos cortos, y puedes salir cuando quieras."
+      }
+    }
   },
   "deletion": {
     "title": "Tu cuenta está programada para eliminarse",

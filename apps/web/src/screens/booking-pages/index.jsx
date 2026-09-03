@@ -108,7 +108,7 @@ export default function BookingPagesScreen() {
             {t('pages.screenTitle')}
           </Txt>
         </Box>
-        <Coachmark id="add-booking-page" radius="50%">
+        <Coachmark id="add-booking-page" radius="50%" satisfied={pages.length > 0}>
           {/* .cta-add hides its label with font-size:0 and paints the "+" through
               ::before, so every other screen's copy names itself with aria-label.
               This one was the exception, leaving its accessible name resting on

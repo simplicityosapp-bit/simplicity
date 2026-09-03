@@ -11,6 +11,7 @@ import { useReminders } from '../../hooks/useReminders'
 import { useSessions } from '../../hooks/useSessions'
 import { useScheduledMeetings } from '../../hooks/useScheduledMeetings'
 import { staleScheduledMeetingIds } from '../../lib/scheduledMeetings'
+import { groupMembershipPlan, newMembership } from '../../lib/groupMembership'
 import { usePopoverSide } from '../../hooks/usePopoverSide'
 import { useGroups } from '../../hooks/useGroups'
 import { useGroupMembers } from '../../hooks/useGroupMembers'
@@ -119,6 +120,7 @@ export default function ClientsScreen() {
     for (const m of linked) updateMeeting(m.id, { session_id: null }).catch(() => {})
   }
   const { groups, error: groupsError } = useGroups()
+  const { members, addMember, removeMember, updateMember, error: membersError } = useGroupMembers()
 
   /* When a client's recurring slot changes or is cleared, drop the future
      pending meetings generated for the OLD slot so stale occurrences don't
@@ -138,9 +140,24 @@ export default function ClientsScreen() {
       )
       for (const mid of stale) removeMeeting(mid).catch(() => {})
     }
+    /* The edit form's «קבוצה» picker writes clients.group_id — the
+       single-group TAG. The roster, the group-driven status and the group
+       dues all read group_members rows instead, and this was the one writer
+       of the tag that never touched them: the project's list showed the
+       client as a member and the group card counted them, while the card's
+       chips, their status and their balance all said otherwise.
+       lib/groupMembership decides what the tag change means for the rows. */
+    if (prev && 'group_id' in patch && (patch.group_id || null) !== (prev.group_id || null)) {
+      const plan = groupMembershipPlan({
+        prevGroupId: prev.group_id,
+        nextGroupId: patch.group_id,
+        memberships: members.filter((m) => m.client_id === id),
+      })
+      for (const mid of plan.remove) await removeMember(mid).catch(() => {})
+      for (const gid of plan.add) await addMember(newMembership(gid, id)).catch(() => {})
+    }
     return result
   }
-  const { members, updateMember, error: membersError } = useGroupMembers()
   const { statuses: clientStatuses } = useClientStatuses()
   const { limits } = useSubscription()
   const { t: ts } = useT('subscription')

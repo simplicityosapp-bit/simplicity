@@ -202,7 +202,10 @@
     "allMembers": "Todos tus clientes ya son miembros de este grupo.",
     "joinDateOptional": "Fecha de incorporación (opcional)",
     "addAction": "Añadir",
-    "clientRequired": "Elige un cliente."
+    "clientRequired": "Elige un cliente.",
+    "inProject": "En este proyecto",
+    "elsewhere": "Fuera del proyecto",
+    "movesToProject": "El cliente pasará al proyecto «{{project}}» — un grupo pertenece a un solo proyecto."
   },
   "deleteGroup": {
     "title": "Eliminar grupo",

@@ -31,6 +31,7 @@ import { restoreClient } from '../../lib/api/clients'
 import { restoreGroupMember } from '../../lib/api/groupMembers'
 import { insertScheduledMeeting } from '../../lib/api/scheduledMeetings'
 import { pushUndo } from '../../lib/undo'
+import { newMembership, nextGroupTag } from '../../lib/groupMembership'
 import { loadOpenSections, saveOpenSections } from '../../lib/openSections'
 import AddGroupModal from '../../modals/AddGroupModal'
 import EditGroupModal from '../../modals/EditGroupModal'
@@ -385,16 +386,7 @@ export default function ProjectDetailScreen() {
     }
     const alreadyMember = liveMembers.some((m) => m.client_id === client.id && m.group_id === group.id)
     if (!alreadyMember) {
-      await addMember({
-        group_id: group.id,
-        client_id: client.id,
-        joined_at: new Date().toISOString(),
-        left_at: null,
-        total_override: null,
-        has_custom_price: false,
-        package_sessions_override: null,
-        left_mid_process: false,
-      }).catch(() => {})
+      await addMember(newMembership(group.id, client.id)).catch(() => {})
     }
     /* Mirror the single-group tag (clients.group_id) to the latest group. */
     if (client.group_id !== group.id) await updateClient(client.id, { group_id: group.id }).catch(() => {})
@@ -503,15 +495,49 @@ export default function ProjectDetailScreen() {
 
   /* Remove a single member from a group (the chip X) with undo. Wired
      here, not in the hook, so internal member moves and the group-delete
-     cascade don't each pop their own toast. */
+     cascade don't each pop their own toast.
+     The client row's own tag (clients.group_id) goes with the row. It used
+     to stay behind: the chip vanished, the client's row in the list below
+     still said the group's name, and the card still counted them — "חבר
+     אחד", and no one in it. A client who is also in another group keeps
+     that group's name instead of falling to "פרטי". */
   const handleRemoveMember = (m) => {
     if (!m) return
+    const client = clientById.get(m.client_id)
+    const retag = !!client && client.group_id === m.group_id
+    const nextTag = retag ? nextGroupTag(m.client_id, m.id, liveMembers) : null
     removeMember(m.id)
+    if (retag) updateClient(client.id, { group_id: nextTag }).catch(() => {})
     pushUndo({
       label: t('detail.undo.memberRemoved'),
-      undo: async () => { try { await restoreGroupMember(m.id) } finally { refetchMembers() } },
-      redo: async () => { await removeMember(m.id).catch(() => {}) },
+      undo: async () => {
+        try { await restoreGroupMember(m.id) } finally { refetchMembers() }
+        if (retag) await updateClient(client.id, { group_id: m.group_id }).catch(() => {})
+      },
+      redo: async () => {
+        await removeMember(m.id).catch(() => {})
+        if (retag) await updateClient(client.id, { group_id: nextTag }).catch(() => {})
+      },
     })
+  }
+
+  /* "הוספת חבר" — the membership row, plus the two tags on the client row
+     that have to agree with it. The single-group tag: the project's client
+     list reads it, and it was left null on this path, so a member added
+     here showed as "פרטי" one section down. And the project: a group
+     belongs to one project, and the picker offers clients from outside it,
+     so a client who joins moves in — the same rule the edit form applies in
+     reverse when a project change drops the group. */
+  const addMemberFromModal = async (payload) => {
+    const row = await addMember(payload)
+    const client = clientById.get(payload.client_id)
+    if (client) {
+      const patch = {}
+      if (client.group_id !== payload.group_id) patch.group_id = payload.group_id
+      if (client.project_id !== id) patch.project_id = id
+      if (Object.keys(patch).length) await updateClient(client.id, patch).catch(() => {})
+    }
+    return row
   }
 
   /* ── render ─────────────────────────────────────────────── */
@@ -1127,12 +1153,13 @@ export default function ProjectDetailScreen() {
         open={!!addMemberFor}
         onClose={() => setAddMemberFor(null)}
         group={addMemberFor}
+        project={project}
         availableClients={
           addMemberFor
             ? clients.filter((c) => !liveMembers.some((m) => m.group_id === addMemberFor.id && m.client_id === c.id))
             : []
         }
-        onSave={addMember}
+        onSave={addMemberFromModal}
       />
       <AddSessionModal
         key={logSessionFor?.id}

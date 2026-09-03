@@ -202,7 +202,10 @@
     "allMembers": "Tous vos clients sont déjà membres de ce groupe.",
     "joinDateOptional": "Date d'adhésion (facultatif)",
     "addAction": "Ajouter",
-    "clientRequired": "Veuillez choisir un client."
+    "clientRequired": "Veuillez choisir un client.",
+    "inProject": "Dans ce projet",
+    "elsewhere": "Hors du projet",
+    "movesToProject": "Le client passera au projet « {{project}} » — un groupe n'appartient qu'à un seul projet."
   },
   "deleteGroup": {
     "title": "Supprimer le groupe",

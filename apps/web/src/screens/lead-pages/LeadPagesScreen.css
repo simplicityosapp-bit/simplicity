@@ -67,15 +67,11 @@
 
 .lpm-card-actions { display: flex; align-items: center; gap: 8px; }
 
-/* Opaque enough to read as pills. Both buttons asked for
-   --mg-btn-secondary-bg, which IS --mg-card-bg — the very glass .lpm-card is
-   painted with — so they were glass on identical glass and dissolved into the
-   card. The written fallback (0.6 cream) never applied: the token is defined,
-   so var() never reaches it. Same discovery as .lpb-toggle below, and the fix
-   is the explicit higher-alpha pair .inv-remind / .mg-menu-btn already use for
-   exactly this — a secondary control sitting on a card — rather than a new
-   token. The :hover tokens stay: they are distinct from the card in both
-   themes, which is why only the resting state vanished. */
+/* Both buttons briefly hardcoded their fill, because --mg-btn-secondary-bg was
+   then an alias of --mg-card-bg and painted them the exact colour of .lpm-card
+   behind them. The token no longer is, so they read it again — and the written
+   fallback is dropped with it: the token is defined, so var() never reached a
+   fallback anyway. */
 .lpm-icon-btn {
   display: inline-grid;
   place-items: center;
@@ -83,7 +79,7 @@
   height: 36px;
   border-radius: 10px;
   border: 1px solid var(--mg-card-border-color, rgba(44, 38, 33, 0.12));
-  background: rgba(255, 250, 240, 0.72);
+  background: var(--mg-btn-secondary-bg);
   color: var(--stone);
   cursor: pointer;
   text-decoration: none;
@@ -98,18 +94,18 @@
   padding: 8px 16px;
   border-radius: 10px;
   border: 1px solid var(--mg-card-border-color, rgba(44, 38, 33, 0.12));
-  background: rgba(255, 250, 240, 0.72);
+  background: var(--mg-btn-secondary-bg);
   color: var(--espresso);
   cursor: pointer;
 }
 .lpm-edit-btn:hover { background: var(--mg-btn-secondary-bg-hover); }
 
-/* Dark mode needs its own fill for the same reason — --mg-card-bg there is a
-   dark 48% that the cream pill above would blaze against — and its own border,
-   because the light-ink 0.12 edge is invisible on a dark card. */
+/* The fill is the token's job now, but the EDGE is not: --mg-card-border-color
+   is not defined anywhere, so both rules above fall back to a dark-ink hairline
+   that is invisible on a dark card. Dark keeps its own border for that reason
+   alone. */
 [data-theme="dark"] .lpm-icon-btn,
 [data-theme="dark"] .lpm-edit-btn {
-  background: rgba(20, 18, 14, 0.72);
   border-color: rgba(240, 235, 224, 0.20);
 }
 

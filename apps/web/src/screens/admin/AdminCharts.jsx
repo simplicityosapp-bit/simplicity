@@ -98,7 +98,9 @@ export function LineChart({ data, alt = false, formatX = (d) => d.label, gradId 
   const innerW = W - PAD_L - PAD_R
   const innerH = H - PAD_TOP - PAD_BOT
   const stepX = innerW / Math.max(1, data.length - 1)
-  const xOf = (i) => PAD_L + i * stepX
+  // One bucket (the "today" window) has no line to draw; centre the point.
+  const single = data.length === 1
+  const xOf = (i) => (single ? PAD_L + innerW / 2 : PAD_L + i * stepX)
   const yOf = (v) => PAD_TOP + (1 - v / max) * innerH
 
   let path = ''
@@ -129,6 +131,9 @@ export function LineChart({ data, alt = false, formatX = (d) => d.label, gradId 
         ))}
         {area && <path d={area} fill={`url(#${gradId})`} />}
         {path && <path d={path} className={`admin-chart-line${alt ? ' alt' : ''}`} />}
+        {single && (
+          <circle cx={xOf(0).toFixed(1)} cy={yOf(data[0].count).toFixed(1)} r="4" className={`admin-chart-dot${alt ? ' alt' : ''}`} />
+        )}
         {data.map((d, i) => (
           labelIdx.has(i) ? (
             <text key={i} x={xOf(i).toFixed(1)} y={H - 8} textAnchor="middle" className="admin-chart-axis">

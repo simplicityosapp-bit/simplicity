@@ -297,19 +297,34 @@ function adminInvoke(body) {
     return { ok: true }
   }
   if (action === 'analytics') {
-    // Mirrors the edge function's windows: 7 days, 30 days, the calendar month
-    // so far, and "all" — 120 days of fixtures stand in for the data's first day.
-    const span = body.range === 'week' ? 7
-      : body.range === 'month' ? new Date().getUTCDate() - 1
+    // Mirrors the edge function's windows: today, 7 days, 30 days, the calendar
+    // month so far, and "all" — 120 days of fixtures stand in for the data's
+    // first day. Every card scales with the window so the pills visibly bite.
+    const span = body.range === 'today' ? 0
+      : body.range === 'week' ? 7
+      : body.range === 'month' ? new Date().getDate() - 1
       : body.range === 'all' ? 120
       : 30
+    const scale = (n) => Math.max(1, Math.round((n * (span + 1)) / 31))
     return {
       ok: true,
       range: body.range,
       totalUsers: fx.users.length,
       sessionsOverTime: fx.buckets(span, 8),
       reflectionsOverTime: fx.buckets(span, 5),
-      funnel: STEP_LABELS.map((label, i) => ({ step: String(i), label, count: Math.max(1, fx.users.length - i) })),
+      funnel: STEP_LABELS.map((label, i) => ({ step: String(i), label, count: scale((fx.users.length - i) * 5) })),
+      landingFunnel: [
+        { label: 'כניסות לדף', count: scale(310) },
+        { label: 'התחילו הרשמה', count: scale(62) },
+        { label: 'השלימו הרשמה', count: scale(19) },
+      ],
+      landingEngagement: [
+        { label: 'גללו לאמצע', count: scale(180) },
+        { label: 'גללו לרובו', count: scale(120) },
+        { label: 'הגיעו לתחתית', count: scale(70) },
+        { label: 'פתחו שאלות נפוצות', count: scale(40) },
+        { label: 'קראו לעומק (30ש+)', count: scale(55) },
+      ],
       topUsers: fx.users.slice(0, 10).map((u) => ({ email: u.email, sessions: u.sessions })),
     }
   }

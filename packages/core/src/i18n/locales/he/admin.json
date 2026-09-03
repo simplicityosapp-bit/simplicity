@@ -243,6 +243,7 @@
     "title": "אנליטיקס",
     "subtitle": "שאלות ספציפיות על המוצר — לא Google Analytics",
     "ranges": {
+      "today": "היום",
       "week": "שבוע",
       "days30": "30 יום",
       "month": "החודש",

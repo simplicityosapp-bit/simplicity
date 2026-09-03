@@ -237,6 +237,7 @@
     "title": "Statistiques",
     "subtitle": "Questions précises sur le produit — pas Google Analytics",
     "ranges": {
+      "today": "Aujourd'hui",
       "week": "Semaine",
       "days30": "30 jours",
       "month": "Ce mois-ci",

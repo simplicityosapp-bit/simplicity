@@ -208,6 +208,17 @@
     "elsewhere": "Fuera del proyecto",
     "movesToProject": "El cliente pasará al proyecto «{{project}}» — un grupo pertenece a un solo proyecto."
   },
+  "memberSessions": {
+    "title": "Bono nuevo",
+    "howMany": "¿Cuántas sesiones añadir?",
+    "countRequired": "Introduce un número de sesiones.",
+    "previewQuota": "Sesiones incluidas: {{from}} → {{to}}",
+    "previewMoney": "{{n}} × {{price}} = {{amount}} se sumarán a lo que debe {{name}}.",
+    "previewFree": "El grupo no tiene precio de paquete, así que el saldo no cambiará.",
+    "note": "El precio viene del precio del paquete del grupo. Puedes cambiarlo a mano en la ficha del cliente, en «Precio especial en el grupo».",
+    "saveFailed": "No se pudo añadir. Inténtalo de nuevo.",
+    "undo": "Se añadieron {{n}} sesiones a {{name}}"
+  },
   "deleteGroup": {
     "title": "Eliminar grupo",
     "titleNamed": "¿Eliminar «{{name}}»?",

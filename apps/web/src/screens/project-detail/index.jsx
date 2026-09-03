@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import {
-  ChevronRight, ChevronDown, Plus, Pencil, Check, CalendarCheck, CalendarClock, Users, X, Trash2, Bell, GripVertical, Link2, ChevronLeft, Sprout, UserPlus,
+  ChevronRight, ChevronDown, Plus, Pencil, Check, CalendarCheck, CalendarClock, Users, X, Trash2, Bell, GripVertical, Link2, ChevronLeft, Sprout, UserPlus, PackagePlus,
 } from 'lucide-react'
 import { useProjects } from '../../hooks/useProjects'
 import { useSitePages } from '../../hooks/useSitePages'
@@ -21,7 +21,7 @@ import { useScheduledMeetingsGeneration } from '../../hooks/useScheduledMeetings
 import { usePointerDnd } from '../../hooks/usePointerDnd'
 import { useT } from '../../i18n/useT'
 import { Trans } from 'react-i18next'
-import { statusMetaOf, metaTitle, statusMetaOfLead, isPendingReview, financeQuery, currentMonthRange, isr, belongsToProject, scopeToProject, upcomingProjectMeetings } from '@simplicity/core'
+import { statusMetaOf, metaTitle, statusMetaOfLead, isPendingReview, financeQuery, currentMonthRange, isr, belongsToProject, scopeToProject, upcomingProjectMeetings, clientBalance, sessionsCountForClients } from '@simplicity/core'
 import { staleScheduledMeetingIds } from '../../lib/scheduledMeetings'
 import { buildRoute, ROUTES } from '../../lib/routes'
 import LoadingSplash from '../../components/LoadingSplash'
@@ -32,12 +32,13 @@ import { restoreClient } from '../../lib/api/clients'
 import { restoreGroupMember } from '../../lib/api/groupMembers'
 import { insertScheduledMeeting } from '../../lib/api/scheduledMeetings'
 import { pushUndo } from '../../lib/undo'
-import { newMembership, nextGroupTag } from '../../lib/groupMembership'
+import { newMembership, nextGroupTag, membershipQuota, membershipDues, packageUnitPrice } from '../../lib/groupMembership'
 import { loadOpenSections, saveOpenSections } from '../../lib/openSections'
 import AddGroupModal from '../../modals/AddGroupModal'
 import EditGroupModal from '../../modals/EditGroupModal'
 import EditProjectModal from '../../modals/EditProjectModal'
 import AddGroupMemberModal from '../../modals/AddGroupMemberModal'
+import AddMemberSessionsModal from '../../modals/AddMemberSessionsModal'
 import AddSessionModal from '../../modals/AddSessionModal'
 import AddClientModal from '../../modals/AddClientModal'
 import AddReminderModal from '../../modals/AddReminderModal'
@@ -97,7 +98,7 @@ export default function ProjectDetailScreen() {
      form in the app with no status to pick. */
   const { statuses: clientStatuses } = useClientStatuses()
   const { groups, loading: groupsLoading, addGroup, updateGroup, removeGroup, refetch: refetchGroups } = useGroups()
-  const { members, addMember, removeMember, refetch: refetchMembers, loading: membersLoading } = useGroupMembers()
+  const { members, addMember, updateMember, removeMember, refetch: refetchMembers, loading: membersLoading } = useGroupMembers()
   const { sessions, addSession, updateSession, removeSession, refetch: refetchSessions } = useSessions()
   const { transactions } = useTransactions()
   const { reminders, loading: remindersLoading, addReminder, completeReminder, removeReminder, refetch: refetchReminders } = useReminders()
@@ -175,6 +176,15 @@ export default function ProjectDetailScreen() {
   /* Pending group status change (when ≥1 client will flip) → confirm dialog. */
   const [pendingStatusChange, setPendingStatusChange] = useState(null)
   const [pendingAssign, setPendingAssign] = useState(null) /* { client, group } */
+  /* Member whose card is being renewed → { membership, group, client }. */
+  const [renewFor, setRenewFor] = useState(null)
+  /* An empty groups section is a facilitator's anchor sitting on a
+     therapist's project, open on every visit to say there is nothing in it.
+     It starts closed there, and this local flag is the one tap that opens
+     it — deliberately NOT the shared sessionStorage map, which remembers a
+     choice about a section that has content. As soon as the project has a
+     group the stored preference takes over again and this goes unused. */
+  const [showEmptyGroups, setShowEmptyGroups] = useState(false)
 
   const project = projects.find((p) => p.id === id)
   const projectGroups = useMemo(() => groups.filter((g) => g.project_id === id), [groups, id])
@@ -214,6 +224,33 @@ export default function ProjectDetailScreen() {
 
   /* Ids of this project's clients — the fallback half of the scoping rule. */
   const projClientIds = useMemo(() => new Set(projectClients.map((c) => c.id)), [projectClients])
+
+  /* Every member's balance, computed once per data change rather than per
+     row — the same map the clients screen keeps, for the same reason: the
+     alternative re-scans the whole transactions array for each member on
+     every render. Covers the project's clients AND anyone in one of its
+     groups, which after the membership fix is the same set, but legacy rows
+     can still hold a member who was never moved into the project. */
+  const balanceByClient = useMemo(() => {
+    const gids = new Set(projectGroups.map((g) => g.id))
+    const ids = new Set(projectClients.map((c) => c.id))
+    liveMembers.forEach((m) => { if (gids.has(m.group_id)) ids.add(m.client_id) })
+    const map = new Map()
+    clients.forEach((c) => {
+      if (ids.has(c.id)) map.set(c.id, clientBalance(c, transactions, sessions, members, groups))
+    })
+    return map
+  }, [clients, projectClients, projectGroups, liveMembers, transactions, sessions, members, groups])
+
+  /* Meetings held in this project THIS MONTH — the second figure on the
+     stats card. It replaces a group count of zero on every project a
+     therapist will ever open, and it is the number a 1-on-1 practice
+     actually watches. Counted the same way the clients screen counts it,
+     so the two agree. */
+  const sessionsThisMonth = useMemo(
+    () => sessionsCountForClients(projectClients, currentMonthRange(), sessions, members, groups),
+    [projectClients, sessions, members, groups],
+  )
 
   /* The same monthly/cumulative choice the projects LIST offers. The screen
      used to be locked to the current month, and the guide had to apologise for
@@ -277,6 +314,17 @@ export default function ProjectDetailScreen() {
   const MEETINGS_SHOWN = 6
   const meetingsOverflow = Math.max(0, upcomingMeetings.length - MEETINGS_SHOWN)
 
+  /* The soonest upcoming meeting per group — half of "where does this group
+     stand". `upcomingMeetings` is already sorted, so the first hit per group
+     is the next one. */
+  const nextByGroup = useMemo(() => {
+    const map = new Map()
+    upcomingMeetings.forEach((m) => {
+      if (m.subject_type === 'group' && !map.has(m.subject_id)) map.set(m.subject_id, m)
+    })
+    return map
+  }, [upcomingMeetings])
+
   const projectTasks = useMemo(
     () => tasks.filter((t) => !t.deleted_at && belongsToProject(t, id, projClientIds)),
     [tasks, id, projClientIds],
@@ -305,6 +353,18 @@ export default function ProjectDetailScreen() {
     saveOpenSections(OPEN_SEC_KEY, next)
     return next
   })
+  /* Whether the groups section stands open. With groups in it this is the
+     remembered choice, exactly as before. With none it is a local
+     disclosure that starts CLOSED: the section had nothing to show and said
+     so in a sentence, on every visit, to every therapist who will never run
+     a group. The header and its chevron stay, so opening it — and the
+     "+ קבוצה חדשה" inside — is one tap. */
+  const groupsOpen = projectGroups.length > 0 ? openSec.groups : showEmptyGroups
+  const toggleGroupsSection = () => {
+    if (projectGroups.length > 0) toggleSec('groups')
+    else setShowEmptyGroups((v) => !v)
+  }
+
   const toggleGroupSessions = (gid) => {
     setOpenGroupSessions((prev) => {
       const next = new Set(prev)
@@ -542,6 +602,27 @@ export default function ProjectDetailScreen() {
     })
   }
 
+  /* Sell one member another card of meetings — the yoga model, where the
+     group runs on and students buy ten classes at a time. Both numbers move
+     together: the member's own quota and the dues that come with it, priced
+     off the group's package (owner decision 2026-09-03). The per-member
+     override in the client's edit form is where a different price goes.
+     Raising what someone owes gets the same one-step undo the client card's
+     equivalent has. */
+  const renewMemberCard = async ({ quota, total, count }) => {
+    const m = renewFor?.membership
+    if (!m) return
+    const prev = { package_sessions_override: m.package_sessions_override ?? null, total_override: m.total_override ?? null, has_custom_price: !!m.has_custom_price }
+    const next = { package_sessions_override: quota, total_override: total, has_custom_price: true }
+    await updateMember(m.id, next)
+    const name = clientById.get(m.client_id)?.name || t('detail.groups.removeMemberFallback')
+    pushUndo({
+      label: t('detail.groups.renewUndo', { name, count }),
+      undo: async () => { await updateMember(m.id, prev) },
+      redo: async () => { await updateMember(m.id, next) },
+    })
+  }
+
   /* "הוספת חבר" — the membership row, plus the two tags on the client row
      that have to agree with it. The single-group tag: the project's client
      list reads it, and it was left null on this path, so a member added
@@ -601,15 +682,26 @@ export default function ProjectDetailScreen() {
 
       {/* Who is in the project. The money moved to its own card below so the
           same figure never appears in two places. */}
-      <Box as="section" className="pd-stats pd-stats-2">
+      {/* The group count is here only when there ARE groups. A therapist
+          running 1-on-1 work opens every project onto a stat that reads
+          "0 קבוצות" and will for as long as they use the app — a permanent
+          answer to a question they never asked. What replaced it is the
+          figure a 1-on-1 practice does watch, and a facilitator gets both. */}
+      <Box as="section" className={`pd-stats ${projectGroups.length ? 'pd-stats-3' : 'pd-stats-2'}`}>
         <Box className="pd-stat divided-end">
           <Txt as="p" className="pd-stat-v mono">{projectClients.length}</Txt>
           <Txt as="p" className="pd-stat-l">{t('detail.stats.clients')}</Txt>
         </Box>
-        <Box className="pd-stat">
-          <Txt as="p" className="pd-stat-v mono">{projectGroups.length}</Txt>
-          <Txt as="p" className="pd-stat-l">{t('detail.stats.groups')}</Txt>
+        <Box className={`pd-stat${projectGroups.length ? ' divided-end' : ''}`}>
+          <Txt as="p" className="pd-stat-v mono">{sessionsThisMonth}</Txt>
+          <Txt as="p" className="pd-stat-l">{t('detail.stats.sessionsMonth')}</Txt>
         </Box>
+        {projectGroups.length > 0 && (
+          <Box className="pd-stat">
+            <Txt as="p" className="pd-stat-v mono">{projectGroups.length}</Txt>
+            <Txt as="p" className="pd-stat-l">{t('detail.stats.groups')}</Txt>
+          </Box>
+        )}
       </Box>
 
       {/* Income, expenses, and what is left — the question the screen could
@@ -662,13 +754,13 @@ export default function ProjectDetailScreen() {
 
       {/* ── Groups section ────────────────────────────────── */}
       <Box as="section" className="pd-section">
-        <Btn type="button" className="pd-sec-head" onClick={() => toggleSec('groups')} aria-expanded={openSec.groups} aria-controls={openSec.groups ? 'pd-sec-groups' : undefined}>
+        <Btn type="button" className="pd-sec-head" onClick={toggleGroupsSection} aria-expanded={groupsOpen} aria-controls={groupsOpen ? 'pd-sec-groups' : undefined}>
           <Txt as="p" className="pd-sec-title">
             {t('detail.groups.title')} {projectGroups.length > 0 && <Txt className="pd-sec-count">{projectGroups.length}</Txt>}
           </Txt>
-          <ChevronDown size={16} strokeWidth={1.6} className={`pd-sec-chev${openSec.groups ? ' open' : ''}`} aria-hidden="true" />
+          <ChevronDown size={16} strokeWidth={1.6} className={`pd-sec-chev${groupsOpen ? ' open' : ''}`} aria-hidden="true" />
         </Btn>
-        {openSec.groups && (
+        {groupsOpen && (
           <Box id="pd-sec-groups" className="pd-sec-body">
             {groupsLoading ? (
               <Txt as="p" className="pd-empty">{t('detail.sectionLoading')}</Txt>
@@ -692,6 +784,19 @@ export default function ProjectDetailScreen() {
                 const groupSessions = sessions
                   .filter((s) => s.group_id === g.id)
                   .sort((a, b) => new Date(b.date) - new Date(a.date))
+                /* Where the group stands. `held` counts the meetings logged
+                   against it; `quota` is the package's, and is absent for a
+                   group billed by the meeting or not at all — there is no
+                   target to count towards, so the line says the count alone
+                   rather than inventing a denominator. */
+                const held = groupSessions.length
+                const quota = billingMode === 'package' ? (g.package_sessions || 0) : 0
+                const nextMeeting = nextByGroup.get(g.id) || null
+                const owingCount = groupMembers
+                  .filter((m) => (balanceByClient.get(m.client_id)?.balance ?? 0) > 0).length
+                /* A card of meetings only means something where meetings come
+                   in cards: a priced package with a number of them. */
+                const canRenew = billingMode === 'package' && (g.package_sessions || 0) > 0
                 return (
                   <Box as="article"
                     key={g.id}
@@ -723,19 +828,81 @@ export default function ProjectDetailScreen() {
                       {priceLabel && <><Txt className="gc-dot">·</Txt><Txt>{priceLabel}</Txt></>}
                       {recurring && <><Txt className="gc-dot">·</Txt><Txt>{recurring}</Txt></>}
                     </Txt>
+                    {/* Where the group stands, and who still owes — the two
+                        questions a facilitator opens a group to ask, and the
+                        two the card could not answer. The meetings held were
+                        reachable only by unfolding the calendar button below,
+                        and "who owes" meant opening every member's file in
+                        turn. The line above stays what it was: who is in it
+                        and on what terms. */}
+                    <Box className="gc-progress">
+                      <Txt className="gc-progress-text">
+                        {quota
+                          ? t('detail.groups.progressOf', { held, quota })
+                          : t('detail.groups.progressPlain', { count: held })}
+                        {nextMeeting && (
+                          <>
+                            <Txt className="gc-dot"> · </Txt>
+                            {t('detail.groups.nextMeeting', {
+                              date: fmtShortDate(nextMeeting.scheduled_at),
+                              time: fmtTime(nextMeeting.scheduled_at),
+                            })}
+                          </>
+                        )}
+                      </Txt>
+                      {owingCount > 0 && (
+                        <Txt className="gc-owing">{t('detail.groups.owing', { count: owingCount })}</Txt>
+                      )}
+                    </Box>
                     <Box className="gc-members">
                       {groupMembers.length === 0 ? (
                         <Txt as="p" className="gc-empty">{t('detail.groups.noMembers')}</Txt>
                       ) : (
                         groupMembers.map((m) => {
                           const c = clientById.get(m.client_id)
+                          const name = c?.name || t('detail.groups.fallbackClient')
+                          const bal = balanceByClient.get(m.client_id)
+                          const owes = bal?.balance ?? 0
+                          /* Their balance is the whole client's. For a pure
+                             group member that IS the group's, exactly; for
+                             someone who also runs a private series it is
+                             both, and saying which is what a payment does
+                             not yet record. So the row says so rather than
+                             letting the number pass as the group's alone. */
+                          const mixed = (bal?.tracks?.length || 0) > 1
                           return (
-                            <Txt key={m.id} className="gc-chip">
-                              {c?.name || t('detail.groups.fallbackClient')}
-                              <Btn type="button" className="gc-chip-x" onClick={() => handleRemoveMember(m)} aria-label={t('detail.groups.removeMemberAria', { name: c?.name || t('detail.groups.removeMemberFallback') })}>
-                                <X size={11} strokeWidth={2} aria-hidden="true" />
+                            <Box key={m.id} className="gc-member">
+                              <Box className="gc-member-id">
+                                <Txt as="p" className="gc-member-name">{name}</Txt>
+                                {mixed && owes > 0 && (
+                                  <Txt as="p" className="gc-member-sub">{t('detail.groups.memberMixed')}</Txt>
+                                )}
+                              </Box>
+                              {owes > 0 && (
+                                <Txt className="gc-member-owes mono" aria-label={t('detail.groups.memberOwesAria', { name })}>
+                                  {isr(owes)}
+                                </Txt>
+                              )}
+                              {/* Another card of meetings, for a group that
+                                  sells them in blocks. Per member, because a
+                                  card is: one student renews, the rest do
+                                  not. Meaningless where the group charges by
+                                  the meeting or nothing at all. */}
+                              {canRenew && (
+                                <Btn
+                                  type="button"
+                                  className="gc-member-btn"
+                                  onClick={() => setRenewFor({ membership: m, group: g, name })}
+                                  aria-label={t('detail.groups.renewAria', { name })}
+                                  title={t('detail.groups.renewAria', { name })}
+                                >
+                                  <PackagePlus size={13} strokeWidth={1.8} aria-hidden="true" />
+                                </Btn>
+                              )}
+                              <Btn type="button" className="gc-member-x" onClick={() => handleRemoveMember(m)} aria-label={t('detail.groups.removeMemberAria', { name })}>
+                                <X size={13} strokeWidth={2} aria-hidden="true" />
                               </Btn>
-                            </Txt>
+                            </Box>
                           )
                         })
                       )}
@@ -1181,6 +1348,23 @@ export default function ProjectDetailScreen() {
             : []
         }
         onSave={addMemberFromModal}
+      />
+      {/* Another card of meetings for one member. Keyed on the membership so
+          the sheet re-seeds per person (Modal keeps its children mounted).
+          The quota and the dues it starts from are the member's own when
+          they have been set individually, and the group's otherwise — the
+          same precedence clientBalance applies. */}
+      <AddMemberSessionsModal
+        key={`renew-${renewFor?.membership.id || 'none'}`}
+        open={!!renewFor}
+        onClose={() => setRenewFor(null)}
+        memberName={renewFor?.name || ''}
+        groupName={renewFor?.group.name || ''}
+        groupColor={renewFor?.group.color || ''}
+        unitPrice={renewFor ? packageUnitPrice(renewFor.group) : 0}
+        currentQuota={renewFor ? membershipQuota(renewFor.membership, renewFor.group) : 0}
+        currentTotal={renewFor ? membershipDues(renewFor.membership, renewFor.group) : 0}
+        onSave={renewMemberCard}
       />
       <AddSessionModal
         key={logSessionFor?.id}

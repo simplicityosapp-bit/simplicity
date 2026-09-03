@@ -208,6 +208,17 @@
     "elsewhere": "Hors du projet",
     "movesToProject": "Le client passera au projet « {{project}} » — un groupe n'appartient qu'à un seul projet."
   },
+  "memberSessions": {
+    "title": "Nouvelle carte",
+    "howMany": "Combien de séances ajouter ?",
+    "countRequired": "Veuillez saisir un nombre de séances.",
+    "previewQuota": "Séances incluses : {{from}} → {{to}}",
+    "previewMoney": "{{n}} × {{price}} = {{amount}} s'ajouteront à ce que doit {{name}}.",
+    "previewFree": "Le groupe n'a pas de prix de forfait, le solde ne changera donc pas.",
+    "note": "Le prix vient du prix du forfait du groupe. Vous pouvez le modifier à la main sur la fiche client, sous « Prix spécial dans le groupe ».",
+    "saveFailed": "L'ajout a échoué. Veuillez réessayer.",
+    "undo": "{{n}} séances ajoutées pour {{name}}"
+  },
   "deleteGroup": {
     "title": "Supprimer le groupe",
     "titleNamed": "Supprimer « {{name}} » ?",

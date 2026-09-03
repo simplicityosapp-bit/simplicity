@@ -51,6 +51,50 @@ export function groupMembershipPlan({ prevGroupId, nextGroupId, memberships }) {
   return { remove, add }
 }
 
+/* ── One member's card of meetings ──────────────────────────────
+   A group priced as a package sells meetings in blocks. Which block a
+   member holds is theirs, not the group's: one student renews for another
+   ten classes and the rest do not. Both numbers live on the membership —
+   the quota they may attend, and the dues that came with it — and each
+   falls back to the group's when it was never set individually. Same
+   precedence clientBalance applies when it bills them. */
+const num = (v) => Number(v) || 0
+
+export function membershipQuota(membership, group) {
+  return membership?.package_sessions_override != null
+    ? num(membership.package_sessions_override)
+    : num(group?.package_sessions)
+}
+
+export function membershipDues(membership, group) {
+  return membership?.total_override != null && membership?.total_override !== ''
+    ? num(membership.total_override)
+    : num(group?.package_price)
+}
+
+/* What one meeting of the package costs. The group's package price spread
+   over the meetings it buys — the rule the owner chose for a renewal
+   (2026-09-03): the debt grows by the group's defined price, and a
+   different figure for one member goes in the per-member override that
+   already exists on their client card. Zero when the group sells no
+   package, which is the case where a renewal has no price to charge. */
+export function packageUnitPrice(group) {
+  const sessions = num(group?.package_sessions)
+  return sessions > 0 ? num(group?.package_price) / sessions : 0
+}
+
+/* The membership after selling `count` more meetings. Rounded to the agora
+   because the unit price is a division and a package of 3 for ₪1,000 would
+   otherwise put a repeating decimal into someone's balance. */
+export function renewedCard({ currentQuota = 0, currentTotal = 0, unitPrice = 0, count = 0 }) {
+  const n = Math.max(0, Math.trunc(num(count)))
+  return {
+    quota: num(currentQuota) + n,
+    total: Math.round((num(currentTotal) + n * num(unitPrice)) * 100) / 100,
+    count: n,
+  }
+}
+
 /* The tag a client row should carry once membership `removedId` is gone:
    another live group they are still in, or nothing. Keeps a client who
    sits in two groups from reading "פרטי" the moment they leave one. */

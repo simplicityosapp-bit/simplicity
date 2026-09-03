@@ -74,7 +74,8 @@
       "incomeTotal": "Revenus cumulés",
       "income": "Revenus",
       "expenses": "Dépenses",
-      "net": "Net"
+      "net": "Net",
+      "sessionsMonth": "Séances ce mois-ci"
     },
     "undo": {
       "groupDeleted": "Groupe supprimé",
@@ -102,7 +103,17 @@
       "pastSessionsCount": "Séances passées ({{count}})",
       "noSessions": "Aucune séance enregistrée pour l'instant",
       "deleteSessionAria": "Supprimer la séance",
-      "newGroup": "Nouveau groupe"
+      "newGroup": "Nouveau groupe",
+      "progressOf": "{{held}}/{{quota}} séances",
+      "progressPlain_one": "{{count}} séance tenue",
+      "progressPlain_other": "{{count}} séances tenues",
+      "nextMeeting": "Prochaine {{date}} à {{time}}",
+      "owing_one": "{{count}} doit",
+      "owing_other": "{{count}} doivent",
+      "memberMixed": "comprend un suivi individuel",
+      "memberOwesAria": "Solde de {{name}}",
+      "renewAria": "Nouvelle carte pour {{name}}",
+      "renewUndo": "Séances ajoutées pour {{name}}"
     },
     "status": {
       "active": "Actif",

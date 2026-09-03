@@ -208,6 +208,17 @@
     "elsewhere": "Outside the project",
     "movesToProject": "The client will move to “{{project}}” — a group belongs to one project only."
   },
+  "memberSessions": {
+    "title": "New card",
+    "howMany": "How many meetings to add?",
+    "countRequired": "Please enter a number of meetings.",
+    "previewQuota": "Meeting allowance: {{from}} → {{to}}",
+    "previewMoney": "{{n}} × {{price}} = {{amount}} will be added to what {{name}} owes.",
+    "previewFree": "The group has no package price, so the balance will not change.",
+    "note": "The price comes from the group's package price. You can change it by hand on the client card, under \"Special price in the group\".",
+    "saveFailed": "Could not add. Please try again.",
+    "undo": "{{n}} meetings added for {{name}}"
+  },
   "deleteGroup": {
     "title": "Delete group",
     "titleNamed": "Delete \"{{name}}\"?",

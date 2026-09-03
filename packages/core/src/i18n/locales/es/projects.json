@@ -74,7 +74,8 @@
       "incomeTotal": "Ingresos totales",
       "income": "Ingresos",
       "expenses": "Gastos",
-      "net": "Neto"
+      "net": "Neto",
+      "sessionsMonth": "Sesiones este mes"
     },
     "undo": {
       "groupDeleted": "Grupo eliminado",
@@ -102,7 +103,17 @@
       "pastSessionsCount": "Sesiones pasadas ({{count}})",
       "noSessions": "Aún no hay sesiones registradas",
       "deleteSessionAria": "Eliminar sesión",
-      "newGroup": "Nuevo grupo"
+      "newGroup": "Nuevo grupo",
+      "progressOf": "{{held}}/{{quota}} sesiones",
+      "progressPlain_one": "{{count}} sesión realizada",
+      "progressPlain_other": "{{count}} sesiones realizadas",
+      "nextMeeting": "Próxima {{date}} a las {{time}}",
+      "owing_one": "{{count}} debe",
+      "owing_other": "{{count}} deben",
+      "memberMixed": "incluye un proceso individual",
+      "memberOwesAria": "Saldo de {{name}}",
+      "renewAria": "Bono nuevo para {{name}}",
+      "renewUndo": "Sesiones añadidas a {{name}}"
     },
     "status": {
       "active": "Activo",

@@ -244,8 +244,9 @@
     "subtitle": "שאלות ספציפיות על המוצר — לא Google Analytics",
     "ranges": {
       "week": "שבוע",
-      "month": "חודש",
-      "all": "הכול"
+      "days30": "30 יום",
+      "month": "החודש",
+      "all": "מבראשית"
     },
     "sessionsOverTime": "Sessions לאורך זמן",
     "reflectionsOverTime": "רפלקציות לאורך זמן",

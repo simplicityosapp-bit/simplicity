@@ -4,7 +4,10 @@ import { useT } from '../../i18n/useT'
 import { LineChart, FunnelBars } from './AdminCharts'
 import { Box, Txt, Btn } from '../../components/ui'
 
-const RANGES = ['week', 'month', 'all']
+/* The four windows the edge function knows (see its analytics action): the
+   last 7 days, the last 30 days, the current calendar month from the 1st, and
+   everything since the first row of data. 30 days is the default. */
+const RANGES = ['week', 'days30', 'month', 'all']
 
 /* "YYYY-MM-DD" → dd/mm for the x-axis. */
 function dayLabel(d) {
@@ -14,7 +17,7 @@ function dayLabel(d) {
 
 export default function AdminAnalytics() {
   const { t } = useT('admin')
-  const [range, setRange] = useState('month')
+  const [range, setRange] = useState('days30')
   const { data, loading, error } = useAdminQuery('analytics', { range })
 
   return (

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { User, Users, Layers } from 'lucide-react'
+import { User, Users, Layers, Plus, Check } from 'lucide-react'
 import { useProjects } from '../../../hooks/useProjects'
 import { useGroups } from '../../../hooks/useGroups'
 import { useUserPreferences } from '../../../hooks/useUserPreferences'
@@ -23,6 +23,14 @@ import { Box, Txt, Btn, Input } from '../../../components/ui'
    than from a definition. Everything else about a group (price, package,
    the weekly slot) belongs on the project screen, where there is room
    for it and a reason to care.
+
+   An account that already has projects — a restart from Settings, or
+   rows made by hand before coming back here — is offered them as a
+   choice first. The step only knew how to create, so every restart
+   planted a second "אימון אישי" beside the first and a banner at the
+   bottom warned about it after the fact. Choosing an existing project
+   writes nothing to it; the flow just remembers which one the first
+   client belongs in.
    ════════════════════════════════════════════════════════════════ */
 
 const MODES = [
@@ -49,6 +57,20 @@ export default function Step2Project({ ob, setCTA }) {
     ? t(`step2.projectName.${role}`, { defaultValue: t('step2.projectName.fallback') })
     : t('step2.projectName.fallback')
 
+  /* A project this flow created on an earlier pass is still ours: edited in
+     place below, never offered back as "existing". Everything else the
+     account holds is. */
+  const flowProjectId = initial.created_ids?.[0] || null
+  const existing = (projects || []).filter((p) => p.id !== flowProjectId)
+  const offerExisting = existing.length > 0 && !flowProjectId
+  /* 'new' opens the composer; a project id continues with that project.
+     Derived, not stored: projects load after mount, so the chooser has to
+     be able to appear once they arrive. */
+  const [pick, setPick] = useState(initial.project_id || null)
+  const choice = offerExisting ? pick : 'new'
+  const composing = choice === 'new'
+  const chosen = composing ? null : (existing.find((p) => p.id === choice) || null)
+
   const [mode, setMode]   = useState(initial.work_mode || null)
   const [name, setName]   = useState(initial.name || suggestedName)
   const [color, setColor] = useState(initial.color || COLORS[0])
@@ -56,12 +78,25 @@ export default function Step2Project({ ob, setCTA }) {
   const [err, setErr]     = useState('')
 
   const trimmed = name.trim()
-  const canAdvance = !!mode && trimmed.length > 0
-  const hint = !mode ? t('step2.hintPickMode') : (!trimmed ? t('step2.hintName') : null)
+  const canAdvance = composing ? (!!mode && trimmed.length > 0) : !!chosen
+  const hint = !composing
+    ? (chosen ? null : t('step2.hintPickProject'))
+    : (!mode ? t('step2.hintPickMode') : (!trimmed ? t('step2.hintName') : null))
 
   const onNext = async () => {
     setBusy(true); setErr('')
     try {
+      if (!composing) {
+        /* Nothing is written to the chosen project. created_ids stays empty
+           so the closing summary doesn't claim it, and a starter group is
+           never planted in a project the user built themselves. */
+        await ob.setAnswers('projects', {
+          project_id: chosen.id, created_ids: [], group_ids: [], work_mode: null,
+        })
+        await ob.advance()
+        return
+      }
+
       /* Rows an earlier pass created — updated, never duplicated. */
       const prevProjectId = initial.created_ids?.[0] || null
       const prevGroupIds = initial.group_ids || []
@@ -105,7 +140,7 @@ export default function Step2Project({ ob, setCTA }) {
 
       await ob.setAnswers('projects', {
         work_mode: mode, name: trimmed, color,
-        created_ids: [projectId], group_ids: groupIds,
+        project_id: projectId, created_ids: [projectId], group_ids: groupIds,
       })
       await ob.advance()
     } catch (e) {
@@ -117,32 +152,66 @@ export default function Step2Project({ ob, setCTA }) {
 
   useStepCTA(setCTA, { onNext, canAdvance, busy, hint })
 
-  const existingHint = projects?.length > 0 && !initial.created_ids?.length
-
   return (
     <>
       <Txt as="p" className="ob-intro">{t('step2.intro')}</Txt>
       <Txt as="p" className="ob-intro-sub">{t('step2.introSub')}</Txt>
 
-      <Box className="ob-field">
-        <Box className="ob-work-modes">
-          {MODES.map(({ k, icon: Icon }) => (
+      {offerExisting && (
+        <Box className="ob-field">
+          <Txt as="p" className="ob-label">{t('step2.existingTitle')}</Txt>
+          <Txt as="p" className="ob-empty-hint">{t('step2.existingSub')}</Txt>
+          <Box className="ob-existing-list" role="radiogroup" aria-label={t('step2.existingTitle')}>
+            {existing.map((p) => (
+              <Btn
+                key={p.id}
+                type="button"
+                role="radio"
+                aria-checked={choice === p.id}
+                className={`ob-existing${choice === p.id ? ' on' : ''}`}
+                onClick={() => setPick(p.id)}
+              >
+                <Txt className="ob-pc-group-color" style={{ background: p.color }} />
+                <Txt className="ob-existing-name">{p.name}</Txt>
+                {choice === p.id && <Check size={15} strokeWidth={2.2} aria-hidden="true" />}
+              </Btn>
+            ))}
             <Btn
-              key={k}
               type="button"
-              className={`ob-work-mode${mode === k ? ' on' : ''}`}
-              aria-pressed={mode === k}
-              onClick={() => setMode(k)}
+              role="radio"
+              aria-checked={composing}
+              className={`ob-existing ob-existing-new${composing ? ' on' : ''}`}
+              onClick={() => setPick('new')}
             >
-              <Icon size={20} strokeWidth={1.6} aria-hidden="true" />
-              <Txt className="ob-work-mode-l">{t(`step2.mode.${k}`)}</Txt>
+              <Plus size={15} strokeWidth={2} aria-hidden="true" />
+              <Txt className="ob-existing-name">{t('step2.pickNew')}</Txt>
+              {composing && <Check size={15} strokeWidth={2.2} aria-hidden="true" />}
             </Btn>
-          ))}
+          </Box>
         </Box>
-        {mode && <Txt as="p" className="ob-empty-hint">{t(`step2.modeHelp.${mode}`)}</Txt>}
-      </Box>
+      )}
 
-      {mode && (
+      {composing && (
+        <Box className="ob-field">
+          <Box className="ob-work-modes">
+            {MODES.map(({ k, icon: Icon }) => (
+              <Btn
+                key={k}
+                type="button"
+                className={`ob-work-mode${mode === k ? ' on' : ''}`}
+                aria-pressed={mode === k}
+                onClick={() => setMode(k)}
+              >
+                <Icon size={20} strokeWidth={1.6} aria-hidden="true" />
+                <Txt className="ob-work-mode-l">{t(`step2.mode.${k}`)}</Txt>
+              </Btn>
+            ))}
+          </Box>
+          {mode && <Txt as="p" className="ob-empty-hint">{t(`step2.modeHelp.${mode}`)}</Txt>}
+        </Box>
+      )}
+
+      {composing && mode && (
         <>
           <Box className="ob-field">
             <Box as="label" className="ob-label" htmlFor="ob-p-name">{t('step2.nameLabel')}</Box>
@@ -207,10 +276,6 @@ export default function Step2Project({ ob, setCTA }) {
             )}
           </Box>
         </>
-      )}
-
-      {existingHint && (
-        <Txt as="p" className="ob-empty-hint">{t('step2.existingBanner', { count: projects.length })}</Txt>
       )}
 
       {err && <Txt as="p" className="ob-empty-hint" style={{ color: 'var(--clay)' }}>{err}</Txt>}

@@ -44,11 +44,14 @@
     "firstGroupMeta": "Price, package and a weekly slot — you can add those later",
     "clientsTitle": "Clients",
     "clientsTeaser": "Next step we'll add your first client.",
-    "existingBanner": "You already have {{count}} projects. Adding here just creates one more.",
     "hintPickMode": "Pick how you work.",
     "hintName": "The project needs a name to be saved.",
     "errSaveFail": "Saving failed: {{error}}",
-    "tryAgain": "try again"
+    "tryAgain": "try again",
+    "existingTitle": "You already have projects",
+    "existingSub": "Carry on with one of them, or set up a new one. Nothing gets created twice.",
+    "pickNew": "New project",
+    "hintPickProject": "Pick a project, or set up a new one."
   },
   "step3": {
     "intro": "Who is your first client?",
@@ -79,7 +82,11 @@
     "hintPositive": "Enter a number above zero.",
     "hintNameGoal": "Give the goal a name.",
     "errSaveFail": "Saving failed: {{error}}",
-    "tryAgain": "try again"
+    "tryAgain": "try again",
+    "existingTitle": "You already have goals",
+    "existingSub": "Carry on with one of them, or set a new one.",
+    "pickNew": "New goal",
+    "hintPickGoal": "Pick a goal, or set a new one."
   },
   "step5": {
     "title": "You're all set! Everything's ready",
@@ -88,8 +95,6 @@
     "projects": "Projects",
     "clients": "Clients",
     "goals": "Goals",
-    "questions": "Daily questions",
-    "recurring": "Recurring expenses",
     "savedNoteVerb": "you can",
     "savedNote": "It's all saved already — {{verb}} add, edit, or remove anything anytime from the home screen.",
     "emptyNoteVerb": "whenever you like",

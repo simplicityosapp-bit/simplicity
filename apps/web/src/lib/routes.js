@@ -10,7 +10,7 @@ export const ROUTES = {
   SIGNUP: '/signup', // נוסף — מסך הרשמה (החלטת auth)
   RESET_PASSWORD: '/reset-password', // נוסף — איפוס סיסמה (החלטת auth)
   UPDATE_PASSWORD: '/update-password', // יעד קישור-האיפוס: מסך בחירת סיסמה חדשה
-  ONBOARDING: '/onboarding', // 9-step wizard, gates Home until completed
+  ONBOARDING: '/onboarding', // 4-step welcome flow + a closing screen; gates Home until completed or skipped
 
   // Public legal pages — reachable WITHOUT login (and crawlable). /privacy
   // and /terms redirect to /legal with the matching ?tab=.

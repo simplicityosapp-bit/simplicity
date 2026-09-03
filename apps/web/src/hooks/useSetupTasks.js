@@ -39,7 +39,7 @@ export function useSetupTasks() {
 
   return [
     ...(onboardingUnfinished
-      ? [{ key: 'setup', done: false, to: ROUTES.ONBOARDING, state: null }]
+      ? [{ key: 'setup', done: false, started: !!prefs?.onboarding?.started_at, to: ROUTES.ONBOARDING, state: null }]
       : []),
     { key: 'import',    done: imported,     to: ROUTES.SETTINGS, state: { openGroup: 'data', openSection: 'data' } },
     { key: 'questions', done: hasQuestion,  to: ROUTES.SETTINGS, state: { openGroup: 'workflow', openSection: 'questions' } },

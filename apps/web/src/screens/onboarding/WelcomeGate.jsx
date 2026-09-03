@@ -8,7 +8,7 @@ import { useT } from '../../i18n/useT'
 import LanguageSwitcher from '../../i18n/LanguageSwitcher'
 import { Box, Txt, Btn } from '../../components/ui'
 
-/* Pre-flow welcome screen — shows once before the 9-step wizard.
+/* Pre-flow welcome screen — shows once before the 4-step flow.
    Two paths: (1) start the onboarding (advance to step 1) or
    (2) skip everything and head straight to the home dashboard.
    Either choice flips `onboarding.welcome_seen` so the gate doesn't

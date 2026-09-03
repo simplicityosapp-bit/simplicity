@@ -44,11 +44,14 @@
     "firstGroupMeta": "Precio, paquete y día fijo: puedes añadirlos después",
     "clientsTitle": "Clientes",
     "clientsTeaser": "En el siguiente paso añadimos tu primer cliente.",
-    "existingBanner": "Ya tienes {{count}} proyectos. Añadir aquí solo crea uno más.",
     "hintPickMode": "Elige cómo trabajas.",
     "hintName": "El proyecto necesita un nombre para guardarse.",
     "errSaveFail": "No se pudo guardar: {{error}}",
-    "tryAgain": "inténtalo de nuevo"
+    "tryAgain": "inténtalo de nuevo",
+    "existingTitle": "Ya tienes proyectos",
+    "existingSub": "Puedes seguir con uno de ellos o crear uno nuevo. Nada se crea dos veces.",
+    "pickNew": "Proyecto nuevo",
+    "hintPickProject": "Elige un proyecto o crea uno nuevo."
   },
   "step3": {
     "intro": "¿Quién es tu primer cliente?",
@@ -79,7 +82,11 @@
     "hintPositive": "Introduce un número mayor que cero.",
     "hintNameGoal": "Ponle un nombre al objetivo.",
     "errSaveFail": "No se pudo guardar: {{error}}",
-    "tryAgain": "inténtalo de nuevo"
+    "tryAgain": "inténtalo de nuevo",
+    "existingTitle": "Ya tienes objetivos",
+    "existingSub": "Puedes seguir con uno de ellos o definir uno nuevo.",
+    "pickNew": "Objetivo nuevo",
+    "hintPickGoal": "Elige un objetivo o define uno nuevo."
   },
   "step5": {
     "title": "¡Todo listo! Está todo preparado",
@@ -88,8 +95,6 @@
     "projects": "Proyectos",
     "clients": "Clientes",
     "goals": "Objetivos",
-    "questions": "Preguntas diarias",
-    "recurring": "Gastos recurrentes",
     "savedNoteVerb": "puedes",
     "savedNote": "Ya está todo guardado — {{verb}} añadir, editar o eliminar cualquier cosa en cualquier momento desde la pantalla de inicio.",
     "emptyNoteVerb": "cuando quieras",

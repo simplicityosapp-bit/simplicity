@@ -29,7 +29,7 @@
 //   - users                   → one row per registered user (+ admin flags)
 //   - feedback_list           → every feedback item + author email
 //   - feedback_update_status  → { id, status }
-//   - analytics               → { range } sessions/reflections/funnel/top
+//   - analytics               → { range: week|days30|month|all } sessions/reflections/funnel/top
 //   - set_subscriber          → { user_id, value }   (perm: set_subscriber)
 //   - delete_user             → { user_id }           (perm: delete_users)
 //   - set_admin               → { user_id, perms }    (perm: manage_admins)
@@ -725,12 +725,26 @@ Deno.serve(async (req) => {
     }
 
     if (action === 'analytics') {
-      const range = (body?.range as string) || 'month'
+      /* Four windows, all ending now:
+           week   → the last 7 days
+           days30 → the last 30 days (the console's default)
+           month  → the current calendar month, from the 1st
+           all    → from the first row of data we hold, with no cap
+         Days are UTC throughout (dayKey slices the ISO string), so the
+         calendar month opens at 00:00 UTC on the 1st as well. `all` used to
+         be a silent 365-day cap — a pill that said "everything" and was not.
+         It has no floor up front: the reads come back unwindowed and the
+         floor is found from the data itself, below. */
+      const range = (body?.range as string) || 'days30'
       const nowMs = Date.now()
-      const spanDays = range === 'week' ? 7 : range === 'all' ? 365 : 30
-      const startMs = nowMs - spanDays * DAY
+      const now = new Date(nowMs)
+      const windowStart: number | null =
+        range === 'week' ? nowMs - 7 * DAY
+        : range === 'month' ? Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1)
+        : range === 'all' ? null
+        : nowMs - 30 * DAY
 
-      const startIso = new Date(startMs).toISOString()
+      const startIso = windowStart == null ? null : new Date(windowStart).toISOString()
 
       /* fetchAllUsers joins the batch rather than gating it, and the three
          time-series reads are now WINDOWED IN THE DATABASE. They used to pull
@@ -745,20 +759,47 @@ Deno.serve(async (req) => {
       const [users, sess, moon, prefs, landing] = await Promise.all([
         fetchAllUsers(admin),
         soft(selectAll<{ user_id: string; created_at: string }>(
-          () => admin.from('app_sessions').select('user_id, created_at').gte('created_at', startIso)), []),
+          () => {
+            const q = admin.from('app_sessions').select('user_id, created_at')
+            return startIso ? q.gte('created_at', startIso) : q
+          }), []),
         // Windowed on created_at; `date` (the snapshot's own day) is preferred
         // below when present, so keep the row-created floor slightly generous.
         soft(selectAll<{ reflection: string | null; date: string | null; created_at: string }>(
-          () => admin.from('moon_snapshots').select('reflection, date, created_at')
-            .not('reflection', 'is', null).neq('reflection', '')
-            .gte('created_at', startIso)), []),
+          () => {
+            const q = admin.from('moon_snapshots').select('reflection, date, created_at')
+              .not('reflection', 'is', null).neq('reflection', '')
+            return startIso ? q.gte('created_at', startIso) : q
+          }), []),
         soft(selectAll<{ user_id: string; preferences: any }>(
           () => admin.from('user_preferences').select('user_id, preferences')), []),
         // Anonymous landing funnel events (empty if migration 0050 hasn't run yet).
         soft(selectAll<{ type: string; created_at: string }>(
-          () => admin.from('landing_events').select('type, created_at').gte('created_at', startIso)), []),
+          () => {
+            const q = admin.from('landing_events').select('type, created_at')
+            return startIso ? q.gte('created_at', startIso) : q
+          }), []),
       ])
       const emailById = new Map(users.map((u) => [u.id, u.email]))
+
+      /* `all`: the window opens at the oldest thing we know about — the first
+         session, reflection, landing visit or signup — so the chart runs from
+         the day the data starts. A loop rather than Math.min(...spread): these
+         arrays can run to tens of thousands of rows, past the argument limit. */
+      let firstMs = Infinity
+      if (windowStart == null) {
+        const see = (iso: string | null | undefined) => {
+          if (!iso) return
+          const t = new Date(iso).getTime()
+          if (Number.isFinite(t) && t < firstMs) firstMs = t
+        }
+        for (const s of sess ?? []) see(s.created_at)
+        for (const m of moon ?? []) see((m.date as string) || m.created_at)
+        for (const e of landing ?? []) see(e.created_at)
+        for (const u of users) see(u.created_at)
+      }
+      // No data at all → fall back to the default window rather than an empty axis.
+      const startMs: number = windowStart ?? (Number.isFinite(firstMs) ? firstMs : nowMs - 30 * DAY)
 
       /* Empty daily buckets across the span, oldest → newest, plus a
          date → bucket index so bump() is a hash lookup. It used to be

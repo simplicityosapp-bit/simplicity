@@ -161,7 +161,11 @@ const dayISO = (offset) => {
   d.setDate(d.getDate() + offset)
   return d.toISOString().slice(0, 10)
 }
-const STEP_LABELS = ['פרופיל', 'ייבוא נתונים', 'פרויקטים', 'לקוחות', 'שאלות יומיות', 'יעדים', 'הוראות קבע', 'תצוגה מקדימה', 'סיום']
+/* Mirrors ONBOARDING_STEPS / STEP_LABELS in supabase/functions/admin/index.ts
+   (the real console's source). The flow is four steps and a close — the
+   nine-step list this held made the mocked funnel and per-user stage disagree
+   with what the edge function actually reports. */
+const STEP_LABELS = ['פרופיל', 'פרויקטים', 'לקוחות', 'יעדים', 'סיום']
 
 let MOCK_ADMIN = null
 function adminFixtures() {
@@ -172,8 +176,8 @@ function adminFixtures() {
     email: `${n}@example.com`,
     created_at: dayISO(-(i * 6 + 2)),
     last_sign_in_at: i % 5 === 0 ? dayISO(-20) : dayISO(-(i % 7)),
-    onboarding_index: i === 0 ? 9 : (i % 9),
-    onboarding_label: i === 0 ? 'הושלם' : STEP_LABELS[i % 9],
+    onboarding_index: i === 0 ? STEP_LABELS.length : (i % STEP_LABELS.length),
+    onboarding_label: i === 0 ? 'הושלם' : STEP_LABELS[i % STEP_LABELS.length],
     onboarding_done: i === 0,
     reflections: Math.max(0, 14 - i * 2),
     sessions: Math.max(0, 30 - i * 3),
@@ -293,7 +297,12 @@ function adminInvoke(body) {
     return { ok: true }
   }
   if (action === 'analytics') {
-    const span = body.range === 'week' ? 7 : body.range === 'all' ? 60 : 30
+    // Mirrors the edge function's windows: 7 days, 30 days, the calendar month
+    // so far, and "all" — 120 days of fixtures stand in for the data's first day.
+    const span = body.range === 'week' ? 7
+      : body.range === 'month' ? new Date().getUTCDate() - 1
+      : body.range === 'all' ? 120
+      : 30
     return {
       ok: true,
       range: body.range,

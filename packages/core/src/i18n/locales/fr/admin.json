@@ -238,8 +238,9 @@
     "subtitle": "Questions précises sur le produit — pas Google Analytics",
     "ranges": {
       "week": "Semaine",
-      "month": "Mois",
-      "all": "Tout"
+      "days30": "30 jours",
+      "month": "Ce mois-ci",
+      "all": "Depuis le début"
     },
     "sessionsOverTime": "Séances au fil du temps",
     "reflectionsOverTime": "Réflexions au fil du temps",

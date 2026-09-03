@@ -186,18 +186,29 @@
 @keyframes spgShimmer { 100% { transform: translateX(100%); } }
 .spg-card-main { display: flex; align-items: center; justify-content: space-between; gap: 10px; cursor: pointer; }
 .spg-card-title { font-weight: 600; color: var(--espresso); font-size: var(--mg-heading); }
+/* Tints raised: at 10% and 16% over card glass these sat around 1.1 against the
+   card whatever the background photo was doing. "מפורסם" also took --sage for
+   BOTH its text and its fill — pale green on pale green — so it now takes the
+   dark text its twin .lpm-badge.is-live uses on the booking-pages card, and the
+   green stays as the fill that tells the two states apart. */
 .spg-badge {
   font-size: var(--mg-micro); font-weight: 500; color: var(--spb-text-2, var(--stone));
-  background: color-mix(in srgb, var(--stone) 10%, transparent); border-radius: 999px; padding: 3px 10px; white-space: nowrap;
+  background: color-mix(in srgb, var(--stone) 20%, transparent); border-radius: 999px; padding: 3px 10px; white-space: nowrap;
 }
-.spg-badge.is-pub { color: var(--sage); background: color-mix(in srgb, var(--sage) 16%, transparent); }
+.spg-badge.is-pub { color: var(--espresso); background: color-mix(in srgb, var(--sage) 32%, transparent); }
 .spg-card-actions { display: flex; gap: 4px; }
+/* These were `background: transparent; border: none` — bare icons on card glass,
+   with nothing but a hover to say they were controls. This is the "completely
+   transparent, they need opaque pills" in the original report; the pills fixed
+   earlier were the ones on the booking-pages card, which is a different screen.
+   They take the secondary-control glass every other such button now takes. */
 .spg-card-actions button, .spg-card-actions a {
   display: grid; place-items: center; width: var(--mg-icon-btn); height: var(--mg-icon-btn);
-  border: none; background: transparent; color: var(--spb-text-2, var(--stone)); border-radius: var(--mg-chip-radius); cursor: pointer;
+  border: var(--mg-btn-secondary-border); background: var(--mg-btn-secondary-bg);
+  color: var(--spb-text-2, var(--stone)); border-radius: var(--mg-chip-radius); cursor: pointer;
   transition: background 0.15s, color 0.15s;
 }
-.spg-card-actions button:hover, .spg-card-actions a:hover { background: var(--mg-row-active-bg); color: var(--espresso); }
+.spg-card-actions button:hover, .spg-card-actions a:hover { background: var(--mg-btn-secondary-bg-hover); color: var(--espresso); }
 
 /* ── Editor shell ────────────────────────────────────────────────────────── */
 /* In the editor, blank out the app's decorative nature background (painted on

@@ -18,7 +18,9 @@ import { Box, Txt, Btn, Input, Textarea } from './ui'
    The composer is rendered through a PORTAL to <body> (fixed,
    anchored to the trigger) so the glass cards' backdrop-filter
    stacking contexts can't paint it underneath siblings — same reason
-   as InfoPopover.
+   as InfoPopover. The portal moves it in the DOM only: React events
+   still bubble up the COMPONENT tree, into whichever card hosts the
+   button — so the composer fences its own clicks and keys (see below).
 
    Props:
      - phone:     recipient's raw phone (string|null) — prefills the field
@@ -114,6 +116,18 @@ export default function WhatsAppButton({
     }
   }, [open])
 
+  /* Keys typed in the composer stay in the composer. The hosts are cards
+     that treat Enter/Space as "activate" (LeadCard, TransactionCard, the
+     calendar rows): their onKeyDown preventDefault-ed the space before the
+     textarea could insert it, and Enter opened the card's editor over the
+     composer. Stopping propagation here also stops the native event below
+     `document`, so Escape is handled in place rather than by the listener
+     above (which still covers a press while focus is on the trigger). */
+  const onComposerKey = (e) => {
+    e.stopPropagation()
+    if (e.key === 'Escape') setOpen(false)
+  }
+
   /* Focus the message on open, caret at end (ready to tweak before send). */
   useEffect(() => {
     if (!open || !textRef.current) return
@@ -152,6 +166,7 @@ export default function WhatsAppButton({
           dir="rtl"
           style={{ position: 'fixed', top: coords.top, bottom: coords.bottom, left: coords.left, width: coords.width }}
           onClick={(e) => e.stopPropagation()}
+          onKeyDown={onComposerKey}
         >
           <Box className="wab-pop-title">{title}</Box>
           <Box as="label" className="wab-field">

@@ -6,8 +6,10 @@
     "taskDone": "Hecho",
     "tasks": {
       "setup": {
-        "title": "Terminar la configuración",
-        "sub": "Lo dejaste a medias: sigue donde lo dejaste."
+        "title": "Terminar la introducción",
+        "sub": "Lo dejaste a medias: sigue donde lo dejaste.",
+        "titleFresh": "Empezar la introducción",
+        "subFresh": "Cuatro pasos cortos, cuando te venga bien."
       },
       "import": {
         "title": "Importar un archivo",

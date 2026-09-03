@@ -1,5 +1,5 @@
 /* ════════════════════════════════════════════════════════════════
-   ONBOARDING — 9-step wizard wrapped in a centered glass card.
+   ONBOARDING — the 4-step welcome flow, wrapped in a centered glass card.
    ════════════════════════════════════════════════════════════════
    The background image (single asset for the whole flow) lives on
    `.app[data-screen="onboarding"]` via the shared --screen-bg
@@ -170,7 +170,11 @@
    legible against the forest photo without competing for attention. */
 .ob-foot-exit {
   align-self: center;
-  padding: 5px 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 5px 20px;
   border-radius: 12px;
   border: 1px solid rgba(240, 235, 224, 0.42);
   background: rgba(255, 250, 240, 0.62);
@@ -840,12 +844,16 @@
   padding: 8px 12px;
   align-self: flex-end;
 }
-.ob-foot-back .ob-btn.ghost { border: none; padding: 6px 10px; }
+.ob-foot-back .ob-btn.ghost { border: none; padding: 6px 14px; }
 
 .ob-btn {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
+  /* 44px, the same floor the tour bubble's buttons hold. These are tapped
+     on a phone by someone who arrived a minute ago. */
+  min-height: 44px;
   padding: 10px 18px;
   border-radius: 14px;
   border: none;
@@ -971,7 +979,6 @@
   font-weight: 500;
   color: var(--stone);
   letter-spacing: 0.06em;
-  text-transform: lowercase;
 }
 .ob-welcome-option {
   display: flex;
@@ -1223,4 +1230,55 @@
   font-size: calc(16px * var(--text-scale));
   font-weight: 500;
   color: var(--espresso);
+}
+
+/* ── Existing-record chooser (steps 2 and 4) ────────────────────
+   Shown when the account already holds projects / goals — a restart from
+   Settings, or rows made by hand before the flow. Rows borrow the added-
+   client row's shape and the work-mode card's selected tint, so a chosen
+   row reads like every other chosen answer in the flow. 44px tall: these
+   are tapped on a phone by someone who has just arrived. */
+.ob-existing-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 8px;
+}
+.ob-existing {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 44px;
+  padding: 9px 12px;
+  border-radius: 12px;
+  border: var(--mg-card-border);
+  background: var(--mg-card-bg);
+  color: var(--espresso);
+  font-family: var(--mg-font);
+  text-align: start;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.ob-existing:hover:not(.on) { background: rgba(42, 37, 32, 0.06); }
+[data-theme="dark"] .ob-existing:hover:not(.on) { background: rgba(240, 235, 224, 0.07); }
+.ob-existing.on {
+  background: color-mix(in srgb, var(--sage) 22%, transparent);
+  border-color: color-mix(in srgb, var(--sage) 55%, transparent);
+}
+.ob-existing.on > svg { color: var(--sage); flex-shrink: 0; }
+.ob-existing-new { color: var(--stone); }
+.ob-existing-body { flex: 1; min-width: 0; }
+.ob-existing-name {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  font-size: calc(13.5px * var(--text-scale));
+  font-weight: 600;
+  color: var(--espresso);
+}
+.ob-existing-meta {
+  margin: 1px 0 0;
+  font-size: calc(11.5px * var(--text-scale));
+  color: var(--stone);
 }

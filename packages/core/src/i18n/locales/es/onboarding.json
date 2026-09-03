@@ -8,10 +8,10 @@
   },
   "welcome": {
     "tagline": "Business OS",
-    "startTitle": "Haz el recorrido",
-    "startSub": "Una introducción breve y cuidada, y unos cuantos toques personales",
-    "skipTitle": "Solo déjame entrar",
-    "skipSub": "Ya lo iré descubriendo sobre la marcha"
+    "startTitle": "Empezar con una breve introducción",
+    "startSub": "Cuatro pasos: tu nombre, cómo trabajas, un primer cliente y un objetivo. Unos minutos.",
+    "skipTitle": "Entrar directamente",
+    "skipSub": "Puedes hacer la introducción más tarde, desde Ajustes."
   },
   "shell": {
     "progressAria": "Progreso: paso {{current}} de {{total}}",
@@ -22,8 +22,8 @@
     "saving": "Guardando…",
     "next": "Siguiente",
     "saveFailed": "No se pudo guardar. Inténtalo de nuevo.",
-    "later": "Más tarde",
-    "exit": "Sigo más tarde"
+    "later": "Saltar este paso",
+    "exit": "Salir de la introducción"
   },
   "review": {
     "title": "Revisa antes de que creemos nada",

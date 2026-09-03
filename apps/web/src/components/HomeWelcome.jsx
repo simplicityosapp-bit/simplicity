@@ -46,7 +46,7 @@ export default function HomeWelcome({ onDismiss }) {
       <Txt as="p" className="home-welcome-sub">{t('welcome.sub')}</Txt>
 
       <Box as="ul" className="home-welcome-tasks">
-        {tasks.map(({ key, done, to, state }) => {
+        {tasks.map(({ key, done, started, to, state }) => {
           const Icon = ICONS[key]
           return (
           <Box as="li" key={key}>
@@ -65,9 +65,14 @@ export default function HomeWelcome({ onDismiss }) {
                 </Txt>
                 <ChevronLeft size={15} strokeWidth={1.8} className="home-welcome-task-arrow" aria-hidden="true" />
               </Box>
-              <Txt as="p" className="home-welcome-task-title">{t(`welcome.tasks.${key}.title`)}</Txt>
+              {/* "Pick up where you left off" is only true of someone who left.
+                  Whoever chose to skip the intro at the door never started it,
+                  and is invited rather than resumed. */}
+              <Txt as="p" className="home-welcome-task-title">
+                {t(key === 'setup' && !started ? 'welcome.tasks.setup.titleFresh' : `welcome.tasks.${key}.title`)}
+              </Txt>
               <Txt as="p" className="home-welcome-task-sub">
-                {done ? t('welcome.taskDone') : t(`welcome.tasks.${key}.sub`)}
+                {done ? t('welcome.taskDone') : t(key === 'setup' && !started ? 'welcome.tasks.setup.subFresh' : `welcome.tasks.${key}.sub`)}
               </Txt>
             </Btn>
           </Box>

@@ -27,7 +27,9 @@ export default function Step3Clients({ ob, setCTA }) {
   const { t } = useT('onboardingSteps')
   const { addClient, removeClient, clients } = useClients()
 
-  const projectId = ob.state.answers?.projects?.created_ids?.[0] || null
+  /* The project step 2 settled on — one it created, or an existing one the
+     user chose to continue with. */
+  const projectId = ob.state.answers?.projects?.project_id || ob.state.answers?.projects?.created_ids?.[0] || null
   const initial = ob.state.answers?.clients || {}
 
   const [name, setName] = useState('')
@@ -79,6 +81,19 @@ export default function Step3Clients({ ob, setCTA }) {
     finally { setBusy(false) }
   }
 
+  /* Enter here means "that's one", not "I'm done with this step". The shell
+     treats Enter as advance, so someone who typed a name and pressed the key
+     every form has taught them found themselves on step 4 with the client
+     they had just typed saved but the composer's own "+" never used. Adding
+     is what the field in front of them is for; a second Enter, on an empty
+     composer, falls through to the shell and moves on. */
+  const onComposerKeyDown = (e) => {
+    if (e.key !== 'Enter' || e.shiftKey || !composerHasName || busy) return
+    e.preventDefault()
+    e.stopPropagation()
+    onAdd()
+  }
+
   const onRemove = async (id) => {
     await removeClient(id)
     const next = createdIds.filter((x) => x !== id)
@@ -112,6 +127,7 @@ export default function Step3Clients({ ob, setCTA }) {
           className="ob-input"
           value={name}
           onChange={(e) => setName(e.target.value)}
+          onKeyDown={onComposerKeyDown}
           placeholder={t('step3.namePlaceholder')}
           autoFocus
         />
@@ -125,6 +141,7 @@ export default function Step3Clients({ ob, setCTA }) {
           type="tel"
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
+          onKeyDown={onComposerKeyDown}
           placeholder="050-0000000"
         />
       </Box>

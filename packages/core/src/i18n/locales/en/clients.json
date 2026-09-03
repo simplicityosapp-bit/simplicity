@@ -116,6 +116,20 @@
     "deleteMessage": "The client moves to the trash, and can be restored within 30 days.",
     "editUndo": "Client details updated"
   },
+  "tracks": {
+    "title": "Tracks",
+    "personal": "Personal process",
+    "progress": "{{held}}/{{quota}} meetings",
+    "progressNoQuota_one": "{{count}} meeting",
+    "progressNoQuota_other": "{{count}} meetings",
+    "amountAria": "Track total",
+    "note": "The amounts are what each track costs. \"Paid\" and \"Balance\" above are for the whole account.",
+    "mode": {
+      "package": "Package",
+      "per_session": "Per meeting",
+      "none": "No set price"
+    }
+  },
   "sections": {
     "activity": "Activity",
     "contactEnv": "Contact & context",

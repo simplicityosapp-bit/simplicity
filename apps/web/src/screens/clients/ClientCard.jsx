@@ -39,16 +39,24 @@ function ClientCard({
   /* `bal` is the precomputed balance from the clients screen's balanceByClient
      map (avoids re-scanning transactions per card); fall back to computing it
      for any caller that doesn't pass it. */
-  const { paid, balance, hasPersonal, personalDone, personalQuota, groupSessions, perSession } = bal || clientBalance(client, txns, sessions, members, groups)
-  /* Compact card shows PERSONAL sessions only; a pure group member shows
-     the group summary instead. (The full profile shows both.)
-     A per-session client has NO quota — that is the whole point of the mode —
-     so they get the bare held count, exactly as the client file already did
-     (see .cd-hero in ClientDrawer). Rendering the shared "done/quota" shape
-     for them printed a denominator of 0 on every card. */
-  const sessLabel = hasPersonal
-    ? (perSession && !personalQuota ? `${personalDone}` : `${personalDone}/${personalQuota || 0}`)
-    : `${groupSessions.reduce((s, g) => s + g.held, 0)}/${groupSessions.reduce((s, g) => s + (g.quota || 0), 0) || 0}`
+  const { paid, balance, tracks, perSession } = bal || clientBalance(client, txns, sessions, members, groups)
+  /* Meetings, from the tracks the client is actually running. One track — a
+     1-on-1 client, or a pure group member — reads as its own progress, which
+     is what the card has always shown for each of them. Several tracks read
+     as the count held across them and nothing more: adding a workshop's ten
+     to a private twelve makes a denominator that is a target of nothing. The
+     file breaks it down, and the card links to the file.
+     A track with no quota (per-session billing, on either side) shows the
+     bare held count; a "/0" denominator was never a target either.
+     Ended groups are left out, the same rule the client file's own header
+     applies — the running balance is what this line is about, and the group
+     that closed keeps its history in the file (beta decision 04/06/2026).
+     The card used to count them here and the file did not, so the same
+     client reported two different numbers depending on where you looked. */
+  const running = tracks.filter((tr) => !tr.ended)
+  const sessLabel = running.length === 1
+    ? (running[0].quota == null ? `${running[0].held}` : `${running[0].held}/${running[0].quota}`)
+    : `${running.reduce((s, tr) => s + tr.held, 0)}`
   /* "Set up" = the billing is configured enough that the numbers below mean
      something; otherwise they dim, so a row of ₪0 doesn't read as real.
      The quota half of this test is package-only. A per-session client keeps

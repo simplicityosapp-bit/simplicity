@@ -116,6 +116,20 @@
     "deleteMessage": "Le client part à la corbeille et peut être restauré sous 30 jours.",
     "editUndo": "Fiche client mise à jour"
   },
+  "tracks": {
+    "title": "Formules",
+    "personal": "Suivi individuel",
+    "progress": "{{held}}/{{quota}} séances",
+    "progressNoQuota_one": "{{count}} séance",
+    "progressNoQuota_other": "{{count}} séances",
+    "amountAria": "Total de la formule",
+    "note": "Les montants correspondent au coût de chaque formule. « Payé » et « Solde » ci-dessus concernent le compte entier.",
+    "mode": {
+      "package": "Forfait",
+      "per_session": "À la séance",
+      "none": "Sans prix fixe"
+    }
+  },
   "sections": {
     "activity": "Activité",
     "contactEnv": "Contact et contexte",

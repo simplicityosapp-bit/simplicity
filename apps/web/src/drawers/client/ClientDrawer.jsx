@@ -146,6 +146,19 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
   const isMember = !!client && members.some((m) => m.client_id === client.id && !m.left_at)
   const clientSessions = client ? sessions.filter((s) => s.client_id === client.id) : []
   const nextNum = clientSessions.length + 1
+  /* The hero's meetings figure, by the same rule the list card uses: one
+     running track reads as its own progress, several read as the count held
+     across them. Kept in step with ClientCard deliberately — the two used to
+     disagree about a client in an ended group. */
+  const running = (balance?.tracks || []).filter((tr) => !tr.ended)
+  const sessLabel = running.length === 1
+    ? (running[0].quota == null ? `${running[0].held}` : `${running[0].held}/${running[0].quota}`)
+    : `${running.reduce((s, tr) => s + tr.held, 0)}`
+  /* A plain 1-on-1 client is their one track, and the hero already says it.
+     A group member gets the row that names the group and its terms — what
+     the old group-sessions list did — and anyone juggling two gets both. */
+  const showTracks = (balance?.tracks?.length || 0) > 1
+    || (balance?.tracks || []).some((tr) => tr.kind === 'group')
 
   return (
     <>
@@ -254,23 +267,12 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
               )}
 
               {/* Billing hero — ALWAYS shown on every client card (global).
-                 "פגישות" = PERSONAL (done/set) when the client has 1-on-1
-                 sessions; otherwise it summarises the group(s). */}
+                 The account as one line: meetings held, money in, money out-
+                 standing. What it is MADE of is the tracks section below. */}
               <Box className="cd-hero">
                 <Box className="cd-stat">
                   <Txt as="p" className="cd-stat-l">{t('drawer.sessions')}</Txt>
-                  <Txt as="p" className="cd-stat-v mono">
-                    {balance.hasPersonal
-                      ? (balance.perSession && !balance.personalQuota
-                        /* Per-session billing (migration 0014) has no preset
-                           quota, so with nothing booked ahead the held count
-                           is the only meaningful figure. Once the coach does
-                           record how many are booked, it reads like any other
-                           client again. */
-                        ? `${balance.personalDone}`
-                        : `${balance.personalDone}/${balance.personalQuota || 0}`)
-                      : `${balance.groupSessions.filter((g) => !g.ended).reduce((s, g) => s + g.held, 0)}/${balance.groupSessions.filter((g) => !g.ended).reduce((s, g) => s + (g.quota || 0), 0) || 0}`}
-                  </Txt>
+                  <Txt as="p" className="cd-stat-v mono">{sessLabel}</Txt>
                 </Box>
                 <Box className="cd-stat divided">
                   <Txt as="p" className="cd-stat-l">{t('drawer.paid')}</Txt>
@@ -301,17 +303,53 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
                 <Txt as="p" className="cd-plan-hint">{t('drawer.planHint', { received: planBal.receivedCount, total: planBal.count, remaining: isr(planBal.remaining) })}</Txt>
               )}
 
-              {/* Group sessions — read-only breakdown, one row per group.
-                 The full profile shows these in addition to the personal
-                 count above (the compact list card shows personal only). */}
-              {balance.groupSessions.length > 0 && (
-                <Box className="cd-grp-sessions">
-                  {balance.groupSessions.map((gs) => (
-                    <Box key={gs.id} className="cd-grp-row">
-                      <Txt className="cd-grp-name">{t('drawer.groupSessions', { name: gs.name })}{gs.ended ? t('drawer.groupEnded') : ''}</Txt>
-                      <Txt className="cd-grp-val mono">{gs.held}/{gs.quota || 0}</Txt>
-                    </Box>
-                  ))}
+              {/* ── Tracks ──────────────────────────────────────────
+                  What the account above is made of: one row per thing this
+                  client pays for. It replaces a list of group rows that gave
+                  each group's meetings and never its price, so a client who
+                  owed ₪3,200 across a workshop and a private series was shown
+                  one number and no way to tell which half was which — and no
+                  way to notice when the same dues had been entered twice.
+
+                  Shown for anyone in a group (that row carries the group's
+                  name and terms, as the old list did) and for anyone running
+                  more than one track. A plain 1-on-1 client has exactly one
+                  track, and the hero above already is it. */}
+              {showTracks && (
+                <Box className="cd-tracks">
+                  <Txt as="p" className="cd-tracks-title">{t('tracks.title')}</Txt>
+                  {balance.tracks.map((tr) => {
+                    const isGroup = tr.kind === 'group'
+                    const name = isGroup ? tr.name : t('tracks.personal')
+                    const colour = isGroup
+                      ? (groups.find((g) => g.id === tr.id)?.color || 'var(--stone)')
+                      : 'var(--sage)'
+                    return (
+                      <Box key={tr.id} className={`cd-track${tr.ended ? ' is-ended' : ''}`}>
+                        <Txt className="cd-track-dot" style={{ background: colour }} aria-hidden="true" />
+                        <Box className="cd-track-id">
+                          <Txt as="p" className="cd-track-name">
+                            {name}{tr.ended ? t('drawer.groupEnded') : ''}
+                          </Txt>
+                          <Txt as="p" className="cd-track-sub">
+                            {t(`tracks.mode.${tr.mode}`)}
+                            {' · '}
+                            {tr.quota == null
+                              ? t('tracks.progressNoQuota', { count: tr.held })
+                              : t('tracks.progress', { held: tr.held, quota: tr.quota })}
+                          </Txt>
+                        </Box>
+                        <Txt className="cd-track-amt mono" title={t('tracks.amountAria')}>{isr(tr.total)}</Txt>
+                      </Box>
+                    )
+                  })}
+                  {/* The amounts are what each track COSTS. "שולם" and "יתרה"
+                      in the hero are the account's, not any one track's —
+                      a payment is recorded against the client, not against
+                      the workshop, so there is no honest per-track "paid" to
+                      print here yet. Said outright rather than left for the
+                      reader to work out from numbers that don't add up. */}
+                  <Txt as="p" className="cd-tracks-note">{t('tracks.note')}</Txt>
                 </Box>
               )}
 
@@ -350,10 +388,20 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
                 {/* Selling another block of meetings was the one routine action
                     with no quick route: edit → open billing → change "נקבעו" →
                     save. It belongs next to the other things you do to a client
-                    you already have open. */}
-                <Btn type="button" className="cd-action" onClick={() => setActionModal('addSessions')}>
-                  <PackagePlus size={15} strokeWidth={1.8} aria-hidden="true" /> {t('addSessions.title')}
-                </Btn>
+                    you already have open.
+                    It adds to the PERSONAL quota, so it is offered only to a
+                    client who has a personal track. On a pure group member it
+                    was the shortest path to the phantom private series this
+                    round exists to remove: one tap, and the member carried a
+                    private quota of eight beside their group's own eight.
+                    Extending a group member's card is a different act on a
+                    different record (the membership's own quota and dues) and
+                    has no control anywhere yet. */}
+                {balance.hasPersonal && (
+                  <Btn type="button" className="cd-action" onClick={() => setActionModal('addSessions')}>
+                    <PackagePlus size={15} strokeWidth={1.8} aria-hidden="true" /> {t('addSessions.title')}
+                  </Btn>
+                )}
                 <WhatsAppButton
                   phone={client.phone}
                   message={waMsg('client', { name: client.name })}
@@ -449,6 +497,10 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
         personalHeld={balance?.personalHeld ?? 0}
         groupSessions={balance?.groupSessions ?? []}
         isMember={isMember}
+        /* Whether a personal track exists at all — the rule lives in
+           clientBalance, not in a second copy here, so the form and the
+           file can never disagree about whether this client has one. */
+        hasPersonalTrack={balance?.hasPersonal ?? true}
         /* Saving this form rewrites price, quota, billing mode and the rest in
            one go, and was the only irreversible write left on the card — a
            status flip and an added block of meetings both offered an undo

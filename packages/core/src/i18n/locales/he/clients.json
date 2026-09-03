@@ -124,6 +124,22 @@
     "deleteMessage": "הלקוח יעבור לסל המיחזור, וניתן לשחזר תוך 30 יום.",
     "editUndo": "פרטי הלקוח עודכנו"
   },
+  "tracks": {
+    "title": "מסלולים",
+    "personal": "תהליך אישי",
+    "progress": "{{held}}/{{quota}} פגישות",
+    "progressNoQuota_one": "פגישה אחת",
+    "progressNoQuota_two": "שתי פגישות",
+    "progressNoQuota_many": "{{count}} פגישות",
+    "progressNoQuota_other": "{{count}} פגישות",
+    "amountAria": "סה״כ למסלול",
+    "note": "הסכומים הם מה שכל מסלול עולה. «שולם» ו«יתרה» למעלה הם של החשבון כולו.",
+    "mode": {
+      "package": "חבילה",
+      "per_session": "לפי פגישה",
+      "none": "ללא מחיר קבוע"
+    }
+  },
   "sections": {
     "activity": "פעילות",
     "contactEnv": "קשר וסביבה",

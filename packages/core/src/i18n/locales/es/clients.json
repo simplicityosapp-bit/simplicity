@@ -116,6 +116,20 @@
     "deleteMessage": "El cliente pasa a la papelera y se puede restaurar en un plazo de 30 días.",
     "editUndo": "Datos del cliente actualizados"
   },
+  "tracks": {
+    "title": "Modalidades",
+    "personal": "Proceso individual",
+    "progress": "{{held}}/{{quota}} sesiones",
+    "progressNoQuota_one": "{{count}} sesión",
+    "progressNoQuota_other": "{{count}} sesiones",
+    "amountAria": "Total de la modalidad",
+    "note": "Los importes son lo que cuesta cada modalidad. «Pagado» y «Saldo» arriba son de toda la cuenta.",
+    "mode": {
+      "package": "Paquete",
+      "per_session": "Por sesión",
+      "none": "Sin precio fijo"
+    }
+  },
   "sections": {
     "activity": "Actividad",
     "contactEnv": "Contacto y contexto",

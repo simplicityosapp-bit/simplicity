@@ -119,7 +119,15 @@
   --mg-btn-weight:      500;
   --mg-btn-primary-bg:        var(--terracotta);              /* #C97B5E */
   --mg-btn-primary-bg-hover:  #B86E52;                         /* -8% darker */
-  --mg-btn-secondary-bg:        var(--mg-card-bg);             /* same glass */
+  /* Secondary is glass of the same FAMILY as a card, but never the same VALUE.
+     It used to be `var(--mg-card-bg)` — literally the card token — so every
+     secondary control standing on a card resolved to its container's exact
+     colour and vanished, leaving only a border. Three components patched
+     around it locally (.inv-remind, .mg-menu-btn, .lpb-toggle), each one
+     rediscovering the same cause in its own comment; this fixes it once, at
+     the source. Same base colour as the hover below and one step down in
+     alpha, so resting → hover is a lift rather than a change of material. */
+  --mg-btn-secondary-bg:        rgba(255, 252, 247, 0.72);     /* glass, a step above a card */
   --mg-btn-secondary-bg-hover:  rgba(255, 252, 247, 0.88);     /* deeper glass */
   --mg-btn-secondary-border:    var(--mg-card-border);
   /* ── Compact controls — sanctioned small sizes (2026-06-17 decision) ──
@@ -320,6 +328,18 @@
   --mg-card-bg: rgba(26, 31, 38, 0.48);      /* משטח כרטיס — bumped from 0.30 for content separation */
   --mg-card-border: 1px solid rgba(240, 235, 224, 0.14);
   --mg-card-shadow: 0 1px 2px rgba(0,0,0,0.30), 0 8px 24px rgba(0,0,0,0.42);
+  /* Dark never redefined the resting fill, only the hover — so it inherited the
+     :root definition, `var(--mg-card-bg)`, which IS the dark card here. Same
+     non-separation as light.
+     Measured against the card as it actually composites over the background
+     photo, going DARKER separates and going lighter does not: a slate lift
+     (36,42,51 @ .60, the hover's own tone) scores 1.50 on a mid-tone area —
+     exactly what the old value scored — and 1.07 in shadow, which is worse.
+     The warm near-black below scores 2.04 and 1.33 on the same two. It is also
+     what .inv-remind and .mg-menu-btn each landed on independently. The hover
+     stays a lighter slate: at night the resting state recedes and the hover
+     lifts toward light. */
+  --mg-btn-secondary-bg: rgba(20, 18, 14, 0.72);
   --mg-btn-secondary-bg-hover: rgba(36, 42, 51, 0.85);
 }
 

@@ -54,16 +54,23 @@
 .lpm-card-title { font-size: 17px; font-weight: 600; margin: 0; }
 
 .lpm-badges { display: flex; gap: 8px; flex-wrap: wrap; }
+/* These sit on card glass over a background photo, so a very light tint had
+   almost nothing to push against: the neutral badge measured 1.09–1.14 against
+   the card whichever part of the photo it happened to be over. Alphas raised
+   across all three. The neutral one gains the most (to 1.21–1.35) because ink
+   contrasts with a cream card wherever the photo is; the two tinted ones gain
+   less, and cannot gain much this way — sage over a green photo area is a hue
+   collision, not a weak alpha. */
 .lpm-badge {
   font-size: 12px;
   font-weight: 500;
   padding: 3px 10px;
   border-radius: 999px;
-  background: rgba(44, 38, 33, 0.07);
+  background: rgba(44, 38, 33, 0.16);
   color: var(--stone);
 }
-.lpm-badge.is-live { background: color-mix(in srgb, var(--sage) 24%, transparent); color: var(--espresso); }
-.lpm-badge.is-auto { background: color-mix(in srgb, var(--terracotta) 18%, transparent); color: var(--espresso); }
+.lpm-badge.is-live { background: color-mix(in srgb, var(--sage) 34%, transparent); color: var(--espresso); }
+.lpm-badge.is-auto { background: color-mix(in srgb, var(--terracotta) 28%, transparent); color: var(--espresso); }
 
 .lpm-card-actions { display: flex; align-items: center; gap: 8px; }
 

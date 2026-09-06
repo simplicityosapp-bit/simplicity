@@ -159,6 +159,18 @@
   color: var(--clay-on-dark);
   text-align: center;
 }
+/* The way out, inside the message that describes the problem. "That address is
+   already registered" and "wrong email or password" both have one obvious next
+   move, and both used to leave the person to find it themselves — scrolling
+   past the form to a line at the foot of the screen. */
+.auth-error-cta {
+  display: inline-block;
+  margin-inline-start: 6px;
+  color: inherit;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
 
 /* A labelled field: its name, then the row.
 
@@ -372,13 +384,62 @@
   border-color: rgba(240, 235, 224, 0.22);
 }
 
+/* "Send it again" — a secondary next to a primary, so it wears the design
+   system's secondary tokens rather than a look of its own. Full width because
+   it stands alone on the "check your inbox" card, where there is nothing for
+   it to sit beside. */
+.auth-resend {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 4px;
+  width: 100%;
+}
+.auth-resend-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  height: 44px;
+  border-radius: var(--mg-btn-radius);
+  border: var(--mg-btn-secondary-border);
+  background: var(--mg-btn-secondary-bg);
+  color: var(--espresso);
+  font-family: var(--mg-font);
+  font-size: var(--mg-caption);
+  font-weight: var(--mg-btn-weight);
+  cursor: pointer;
+  transition: background 0.15s, opacity 0.15s;
+}
+.auth-resend-btn:hover:not(:disabled) {
+  background: var(--mg-btn-secondary-bg-hover);
+}
+.auth-resend-btn:disabled {
+  opacity: 0.65;
+  cursor: default;
+}
+.auth-resend .auth-hint {
+  margin: 0 2px;
+  text-align: center;
+}
+
+/* Worn by a <Link> and, on the "check your inbox" card, by a <button> — the
+   "that's not my address" control acts on state rather than going anywhere.
+   The resets below are what make it safe on both: the only global button rule
+   is font-family, so without them a button wearing this class arrives with
+   the browser's grey chrome around it. */
 .auth-link-sm {
   align-self: center;
   margin: 6px 0 0;
+  padding: 0;
+  background: none;
+  border: none;
   font-family: var(--mg-font);
   font-size: calc(13px * var(--text-scale));
   color: var(--stone);
   text-decoration: none;
+  cursor: pointer;
 }
 .auth-link-sm:hover {
   color: var(--espresso);

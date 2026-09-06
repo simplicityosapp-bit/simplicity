@@ -16,8 +16,15 @@ function GoogleG() {
 /* Shared "Sign in with Google" button. Needs the Google provider enabled in
    Supabase (Auth → Providers). `disabled` gates the button (signup consent);
    `onBeforeAuth` runs just before the OAuth redirect (used to stash consent
-   so it can be written to user_metadata on return). */
-export default function GoogleButton({ onError, label = 'התחברות עם Google', disabled = false, onBeforeAuth }) {
+   so it can be written to user_metadata on return).
+
+   `label` comes from the caller's own t(). It used to carry a hardcoded
+   Hebrew default, and the login screen took that default — so on a screen
+   with a language switcher at the foot of it, the one control that never
+   translated was the one a visitor who does not read Hebrew would reach for
+   first. auth:googleLogin had been sitting there in all four locales,
+   unread. */
+export default function GoogleButton({ onError, label, disabled = false, onBeforeAuth }) {
   const [busy, setBusy] = useState(false)
   const click = async () => {
     if (disabled || busy) return

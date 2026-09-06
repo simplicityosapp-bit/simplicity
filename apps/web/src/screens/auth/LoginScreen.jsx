@@ -53,42 +53,57 @@ export default function LoginScreen() {
         </Box>
 
         <Box as="form" className="auth-form" onSubmit={submit}>
-          {error && <Txt as="p" className="auth-error">{error}</Txt>}
+          {/* Login and signup were the same picture — a wordmark and two
+              boxes — and the only thing telling them apart was the small
+              print at the foot. The page says which one it is now, and as
+              the page's h1, so it is the first thing read aloud too. */}
+          <Txt as="h1" className="auth-title">{t('login')}</Txt>
+          {/* role="alert": a wrong password is announced, not just drawn. */}
+          {error && <Txt as="p" className="auth-error" role="alert">{error}</Txt>}
 
-          <Box as="label" className="auth-field" htmlFor="login-email">
-            <Txt className="auth-field-icon"><Mail size={16} strokeWidth={1.6} aria-hidden="true" /></Txt>
-            <Input
-              id="login-email"
-              type="email"
-              dir="ltr"
-              autoComplete="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Email"
-            />
+          <Box className="auth-group">
+            {/* The name of the field, on the page, staying there. It used to
+                live in the placeholder — which is to say it left as soon as
+                anyone typed. A sibling of the field, not its parent: see
+                AuthScreen.css for why that distinction decides whether a
+                screen reader hears anything at all. */}
+            <Txt as="label" className="auth-label" htmlFor="login-email">{t('emailPlaceholder')}</Txt>
+            <Box as="label" className="auth-field" htmlFor="login-email">
+              <Txt className="auth-field-icon"><Mail size={16} strokeWidth={1.6} aria-hidden="true" /></Txt>
+              <Input
+                id="login-email"
+                type="email"
+                dir="ltr"
+                autoComplete="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </Box>
           </Box>
 
-          <Box as="label" className="auth-field" htmlFor="login-pass">
-            <Txt className="auth-field-icon"><Lock size={16} strokeWidth={1.6} aria-hidden="true" /></Txt>
-            <Input
-              id="login-pass"
-              type={showPassword ? 'text' : 'password'}
-              dir="ltr"
-              autoComplete="current-password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="Password"
-            />
-            <Btn
-              type="button"
-              className="auth-field-toggle"
-              onClick={() => setShowPassword((v) => !v)}
-              aria-label={showPassword ? t('hidePassword') : t('showPassword')}
-            >
-              {showPassword
-                ? <EyeOff size={16} strokeWidth={1.6} aria-hidden="true" />
-                : <Eye size={16} strokeWidth={1.6} aria-hidden="true" />}
-            </Btn>
+          <Box className="auth-group">
+            <Txt as="label" className="auth-label" htmlFor="login-pass">{t('passwordPlaceholder')}</Txt>
+            <Box as="label" className="auth-field" htmlFor="login-pass">
+              <Txt className="auth-field-icon"><Lock size={16} strokeWidth={1.6} aria-hidden="true" /></Txt>
+              <Input
+                id="login-pass"
+                type={showPassword ? 'text' : 'password'}
+                dir="ltr"
+                autoComplete="current-password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+              <Btn
+                type="button"
+                className="auth-field-toggle"
+                onClick={() => setShowPassword((v) => !v)}
+                aria-label={showPassword ? t('hidePassword') : t('showPassword')}
+              >
+                {showPassword
+                  ? <EyeOff size={16} strokeWidth={1.6} aria-hidden="true" />
+                  : <Eye size={16} strokeWidth={1.6} aria-hidden="true" />}
+              </Btn>
+            </Box>
           </Box>
 
           <Btn className="auth-btn auth-btn-primary" type="submit" disabled={busy}>
@@ -97,7 +112,7 @@ export default function LoginScreen() {
 
           <Box className="auth-divider"><Txt>{t('or')}</Txt></Box>
 
-          <GoogleButton onError={setError} />
+          <GoogleButton onError={setError} label={t('googleLogin')} />
 
           <Link to={ROUTES.RESET_PASSWORD} className="auth-link-sm">{t('forgotPassword')}</Link>
         </Box>

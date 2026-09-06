@@ -4,7 +4,8 @@
    corridor); brand mark + simplicity wordmark anchored above the
    form; transparent inputs that float over the photo with a soft
    sage focus glow. Same logic on mobile + desktop, with the
-   landscape photo swapped in via @media on wider viewports.
+   landscape photo swapped in via @media on wider viewports and the
+   moonlit frame swapped in by theme.
    ════════════════════════════════════════════════════════════════ */
 
 .auth-wrap {
@@ -14,7 +15,15 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 32px 20px;
+  /* The cookie notice is `position: fixed`, so it takes up no room in the
+     flow — and this screen is centred inside exactly 100dvh, so there is
+     nothing to scroll. The footer ("no account? sign up") therefore rendered
+     UNDERNEATH the notice on a first visit: the one route to an account was
+     invisible and unclickable at precisely the moment someone needs it.
+     Reserve the bar's measured height instead. CookieBanner publishes it
+     while the bar is up and unsets it afterwards, so a visitor who has
+     already chosen gets the original layout to the pixel. */
+  padding: 32px 20px calc(32px + var(--cookie-banner-h, 0px));
   background: var(--bg-home);
   overflow: hidden;
 }
@@ -31,6 +40,16 @@
   background-position: center;
   background-repeat: no-repeat;
 }
+/* Night keeps the same composition — a path framed by trees — but under a
+   moon. The photo used to stay on its sunlit daytime frame in dark mode
+   while every token above it flipped to a light-on-dark palette, so the
+   greys landed on a bright sky: "forgot password?", "no account?", the
+   "or" divider and the language row all read as blank space, and the white
+   wordmark sat on a near-white sky. This is the same day/night pair the
+   rest of the app uses for its screen backdrops (see index.css). */
+[data-theme="dark"] .auth-bg {
+  background-image: url('/backgrounds/mobile/night/onboarding.webp');
+}
 .auth-bg::after {
   /* Soft warm wash to bring the form's contrast up without flattening
      the photo. */
@@ -40,11 +59,22 @@
   background: radial-gradient(circle at 50% 45%, rgba(244, 227, 218, 0.42), rgba(244, 227, 218, 0) 55%);
 }
 [data-theme="dark"] .auth-bg::after {
-  background: radial-gradient(circle at 50% 45%, rgba(10, 8, 6, 0.45), rgba(10, 8, 6, 0) 55%);
+  /* Deeper and wider than the day wash, and it never quite reaches zero. The
+     night frame has a moon in it, and the moon sits behind the top of the
+     form: the screen's one line of small print landed on the brightest thing
+     in the picture. The column the form reads down needs to stay darker than
+     whatever the photograph is doing behind it. */
+  background: radial-gradient(circle at 50% 42%, rgba(10, 8, 6, 0.68), rgba(10, 8, 6, 0.2) 75%);
 }
 @media (min-width: 768px) {
   .auth-bg {
     background-image: url('/login-bg-desktop.webp');
+  }
+  /* Restated inside the query: the dark rule outscores a bare `.auth-bg`
+     wherever it sits, so without this the wide viewport would fall back to
+     the portrait night frame. */
+  [data-theme="dark"] .auth-bg {
+    background-image: url('/backgrounds/desktop/night/onboarding.webp');
   }
 }
 
@@ -106,10 +136,37 @@
   text-align: center;
 }
 
-/* Field row — leading icon (mail / lock) on the inline-start side,
-   input fills the rest. RTL safe: inset-inline-start puts the icon
-   on the right side for Hebrew layouts. The input itself keeps
-   dir="ltr" so emails/passwords read left-to-right. */
+/* A labelled field: its name, then the row.
+
+   These fields were named by their placeholder alone. That is a name that
+   leaves exactly when it is needed: you fill the top box, look away, look
+   back, and the boxes below are a row of text with nothing saying which is
+   which. Worse for someone unsure they typed the right thing in the first
+   place — which is the whole audience here.
+
+   Two <label>s point at the input, on purpose. The visible one is a SIBLING
+   of the field, not its parent: a label wrapping its control contributes no
+   accessible name in Chrome (checked against a wrapping and a sibling probe
+   side by side in the page — the wrapped one came back nameless), so the
+   first arrangement here looked right and told a screen reader nothing. The
+   pill keeps its own wrapping label, textless, purely so that clicking the
+   icon or the padding still lands the caret in the box. */
+.auth-group {
+  display: block;
+}
+.auth-label {
+  display: block;
+  margin: 0 2px 6px;
+  font-family: var(--mg-font);
+  font-size: var(--mg-caption);
+  font-weight: 500;
+  color: var(--stone);
+}
+
+/* Field row — leading icon (mail / lock) at the inline-start edge, the input
+   filling the rest, and the reveal toggle where the rule below puts it. The
+   input keeps dir="ltr" so emails and passwords read left-to-right whatever
+   the page does. */
 .auth-field {
   position: relative;
   display: flex;
@@ -137,11 +194,26 @@
   color: var(--stone);
   flex-shrink: 0;
 }
+/* The value is dir="ltr" whatever the page is, so it always begins at the
+   field's PHYSICAL left edge — and whatever stands on that edge pushes it in.
+   In an LTR page the leading icon holds it in both fields and the reveal
+   toggle sits at the far end, so the two line up. Turn the page around and
+   the toggle lands on the left of the password field alone: its value started
+   40px inboard of the email's (measured x=60.8 against x=20.8 on a 375px
+   screen), a step you can see with the fields stacked. So in RTL — and only
+   there — the toggle joins the icon at the leading edge. Both fields then
+   begin in the same place in both directions, and the email field is
+   untouched either way. */
+[dir="rtl"] .auth-field-toggle { order: 1; }
+[dir="rtl"] .auth-field input { order: 2; }
 .auth-field input {
   flex: 1;
   height: 100%;
   min-width: 0;
-  padding: 0 4px 0 14px;
+  /* Logical, not left/right: the tight side is the one against the icons and
+     the roomy side is the outer edge, and that has to hold when the language
+     switcher turns the form around. */
+  padding-inline: 4px 14px;
   border: none;
   background: transparent;
   outline: none;
@@ -168,7 +240,12 @@
   color: var(--espresso);
 }
 
-/* Primary CTA — solid terracotta pill, full-width. */
+/* Primary CTA — solid accent pill, full-width. Painted with the primary-
+   button token, not the raw brand accent: the two part company at night,
+   where --mg-btn-primary-bg is Moonglow and --terracotta is Misted Sage.
+   Taking the accent while hovering to the token left this button hovering
+   from a green rest state to a near-cream one under a white label — 1.1:1,
+   the words simply went out. */
 .auth-btn {
   display: inline-flex;
   align-items: center;
@@ -178,7 +255,7 @@
   height: 52px;
   border: none;
   border-radius: var(--mg-btn-radius);
-  background: var(--terracotta);
+  background: var(--mg-btn-primary-bg);
   color: var(--on-accent);
   font-family: var(--mg-font);
   font-size: calc(15px * var(--text-scale));
@@ -197,6 +274,10 @@
 .auth-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+/* --mg-btn-primary-bg is LIGHT at night, so this label must go dark. */
+[data-theme="dark"] .auth-btn {
+  color: var(--ink-on-accent);
 }
 
 .auth-divider {
@@ -361,13 +442,6 @@
   text-align: center;
   font-family: var(--mg-font);
   font-size: calc(13px * var(--text-scale));
-  color: var(--stone);
-}
-.auth-label {
-  margin: 0 2px 6px;
-  font-family: var(--mg-font);
-  font-size: calc(12px * var(--text-scale));
-  font-weight: 500;
   color: var(--stone);
 }
 .auth-input {

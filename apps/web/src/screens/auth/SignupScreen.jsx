@@ -125,48 +125,52 @@ export default function SignupScreen() {
           <Txt as="p" className="auth-sub">{t('signupScreen.subtitle')}</Txt>
           {error && <Txt as="p" className="auth-error" role="alert">{error}</Txt>}
 
-          <Box as="label" className="auth-field" htmlFor="signup-email">
-            <Txt className="auth-field-icon"><Mail size={16} strokeWidth={1.6} aria-hidden="true" /></Txt>
-            <Input
-              id="signup-email"
-              type="email"
-              dir="ltr"
-              autoComplete="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              /* The wrapping label holds an icon and nothing else, so the
-                 placeholder is what names this field — and it was the literal
-                 string "Email". aria-label so the name survives typing. */
-              placeholder={t('emailPlaceholder')}
-              aria-label={t('emailPlaceholder')}
-            />
+          <Box className="auth-group">
+            {/* The name of the field, on the page, staying there — it used to
+                live in the placeholder, which is to say it left the moment
+                anyone typed. A sibling of the field, not its parent: see
+                AuthScreen.css for why that decides whether a screen reader
+                hears anything at all. */}
+            <Txt as="label" className="auth-label" htmlFor="signup-email">{t('emailPlaceholder')}</Txt>
+            <Box as="label" className="auth-field" htmlFor="signup-email">
+              <Txt className="auth-field-icon"><Mail size={16} strokeWidth={1.6} aria-hidden="true" /></Txt>
+              <Input
+                id="signup-email"
+                type="email"
+                dir="ltr"
+                autoComplete="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </Box>
           </Box>
 
-          <Box as="label" className="auth-field" htmlFor="signup-pass">
-            <Txt className="auth-field-icon"><Lock size={16} strokeWidth={1.6} aria-hidden="true" /></Txt>
-            <Input
-              id="signup-pass"
-              type={showPassword ? 'text' : 'password'}
-              dir="ltr"
-              autoComplete="new-password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              /* Was just "at least 8 characters" — the rule, with nothing
-                 saying which box it belonged to. Now the field says what it
-                 is AND what it wants. */
-              placeholder={t('signupScreen.passwordPlaceholder')}
-              aria-label={t('signupScreen.passwordPlaceholder')}
-            />
-            <Btn
-              type="button"
-              className="auth-field-toggle"
-              onClick={() => setShowPassword((v) => !v)}
-              aria-label={showPassword ? t('hidePassword') : t('showPassword')}
-            >
-              {showPassword
-                ? <EyeOff size={16} strokeWidth={1.6} aria-hidden="true" />
-                : <Eye size={16} strokeWidth={1.6} aria-hidden="true" />}
-            </Btn>
+          <Box className="auth-group">
+            <Txt as="label" className="auth-label" htmlFor="signup-pass">{t('passwordPlaceholder')}</Txt>
+            <Box as="label" className="auth-field" htmlFor="signup-pass">
+              <Txt className="auth-field-icon"><Lock size={16} strokeWidth={1.6} aria-hidden="true" /></Txt>
+              <Input
+                id="signup-pass"
+                type={showPassword ? 'text' : 'password'}
+                dir="ltr"
+                autoComplete="new-password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                /* With the label saying what the box is, the placeholder is
+                   free to go back to being the hint it was written as. */
+                placeholder={t('min8chars')}
+              />
+              <Btn
+                type="button"
+                className="auth-field-toggle"
+                onClick={() => setShowPassword((v) => !v)}
+                aria-label={showPassword ? t('hidePassword') : t('showPassword')}
+              >
+                {showPassword
+                  ? <EyeOff size={16} strokeWidth={1.6} aria-hidden="true" />
+                  : <Eye size={16} strokeWidth={1.6} aria-hidden="true" />}
+              </Btn>
+            </Box>
           </Box>
 
           <Box className="auth-checks">

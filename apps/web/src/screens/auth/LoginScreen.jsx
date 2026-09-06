@@ -61,47 +61,49 @@ export default function LoginScreen() {
           {/* role="alert": a wrong password is announced, not just drawn. */}
           {error && <Txt as="p" className="auth-error" role="alert">{error}</Txt>}
 
-          <Box as="label" className="auth-field" htmlFor="login-email">
-            <Txt className="auth-field-icon"><Mail size={16} strokeWidth={1.6} aria-hidden="true" /></Txt>
-            <Input
-              id="login-email"
-              type="email"
-              dir="ltr"
-              autoComplete="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              /* The label wrapping this field holds an icon and nothing else,
-                 so the placeholder is doing the naming — and it was the
-                 literal string "Email", in an app whose whole point is not
-                 asking people to know English. aria-label so the name does
-                 not vanish the moment someone types. */
-              placeholder={t('emailPlaceholder')}
-              aria-label={t('emailPlaceholder')}
-            />
+          <Box className="auth-group">
+            {/* The name of the field, on the page, staying there. It used to
+                live in the placeholder — which is to say it left as soon as
+                anyone typed. A sibling of the field, not its parent: see
+                AuthScreen.css for why that distinction decides whether a
+                screen reader hears anything at all. */}
+            <Txt as="label" className="auth-label" htmlFor="login-email">{t('emailPlaceholder')}</Txt>
+            <Box as="label" className="auth-field" htmlFor="login-email">
+              <Txt className="auth-field-icon"><Mail size={16} strokeWidth={1.6} aria-hidden="true" /></Txt>
+              <Input
+                id="login-email"
+                type="email"
+                dir="ltr"
+                autoComplete="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </Box>
           </Box>
 
-          <Box as="label" className="auth-field" htmlFor="login-pass">
-            <Txt className="auth-field-icon"><Lock size={16} strokeWidth={1.6} aria-hidden="true" /></Txt>
-            <Input
-              id="login-pass"
-              type={showPassword ? 'text' : 'password'}
-              dir="ltr"
-              autoComplete="current-password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder={t('passwordPlaceholder')}
-              aria-label={t('passwordPlaceholder')}
-            />
-            <Btn
-              type="button"
-              className="auth-field-toggle"
-              onClick={() => setShowPassword((v) => !v)}
-              aria-label={showPassword ? t('hidePassword') : t('showPassword')}
-            >
-              {showPassword
-                ? <EyeOff size={16} strokeWidth={1.6} aria-hidden="true" />
-                : <Eye size={16} strokeWidth={1.6} aria-hidden="true" />}
-            </Btn>
+          <Box className="auth-group">
+            <Txt as="label" className="auth-label" htmlFor="login-pass">{t('passwordPlaceholder')}</Txt>
+            <Box as="label" className="auth-field" htmlFor="login-pass">
+              <Txt className="auth-field-icon"><Lock size={16} strokeWidth={1.6} aria-hidden="true" /></Txt>
+              <Input
+                id="login-pass"
+                type={showPassword ? 'text' : 'password'}
+                dir="ltr"
+                autoComplete="current-password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+              <Btn
+                type="button"
+                className="auth-field-toggle"
+                onClick={() => setShowPassword((v) => !v)}
+                aria-label={showPassword ? t('hidePassword') : t('showPassword')}
+              >
+                {showPassword
+                  ? <EyeOff size={16} strokeWidth={1.6} aria-hidden="true" />
+                  : <Eye size={16} strokeWidth={1.6} aria-hidden="true" />}
+              </Btn>
+            </Box>
           </Box>
 
           <Btn className="auth-btn auth-btn-primary" type="submit" disabled={busy}>

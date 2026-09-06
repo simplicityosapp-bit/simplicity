@@ -50,7 +50,7 @@ export default function ResetPasswordScreen() {
           </Box>
           <Box className="auth-form auth-msg-card">
             <Txt className="auth-msg-icon"><MailCheck size={34} strokeWidth={1.4} aria-hidden="true" /></Txt>
-            <Txt as="p" className="auth-title">{t('reset.sentTitle')}</Txt>
+            <Txt as="h1" className="auth-title">{t('reset.sentTitle')}</Txt>
             <Txt as="p" className="auth-sub">
               <Trans t={t} i18nKey="reset.sentBody" values={{ email }} components={[<bdi key="e" />]} />
             </Txt>
@@ -73,7 +73,7 @@ export default function ResetPasswordScreen() {
         </Box>
 
         <Box as="form" className="auth-form" onSubmit={submit}>
-          <Txt as="p" className="auth-title">{t('reset.title')}</Txt>
+          <Txt as="h1" className="auth-title">{t('reset.title')}</Txt>
           <Txt as="p" className="auth-sub">{t('reset.subtitle')}</Txt>
 
           {error && <Txt as="p" className="auth-error" role="alert">{error}</Txt>}

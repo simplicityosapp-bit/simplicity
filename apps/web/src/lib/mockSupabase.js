@@ -444,6 +444,10 @@ export function makeMockClient() {
       /* Answers the way the real one does: success either way, since the real
          client will not say whether an address is registered. */
       resend: async () => ({ data: {}, error: null }),
+      /* Four callers: the set-new-password screen, the policy re-acceptance
+         modal, and the consent sync on an OAuth return. Without it every one
+         of them threw behind the mock. */
+      updateUser: async () => ({ data: { user: FAKE_SESSION.user }, error: null }),
     },
   }
 }

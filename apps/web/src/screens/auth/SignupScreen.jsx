@@ -119,7 +119,7 @@ export default function SignupScreen() {
           </Box>
           <Box className="auth-form auth-msg-card">
             <Txt className="auth-msg-icon"><MailCheck size={34} strokeWidth={1.4} aria-hidden="true" /></Txt>
-            <Txt as="p" className="auth-title">{t('signupScreen.checkEmailTitle')}</Txt>
+            <Txt as="h1" className="auth-title">{t('signupScreen.checkEmailTitle')}</Txt>
             <Txt as="p" className="auth-sub">{t('signupScreen.sentBody', { email })}</Txt>
             <Link to={ROUTES.LOGIN} className="auth-btn auth-btn-primary">{t('backToLogin')}</Link>
             {/* The two ways this screen used to be a dead end. Waiting for a

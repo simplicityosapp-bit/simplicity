@@ -257,8 +257,11 @@ export default function ClientsScreen() {
      current tab (beta feedback 24/06; owner chose to include past too). */
   const sourceClients = (groupBy !== 'status' || balanceOnly) ? clientList : tabClients
   const list = useMemo(() => {
-    const q = query.trim()
-    let filtered = q ? sourceClients.filter((c) => (c.name || '').includes(q)) : sourceClients
+    /* Folded on both sides: the match was case-sensitive, so a client filed
+       as "Dana Cohen" could not be found by typing "dana". Hebrew has no case
+       and never noticed; every Latin-script name did. */
+    const q = query.trim().toLowerCase()
+    let filtered = q ? sourceClients.filter((c) => (c.name || '').toLowerCase().includes(q)) : sourceClients
     /* "יתרה פתוחה" filter — only clients who still owe (balance > 0). */
     if (balanceOnly) filtered = filtered.filter((c) => (balanceByClient.get(c.id)?.balance || 0) > 0)
     return sortClients(filtered, sort, { balanceByClient, paidByClient })

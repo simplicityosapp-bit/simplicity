@@ -217,8 +217,8 @@
           "body": "Los tres controles que cambian la forma de la lista están juntos en un solo menú. La ordenación coloca por nombre, saldo, pagado, sesiones, fecha de alta o antigüedad, de forma ascendente o descendente. La agrupación alterna entre estado y proyecto. «Seleccionar varios» activa el modo de selección. Cada elección se guarda y vuelve la próxima vez que abras la pantalla."
         },
         {
-          "title": "Agrupar por estado o proyecto",
-          "body": "En la parte superior del menú «Vista» hay un conmutador estado / proyecto. En modo proyecto los clientes se listan bajo el nombre de cada proyecto (incluido «Sin proyecto»), y las pestañas y el resumen superior desaparecen; por eso el propio botón pasa a mostrar «Vista · Proyecto», para que quede claro adónde han ido."
+          "title": "Agrupar por estado, proyecto o grupo",
+          "body": "En la parte superior del menú «Vista» hay un selector estado / proyecto / grupo. En modo proyecto los clientes se listan bajo el nombre de cada proyecto (incluido «Sin proyecto»); en modo grupo, bajo el nombre de cada grupo (incluido «Sin grupo»), que es el más útil cuando trabajas por ciclos. En ambos casos las pestañas y el resumen superior desaparecen; por eso el propio botón pasa a mostrar «Vista · Proyecto» o «Vista · Grupo», para que quede claro adónde han ido."
         },
         {
           "title": "Búsqueda y filtro de saldo pendiente",
@@ -226,7 +226,7 @@
         },
         {
           "title": "Resumen superior (mensual / acumulado)",
-          "body": "Sobre la lista (al agrupar por estado) se muestra un resumen del grupo abierto: sesiones, pagado y saldo pendiente. El interruptor «Mensual / Acumulado» determina si las sesiones e importes son del mes actual o desde el principio. En las pestañas «Antiguo» y «Sin estado» el resumen es siempre acumulado y el interruptor está bloqueado."
+          "body": "Sobre la lista (al agrupar por estado) se muestra un resumen del grupo abierto. En las pestañas «Activo» y «En pausa» muestra sesiones, pagado y saldo pendiente; en «Antiguo» y «Sin estado» muestra cuántos clientes, sesiones y pagado, sin saldo, porque no son clientes a los que estés reclamando. El interruptor «Mensual / Acumulado» determina si las sesiones e importes son del mes actual o desde el principio, y en modo acumulado las sesiones se leen como «realizadas de las reservadas» (por ejemplo 12/20) en lugar de como un solo número. En las pestañas «Antiguo» y «Sin estado» el resumen es siempre acumulado y el interruptor está bloqueado."
         },
         {
           "title": "La ficha del cliente",
@@ -288,7 +288,7 @@
         },
         {
           "q": "¿Por qué el resumen superior muestra cero sesiones o 0 € este mes?",
-          "a": "Cuando el interruptor está en «Mensual», el resumen solo cuenta sesiones y pagos del mes actual. Cambia a «Acumulado» para ver todo desde el principio. En las pestañas «Antiguo» y «Sin estado» la vista es siempre acumulada."
+          "a": "Cuando el interruptor está en «Mensual», el resumen solo cuenta sesiones y pagos del mes actual. Cambia a «Acumulado» para ver todo desde el principio; allí las sesiones se leen como «realizadas de las reservadas» (por ejemplo 12/20). En las pestañas «Antiguo» y «Sin estado» la vista es siempre acumulada."
         },
         {
           "q": "¿Cuál es la diferencia entre la facturación «Paquete» y «Por sesión»?",

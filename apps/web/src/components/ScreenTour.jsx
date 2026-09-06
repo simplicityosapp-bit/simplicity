@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
+import { useLocation } from 'react-router-dom'
 import { Compass } from 'lucide-react'
 import { useTours } from '../hooks/useTours'
 import { tourFor } from '../lib/tours'
@@ -44,8 +45,24 @@ const BUBBLE_GAP = 14      /* gap between spotlight and bubble */
 const VIEWPORT_PAD = 12    /* the bubble never comes closer than this to an edge */
 const BUBBLE_H_GUESS = 178 /* first paint only, before the real height is known */
 
+/* Anything that has taken the screen: a modal sheet, the client file, the
+   menu. A tour explains what is on screen, so while one of these covers it
+   there is nothing to explain — and the bubble, which paints above them all,
+   lands in the middle of whatever the user actually opened. */
+const OVERLAY_SELECTOR = '.m-sheet.open, .cd-panel.open, .drawer-panel.open'
+const overlayOpen = () => !!document.querySelector(OVERLAY_SELECTOR)
+
 export default function ScreenTour({ screenKey }) {
   const { entryFor, setEntry, markSeen } = useTours()
+  /* The tour belongs to a screen INSTANCE, not to a screen key. Two routes can
+     share a key — /projects and /projects/:id are both 'projects', /clients
+     and /clients/:id both 'clients' — so keying the reset on the key alone
+     meant walking into a project carried the LIST's tour onto the detail
+     screen: a bubble describing a summary card that is not there, and a
+     spotlight frozen on the rectangle its target used to occupy. Resetting on
+     the path costs nothing where the two agree, and on a detail route the
+     parent's steps simply find no targets and the poll gives up quietly. */
+  const { pathname } = useLocation()
   const { t: tr } = useT('components')
   /* Tour step title/body are i18n keys (guidance ns, prefixed). Resolve
      them gender-aware via useT, which applies the user's form of address
@@ -88,6 +105,10 @@ export default function ScreenTour({ screenKey }) {
     let tries = 0
     const timer = setInterval(() => {
       tries += 1
+      /* Wait, don't give up: a client file opened over the list is a pause,
+         not a reason to retire the screen's tour. The try counter keeps
+         running, so a drawer left open simply lets the poll expire. */
+      if (overlayOpen()) return
       const present = pending.filter((s) => document.querySelector(s.target))
       if (present.length) {
         clearInterval(timer)
@@ -115,7 +136,32 @@ export default function ScreenTour({ screenKey }) {
     }, 160)
     return () => clearInterval(timer)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [screenKey])
+  }, [screenKey, pathname])
+
+  /* An overlay opened over a RUNNING tour — tapping a client card mid-walk
+     opens their file, and the bubble paints above it, in the middle of the
+     thing the user just asked for.
+
+     It stops the walk WITHOUT retiring it: markSeen is not called, so the
+     steps not yet acknowledged stay owed and the tour picks them up on the
+     next visit (lib/tourProgress). That is the difference between this and
+     Escape, which is the user saying they are done.
+
+     Watched rather than polled: an overlay is opened by a click, never by a
+     timer, and every open one either sets `.open` on its own element or
+     mounts into the body. */
+  useEffect(() => {
+    if (!active) return
+    const check = () => {
+      if (!overlayOpen()) return
+      setActive(false)
+      restoreScroll()
+    }
+    const ob = new MutationObserver(check)
+    ob.observe(document.body, { subtree: true, childList: true, attributes: true, attributeFilter: ['class'] })
+    check()
+    return () => ob.disconnect()
+  }, [active, restoreScroll])
 
   /* While a tour is active, suppress the standalone coachmark glow/bubble
      so the final CTA step doesn't double up (tour spotlight + coachmark

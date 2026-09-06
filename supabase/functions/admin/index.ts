@@ -931,12 +931,14 @@ Deno.serve(async (req) => {
         if (new Date(e.created_at).getTime() < startMs) continue
         lpCounts[e.type] = (lpCounts[e.type] ?? 0) + 1
       }
-      const lpSignups = cohort.length
-      // Funnel: view → signup_start → completed signup (drop-off = starts − signups).
+      // Funnel: view → signup_start → signup_complete, all three now measured
+      // on the SAME landing session id. The last stage used to be cohort.length
+      // (every account opened in the range), which counted people who never saw
+      // the landing page — so the drop-off it showed was not the landing's.
       const landingFunnel = [
         { label: 'כניסות לדף', count: lpCounts['view'] ?? 0 },
         { label: 'התחילו הרשמה', count: lpCounts['signup_start'] ?? 0 },
-        { label: 'השלימו הרשמה', count: lpSignups },
+        { label: 'השלימו הרשמה', count: lpCounts['signup_complete'] ?? 0 },
       ]
       // Engagement: how deep visitors went (scroll), whether they opened the
       // FAQ, and whether they stayed to read (~30s).

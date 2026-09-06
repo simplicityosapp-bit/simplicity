@@ -37,6 +37,7 @@ import PolicyUpdateModal from './components/legal/PolicyUpdateModal'
 import LegalPage from './components/legal/LegalPage'
 import { needsReacceptance, readPendingConsent, clearPendingConsent, consentRowsFromMetadata } from './lib/legal'
 import { recordConsent } from './lib/api/consentLog'
+import { trackSignupComplete } from './lib/api/landingEvents'
 import { supabase } from './lib/supabase'
 
 /* Screens are code-split: each becomes its own chunk loaded on first
@@ -398,6 +399,16 @@ function ConsentGate({ children }) {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- one-time gate: mark consent resolved when nothing is stashed to sync.
     if (!pending) { setPendingDone(true); return }
     tried.current = true
+    /* The Google half of the landing funnel. A stashed consent means this
+       return came from the SIGNUP form's Google button (the login screen's
+       button passes no onBeforeAuth, so it never stashes) -- but pressing it
+       with an address that already has an account is a login, not a signup,
+       and Google gives us no flag for that. The account's own age settles it:
+       an account created within the last 10 minutes was created by THIS
+       round trip. Both signals must agree before the funnel counts a signup. */
+    const createdMs = Date.parse(user.created_at ?? '')
+    const freshAccount = Number.isFinite(createdMs) && Date.now() - createdMs < 10 * 60 * 1000
+    if (freshAccount) trackSignupComplete()
     ;(async () => {
       /* Durable legal record from the stash (incl. the marketing choice).
          Best-effort + SEPARATE so it never blocks the gating write below; if it

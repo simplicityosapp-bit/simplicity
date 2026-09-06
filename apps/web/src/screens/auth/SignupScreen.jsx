@@ -9,6 +9,7 @@ import { checkPasswordStrength } from '../../lib/passwordStrength'
 import GoogleButton from '../../auth/GoogleButton'
 import { useT } from '../../i18n/useT'
 import { buildConsent, stashPendingConsent } from '../../lib/legal'
+import { trackSignupComplete } from '../../lib/api/landingEvents'
 import './AuthScreen.css'
 import { Box, Txt, Btn, Input, Lnk } from '../../components/ui'
 
@@ -76,6 +77,12 @@ export default function SignupScreen() {
         setError(translateAuthError('already registered'))
         return
       }
+      /* A real new account exists from here on (the already-registered case
+         returned above), so close the landing funnel: view -> signup_start ->
+         signup_complete on the same session id. Deliberately AFTER the
+         identities check, so a probe of an existing address is not counted as
+         a signup. Cannot throw and does not block the redirect below. */
+      trackSignupComplete()
       if (!data.session) setSent(true)
     } catch (err) {
       setError(translateAuthError(err?.message))

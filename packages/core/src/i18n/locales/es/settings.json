@@ -198,7 +198,8 @@
     "restartOnboarding": "Reiniciar la introducción",
     "restartHint": "Vuelve a abrir el asistente de configuración desde el primer paso. Útil si lo saltaste a la mitad.",
     "exportClients": "Exportar clientes (CSV)",
-    "exportTransactions": "Exportar movimientos (CSV)"
+    "exportTransactions": "Exportar movimientos (CSV)",
+    "importTooLarge": "«{{name}}» es demasiado grande (más de {{mb}}MB) — bloquearía el navegador antes de poder leerlo. Exporta un rango menor o divídelo en varios archivos."
   },
   "danger": {
     "resetTitle": "Restablecer la cuenta",

@@ -224,7 +224,8 @@
     "restartOnboarding_female": "התחילי מחדש את ההיכרות",
     "restartHint": "פותח את ההיכרות מהצעד הראשון. נוח לחזור אם דילגת באמצע.",
     "exportClients": "ייצוא לקוחות (CSV)",
-    "exportTransactions": "ייצוא תנועות (CSV)"
+    "exportTransactions": "ייצוא תנועות (CSV)",
+    "importTooLarge": "הקובץ «{{name}}» גדול מדי (מעל {{mb}}MB) — הוא יתקע את הדפדפן לפני שנספיק לקרוא אותו. אפשר לייצא טווח קטן יותר, או לפצל לכמה קבצים."
   },
   "danger": {
     "resetTitle": "איפוס חשבון",

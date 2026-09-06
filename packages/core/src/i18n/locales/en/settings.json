@@ -198,7 +198,8 @@
     "restartOnboarding": "Restart the intro",
     "restartHint": "Reopens the setup wizard from the first step. Handy if you skipped partway through.",
     "exportClients": "Export clients (CSV)",
-    "exportTransactions": "Export transactions (CSV)"
+    "exportTransactions": "Export transactions (CSV)",
+    "importTooLarge": "“{{name}}” is too large (over {{mb}}MB) — it would freeze the browser before we could read it. Export a smaller range, or split it into several files."
   },
   "danger": {
     "resetTitle": "Reset account",

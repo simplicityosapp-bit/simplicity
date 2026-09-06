@@ -19,7 +19,7 @@ import { Box, Txt, Btn } from '../../components/ui'
    detailed editor (reachable via "advanced") stays the single source.
    ════════════════════════════════════════════════════════════════ */
 
-export default function RecognitionWizard({ sheets, onChange, onConfirm, onEditManually }) {
+export default function RecognitionWizard({ sheets, onChange, onConfirm, onEditManually, onClose }) {
   const { t } = useT('onboarding')
   const panelRef = useRef(null)
   const restoreFocusRef = useRef(null)
@@ -42,18 +42,21 @@ export default function RecognitionWizard({ sheets, onChange, onConfirm, onEditM
 
   const changeType = (id, type) => onChange((sheets || []).map((s) => (s.id === id ? setSheetType(s, type) : s)))
 
-  /* Focus the dialog on mount; restore focus on close. Escape confirms
-     (closing into the inline editor, which is the safe continuation). */
+  /* Focus the dialog on mount; restore focus on close. Escape LEAVES the
+     import, like the X beside the title and like every other dialog in the
+     app. It used to call onConfirm — so the one key, and the one button,
+     that everybody presses to get out pushed them a step deeper into the
+     flow instead. Going forward is what the two footer buttons are for. */
   useEffect(() => {
     restoreFocusRef.current = document.activeElement
     panelRef.current?.focus()
-    const onKey = (e) => { if (e.key === 'Escape') onConfirm() }
+    const onKey = (e) => { if (e.key === 'Escape') onClose?.() }
     document.addEventListener('keydown', onKey)
     return () => {
       document.removeEventListener('keydown', onKey)
       try { restoreFocusRef.current?.focus?.() } catch { /* element gone */ }
     }
-  }, [onConfirm])
+  }, [onClose])
 
   const summaryParts = []
   if (totals.clients) summaryParts.push(t('recognize.sum.clients', { count: totals.clients }))
@@ -69,7 +72,7 @@ export default function RecognitionWizard({ sheets, onChange, onConfirm, onEditM
             <Txt as="p" className="rw-title"><Sparkles size={16} strokeWidth={1.8} aria-hidden="true" /> {t('recognize.title')}</Txt>
             <Txt as="p" className="rw-sub">{t('recognize.sub')}</Txt>
           </Box>
-          <Btn type="button" className="rw-x" onClick={onConfirm} aria-label={t('recognize.closeAria')}>
+          <Btn type="button" className="rw-x" onClick={() => onClose?.()} aria-label={t('recognize.closeAria')}>
             <X size={18} strokeWidth={1.8} aria-hidden="true" />
           </Btn>
         </Box>

@@ -12,7 +12,7 @@
    gets multi-sheet + matrix + the richer recognition for free.
    ════════════════════════════════════════════════════════════════ */
 
-import { parseXlsxSheets, parseCsvFile, ROW_CAP } from './csvImport'
+import { parseXlsxSheets, parseCsvFile, ROW_CAP, MAX_IMPORT_BYTES } from './csvImport'
 import { buildSheetMapping, projectSheet } from './sheetMapper'
 import { buildPivotConfig, detectMatrix, flattenMatrix, yearFromSheetName } from './pivotImport'
 import { flattenAllSources } from './multiImport'
@@ -32,18 +32,34 @@ export async function buildSheetsFromFiles(fileList) {
   const files = Array.from(fileList || [])
   const sheets = []
   for (const file of files) {
+    /* Size ceiling BEFORE a single byte is read. ROW_CAP only limits what we
+       persist — the whole file (and for XLSX every sheet, merges expanded)
+       is materialized in memory first, so a huge file freezes or kills the
+       tab with nothing on screen to explain it. The guard existed but sat on
+       parseFile(), which nothing has called since this path replaced it. */
+    if (file.size > MAX_IMPORT_BYTES) {
+      const err = new Error(`file too large: ${file.name} (${file.size} bytes)`)
+      err.code = 'FILE_TOO_LARGE'
+      err.fileName = file.name
+      throw err
+    }
     let raw
     if (isCsvLike(file)) {
       const csv = await parseCsvFile(file) // parse ONCE; reuse headers+rows
-      raw = [{ sheetName: null, rows: [csv.headers, ...(csv.rows || [])] }]
+      /* csv.rows ARRIVES capped — parseCsvFile applies ROW_CAP itself. So the
+         row count here can never exceed the cap, and the `> ROW_CAP` test
+         below silently answered "no" for every long CSV: 900 rows became 500
+         with nothing anywhere saying 400 had been dropped. Carry the parser's
+         own count of what it read, and let that be the truth. */
+      raw = [{ sheetName: null, rows: [csv.headers, ...(csv.rows || [])], readRows: csv.raw_rows }]
     } else {
       raw = await parseXlsxSheets(file)
     }
-    raw.forEach(({ sheetName, rows }) => {
+    raw.forEach(({ sheetName, rows, readRows }) => {
       /* Cap the data rows we persist — parsed_data lives in a JSONB blob,
          so an oversized sheet would bloat it. Keep header + first ROW_CAP
          and flag the cut so the UI can surface it. */
-      const rawDataCount = Math.max(0, (rows?.length || 0) - 1)
+      const rawDataCount = readRows ?? Math.max(0, (rows?.length || 0) - 1)
       const capped = rawDataCount > ROW_CAP ? [rows[0], ...rows.slice(1, ROW_CAP + 1)] : rows
       const sheet = buildSheetMapping(file.name, sheetName, capped)
       if (rawDataCount > ROW_CAP) {

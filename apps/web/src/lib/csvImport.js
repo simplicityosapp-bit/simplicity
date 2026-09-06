@@ -553,26 +553,14 @@ export async function parseXlsxSheets(file) {
   })
 }
 
-/* Read + parse an Excel File (legacy single-sheet entry — kept for the
-   flat in-app import path). Uses the first sheet only. */
-export async function parseXlsxFile(file) {
-  if (!file) return null
-  const sheets = await parseXlsxSheets(file)
-  return buildParsedFromRows(sheets[0]?.rows || [], file.name)
-}
-
-/* Dispatch by file type: CSV/TSV/text → CSV reader, otherwise Excel. */
 /* Hard size ceiling before we read/parse a single byte. The ROW_CAP only
    limits PERSISTED rows — the whole file (and, for XLSX, every sheet + merge
    expansion) is still materialized in memory first, so a multi-hundred-MB file
-   can freeze or crash the tab. A real import is tiny; 20 MB is generous. */
-export const MAX_IMPORT_BYTES = 20 * 1024 * 1024
+   can freeze or crash the tab. A real import is tiny; 20 MB is generous.
 
-export async function parseFile(file) {
-  if (!file) return null
-  if (file.size > MAX_IMPORT_BYTES) {
-    throw new Error(`הקובץ גדול מדי (מעל ${Math.round(MAX_IMPORT_BYTES / 1024 / 1024)}MB). נסו לייצא קובץ קטן יותר.`)
-  }
-  const isCsvLike = /\.(csv|tsv|txt)$/i.test(file.name) || file.type === 'text/csv' || file.type === 'text/plain'
-  return isCsvLike ? parseCsvFile(file) : parseXlsxFile(file)
-}
+   It is enforced in buildSheetsFromFiles (importFlow.js), the one path a
+   picked file travels. It used to be enforced in parseFile() here — a
+   dispatcher, with parseXlsxFile beside it, that nothing had called since
+   the multi-sheet path replaced them; both are gone, so the ceiling can't
+   quietly stop applying again. */
+export const MAX_IMPORT_BYTES = 20 * 1024 * 1024

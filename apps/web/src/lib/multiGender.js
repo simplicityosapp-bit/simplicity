@@ -59,3 +59,15 @@ export function mgToReadable(str) {
   for (const [glyph, txt] of READABLE) out = out.split(glyph).join(txt)
   return out
 }
+
+/* The bare form, for COMPARING a merge-glyph label against plain text:
+   "פעיל׌" → "פעיל". A spreadsheet writes "פעיל"; the app's own default
+   status is the dual-gender "פעיל׌", and a plain string compare called
+   those two different things — so importing an ordinary Hebrew status
+   column created a second "פעיל" beside the one already there, and put
+   both in the same dropdown. For comparison only: never store or display
+   the stripped form, it silently picks one gender. */
+const GLYPH_RE_G = /[׈-׏׫-׮]/g
+export function mgStrip(str) {
+  return typeof str === 'string' ? str.replace(GLYPH_RE_G, '') : str
+}

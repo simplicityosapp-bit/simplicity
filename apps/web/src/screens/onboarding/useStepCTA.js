@@ -46,3 +46,12 @@ export function useStepCTA(setCTA, { onNext, canAdvance, busy = false, hint = nu
      dep change, churning the shell for nothing. */
   useEffect(() => () => setCTA(null), [setCTA])
 }
+
+/* autoFocus is a convenience on a desktop and an ambush on a phone: it opens
+   the on-screen keyboard before the reader has seen the question. Evaluated
+   once per mount rather than watched — a device does not change its pointer
+   or grow a screen mid-step. */
+export function wantsAutoFocus() {
+  if (typeof window === 'undefined' || !window.matchMedia) return false
+  return window.matchMedia('(min-width: 641px) and (pointer: fine)').matches
+}

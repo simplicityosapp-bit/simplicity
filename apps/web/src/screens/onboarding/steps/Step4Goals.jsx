@@ -152,6 +152,7 @@ export default function Step4Goals({ ob, setCTA }) {
 
   useStepCTA(setCTA, { onNext, canAdvance, busy, hint })
 
+  /* Read before the return: the grid shows this type's explanation under it. */
   const chosenType = TYPES.find((ty) => ty.key === type)
   const previewName = isPersonal ? (label.trim() || t('step4.personalLabel')) : (chosenType?.label || '')
   const catColor = isPersonal
@@ -217,6 +218,8 @@ export default function Step4Goals({ ob, setCTA }) {
               </Btn>
             ))}
           </Box>
+          {/* The chosen type's line, on the page rather than under a hover. */}
+          {chosenType?.hint && <Txt as="p" className="ob-empty-hint">{chosenType.hint}</Txt>}
         </Box>
       )}
 

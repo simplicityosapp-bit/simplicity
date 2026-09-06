@@ -18,6 +18,7 @@ import i18n, { initI18n, loadLanguage } from '@simplicity/core/i18n'
 
 const LOCALES = ['he', 'en', 'es', 'fr']
 const modalsDir = new URL('../src/modals/', import.meta.url)
+const stepsDir = new URL('../src/screens/onboarding/steps/', import.meta.url)
 
 describe('every swatch has a name', () => {
   it('covers both palettes', () => {
@@ -47,10 +48,15 @@ describe('every swatch has a name', () => {
 })
 
 describe('no picker announces a hex any more', () => {
-  const pickers = readdirSync(modalsDir)
+  /* Both directories: the onboarding project step has a picker of its own and
+     sat outside this scan, which is exactly why it kept announcing its hex
+     long after every modal had been fixed. Its swatch class is ob-color-swatch,
+     so the filter matches either prefix. */
+  const read = (dir) => readdirSync(dir)
     .filter((f) => f.endsWith('.jsx'))
-    .map((f) => [f, readFileSync(new URL(f, modalsDir), 'utf8')])
-    .filter(([, src]) => /className={`m-color/.test(src))
+    .map((f) => [f, readFileSync(new URL(f, dir), 'utf8')])
+  const pickers = [...read(modalsDir), ...read(stepsDir)]
+    .filter(([, src]) => /className={`(m-color|ob-color-swatch)/.test(src))
 
   it('found the pickers to check', () => {
     /* If this drops to zero the suite below passes vacuously. */

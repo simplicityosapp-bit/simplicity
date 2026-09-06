@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useUserPreferences } from '../../../hooks/useUserPreferences'
 import { ROLE_LABELS, roleLabel } from '../../../lib/preferences'
 import { useT } from '../../../i18n/useT'
-import { useStepCTA } from '../useStepCTA'
+import { useStepCTA, wantsAutoFocus } from '../useStepCTA'
 import { Box, Txt, Btn, Input } from '../../../components/ui'
 
 /* Form-of-address pills — labels resolved from i18n. */
@@ -86,7 +86,7 @@ export default function Step1Profile({ ob, setCTA }) {
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder={t('step1.namePlaceholder')}
-            autoFocus
+            autoFocus={wantsAutoFocus()}
           />
         </Box>
 
@@ -132,7 +132,7 @@ export default function Step1Profile({ ob, setCTA }) {
             value={roleOther}
             onChange={(e) => setRoleOther(e.target.value)}
             placeholder={t('step1.roleOtherPlaceholder')}
-            autoFocus
+            autoFocus={wantsAutoFocus()}
           />
         </Box>
       )}

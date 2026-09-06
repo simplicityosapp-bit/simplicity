@@ -1,9 +1,9 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { User, Users, Layers, Plus, Check } from 'lucide-react'
 import { useProjects } from '../../../hooks/useProjects'
 import { useGroups } from '../../../hooks/useGroups'
 import { useUserPreferences } from '../../../hooks/useUserPreferences'
-import { CATEGORY_SWATCHES as COLORS } from '../../../lib/palette'
+import { CATEGORY_SWATCHES as COLORS, swatchKey } from '../../../lib/palette'
 import { useT } from '../../../i18n/useT'
 import { useStepCTA } from '../useStepCTA'
 import { Box, Txt, Btn, Input } from '../../../components/ui'
@@ -44,6 +44,8 @@ const wantsSolo   = (mode) => mode === 'solo' || mode === 'both'
 
 export default function Step2Project({ ob, setCTA }) {
   const { t } = useT('onboardingSteps')
+  /* Colour names live in `common` so every picker in the app shares one copy. */
+  const { t: tc } = useT('common')
   const { prefs } = useUserPreferences()
   const { projects, addProject, updateProject } = useProjects()
   const { addGroup, removeGroup } = useGroups()
@@ -76,6 +78,25 @@ export default function Step2Project({ ob, setCTA }) {
   const [color, setColor] = useState(initial.color || COLORS[0])
   const [busy, setBusy]   = useState(false)
   const [err, setErr]     = useState('')
+
+  /* The card below is the whole point of this step — the shape their answer
+     builds — and choosing a mode renders it off the bottom of the screen: on
+     a 1280×800 desktop it lands ~40px past the fold, behind a sticky footer
+     that reads like the end of the page. Nothing said there was more. Bring
+     it to the edge of view when it appears, which is what the reader would
+     have done by hand if they had known to. 'nearest' scrolls the minimum,
+     so on a screen where it already fits nothing moves at all.
+
+     Not on arrival: coming back to a step with an answer already picked
+     should not yank the page before the question has been read. */
+  const cardRef = useRef(null)
+  const shownFor = useRef(initial.work_mode || null)
+  useEffect(() => {
+    if (!mode || shownFor.current === mode) return
+    shownFor.current = mode
+    const id = requestAnimationFrame(() => cardRef.current?.scrollIntoView({ block: 'nearest' }))
+    return () => cancelAnimationFrame(id)
+  }, [mode])
 
   const trimmed = name.trim()
   const canAdvance = composing ? (!!mode && trimmed.length > 0) : !!chosen
@@ -235,7 +256,7 @@ export default function Step2Project({ ob, setCTA }) {
                   className={`ob-color-swatch${color === c ? ' on' : ''}`}
                   style={{ background: c }}
                   onClick={() => setColor(c)}
-                  aria-label={c}
+                  aria-label={tc(`colorNames.${swatchKey(c)}`, { defaultValue: c })}
                 />
               ))}
             </Box>
@@ -244,7 +265,7 @@ export default function Step2Project({ ob, setCTA }) {
           {/* What their answer builds — the same card shape the project
               screen shows, so the concept is already familiar when they
               get there. */}
-          <Box className="ob-proj-card">
+          <Box className="ob-proj-card" ref={cardRef}>
             <Box className="ob-pc-head">
               <Txt className="ob-pc-color" style={{ background: color }} />
               <Txt as="p" className="ob-pc-name">{trimmed || suggestedName}</Txt>

@@ -89,7 +89,36 @@
   "tour": {
     "done": "Done",
     "gotIt": "Got it",
-    "skipAll": "Skip all"
+    "skipAll": "Skip all",
+    "introTitle": "A quick look around",
+    "introBody": "{{count}} steps, under a minute. Each one points at one thing and says what it does. Leave whenever you like.",
+    "start": "Let's go",
+    "intro": {
+      "home": {
+        "title": "Welcome home",
+        "body": "This is the screen for every morning: what's waiting, what's urgent, how it's going. {{count}} short steps, and you can leave any time."
+      },
+      "clients": {
+        "title": "All your clients, in one place",
+        "body": "Who's active, who's paused, and where each one's payments stand. {{count}} short steps, and you can leave any time."
+      },
+      "tasks": {
+        "title": "The things to remember",
+        "body": "Tasks and reminders, so nothing slips. {{count}} short steps, and you can leave any time."
+      },
+      "leads": {
+        "title": "Not clients yet",
+        "body": "Enquiries and prospects, by the stage they're at. {{count}} short steps, and you can leave any time."
+      },
+      "projects": {
+        "title": "The frame it all sits in",
+        "body": "A project gathers clients, groups and income under one name. {{count}} short steps, and you can leave any time."
+      },
+      "finance": {
+        "title": "The money, without a spreadsheet",
+        "body": "Income, expenses, and what's left at the end of the month. {{count}} short steps, and you can leave any time."
+      }
+    }
   },
   "deletion": {
     "title": "Your account is scheduled for deletion",

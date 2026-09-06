@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { Star } from 'lucide-react'
+import { Star, Plus, Check } from 'lucide-react'
+import { formatGoalValue, timeFrameLabel } from '@simplicity/core'
 import { useGoals } from '../../../hooks/useGoals'
 import { useGoalCategories } from '../../../hooks/useGoalCategories'
 import { CATEGORY_PRESETS, presetToCategory, resolveManualCategoryId, MANUAL_CATEGORY } from '../../../lib/goalPresets'
@@ -21,6 +22,12 @@ import { Box, Txt, Btn, Input } from '../../../components/ui'
    updated by hand: the defaults every one of those controls already
    carried. The goals screen keeps the full range, daily-question
    tracking included, for when a goal is worth that much setup.
+
+   An account that already has goals — a restart from Settings, or goals
+   made on the goals screen before coming back — is offered them first,
+   the way step 2 offers existing projects. Every restart used to add
+   another "הכנסות" goal beside the one from the last pass, because
+   creating was the only thing this step knew how to do.
    ════════════════════════════════════════════════════════════════ */
 
 const DEFAULT_TIME_FRAME = 'monthly'
@@ -31,7 +38,7 @@ export default function Step4Goals({ ob, setCTA }) {
   /* Number grouping follows the active UI language (matches lib/goals
      formatGoal), so a Spanish user doesn't see Hebrew-locale formatting. */
   const numLocale = lang === 'he' ? 'he-IL' : (lang || 'he-IL')
-  const { addGoal, updateGoal } = useGoals()
+  const { goals, addGoal, updateGoal } = useGoals()
   const { categories, addCategory } = useGoalCategories()
 
   /* Auto metrics come from the canonical preset catalog, so a new preset
@@ -43,6 +50,27 @@ export default function Step4Goals({ ob, setCTA }) {
   ]
 
   const initial = ob.state.answers?.goals || {}
+
+  /* A goal this flow created on an earlier pass is still ours: updated in
+     place below, never offered back as "existing". Everything else is. */
+  const flowGoalId = initial.created_ids?.[0] || null
+  const existing = (goals || []).filter((g) => g.id !== flowGoalId)
+  const offerExisting = existing.length > 0 && !flowGoalId
+  /* 'new' opens the composer; a goal id continues with that goal. Derived,
+     not stored: goals load after mount, so the chooser has to be able to
+     appear once they arrive. */
+  const [pick, setPick] = useState(initial.goal_id || null)
+  const choice = offerExisting ? pick : 'new'
+  const composing = choice === 'new'
+  const chosen = composing ? null : (existing.find((g) => g.id === choice) || null)
+
+  /* Named the way the goals screen names them: the label if it has one,
+     else the category. The line under it is the same target · time frame
+     the GoalCard prints, through the same helpers. */
+  const catOf = (g) => categories.find((c) => c.id === g.category_id) || null
+  const goalTitle = (g) => g.label || catOf(g)?.name || t('step4.personalLabel')
+  const goalMeta = (g) => [formatGoalValue(g.target_value, catOf(g)), timeFrameLabel(g)].filter(Boolean).join(' · ')
+
   const [type, setType]     = useState(initial.first_type || null)
   const [target, setTarget] = useState(initial.first_target || '')
   const [label, setLabel]   = useState(initial.personal_label || '')
@@ -52,8 +80,12 @@ export default function Step4Goals({ ob, setCTA }) {
   const isPersonal = type === 'personal'
   const targetNum = Number(target)
 
-  const canAdvance = !!type && targetNum > 0 && (!isPersonal || label.trim().length > 0)
-  const hint = !type ? t('step4.hintPickType')
+  const canAdvance = composing
+    ? (!!type && targetNum > 0 && (!isPersonal || label.trim().length > 0))
+    : !!chosen
+  const hint = !composing
+    ? (chosen ? null : t('step4.hintPickGoal'))
+    : !type ? t('step4.hintPickType')
     : targetNum <= 0 ? t('step4.hintPositive')
     : (isPersonal && !label.trim()) ? t('step4.hintNameGoal')
     : null
@@ -62,8 +94,8 @@ export default function Step4Goals({ ob, setCTA }) {
      into the app-wide manual bucket shared with the goals screen. */
   const resolveCategoryId = async () => {
     if (isPersonal) return resolveManualCategoryId(categories, addCategory)
-    const existing = categories.find((c) => c.key === type)
-    if (existing) return existing.id
+    const existingCat = categories.find((c) => c.key === type)
+    if (existingCat) return existingCat.id
     const preset = CATEGORY_PRESETS.find((p) => p.key === type)
     if (!preset) throw new Error('preset not found')
     return (await addCategory(presetToCategory(preset))).id
@@ -72,6 +104,14 @@ export default function Step4Goals({ ob, setCTA }) {
   const onNext = async () => {
     setBusy(true); setErr('')
     try {
+      if (!composing) {
+        /* Nothing is written to the chosen goal; created_ids stays empty so
+           the closing summary doesn't claim it. */
+        await ob.setAnswers('goals', { goal_id: chosen.id, created_ids: [] })
+        await ob.advance()
+        return
+      }
+
       const categoryId = await resolveCategoryId()
       const payload = {
         category_id: categoryId,
@@ -99,6 +139,7 @@ export default function Step4Goals({ ob, setCTA }) {
         first_type: type,
         first_target: targetNum,
         personal_label: isPersonal ? label.trim() : null,
+        goal_id: goal.id,
         created_ids: [goal.id],
       })
       await ob.advance()
@@ -111,8 +152,8 @@ export default function Step4Goals({ ob, setCTA }) {
 
   useStepCTA(setCTA, { onNext, canAdvance, busy, hint })
 
-  const chosen = TYPES.find((ty) => ty.key === type)
-  const previewName = isPersonal ? (label.trim() || t('step4.personalLabel')) : (chosen?.label || '')
+  const chosenType = TYPES.find((ty) => ty.key === type)
+  const previewName = isPersonal ? (label.trim() || t('step4.personalLabel')) : (chosenType?.label || '')
   const catColor = isPersonal
     ? MANUAL_CATEGORY.color
     : (CATEGORY_PRESETS.find((p) => p.key === type)?.color || 'var(--stone)')
@@ -122,25 +163,64 @@ export default function Step4Goals({ ob, setCTA }) {
       <Txt as="p" className="ob-intro">{t('step4.intro')}</Txt>
       <Txt as="p" className="ob-intro-sub">{t('step4.introSub')}</Txt>
 
-      <Box className="ob-field">
-        <Box className="ob-goal-grid">
-          {TYPES.map((ty) => (
+      {offerExisting && (
+        <Box className="ob-field">
+          <Txt as="p" className="ob-label">{t('step4.existingTitle')}</Txt>
+          <Txt as="p" className="ob-empty-hint">{t('step4.existingSub')}</Txt>
+          <Box className="ob-existing-list" role="radiogroup" aria-label={t('step4.existingTitle')}>
+            {existing.map((g) => (
+              <Btn
+                key={g.id}
+                type="button"
+                role="radio"
+                aria-checked={choice === g.id}
+                className={`ob-existing${choice === g.id ? ' on' : ''}`}
+                onClick={() => setPick(g.id)}
+              >
+                <Txt className="ob-pc-group-color" style={{ background: catOf(g)?.color || 'var(--stone)' }} />
+                <Box className="ob-existing-body">
+                  <Txt as="p" className="ob-existing-name">{goalTitle(g)}</Txt>
+                  <Txt as="p" className="ob-existing-meta mono">{goalMeta(g)}</Txt>
+                </Box>
+                {choice === g.id && <Check size={15} strokeWidth={2.2} aria-hidden="true" />}
+              </Btn>
+            ))}
             <Btn
-              key={ty.key}
               type="button"
-              className={`ob-goal-type${type === ty.key ? ' on' : ''}`}
-              aria-pressed={type === ty.key}
-              onClick={() => setType(ty.key)}
-              title={ty.hint}
+              role="radio"
+              aria-checked={composing}
+              className={`ob-existing ob-existing-new${composing ? ' on' : ''}`}
+              onClick={() => setPick('new')}
             >
-              <Txt className="ob-goal-type-ic">{ty.icon}</Txt>
-              <Txt className="ob-goal-type-l">{ty.label}</Txt>
+              <Plus size={15} strokeWidth={2} aria-hidden="true" />
+              <Txt className="ob-existing-name">{t('step4.pickNew')}</Txt>
+              {composing && <Check size={15} strokeWidth={2.2} aria-hidden="true" />}
             </Btn>
-          ))}
+          </Box>
         </Box>
-      </Box>
+      )}
 
-      {type && (
+      {composing && (
+        <Box className="ob-field">
+          <Box className="ob-goal-grid">
+            {TYPES.map((ty) => (
+              <Btn
+                key={ty.key}
+                type="button"
+                className={`ob-goal-type${type === ty.key ? ' on' : ''}`}
+                aria-pressed={type === ty.key}
+                onClick={() => setType(ty.key)}
+                title={ty.hint}
+              >
+                <Txt className="ob-goal-type-ic">{ty.icon}</Txt>
+                <Txt className="ob-goal-type-l">{ty.label}</Txt>
+              </Btn>
+            ))}
+          </Box>
+        </Box>
+      )}
+
+      {composing && type && (
         <>
           {isPersonal && (
             <Box className="ob-field">
@@ -178,7 +258,7 @@ export default function Step4Goals({ ob, setCTA }) {
                   <Txt as="p" className="ob-gcard-title">{previewName}</Txt>
                   <Txt as="p" className="ob-gcard-cat">
                     <Txt className="ob-gcard-cat-dot" style={{ background: catColor }} />
-                    {chosen?.label} · {t('step4.monthly')}
+                    {chosenType?.label} · {t('step4.monthly')}
                   </Txt>
                 </Box>
                 <Txt as="p" className="ob-gcard-pct">0%</Txt>

@@ -8,10 +8,10 @@
   },
   "welcome": {
     "tagline": "Business OS",
-    "startTitle": "Take the tour",
-    "startSub": "A short, thoughtful intro and a few personal touches",
-    "skipTitle": "Just let me in",
-    "skipSub": "I'll figure it out as I go"
+    "startTitle": "Start with a short intro",
+    "startSub": "Four steps: your name, how you work, a first client and a goal. A few minutes.",
+    "skipTitle": "Go straight in",
+    "skipSub": "You can do the intro later, from Settings."
   },
   "shell": {
     "progressAria": "Progress: step {{current}} of {{total}}",
@@ -22,8 +22,8 @@
     "saving": "Saving…",
     "next": "Next",
     "saveFailed": "Couldn't save. Try again.",
-    "later": "Later",
-    "exit": "I'll finish this later"
+    "later": "Skip this step",
+    "exit": "Leave the intro"
   },
   "review": {
     "title": "Review before we create anything",

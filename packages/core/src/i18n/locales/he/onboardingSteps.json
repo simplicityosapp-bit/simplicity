@@ -54,7 +54,6 @@
     "firstGroupMeta": "מחיר, חבילה ויום קבוע — אפשר להוסיף אחר כך",
     "clientsTitle": "לקוחות",
     "clientsTeaser": "בצעד הבא נוסיף את הלקוח הראשון.",
-    "existingBanner": "כבר יש לך {{count}} פרויקטים. ההוספה כאן רק יוצרת אחד נוסף.",
     "hintPickMode": "בחר/י איך את/ה עובד/ת.",
     "hintPickMode_male": "בחר איך אתה עובד.",
     "hintPickMode_female": "בחרי איך את עובדת.",
@@ -62,7 +61,11 @@
     "errSaveFail": "השמירה נכשלה: {{error}}",
     "tryAgain": "נסה/י שוב",
     "tryAgain_male": "נסה שוב",
-    "tryAgain_female": "נסי שוב"
+    "tryAgain_female": "נסי שוב",
+    "existingTitle": "כבר יש לך פרויקטים",
+    "existingSub": "אפשר להמשיך עם אחד מהם, או להקים חדש. שום דבר לא ייווצר פעמיים.",
+    "pickNew": "פרויקט חדש",
+    "hintPickProject": "צריך לבחור פרויקט, או להקים חדש."
   },
   "step3": {
     "intro": "מי הלקוח הראשון?",
@@ -107,7 +110,11 @@
     "tryAgain_male": "נסה שוב",
     "tryAgain_female": "נסי שוב",
     "personalHint_male": "למידה, יצירה, ריצה — מה שאתה מודד",
-    "personalHint_female": "למידה, יצירה, ריצה — מה שאת מודדת"
+    "personalHint_female": "למידה, יצירה, ריצה — מה שאת מודדת",
+    "existingTitle": "כבר יש לך יעדים",
+    "existingSub": "אפשר להמשיך עם אחד מהם, או להגדיר חדש.",
+    "pickNew": "יעד חדש",
+    "hintPickGoal": "צריך לבחור יעד, או להגדיר חדש."
   },
   "step5": {
     "title": "סיימת! הכל מוכן",
@@ -116,8 +123,6 @@
     "projects": "פרויקטים",
     "clients": "לקוחות",
     "goals": "יעדים",
-    "questions": "שאלות יומיות",
-    "recurring": "הוצאות קבועות",
     "savedNoteVerb": "תוכל/י",
     "savedNoteVerb_male": "תוכל",
     "savedNoteVerb_female": "תוכלי",

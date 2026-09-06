@@ -185,12 +185,18 @@
 }
 
 /* ── Monthly / cumulative toggle ───────────────────────────────── */
+/* The track took --mg-card-bg, so on a card it was the card's exact colour and
+   the unselected half — which is a transparent .mg-toggle-btn over this track —
+   had nothing to sit in: only the selected half, filled terracotta, read as
+   part of a control at all. Same cause as the secondary-button token, one
+   component over, so it takes the same fix: this is a control, and it wears the
+   secondary-control glass rather than the card's. */
 .mg-toggle {
   display: flex;
   gap: 2px;
   padding: 2px;
   border-radius: var(--mg-chip-radius);
-  background: var(--mg-card-bg);
+  background: var(--mg-btn-secondary-bg);
   border: 0.5px solid var(--divider);
   backdrop-filter: var(--mg-card-blur);
 }

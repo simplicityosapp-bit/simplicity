@@ -44,11 +44,14 @@
     "firstGroupMeta": "Prix, forfait et créneau fixe : à ajouter plus tard",
     "clientsTitle": "Clients",
     "clientsTeaser": "À l'étape suivante, nous ajoutons votre premier client.",
-    "existingBanner": "Vous avez déjà {{count}} projets. Ajouter ici en crée simplement un de plus.",
     "hintPickMode": "Choisissez comment vous travaillez.",
     "hintName": "Le projet a besoin d’un nom pour être enregistré.",
     "errSaveFail": "Échec de l'enregistrement : {{error}}",
-    "tryAgain": "réessayez"
+    "tryAgain": "réessayez",
+    "existingTitle": "Vous avez déjà des projets",
+    "existingSub": "Continuez avec l'un d'eux, ou créez-en un nouveau. Rien n'est créé deux fois.",
+    "pickNew": "Nouveau projet",
+    "hintPickProject": "Choisissez un projet, ou créez-en un nouveau."
   },
   "step3": {
     "intro": "Qui est votre premier client ?",
@@ -79,7 +82,11 @@
     "hintPositive": "Saisissez un nombre supérieur à zéro.",
     "hintNameGoal": "Donnez un nom à l'objectif.",
     "errSaveFail": "Échec de l'enregistrement : {{error}}",
-    "tryAgain": "réessayez"
+    "tryAgain": "réessayez",
+    "existingTitle": "Vous avez déjà des objectifs",
+    "existingSub": "Continuez avec l'un d'eux, ou définissez-en un nouveau.",
+    "pickNew": "Nouvel objectif",
+    "hintPickGoal": "Choisissez un objectif, ou définissez-en un nouveau."
   },
   "step5": {
     "title": "Tout est prêt ! Vous pouvez commencer",
@@ -88,8 +95,6 @@
     "projects": "Projets",
     "clients": "Clients",
     "goals": "Objectifs",
-    "questions": "Questions quotidiennes",
-    "recurring": "Dépenses récurrentes",
     "savedNoteVerb": "vous pouvez",
     "savedNote": "Tout est déjà enregistré — {{verb}} ajouter, modifier ou supprimer n'importe quoi à tout moment depuis l'écran d'accueil.",
     "emptyNoteVerb": "quand vous le souhaitez",

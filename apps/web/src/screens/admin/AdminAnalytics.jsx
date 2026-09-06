@@ -4,10 +4,11 @@ import { useT } from '../../i18n/useT'
 import { LineChart, FunnelBars } from './AdminCharts'
 import { Box, Txt, Btn } from '../../components/ui'
 
-/* The four windows the edge function knows (see its analytics action): the
-   last 7 days, the last 30 days, the current calendar month from the 1st, and
-   everything since the first row of data. 30 days is the default. */
-const RANGES = ['week', 'days30', 'month', 'all']
+/* The five windows the edge function knows (see its analytics action): today,
+   the last 7 days, the last 30 days, the current calendar month from the 1st,
+   and everything since the first row of data. Every card on the screen is read
+   over the chosen window. 30 days is the default. */
+const RANGES = ['today', 'week', 'days30', 'month', 'all']
 
 /* "YYYY-MM-DD" → dd/mm for the x-axis. */
 function dayLabel(d) {

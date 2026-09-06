@@ -8,10 +8,6 @@
       "bubble": "Añade tu primer prospecto",
       "detail": "Los prospectos son consultas que aún no se han convertido en clientes."
     },
-    "add-lead-page": {
-      "bubble": "Crea tu primera página de prospectos",
-      "detail": "Una página pública de prospectos recoge consultas directamente en tus prospectos — sin que el visitante necesite iniciar sesión."
-    },
     "add-project": {
       "bubble": "Empieza tu primer proyecto",
       "detail": "Los proyectos agrupan clientes y tareas bajo un objetivo común."
@@ -35,13 +31,17 @@
   },
   "tour": {
     "home": {
+      "welcome": {
+        "title": "Unas cosas más, cuando te venga bien",
+        "body": "Importar un archivo, preguntas diarias, gastos fijos. Cada una abre su propia pantalla y se marca sola al terminar. Nada es obligatorio, y la tarjeta desaparece cuando todo está listo."
+      },
       "moon": {
         "title": "Resumen",
         "body": "Un vistazo rápido a cuánto has avanzado en tus objetivos. Toca para ver cada uno por separado o abrir la pantalla completa."
       },
       "insights": {
         "title": "Preguntas diarias",
-        "body": "Estas son las preguntas que elegiste. Puedes ver tus respuestas a lo largo del tiempo en la pantalla «¿Cómo estás hoy?», y vincular preguntas nuevas a objetivos en la pantalla de Objetivos."
+        "body": "Una pregunta corta al día, y con el tiempo se forma una imagen. Las preguntas se eligen en Ajustes y pueden vincularse a objetivos."
       },
       "quick-row": {
         "title": "Añadir rápido",
@@ -49,7 +49,7 @@
       },
       "attention": {
         "title": "Necesita atención",
-        "body": "Citas por confirmar, pagos que todavía no han entrado, citas duplicadas en el calendario: las cosas que sería una pena perder de vista."
+        "body": "Reuniones y movimientos pendientes de aprobación, clientes que llevan tiempo en silencio, objetivos por debajo del ritmo. Lo que no debería caer en el olvido."
       },
       "next-tasks": {
         "title": "Tareas y recordatorios",
@@ -57,7 +57,7 @@
       },
       "chips": {
         "title": "Números rápidos",
-        "body": "Tú eliges qué números aparecen aquí. Toca para abrir la selección."
+        "body": "Tres números para un vistazo rápido. Toca uno para abrir lo que hay detrás y elegir qué cuenta."
       }
     },
     "clients": {
@@ -106,12 +106,6 @@
         "body": "Solo el nombre es obligatorio; origen, etapa y notas pueden esperar."
       }
     },
-    "leadPages": {
-      "add": {
-        "title": "Nueva página de prospectos",
-        "body": "Crea aquí una página pública de prospectos — construye el formulario, publícalo y comparte un enlace que recoge prospectos directamente para ti."
-      }
-    },
     "projects": {
       "hero": {
         "title": "Resumen de proyectos",
@@ -128,8 +122,8 @@
     },
     "finance": {
       "chart": {
-        "title": "Ingresos acumulados",
-        "body": "La línea sube con cada ingreso que entra. La línea discontinua es el objetivo del mes: así ves si mantienes el ritmo."
+        "title": "La línea del mes",
+        "body": "Sube con cada ingreso y baja con cada gasto, día a día. El objetivo mensual está marcado al lado, para ver si el ritmo se mantiene."
       },
       "breakdown": {
         "title": "De dónde, a dónde",

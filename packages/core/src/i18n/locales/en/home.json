@@ -6,8 +6,10 @@
     "taskDone": "Done",
     "tasks": {
       "setup": {
-        "title": "Finish setting up",
-        "sub": "You stopped part-way — pick up where you left off."
+        "title": "Finish the intro",
+        "sub": "You stopped part-way — pick up where you left off.",
+        "titleFresh": "Start the intro",
+        "subFresh": "Four short steps, whenever it suits."
       },
       "import": {
         "title": "Import a file",

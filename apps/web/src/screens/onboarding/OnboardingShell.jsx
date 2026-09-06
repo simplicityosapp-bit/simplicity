@@ -13,7 +13,7 @@ import { Box, Txt, Btn } from '../../components/ui'
      1. Progress strip (slim, first thing on screen)
      2. Header row — tree + counter centred, theme toggle in the corner
      3. Body — the step's own fields, inside a <form> so Enter advances
-     4. Footer — sticky: back · hint + primary · "אמשיך אחר כך"
+     4. Footer — sticky: back · hint + primary · "לצאת מההיכרות"
    The step publishes its onNext/canAdvance/busy/hint through useStepCTA;
    the shell just renders the buttons.
 

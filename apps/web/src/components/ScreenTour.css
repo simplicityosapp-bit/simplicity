@@ -15,6 +15,26 @@
   pointer-events: auto;
 }
 
+/* ── Opening bubble ────────────────────────────────────────────── */
+/* No hole to punch, so the scrim is its own layer here. The bubble is
+   centred with inset + auto margins rather than a transform, because the
+   entrance animation below animates transform and would fight it. */
+.tour-scrim {
+  position: fixed;
+  inset: 0;
+  background: var(--tour-scrim);
+}
+.tour-bubble--intro {
+  inset: 0;
+  margin: auto;
+  height: fit-content;
+}
+.tour-bubble-title > svg {
+  vertical-align: -3px;
+  margin-inline-end: 4px;
+  color: var(--terracotta);
+}
+
 /* ── Spotlight hole ────────────────────────────────────────────── */
 /* A button now (it advances the step — see ScreenTour.jsx), so it has to shed
    the button chrome and keep taking clicks. */
@@ -125,8 +145,8 @@
 
 /* Secondary button beside "הבנתי", not a faint link below it. It was 11.5px
    --mist underlined text with a ~20px tap target — the smallest, palest,
-   hardest-to-hit thing in the bubble — while the seven-step home tour runs
-   right after a nine-step onboarding. Leaving is a reasonable choice there,
+   hardest-to-hit thing in the bubble — while the six-step home tour runs
+   right after the onboarding flow. Leaving is a reasonable choice there,
    so it now reads and measures like one: same height as the primary, real
    contrast, no underline. */
 .tour-skip-all {

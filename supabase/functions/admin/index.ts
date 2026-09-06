@@ -29,7 +29,7 @@
 //   - users                   → one row per registered user (+ admin flags)
 //   - feedback_list           → every feedback item + author email
 //   - feedback_update_status  → { id, status }
-//   - analytics               → { range: week|days30|month|all } sessions/reflections/funnel/top
+//   - analytics               → { range: today|week|days30|month|all } sessions/reflections/funnel/top
 //   - set_subscriber          → { user_id, value }   (perm: set_subscriber)
 //   - delete_user             → { user_id }           (perm: delete_users)
 //   - set_admin               → { user_id, perms }    (perm: manage_admins)
@@ -62,7 +62,61 @@ function json(body: unknown, status = 200) {
 }
 
 const DAY = 86_400_000
-const dayKey = (d: Date) => d.toISOString().slice(0, 10) // YYYY-MM-DD
+
+/* Calendar days are the OWNER'S days, not UTC's. The console is read from
+   Israel, and a "today" window that opened at 02:00 or 03:00 local would file
+   last night's sessions under today. Intl carries the zone rules, DST
+   included; if the runtime lacks it, everything degrades to UTC rather than
+   throwing, since the analytics reads are not wrapped in soft(). */
+const TZ = 'Asia/Jerusalem'
+function zoneFormatter(): Intl.DateTimeFormat | null {
+  try {
+    return new Intl.DateTimeFormat('en-US', {
+      timeZone: TZ, hourCycle: 'h23',
+      year: 'numeric', month: '2-digit', day: '2-digit',
+      hour: '2-digit', minute: '2-digit', second: '2-digit',
+    })
+  } catch {
+    return null
+  }
+}
+const zoneFmt = zoneFormatter()
+/* The wall clock of an instant in TZ, as numbers; null when Intl is missing. */
+function wallClock(d: Date): { y: number; m: number; d: number; h: number; mi: number; s: number } | null {
+  if (!zoneFmt) return null
+  const p: Record<string, string> = {}
+  for (const part of zoneFmt.formatToParts(d)) p[part.type] = part.value
+  const n = (k: string) => parseInt(p[k] ?? '', 10)
+  const out = { y: n('year'), m: n('month'), d: n('day'), h: n('hour') % 24, mi: n('minute'), s: n('second') }
+  return Number.isFinite(out.y) && Number.isFinite(out.m) && Number.isFinite(out.d) ? out : null
+}
+const pad2 = (n: number) => (n < 10 ? '0' : '') + n
+/* YYYY-MM-DD of an instant, in the owner's calendar. */
+const dayKey = (d: Date) => {
+  const w = wallClock(d)
+  return w ? w.y + '-' + pad2(w.m) + '-' + pad2(w.d) : d.toISOString().slice(0, 10)
+}
+/* TZ's offset from UTC at the instant ms, in ms (positive east of Greenwich). */
+function zoneOffsetMs(ms: number): number {
+  const w = wallClock(new Date(ms))
+  if (!w) return 0
+  return Date.UTC(w.y, w.m - 1, w.d, w.h, w.mi, w.s) - Math.floor(ms / 1000) * 1000
+}
+/* The instant at which the owner's calendar day ymd begins. Two passes: a
+   guess at UTC midnight corrected by the offset there, then once more so a
+   DST switch sitting between the guess and the answer is absorbed. */
+function dayStartMs(ymd: string): number {
+  const [y, m, d] = ymd.split('-').map(Number)
+  const utcMidnight = Date.UTC(y, m - 1, d)
+  let guess = utcMidnight
+  for (let i = 0; i < 2; i++) guess = utcMidnight - zoneOffsetMs(guess)
+  return guess
+}
+/* The calendar day n days after ymd — pure date arithmetic, no zone. */
+function shiftDay(ymd: string, n: number): string {
+  const [y, m, d] = ymd.split('-').map(Number)
+  return new Date(Date.UTC(y, m - 1, d + n)).toISOString().slice(0, 10)
+}
 
 /* PostgREST caps an unbounded select at db-max-rows (1000 on Supabase). Every
    read below used to be a bare .select(), so the moment a table passes 1000
@@ -725,22 +779,24 @@ Deno.serve(async (req) => {
     }
 
     if (action === 'analytics') {
-      /* Four windows, all ending now:
+      /* Five windows, all ending now; EVERY card on the screen is read over
+         the chosen one:
+           today  → since midnight on the owner's clock (see dayKey above)
            week   → the last 7 days
            days30 → the last 30 days (the console's default)
            month  → the current calendar month, from the 1st
            all    → from the first row of data we hold, with no cap
-         Days are UTC throughout (dayKey slices the ISO string), so the
-         calendar month opens at 00:00 UTC on the 1st as well. `all` used to
-         be a silent 365-day cap — a pill that said "everything" and was not.
-         It has no floor up front: the reads come back unwindowed and the
-         floor is found from the data itself, below. */
+         "all" used to be a silent 365-day cap — a pill that said everything
+         and was not. It has no floor up front: the reads come back
+         unwindowed and the floor is found from the data itself, below. */
       const range = (body?.range as string) || 'days30'
       const nowMs = Date.now()
       const now = new Date(nowMs)
+      const today = dayKey(now)
       const windowStart: number | null =
-        range === 'week' ? nowMs - 7 * DAY
-        : range === 'month' ? Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1)
+        range === 'today' ? dayStartMs(today)
+        : range === 'week' ? nowMs - 7 * DAY
+        : range === 'month' ? dayStartMs(today.slice(0, 8) + '01')
         : range === 'all' ? null
         : nowMs - 30 * DAY
 
@@ -754,8 +810,9 @@ Deno.serve(async (req) => {
          every anonymous landing visit. Paged via selectAll so a busy month
          can't be silently cut off at 1000 rows either.
 
-         The onboarding funnel is deliberately NOT windowed: it's "how far has
-         each user ever got", over all users, not a range. */
+         The onboarding funnel is windowed by SIGNUP date below (the window's
+         cohort), so the prefs read stays unwindowed here: someone who signed
+         up inside the window may have finished onboarding after it. */
       const [users, sess, moon, prefs, landing] = await Promise.all([
         fetchAllUsers(admin),
         soft(selectAll<{ user_id: string; created_at: string }>(
@@ -809,12 +866,16 @@ Deno.serve(async (req) => {
       const makeBuckets = (): { list: Bucket[]; byDate: Map<string, Bucket> } => {
         const list: Bucket[] = []
         const byDate = new Map<string, Bucket>()
-        const startDay = new Date(startMs)
-        startDay.setHours(0, 0, 0, 0)
-        for (let t = startDay.getTime(); t <= nowMs; t += DAY) {
-          const b = { date: dayKey(new Date(t)), count: 0 }
+        // Calendar days from the window's first day to today, inclusive —
+        // date arithmetic rather than +24h steps, so a DST switch can't
+        // double or skip a day. The guard is a backstop, not a limit.
+        const first = dayKey(new Date(startMs))
+        for (let i = 0; i < 20000; i++) {
+          const key = shiftDay(first, i)
+          const b = { date: key, count: 0 }
           list.push(b)
-          byDate.set(b.date, b)
+          byDate.set(key, b)
+          if (key >= today) break
         }
         return { list, byDate }
       }
@@ -841,13 +902,18 @@ Deno.serve(async (req) => {
         if (new Date(key).getTime() >= startMs) bump(reflectionsOverTime, key)
       }
 
-      // Onboarding funnel — how many reached each step, out of all users.
+      /* Signups inside the window — the cohort the per-user cards below are
+         read over. It used to be every user ever, which left the onboarding
+         funnel as the one card the pills did not touch. */
+      const cohort = users.filter((u) => u.created_at && new Date(u.created_at).getTime() >= startMs)
+
+      // Onboarding funnel — how many of the window's signups reached each step.
       // Resolve each user's furthest step once, then bucket by index.
       const obIndexById = new Map<string, number>()
       for (const p of prefs ?? []) {
         obIndexById.set(p.user_id, onboardingProgress(p.preferences?.onboarding).index)
       }
-      const reachedIdx = users.map((u) => obIndexById.get(u.id) ?? 0)
+      const reachedIdx = cohort.map((u) => obIndexById.get(u.id) ?? 0)
       const funnel = ONBOARDING_STEPS.map((step, i) => ({
         step,
         label: STEP_LABELS[step],
@@ -865,7 +931,7 @@ Deno.serve(async (req) => {
         if (new Date(e.created_at).getTime() < startMs) continue
         lpCounts[e.type] = (lpCounts[e.type] ?? 0) + 1
       }
-      const lpSignups = users.filter((u) => u.created_at && new Date(u.created_at).getTime() >= startMs).length
+      const lpSignups = cohort.length
       // Funnel: view → signup_start → completed signup (drop-off = starts − signups).
       const landingFunnel = [
         { label: 'כניסות לדף', count: lpCounts['view'] ?? 0 },

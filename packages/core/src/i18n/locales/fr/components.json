@@ -89,7 +89,36 @@
   "tour": {
     "done": "Terminé",
     "gotIt": "Compris",
-    "skipAll": "Tout ignorer"
+    "skipAll": "Tout ignorer",
+    "introTitle": "Un rapide tour d'horizon",
+    "introBody": "{{count}} étapes, moins d'une minute. Chacune pointe une chose et explique à quoi elle sert. Vous pouvez quitter à tout moment.",
+    "start": "C'est parti",
+    "intro": {
+      "home": {
+        "title": "Bienvenue chez vous",
+        "body": "C'est l'écran de chaque matin : ce qui attend, ce qui presse, où on en est. {{count}} courtes étapes, et vous pouvez quitter à tout moment."
+      },
+      "clients": {
+        "title": "Tous vos clients, au même endroit",
+        "body": "Qui est actif, qui est en pause, et où en sont les paiements de chacun. {{count}} courtes étapes, et vous pouvez quitter à tout moment."
+      },
+      "tasks": {
+        "title": "Ce qu'il faut retenir",
+        "body": "Tâches et rappels, pour que rien ne passe à la trappe. {{count}} courtes étapes, et vous pouvez quitter à tout moment."
+      },
+      "leads": {
+        "title": "Pas encore clients",
+        "body": "Demandes et prospects, selon l'étape où ils en sont. {{count}} courtes étapes, et vous pouvez quitter à tout moment."
+      },
+      "projects": {
+        "title": "Le cadre où tout s'inscrit",
+        "body": "Un projet rassemble clients, groupes et revenus sous un même nom. {{count}} courtes étapes, et vous pouvez quitter à tout moment."
+      },
+      "finance": {
+        "title": "L'argent, sans tableur",
+        "body": "Revenus, dépenses et ce qui reste en fin de mois. {{count}} courtes étapes, et vous pouvez quitter à tout moment."
+      }
+    }
   },
   "deletion": {
     "title": "Votre compte est programmé pour suppression",

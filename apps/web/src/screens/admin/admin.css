@@ -193,6 +193,8 @@
 .admin-chart-bar.alt { fill: var(--sage); }
 .admin-chart-line { fill: none; stroke: var(--terracotta); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
 .admin-chart-line.alt { stroke: var(--sage); }
+.admin-chart-dot { fill: var(--terracotta); }
+.admin-chart-dot.alt { fill: var(--sage); }
 .admin-chart-area-top { stop-color: var(--terracotta); stop-opacity: .18; }
 .admin-chart-area-top.alt { stop-color: var(--sage); }
 .admin-chart-area-bot { stop-color: var(--terracotta); stop-opacity: 0; }

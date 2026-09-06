@@ -8,10 +8,6 @@
       "bubble": "Ajoutez votre premier prospect",
       "detail": "Les prospects sont des demandes qui ne sont pas encore devenues des clients."
     },
-    "add-lead-page": {
-      "bubble": "Créez votre première page de prospects",
-      "detail": "Une page de prospects publique recueille les demandes directement dans vos prospects — sans que le visiteur ait besoin de se connecter."
-    },
     "add-project": {
       "bubble": "Démarrez votre premier projet",
       "detail": "Les projets regroupent clients et tâches sous un objectif commun."
@@ -35,13 +31,17 @@
   },
   "tour": {
     "home": {
+      "welcome": {
+        "title": "Encore quelques choses, quand cela vous convient",
+        "body": "Importer un fichier, questions quotidiennes, dépenses fixes. Chacune ouvre son propre écran et se coche d'elle-même une fois faite. Rien n'est obligatoire, et la carte disparaît quand tout est fait."
+      },
       "moon": {
         "title": "Vue d'ensemble",
         "body": "Un coup d'œil rapide à votre avancée sur vos objectifs. Touchez pour voir chacun séparément, ou ouvrir l'écran complet."
       },
       "insights": {
         "title": "Questions quotidiennes",
-        "body": "Ce sont les questions que vous avez choisies. Vous pouvez voir vos réponses au fil du temps sur l'écran « Comment allez-vous aujourd'hui », et lier de nouvelles questions à des objectifs sur l'écran Objectifs."
+        "body": "Une courte question par jour, et avec le temps une image se forme. Les questions se choisissent dans les Paramètres et peuvent être liées à des objectifs."
       },
       "quick-row": {
         "title": "Ajout rapide",
@@ -49,7 +49,7 @@
       },
       "attention": {
         "title": "Nécessite votre attention",
-        "body": "Des rendez-vous à confirmer, des paiements qui ne sont pas encore arrivés, des rendez-vous en double dans l'agenda — ce qu'il serait dommage de laisser filer."
+        "body": "Rendez-vous et mouvements en attente d'approbation, clients silencieux depuis un moment, objectifs en retard. Ce qui ne devrait pas passer entre les mailles."
       },
       "next-tasks": {
         "title": "Tâches et rappels",
@@ -57,7 +57,7 @@
       },
       "chips": {
         "title": "Chiffres rapides",
-        "body": "Vous choisissez quels chiffres apparaissent ici. Touchez pour ouvrir la sélection."
+        "body": "Trois chiffres pour un coup d'œil. Touchez-en un pour ouvrir ce qu'il y a derrière et choisir ce qu'il compte."
       }
     },
     "clients": {
@@ -106,12 +106,6 @@
         "body": "Seul le nom est obligatoire — source, étape et notes peuvent suivre."
       }
     },
-    "leadPages": {
-      "add": {
-        "title": "Nouvelle page de prospects",
-        "body": "Créez une page de prospects publique ici — construisez le formulaire, publiez-le, et partagez un lien qui recueille les prospects directement chez vous."
-      }
-    },
     "projects": {
       "hero": {
         "title": "Résumé des projets",
@@ -128,8 +122,8 @@
     },
     "finance": {
       "chart": {
-        "title": "Revenu cumulé",
-        "body": "La ligne monte à chaque revenu encaissé. La ligne pointillée est l'objectif du mois : c'est ainsi que vous voyez si le rythme tient."
+        "title": "La ligne du mois",
+        "body": "Monte à chaque revenu et descend à chaque dépense, jour après jour. L'objectif mensuel est marqué à côté, pour voir si le rythme tient."
       },
       "breakdown": {
         "title": "D'où, vers où",

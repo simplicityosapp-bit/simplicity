@@ -1,28 +1,24 @@
-import { Sparkles, Folder, Users, Target, Repeat } from 'lucide-react'
+import { Sparkles, Folder, Users, Target } from 'lucide-react'
 import { useT } from '../../../i18n/useT'
 import { useStepCTA } from '../useStepCTA'
 import { useProjects } from '../../../hooks/useProjects'
 import { useClients } from '../../../hooks/useClients'
 import { useGoals } from '../../../hooks/useGoals'
-import { useUserQuestions } from '../../../hooks/useUserQuestions'
-import { useRecurring } from '../../../hooks/useRecurring'
 import { Box, Txt } from '../../../components/ui'
 
-/* Step 9 — finish + final confirmation. The manual onboarding path creates
-   each entity LIVE as the user advances (project on step 3, clients on 4,
-   questions on 5, goal on 6, recurring on 7), so there is nothing left to
+/* Step 5 — finish + final confirmation. The flow creates each entity LIVE
+   as the user advances (project on step 2, clients on step 3, goal on step
+   4), so there is nothing left to
    "create" here — but the user never saw a closing confirmation of what was
    set up. This step now SUMMARISES the live result (read-only, no second
    write, so nothing can double-create) and the primary CTA flips
    onboarding.completed_at and lands the user on /home.
    (No skip button on this last step — see OnboardingShell.) */
-export default function Step9Finish({ ob, onDone, setCTA }) {
+export default function Step5Finish({ ob, onDone, setCTA }) {
   const { t } = useT('onboardingSteps')
   const { projects } = useProjects()
   const { clients } = useClients()
   const { goals } = useGoals()
-  const { questions } = useUserQuestions()
-  const { templates: recurring } = useRecurring()
 
   useStepCTA(setCTA, { onNext: onDone, canAdvance: true, nextLabel: t('step5.nextLabel') })
 
@@ -32,23 +28,17 @@ export default function Step9Finish({ ob, onDone, setCTA }) {
      their entire history presented back as if it had just been set up here.
 
      Each step records the ids it created, so count those — intersected with
-     the live rows, so anything since removed (step 4 lets you take a client
+     the live rows, so anything since removed (step 3 lets you take a client
      back out) drops off rather than being claimed. Only non-empty lines are
      shown, so a skipped step doesn't leave a row of zeros. */
   const answers = ob?.state?.answers || {}
   const idSet = (v) => new Set((Array.isArray(v) ? v : []).filter(Boolean))
   const mine = (rows, ids) => (rows || []).filter((r) => ids.has(r.id)).length
 
-  /* Questions come from two steps: the daily-questions picker, and the one a
-     goal tracked by a daily question creates for itself. */
-  const questionIds = idSet([...(answers.daily_questions?.question_ids || []), answers.goals?.question_id])
-
   const summary = [
     { key: 'projects',  icon: Folder,   label: t('step5.projects'),  count: mine(projects, idSet(answers.projects?.created_ids)) },
     { key: 'clients',   icon: Users,    label: t('step5.clients'),   count: mine(clients, idSet(answers.clients?.created_ids)) },
     { key: 'goals',     icon: Target,   label: t('step5.goals'),     count: mine(goals, idSet(answers.goals?.created_ids)) },
-    { key: 'questions', icon: Sparkles, label: t('step5.questions'), count: mine((questions || []).filter((q) => q.active !== false), questionIds) },
-    { key: 'recurring', icon: Repeat,   label: t('step5.recurring'), count: mine(recurring, idSet(answers.recurring?.created_ids)) },
   ].filter((s) => s.count > 0)
 
   return (

@@ -237,6 +237,7 @@
     "title": "Analytics",
     "subtitle": "Specific product questions — not Google Analytics",
     "ranges": {
+      "today": "Today",
       "week": "Week",
       "days30": "30 days",
       "month": "This month",

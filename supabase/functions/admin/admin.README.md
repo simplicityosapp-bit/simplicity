@@ -32,7 +32,7 @@ automatically.
 | `feedback_list` | — | all feedback + author email |
 | `feedback_update_status` | `{ id, status }` | update one feedback row's status |
 | `set_subscriber` | `{ user_id, value }` | flag/unflag a user as a manual subscriber |
-| `analytics` | `{ range: week\|days30\|month\|all }` | sessions/reflections/funnel/top-10 |
+| `analytics` | `{ range: today\|week\|days30\|month\|all }` | sessions/reflections/funnel/top-10 |
 
 The two writes (`feedback_update_status`, `set_subscriber`) go through the
 service-role here so the app's per-user RLS is never widened. `set_subscriber`

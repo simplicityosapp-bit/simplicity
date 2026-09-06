@@ -103,7 +103,7 @@ export default function GoalsScreen() {
             {t('title')}
           </Txt>
         </Box>
-        <Coachmark id="add-goal" radius="50%">
+        <Coachmark id="add-goal" radius="50%" satisfied={goals.length > 0}>
           <Btn className="cta-add" aria-label={t('newGoalAria')} onClick={() => (atGoalLimit ? goUpgrade() : setShowAddGoal(true))}>
             {t('newGoal')}
           </Btn>

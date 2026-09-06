@@ -181,7 +181,7 @@ export default function FinanceScreen() {
             {t('title')}
           </Txt>
         </Box>
-        <Coachmark id="add-transaction" radius="50%">
+        <Coachmark id="add-transaction" radius="50%" satisfied={hasAnyTx}>
           <Btn className="cta-add" type="button" aria-label={t('newTxAria')} onClick={() => openAdd()}>{t('newTx')}</Btn>
         </Coachmark>
       </Box>

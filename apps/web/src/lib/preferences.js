@@ -168,9 +168,10 @@ export function defaultPreferences() {
        is still "virgin" and should glow — so existing users (who lack a
        `coachmarks` key) see the guidance too, with no migration. */
     coachmarks: {},
-    /* Guided screen tours. Map of screen key → true once the multi-step
-       spotlight tour for that screen has been seen (or skipped). Absent =
-       not seen yet, so the tour auto-runs on first visit. No migration. */
+    /* Guided screen tours. Map of screen key → progress: `true` once every
+       step has been shown (or the tour skipped), `{ shown: [target, …] }`
+       while some steps still wait for the thing they explain to render —
+       see lib/tourProgress.js. Absent = nothing shown yet. No migration. */
     tours: {},
     /* Account-deletion request (30-day grace). null = no pending deletion.
        When set: { requested_at, scheduled_for } (ISO). Preserved across
@@ -232,9 +233,9 @@ export function defaultOnboarding() {
     started_at: null,
     answers: {
       profile:  { name: '', role: null },
-      projects: { created_ids: [], work_mode: null },
+      projects: { created_ids: [], project_id: null, work_mode: null },
       clients:  { created_ids: [] },
-      goals:    { created_ids: [], income_goal_amount: null },
+      goals:    { created_ids: [], goal_id: null, income_goal_amount: null },
     },
     completed_steps: [],         /* keys of steps the user actually filled (not skipped) — drives the tree growth */
   }

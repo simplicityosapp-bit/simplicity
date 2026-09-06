@@ -97,7 +97,7 @@ export default function LoginScreen() {
 
           <Box className="auth-divider"><Txt>{t('or')}</Txt></Box>
 
-          <GoogleButton onError={setError} />
+          <GoogleButton onError={setError} label={t('googleLogin')} />
 
           <Link to={ROUTES.RESET_PASSWORD} className="auth-link-sm">{t('forgotPassword')}</Link>
         </Box>

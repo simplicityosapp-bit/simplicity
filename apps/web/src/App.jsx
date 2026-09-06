@@ -277,7 +277,7 @@ function AppShell() {
             <Route path={ROUTES.COMMUNITY_CHAT} element={<CommunityChatScreen />} />
             <Route path={ROUTES.COMMUNITY_PROFILE} element={<CommunityProfileSetupScreen />} />
             <Route path={ROUTES.COMMUNITY_EVENTS} element={<CommunityEventsScreen />} />
-            <Route path="*" element={<Navigate to={ROUTES.HOME} replace />} />
+            <Route path="*" element={<HomeOrIntended />} />
           </Routes>
         </Suspense>
       </ErrorBoundary>
@@ -300,15 +300,53 @@ function AppShell() {
   )
 }
 
+/* Somewhere a signed-in visitor could legitimately be, but never a place to
+   send one BACK to after they sign in — that is a loop, not a destination. */
+const AUTH_PATHS = new Set([ROUTES.LOGIN, ROUTES.SIGNUP, ROUTES.RESET_PASSWORD, ROUTES.UPDATE_PASSWORD])
+
+/* Is `to` a path of our own that we may bounce to after a sign-in? Rejects a
+   protocol-relative "//host" (that is somebody else's site) and the auth
+   screens themselves. */
+function isReturnable(to) {
+  if (typeof to !== 'string' || !to.startsWith('/') || to.startsWith('//')) return false
+  return !AUTH_PATHS.has(to.split('?')[0])
+}
+
 function AuthGate() {
+  const { pathname, search } = useLocation()
+  /* Remember where they were going. A logged-out visitor who follows a link
+     into the app — a client file someone sent them, a bookmark — was bounced
+     to /login with `replace`, which threw the path away, and the catch-all
+     inside the app then sent them home: the link cost them the sign-in AND
+     the click that found the page in the first place. */
+  const from = pathname + search
   return (
     <Routes>
       <Route path={ROUTES.LOGIN} element={<LoginScreen />} />
       <Route path={ROUTES.SIGNUP} element={<SignupScreen />} />
       <Route path={ROUTES.RESET_PASSWORD} element={<ResetPasswordScreen />} />
-      <Route path="*" element={<Navigate to={ROUTES.LOGIN} replace />} />
+      <Route
+        path="*"
+        element={<Navigate to={ROUTES.LOGIN} replace state={isReturnable(from) ? { from } : null} />}
+      />
     </Routes>
   )
+}
+
+/* The signed-in catch-all. Normally home — but if the visitor was sent to the
+   sign-in screen from somewhere, that somewhere is where they meant to be.
+   Signing in does not navigate (the session simply arrives and Root renders
+   the app), so the state AuthGate left on this location is still here.
+
+   Carries no state onward, which is what stops this looping: if `from` turns
+   out to match no route, we land back on this catch-all with nothing to read
+   and go home. It cannot survive a Google sign-in either — that leaves the
+   page entirely and comes back at the origin — so the OAuth path still lands
+   home. */
+function HomeOrIntended() {
+  const { state } = useLocation()
+  const from = state?.from
+  return <Navigate to={isReturnable(from) ? from : ROUTES.HOME} replace />
 }
 
 /* When the user returns from an OAuth provider (e.g. Google), the URL

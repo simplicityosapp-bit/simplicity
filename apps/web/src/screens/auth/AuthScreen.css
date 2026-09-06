@@ -162,11 +162,26 @@
   color: var(--stone);
   flex-shrink: 0;
 }
+/* The value is dir="ltr" whatever the page is, so it always begins at the
+   field's PHYSICAL left edge — and whatever stands on that edge pushes it in.
+   In an LTR page the leading icon holds it in both fields and the reveal
+   toggle sits at the far end, so the two line up. Turn the page around and
+   the toggle lands on the left of the password field alone: its value started
+   40px inboard of the email's (measured x=60.8 against x=20.8 on a 375px
+   screen), a step you can see with the fields stacked. So in RTL — and only
+   there — the toggle joins the icon at the leading edge. Both fields then
+   begin in the same place in both directions, and the email field is
+   untouched either way. */
+[dir="rtl"] .auth-field-toggle { order: 1; }
+[dir="rtl"] .auth-field input { order: 2; }
 .auth-field input {
   flex: 1;
   height: 100%;
   min-width: 0;
-  padding: 0 4px 0 14px;
+  /* Logical, not left/right: the tight side is the one against the icons and
+     the roomy side is the outer edge, and that has to hold when the language
+     switcher turns the form around. */
+  padding-inline: 4px 14px;
   border: none;
   background: transparent;
   outline: none;

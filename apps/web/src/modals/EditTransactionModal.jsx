@@ -6,8 +6,10 @@ import Modal from './Modal'
 import ConfirmModal from './ConfirmModal'
 import InvoiceActions from '../components/InvoiceActions'
 import GrowPayButton from '../components/GrowPayButton'
-import { PAY_METHODS, payMethodLabel, toLocalDate, isr } from '@simplicity/core'
+import { PAY_METHODS, payMethodLabel, toLocalDate, isr, clientPaymentTargets } from '@simplicity/core'
 import { useT } from '../i18n/useT'
+import { useGroups } from '../hooks/useGroups'
+import { useGroupMembers } from '../hooks/useGroupMembers'
 import { Box, Txt, Btn, Input } from '../components/ui'
 
 /* The <input type=date> value for a stored transaction date. The column is
@@ -24,7 +26,10 @@ const dateInputValue = (value) => {
 }
 
 /* Edit a transaction — type / amount / date / desc / status / client / project / category. */
+/* Read here, not passed in — see the note on AddTransactionModal. */
 export default function EditTransactionModal({ open, onClose, onSave, onIssued, tx, clients = [], projects = [], categories = [], activeRuleIds, onDelete, onSaveAsClient }) {
+  const { groups } = useGroups()
+  const { members } = useGroupMembers()
   const { t } = useT('modalsData')
   const { t: ts } = useT('modalsSystem') // shared modal chrome (discard prompt)
   const STATUSES = [
@@ -39,6 +44,10 @@ export default function EditTransactionModal({ open, onClose, onSave, onIssued, 
     date: dateInputValue(tx?.date),
     status: tx?.status || 'confirmed',
     client_id: tx?.client_id || '',
+    /* Which track this income paid for (migration 0115). Correctable here:
+       an attribution picked in a hurry is exactly what a coach comes back to
+       fix, and the group card's answer depends on it being right. */
+    group_id: tx?.group_id || '',
     project_id: tx?.project_id || '',
     category_id: tx?.category_id || '',
     payment_method: tx?.payment_method || '',
@@ -79,6 +88,7 @@ export default function EditTransactionModal({ open, onClose, onSave, onIssued, 
       date: dateInputValue(tx.date),
       status: tx.status || 'confirmed',
       client_id: tx.client_id || '',
+      group_id: tx.group_id || '',
       project_id: tx.project_id || '',
       category_id: tx.category_id || '',
       payment_method: tx.payment_method || '',
@@ -89,6 +99,7 @@ export default function EditTransactionModal({ open, onClose, onSave, onIssued, 
       || form.date !== orig.date
       || form.status !== orig.status
       || form.client_id !== orig.client_id
+      || form.group_id !== orig.group_id
       || form.project_id !== orig.project_id
       || form.category_id !== orig.category_id
       || form.payment_method !== orig.payment_method
@@ -107,6 +118,14 @@ export default function EditTransactionModal({ open, onClose, onSave, onIssued, 
   ]
   const clientOptions = [{ value: '', label: t('common.none') }, ...clients.map((c) => ({ value: c.id, label: c.name }))]
   const projectOptions = [{ value: '', label: t('common.none') }, ...projects.map((p) => ({ value: p.id, label: p.name }))]
+  /* The same question the add form asks, of the same clients: someone with
+     more than one thing the money could have been for. */
+  const payFor = clientPaymentTargets(clients.find((c) => c.id === form.client_id), members, groups)
+  const payForOptions = payFor.map((o) => (
+    o.kind === 'personal'
+      ? { value: '', label: t('tx.paidForPersonal') }
+      : { value: o.id, label: o.name }
+  ))
   const categoryOptions = [{ value: '', label: t('common.noCategory') }, ...categories.map((c) => ({ value: c.id, label: c.name }))]
 
   if (!tx) return <Modal open={open} onClose={onClose} title={t('editTx.title')} />
@@ -125,6 +144,7 @@ export default function EditTransactionModal({ open, onClose, onSave, onIssued, 
         date: form.date,
         status: form.status,
         client_id: form.client_id || null,
+        group_id: form.type === 'income' ? (form.group_id || null) : null,
         project_id: form.project_id || null,
         category_id: form.type === 'expense' ? (form.category_id || null) : null,
         payment_method: form.payment_method || null,
@@ -194,6 +214,13 @@ export default function EditTransactionModal({ open, onClose, onSave, onIssued, 
           <SelectMenu value={form.project_id} onChange={(v) => set('project_id', v)} options={projectOptions} placeholder={t('common.none')} ariaLabel={t('common.project')} />
         </Box>
       </Box>
+      {/* Only for a client with more than one track — see the add form. */}
+      {payFor.length > 0 && form.type === 'income' && (
+        <Box className="m-field">
+          <Box as="label" className="m-label">{t('tx.paidFor')}</Box>
+          <SelectMenu value={form.group_id} onChange={(v) => set('group_id', v)} options={payForOptions} ariaLabel={t('tx.paidFor')} />
+        </Box>
+      )}
 
       {isAdHoc && (
         <Box className="m-field m-recipient">

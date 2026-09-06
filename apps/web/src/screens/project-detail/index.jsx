@@ -258,6 +258,19 @@ export default function ProjectDetailScreen() {
     return map
   }, [clients, projectClients, projectGroups, liveMembers, transactions, sessions, members, groups])
 
+  /* What each group has brought in. Every confirmed income row that names the
+     group (transactions.group_id, migration 0115) — including one from a
+     client who has since left it, because the money did not leave with them.
+     Built once for the section rather than filtered per card. */
+  const incomeByGroup = useMemo(() => {
+    const map = new Map()
+    financeQuery({ type: 'income', source: transactions }).forEach((f) => {
+      if (!f.group_id) return
+      map.set(f.group_id, (map.get(f.group_id) || 0) + f.amount)
+    })
+    return map
+  }, [transactions])
+
   /* Meetings held in this project THIS MONTH — the second figure on the
      stats card. It replaces a group count of zero on every project a
      therapist will ever open, and it is the number a 1-on-1 practice
@@ -820,8 +833,18 @@ export default function ProjectDetailScreen() {
                 const held = groupSessions.length
                 const quota = billingMode === 'package' ? (g.package_sessions || 0) : 0
                 const nextMeeting = nextByGroup.get(g.id) || null
+                /* Each member's balance ON THIS GROUP, not their whole account.
+                   Before a payment could say which track it was for, the row
+                   had to print the client's total and admit it might include a
+                   private series; now the group's own line is exact. */
+                const groupTrackOf = (clientId) => balanceByClient.get(clientId)
+                  ?.tracks?.find((tr) => tr.kind === 'group' && tr.id === g.id)
                 const owingCount = groupMembers
-                  .filter((m) => (balanceByClient.get(m.client_id)?.balance ?? 0) > 0).length
+                  .filter((m) => (groupTrackOf(m.client_id)?.balance ?? 0) > 0).length
+                /* What the group has brought in — every income row that names
+                   it, including from someone who has since left, because the
+                   money did not leave with them. */
+                const groupIncome = incomeByGroup.get(g.id) || 0
                 /* A card of meetings only means something where meetings come
                    in cards: a priced package with a number of them. */
                 const canRenew = billingMode === 'package' && (g.package_sessions || 0) > 0
@@ -878,9 +901,14 @@ export default function ProjectDetailScreen() {
                           </>
                         )}
                       </Txt>
-                      {owingCount > 0 && (
-                        <Txt className="gc-owing">{t('detail.groups.owing', { count: owingCount })}</Txt>
-                      )}
+                      <Txt className="gc-progress-money">
+                        {groupIncome > 0 && (
+                          <Txt className="gc-income mono">{t('detail.groups.income', { amount: isr(groupIncome) })}</Txt>
+                        )}
+                        {owingCount > 0 && (
+                          <Txt className="gc-owing">{t('detail.groups.owing', { count: owingCount })}</Txt>
+                        )}
+                      </Txt>
                     </Box>
                     <Box className="gc-members">
                       {groupMembers.length === 0 ? (
@@ -889,21 +917,20 @@ export default function ProjectDetailScreen() {
                         groupMembers.map((m) => {
                           const c = clientById.get(m.client_id)
                           const name = c?.name || t('detail.groups.fallbackClient')
-                          const bal = balanceByClient.get(m.client_id)
-                          const owes = bal?.balance ?? 0
-                          /* Their balance is the whole client's. For a pure
-                             group member that IS the group's, exactly; for
-                             someone who also runs a private series it is
-                             both, and saying which is what a payment does
-                             not yet record. So the row says so rather than
-                             letting the number pass as the group's alone. */
-                          const mixed = (bal?.tracks?.length || 0) > 1
+                          const track = groupTrackOf(m.client_id)
+                          const owes = track?.balance ?? 0
+                          /* Part-paid is worth saying: "owes ₪800" reads very
+                             differently once you know ₪800 of ₪1,600 already
+                             came in. Nothing paid yet needs no second line. */
+                          const part = (track?.paid ?? 0) > 0 && owes > 0
                           return (
                             <Box key={m.id} className="gc-member">
                               <Box className="gc-member-id">
                                 <Txt as="p" className="gc-member-name">{name}</Txt>
-                                {mixed && owes > 0 && (
-                                  <Txt as="p" className="gc-member-sub">{t('detail.groups.memberMixed')}</Txt>
+                                {part && (
+                                  <Txt as="p" className="gc-member-sub">
+                                    {t('detail.groups.memberPaid', { paid: isr(track.paid), total: isr(track.total) })}
+                                  </Txt>
                                 )}
                               </Box>
                               {owes > 0 && (

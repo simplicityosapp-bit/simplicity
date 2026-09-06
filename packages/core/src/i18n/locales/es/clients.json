@@ -127,12 +127,15 @@
     "progressNoQuota_one": "{{count}} sesión",
     "progressNoQuota_other": "{{count}} sesiones",
     "amountAria": "Total de la modalidad",
-    "note": "Los importes son lo que cuesta cada modalidad. «Pagado» y «Saldo» arriba son de toda la cuenta.",
     "mode": {
       "package": "Paquete",
       "per_session": "Por sesión",
       "none": "Sin precio fijo"
-    }
+    },
+    "paidOf": "{{paid}} pagado",
+    "left": "quedan {{amount}}",
+    "unallocated": "{{amount}} entraron sin indicar para qué.",
+    "writeOffNote": "{{amount}} se condonaron, por eso el saldo de arriba es menor que la suma de las líneas."
   },
   "sections": {
     "activity": "Actividad",

@@ -56,7 +56,9 @@
     "saveAsClient": "Save as client",
     "moreDetails": "More details",
     "issueItemSummary": "Will be issued for: {{item}}",
-    "issueItemChange": "Change"
+    "issueItemChange": "Change",
+    "paidFor": "What for?",
+    "paidForPersonal": "Personal process"
   },
   "editTx": {
     "title": "Edit transaction",

@@ -110,10 +110,11 @@
       "nextMeeting": "Prochaine {{date}} à {{time}}",
       "owing_one": "{{count}} doit",
       "owing_other": "{{count}} doivent",
-      "memberMixed": "comprend un suivi individuel",
       "memberOwesAria": "Solde de {{name}}",
       "renewAria": "Nouvelle carte pour {{name}}",
-      "renewUndo": "Séances ajoutées pour {{name}}"
+      "renewUndo": "Séances ajoutées pour {{name}}",
+      "income": "{{amount}} encaissés",
+      "memberPaid": "{{paid}} sur {{total}} payé"
     },
     "status": {
       "active": "Actif",

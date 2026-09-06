@@ -18,6 +18,9 @@ export interface Tx {
   type?: string
   project_id?: string | null
   client_id?: string | null
+  /* Which of the client's groups this income pays for (migration 0115).
+     null = their personal process, or written before the column existed. */
+  group_id?: string | null
   category_id?: string | null
   date: string | number | Date
   amount: number

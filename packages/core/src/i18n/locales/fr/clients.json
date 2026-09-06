@@ -127,12 +127,15 @@
     "progressNoQuota_one": "{{count}} séance",
     "progressNoQuota_other": "{{count}} séances",
     "amountAria": "Total de la formule",
-    "note": "Les montants correspondent au coût de chaque formule. « Payé » et « Solde » ci-dessus concernent le compte entier.",
     "mode": {
       "package": "Forfait",
       "per_session": "À la séance",
       "none": "Sans prix fixe"
-    }
+    },
+    "paidOf": "{{paid}} payé",
+    "left": "reste {{amount}}",
+    "unallocated": "{{amount}} reçus sans préciser pour quoi.",
+    "writeOffNote": "{{amount}} ont été annulés, le solde ci-dessus est donc inférieur à la somme des lignes."
   },
   "sections": {
     "activity": "Activité",

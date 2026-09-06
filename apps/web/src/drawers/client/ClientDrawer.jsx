@@ -339,17 +339,39 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
                               : t('tracks.progress', { held: tr.held, quota: tr.quota })}
                           </Txt>
                         </Box>
-                        <Txt className="cd-track-amt mono" title={t('tracks.amountAria')}>{isr(tr.total)}</Txt>
+                        {/* What this track costs, what has come in against it,
+                            and what is left. The middle number is the one
+                            that took a schema column to earn: a payment now
+                            says which track it was for (migration 0115), so
+                            "did she pay for the workshop" has an answer
+                            instead of one balance covering both. */}
+                        <Box className="cd-track-money">
+                          <Txt className="cd-track-amt mono" title={t('tracks.amountAria')}>{isr(tr.total)}</Txt>
+                          <Txt className="cd-track-sub mono">
+                            {t('tracks.paidOf', { paid: isr(tr.paid) })}
+                            {tr.balance > 0 && ` · ${t('tracks.left', { amount: isr(tr.balance) })}`}
+                          </Txt>
+                        </Box>
                       </Box>
                     )
                   })}
-                  {/* The amounts are what each track COSTS. "שולם" and "יתרה"
-                      in the hero are the account's, not any one track's —
-                      a payment is recorded against the client, not against
-                      the workshop, so there is no honest per-track "paid" to
-                      print here yet. Said outright rather than left for the
-                      reader to work out from numbers that don't add up. */}
-                  <Txt as="p" className="cd-tracks-note">{t('tracks.note')}</Txt>
+                  {/* Money that arrived without saying which track it was for.
+                      Reported rather than shared out by guesswork — the same
+                      choice the payments panel makes for an adjustment it
+                      cannot explain. */}
+                  {balance.unallocatedPaid > 0 && (
+                    <Txt as="p" className="cd-tracks-note">
+                      {t('tracks.unallocated', { amount: isr(balance.unallocatedPaid) })}
+                    </Txt>
+                  )}
+                  {/* The hero's «יתרה» can still differ from the sum of the
+                      lines: a written-off debt lowers the account without
+                      belonging to any one track. */}
+                  {balance.adjustment !== 0 && (
+                    <Txt as="p" className="cd-tracks-note">
+                      {t('tracks.writeOffNote', { amount: isr(balance.adjustment) })}
+                    </Txt>
+                  )}
                 </Box>
               )}
 

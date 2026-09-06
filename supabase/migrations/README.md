@@ -1,6 +1,6 @@
 # Migrations — what is applied, and what is authoritative
 
-This directory holds 113 numbered migrations, `0001` → `0113`. They are the
+This directory holds 115 numbered migrations, `0001` → `0115`. They are the
 *history* of how the schema got here. They are **not** a set you can replay from
 scratch: migrations `0001`–`0099` were run as raw SQL and the base tables were
 created by hand before any of them, so nothing in this directory creates
@@ -41,6 +41,8 @@ keep in sync without buying anything.
 | `0110`, `0111` | **applied** |
 | `0112_retire_lead_pages` | **applied** 2026-08-27 — unpublished the one legacy lead page (1 row, slug `bnaya`); the row itself is untouched |
 | `0113_rls_initplan_fk_indexes` | **applied** 2026-08-27 — wrapped `auth.uid()` in 64 policies, added the `app_sessions` FK, added 20 FK indexes. Verified: 79 policies and 8 RESTRICTIVE both unchanged, 424 `app_sessions` rows preserved, advisor clean of `auth_rls_initplan` and `unindexed_foreign_keys` |
+| `0114_landing_signup_complete` | **applied** — `landing_events_type_check` carries `signup_complete` |
+| `0115_transactions_group_id` | **applied** 2026-09-06 — added the nullable `transactions.group_id` + its partial index. Verified before and after: 148 rows (143 live) unchanged, column `is_nullable = YES`, 0 rows attributed (no backfill, by design), the table's single RLS policy untouched. The advisor's only new line is `unused_index` on the new index, which is what a brand-new index says |
 
 Verified against the live database on 2026-08-27 by object presence: `0107`'s
 five count RPCs exist, `0108`'s `scheduled_meetings.duration_minutes` and its
@@ -62,7 +64,7 @@ regenerate `../schema.sql`.**
 
 ## How to add a migration
 
-Next free number is **`0114`**.
+Next free number is **`0116`**.
 
 Both commands below need the CLI linked to the project. That is a one-time step,
 and the password it asks for is stored by the CLI rather than in any file here:
@@ -72,7 +74,7 @@ supabase link --project-ref rdurkakzyymxhocvhufw
 ```
 
 ```bash
-supabase db query --linked -f supabase/migrations/0114_your_change.sql
+supabase db query --linked -f supabase/migrations/0116_your_change.sql
 ```
 
 `supabase db push` is **not** used in this project and is not safe here — it
@@ -83,10 +85,12 @@ After any migration that changes the schema, regenerate the baseline so the repo
 and the database do not drift apart again:
 
 ```bash
-node supabase/dump-schema.mjs --watermark 0114
+node supabase/dump-schema.mjs --watermark 0116
 ```
 
 (`0112` changed data, not schema, so it left `schema.sql` unaffected.)
+
+`schema.sql` is at watermark **`0115`**, regenerated 2026-09-06.
 
 ## `archive/`
 

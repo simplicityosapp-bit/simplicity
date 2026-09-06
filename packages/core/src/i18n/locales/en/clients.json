@@ -127,12 +127,15 @@
     "progressNoQuota_one": "{{count}} meeting",
     "progressNoQuota_other": "{{count}} meetings",
     "amountAria": "Track total",
-    "note": "The amounts are what each track costs. \"Paid\" and \"Balance\" above are for the whole account.",
     "mode": {
       "package": "Package",
       "per_session": "Per meeting",
       "none": "No set price"
-    }
+    },
+    "paidOf": "{{paid}} paid",
+    "left": "{{amount}} left",
+    "unallocated": "{{amount}} came in without saying what for.",
+    "writeOffNote": "{{amount}} was written off, so the balance above is lower than the lines add up to."
   },
   "sections": {
     "activity": "Activity",

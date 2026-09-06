@@ -123,11 +123,17 @@ describe('the card answers the questions', () => {
     expect(src).toMatch(/const balanceByClient = useMemo/)
   })
 
-  it('marks a member whose balance is not the group\'s alone', () => {
-    /* A payment is recorded against a client, not against a workshop, so
-       for someone running a private series too the figure is both. */
-    expect(src).toMatch(/detail\.groups\.memberMixed/)
-    expect(src).toMatch(/const mixed = \(bal\?\.tracks\?\.length \|\| 0\) > 1/)
+  it('shows each member their balance ON THIS GROUP, not their whole account', () => {
+    /* Before a payment could say which track it was for, the row printed the
+       client's total and had to admit it might include a private series. */
+    expect(src).toMatch(/const groupTrackOf = \(clientId\) =>/)
+    expect(src).toMatch(/tracks\?\.find\(\(tr\) => tr\.kind === 'group' && tr\.id === g\.id\)/)
+    expect(src).toMatch(/detail\.groups\.memberPaid/)
+  })
+
+  it('says what the group has brought in', () => {
+    expect(src).toMatch(/const incomeByGroup = useMemo/)
+    expect(src).toMatch(/detail\.groups\.income/)
   })
 
   it('offers a renewal only where meetings come in cards', () => {
@@ -163,7 +169,7 @@ describe('every locale carries the group-card vocabulary', () => {
     readFileSync(new URL(`../../../packages/core/src/i18n/locales/${lang}/${ns}.json`, import.meta.url), 'utf8'),
   )
 
-  it('names the progress, the next meeting, the owe count and the mixed balance', () => {
+  it('names the progress, the next meeting, the owe count and the money', () => {
     for (const lang of LOCALES) {
       const g = load(lang, 'projects').detail.groups
       expect(g.progressOf, `${lang}.progressOf`).toMatch(/\{\{held\}\}/)
@@ -173,7 +179,8 @@ describe('every locale carries the group-card vocabulary', () => {
       expect(g.nextMeeting, `${lang}.nextMeeting`).toMatch(/\{\{date\}\}/)
       expect(g.owing_one, `${lang}.owing_one`).toBeTruthy()
       expect(g.owing_other, `${lang}.owing_other`).toBeTruthy()
-      expect(g.memberMixed, `${lang}.memberMixed`).toBeTruthy()
+      expect(g.memberPaid, `${lang}.memberPaid`).toMatch(/\{\{paid\}\}/)
+      expect(g.income, `${lang}.income`).toMatch(/\{\{amount\}\}/)
       expect(g.renewAria, `${lang}.renewAria`).toMatch(/\{\{name\}\}/)
       expect(load(lang, 'projects').detail.stats.sessionsMonth, `${lang}.sessionsMonth`).toBeTruthy()
     }

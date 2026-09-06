@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import {
   Home, Users, Magnet, Wallet, Folder, ClipboardList, Target, Calendar, Settings,
   Sun, Moon, Eye, LogOut, BarChart3, MoreHorizontal, Trash2, Sparkles, X, MessageSquarePlus, Shield, Plug, LayoutTemplate,
-  MessagesSquare, Gem,
+  MessagesSquare, Gem, BookOpen,
 } from 'lucide-react'
 import { DRAWER_NAV } from '../lib/nav'
 import { confirmLeave } from '../lib/leaveGuard'
@@ -46,6 +46,11 @@ const EXTRAS = [
      the existing items.connections label. מבט על took its grid slot. */
   { key: 'connections', labelKey: 'items.connections', icon: Plug,  to: ROUTES.CONNECTIONS },
   { key: 'trash',    labelKey: 'extras.trash',    icon: Trash2,     to: ROUTES.TRASH },
+  /* Last, beside "דברו אלינו" below it: the two things a stuck user reaches
+     for. The drawer has carried this row all along, but the drawer opens from
+     the bottom bar, which desktop never draws — so on a wide screen the guide
+     was reachable only from the ? sheet's own footer. */
+  { key: 'help',     labelKey: 'extras.help',     icon: BookOpen,   to: ROUTES.HELP },
   /* מדיניות פרטיות / תנאים / DPA deliberately NOT here (owner call
      2026-07-27): legal documents belong in Settings → אודות, which already
      links all three, not in the navigation. The /legal route stays open. */

@@ -59,6 +59,29 @@ export const NO_HELP_SCREENS = new Set([
   'leadPages',   // retired route; App redirects it to the /pages hub
 ])
 
+/* The reverse of screenKeyFromPath: the address a screen key belongs to.
+   Derived from ROUTES by running each path back through the mapper, so a
+   renamed route can't leave a stale duplicate here. Parameterised paths
+   (/clients/:id) are skipped, and the shortest path wins when several
+   resolve to the same key — /clients, not /clients/:id.
+
+   The help guide uses it to offer "open this screen" at the end of a
+   chapter: read about clients, then go there. */
+const ROUTE_BY_SCREEN = (() => {
+  const out = {}
+  for (const path of Object.values(ROUTES)) {
+    if (typeof path !== 'string' || path.includes(':') || path.includes('*')) continue
+    const key = screenKeyFromPath(path)
+    const cur = out[key]
+    if (!cur || path.length < cur.length) out[key] = path
+  }
+  return out
+})()
+
+export function routeForScreen(key) {
+  return ROUTE_BY_SCREEN[key] || null
+}
+
 /* Bottom tab bar — 4 quick screens + the menu button (handled separately).
    Order chosen 25.05.26 (matches the prototype's .mg-bottombar). Display
    labels resolve via i18n at the call site (nav:items.<key>). */

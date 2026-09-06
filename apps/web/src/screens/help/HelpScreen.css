@@ -175,3 +175,238 @@
   .hs-guide,
   .hs-faq { padding: 14px; }
 }
+
+/* ── Chapter list ───────────────────────────────────────────────
+   A map of the manual, and of the app: seventeen chapters, one tap to any
+   of them. It sits above the accordion because arriving at a wall of shut
+   rows tells a reader nothing about what is inside them. Chips wrap; the
+   ones already open carry the same sage tint the app uses for a chosen
+   answer everywhere else. */
+.hs-jump {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 0 0 14px;
+  padding: 0 2px;
+}
+.hs-jump-chip {
+  min-height: 32px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  border: var(--mg-card-border);
+  background: var(--mg-card-bg);
+  backdrop-filter: var(--mg-card-blur);
+  color: var(--stone);
+  font-family: var(--mg-font);
+  font-size: calc(12.5px * var(--text-scale));
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.hs-jump-chip:hover { background: rgba(42, 37, 32, 0.06); }
+[data-theme="dark"] .hs-jump-chip:hover { background: rgba(240, 235, 224, 0.07); }
+.hs-jump-chip.on {
+  background: color-mix(in srgb, var(--sage) 22%, transparent);
+  border-color: color-mix(in srgb, var(--sage) 50%, transparent);
+  color: var(--espresso);
+}
+
+/* ── Search ─────────────────────────────────────────────────────
+   Same pill as the settings search, deliberately: it is the same act in
+   the same app, and a reader who has met one should recognise the other. */
+.hs-search {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-bottom: 14px;
+  padding: 0 14px;
+  height: 46px;
+  border-radius: 999px;
+  border: var(--mg-card-border);
+  background: var(--mg-card-bg);
+  box-shadow: var(--mg-card-shadow);
+  backdrop-filter: var(--mg-card-blur);
+  -webkit-backdrop-filter: var(--mg-card-blur);
+  color: var(--stone);
+}
+.hs-search:focus-within { border-color: var(--terracotta); }
+.hs-search-input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  outline: none;
+  font-family: var(--mg-font);
+  font-size: calc(14px * var(--text-scale));
+  color: var(--espresso);
+}
+.hs-search-clear {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: var(--stone);
+  cursor: pointer;
+}
+
+/* ── Results ────────────────────────────────────────────────────
+   Every hit says where it came from, which is what the two tabs were
+   carrying for the reader before the search made them one list. */
+.hs-results { display: flex; flex-direction: column; }
+.hs-count {
+  margin: 0 0 10px;
+  font-family: var(--mg-font-num);
+  font-size: calc(12.5px * var(--text-scale));
+  color: var(--stone);
+}
+.hs-res-where {
+  margin: 10px 0 8px;
+  font-family: var(--mg-font);
+  font-size: calc(11.5px * var(--text-scale));
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--terracotta);
+}
+.hs-res-chapter {
+  padding: 12px 14px;
+  margin-bottom: 8px;
+  border-radius: 16px;
+  border: var(--mg-card-border);
+  background: var(--mg-card-bg);
+  backdrop-filter: var(--mg-card-blur);
+}
+.hs-res-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+.hs-res-title {
+  margin: 0;
+  font-family: 'Assistant', sans-serif;
+  font-size: calc(14.5px * var(--text-scale));
+  font-weight: 700;
+  color: var(--espresso);
+}
+.hs-res-open {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  min-height: 32px;
+  padding: 4px 10px;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--terracotta);
+  font-family: var(--mg-font);
+  font-size: calc(12px * var(--text-scale));
+  font-weight: 600;
+  cursor: pointer;
+}
+.hs-res-open:hover { background: color-mix(in srgb, var(--terracotta) 10%, transparent); }
+/* The arrow points the way the language runs. */
+.hs-res-open svg { transform: scaleX(1); }
+[dir="ltr"] .hs-res-open svg { transform: scaleX(-1); }
+
+/* ── Nothing found ──────────────────────────────────────────────── */
+.hs-none {
+  padding: 22px 18px;
+  border-radius: 16px;
+  border: var(--mg-card-border);
+  background: var(--mg-card-bg);
+  backdrop-filter: var(--mg-card-blur);
+  text-align: center;
+}
+.hs-none-t {
+  margin: 0 0 6px;
+  font-family: 'Assistant', sans-serif;
+  font-size: calc(14.5px * var(--text-scale));
+  font-weight: 700;
+  color: var(--espresso);
+}
+.hs-none-b {
+  margin: 0;
+  font-family: var(--mg-font);
+  font-size: calc(13px * var(--text-scale));
+  line-height: 1.6;
+  color: var(--stone);
+}
+
+/* ── "Open this screen" ─────────────────────────────────────────
+   At the end of a chapter, because reading about a screen and then hunting
+   for it in the nav is a strange way to end a paragraph that just explained
+   what it does. */
+.hs-goto {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 38px;
+  margin-top: 4px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: var(--mg-card-border);
+  background: var(--mg-card-bg);
+  color: var(--terracotta);
+  font-family: var(--mg-font);
+  font-size: calc(12.5px * var(--text-scale));
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.hs-goto:hover { background: color-mix(in srgb, var(--terracotta) 10%, transparent); }
+.hs-goto svg { transform: scaleX(1); }
+[dir="ltr"] .hs-goto svg { transform: scaleX(-1); }
+
+/* ── The way out of a dead end ──────────────────────────────────
+   Sits under every state of this screen, including "nothing found" — the
+   exact moment a reader decides the app has no answer. Feedback already
+   existed one tap away in the menu; the help centre never offered it. */
+.hs-contact {
+  margin-top: 18px;
+  padding: 18px;
+  border-radius: 18px;
+  border: var(--mg-card-border);
+  background: var(--mg-card-bg);
+  backdrop-filter: var(--mg-card-blur);
+  text-align: center;
+}
+.hs-contact-t {
+  margin: 0 0 4px;
+  font-family: 'Assistant', sans-serif;
+  font-size: calc(14.5px * var(--text-scale));
+  font-weight: 700;
+  color: var(--espresso);
+}
+.hs-contact-b {
+  margin: 0 0 12px;
+  font-family: var(--mg-font);
+  font-size: calc(12.5px * var(--text-scale));
+  line-height: 1.6;
+  color: var(--stone);
+}
+.hs-contact-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 10px 22px;
+  border: none;
+  border-radius: var(--mg-btn-radius);
+  background: var(--mg-btn-primary-bg);
+  color: var(--on-accent);
+  font-family: var(--mg-font);
+  font-size: calc(13.5px * var(--text-scale));
+  font-weight: var(--mg-btn-weight);
+  cursor: pointer;
+  transition: background 0.18s, transform 0.12s;
+}
+.hs-contact-cta:hover { background: var(--mg-btn-primary-bg-hover); }
+.hs-contact-cta:active { transform: scale(0.97); }
+[data-theme="dark"] .hs-contact-cta { color: var(--ink-on-accent); }

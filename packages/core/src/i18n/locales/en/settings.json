@@ -132,7 +132,8 @@
     "dpa": "Data processing",
     "guideIntro": "A full walkthrough of every screen — what it does, tips, and common questions.",
     "guideTips": "Tips",
-    "guideFaq": "Common questions"
+    "guideFaq": "Common questions",
+    "guideJump": "Jump to a chapter"
   },
   "profile": {
     "fullName": "Full name",
@@ -302,7 +303,25 @@
     "tabs": {
       "guide": "Guide",
       "faq": "FAQ"
-    }
+    },
+    "search": {
+      "placeholder": "Search help…",
+      "aria": "Search the guide and the FAQ",
+      "clear": "Clear search",
+      "results_one": "1 result",
+      "results_other": "{{count}} results",
+      "inGuide": "From the guide",
+      "inFaq": "From the FAQ",
+      "openChapter": "Open the chapter",
+      "none": "Nothing found for \"{{query}}\".",
+      "noneHint": "Try another word — \"status\", \"payment\" or \"calendar\", say — or browse the chapter list."
+    },
+    "contact": {
+      "title": "Didn't find it?",
+      "body": "Write to us — a question, a request, or something that is broken. We read every one.",
+      "cta": "Talk to us"
+    },
+    "openScreen": "Open this screen"
   },
   "search": {
     "placeholder": "Search settings…",

@@ -268,7 +268,7 @@ function AppShell() {
             <Route path={ROUTES.PROJECTS} element={<ProjectsScreen />} />
             <Route path={ROUTES.PROJECT} element={<ProjectDetailScreen />} />
             <Route path={ROUTES.TRASH} element={<TrashScreen />} />
-            <Route path={ROUTES.HELP} element={<HelpScreen />} />
+            <Route path={ROUTES.HELP} element={<HelpScreen onOpenFeedback={() => setFeedbackOpen(true)} />} />
             <Route path={ROUTES.INSIGHTS} element={<InsightsScreen />} />
             <Route path={ROUTES.CONNECTIONS} element={<ConnectionsScreen />} />
             <Route path={ROUTES.CONNECTION_CALENDAR} element={<CalendarConnectionScreen />} />

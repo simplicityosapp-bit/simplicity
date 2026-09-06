@@ -17,8 +17,16 @@ import { supabase } from '../supabase'
 const SID_KEY = 'lp_sid'
 const SENT_PREFIX = 'lp_sent_'
 /* Survives the landing → signup navigation, a refresh, and the OAuth round
-   trip — which sessionStorage alone does not (a new tab starts empty). */
+   trip — which sessionStorage alone does not (a new tab starts empty).
+   Stored as { sid, at } so it can expire; see SID_TTL_MS. */
 const PERSISTED_SID_KEY = 'simplicity_landing_sid'
+/* How long a landing visit may still claim a signup. Without a limit the id
+   never expires, so someone who read the page once in March and signed up in
+   September would be credited to that March session — the funnel would show
+   a conversion the landing page did not cause. Thirty days is the usual
+   attribution window, and the stamp is refreshed by every landing event, so
+   the clock runs from the LAST visit, not the first. */
+const SID_TTL_MS = 30 * 24 * 60 * 60 * 1000
 /* Holds the sid signup_complete was already sent for, so the event fires once
    per landing session rather than once per browser: a fresh landing visit
    mints a new sid and this stops matching. */
@@ -32,9 +40,31 @@ function sessionId() {
       window.sessionStorage.setItem(SID_KEY, id)
     }
     /* Mirrored on every call, not only at creation: localStorage may have been
-       cleared, or this tab may predate the key existing. */
-    try { window.localStorage.setItem(PERSISTED_SID_KEY, id) } catch { /* ignore */ }
+       cleared, or this tab may predate the key existing. Re-stamping on each
+       event is what makes the window run from the last visit. */
+    try {
+      window.localStorage.setItem(PERSISTED_SID_KEY, JSON.stringify({ sid: id, at: Date.now() }))
+    } catch { /* ignore */ }
     return id
+  } catch { return null }
+}
+
+/* The stored landing sid, or null when there is none, it has expired, or it
+   cannot be read. Anything that is not a well-formed, in-window { sid, at }
+   counts as absent — including the bare-string form written before this key
+   carried a timestamp, which JSON.parse rejects. An expired entry is cleared
+   on the way out so it is not re-examined on every later signup. */
+function readPersistedSid() {
+  try {
+    const raw = window.localStorage.getItem(PERSISTED_SID_KEY)
+    if (!raw) return null
+    const stored = JSON.parse(raw)
+    if (!stored || typeof stored.sid !== 'string' || typeof stored.at !== 'number') return null
+    if (Date.now() - stored.at > SID_TTL_MS) {
+      try { window.localStorage.removeItem(PERSISTED_SID_KEY) } catch { /* ignore */ }
+      return null
+    }
+    return stored.sid
   } catch { return null }
 }
 
@@ -63,16 +93,16 @@ export function trackLandingEvent(type) {
    and carries the sid the visitor arrived with, so the whole chain
    view → signup_start → signup_complete shares one session id.
 
-   'direct' when nothing is stored — someone who reached /signup without ever
-   passing through the landing page. (session_id is nullable, so this is a
+   'direct' when no landing session is in force — someone who reached /signup
+   without ever passing through the landing page, or whose last visit is older
+   than the attribution window. (session_id is nullable, so this is a
    deliberate label, not a NOT NULL workaround.)
 
    Sent at most once per landing session, and wrapped end to end: a failure
    here must never block a signup that already succeeded. */
 export function trackSignupComplete() {
   try {
-    let sid = 'direct'
-    try { sid = window.localStorage.getItem(PERSISTED_SID_KEY) || 'direct' } catch { /* ignore */ }
+    const sid = readPersistedSid() || 'direct'
     try {
       if (window.localStorage.getItem(COMPLETE_SENT_KEY) === sid) return
       window.localStorage.setItem(COMPLETE_SENT_KEY, sid)

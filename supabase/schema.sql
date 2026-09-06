@@ -1,6 +1,6 @@
 -- ════════════════════════════════════════════════════════════════
 --  schema.sql — the complete public schema, introspected from the LIVE database
---  Watermark: migration 0113.  Generated: 2026-09-02
+--  Watermark: migration 0115.  Generated: 2026-09-06
 --  Regenerate with:  node supabase/dump-schema.mjs --watermark <NNNN>
 --
 --  THIS FILE RUNS. It rebuilds an empty Postgres database into this schema —
@@ -17,7 +17,7 @@
 --  WHAT IS NOT HERE: no data, no roles, no auth.* / storage.* internals beyond
 --  the one bucket and its policies, and no cron jobs — the cron commands carry
 --  CRON_SECRET and POLL_SECRET in plain text and must not enter git (see L8).
---  Migration files present in the repo: 113. Which of them are actually
+--  Migration files present in the repo: 115. Which of them are actually
 --  applied is documented in supabase/migrations/README.md — NOT in the database
 --  history table, which is incomplete and is not the source of truth.
 --
@@ -1149,7 +1149,7 @@ CREATE TABLE public.landing_events (
   created_at timestamp with time zone NOT NULL DEFAULT now()
 );
 ALTER TABLE public.landing_events ADD CONSTRAINT landing_events_pkey PRIMARY KEY (id);
-ALTER TABLE public.landing_events ADD CONSTRAINT landing_events_type_check CHECK ((type = ANY (ARRAY['view'::text, 'signup_start'::text, 'scroll_50'::text, 'scroll_75'::text, 'scroll_100'::text, 'faq_open'::text, 'engaged'::text])));
+ALTER TABLE public.landing_events ADD CONSTRAINT landing_events_type_check CHECK ((type = ANY (ARRAY['view'::text, 'signup_start'::text, 'signup_complete'::text, 'scroll_50'::text, 'scroll_75'::text, 'scroll_100'::text, 'faq_open'::text, 'engaged'::text])));
 
 -- ══ lead_pages ════════════════════════════════════════════
 CREATE TABLE public.lead_pages (
@@ -1612,7 +1612,8 @@ CREATE TABLE public.transactions (
   recipient_phone text,
   recipient_tax_id text,
   grow_transaction_id text,
-  scheduled_meeting_id uuid
+  scheduled_meeting_id uuid,
+  group_id uuid
 );
 ALTER TABLE public.transactions ADD CONSTRAINT transactions_pkey PRIMARY KEY (id);
 ALTER TABLE public.transactions ADD CONSTRAINT transactions_amount_valid CHECK (((amount >= (0)::numeric) AND (amount <= '1000000000000'::numeric)));
@@ -1620,6 +1621,7 @@ ALTER TABLE public.transactions ADD CONSTRAINT transactions_payment_method_check
 ALTER TABLE public.transactions ADD CONSTRAINT transactions_status_check CHECK ((status = ANY (ARRAY['confirmed'::text, 'pending'::text, 'skipped'::text])));
 ALTER TABLE public.transactions ADD CONSTRAINT transactions_type_check CHECK ((type = ANY (ARRAY['income'::text, 'expense'::text])));
 COMMENT ON COLUMN public.transactions.payment_method IS 'How the money moved: bank_transfer | cash | credit_card | app (Bit/PayBox) | other | NULL (not set). Same key set as lib/invoiceDocs.js PAY_METHODS.';
+COMMENT ON COLUMN public.transactions.group_id IS 'Which group this income pays for. NULL = the client''s personal process, or unattributed (every row written before migration 0115).';
 
 -- ══ user_consent ══════════════════════════════════════════
 CREATE TABLE public.user_consent (
@@ -1849,6 +1851,7 @@ ALTER TABLE public.tasks ADD CONSTRAINT tasks_status_id_fkey FOREIGN KEY (status
 ALTER TABLE public.tasks ADD CONSTRAINT tasks_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 ALTER TABLE public.transactions ADD CONSTRAINT transactions_category_id_fkey FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE SET NULL;
 ALTER TABLE public.transactions ADD CONSTRAINT transactions_client_id_fkey FOREIGN KEY (client_id) REFERENCES clients(id) ON DELETE SET NULL;
+ALTER TABLE public.transactions ADD CONSTRAINT transactions_group_id_fkey FOREIGN KEY (group_id) REFERENCES groups(id) ON DELETE SET NULL;
 ALTER TABLE public.transactions ADD CONSTRAINT transactions_project_id_fkey FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE SET NULL;
 ALTER TABLE public.transactions ADD CONSTRAINT transactions_recurring_id_fkey FOREIGN KEY (recurring_id) REFERENCES recurring_templates(id) ON DELETE SET NULL;
 ALTER TABLE public.transactions ADD CONSTRAINT transactions_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
@@ -1860,7 +1863,7 @@ ALTER TABLE public.user_quotes ADD CONSTRAINT user_quotes_user_id_fkey FOREIGN K
 ALTER TABLE public.user_subscriptions ADD CONSTRAINT user_subscriptions_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 
 -- ════════════════════════════════════════════════════════════════
---  INDEXES (172; constraint-backed indexes are created above)
+--  INDEXES (173; constraint-backed indexes are created above)
 -- ════════════════════════════════════════════════════════════════
 CREATE INDEX app_sessions_created_at_idx ON public.app_sessions USING btree (created_at);
 CREATE INDEX app_sessions_user_id_idx ON public.app_sessions USING btree (user_id);
@@ -2026,6 +2029,7 @@ CREATE UNIQUE INDEX idx_transactions_recurring_meeting ON public.transactions US
 CREATE UNIQUE INDEX idx_transactions_recurring_slot ON public.transactions USING btree (user_id, recurring_id, date) WHERE ((recurring_id IS NOT NULL) AND (scheduled_meeting_id IS NULL) AND (deleted_at IS NULL));
 CREATE INDEX idx_transactions_status ON public.transactions USING btree (status);
 CREATE INDEX idx_transactions_user ON public.transactions USING btree (user_id);
+CREATE INDEX transactions_group_id_idx ON public.transactions USING btree (group_id) WHERE (group_id IS NOT NULL);
 CREATE UNIQUE INDEX transactions_grow_tx_uniq ON public.transactions USING btree (user_id, grow_transaction_id) WHERE (grow_transaction_id IS NOT NULL);
 CREATE INDEX idx_user_consent_user ON public.user_consent USING btree (user_id);
 CREATE INDEX idx_user_integrations_user ON public.user_integrations USING btree (user_id);

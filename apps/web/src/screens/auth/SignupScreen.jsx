@@ -125,42 +125,59 @@ export default function SignupScreen() {
         </Box>
 
         <Box as="form" className="auth-form" onSubmit={submit}>
-          {error && <Txt as="p" className="auth-error">{error}</Txt>}
+          {/* Says which of the two near-identical screens this is, and says
+              what the button is about to do — until now the first news that
+              a confirmation mail was coming arrived on the screen after it. */}
+          <Txt as="h1" className="auth-title">{t('signupScreen.title')}</Txt>
+          <Txt as="p" className="auth-sub">{t('signupScreen.subtitle')}</Txt>
+          {error && <Txt as="p" className="auth-error" role="alert">{error}</Txt>}
 
-          <Box as="label" className="auth-field" htmlFor="signup-email">
-            <Txt className="auth-field-icon"><Mail size={16} strokeWidth={1.6} aria-hidden="true" /></Txt>
-            <Input
-              id="signup-email"
-              type="email"
-              dir="ltr"
-              autoComplete="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Email"
-            />
+          <Box className="auth-group">
+            {/* The name of the field, on the page, staying there — it used to
+                live in the placeholder, which is to say it left the moment
+                anyone typed. A sibling of the field, not its parent: see
+                AuthScreen.css for why that decides whether a screen reader
+                hears anything at all. */}
+            <Txt as="label" className="auth-label" htmlFor="signup-email">{t('emailPlaceholder')}</Txt>
+            <Box as="label" className="auth-field" htmlFor="signup-email">
+              <Txt className="auth-field-icon"><Mail size={16} strokeWidth={1.6} aria-hidden="true" /></Txt>
+              <Input
+                id="signup-email"
+                type="email"
+                dir="ltr"
+                autoComplete="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </Box>
           </Box>
 
-          <Box as="label" className="auth-field" htmlFor="signup-pass">
-            <Txt className="auth-field-icon"><Lock size={16} strokeWidth={1.6} aria-hidden="true" /></Txt>
-            <Input
-              id="signup-pass"
-              type={showPassword ? 'text' : 'password'}
-              dir="ltr"
-              autoComplete="new-password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder={t('min8chars')}
-            />
-            <Btn
-              type="button"
-              className="auth-field-toggle"
-              onClick={() => setShowPassword((v) => !v)}
-              aria-label={showPassword ? t('hidePassword') : t('showPassword')}
-            >
-              {showPassword
-                ? <EyeOff size={16} strokeWidth={1.6} aria-hidden="true" />
-                : <Eye size={16} strokeWidth={1.6} aria-hidden="true" />}
-            </Btn>
+          <Box className="auth-group">
+            <Txt as="label" className="auth-label" htmlFor="signup-pass">{t('passwordPlaceholder')}</Txt>
+            <Box as="label" className="auth-field" htmlFor="signup-pass">
+              <Txt className="auth-field-icon"><Lock size={16} strokeWidth={1.6} aria-hidden="true" /></Txt>
+              <Input
+                id="signup-pass"
+                type={showPassword ? 'text' : 'password'}
+                dir="ltr"
+                autoComplete="new-password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                /* With the label saying what the box is, the placeholder is
+                   free to go back to being the hint it was written as. */
+                placeholder={t('min8chars')}
+              />
+              <Btn
+                type="button"
+                className="auth-field-toggle"
+                onClick={() => setShowPassword((v) => !v)}
+                aria-label={showPassword ? t('hidePassword') : t('showPassword')}
+              >
+                {showPassword
+                  ? <EyeOff size={16} strokeWidth={1.6} aria-hidden="true" />
+                  : <Eye size={16} strokeWidth={1.6} aria-hidden="true" />}
+              </Btn>
+            </Box>
           </Box>
 
           <Box className="auth-checks">

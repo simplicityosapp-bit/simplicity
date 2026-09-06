@@ -112,10 +112,29 @@
   color: var(--espresso-on-light, #2A2520);
 }
 
-/* Stack on narrow screens so the buttons don't squeeze the text. */
+/* Stack on narrow screens so the buttons don't squeeze the text.
+   The bar's height is not only its own business on a phone: the auth screens
+   reserve it (--cookie-banner-h, see CookieBanner.jsx), and at 331px it was
+   taking 41% of a 375x812 screen, pushing the "create an account" link below
+   the fold. Every line below buys the height back out of spacing and layout,
+   never out of the notice's wording. */
 @media (max-width: 560px) {
+  .cookie-banner {
+    padding: 12px;
+  }
   .cookie-banner-card {
     flex-wrap: wrap;
+    gap: 10px;
+    padding: 14px 16px;
+  }
+  /* Basis 0 rather than auto: at `auto` the paragraph measured its whole
+     max-content width, failed to fit beside the icon and wrapped below it,
+     spending a line and a gap on a decorative glyph. */
+  .cookie-banner-text {
+    flex: 1 1 0;
+  }
+  .cookie-banner-body {
+    line-height: 1.5;
   }
   .cookie-banner-actions {
     width: 100%;

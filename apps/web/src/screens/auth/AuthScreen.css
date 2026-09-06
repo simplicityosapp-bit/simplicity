@@ -51,12 +51,24 @@
   background-image: url('/backgrounds/mobile/night/onboarding.webp');
 }
 .auth-bg::after {
-  /* Soft warm wash to bring the form's contrast up without flattening
-     the photo. */
+  /* Warm wash, and it never quite reaches zero. It used to fade out at 55%,
+     which left the bottom of the frame — where this photo keeps its rocks and
+     its tree trunks — carrying the screen's small print raw: the field labels
+     sat across bark, and "no account?" had a rock running through it. The
+     column the form reads down stays calmer than the photograph behind it
+     now, top to bottom. Same job as the dark rule below, opposite direction. */
   content: '';
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at 50% 45%, rgba(244, 227, 218, 0.42), rgba(244, 227, 218, 0) 55%);
+  /* Two layers, because the photo's trouble is not evenly spread. The radial
+     lifts the middle where the fields sit; the linear does the real work at
+     the foot of the frame, which is where this picture keeps its rocks and
+     where the screen keeps "forgot password?", "no account?" and the language
+     row. Weighting it to the bottom buys those lines their contrast without
+     washing the daylight out of the top of the photograph. */
+  background:
+    linear-gradient(to top, rgba(247, 240, 232, 0.76) 0%, rgba(247, 240, 232, 0) 40%),
+    radial-gradient(circle at 50% 42%, rgba(247, 240, 232, 0.5), rgba(247, 240, 232, 0.1) 72%);
 }
 [data-theme="dark"] .auth-bg::after {
   /* Deeper and wider than the day wash, and it never quite reaches zero. The
@@ -124,6 +136,18 @@
   gap: 12px;
 }
 
+/* Short viewports. A phone with the cookie notice up is the tightest this
+   screen ever gets, and signup is the longest form it holds — a heading, a
+   line of what-happens-next, two labelled fields, a rule, three consents, two
+   buttons and a language row. Nothing is taken away here; the frame around
+   the form just stops holding room the form needs. */
+@media (max-height: 860px) {
+  .auth-stage { gap: 16px; }
+  .auth-logo { width: 56px; height: 56px; }
+  .auth-name { height: 28px; }
+  .auth-brand { margin-bottom: 2px; }
+}
+
 .auth-error {
   margin: 0;
   padding: 10px 12px;
@@ -161,6 +185,22 @@
   font-size: var(--mg-caption);
   font-weight: 500;
   color: var(--stone);
+}
+/* What the field wants, said before it is asked for — and the same line
+   carries the complaint when the answer does not meet it, so the news arrives
+   where the person is looking rather than in the error slot at the top of the
+   form. Lighter than the label above it, and one weight down, so the pair
+   reads as a heading and a footnote rather than two labels. */
+.auth-hint {
+  margin: 6px 2px 0;
+  font-family: var(--mg-font);
+  font-size: var(--mg-caption);
+  font-weight: 400;
+  color: var(--mist);
+}
+.auth-hint-bad {
+  color: var(--clay-on-dark);
+  font-weight: 500;
 }
 
 /* Field row — leading icon (mail / lock) at the inline-start edge, the input

@@ -198,7 +198,8 @@
     "restartOnboarding": "Recommencer l'introduction",
     "restartHint": "Rouvre l'assistant de configuration depuis la première étape. Pratique si vous l'avez sauté en cours de route.",
     "exportClients": "Exporter les clients (CSV)",
-    "exportTransactions": "Exporter les mouvements (CSV)"
+    "exportTransactions": "Exporter les mouvements (CSV)",
+    "importTooLarge": "« {{name}} » est trop volumineux (plus de {{mb}} Mo) — il bloquerait le navigateur avant même la lecture. Exportez une plage plus petite, ou divisez-le en plusieurs fichiers."
   },
   "danger": {
     "resetTitle": "Réinitialiser le compte",

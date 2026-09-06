@@ -35,7 +35,7 @@
     "includeAll": "Incluir todo",
     "clearAll": "Borrar todo",
     "txIssues": "{{count}} filas con un importe o una fecha no válidos no se importarán como transacciones",
-    "truncated": "El archivo se recortó a las primeras {{cap}} filas (de {{raw}})",
+    "truncated": "Las hojas largas se recortaron a las primeras {{cap}} filas cada una (de {{raw}} filas del archivo)",
     "loadMore": "Mostrar {{count}} más (de {{total}})",
     "tabs": {
       "clients": "Clientes",
@@ -116,7 +116,26 @@
       "clients": "clientes",
       "projects": "proyectos",
       "leads": "prospectos",
-      "transactions": "transacciones"
+      "transactions": "transacciones",
+      "sessions": "sesiones",
+      "alsoLead": "Además se crearán:",
+      "alsoPayments_one": "1 pago",
+      "alsoPayments_other": "{{count}} pagos",
+      "alsoPlans_one": "1 plan de pagos",
+      "alsoPlans_other": "{{count}} planes de pagos",
+      "alsoSessions_one": "1 sesión",
+      "alsoSessions_other": "{{count}} sesiones",
+      "alsoEstimated": "(lo que el archivo dejó sin fecha recibe una fecha estimada)",
+      "clients_one": "cliente",
+      "clients_other": "clientes",
+      "projects_one": "proyecto",
+      "projects_other": "proyectos",
+      "leads_one": "prospecto",
+      "leads_other": "prospectos",
+      "transactions_one": "transacción",
+      "transactions_other": "transacciones",
+      "sessions_one": "sesión",
+      "sessions_other": "sesiones"
     },
     "confirm": {
       "savingCreate": "Creando…",
@@ -147,8 +166,22 @@
         "projects": "{{count}} proyectos",
         "leads": "{{count}} prospectos",
         "transactions": "{{count}} transacciones",
-        "recurring": "{{count}} gastos recurrentes"
-      }
+        "recurring": "{{count}} gastos recurrentes",
+        "clients_one": "1 cliente",
+        "clients_other": "{{count}} clientes",
+        "projects_one": "1 proyecto",
+        "projects_other": "{{count}} proyectos",
+        "leads_one": "1 prospecto",
+        "leads_other": "{{count}} prospectos",
+        "transactions_one": "1 transacción",
+        "transactions_other": "{{count}} transacciones",
+        "recurring_one": "1 gasto recurrente",
+        "recurring_other": "{{count}} gastos recurrentes"
+      },
+      "failedLine_one": "1 fila no entró. Aquí está el motivo:",
+      "failedLine_other": "{{count}} filas no entraron. Aquí está el motivo:",
+      "moreErrors_one": "y 1 fila similar más…",
+      "moreErrors_other": "y {{count}} filas similares más…"
     },
     "error": {
       "who": {
@@ -183,7 +216,11 @@
         "transactions": "Creando transacciones…",
         "leads": "Creando prospectos…"
       }
-    }
+    },
+    "loadMore_one": "Mostrar 1 más (de {{total}})",
+    "loadMore_other": "Mostrar {{count}} más (de {{total}})",
+    "txIssues_one": "1 fila con un importe o una fecha no válidos no se importará como transacción",
+    "txIssues_other": "{{count}} filas con un importe o una fecha no válidos no se importarán como transacciones"
   },
   "modal": {
     "title": "Importar desde un archivo",
@@ -197,7 +234,10 @@
     "notReady": "Elige qué hay en cada hoja y asigna las columnas de nombre / importe.",
     "pickYear": "Elige un año para cada hoja mensual",
     "toReview": "Continuar a la revisión",
-    "reopenRecognize": "Resumen del reconocimiento"
+    "reopenRecognize": "Resumen del reconocimiento",
+    "allRemoved": "Has quitado todas las hojas de esta importación — no queda nada por importar.",
+    "restoreSheets": "Recuperar las hojas",
+    "nothingToImport": "No queda ninguna hoja por importar."
   },
   "sheet": {
     "removeAria": "Quitar hoja",
@@ -315,7 +355,13 @@
         "summary": "Resumen",
         "notes": "Notas"
       }
-    }
+    },
+    "unmapped_one": "Hay 1 columna que dejaremos a un lado a menos que le elijas un campo — no pasa nada por ignorarla.",
+    "unmapped_other": "Hay {{count}} columnas que dejaremos a un lado a menos que les elijas un campo — no pasa nada por ignorarlas.",
+    "recognizedShow_one": "Mostrar 1 columna reconocida automáticamente",
+    "recognizedShow_other": "Mostrar {{count}} columnas reconocidas automáticamente",
+    "recognizedHide_one": "Ocultar 1 columna reconocida automáticamente",
+    "recognizedHide_other": "Ocultar {{count}} columnas reconocidas automáticamente"
   },
   "recognize": {
     "title": "¿Qué encontramos en tu archivo?",
@@ -327,7 +373,15 @@
       "clients": "{{count}} clientes",
       "payments": "{{count}} pagos",
       "leads": "{{count}} prospectos",
-      "projects": "{{count}} proyectos"
+      "projects": "{{count}} proyectos",
+      "clients_one": "1 cliente",
+      "clients_other": "{{count}} clientes",
+      "leads_one": "1 prospecto",
+      "leads_other": "{{count}} prospectos",
+      "payments_one": "1 pago",
+      "payments_other": "{{count}} pagos",
+      "projects_one": "1 proyecto",
+      "projects_other": "{{count}} proyectos"
     },
     "detectedAs": "Detectado como:",
     "typeAria": "Tipo de tabla para {{name}}",

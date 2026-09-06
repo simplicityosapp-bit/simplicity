@@ -27,9 +27,52 @@ import { insertLead, listLeads } from './api/leads'
 import { insertSession, listSessions } from './api/sessions'
 import { normalizeDate } from './csvImport'
 import { mapValueToMeta } from './statusImport'
+import { mgStrip } from './multiGender'
 import { listCategories, insertCategory, CATEGORY_COLORS } from './api/categories'
 
 const norm = (s) => (s || '').trim().toLowerCase()
+/* Status names carry the app's dual-gender merge glyphs; a file's plain
+   "פעיל" and our own "פעיל׌" are the SAME status and must key alike. */
+const normStatus = (s) => norm(mgStrip(s))
+
+/* ────────────────────────────────────────────────────────────────
+   What ONE approved client row creates BESIDES the client.
+   ────────────────────────────────────────────────────────────────
+   A "שולם" column becomes a real payment, a "מספר תשלומים" ≥ 2 becomes a
+   payment plan whose covered installments each become a payment, and a
+   "פגישות שנעשו" count becomes that many logged meetings. None of it was
+   visible in the review, so a user who ticked 4 clients and read "רק מה
+   שמסומן ייכתב" got eight rows — half of them money, dated by us.
+
+   Pure, and deliberately the same arithmetic as the client loop below
+   (search `willPlan`): the review calls this to SAY what is coming, the
+   importer still decides what actually happens.
+   ──────────────────────────────────────────────────────────────── */
+export function clientRowSideEffects(c = {}) {
+  const paid = Number(c.paid) || 0
+  const calcTotal = (Number(c.sessions) || 0) * (Number(c.price_per_session) || 0)
+  const totalDue = Number(c.total_due) > 0
+    ? Number(c.total_due)
+    : (paid > 0 && calcTotal === 0 ? paid : null)
+  const nInst = Math.floor(Number(c.num_installments) || 0)
+  const planTotal = totalDue != null ? totalDue : (calcTotal > 0 ? calcTotal : (paid > 0 ? paid : 0))
+  const willPlan = nInst >= 2 && planTotal > 0
+
+  let transactions = 0
+  if (willPlan) {
+    const gen = generateInstallments({ total: planTotal, count: nInst, startDate: c.pay_date || undefined })
+    transactions = installmentsCoveredByPaid(gen.map((g) => g.amount), paid)
+  } else if (paid > 0) {
+    transactions = 1
+  }
+  return {
+    transactions,
+    plans: willPlan ? 1 : 0,
+    sessions: Math.floor(Number(c.sessions_done) || 0),
+    /* Undated money lands on the historical placeholder — worth saying. */
+    dateEstimated: transactions > 0 && !c.pay_date ? transactions : 0,
+  }
+}
 
 export async function finalizeOnboardingImport(input = {}) {
   /* Clock for dated derived rows (client payments). Caller may pass
@@ -94,8 +137,8 @@ export async function finalizeOnboardingImport(input = {}) {
     return rows
   }
   const mergeStatusRows = (explicit, derived) => {
-    const seen = new Set(explicit.map((s) => norm(s.display_name)))
-    return [...explicit, ...derived.filter((s) => !seen.has(norm(s.display_name)))]
+    const seen = new Set(explicit.map((s) => normStatus(s.display_name)))
+    return [...explicit, ...derived.filter((s) => !seen.has(normStatus(s.display_name)))]
   }
   clientStatuses = mergeStatusRows(clientStatuses, deriveStatuses(clients, 'client'))
   leadStatuses = mergeStatusRows(leadStatuses, deriveStatuses(leads, 'lead'))
@@ -141,14 +184,14 @@ export async function finalizeOnboardingImport(input = {}) {
   /* ── Statuses first — clients & leads link to them by name. Dedup by
      display_name (case-insensitive) so re-import doesn't duplicate. ── */
   const clientStatusIdByName = new Map()
-  existingClientStatuses.forEach((s) => { if (s?.display_name) clientStatusIdByName.set(norm(s.display_name), s.id) })
+  existingClientStatuses.forEach((s) => { if (s?.display_name) clientStatusIdByName.set(normStatus(s.display_name), s.id) })
   for (const s of clientStatuses) {
     /* Ticked at the top of the body, not the bottom: every one of these
        loops has `continue` paths for skipped rows, and a tick placed after
        them would stall the bar short of the end on any import containing a
        duplicate. */
     tick('statuses')
-    const key = norm(s.display_name)
+    const key = normStatus(s.display_name)
     if (!key) continue
     if (clientStatusIdByName.has(key)) { summary.clientStatuses.skipped += 1; continue }
     try {
@@ -161,10 +204,10 @@ export async function finalizeOnboardingImport(input = {}) {
     }
   }
   const leadStatusIdByName = new Map()
-  existingLeadStatuses.forEach((s) => { if (s?.display_name) leadStatusIdByName.set(norm(s.display_name), s.id) })
+  existingLeadStatuses.forEach((s) => { if (s?.display_name) leadStatusIdByName.set(normStatus(s.display_name), s.id) })
   for (const s of leadStatuses) {
     tick('statuses')
-    const key = norm(s.display_name)
+    const key = normStatus(s.display_name)
     if (!key) continue
     if (leadStatusIdByName.has(key)) { summary.leadStatuses.skipped += 1; continue }
     try {
@@ -179,9 +222,9 @@ export async function finalizeOnboardingImport(input = {}) {
   /* meta_category lookups, so a record carrying status_name resolves to
      both its status_id AND its meta bucket. */
   const clientStatusMetaByName = new Map()
-  ;[...existingClientStatuses, ...clientStatuses].forEach((s) => { if (s?.display_name) clientStatusMetaByName.set(norm(s.display_name), s.meta_category) })
+  ;[...existingClientStatuses, ...clientStatuses].forEach((s) => { if (s?.display_name) clientStatusMetaByName.set(normStatus(s.display_name), s.meta_category) })
   const leadStatusMetaByName = new Map()
-  ;[...existingLeadStatuses, ...leadStatuses].forEach((s) => { if (s?.display_name) leadStatusMetaByName.set(norm(s.display_name), s.meta_category) })
+  ;[...existingLeadStatuses, ...leadStatuses].forEach((s) => { if (s?.display_name) leadStatusMetaByName.set(normStatus(s.display_name), s.meta_category) })
 
   /* ── Projects first — clients reference them. ── */
   const projectIdByName = new Map()
@@ -224,7 +267,7 @@ export async function finalizeOnboardingImport(input = {}) {
     const project_id = c.project_name ? (projectIdByName.get(norm(c.project_name)) || null) : null
     /* Resolve an imported status name → its row id + meta bucket. An
        explicit status_meta on the row still wins if there's no name. */
-    const statusName = c.status_name ? norm(c.status_name) : null
+    const statusName = c.status_name ? normStatus(c.status_name) : null
     const status_id = statusName ? (clientStatusIdByName.get(statusName) || null) : null
     const resolvedMeta = (statusName && clientStatusMetaByName.get(statusName)) || c.status_meta || 'active'
     /* Total due: an explicit "סה״כ לתשלום" wins. Otherwise, if the file
@@ -564,7 +607,7 @@ export async function finalizeOnboardingImport(input = {}) {
     const name = (l.name || '').trim()
     if (!name) { summary.leads.skipped += 1; continue }
     if (seenLeadNames.has(norm(name))) { summary.leads.skipped += 1; continue }
-    const statusName = l.status_name ? norm(l.status_name) : null
+    const statusName = l.status_name ? normStatus(l.status_name) : null
     const status_id = statusName ? (leadStatusIdByName.get(statusName) || null) : null
     const status_meta = (statusName && leadStatusMetaByName.get(statusName)) || l.status_meta || 'in_process'
     try {

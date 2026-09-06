@@ -5,6 +5,8 @@ import { useClients } from '../../hooks/useClients'
 import { useProjects } from '../../hooks/useProjects'
 import { useLeads } from '../../hooks/useLeads'
 import { isr } from '@simplicity/core'
+import { clientRowSideEffects } from '../../lib/onboardingImport'
+import { mgStrip } from '../../lib/multiGender'
 import { useT } from '../../i18n/useT'
 import './OnboardingReviewWizard.css'
 import { Box, Txt, Btn, Input } from '../../components/ui'
@@ -176,13 +178,26 @@ export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, 
     return Array.from(names)
   }, [existingClients, state.clients])
 
-  /* Client status options = the 4 defaults + any distinct status text
-     that came in from the file, so every imported value stays pickable. */
+  /* Client status options = the 4 defaults + any distinct status text that
+     came in from the file, so every imported value stays pickable. Matched
+     with the dual-gender glyphs stripped: a file saying "פעיל" IS the app's
+     "פעיל׌", and listing both put two options one letter apart in the same
+     menu (three, counting the "סטטוס: פעיל" default row). The default's
+     spelling wins, so the list stays in the app's own wording. */
   const clientStatusOptions = useMemo(() => {
-    const set = new Set(CLIENT_STATUS_DEFAULTS)
-    state.clients.forEach((c) => { if (c.status_name) set.add(c.status_name) })
-    return Array.from(set)
+    const byPlain = new Map(CLIENT_STATUS_DEFAULTS.map((s) => [norm(mgStrip(s)), s]))
+    state.clients.forEach((c) => {
+      const name = (c.status_name || '').trim()
+      if (!name) return
+      const key = norm(mgStrip(name))
+      if (!byPlain.has(key)) byPlain.set(key, name)
+    })
+    return Array.from(byPlain.values())
   }, [state.clients])
+  const statusOptionFor = (name) => {
+    const key = norm(mgStrip(name || ''))
+    return key ? (clientStatusOptions.find((o) => norm(mgStrip(o)) === key) || '') : ''
+  }
 
   const TABS = [
     { key: 'clients',      label: t('review.tabs.clients'),      icon: Users },
@@ -261,6 +276,22 @@ export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, 
   }
   const totalIncluded = counts.clients + counts.projects + counts.leads + counts.transactions + counts.sessions
   const txIssues = parsed?.transaction_issues || 0
+
+  /* The rows the ticked CLIENTS will spawn on their own — payments from a
+     "שולם" column, a payment plan from "מספר תשלומים", meetings from
+     "פגישות שנעשו". They are written either way; this only makes the
+     screen say so before the button is pressed, so "רק מה שמסומן ייכתב"
+     stops being a half-truth. */
+  const derived = useMemo(() => {
+    const acc = { transactions: 0, plans: 0, sessions: 0, dateEstimated: 0 }
+    state.clients.forEach((c, i) => {
+      if (!isIncluded('clients', i, c) || !isValid('clients', c)) return
+      const d = clientRowSideEffects(c)
+      acc.transactions += d.transactions; acc.plans += d.plans
+      acc.sessions += d.sessions; acc.dateEstimated += d.dateEstimated
+    })
+    return acc
+  }, [state.clients, overrides.clients, existingClientNames]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleConfirm = async () => {
     /* Ref guard, not just `busy`: state updates are async, so a fast
@@ -437,7 +468,10 @@ export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, 
               {t('review.txIssues', { count: txIssues })}
             </Txt>
           )}
-          {tab === 'clients' && parsed?.truncated && (
+          {/* On EVERY tab. It used to be pinned to the clients tab, so a coach
+              whose payments sheet was the one cut at the cap never saw that
+              anything had been dropped — the missing rows just weren't there. */}
+          {parsed?.truncated && (
             <Txt className="obrw-warn">
               <AlertTriangle size={12} strokeWidth={2} aria-hidden="true" />
               {t('review.truncated', { cap: parsed.row_cap, raw: parsed.raw_rows })}
@@ -467,7 +501,11 @@ export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, 
                     <option value="">{t('review.client.noProject')}</option>
                     {opts.map((n) => <option key={n} value={n}>{n}</option>)}
                   </select>
-                  <select className={`obrw-input obrw-cl-status${c.status_unsure ? ' unsure' : ''}`} value={c.status_name || ''} title={t('review.client.statusTitle')} aria-label={t('review.client.statusAria')} disabled={!inc}
+                  {/* The list carries the app's spelling ("פעיל׌"); the row
+                      carries the file's ("פעיל"). Show the option that means
+                      the same thing, or the select falls back to its first
+                      row and the status looks unset. */}
+                  <select className={`obrw-input obrw-cl-status${c.status_unsure ? ' unsure' : ''}`} value={statusOptionFor(c.status_name)} title={t('review.client.statusTitle')} aria-label={t('review.client.statusAria')} disabled={!inc}
                     onChange={(e) => patchRow('clients', i, { status_name: e.target.value || null, status_unsure: false })}>
                     <option value="">{t('review.client.statusDefault')}</option>
                     {clientStatusOptions.map((s) => <option key={s} value={s}>{s}</option>)}
@@ -631,10 +669,33 @@ export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, 
         </Box>
 
         <Box as="footer" className="obrw-foot">
+          {/* Only the kinds this file actually has. The line used to print
+              "0 פרויקטים · 0 תנועות" for every clients-only import, and to
+              leave the meetings out entirely while the button counted them
+              — so the two numbers beside each other disagreed. */}
           <Txt as="p" className="obrw-summary">
-            {t('review.summary.willCreate')}: <strong>{counts.clients}</strong> {t('review.summary.clients')} · <strong>{counts.projects}</strong> {t('review.summary.projects')}
-            {counts.leads > 0 && <> · <strong>{counts.leads}</strong> {t('review.summary.leads')}</>}
-            {' · '}<strong>{counts.transactions}</strong> {t('review.summary.transactions')}
+            {t('review.summary.willCreate')}:{' '}
+            {/* The noun agrees with the number — the count has to reach t(),
+                or a one-row import reads "1 תנועות". */}
+            {['clients', 'projects', 'leads', 'transactions', 'sessions']
+              .filter((kind) => counts[kind] > 0)
+              .map((kind, i) => (
+                <span key={kind}>
+                  {i > 0 ? ' · ' : null}
+                  <strong>{counts[kind]}</strong> {t(`review.summary.${kind}`, { count: counts[kind] })}
+                </span>
+              ))}
+            {derived.transactions + derived.plans + derived.sessions > 0 && (
+              <Txt as="span" className="obrw-summary-derived">
+                {t('review.summary.alsoLead')}{' '}
+                {[
+                  derived.transactions && t('review.summary.alsoPayments', { count: derived.transactions }),
+                  derived.plans && t('review.summary.alsoPlans', { count: derived.plans }),
+                  derived.sessions && t('review.summary.alsoSessions', { count: derived.sessions }),
+                ].filter(Boolean).join(' · ')}
+                {derived.dateEstimated > 0 ? ` ${t('review.summary.alsoEstimated')}` : ''}
+              </Txt>
+            )}
           </Txt>
           <Box className="obrw-actions">
             <Btn type="button" className="ob-btn ghost" onClick={requestClose} disabled={busy}>

@@ -9,6 +9,7 @@ import { SECTION_DEFS, SECTION_GROUPS, groupOfSection, soleSectionOf } from './s
 import { searchTree } from './searchSettings'
 import { ROUTES } from '../../lib/routes'
 import { buildSheetsFromFiles, ACCEPT } from '../../lib/importFlow'
+import { MAX_IMPORT_BYTES } from '../../lib/csvImport'
 import ImportDataModal from '../onboarding/ImportDataModal'
 import { useUserQuestions } from '../../hooks/useUserQuestions'
 import { useUserPreferences } from '../../hooks/useUserPreferences'
@@ -780,8 +781,13 @@ export default function SettingsScreen() {
     try {
       const { sheets, names } = await buildSheetsFromFiles(files)
       setImportParsed({ kind: 'csv', file_name: names, sheets })
-    } catch {
-      setImportMsg({ text: t('data.importFailed'), kind: 'error' })
+    } catch (e) {
+      /* An oversized file is not a broken one — telling someone to check that
+         their Excel is valid when the only problem is its size sends them
+         hunting for a fault that isn't there. */
+      setImportMsg(e?.code === 'FILE_TOO_LARGE'
+        ? { text: t('data.importTooLarge', { name: e.fileName, mb: Math.round(MAX_IMPORT_BYTES / 1024 / 1024) }), kind: 'error' }
+        : { text: t('data.importFailed'), kind: 'error' })
     } finally {
       setImportBusy(false)
     }
@@ -1222,7 +1228,6 @@ export default function SettingsScreen() {
       {importParsed && (
         <ImportDataModal
           parsed={importParsed}
-          gender={gender}
           onClose={() => setImportParsed(null)}
           onImported={onImported}
         />

@@ -2,13 +2,23 @@
 //  landing-events — PUBLIC, anonymous funnel beacons for the marketing
 //  landing page (/).
 // ════════════════════════════════════════════════════════════════
-//  The logged-out landing page POSTs tiny, anonymous events here:
-//    • { type: 'view' }          — the landing page was loaded
-//    • { type: 'signup_start' }  — a visitor clicked the signup CTA
-//  Optional { sid } is a per-tab random id (sessionStorage) that links a
-//  view to its signup_start within one session. NO PII, no cookies, no
-//  user id. The "signup completed" stage is computed elsewhere from
-//  auth.users — never stored here.
+//  The landing page and the signup screen POST tiny, anonymous events here:
+//    • { type: 'view' }             — the landing page was loaded
+//    • { type: 'signup_start' }     — a visitor clicked the signup CTA
+//    • { type: 'signup_complete' }  — an account was actually created
+//  Optional { sid } is a random landing-session id (minted per tab, and
+//  mirrored to localStorage so it survives the hop to the signup screen and
+//  the OAuth round trip) linking view -> signup_start -> signup_complete
+//  ('direct' when the person never passed through the landing page). NO PII,
+//  no cookies, no user id — nothing here says WHICH account was created.
+//
+//  signup_complete is the one event an AUTHENTICATED browser can send (the
+//  Google return already holds a session), so supabase-js attaches that
+//  user's JWT instead of the anon key. That is fine: the function is deployed
+//  --no-verify-jwt and never reads the caller's identity, so a user JWT is
+//  ignored exactly like the anon key. RLS is not in the path at all — the
+//  table has RLS on with NO policy, and only this function's service-role
+//  client (which bypasses RLS) ever writes it.
 //
 //  PUBLIC — deploy with:
 //      supabase functions deploy landing-events --no-verify-jwt
@@ -39,6 +49,10 @@ function json(body: unknown, status = 200) {
 
 const TYPES = new Set([
   'view', 'signup_start',
+  // the funnel's last stage: an account was actually created (migration 0114).
+  // Unlike the others this one can arrive from an authenticated browser --
+  // see the note in the header block.
+  'signup_complete',
   // engagement signals (migration 0051)
   'scroll_50', 'scroll_75', 'scroll_100', 'faq_open', 'engaged',
 ])

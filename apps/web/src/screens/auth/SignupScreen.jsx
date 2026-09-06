@@ -7,6 +7,7 @@ import { ROUTES } from '../../lib/routes'
 import { translateAuthError } from '../../auth/authErrors'
 import { checkPasswordStrength } from '../../lib/passwordStrength'
 import GoogleButton from '../../auth/GoogleButton'
+import LanguageSwitcher from '../../i18n/LanguageSwitcher'
 import { useT } from '../../i18n/useT'
 import { buildConsent, stashPendingConsent } from '../../lib/legal'
 import { trackSignupComplete } from '../../lib/api/landingEvents'
@@ -34,6 +35,18 @@ export default function SignupScreen() {
   const [consentTried, setConsentTried] = useState(false)
   const showConsentErr = consentTried && !canConsent
 
+  /* Same idea for the password: the rule is on the page from the start, and
+     when it is not met the SAME line says so — next to the field, not in the
+     error slot above the email box. It used to be told twice and both times
+     too late: the rule lived in the placeholder, which leaves the instant
+     anyone types, and the complaint only arrived on a submit that failed.
+     Raised on blur (a rule quoted at someone three characters in is nagging,
+     not helping) and by a submit attempt, and it clears itself the moment the
+     password is good enough. */
+  const [pwBlurred, setPwBlurred] = useState(false)
+  const pwIssue = checkPasswordStrength(password)
+  const showPwIssue = pwBlurred && password.length > 0 && !!pwIssue
+
   const submit = async (e) => {
     e.preventDefault()
     setError('')
@@ -41,13 +54,8 @@ export default function SignupScreen() {
       setError(t('fillEmailPassword'))
       return
     }
-    const pwIssue = checkPasswordStrength(password)
-    if (pwIssue === 'tooShort') {
-      setError(t('signupScreen.passwordMin8'))
-      return
-    }
-    if (pwIssue === 'tooCommon') {
-      setError(t('signupScreen.passwordTooCommon'))
+    if (pwIssue) {
+      setPwBlurred(true)
       return
     }
     if (!canConsent) {
@@ -163,9 +171,11 @@ export default function SignupScreen() {
                 autoComplete="new-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                /* With the label saying what the box is, the placeholder is
-                   free to go back to being the hint it was written as. */
-                placeholder={t('min8chars')}
+                /* No placeholder: the rule it used to carry is on the line
+                   below now, where it stays put. */
+                onBlur={() => setPwBlurred(true)}
+                aria-describedby="signup-pass-hint"
+                aria-invalid={showPwIssue || undefined}
               />
               <Btn
                 type="button"
@@ -178,6 +188,16 @@ export default function SignupScreen() {
                   : <Eye size={16} strokeWidth={1.6} aria-hidden="true" />}
               </Btn>
             </Box>
+            <Txt
+              as="p"
+              id="signup-pass-hint"
+              className={showPwIssue ? 'auth-hint auth-hint-bad' : 'auth-hint'}
+              aria-live="polite"
+            >
+              {showPwIssue
+                ? t(pwIssue === 'tooCommon' ? 'signupScreen.passwordTooCommon' : 'signupScreen.passwordMin8')
+                : t('min8chars')}
+            </Txt>
           </Box>
 
           <Box className="auth-checks">
@@ -241,6 +261,12 @@ export default function SignupScreen() {
         </Box>
 
         <Txt as="p" className="auth-foot">{t('signupScreen.haveAccount')} <Link to={ROUTES.LOGIN} className="auth-foot-cta">{t('login')}</Link></Txt>
+
+        {/* The login screen has had one of these all along. Someone who lands
+            straight on /signup — from the landing page's own button, or a
+            shared link — had no way to change the language of the screen they
+            were being asked to hand over an address on. */}
+        <LanguageSwitcher className="auth-langs" />
       </Box>
     </Box>
   )

@@ -43,7 +43,8 @@
   },
   "addClient": {
     "titleLabel": "Nouveau client",
-    "toastSaved": "Client enregistré"
+    "toastSaved": "Client enregistré",
+    "intoGroup": "Le client sera ajouté au groupe « {{group}} »."
   },
   "editClient": {
     "title": "Modifier le client",
@@ -206,7 +207,8 @@
     "clientRequired": "Veuillez choisir un client.",
     "inProject": "Dans ce projet",
     "elsewhere": "Hors du projet",
-    "movesToProject": "Le client passera au projet « {{project}} » — un groupe n'appartient qu'à un seul projet."
+    "movesToProject": "Le client passera au projet « {{project}} » — un groupe n'appartient qu'à un seul projet.",
+    "newClient": "Nouveau client"
   },
   "memberSessions": {
     "title": "Nouvelle carte",

@@ -96,9 +96,14 @@ export default function DeleteGroupModal({ open, onClose, group, counts, onConfi
                 >
                   {o.keepLabel}
                 </Btn>
+                {/* The destructive half looks destructive once it is the
+                    active choice. Both pills wore the same terracotta fill,
+                    so "למחוק לקוחות" — which sends real client files to the
+                    trash — was indistinguishable at a glance from
+                    "להשאיר", on a dialog whose whole job is that choice. */}
                 <Btn
                   type="button"
-                  className={`m-pill${!choices[o.key] ? ' on' : ''}`}
+                  className={`m-pill${!choices[o.key] ? ' on danger' : ''}`}
                   onClick={() => set(o.key, false)}
                 >
                   {o.deleteLabel}

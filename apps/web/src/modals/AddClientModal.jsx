@@ -23,7 +23,10 @@ const blank = (initialProject = '') => ({
 /* onSave is async (Supabase insert). Sub-status is optional — the user can
    define sub-statuses per meta-category in Settings. Form body is the shared
    <ClientFormFields> so it stays identical to the onboarding client step. */
-export default function AddClientModal({ open, onClose, onSave, projects = [], statuses = [], initialProject = '' }) {
+/* `groupName` is set when the form was opened from inside a group's "הוספת
+   חבר". The caller does the joining; naming it here is what keeps the form
+   from looking like a plain new client to someone who asked for a member. */
+export default function AddClientModal({ open, onClose, onSave, projects = [], statuses = [], initialProject = '', groupName = '' }) {
   const { t } = useT('modalsClient')
   const { types: meetingTypes, refetch: refetchMeetingTypes } = useMeetingTypes()
   const [form, setForm] = useState(() => blank(initialProject))
@@ -117,6 +120,9 @@ export default function AddClientModal({ open, onClose, onSave, projects = [], s
 
   return (
     <Modal open={open} onClose={guard.requestClose} onSubmit={submit} title={<MG word="client_new" />} titleLabel={t('addClient.titleLabel')}>
+      {groupName && (
+        <Txt as="p" className="m-sub">{t('addClient.intoGroup', { group: groupName })}</Txt>
+      )}
       {/* Remount per opening. Modal keeps its children mounted, so without
           this the fields live for the whole screen's lifetime and the "more"
           toggle stays however the last client left it — expanded on every

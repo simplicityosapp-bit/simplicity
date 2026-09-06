@@ -444,6 +444,15 @@
   background: color-mix(in srgb, var(--sage) 16%, transparent);
   color: var(--espresso);
 }
+/* A former client. The row dims rather than disappearing — the history is
+   the project's — and says which it is, because dimming alone reads as a
+   rendering state and not as a fact about the person. */
+.pd-client-tag.past {
+  background: rgba(42, 37, 32, 0.06);
+  color: var(--stone);
+}
+[data-theme="dark"] .pd-client-tag.past { background: rgba(240, 235, 224, 0.06); }
+.pd-client.is-past .pd-client-name { opacity: 0.6; }
 
 /* ── Reminders rows ────────────────────────────────────── */
 .pd-rem-row {
@@ -538,6 +547,15 @@
   font-family: var(--mg-font);
   font-size: calc(11px * var(--text-scale));
   color: var(--stone);
+}
+/* The chosen "delete" in the cascade dialog. Both pills carried the same
+   terracotta fill when active, so the option that soft-deletes a group's
+   clients read exactly like the one that keeps them — on the dialog whose
+   only purpose is telling those two apart. */
+.dg-row-choice .m-pill.on.danger {
+  background: var(--clay);
+  border-color: var(--clay);
+  color: var(--on-accent);
 }
 .dg-row-choice {
   display: flex;

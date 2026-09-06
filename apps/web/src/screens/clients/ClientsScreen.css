@@ -406,6 +406,17 @@
   background: rgba(240, 235, 224, 0.06);
   border-color: rgba(240, 235, 224, 0.1);
 }
+/* The group, beside the project. Same pill, tinted sage — the colour a group
+   already wears elsewhere in the app — so two tags in a row read as two
+   different KINDS of thing rather than as one label that wrapped. */
+.cc-group {
+  background: color-mix(in srgb, var(--sage) 14%, transparent);
+  border-color: color-mix(in srgb, var(--sage) 26%, transparent);
+}
+[data-theme="dark"] .cc-group {
+  background: color-mix(in srgb, var(--sage) 20%, transparent);
+  border-color: color-mix(in srgb, var(--sage) 34%, transparent);
+}
 .cc-stats {
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;

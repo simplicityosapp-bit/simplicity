@@ -45,7 +45,8 @@
   },
   "addClient": {
     "titleLabel": "לקוח חדש",
-    "toastSaved": "הלקוח נשמר"
+    "toastSaved": "הלקוח נשמר",
+    "intoGroup": "הלקוח/ה יתווסף/תתווסף לקבוצה «{{group}}»."
   },
   "editClient": {
     "title": "עריכת לקוח",
@@ -222,7 +223,8 @@
     "clientRequired": "יש לבחור לקוח.",
     "inProject": "בפרויקט הזה",
     "elsewhere": "מחוץ לפרויקט",
-    "movesToProject": "הלקוח יעבור לפרויקט «{{project}}» — קבוצה שייכת לפרויקט אחד בלבד."
+    "movesToProject": "הלקוח יעבור לפרויקט «{{project}}» — קבוצה שייכת לפרויקט אחד בלבד.",
+    "newClient": "לקוח/ה חדש/ה"
   },
   "memberSessions": {
     "title": "כרטיסייה חדשה",

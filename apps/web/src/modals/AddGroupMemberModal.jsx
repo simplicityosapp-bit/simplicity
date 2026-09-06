@@ -23,7 +23,7 @@ const blank = () => ({ client_id: '', joined_at: todayStr() })
    says so. It used to list everyone in one undivided column and say
    nothing, and the client then sat in the group without being in the
    project. */
-export default function AddGroupMemberModal({ open, onClose, onSave, group, project = null, availableClients = [] }) {
+export default function AddGroupMemberModal({ open, onClose, onSave, onCreateClient, group, project = null, availableClients = [] }) {
   const { t } = useT('modalsClient')
   const [form, setForm] = useState(blank)
   const [err, setErr] = useState('')
@@ -68,7 +68,18 @@ export default function AddGroupMemberModal({ open, onClose, onSave, group, proj
         </Txt>
       )}
       <Box className="m-field">
-        <Box as="label" className="m-label">{t('addGroupMember.client')}</Box>
+        <Box className="m-label-row">
+          <Box as="label" className="m-label">{t('addGroupMember.client')}</Box>
+          {/* Someone who walked in today is not on the list yet, and putting
+              them in a group took two separate trips: add the client to the
+              project, close, reopen this, find them. The link creates them
+              and drops them straight into this group. */}
+          {onCreateClient && (
+            <Btn type="button" className="m-clear-link" onClick={onCreateClient}>
+              {t('addGroupMember.newClient')}
+            </Btn>
+          )}
+        </Box>
         {availableClients.length ? (
           <select className="m-select" value={form.client_id} onChange={(e) => { set('client_id', e.target.value); if (err) setErr('') }}>
             <option value="">{t('addGroupMember.selectClient')}</option>
@@ -84,7 +95,10 @@ export default function AddGroupMemberModal({ open, onClose, onSave, group, proj
             ) : inProject.map(option)}
           </select>
         ) : (
-          <Txt as="p" className="m-error">{t('addGroupMember.allMembers')}</Txt>
+          /* Not an error: everyone the coach has is already in this group,
+             which is a fine state to be in. It reads as one because there
+             was nothing else to do here — now there is. */
+          <Txt as="p" className="m-hint">{t('addGroupMember.allMembers')}</Txt>
         )}
         {willMove && (
           <Txt as="p" className="m-hint">{t('addGroupMember.movesToProject', { project: project.name })}</Txt>

@@ -144,7 +144,8 @@
       "title": "לקוחות",
       "empty": "אין לקוחות בפרויקט זה",
       "private": "פרטי",
-      "addToProject": "<mg>לקוח/ה</mg> לפרויקט"
+      "addToProject": "<mg>לקוח/ה</mg> לפרויקט",
+      "past": "לשעבר"
     },
     "meetings": {
       "title": "פגישות מתוכננות",

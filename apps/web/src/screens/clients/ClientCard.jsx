@@ -57,6 +57,23 @@ function ClientCard({
   const sessLabel = running.length === 1
     ? (running[0].quota == null ? `${running[0].held}` : `${running[0].held}/${running[0].quota}`)
     : `${running.reduce((s, tr) => s + tr.held, 0)}`
+  /* Which group they are in. The card named the project and never the group,
+     so a facilitator running three cohorts inside one project met three
+     identical rows of "סדנאות קבוצתיות" and had to open each client to find
+     out which cohort they were looking at. One group is named; several are
+     counted, because a card that lists them all stops being a card. */
+  const groupTracks = tracks.filter((tr) => tr.kind === 'group')
+  /* Running cohorts name themselves. A client whose cohorts have ALL ended
+     falls back to those — unlike the meetings figure beside it, this tag is
+     about who the person is rather than what they owe, and dropping it would
+     print a former group member as unaffiliated while the list, grouped by
+     group, still files them under the cohort they were in. */
+  const namedGroups = groupTracks.some((tr) => !tr.ended)
+    ? groupTracks.filter((tr) => !tr.ended)
+    : groupTracks
+  const groupLabel = namedGroups.length === 1
+    ? namedGroups[0].name
+    : (namedGroups.length > 1 ? t('card.groupCount', { count: namedGroups.length }) : null)
   /* "Set up" = the billing is configured enough that the numbers below mean
      something; otherwise they dim, so a row of ₪0 doesn't read as real.
      The quota half of this test is package-only. A per-session client keeps
@@ -98,6 +115,7 @@ function ClientCard({
           <Box className="cc-meta">
             <Txt className={`cc-status cc-status-${status.cls}`}><MG text={statusLabel} /></Txt>
             {project && <Txt className="cc-proj">{project.name}</Txt>}
+            {groupLabel && <Txt className="cc-proj cc-group">{groupLabel}</Txt>}
           </Box>
         </Box>
         {/* Setting a reminder was a four-step trip: open the client, find the

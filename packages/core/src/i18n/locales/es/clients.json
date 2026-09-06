@@ -47,7 +47,9 @@
     "aria": "Agrupar clientes",
     "heading": "Agrupar por",
     "status": "Estado",
-    "project": "Proyecto"
+    "project": "Proyecto",
+    "group": "Grupo",
+    "noGroup": "Sin grupo"
   },
   "view": {
     "label": "Vista",
@@ -74,7 +76,9 @@
     "balance": "Saldo",
     "deselect": "Anular selección",
     "selectAria": "Seleccionar",
-    "remindAria": "Añadir recordatorio"
+    "remindAria": "Añadir recordatorio",
+    "groupCount_one": "{{count}} grupo",
+    "groupCount_other": "{{count}} grupos"
   },
   "bulk": {
     "selected": "{{count}} seleccionados",
@@ -169,7 +173,8 @@
     "perSession": "{{price}} por sesión",
     "noFixedPrice": "Sin precio fijo",
     "packageSessions": "{{count}} sesiones · ",
-    "notInGroups": "En ningún grupo"
+    "notInGroups": "En ningún grupo",
+    "openGroupAria": "Abrir «{{name}}»"
   },
   "inline": {
     "save": "Guardar",

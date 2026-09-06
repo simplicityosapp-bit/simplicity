@@ -51,7 +51,9 @@
     "aria": "קיבוץ לקוחות",
     "heading": "קיבוץ",
     "status": "סטטוס",
-    "project": "פרויקט"
+    "project": "פרויקט",
+    "group": "קבוצה",
+    "noGroup": "ללא קבוצה"
   },
   "view": {
     "label": "תצוגה",
@@ -82,7 +84,11 @@
     "balance": "יתרה",
     "deselect": "בטל בחירה",
     "selectAria": "בחר",
-    "remindAria": "הוספת תזכורת"
+    "remindAria": "הוספת תזכורת",
+    "groupCount_one": "קבוצה אחת",
+    "groupCount_two": "שתי קבוצות",
+    "groupCount_many": "{{count}} קבוצות",
+    "groupCount_other": "{{count}} קבוצות"
   },
   "bulk": {
     "selected": "{{count}} נבחרו",
@@ -179,7 +185,8 @@
     "perSession": "{{price}} לפגישה",
     "noFixedPrice": "ללא מחיר קבוע",
     "packageSessions": "{{count}} פגישות · ",
-    "notInGroups": "לא בקבוצות"
+    "notInGroups": "לא בקבוצות",
+    "openGroupAria": "פתיחת «{{name}}»"
   },
   "inline": {
     "save": "שמירה",

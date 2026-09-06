@@ -124,7 +124,8 @@
       "title": "Clients",
       "empty": "No clients in this project",
       "private": "Private",
-      "addToProject": "Add <mg>client</mg> to project"
+      "addToProject": "Add <mg>client</mg> to project",
+      "past": "Former"
     },
     "meetings": {
       "title": "Upcoming meetings",

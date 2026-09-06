@@ -47,7 +47,9 @@
     "aria": "Grouper les clients",
     "heading": "Grouper par",
     "status": "Statut",
-    "project": "Projet"
+    "project": "Projet",
+    "group": "Groupe",
+    "noGroup": "Sans groupe"
   },
   "view": {
     "label": "Affichage",
@@ -74,7 +76,9 @@
     "balance": "Solde",
     "deselect": "Désélectionner",
     "selectAria": "Sélectionner",
-    "remindAria": "Ajouter un rappel"
+    "remindAria": "Ajouter un rappel",
+    "groupCount_one": "{{count}} groupe",
+    "groupCount_other": "{{count}} groupes"
   },
   "bulk": {
     "selected": "{{count}} sélectionnés",
@@ -169,7 +173,8 @@
     "perSession": "{{price}} par séance",
     "noFixedPrice": "Pas de prix fixe",
     "packageSessions": "{{count}} séances · ",
-    "notInGroups": "Dans aucun groupe"
+    "notInGroups": "Dans aucun groupe",
+    "openGroupAria": "Ouvrir « {{name}} »"
   },
   "inline": {
     "save": "Enregistrer",

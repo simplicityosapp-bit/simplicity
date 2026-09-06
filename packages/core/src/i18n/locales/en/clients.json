@@ -47,7 +47,9 @@
     "aria": "Group clients",
     "heading": "Group by",
     "status": "Status",
-    "project": "Project"
+    "project": "Project",
+    "group": "Group",
+    "noGroup": "No group"
   },
   "view": {
     "label": "View",
@@ -74,7 +76,9 @@
     "balance": "Balance",
     "deselect": "Deselect",
     "selectAria": "Select",
-    "remindAria": "Add reminder"
+    "remindAria": "Add reminder",
+    "groupCount_one": "{{count}} group",
+    "groupCount_other": "{{count}} groups"
   },
   "bulk": {
     "selected": "{{count}} selected",
@@ -169,7 +173,8 @@
     "perSession": "{{price}} per session",
     "noFixedPrice": "No fixed price",
     "packageSessions": "{{count}} sessions · ",
-    "notInGroups": "Not in any group"
+    "notInGroups": "Not in any group",
+    "openGroupAria": "Open \"{{name}}\""
   },
   "inline": {
     "save": "Save",

@@ -21,7 +21,7 @@ import { useScheduledMeetingsGeneration } from '../../hooks/useScheduledMeetings
 import { usePointerDnd } from '../../hooks/usePointerDnd'
 import { useT } from '../../i18n/useT'
 import { Trans } from 'react-i18next'
-import { statusMetaOf, metaTitle, statusMetaOfLead, isPendingReview, financeQuery, currentMonthRange, isr, belongsToProject, scopeToProject, upcomingProjectMeetings, clientBalance, sessionsCountForClients } from '@simplicity/core'
+import { statusMetaOf, metaTitle, statusMetaOfLead, isPendingReview, financeQuery, currentMonthRange, isr, belongsToProject, scopeToProject, upcomingProjectMeetings, clientBalance, sessionsCountForClients, effectiveClientMeta } from '@simplicity/core'
 import { staleScheduledMeetingIds } from '../../lib/scheduledMeetings'
 import { buildRoute, ROUTES } from '../../lib/routes'
 import LoadingSplash from '../../components/LoadingSplash'
@@ -178,6 +178,8 @@ export default function ProjectDetailScreen() {
   const [pendingAssign, setPendingAssign] = useState(null) /* { client, group } */
   /* Member whose card is being renewed → { membership, group, client }. */
   const [renewFor, setRenewFor] = useState(null)
+  /* Group waiting for the client the add-client form is about to create. */
+  const [newClientForGroup, setNewClientForGroup] = useState(null)
   /* An empty groups section is a facilitator's anchor sitting on a
      therapist's project, open on every visit to say there is nothing in it.
      It starts closed there, and this local flag is the one tap that opens
@@ -224,6 +226,20 @@ export default function ProjectDetailScreen() {
 
   /* Ids of this project's clients — the fallback half of the scoping rule. */
   const projClientIds = useMemo(() => new Set(projectClients.map((c) => c.id)), [projectClients])
+
+  /* The order the clients section lists them in: whoever is still working
+     with you first, their group-mates together, then the names. Former
+     clients sink to the bottom rather than sitting between two current ones
+     — after a couple of cohorts they are most of the list, and the section
+     had no order at all beyond whatever the fetch returned. */
+  const orderedProjectClients = useMemo(() => {
+    const rank = (c) => (effectiveClientMeta(c, members, groups) === 'past' ? 1 : 0)
+    return [...projectClients].sort((a, b) => (
+      rank(a) - rank(b)
+      || (a.group_id || '').localeCompare(b.group_id || '')
+      || (a.name || '').localeCompare(b.name || '', 'he')
+    ))
+  }, [projectClients, members, groups])
 
   /* Every member's balance, computed once per data change rather than per
      row — the same map the clients screen keeps, for the same reason: the
@@ -623,6 +639,18 @@ export default function ProjectDetailScreen() {
     })
   }
 
+  /* The add-client form, opened from inside "הוספת חבר". Creates the client
+     the ordinary way and then puts them in the group that sent us here —
+     the same three writes addMemberFromModal does, in the same order, for a
+     client who did not exist a moment ago. Plain "+ לקוח/ה לפרויקט" passes
+     no group and lands in the first branch. */
+  const addClientToGroup = async (payload) => {
+    const g = newClientForGroup
+    const row = await addClient(g ? { ...payload, group_id: g.id } : payload)
+    if (g && row?.id) await addMember(newMembership(g.id, row.id)).catch(() => {})
+    return row
+  }
+
   /* "הוספת חבר" — the membership row, plus the two tags on the client row
      that have to agree with it. The single-group tag: the project's client
      list reads it, and it was left null on this path, so a member added
@@ -989,20 +1017,28 @@ export default function ProjectDetailScreen() {
             ) : projectClients.length === 0 ? (
               <Txt as="p" className="pd-empty">{t('detail.clients.empty')}</Txt>
             ) : (
-              projectClients.map((c) => {
+              orderedProjectClients.map((c) => {
                 const g = c.group_id ? projectGroups.find((gg) => gg.id === c.group_id) : null
+                const past = effectiveClientMeta(c, members, groups) === 'past'
                 return (
                   <Box
                     key={c.id}
                     role="button"
                     tabIndex={0}
-                    className={`pd-client${clientDnd.dragId === c.id ? ' dragging' : ''}`}
+                    className={`pd-client${clientDnd.dragId === c.id ? ' dragging' : ''}${past ? ' is-past' : ''}`}
                     onClick={() => navigate(buildRoute(ROUTES.CLIENT, { id: c.id }))}
                     onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate(buildRoute(ROUTES.CLIENT, { id: c.id })) } }}
                     {...clientDnd.draggableProps(c.id)}
                   >
                     <GripVertical size={16} strokeWidth={1.5} className="pd-client-grip" aria-hidden="true" />
                     <Txt className="pd-client-name">{c.name}</Txt>
+                    {/* Who is no longer working with you. The list said nothing
+                        about it, so after two cohorts a project read as a
+                        roster of thirty current clients when six of them were
+                        current. The clients screen has always had a tab for
+                        this; here the whole project is one list, so the row
+                        carries it. */}
+                    {past && <Txt className="pd-client-tag past">{t('detail.clients.past')}</Txt>}
                     {g ? (
                       <Txt className="pd-client-tag group-member">{g.name}</Txt>
                     ) : (
@@ -1342,6 +1378,10 @@ export default function ProjectDetailScreen() {
         onClose={() => setAddMemberFor(null)}
         group={addMemberFor}
         project={project}
+        /* Someone who walked in today is not on the picker yet. Hand the
+            group to the add-client form and put them in it on save, instead
+            of making the coach add the client, come back, and find them. */
+        onCreateClient={() => { setNewClientForGroup(addMemberFor); setAddMemberFor(null); setShowAddClient(true) }}
         availableClients={
           addMemberFor
             ? clients.filter((c) => !liveMembers.some((m) => m.group_id === addMemberFor.id && m.client_id === c.id))
@@ -1379,13 +1419,14 @@ export default function ProjectDetailScreen() {
           to spread the payload and overwrite project_id afterwards, so picking
           a different project in a visible field did nothing, silently. */}
       <AddClientModal
-        key={`add-client-${id}`}
+        key={`add-client-${id}-${newClientForGroup?.id || ''}`}
         open={showAddClient}
-        onClose={() => setShowAddClient(false)}
+        onClose={() => { setShowAddClient(false); setNewClientForGroup(null) }}
         projects={projects}
         statuses={clientStatuses}
         initialProject={id}
-        onSave={addClient}
+        groupName={newClientForGroup?.name || ''}
+        onSave={addClientToGroup}
       />
       <AddReminderModal
         open={showAddReminder}

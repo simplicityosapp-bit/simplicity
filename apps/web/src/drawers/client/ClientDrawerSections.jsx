@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 import { Trans } from 'react-i18next'
-import { ChevronDown, Pencil, Check, X } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+import { ChevronDown, Pencil, Check, X, ChevronLeft } from 'lucide-react'
 import { getClientMemberships, financeQuery, isConfirmedTx, isr, fmtShortDate, fmtTime } from '@simplicity/core'
+import { buildRoute, ROUTES } from '../../lib/routes'
 import { useT } from '../../i18n/useT'
 import PaymentPlanSection from './PaymentPlanSection'
 import DateField from '../../components/DateField'
@@ -102,6 +104,7 @@ function InlineForm({ onSave, onCancel, saving, error, children }) {
 
 export default function ClientDrawerSections({ client: c, balance, txns, tasks = [], reminders = [], sessions = [], members = [], groups = [], adjustments = [], modalOpen = false, onRemoveAdjustment, onEditTx, onEditClient, onEditSession, onEditTask, onEditReminder, onUpdateClient }) {
   const { t } = useT('clients')
+  const navigate = useNavigate()
   /* Which panel is currently in edit mode (one at a time). The header
      pencil toggles it; in edit mode the panel's rows become tappable and
      open the matching editor. */
@@ -662,14 +665,33 @@ export default function ClientDrawerSections({ client: c, balance, txns, tasks =
               } else {
                 sub = `${g?.package_sessions ? t('sections.packageSessions', { count: g.package_sessions }) : ''}${isr(g?.package_price || 0)}`
               }
-              return (
-                <Box key={m.id} className="cd-row">
+              /* The row names a group and did nothing when tapped, in a panel
+                 where every other list row opens something. It goes to the
+                 group's project, which is where a group is managed — a group
+                 has no screen of its own. Not offered for a group that is
+                 gone, or one whose project is. */
+              const inner = (
+                <>
                   <Txt className="cd-row-dot" style={{ background: g?.color || 'var(--stone)' }} />
                   <Box className="cd-row-body">
                     <Txt as="p" className="cd-row-title">{g ? g.name : t('sections.groupDeleted')}</Txt>
                     <Txt as="p" className="cd-row-sub">{sub}</Txt>
                   </Box>
-                </Box>
+                </>
+              )
+              return g?.project_id ? (
+                <Btn
+                  key={m.id}
+                  type="button"
+                  className="cd-row cd-row-edit"
+                  onClick={() => navigate(buildRoute(ROUTES.PROJECT, { id: g.project_id }))}
+                  aria-label={t('sections.openGroupAria', { name: g.name })}
+                >
+                  {inner}
+                  <ChevronLeft size={14} strokeWidth={1.7} className="cd-row-editicon" aria-hidden="true" />
+                </Btn>
+              ) : (
+                <Box key={m.id} className="cd-row">{inner}</Box>
               )
             })
           ) : (

@@ -58,7 +58,9 @@
     "saveAsClient": "שמור כלקוח",
     "moreDetails": "פרטים נוספים",
     "issueItemSummary": "יופק על: {{item}}",
-    "issueItemChange": "שינוי"
+    "issueItemChange": "שינוי",
+    "paidFor": "עבור מה?",
+    "paidForPersonal": "תהליך אישי"
   },
   "editTx": {
     "title": "עריכת תנועה",

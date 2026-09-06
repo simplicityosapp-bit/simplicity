@@ -2,8 +2,6 @@ import { useMemo, useState } from 'react'
 import { useTransactions } from '../../hooks/useTransactions'
 import { useClients } from '../../hooks/useClients'
 import { useProjects } from '../../hooks/useProjects'
-import { useGroups } from '../../hooks/useGroups'
-import { useGroupMembers } from '../../hooks/useGroupMembers'
 import { useRecurring } from '../../hooks/useRecurring'
 import { useRecurringGeneration } from '../../hooks/useRecurringGeneration'
 import { useCategories } from '../../hooks/useCategories'
@@ -53,8 +51,6 @@ export default function FinanceScreen() {
   const { transactions, loading, error, addTransaction, editTransaction, setStatus, removeTransaction, putBackTransaction, refetch } = useTransactions()
   const { clients, addClient } = useClients()
   const { projects } = useProjects()
-  const { groups } = useGroups()
-  const { members } = useGroupMembers()
   const { templates, addRecurring, updateRecurring, removeRecurring } = useRecurring()
   const { categories, addCategory, removeCategory } = useCategories()
   const { meetings: scheduledMeetings, loading: scheduledMeetingsLoading } = useScheduledMeetings()
@@ -374,8 +370,6 @@ export default function FinanceScreen() {
         clients={clients}
         projects={projects}
         categories={categories}
-        members={members}
-        groups={groups}
         onCreateCategory={(name) => addCategory({ name, color: CATEGORY_COLORS[categories.length % CATEGORY_COLORS.length] })}
         onSave={async (tx) => {
           const row = await addTransaction(tx)

@@ -110,10 +110,11 @@
       "nextMeeting": "Next {{date}} at {{time}}",
       "owing_one": "{{count}} owes",
       "owing_other": "{{count}} owe",
-      "memberMixed": "includes a personal process",
       "memberOwesAria": "{{name}}'s balance",
       "renewAria": "New card for {{name}}",
-      "renewUndo": "Meetings added for {{name}}"
+      "renewUndo": "Meetings added for {{name}}",
+      "income": "{{amount}} in",
+      "memberPaid": "{{paid}} of {{total}} paid"
     },
     "status": {
       "active": "Active",

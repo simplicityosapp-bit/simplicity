@@ -183,9 +183,8 @@ describe('the card, the file and the form say the same thing', () => {
     const src = read('src/drawers/client/ClientDrawer.jsx')
     expect(src).toMatch(/balance\.tracks\.map/)
     expect(src).toMatch(/tracks\.title/)
-    /* And says whose the paid/balance figures are, since a track has no
-       paid of its own yet. */
-    expect(src).toMatch(/tracks\.note/)
+    /* And what each one has received — see payment-attribution.test.js. */
+    expect(src).toMatch(/tracks\.paidOf/)
   })
 
   it('"הוספת פגישות" is offered only where a personal quota exists', () => {
@@ -220,7 +219,6 @@ describe('every locale carries the tracks vocabulary', () => {
       const tr = load(lang, 'clients').tracks
       expect(tr?.title, `${lang}.title`).toBeTruthy()
       expect(tr?.personal, `${lang}.personal`).toBeTruthy()
-      expect(tr?.note, `${lang}.note`).toBeTruthy()
       for (const mode of ['package', 'per_session', 'none']) {
         expect(tr?.mode?.[mode], `${lang}.mode.${mode}`).toBeTruthy()
       }

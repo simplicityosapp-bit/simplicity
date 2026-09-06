@@ -9,7 +9,9 @@ import { useDiscardGuard, isDirty, useScrollToError, useFormDraft } from './useD
 import { showToast } from '../lib/toast'
 import { useT } from '../i18n/useT'
 import { useInvoiceProvider } from '../hooks/useInvoiceProvider'
-import { effectiveClientMeta, PAY_METHODS, payMethodLabel, docTypeLabel, isReceiptType, allowedDocTypes, defaultDocType, clampDocType, isr } from '@simplicity/core'
+import { useGroups } from '../hooks/useGroups'
+import { useGroupMembers } from '../hooks/useGroupMembers'
+import { effectiveClientMeta, clientPaymentTargets, PAY_METHODS, payMethodLabel, docTypeLabel, isReceiptType, allowedDocTypes, defaultDocType, clampDocType, isr } from '@simplicity/core'
 import { Box, Txt, Btn, Input } from '../components/ui'
 
 /* Local YYYY-MM-DD — UTC toISOString would misclassify "today" as future on
@@ -26,6 +28,10 @@ const blank = (defaults = {}) => ({
      calendar's day grid passes the slot the user tapped. Absent → today. */
   date: defaults.date || todayStr(),
   client_id: defaults.client_id || '',
+  /* Which of the client's groups this income pays for (migration 0115).
+     '' = their personal process — and also the answer for every client who
+     is never asked, see clientPaymentTargets. */
+  group_id: defaults.group_id || '',
   project_id: defaults.project_id || '',
   category_id: '',
   payment_method: defaults.payment_method || '',
@@ -36,7 +42,16 @@ const blank = (defaults = {}) => ({
    `defaults` lets callers pre-fill any blank() field — used by the
    project-detail QuickRow to pre-bind project_id so the user doesn't
    have to re-pick the project they're clearly already on. */
-export default function AddTransactionModal({ open, onClose, onSave, clients = [], projects = [], categories = [], onCreateCategory, client, defaultType, defaults = {}, members = [], groups = [] }) {
+/* Memberships and groups are READ HERE rather than taken as props. Both are
+   React-Query hooks on a shared cache, so this costs nothing, and it closes a
+   gap: of the five screens that open this form only Finance passed them, so
+   everywhere else `effectiveClientMeta` fell back to the stale status column
+   and the client picker's "active first" ordering was quietly wrong. The same
+   two lists now decide which tracks a payment could be for, and a question
+   that appears on one screen and not another would be worse than none. */
+export default function AddTransactionModal({ open, onClose, onSave, clients = [], projects = [], categories = [], onCreateCategory, client, defaultType, defaults = {} }) {
+  const { groups } = useGroups()
+  const { members } = useGroupMembers()
   const { t } = useT('modalsData')
   const { t: tc } = useT('connections') // reuse the per-tx picker's item-field strings
   const qc = useQueryClient()
@@ -124,6 +139,10 @@ export default function AddTransactionModal({ open, onClose, onSave, clients = [
       const next = { ...f, [k]: v, ...(fromClient || {}) }
       /* Leaving income → the ad-hoc recipient option no longer applies. */
       if (k === 'type' && v !== 'income' && f.client_id === '__adhoc__') next.client_id = ''
+      /* A group belongs to one client. Changing who paid — or stopping this
+         being an income at all — makes any group already picked answer for
+         somebody else's workshop. */
+      if (k === 'client_id' || (k === 'type' && v !== 'income')) next.group_id = ''
       return next
     })
   }
@@ -215,6 +234,9 @@ export default function AddTransactionModal({ open, onClose, onSave, clients = [
         status: isFuture ? 'pending' : 'confirmed',
         project_id: form.project_id || null,
         client_id: clientId,
+        /* Only ever set on an income, and only for a client who was actually
+           asked. An expense belongs to no one's track. */
+        group_id: form.type === 'income' ? (form.group_id || null) : null,
         category_id: form.type === 'expense' ? (form.category_id || null) : null,
         payment_method: form.payment_method || null,
         recurring_id: null,
@@ -307,6 +329,17 @@ export default function AddTransactionModal({ open, onClose, onSave, clients = [
      "new client" action row; the others mirror their old <select>s. */
   const payOptions = [{ value: '', label: t('tx.paymentMethodNone') }, ...PAY_METHODS.map((m) => ({ value: m.key, label: payMethodLabel(m.key) }))]
   const projectOptions = [{ value: '', label: t('common.none') }, ...projects.map((p) => ({ value: p.id, label: p.name }))]
+  /* The tracks this client's money could be going to. Empty — and the field
+     never renders — for anyone with only one, which is most people. */
+  const payForClient = client || (form.client_id && form.client_id !== '__adhoc__'
+    ? clients.find((c) => c.id === form.client_id)
+    : null)
+  const payFor = clientPaymentTargets(payForClient, members, groups)
+  const payForOptions = payFor.map((o) => (
+    o.kind === 'personal'
+      ? { value: '', label: t('tx.paidForPersonal') }
+      : { value: o.id, label: o.name }
+  ))
   const clientOptions = useMemo(() => {
     const opts = [{ value: '', label: t('common.none') }]
     clients.forEach((c) => opts.push({ value: c.id, label: c.name, searchOnly: effectiveClientMeta(c, members, groups) !== 'active' }))
@@ -367,6 +400,24 @@ export default function AddTransactionModal({ open, onClose, onSave, clients = [
             ariaLabel={t('common.client')}
             searchable
             searchPlaceholder={t('common.client')}
+          />
+        </Box>
+      )}
+
+      {/* What the money is FOR. Only for a client with more than one thing it
+          could be for — a workshop and a private series, or two workshops.
+          Everyone else is left alone: asking which of your one track a
+          payment was for is a field with a single possible answer.
+          Without it a mixed client's account could report one balance and
+          nothing more, and a group card could not say who in it had paid. */}
+      {payFor.length > 0 && form.type === 'income' && (
+        <Box className="m-field">
+          <Box as="label" className="m-label">{t('tx.paidFor')}</Box>
+          <SelectMenu
+            value={form.group_id}
+            onChange={(v) => set('group_id', v)}
+            options={payForOptions}
+            ariaLabel={t('tx.paidFor')}
           />
         </Box>
       )}

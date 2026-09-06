@@ -56,7 +56,9 @@
     "saveAsClient": "Enregistrer comme client",
     "moreDetails": "Plus de détails",
     "issueItemSummary": "Sera émis pour : {{item}}",
-    "issueItemChange": "Modifier"
+    "issueItemChange": "Modifier",
+    "paidFor": "Pour quoi ?",
+    "paidForPersonal": "Suivi individuel"
   },
   "editTx": {
     "title": "Modifier la transaction",

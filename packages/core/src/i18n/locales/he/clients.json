@@ -139,12 +139,15 @@
     "progressNoQuota_many": "{{count}} פגישות",
     "progressNoQuota_other": "{{count}} פגישות",
     "amountAria": "סה״כ למסלול",
-    "note": "הסכומים הם מה שכל מסלול עולה. «שולם» ו«יתרה» למעלה הם של החשבון כולו.",
     "mode": {
       "package": "חבילה",
       "per_session": "לפי פגישה",
       "none": "ללא מחיר קבוע"
-    }
+    },
+    "paidOf": "שולם {{paid}}",
+    "left": "נותר {{amount}}",
+    "unallocated": "{{amount}} התקבלו בלי לציין עבור מה.",
+    "writeOffNote": "{{amount}} נמחקו מהחוב, ולכן היתרה למעלה קטנה מסכום השורות."
   },
   "sections": {
     "activity": "פעילות",

@@ -644,6 +644,19 @@
   font-size: calc(12px * var(--text-scale));
   color: var(--espresso);
 }
+/* The money side of the progress line: what came in, and how many still owe. */
+.gc-progress-money {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.gc-income {
+  font-family: var(--mg-font-num);
+  font-size: calc(11.5px * var(--text-scale));
+  color: var(--stone);
+  font-variant-numeric: tabular-nums;
+}
 .gc-owing {
   flex: none;
   padding: 2px 8px;

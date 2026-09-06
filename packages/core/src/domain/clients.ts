@@ -54,7 +54,12 @@ interface DateRange { from?: string | number | Date | null; to?: string | number
    process. A client's account is the sum of their tracks — see the `tracks`
    block at the end of clientBalance for why they are named rather than left
    as one lump. `quota` is null when the model has no fixed number of
-   meetings to count towards (per-session billing). */
+   meetings to count towards (per-session billing).
+
+   `paid` is the money this track has actually received, from transactions
+   that say which group they were for (migration 0115). `balance` is what is
+   left on it. Money the tracks cannot claim is reported separately as
+   `unallocatedPaid` rather than spread over them by guesswork. */
 export interface ClientTrack {
   kind: 'group' | 'personal'
   id: string
@@ -63,6 +68,8 @@ export interface ClientTrack {
   held: number
   quota: number | null
   total: number
+  paid: number
+  balance: number
   ended: boolean
 }
 
@@ -243,6 +250,34 @@ export function clientBalance(c: Client, txns?: Tx[], sessionsData: ClientSessio
      Every figure here is computed above — this only NAMES the parts, so a
      card, a file and a form can say the same thing about them instead of each
      re-deriving its own split out of `total` and `memberTotal`. */
+  /* Which money each track has received. A payment says which group it was
+     for (transactions.group_id, migration 0115); one that says nothing is the
+     personal process, or was recorded before there was anything to say.
+
+     A client with exactly ONE track is not asked the question at all — there
+     is only one thing they could be paying for — so their single track takes
+     the whole of `paid`, including the informal «שולם» adjustment, whatever
+     the column happens to hold. That is also what keeps every account that
+     existed before this migration adding up. */
+  const confirmedIncome = financeQuery({ type: 'income', clientId: c.id, source: txns })
+  const paidForGroup = (gid?: string) => confirmedIncome
+    .filter((f) => f.group_id === gid)
+    .reduce((s, f) => s + f.amount, 0)
+  const groupTrackIds = new Set(groupSessions.map((gs) => gs.id))
+  /* Income that names no group of this client's — the personal side, when
+     they have one. */
+  const looseIncome = confirmedIncome
+    .filter((f) => !f.group_id || !groupTrackIds.has(f.group_id))
+    .reduce((s, f) => s + f.amount, 0)
+
+  const trackCount = groupSessions.length + (hasPersonal ? 1 : 0)
+  const single = trackCount === 1
+  const withMoney = (total: number, trackPaid: number) => ({
+    total,
+    paid: trackPaid,
+    balance: total - trackPaid,
+  })
+
   const tracks: ClientTrack[] = [
     ...groupSessions.map((gs) => ({
       kind: 'group' as const,
@@ -253,8 +288,8 @@ export function clientBalance(c: Client, txns?: Tx[], sessionsData: ClientSessio
       /* A per-session group bills what took place; there is no quota to count
          towards, and printing "/0" invented a target of nothing. */
       quota: gs.mode === 'per_session' ? null : (gs.quota || null),
-      total: gs.total,
       ended: gs.ended,
+      ...withMoney(gs.total, single ? paid : paidForGroup(gs.id)),
     })),
     ...(hasPersonal ? [{
       kind: 'personal' as const,
@@ -265,18 +300,60 @@ export function clientBalance(c: Client, txns?: Tx[], sessionsData: ClientSessio
       /* Same rule as the group above, and the same one the client card has
          always applied to a per-session client with nothing booked ahead. */
       quota: perSession && !personalQuota ? null : personalQuota,
-      total: privateTotal,
       ended: false,
+      /* The informal «שולם» correction is a client-level fact with no group
+         on it, so it lands here with the rest of the unattributed money. */
+      ...withMoney(privateTotal, single ? paid : looseIncome + (Number(c.paid_adjustment) || 0)),
     }] : []),
   ]
+
+  /* Money received that no track claims: a client in two groups whose payment
+     names neither. Reported rather than spread over the tracks by guesswork —
+     the same choice the payments panel makes for an unexplained adjustment. */
+  const unallocatedPaid = single || hasPersonal ? 0 : looseIncome + (Number(c.paid_adjustment) || 0)
 
   return {
     paid, paidReal, adjustment, total, memberTotal: memTotal, privateTotal,
     balance: total - paid - adjustment,
     sessionsPaid: privateCount + groupCount, sessionsTotal,
     personalQuota, personalHeld, personalDone, hasPersonal, groupSessions,
-    perSession, tracks,
+    perSession, tracks, unallocatedPaid,
   }
+}
+
+/* What a payment from this client could be FOR — the choices the payment form
+   offers, and nothing more.
+
+   Empty when there is nothing to disambiguate: a client in no group has only
+   their personal process, and a pure group member has only the group. Asking
+   either of them which of their one thing a payment was for is a field that
+   can only be answered one way.
+
+   Deliberately reads the CLIENT ROW for the personal side rather than their
+   logged sessions, so the form needs no more data than it already loads (the
+   five screens that open it do not all hold `sessions`). The gap that leaves
+   is a member with a private meeting logged and no price, no quota and no
+   manual total — who owes nothing personally, so a payment of theirs belongs
+   to the group regardless. */
+export function clientPaymentTargets(
+  c: Client | null | undefined,
+  membersData: GroupMembership[] = [],
+  groupsData: Group[] = [],
+): { id: string; name: string; kind: 'group' | 'personal' }[] {
+  if (!c) return []
+  const groups = getClientMemberships(c.id, membersData)
+    .map((m) => groupsData.find((g) => g.id === m.group_id))
+    .filter((g): g is Group => !!g && !g.deleted_at)
+  if (!groups.length) return []
+  const personal = (c.price_per_session || 0) > 0
+    || (c.total_override != null && (c.total_override as unknown) !== '')
+    || (c.sessions || 0) > 0
+    || (Number(c.sessions_done_adjustment) || 0) !== 0
+  if (groups.length === 1 && !personal) return []
+  return [
+    ...groups.map((g) => ({ id: g.id!, name: g.name || '', kind: 'group' as const })),
+    { id: '', name: '', kind: 'personal' as const },
+  ]
 }
 
 /* Sum confirmed income for a set of clients, optionally within a date range. */

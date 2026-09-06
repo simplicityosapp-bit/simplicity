@@ -130,10 +130,11 @@
       "owing_two": "שניים חייבים",
       "owing_many": "{{count}} חייבים",
       "owing_other": "{{count}} חייבים",
-      "memberMixed": "כולל תהליך אישי",
       "memberOwesAria": "היתרה של {{name}}",
       "renewAria": "כרטיסייה חדשה ל{{name}}",
-      "renewUndo": "נוספו מפגשים ל{{name}}"
+      "renewUndo": "נוספו מפגשים ל{{name}}",
+      "income": "הוכנס {{amount}}",
+      "memberPaid": "שולם {{paid}} מתוך {{total}}"
     },
     "status": {
       "active": "פעילה",

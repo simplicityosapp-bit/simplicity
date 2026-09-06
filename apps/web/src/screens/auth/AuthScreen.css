@@ -4,7 +4,8 @@
    corridor); brand mark + simplicity wordmark anchored above the
    form; transparent inputs that float over the photo with a soft
    sage focus glow. Same logic on mobile + desktop, with the
-   landscape photo swapped in via @media on wider viewports.
+   landscape photo swapped in via @media on wider viewports and the
+   moonlit frame swapped in by theme.
    ════════════════════════════════════════════════════════════════ */
 
 .auth-wrap {
@@ -14,7 +15,15 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 32px 20px;
+  /* The cookie notice is `position: fixed`, so it takes up no room in the
+     flow — and this screen is centred inside exactly 100dvh, so there is
+     nothing to scroll. The footer ("no account? sign up") therefore rendered
+     UNDERNEATH the notice on a first visit: the one route to an account was
+     invisible and unclickable at precisely the moment someone needs it.
+     Reserve the bar's measured height instead. CookieBanner publishes it
+     while the bar is up and unsets it afterwards, so a visitor who has
+     already chosen gets the original layout to the pixel. */
+  padding: 32px 20px calc(32px + var(--cookie-banner-h, 0px));
   background: var(--bg-home);
   overflow: hidden;
 }
@@ -31,6 +40,16 @@
   background-position: center;
   background-repeat: no-repeat;
 }
+/* Night keeps the same composition — a path framed by trees — but under a
+   moon. The photo used to stay on its sunlit daytime frame in dark mode
+   while every token above it flipped to a light-on-dark palette, so the
+   greys landed on a bright sky: "forgot password?", "no account?", the
+   "or" divider and the language row all read as blank space, and the white
+   wordmark sat on a near-white sky. This is the same day/night pair the
+   rest of the app uses for its screen backdrops (see index.css). */
+[data-theme="dark"] .auth-bg {
+  background-image: url('/backgrounds/mobile/night/onboarding.webp');
+}
 .auth-bg::after {
   /* Soft warm wash to bring the form's contrast up without flattening
      the photo. */
@@ -45,6 +64,12 @@
 @media (min-width: 768px) {
   .auth-bg {
     background-image: url('/login-bg-desktop.webp');
+  }
+  /* Restated inside the query: the dark rule outscores a bare `.auth-bg`
+     wherever it sits, so without this the wide viewport would fall back to
+     the portrait night frame. */
+  [data-theme="dark"] .auth-bg {
+    background-image: url('/backgrounds/desktop/night/onboarding.webp');
   }
 }
 
@@ -168,7 +193,12 @@
   color: var(--espresso);
 }
 
-/* Primary CTA — solid terracotta pill, full-width. */
+/* Primary CTA — solid accent pill, full-width. Painted with the primary-
+   button token, not the raw brand accent: the two part company at night,
+   where --mg-btn-primary-bg is Moonglow and --terracotta is Misted Sage.
+   Taking the accent while hovering to the token left this button hovering
+   from a green rest state to a near-cream one under a white label — 1.1:1,
+   the words simply went out. */
 .auth-btn {
   display: inline-flex;
   align-items: center;
@@ -178,7 +208,7 @@
   height: 52px;
   border: none;
   border-radius: var(--mg-btn-radius);
-  background: var(--terracotta);
+  background: var(--mg-btn-primary-bg);
   color: var(--on-accent);
   font-family: var(--mg-font);
   font-size: calc(15px * var(--text-scale));
@@ -197,6 +227,10 @@
 .auth-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+/* --mg-btn-primary-bg is LIGHT at night, so this label must go dark. */
+[data-theme="dark"] .auth-btn {
+  color: var(--ink-on-accent);
 }
 
 .auth-divider {

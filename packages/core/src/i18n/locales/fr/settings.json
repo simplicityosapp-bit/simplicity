@@ -321,7 +321,8 @@
       "body": "Écrivez-nous : une question, une demande, ou quelque chose qui ne marche pas. Nous lisons tout.",
       "cta": "Écrivez-nous"
     },
-    "openScreen": "Ouvrir l'écran"
+    "openScreen": "Ouvrir l'écran",
+    "faqIntro": "Questions sur votre compte, vos données et l’affichage. Une question portant sur un écran précis se trouve dans son chapitre du guide — et la recherche ci-dessus couvre les deux à la fois."
   },
   "search": {
     "placeholder": "Rechercher dans les réglages…",

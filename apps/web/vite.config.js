@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs'
 import { defineConfig } from 'vite'
 import { configDefaults } from 'vitest/config'
 import react from '@vitejs/plugin-react'
@@ -7,8 +8,16 @@ import { fileURLToPath } from 'url'
 const dirname = path.dirname(fileURLToPath(import.meta.url))
 
 // https://vite.dev/config/
+/* The version the About screen shows. It used to be a string inside the help
+   CONTENT, which meant it was carried in five files (helpContent.js and one
+   help.json per language) and translated — a number that cannot be translated
+   and drifted the moment one of the five was edited alone. package.json is the
+   version the build already has; this hands it to the app. */
+const pkgVersion = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf8')).version
+
 export default defineConfig({
   plugins: [react()],
+  define: { __APP_VERSION__: JSON.stringify(pkgVersion) },
   // The web app moved under apps/web/ in the monorepo migration, but the
   // developer .env.local (VITE_SUPABASE_URL / ANON_KEY) stays at the repo root.
   // Point Vite's env dir there so local dev picks it up (prod env comes from

@@ -14,7 +14,9 @@ export default defineConfig([
       reactRefresh.configs.vite,
     ],
     languageOptions: {
-      globals: globals.browser,
+      /* __APP_VERSION__ is substituted by vite at build time (see vite.config.js
+         define), so it exists at runtime but nothing declares it to the linter. */
+      globals: { ...globals.browser, __APP_VERSION__: "readonly" },
       parserOptions: { ecmaFeatures: { jsx: true } },
     },
   },

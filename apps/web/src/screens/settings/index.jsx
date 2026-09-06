@@ -494,7 +494,10 @@ function AboutBody() {
         ))}
       </Box>
       <Box className="set-about-meta">
-        <Txt>{t('about.version', { version: about.version })}</Txt>
+        {/* __APP_VERSION__ comes from apps/web/package.json at build time (see
+            vite.config.js). It was about.version — a number kept in the help
+            content, and therefore in four translation files. */}
+        <Txt>{t('about.version', { version: __APP_VERSION__ })}</Txt>
         <Txt className="set-about-dot">·</Txt>
         <Txt>2026</Txt>
       </Box>

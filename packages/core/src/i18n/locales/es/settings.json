@@ -322,7 +322,8 @@
       "body": "Escríbenos: una duda, una petición o algo que no funciona. Lo leemos todo.",
       "cta": "Habla con nosotros"
     },
-    "openScreen": "Abrir la pantalla"
+    "openScreen": "Abrir la pantalla",
+    "faqIntro": "Preguntas sobre tu cuenta, tus datos y la visualización. Una pregunta sobre una pantalla concreta está en su capítulo de la guía, y la búsqueda de arriba cubre ambas cosas a la vez."
   },
   "search": {
     "placeholder": "Buscar en los ajustes…",

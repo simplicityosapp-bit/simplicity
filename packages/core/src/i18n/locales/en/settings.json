@@ -322,7 +322,8 @@
       "body": "Write to us — a question, a request, or something that is broken. We read every one.",
       "cta": "Talk to us"
     },
-    "openScreen": "Open this screen"
+    "openScreen": "Open this screen",
+    "faqIntro": "Questions about your account, your data and the display. A question about one screen lives in that screen’s chapter of the guide — and the search above covers both at once."
   },
   "search": {
     "placeholder": "Search settings…",

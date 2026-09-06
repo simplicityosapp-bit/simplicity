@@ -217,8 +217,8 @@
           "body": "Les trois commandes qui changent la forme de la liste sont réunies dans un seul menu. Le tri classe par nom, solde, payé, séances, date d'ajout ou ancienneté, en ordre croissant ou décroissant. Le regroupement bascule entre statut et projet. « Sélection multiple » active le mode de sélection. Chaque choix est mémorisé et revient à votre prochaine visite."
         },
         {
-          "title": "Regrouper par statut ou par projet",
-          "body": "En haut du menu « Affichage » se trouve un sélecteur statut / projet. En mode projet, les clients sont classés sous le nom de chaque projet (« Sans projet » compris), et les onglets ainsi que le résumé du haut disparaissent — c'est pourquoi le bouton lui-même affiche alors « Affichage · Projet », pour qu'on comprenne où ils sont passés."
+          "title": "Regrouper par statut, projet ou groupe",
+          "body": "En haut du menu « Affichage » se trouve un sélecteur statut / projet / groupe. En mode projet, les clients sont classés sous le nom de chaque projet (« Sans projet » compris) ; en mode groupe, sous le nom de chaque groupe (« Sans groupe » compris), le plus utile quand on travaille par cycles. Dans les deux cas, les onglets et le résumé du haut disparaissent — c'est pourquoi le bouton lui-même affiche alors « Affichage · Projet » ou « Affichage · Groupe », pour qu'on comprenne où ils sont passés."
         },
         {
           "title": "Recherche et filtre de solde ouvert",
@@ -226,7 +226,7 @@
         },
         {
           "title": "Résumé du haut (mensuel / cumulé)",
-          "body": "Au-dessus de la liste (lors d'un groupement par statut), un résumé du groupe ouvert s'affiche : séances, payé et solde impayé. Le sélecteur « Mensuel / Cumulé » détermine si les séances et les montants concernent le mois en cours ou depuis le début. Dans les onglets « Ancien » et « Sans statut », le résumé est toujours cumulé et le sélecteur est verrouillé."
+          "body": "Au-dessus de la liste (lors d'un groupement par statut), un résumé du groupe ouvert s'affiche. Dans les onglets « Actif » et « En pause », il montre les séances, le payé et le solde impayé ; dans « Ancien » et « Sans statut », il montre le nombre de clients, les séances et le payé — sans solde, car ce ne sont pas des clients que vous relancez. Le sélecteur « Mensuel / Cumulé » détermine si les séances et les montants concernent le mois en cours ou depuis le début, et en mode cumulé les séances se lisent « effectuées sur réservées » (12/20, par exemple) plutôt qu'en un seul nombre. Dans les onglets « Ancien » et « Sans statut », le résumé est toujours cumulé et le sélecteur est verrouillé."
         },
         {
           "title": "La fiche client",
@@ -288,7 +288,7 @@
         },
         {
           "q": "Pourquoi le résumé du haut affiche-t-il zéro séance ou ₪0 ce mois-ci ?",
-          "a": "Lorsque le sélecteur est réglé sur « Mensuel », le résumé ne compte que les séances et les paiements du mois en cours. Passez à « Cumulé » pour voir tout depuis le début. Dans les onglets « Ancien » et « Sans statut », la vue est toujours cumulée."
+          "a": "Lorsque le sélecteur est réglé sur « Mensuel », le résumé ne compte que les séances et les paiements du mois en cours. Passez à « Cumulé » pour voir tout depuis le début — les séances s'y lisent « effectuées sur réservées » (12/20, par exemple). Dans les onglets « Ancien » et « Sans statut », la vue est toujours cumulée."
         },
         {
           "q": "Quelle est la différence entre la facturation « Forfait » et « À la séance » ?",

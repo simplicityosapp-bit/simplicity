@@ -7,6 +7,7 @@ import { ROUTES } from '../../lib/routes'
 import { translateAuthError } from '../../auth/authErrors'
 import { checkPasswordStrength } from '../../lib/passwordStrength'
 import GoogleButton from '../../auth/GoogleButton'
+import LanguageSwitcher from '../../i18n/LanguageSwitcher'
 import { useT } from '../../i18n/useT'
 import { buildConsent, stashPendingConsent } from '../../lib/legal'
 import { trackSignupComplete } from '../../lib/api/landingEvents'
@@ -34,6 +35,18 @@ export default function SignupScreen() {
   const [consentTried, setConsentTried] = useState(false)
   const showConsentErr = consentTried && !canConsent
 
+  /* Same idea for the password: the rule is on the page from the start, and
+     when it is not met the SAME line says so — next to the field, not in the
+     error slot above the email box. It used to be told twice and both times
+     too late: the rule lived in the placeholder, which leaves the instant
+     anyone types, and the complaint only arrived on a submit that failed.
+     Raised on blur (a rule quoted at someone three characters in is nagging,
+     not helping) and by a submit attempt, and it clears itself the moment the
+     password is good enough. */
+  const [pwBlurred, setPwBlurred] = useState(false)
+  const pwIssue = checkPasswordStrength(password)
+  const showPwIssue = pwBlurred && password.length > 0 && !!pwIssue
+
   const submit = async (e) => {
     e.preventDefault()
     setError('')
@@ -41,13 +54,8 @@ export default function SignupScreen() {
       setError(t('fillEmailPassword'))
       return
     }
-    const pwIssue = checkPasswordStrength(password)
-    if (pwIssue === 'tooShort') {
-      setError(t('signupScreen.passwordMin8'))
-      return
-    }
-    if (pwIssue === 'tooCommon') {
-      setError(t('signupScreen.passwordTooCommon'))
+    if (pwIssue) {
+      setPwBlurred(true)
       return
     }
     if (!canConsent) {
@@ -125,42 +133,71 @@ export default function SignupScreen() {
         </Box>
 
         <Box as="form" className="auth-form" onSubmit={submit}>
-          {error && <Txt as="p" className="auth-error">{error}</Txt>}
+          {/* Says which of the two near-identical screens this is, and says
+              what the button is about to do — until now the first news that
+              a confirmation mail was coming arrived on the screen after it. */}
+          <Txt as="h1" className="auth-title">{t('signupScreen.title')}</Txt>
+          <Txt as="p" className="auth-sub">{t('signupScreen.subtitle')}</Txt>
+          {error && <Txt as="p" className="auth-error" role="alert">{error}</Txt>}
 
-          <Box as="label" className="auth-field" htmlFor="signup-email">
-            <Txt className="auth-field-icon"><Mail size={16} strokeWidth={1.6} aria-hidden="true" /></Txt>
-            <Input
-              id="signup-email"
-              type="email"
-              dir="ltr"
-              autoComplete="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Email"
-            />
+          <Box className="auth-group">
+            {/* The name of the field, on the page, staying there — it used to
+                live in the placeholder, which is to say it left the moment
+                anyone typed. A sibling of the field, not its parent: see
+                AuthScreen.css for why that decides whether a screen reader
+                hears anything at all. */}
+            <Txt as="label" className="auth-label" htmlFor="signup-email">{t('emailPlaceholder')}</Txt>
+            <Box as="label" className="auth-field" htmlFor="signup-email">
+              <Txt className="auth-field-icon"><Mail size={16} strokeWidth={1.6} aria-hidden="true" /></Txt>
+              <Input
+                id="signup-email"
+                type="email"
+                dir="ltr"
+                autoComplete="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </Box>
           </Box>
 
-          <Box as="label" className="auth-field" htmlFor="signup-pass">
-            <Txt className="auth-field-icon"><Lock size={16} strokeWidth={1.6} aria-hidden="true" /></Txt>
-            <Input
-              id="signup-pass"
-              type={showPassword ? 'text' : 'password'}
-              dir="ltr"
-              autoComplete="new-password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder={t('min8chars')}
-            />
-            <Btn
-              type="button"
-              className="auth-field-toggle"
-              onClick={() => setShowPassword((v) => !v)}
-              aria-label={showPassword ? t('hidePassword') : t('showPassword')}
+          <Box className="auth-group">
+            <Txt as="label" className="auth-label" htmlFor="signup-pass">{t('passwordPlaceholder')}</Txt>
+            <Box as="label" className="auth-field" htmlFor="signup-pass">
+              <Txt className="auth-field-icon"><Lock size={16} strokeWidth={1.6} aria-hidden="true" /></Txt>
+              <Input
+                id="signup-pass"
+                type={showPassword ? 'text' : 'password'}
+                dir="ltr"
+                autoComplete="new-password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                /* No placeholder: the rule it used to carry is on the line
+                   below now, where it stays put. */
+                onBlur={() => setPwBlurred(true)}
+                aria-describedby="signup-pass-hint"
+                aria-invalid={showPwIssue || undefined}
+              />
+              <Btn
+                type="button"
+                className="auth-field-toggle"
+                onClick={() => setShowPassword((v) => !v)}
+                aria-label={showPassword ? t('hidePassword') : t('showPassword')}
+              >
+                {showPassword
+                  ? <EyeOff size={16} strokeWidth={1.6} aria-hidden="true" />
+                  : <Eye size={16} strokeWidth={1.6} aria-hidden="true" />}
+              </Btn>
+            </Box>
+            <Txt
+              as="p"
+              id="signup-pass-hint"
+              className={showPwIssue ? 'auth-hint auth-hint-bad' : 'auth-hint'}
+              aria-live="polite"
             >
-              {showPassword
-                ? <EyeOff size={16} strokeWidth={1.6} aria-hidden="true" />
-                : <Eye size={16} strokeWidth={1.6} aria-hidden="true" />}
-            </Btn>
+              {showPwIssue
+                ? t(pwIssue === 'tooCommon' ? 'signupScreen.passwordTooCommon' : 'signupScreen.passwordMin8')
+                : t('min8chars')}
+            </Txt>
           </Box>
 
           <Box className="auth-checks">
@@ -224,6 +261,12 @@ export default function SignupScreen() {
         </Box>
 
         <Txt as="p" className="auth-foot">{t('signupScreen.haveAccount')} <Link to={ROUTES.LOGIN} className="auth-foot-cta">{t('login')}</Link></Txt>
+
+        {/* The login screen has had one of these all along. Someone who lands
+            straight on /signup — from the landing page's own button, or a
+            shared link — had no way to change the language of the screen they
+            were being asked to hand over an address on. */}
+        <LanguageSwitcher className="auth-langs" />
       </Box>
     </Box>
   )

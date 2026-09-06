@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { X, Phone } from 'lucide-react'
 import { useClients } from '../../../hooks/useClients'
 import { useT } from '../../../i18n/useT'
-import { useStepCTA } from '../useStepCTA'
+import { useStepCTA, wantsAutoFocus } from '../useStepCTA'
 import { Box, Txt, Btn, Input } from '../../../components/ui'
 
 /* ════════════════════════════════════════════════════════════════
@@ -129,7 +129,7 @@ export default function Step3Clients({ ob, setCTA }) {
           onChange={(e) => setName(e.target.value)}
           onKeyDown={onComposerKeyDown}
           placeholder={t('step3.namePlaceholder')}
-          autoFocus
+          autoFocus={wantsAutoFocus()}
         />
       </Box>
 

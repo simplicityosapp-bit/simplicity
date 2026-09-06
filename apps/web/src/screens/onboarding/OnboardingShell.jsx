@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ChevronRight, Sun, Moon, Info } from 'lucide-react'
 import { ROUTES } from '../../lib/routes'
@@ -12,7 +12,10 @@ import { Box, Txt, Btn } from '../../components/ui'
 /* Layout (every step shares this frame; only the body changes):
      1. Progress strip (slim, first thing on screen)
      2. Header row — tree + counter centred, theme toggle in the corner
-     3. Body — the step's own fields, inside a <form> so Enter advances
+     3. Body — the step's own fields, inside a <form> so Enter advances.
+        Focus moves to the step's question on every change of step, unless
+        the step has already focused something of its own (step 1 and 3
+        autofocus their first field on a pointer device).
      4. Footer — sticky: back · hint + primary · "לצאת מההיכרות"
    The step publishes its onNext/canAdvance/busy/hint through useStepCTA;
    the shell just renders the buttons.
@@ -25,6 +28,31 @@ export default function OnboardingShell({ ob, cta, children }) {
   const navigate = useNavigate()
   const [skipping, setSkipping] = useState(false)
   const [exiting, setExiting] = useState(false)
+
+  /* Move focus to the new step's question when the step changes. Advancing
+     used to leave focus on <body>: the next Tab restarted from the top of the
+     document, and a screen reader announced nothing — the question had
+     changed and only the pixels said so.
+
+     Two deliberate exceptions. The first render is left alone, so arriving at
+     step 1 does not steal focus from a field that autofocused itself; and a
+     step that has already put focus inside the body (steps 1 and 3 focus
+     their first field on a pointer device) keeps it, because a filled-in
+     caret is a better landing place than a heading.
+
+     The question is a <p>, so it needs a tabindex to receive focus at all.
+     Set here rather than in seven step files: it is a property of how the
+     shell moves focus, not of any one step. */
+  const bodyRef = useRef(null)
+  const firstRender = useRef(true)
+  useEffect(() => {
+    if (firstRender.current) { firstRender.current = false; return }
+    const body = bodyRef.current
+    if (!body || body.contains(document.activeElement)) return
+    const target = body.querySelector('.ob-intro') || body
+    target.setAttribute('tabindex', '-1')
+    target.focus({ preventScroll: true })
+  }, [ob.state.step])
 
   /* The primary CTA was wired straight to cta.onNext, which is async on most
      steps. A rejection therefore became an unhandled promise rejection: the
@@ -150,7 +178,7 @@ export default function OnboardingShell({ ob, cta, children }) {
       {/* A form for the semantics; Enter is handled on keydown (see above)
           rather than by implicit submission. Every Btn defaults to
           type="button" (components/ui/Btn), so no pill can submit it. */}
-      <Box as="form" className="ob-body" onSubmit={onSubmit} onKeyDown={submitFromKey}>
+      <Box as="form" ref={bodyRef} className="ob-body" onSubmit={onSubmit} onKeyDown={submitFromKey}>
         {children}
       </Box>
 

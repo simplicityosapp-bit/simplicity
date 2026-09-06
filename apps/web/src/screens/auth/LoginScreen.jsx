@@ -53,7 +53,13 @@ export default function LoginScreen() {
         </Box>
 
         <Box as="form" className="auth-form" onSubmit={submit}>
-          {error && <Txt as="p" className="auth-error">{error}</Txt>}
+          {/* Login and signup were the same picture — a wordmark and two
+              boxes — and the only thing telling them apart was the small
+              print at the foot. The page says which one it is now, and as
+              the page's h1, so it is the first thing read aloud too. */}
+          <Txt as="h1" className="auth-title">{t('login')}</Txt>
+          {/* role="alert": a wrong password is announced, not just drawn. */}
+          {error && <Txt as="p" className="auth-error" role="alert">{error}</Txt>}
 
           <Box as="label" className="auth-field" htmlFor="login-email">
             <Txt className="auth-field-icon"><Mail size={16} strokeWidth={1.6} aria-hidden="true" /></Txt>
@@ -64,7 +70,13 @@ export default function LoginScreen() {
               autoComplete="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="Email"
+              /* The label wrapping this field holds an icon and nothing else,
+                 so the placeholder is doing the naming — and it was the
+                 literal string "Email", in an app whose whole point is not
+                 asking people to know English. aria-label so the name does
+                 not vanish the moment someone types. */
+              placeholder={t('emailPlaceholder')}
+              aria-label={t('emailPlaceholder')}
             />
           </Box>
 
@@ -77,7 +89,8 @@ export default function LoginScreen() {
               autoComplete="current-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Password"
+              placeholder={t('passwordPlaceholder')}
+              aria-label={t('passwordPlaceholder')}
             />
             <Btn
               type="button"

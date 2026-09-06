@@ -118,7 +118,12 @@ export default function SignupScreen() {
         </Box>
 
         <Box as="form" className="auth-form" onSubmit={submit}>
-          {error && <Txt as="p" className="auth-error">{error}</Txt>}
+          {/* Says which of the two near-identical screens this is, and says
+              what the button is about to do — until now the first news that
+              a confirmation mail was coming arrived on the screen after it. */}
+          <Txt as="h1" className="auth-title">{t('signupScreen.title')}</Txt>
+          <Txt as="p" className="auth-sub">{t('signupScreen.subtitle')}</Txt>
+          {error && <Txt as="p" className="auth-error" role="alert">{error}</Txt>}
 
           <Box as="label" className="auth-field" htmlFor="signup-email">
             <Txt className="auth-field-icon"><Mail size={16} strokeWidth={1.6} aria-hidden="true" /></Txt>
@@ -129,7 +134,11 @@ export default function SignupScreen() {
               autoComplete="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="Email"
+              /* The wrapping label holds an icon and nothing else, so the
+                 placeholder is what names this field — and it was the literal
+                 string "Email". aria-label so the name survives typing. */
+              placeholder={t('emailPlaceholder')}
+              aria-label={t('emailPlaceholder')}
             />
           </Box>
 
@@ -142,7 +151,11 @@ export default function SignupScreen() {
               autoComplete="new-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder={t('min8chars')}
+              /* Was just "at least 8 characters" — the rule, with nothing
+                 saying which box it belonged to. Now the field says what it
+                 is AND what it wants. */
+              placeholder={t('signupScreen.passwordPlaceholder')}
+              aria-label={t('signupScreen.passwordPlaceholder')}
             />
             <Btn
               type="button"

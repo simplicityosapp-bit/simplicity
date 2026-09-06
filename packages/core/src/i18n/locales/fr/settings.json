@@ -132,7 +132,8 @@
     "dpa": "Traitement des données",
     "guideIntro": "Une présentation complète de chaque écran : son rôle, des astuces et les questions fréquentes.",
     "guideTips": "Astuces",
-    "guideFaq": "Questions fréquentes"
+    "guideFaq": "Questions fréquentes",
+    "guideJump": "Aller à un chapitre"
   },
   "profile": {
     "fullName": "Nom complet",
@@ -302,7 +303,25 @@
     "tabs": {
       "guide": "Guide",
       "faq": "Questions fréquentes"
-    }
+    },
+    "search": {
+      "placeholder": "Rechercher dans l'aide…",
+      "aria": "Rechercher dans le guide et la FAQ",
+      "clear": "Effacer la recherche",
+      "results_one": "1 résultat",
+      "results_other": "{{count}} résultats",
+      "inGuide": "Dans le guide",
+      "inFaq": "Dans la FAQ",
+      "openChapter": "Ouvrir le chapitre",
+      "none": "Aucun résultat pour « {{query}} ».",
+      "noneHint": "Essayez un autre mot — « statut », « paiement » ou « agenda » — ou parcourez la liste des chapitres."
+    },
+    "contact": {
+      "title": "Vous n'avez pas trouvé ?",
+      "body": "Écrivez-nous : une question, une demande, ou quelque chose qui ne marche pas. Nous lisons tout.",
+      "cta": "Écrivez-nous"
+    },
+    "openScreen": "Ouvrir l'écran"
   },
   "search": {
     "placeholder": "Rechercher dans les réglages…",

@@ -28,7 +28,7 @@ import { readFileSync } from 'node:fs'
 import { describe, it, expect } from 'vitest'
 import { SETTINGS_TREE } from '@simplicity/core'
 import { WIDGET_REGISTRY } from '../src/lib/preferences'
-import { screenKeyFromPath, NO_HELP_SCREENS } from '../src/lib/nav'
+import { screenKeyFromPath, NO_HELP_SCREENS, routeForScreen } from '../src/lib/nav'
 import { ROUTES } from '../src/lib/routes'
 
 const LOCALES = ['he', 'en', 'es', 'fr']
@@ -144,5 +144,69 @@ describe('the guide and the app agree', () => {
     const screens = new Set(Object.values(ROUTES).map((p) => screenKeyFromPath(p)))
     const stale = [...NO_HELP_SCREENS].filter((k) => !screens.has(k))
     expect(stale, `exempted but unroutable: ${stale.join(', ')}`).toEqual([])
+  })
+})
+
+/* ════════════════════════════════════════════════════════════════
+   AND THE GUIDE HAS TO SHOW WHAT IT DOCUMENTS.
+   ════════════════════════════════════════════════════════════════
+   The check above compares the CONTENT to the routes, which is only half of
+   it: the /help screen walked its own hard-coded list of screen keys, and
+   three chapters that exist in four languages — the page builder, the booking
+   pages and the community — were not on it. They were written, translated and
+   maintained, and no reader could reach them; the guide opens by promising
+   "a full explanation of every screen in the app". That list is the reading
+   ORDER now, with anything missing from it appended rather than dropped, and
+   these tests pin both halves.
+
+   Source-read rather than imported: helpContent.js pulls in i18n and four
+   locale bundles, which would drag half the app into a plain-node test. Same
+   reason coachmark-copy.test.js reads its registry out of the file.
+   ════════════════════════════════════════════════════════════════ */
+describe('the guide screen', () => {
+  const listFromSource = (name) => {
+    const src = readFileSync(new URL('../src/lib/helpContent.js', import.meta.url), 'utf8')
+    const m = src.match(new RegExp(`const ${name} = (?:new Set\\()?\\[([^\\]]+)\\]`))
+    if (!m) throw new Error(`${name} not found — did it move?`)
+    return m[1].split(',').map((x) => x.trim().replace(/^['"]|['"]$/g, '')).filter(Boolean)
+  }
+
+  it('gives every documented screen a place in the reading order', () => {
+    const documented = Object.keys(load('he', 'help').screens)
+    const excluded = new Set(listFromSource('GUIDE_EXCLUDED'))
+    const order = new Set(listFromSource('GUIDE_ORDER'))
+    const missing = documented.filter((k) => !excluded.has(k) && !order.has(k))
+    expect(missing, `written, translated, and in no chapter of the manual: ${missing.join(', ')}`).toEqual([])
+  })
+
+  it('orders only screens that have a chapter', () => {
+    const documented = new Set(Object.keys(load('he', 'help').screens))
+    const stale = listFromSource('GUIDE_ORDER').filter((k) => !documented.has(k))
+    expect(stale, `ordered but undocumented — renders nothing: ${stale.join(', ')}`).toEqual([])
+  })
+
+  it('excludes only screens that have a chapter', () => {
+    const documented = new Set(Object.keys(load('he', 'help').screens))
+    const stale = listFromSource('GUIDE_EXCLUDED').filter((k) => !documented.has(k))
+    expect(stale, `excluded but undocumented: ${stale.join(', ')}`).toEqual([])
+  })
+
+  it('can open every chapter it describes', () => {
+    /* Each chapter ends with "open this screen". The button is hidden when the
+       key resolves to no route, so a renamed route would not break the page —
+       it would quietly drop the way out of the chapter for that screen. */
+    const excluded = new Set(listFromSource('GUIDE_EXCLUDED'))
+    const orphans = listFromSource('GUIDE_ORDER')
+      .filter((k) => !excluded.has(k))
+      .filter((k) => !routeForScreen(k))
+    expect(orphans, `no route, so no way out of the chapter: ${orphans.join(", ")}`).toEqual([])
+  })
+
+  it('walks that order instead of a list of its own', () => {
+    /* A second hard-coded list on the screen would go stale exactly the way
+       the first one did, and just as silently. */
+    const screen = readFileSync(new URL('../src/screens/help/index.jsx', import.meta.url), 'utf8')
+    expect(screen).toContain('guideOrder()')
+    expect(screen, 'the screen carries its own screen list again').not.toMatch(/const GUIDE_ORDER\s*=/)
   })
 })

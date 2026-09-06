@@ -338,8 +338,15 @@ function Guide({ chapters, wanted, onJump }) {
 }
 
 function Faq({ categories }) {
+  const { t } = useT('settings')
   return (
     <Box className="hs-faq">
+      {/* Which of the two lists this is. Every chapter of the guide carries
+          its own questions as well, and nothing said so: a reader with a
+          question had two places to look and no way to tell them apart. The
+          search above dissolves the split for anyone who uses it — this is
+          for the reader who browses. */}
+      <Txt as="p" className="hs-intro">{t('help.faqIntro')}</Txt>
       {categories.map((cat, ci) => (
         <Box key={ci} className="hs-faq-group">
           <Txt as="p" className="hs-faq-cat">{cat.category}</Txt>

@@ -84,7 +84,8 @@
       "incomeTotal": "הכנסה מצטברת",
       "income": "הכנסות",
       "expenses": "הוצאות",
-      "net": "נטו"
+      "net": "נטו",
+      "sessionsMonth": "פגישות החודש"
     },
     "undo": {
       "groupDeleted": "הקבוצה נמחקה",
@@ -118,7 +119,21 @@
       "pastSessionsCount": "פגישות שהתקיימו ({{count}})",
       "noSessions": "אין פגישות מתועדות עדיין",
       "deleteSessionAria": "מחיקת פגישה",
-      "newGroup": "קבוצה חדשה"
+      "newGroup": "קבוצה חדשה",
+      "progressOf": "{{held}}/{{quota}} מפגשים",
+      "progressPlain_one": "התקיים מפגש אחד",
+      "progressPlain_two": "התקיימו שני מפגשים",
+      "progressPlain_many": "התקיימו {{count}} מפגשים",
+      "progressPlain_other": "התקיימו {{count}} מפגשים",
+      "nextMeeting": "הבא {{date}} ב-{{time}}",
+      "owing_one": "אחד חייב",
+      "owing_two": "שניים חייבים",
+      "owing_many": "{{count}} חייבים",
+      "owing_other": "{{count}} חייבים",
+      "memberMixed": "כולל תהליך אישי",
+      "memberOwesAria": "היתרה של {{name}}",
+      "renewAria": "כרטיסייה חדשה ל{{name}}",
+      "renewUndo": "נוספו מפגשים ל{{name}}"
     },
     "status": {
       "active": "פעילה",
@@ -129,7 +144,8 @@
       "title": "לקוחות",
       "empty": "אין לקוחות בפרויקט זה",
       "private": "פרטי",
-      "addToProject": "<mg>לקוח/ה</mg> לפרויקט"
+      "addToProject": "<mg>לקוח/ה</mg> לפרויקט",
+      "past": "לשעבר"
     },
     "meetings": {
       "title": "פגישות מתוכננות",

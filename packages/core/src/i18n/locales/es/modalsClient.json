@@ -43,7 +43,8 @@
   },
   "addClient": {
     "titleLabel": "Nuevo cliente",
-    "toastSaved": "Cliente guardado"
+    "toastSaved": "Cliente guardado",
+    "intoGroup": "El cliente se añadirá al grupo «{{group}}»."
   },
   "editClient": {
     "title": "Editar cliente",
@@ -66,9 +67,10 @@
     "groupSessions": "Sesiones · {{name}}",
     "groupSessionsVal": "Realizadas {{held}} · Programadas {{quota}}",
     "pricePerSession": "Precio por sesión ₪",
-    "totalDueOptional": "Total a pagar (opcional)",
+    "totalDueOptional": "Total de la modalidad individual (opcional)",
     "totalDuePlaceholder": "Automático: {{formula}}",
-    "totalDueHint": "Si introduces un importe aquí, anulará el cálculo automático ({{formula}}) — útil para datos importados.",
+    "totalDueHint": "Si introduces un importe aquí, anulará el cálculo automático ({{formula}}) — útil para datos importados. La cuota del grupo viene del grupo, no de aquí.",
+    "noPersonalTrack": "Este cliente no tiene modalidad individual: su facturación viene del grupo. Los campos de aquí abren un proceso individual además del grupo, así que no hace falta repetir en ellos los números del grupo.",
     "billingCardLabel": "Cuánto se pagó y cuánto queda",
     "paid": "Pagado",
     "balance": "Saldo",
@@ -202,7 +204,22 @@
     "allMembers": "Todos tus clientes ya son miembros de este grupo.",
     "joinDateOptional": "Fecha de incorporación (opcional)",
     "addAction": "Añadir",
-    "clientRequired": "Elige un cliente."
+    "clientRequired": "Elige un cliente.",
+    "inProject": "En este proyecto",
+    "elsewhere": "Fuera del proyecto",
+    "movesToProject": "El cliente pasará al proyecto «{{project}}» — un grupo pertenece a un solo proyecto.",
+    "newClient": "Cliente nuevo"
+  },
+  "memberSessions": {
+    "title": "Bono nuevo",
+    "howMany": "¿Cuántas sesiones añadir?",
+    "countRequired": "Introduce un número de sesiones.",
+    "previewQuota": "Sesiones incluidas: {{from}} → {{to}}",
+    "previewMoney": "{{n}} × {{price}} = {{amount}} se sumarán a lo que debe {{name}}.",
+    "previewFree": "El grupo no tiene precio de paquete, así que el saldo no cambiará.",
+    "note": "El precio viene del precio del paquete del grupo. Puedes cambiarlo a mano en la ficha del cliente, en «Precio especial en el grupo».",
+    "saveFailed": "No se pudo añadir. Inténtalo de nuevo.",
+    "undo": "Se añadieron {{n}} sesiones a {{name}}"
   },
   "deleteGroup": {
     "title": "Eliminar grupo",

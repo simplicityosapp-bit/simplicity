@@ -155,3 +155,38 @@ describe('the copy resolves in all four languages', () => {
     expect(load('he').detail.meetings.more_two).toBeTruthy()
   })
 })
+
+/* ── The screen that shows them also makes them ────────────────────
+   `upcomingProjectMeetings` READS scheduled_meetings. Nothing wrote them
+   from this screen: the generation engine mounted on the home screen and
+   the calendar only. So a coach who set a group's "ראשון 10:00" in the
+   groups section, and stayed on the page, was told the project has no
+   upcoming meetings — the slot existed, the rows did not, and the only way
+   to make them was to visit another screen or wait for the nightly cron.
+   The section that stated the fact was the one place that could not
+   produce it. */
+describe('the project screen materialises the meetings it lists', () => {
+  const src = readFileSync(new URL('../src/screens/project-detail/index.jsx', import.meta.url), 'utf8')
+
+  it('mounts the generation engine', () => {
+    expect(src).toMatch(/useScheduledMeetingsGeneration\(\{/)
+  })
+
+  it('hands it the writer and every subject the engine walks', () => {
+    const call = src.match(/useScheduledMeetingsGeneration\(\{[\s\S]*?\}\)/)?.[0] || ''
+    for (const arg of ['clients', 'groups', 'members', 'addMeeting']) {
+      expect(call, arg).toContain(arg)
+    }
+  })
+
+  it('gates on every one of those loading, not just the meetings', () => {
+    /* Each hook returns [] while fetching, so an in-flight members list
+       reads as "this client is in no group" and the engine materialises a
+       weekly meeting for a client whose groups have all ended. Same gate
+       the home and calendar mounts carry. */
+    const call = src.match(/useScheduledMeetingsGeneration\(\{[\s\S]*?\}\)/)?.[0] || ''
+    for (const flag of ['meetingsLoading', 'clientsLoading', 'groupsLoading', 'membersLoading']) {
+      expect(call, flag).toContain(flag)
+    }
+  })
+})

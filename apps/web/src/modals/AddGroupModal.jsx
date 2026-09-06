@@ -2,6 +2,7 @@ import { useState } from 'react'
 import Modal from './Modal'
 import { useDiscardGuard, isDirty } from './useDiscardGuard'
 import DateField from '../components/DateField'
+import SelectMenu from '../components/SelectMenu'
 import { GROUP_BILLING_MODES } from '@simplicity/core'
 import { useT } from '../i18n/useT'
 import { CATEGORY_SWATCHES as COLORS, swatchKey } from '../lib/palette'
@@ -28,6 +29,13 @@ export default function AddGroupModal({ open, onClose, onSave, project }) {
      filled-in group went away on a stray tap, silently. billing_mode is
      skipped: blank() seeds it, so its opening value is the form's own. */
   const guard = useDiscardGuard(isDirty(form, blank(), ['billing_mode']), close)
+  /* The app's own picker rather than the OS wheel. Every other add form moved
+     to it; the two group forms were the pair left behind, so setting a
+     GROUP's fixed day opened a different widget from setting a client's. */
+  const dayOptions = [
+    { value: '', label: t('common.none') },
+    ...DAYS.map((d) => ({ value: String(d), label: t(`common.day${d}`) })),
+  ]
 
   const submit = async () => {
     if (!form.name.trim()) { setErr(t('common.nameRequired')); return }
@@ -146,10 +154,13 @@ export default function AddGroupModal({ open, onClose, onSave, project }) {
       <Box className="m-row2">
         <Box className="m-field">
           <Box as="label" className="m-label">{t('addGroup.fixedDayOptional')}</Box>
-          <select className="m-select" value={form.recurring_day} onChange={(e) => set('recurring_day', e.target.value)}>
-            <option value="">{t('common.none')}</option>
-            {DAYS.map((d) => <option key={d} value={d}>{t(`common.day${d}`)}</option>)}
-          </select>
+          <SelectMenu
+            value={String(form.recurring_day ?? '')}
+            onChange={(v) => set('recurring_day', v)}
+            options={dayOptions}
+            placeholder={t('common.none')}
+            ariaLabel={t('addGroup.fixedDayOptional')}
+          />
         </Box>
         <Box className="m-field">
           <Box as="label" className="m-label">{t('addGroup.startTimeOptional')}</Box>

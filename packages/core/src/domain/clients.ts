@@ -50,6 +50,22 @@ export interface ClientSession {
 }
 interface DateRange { from?: string | number | Date | null; to?: string | number | Date | null }
 
+/* One thing a client pays for: a group they belong to, or their personal
+   process. A client's account is the sum of their tracks — see the `tracks`
+   block at the end of clientBalance for why they are named rather than left
+   as one lump. `quota` is null when the model has no fixed number of
+   meetings to count towards (per-session billing). */
+export interface ClientTrack {
+  kind: 'group' | 'personal'
+  id: string
+  name: string
+  mode: string
+  held: number
+  quota: number | null
+  total: number
+  ended: boolean
+}
+
 const live = <T extends { deleted_at?: string | null }>(a: T[] | null | undefined): T[] =>
   (a || []).filter((r) => !r.deleted_at)
 
@@ -176,21 +192,90 @@ export function clientBalance(c: Client, txns?: Tx[], sessionsData: ClientSessio
   const personalQuota = c.sessions || 0
   const personalHeld = privateCount
   const personalDone = privateCount + doneAdj
-  /* A per-session client is ALWAYS "personal" — their whole billing model
-     is the private meeting count, even before the first one is logged. */
-  const hasPersonal = perSession || personalQuota > 0 || privateCount > 0 || doneAdj !== 0
+  /* Does this client have a PERSONAL track at all?
+
+     For a client in no group the question does not arise: the personal side
+     IS the account, so it is always there — which is what every 1-on-1 client
+     already did and keeps doing.
+
+     For a group member it is a real question, and the answer used to be "yes,
+     always". The add and edit forms offer a quota, a price and a manual total
+     to everyone, so a coach who typed the GROUP's eight meetings into «מספר
+     פגישות» gave that member a private series of eight nobody asked for. It
+     printed as "0/8" beside the group's own "1/8"; and when the group's price
+     went into «סה״כ לתשלום» as well, the same dues were charged twice.
+
+     A member has a personal track when something in the data says so: a
+     private meeting on the books, a price of their own, a manual total, a
+     quota, or an imported done-count. Nothing is ignored and nothing is
+     rewritten — a quota typed in by mistake still shows, now beside the group
+     line that explains it, where the coach can see both and decide. */
+  const hasPersonal = !memberships.length || (
+    privateCount > 0
+    || doneAdj !== 0
+    || (c.price_per_session || 0) > 0
+    || (c.total_override != null && c.total_override !== '')
+    || personalQuota > 0
+  )
   const groupSessions = memberships.map((m) => {
     const g = groupsData.find((x) => x.id === m.group_id)
     const quota = m.package_sessions_override != null ? Number(m.package_sessions_override) : (g?.package_sessions || 0)
-    return { id: m.group_id, name: g?.name || 'קבוצה', quota, held: heldForGroup(m.group_id), ended: g?.status === 'ended' }
+    return {
+      id: m.group_id,
+      name: g?.name || 'קבוצה',
+      quota,
+      held: heldForGroup(m.group_id),
+      ended: g?.status === 'ended',
+      /* What this membership costs, and under which model — the two facts a
+         reader needs to tell one line of the bill from another. Summed into
+         memberTotal above; named here so each line can state its own share
+         instead of leaving the client with one total and no way to split it. */
+      mode: (g?.billing_mode || 'package') as string,
+      total: membershipTotal(m, groupsData, heldForGroup(m.group_id)),
+    }
   })
 
+  /* ── The tracks ────────────────────────────────────────────────
+     One entry per thing this client pays for: each group they belong to, and
+     their personal process when they have one. The account is the sum; the
+     tracks are what it is made of.
+
+     Every figure here is computed above — this only NAMES the parts, so a
+     card, a file and a form can say the same thing about them instead of each
+     re-deriving its own split out of `total` and `memberTotal`. */
+  const tracks: ClientTrack[] = [
+    ...groupSessions.map((gs) => ({
+      kind: 'group' as const,
+      id: gs.id || '',
+      name: gs.name,
+      mode: gs.mode,
+      held: gs.held,
+      /* A per-session group bills what took place; there is no quota to count
+         towards, and printing "/0" invented a target of nothing. */
+      quota: gs.mode === 'per_session' ? null : (gs.quota || null),
+      total: gs.total,
+      ended: gs.ended,
+    })),
+    ...(hasPersonal ? [{
+      kind: 'personal' as const,
+      id: 'personal',
+      name: '',
+      mode: perSession ? 'per_session' : 'package',
+      held: personalDone,
+      /* Same rule as the group above, and the same one the client card has
+         always applied to a per-session client with nothing booked ahead. */
+      quota: perSession && !personalQuota ? null : personalQuota,
+      total: privateTotal,
+      ended: false,
+    }] : []),
+  ]
+
   return {
-    paid, paidReal, adjustment, total, memberTotal: memTotal,
+    paid, paidReal, adjustment, total, memberTotal: memTotal, privateTotal,
     balance: total - paid - adjustment,
     sessionsPaid: privateCount + groupCount, sessionsTotal,
     personalQuota, personalHeld, personalDone, hasPersonal, groupSessions,
-    perSession,
+    perSession, tracks,
   }
 }
 

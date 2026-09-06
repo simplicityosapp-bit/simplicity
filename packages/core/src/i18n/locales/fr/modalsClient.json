@@ -43,7 +43,8 @@
   },
   "addClient": {
     "titleLabel": "Nouveau client",
-    "toastSaved": "Client enregistré"
+    "toastSaved": "Client enregistré",
+    "intoGroup": "Le client sera ajouté au groupe « {{group}} »."
   },
   "editClient": {
     "title": "Modifier le client",
@@ -66,9 +67,10 @@
     "groupSessions": "Séances · {{name}}",
     "groupSessionsVal": "Effectuées {{held}} · Planifiées {{quota}}",
     "pricePerSession": "Prix par séance ₪",
-    "totalDueOptional": "Total dû (facultatif)",
+    "totalDueOptional": "Total du suivi individuel (facultatif)",
     "totalDuePlaceholder": "Automatique : {{formula}}",
-    "totalDueHint": "Si vous saisissez un montant ici, il remplace le calcul automatique ({{formula}}) — pratique pour les données importées.",
+    "totalDueHint": "Si vous saisissez un montant ici, il remplace le calcul automatique ({{formula}}) — pratique pour les données importées. Les cotisations du groupe viennent du groupe, pas d'ici.",
+    "noPersonalTrack": "Ce client n'a pas de suivi individuel : sa facturation vient du groupe. Les champs ci-dessous ouvrent un suivi individuel en plus du groupe, il n'est donc pas nécessaire d'y recopier les chiffres du groupe.",
     "billingCardLabel": "Combien a été payé, combien il reste",
     "paid": "Payé",
     "balance": "Solde",
@@ -202,7 +204,22 @@
     "allMembers": "Tous vos clients sont déjà membres de ce groupe.",
     "joinDateOptional": "Date d'adhésion (facultatif)",
     "addAction": "Ajouter",
-    "clientRequired": "Veuillez choisir un client."
+    "clientRequired": "Veuillez choisir un client.",
+    "inProject": "Dans ce projet",
+    "elsewhere": "Hors du projet",
+    "movesToProject": "Le client passera au projet « {{project}} » — un groupe n'appartient qu'à un seul projet.",
+    "newClient": "Nouveau client"
+  },
+  "memberSessions": {
+    "title": "Nouvelle carte",
+    "howMany": "Combien de séances ajouter ?",
+    "countRequired": "Veuillez saisir un nombre de séances.",
+    "previewQuota": "Séances incluses : {{from}} → {{to}}",
+    "previewMoney": "{{n}} × {{price}} = {{amount}} s'ajouteront à ce que doit {{name}}.",
+    "previewFree": "Le groupe n'a pas de prix de forfait, le solde ne changera donc pas.",
+    "note": "Le prix vient du prix du forfait du groupe. Vous pouvez le modifier à la main sur la fiche client, sous « Prix spécial dans le groupe ».",
+    "saveFailed": "L'ajout a échoué. Veuillez réessayer.",
+    "undo": "{{n}} séances ajoutées pour {{name}}"
   },
   "deleteGroup": {
     "title": "Supprimer le groupe",

@@ -36,7 +36,7 @@ const Section = FormSection
    value the file had just set. What is left in this modal is what the file
    has no in-place editor for: identity, the slot, the billing numbers, and
    the per-group price table. */
-export default function EditClientModal({ open, onClose, onSave, client, projects = [], groups = [], statuses = [], memberships = [], onUpdateMember, onPaidEntry, onBalanceEntry, rawPaid = 0, memberTotal = 0, personalHeld = 0, groupSessions = [] }) {
+export default function EditClientModal({ open, onClose, onSave, client, projects = [], groups = [], statuses = [], memberships = [], onUpdateMember, onPaidEntry, onBalanceEntry, rawPaid = 0, memberTotal = 0, personalHeld = 0, groupSessions = [], hasPersonalTrack = true }) {
   const { t } = useT('modalsClient')
   /* Ties each label to its field so clicking the WORD puts the cursor in the
      box — the target was the box alone until now. One useId per mount, not
@@ -248,6 +248,12 @@ export default function EditClientModal({ open, onClose, onSave, client, project
      screen used to say so — the number simply took, with a silent correction
      filed behind it. Non-zero only while the two disagree. */
   const doneDelta = (Number(form.done) || 0) - personalHeld
+  /* A group member who has no personal track yet — the case where every
+     field in the billing section is about a series that does not exist,
+     and the one where copying the group's numbers into them does real
+     damage. It stops being true the moment one of them is filled, so the
+     hint disappears as soon as the coach has answered it. */
+  const isMemberWithoutPersonal = memberships.length > 0 && !hasPersonalTrack
   const schedSummary = form.recurring_day !== ''
     ? `${t(`common.day${form.recurring_day}`)}${form.recurring_time ? ` · ${form.recurring_time}` : ''}`
     : (form.meeting_type_id ? (meetingTypes.find((mt) => mt.id === form.meeting_type_id)?.name || '') : '')
@@ -531,6 +537,17 @@ export default function EditClientModal({ open, onClose, onSave, client, project
         </Box>
         <Box className="m-field">
           <Box as="label" className="m-label">{t('editClient.personalSessions')}</Box>
+          {/* Every field in this section belongs to the client's PERSONAL
+              track. On a group member with no personal track that is not
+              obvious — the fields look like the group's, and a coach who
+              copied the group's eight meetings and its price into them gave
+              the member a private series of eight and charged the same dues
+              twice. Nothing is hidden or blocked: the fields still work, and
+              filling one is a real choice. It just says whose numbers these
+              are before they are typed. */}
+          {isMemberWithoutPersonal && (
+            <Txt as="p" className="m-hint">{t('editClient.noPersonalTrack')}</Txt>
+          )}
           {/* "נקבעו" shows in BOTH modes now. It was hidden for per-session
               because it is not what bills them — but hiding it also removed
               the only way to say how many meetings are booked ahead, so the
@@ -602,9 +619,15 @@ export default function EditClientModal({ open, onClose, onSave, client, project
           </Box>
           <Txt as="p" className="ec-bill-hint">{t('editClient.billingHint', { total: isr(liveTotal) })}</Txt>
           {movedHint && <Txt as="p" className="m-hint">{movedHint}</Txt>}
-          {(memberTotal > 0 || liveAdj !== 0) && (
+          {/* The split. Gated on memberTotal > 0 before, so a member of a
+              group priced «ללא מחיר קבוע» — dues of nothing — was shown one
+              total with no hint that a group was inside it at all. Any
+              membership earns the line: what it says is which side of the
+              account each shekel is on, and "₪0 from the group" is an
+              answer to that. */}
+          {(memberships.length > 0 || liveAdj !== 0) && (
             <Box className="ec-formula">
-              {memberTotal > 0 && (
+              {memberships.length > 0 && (
                 <Txt as="p" className="ec-formula-row">
                   {t('editClient.fPersonal')} <Txt className="num">{isr(privatePortion)}</Txt>
                   {' · '}

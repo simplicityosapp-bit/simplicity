@@ -11,6 +11,7 @@ import { useReminders } from '../../hooks/useReminders'
 import { useSessions } from '../../hooks/useSessions'
 import { useScheduledMeetings } from '../../hooks/useScheduledMeetings'
 import { staleScheduledMeetingIds } from '../../lib/scheduledMeetings'
+import { groupMembershipPlan, newMembership } from '../../lib/groupMembership'
 import { usePopoverSide } from '../../hooks/usePopoverSide'
 import { useGroups } from '../../hooks/useGroups'
 import { useGroupMembers } from '../../hooks/useGroupMembers'
@@ -46,6 +47,15 @@ const SORT_OPTIONS = [
   { k: 'sessions', labelKey: 'sort.sessions' },
   { k: 'created',  labelKey: 'sort.created' },
   { k: 'oldest',   labelKey: 'sort.oldest' },
+]
+/* How the list is carved up. "Status" keeps the tabs and the hero; the other
+   two replace both with headed buckets. Group joined project once the card
+   started naming a client's group: a facilitator running three cohorts inside
+   one project could see them all and separate none of them. */
+const GROUP_BY_OPTIONS = [
+  { k: 'status',  labelKey: 'groupBy.status' },
+  { k: 'project', labelKey: 'groupBy.project' },
+  { k: 'group',   labelKey: 'groupBy.group' },
 ]
 const BULK_META_OPTIONS = [
   { k: 'active',    labelKey: 'status.active' },
@@ -119,6 +129,7 @@ export default function ClientsScreen() {
     for (const m of linked) updateMeeting(m.id, { session_id: null }).catch(() => {})
   }
   const { groups, error: groupsError } = useGroups()
+  const { members, addMember, removeMember, updateMember, error: membersError } = useGroupMembers()
 
   /* When a client's recurring slot changes or is cleared, drop the future
      pending meetings generated for the OLD slot so stale occurrences don't
@@ -138,9 +149,24 @@ export default function ClientsScreen() {
       )
       for (const mid of stale) removeMeeting(mid).catch(() => {})
     }
+    /* The edit form's «קבוצה» picker writes clients.group_id — the
+       single-group TAG. The roster, the group-driven status and the group
+       dues all read group_members rows instead, and this was the one writer
+       of the tag that never touched them: the project's list showed the
+       client as a member and the group card counted them, while the card's
+       chips, their status and their balance all said otherwise.
+       lib/groupMembership decides what the tag change means for the rows. */
+    if (prev && 'group_id' in patch && (patch.group_id || null) !== (prev.group_id || null)) {
+      const plan = groupMembershipPlan({
+        prevGroupId: prev.group_id,
+        nextGroupId: patch.group_id,
+        memberships: members.filter((m) => m.client_id === id),
+      })
+      for (const mid of plan.remove) await removeMember(mid).catch(() => {})
+      for (const gid of plan.add) await addMember(newMembership(gid, id)).catch(() => {})
+    }
     return result
   }
-  const { members, updateMember, error: membersError } = useGroupMembers()
   const { statuses: clientStatuses } = useClientStatuses()
   const { limits } = useSubscription()
   const { t: ts } = useT('subscription')
@@ -153,7 +179,9 @@ export default function ClientsScreen() {
   const setBalanceOnly = (v) => updatePrefs?.({ clientsBalanceOnly: v })
   const scope = prefs?.clientsScope === 'cumulative' ? 'cumulative' : 'monthly'
   const setScope = (s) => updatePrefs?.({ clientsScope: s })
-  const groupBy = prefs?.clientsGroupBy === 'project' ? 'project' : 'status'
+  /* status | project | group. Anything else stored — including the value a
+     build before groups could be grouped by wrote — falls back to status. */
+  const groupBy = GROUP_BY_OPTIONS.some((o) => o.k === prefs?.clientsGroupBy) ? prefs.clientsGroupBy : 'status'
   const setGroupBy = (g) => updatePrefs?.({ clientsGroupBy: g })
   const [query, setQuery] = useState('')
   const { id: routeClientId } = useParams()
@@ -227,7 +255,7 @@ export default function ClientsScreen() {
      The "יתרה פתוחה" filter is cross-status by design: when ON it surfaces
      EVERY client who still owes — active, wandering AND past — not just the
      current tab (beta feedback 24/06; owner chose to include past too). */
-  const sourceClients = (groupBy === 'project' || balanceOnly) ? clientList : tabClients
+  const sourceClients = (groupBy !== 'status' || balanceOnly) ? clientList : tabClients
   const list = useMemo(() => {
     const q = query.trim()
     let filtered = q ? sourceClients.filter((c) => (c.name || '').includes(q)) : sourceClients
@@ -244,22 +272,51 @@ export default function ClientsScreen() {
     [clientList, balanceByClient],
   )
 
-  /* Project bucket lookup for the grouped view. Includes a "no project"
-     bucket for clients with no project_id. */
+  /* The buckets for a grouped view: one per project, or one per group, plus
+     a trailing "none" bucket for whoever belongs to neither. Both shapes are
+     built here so the list below renders one thing.
+
+     A client can be in SEVERAL groups, and grouping by group puts them in
+     each of theirs — the point of the view is to see a cohort whole, and
+     leaving someone out of one bucket to keep the list a partition would
+     defeat it. Grouping by project cannot repeat: a client has one. */
   const grouped = useMemo(() => {
-    if (groupBy !== 'project') return null
-    const byProj = new Map()
-    list.forEach((c) => {
-      const k = c.project_id || '__none__'
-      if (!byProj.has(k)) byProj.set(k, [])
-      byProj.get(k).push(c)
-    })
-    /* Stable order: projects in the order they appear in `projects`, then "no project". */
-    const ordered = []
-    projects.forEach((p) => { if (byProj.has(p.id)) ordered.push({ project: p, clients: byProj.get(p.id) }) })
-    if (byProj.has('__none__')) ordered.push({ project: null, clients: byProj.get('__none__') })
+    if (groupBy === 'status') return null
+    const buckets = new Map()
+    const none = []
+    const put = (key, c) => {
+      if (!buckets.has(key)) buckets.set(key, [])
+      buckets.get(key).push(c)
+    }
+    if (groupBy === 'project') {
+      list.forEach((c) => (c.project_id ? put(c.project_id, c) : none.push(c)))
+    } else {
+      const liveMembers = members.filter((m) => !m.left_at && !m.deleted_at)
+      list.forEach((c) => {
+        const ids = new Set(liveMembers.filter((m) => m.client_id === c.id).map((m) => m.group_id))
+        /* The legacy single-group tag counts too, the same union the project
+           screen's roster takes — a membership row is the source of truth,
+           but a client carrying only the tag is still in that group. */
+        if (c.group_id) ids.add(c.group_id)
+        if (ids.size) ids.forEach((gid) => put(gid, c)); else none.push(c)
+      })
+    }
+    /* Stable order: the parents in the order they already appear, then the
+       leftovers. */
+    const parents = groupBy === 'project' ? projects : groups
+    const ordered = parents
+      .filter((p) => buckets.has(p.id))
+      .map((p) => ({ id: p.id, name: p.name, color: p.color, clients: buckets.get(p.id) }))
+    if (none.length) {
+      ordered.push({
+        id: '__none__',
+        name: t(groupBy === 'project' ? 'project.none' : 'groupBy.noGroup'),
+        color: null,
+        clients: none,
+      })
+    }
     return ordered
-  }, [groupBy, list, projects])
+  }, [groupBy, list, projects, groups, members, t])
 
   /* Close the view popover when tapping outside. */
   useEffect(() => {
@@ -388,29 +445,30 @@ export default function ClientsScreen() {
               aria-haspopup="menu"
             >
               <SlidersHorizontal size={14} strokeWidth={1.7} aria-hidden="true" /> {t('view.label')}
-              {/* Grouping by project hides the tabs AND the hero, so the active
-                  grouping is echoed on the trigger — otherwise the control that
-                  caused the change is itself hidden inside the menu. */}
-              {groupBy === 'project' && <Txt className="c-view-active">· {t('groupBy.project')}</Txt>}
+              {/* Grouping hides the tabs AND the hero, so the active grouping is
+                  echoed on the trigger — otherwise the control that caused the
+                  change is itself hidden inside the menu. */}
+              {groupBy !== 'status' && (
+                <Txt className="c-view-active">· {t(`groupBy.${groupBy}`)}</Txt>
+              )}
             </Btn>
             {viewOpen && (
               <Box className="c-sort-pop" role="menu" style={{ [viewSide]: 0 }}>
-                {/* Grouping leads, and wears the shared double-pill toggle: it's
-                    a binary either/or, so rendering it as two more rows in a
-                    list of single-pick rows made three different behaviours all
-                    look identical. */}
+                {/* Grouping leads, and wears the shared segmented control
+                    rather than more rows: in a list of single-pick rows it
+                    would look identical to the sort below, and it is a
+                    different kind of choice. Three segments now that a group
+                    is one of them. */}
                 <Txt as="p" className="c-sort-h">{t('groupBy.heading')}</Txt>
                 <Box className="mg-toggle c-view-toggle" role="tablist" aria-label={t('groupBy.aria')}>
-                  <Btn
-                    type="button"
-                    className={`mg-toggle-btn${groupBy === 'status' ? ' on' : ''}`}
-                    onClick={() => setGroupBy('status')}
-                  >{t('groupBy.status')}</Btn>
-                  <Btn
-                    type="button"
-                    className={`mg-toggle-btn${groupBy === 'project' ? ' on' : ''}`}
-                    onClick={() => setGroupBy('project')}
-                  >{t('groupBy.project')}</Btn>
+                  {GROUP_BY_OPTIONS.map((o) => (
+                    <Btn
+                      key={o.k}
+                      type="button"
+                      className={`mg-toggle-btn${groupBy === o.k ? ' on' : ''}`}
+                      onClick={() => setGroupBy(o.k)}
+                    >{t(o.labelKey)}</Btn>
+                  ))}
                 </Box>
 
                 <Box className="c-sort-divider" />
@@ -535,16 +593,16 @@ export default function ClientsScreen() {
           ) : (
             <Box className="empty"><Txt as="p" className="empty-text">{t('empty.noneInCategory')}</Txt></Box>
           )
-        ) : groupBy === 'project' ? (
-          grouped.map(({ project, clients: pc }) => (
-            <Box key={project?.id || 'none'} className="c-proj-group">
+        ) : grouped ? (
+          grouped.map(({ id: bucketId, name, color, clients: pc }) => (
+            <Box key={bucketId} className="c-proj-group">
               <Txt as="p" className="c-proj-head">
                 <Txt
                   className="c-proj-dot"
-                  style={{ background: project?.color || 'var(--stone)' }}
+                  style={{ background: color || 'var(--stone)' }}
                   aria-hidden="true"
                 />
-                <Txt className="c-proj-name">{project?.name || t('project.none')}</Txt>
+                <Txt className="c-proj-name">{name}</Txt>
                 <Txt className="c-proj-count mono">{pc.length}</Txt>
               </Txt>
               {pc.map((c, i) => (

@@ -74,7 +74,8 @@
       "incomeTotal": "Income to date",
       "income": "Income",
       "expenses": "Expenses",
-      "net": "Net"
+      "net": "Net",
+      "sessionsMonth": "Meetings this month"
     },
     "undo": {
       "groupDeleted": "Group deleted",
@@ -102,7 +103,17 @@
       "pastSessionsCount": "Past sessions ({{count}})",
       "noSessions": "No sessions logged yet",
       "deleteSessionAria": "Delete session",
-      "newGroup": "New group"
+      "newGroup": "New group",
+      "progressOf": "{{held}}/{{quota}} meetings",
+      "progressPlain_one": "{{count}} meeting held",
+      "progressPlain_other": "{{count}} meetings held",
+      "nextMeeting": "Next {{date}} at {{time}}",
+      "owing_one": "{{count}} owes",
+      "owing_other": "{{count}} owe",
+      "memberMixed": "includes a personal process",
+      "memberOwesAria": "{{name}}'s balance",
+      "renewAria": "New card for {{name}}",
+      "renewUndo": "Meetings added for {{name}}"
     },
     "status": {
       "active": "Active",
@@ -113,7 +124,8 @@
       "title": "Clients",
       "empty": "No clients in this project",
       "private": "Private",
-      "addToProject": "Add <mg>client</mg> to project"
+      "addToProject": "Add <mg>client</mg> to project",
+      "past": "Former"
     },
     "meetings": {
       "title": "Upcoming meetings",

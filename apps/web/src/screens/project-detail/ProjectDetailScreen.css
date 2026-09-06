@@ -444,6 +444,15 @@
   background: color-mix(in srgb, var(--sage) 16%, transparent);
   color: var(--espresso);
 }
+/* A former client. The row dims rather than disappearing — the history is
+   the project's — and says which it is, because dimming alone reads as a
+   rendering state and not as a fact about the person. */
+.pd-client-tag.past {
+  background: rgba(42, 37, 32, 0.06);
+  color: var(--stone);
+}
+[data-theme="dark"] .pd-client-tag.past { background: rgba(240, 235, 224, 0.06); }
+.pd-client.is-past .pd-client-name { opacity: 0.6; }
 
 /* ── Reminders rows ────────────────────────────────────── */
 .pd-rem-row {
@@ -539,6 +548,15 @@
   font-size: calc(11px * var(--text-scale));
   color: var(--stone);
 }
+/* The chosen "delete" in the cascade dialog. Both pills carried the same
+   terracotta fill when active, so the option that soft-deletes a group's
+   clients read exactly like the one that keeps them — on the dialog whose
+   only purpose is telling those two apart. */
+.dg-row-choice .m-pill.on.danger {
+  background: var(--clay);
+  border-color: var(--clay);
+  color: var(--on-accent);
+}
 .dg-row-choice {
   display: flex;
   gap: 4px;
@@ -608,12 +626,105 @@
   color: var(--stone);
 }
 .gc-dot { opacity: 0.5; }
+/* ── Where the group stands ─────────────────────────────────────
+   Meetings held (against the package's number, when there is one) and the
+   next one on the calendar, with the count of members who still owe pinned
+   to the other end. Both answers used to live somewhere else: the meetings
+   behind the calendar toggle in the actions row, the money one client file
+   at a time. */
+.gc-progress {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 0 0 10px;
+}
+.gc-progress-text {
+  font-family: var(--mg-font);
+  font-size: calc(12px * var(--text-scale));
+  color: var(--espresso);
+}
+.gc-owing {
+  flex: none;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--clay) 14%, transparent);
+  font-family: var(--mg-font);
+  font-size: calc(11px * var(--text-scale));
+  font-weight: 600;
+  color: var(--clay-on-dark);
+}
 .gc-members {
   display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
+  flex-direction: column;
+  gap: 4px;
   margin-bottom: 10px;
 }
+/* ── One member ─────────────────────────────────────────────────
+   Was a wrapping pill with a name and a ✕. A row instead, because the row
+   now carries a number: a balance inside a pill that wraps mid-line reads
+   as decoration, and the ✕ could never grow past 24px without overlapping
+   the pill beside it (see .gc-chip-x, kept for the chips still in use
+   elsewhere). In a column each control has its own line to grow into. */
+.gc-member {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: var(--mg-btn-radius);
+  background: rgba(42, 37, 32, 0.04);
+}
+[data-theme="dark"] .gc-member { background: rgba(240, 235, 224, 0.05); }
+.gc-member-id { flex: 1; min-width: 0; }
+.gc-member-name {
+  margin: 0;
+  font-family: var(--mg-font);
+  font-size: calc(12.5px * var(--text-scale));
+  color: var(--espresso);
+}
+.gc-member-sub {
+  margin: 1px 0 0;
+  font-family: var(--mg-font);
+  font-size: calc(10.5px * var(--text-scale));
+  color: var(--stone);
+}
+.gc-member-owes {
+  flex: none;
+  font-family: var(--mg-font-num);
+  font-size: calc(12.5px * var(--text-scale));
+  font-weight: 600;
+  color: var(--clay-on-dark);
+  font-variant-numeric: tabular-nums;
+}
+/* 26px painted → 40×30 hit area. The rows are a column with a 4px gap, so
+   growth downward stops at 2px per side and cannot reach the neighbour;
+   sideways there is the card's own padding to spend. */
+.gc-member-btn,
+.gc-member-x {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: var(--stone);
+  cursor: pointer;
+}
+.gc-member-btn::after,
+.gc-member-x::after {
+  content: '';
+  position: absolute;
+  inset-block: -2px;
+  inset-inline: -7px;
+}
+.gc-member-btn:active,
+.gc-member-x:active { transform: scale(0.9); }
+.gc-member-x:hover { color: var(--clay-on-dark); }
+.gc-member-btn:hover { color: var(--espresso); }
 .gc-empty {
   margin: 0;
   font-family: var(--mg-font);
@@ -769,6 +880,10 @@
 }
 /* Two columns once income moved out — the divider follows. */
 .pd-stats-2 { grid-template-columns: 1fr 1fr; padding-top: 14px; }
+/* Three stats only once the project has groups to count. Same top padding
+   as the two-up: neither card carries the money toggle that the extra
+   34px was cleared for. */
+.pd-stats-3 { grid-template-columns: 1fr 1fr 1fr; padding-top: 14px; }
 .pd-stat.divided-end { border-inline-end: 1px solid var(--divider); }
 
 /* The figures stay in the primary ink, like every other number on the screen

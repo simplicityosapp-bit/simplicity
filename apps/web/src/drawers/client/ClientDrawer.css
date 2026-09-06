@@ -347,38 +347,75 @@ html[dir="rtl"] .cd-stat-l {
   font-weight: 500;
   color: var(--sage);
 }
-/* Group-session rows (read-only) — shown under the hero in the full
-   profile, one per group the client belongs to. */
-/* Third sibling of the «התאמה» pill, same story as .cd-billmode below: the
-   negative top margin dated from when this followed .cd-hero, and after the
-   pill moved in between it drew the first group row 4px into the button. */
-.cd-grp-sessions {
+/* ── Tracks ─────────────────────────────────────────────────────
+   What the hero's account is made of: one row per thing the client pays
+   for — each group they belong to, and their personal process. Replaces
+   the read-only group-session rows, which gave each group's meetings and
+   never its price. Sits under the «התאמה» pill and the margins are
+   measured from it; the rules these replace carried a negative top margin
+   from a layout where they followed .cd-hero directly, and went on pulling
+   after the pill moved in between, drawing the first row inside it. */
+.cd-tracks {
   display: flex;
   flex-direction: column;
   gap: 6px;
   margin: 10px 0 12px;
 }
-.cd-grp-row {
+.cd-tracks-title {
+  margin: 0 0 2px;
+  font-family: var(--mg-font);
+  font-size: calc(11px * var(--text-scale));
+  font-weight: 500;
+  color: var(--stone);
+}
+.cd-track {
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: 8px;
   padding: 9px 12px;
   border-radius: var(--mg-card-radius);
   border: var(--mg-card-border);
   background: color-mix(in srgb, var(--sage) 8%, var(--mg-card-bg));
 }
-.cd-grp-name {
+/* A closed group still owes what it owed, so its row stays — dimmed, so it
+   reads as history beside the tracks that are still running. */
+.cd-track.is-ended { opacity: 0.62; }
+.cd-track-dot {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+.cd-track-id {
+  flex: 1;
+  min-width: 0;
+}
+.cd-track-name {
+  margin: 0;
   font-family: var(--mg-font);
   font-size: calc(12px * var(--text-scale));
   font-weight: 500;
   color: var(--espresso);
 }
-.cd-grp-val {
+.cd-track-sub {
+  margin: 2px 0 0;
+  font-family: var(--mg-font);
+  font-size: calc(11px * var(--text-scale));
+  color: var(--stone);
+}
+.cd-track-amt {
+  flex: none;
   font-family: var(--mg-font-num);
   font-size: calc(13px * var(--text-scale));
   color: var(--espresso);
   font-variant-numeric: tabular-nums;
+}
+.cd-tracks-note {
+  margin: 2px 0 0;
+  font-family: var(--mg-font);
+  font-size: calc(10.5px * var(--text-scale));
+  line-height: 1.5;
+  color: var(--stone);
 }
 .cd-actions {
   display: flex;

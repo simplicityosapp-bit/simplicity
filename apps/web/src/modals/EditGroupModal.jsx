@@ -3,6 +3,7 @@ import { Trash2 } from 'lucide-react'
 import Modal from './Modal'
 import { useDiscardGuard, isDirty } from './useDiscardGuard'
 import DateField from '../components/DateField'
+import SelectMenu from '../components/SelectMenu'
 import { GROUP_BILLING_MODES } from '@simplicity/core'
 import { useT } from '../i18n/useT'
 import { CATEGORY_SWATCHES as COLORS, swatchKey } from '../lib/palette'
@@ -29,6 +30,11 @@ export default function EditGroupModal({ open, onClose, onSave, onDelete, group 
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }))
+  /* Same picker the add form and every client form use — see AddGroupModal. */
+  const dayOptions = [
+    { value: '', label: t('common.none') },
+    ...DAYS.map((d) => ({ value: String(d), label: t(`common.day${d}`) })),
+  ]
 
   /* Pristine = the group as it stands, so only the coach's own edits count as
      dirty. Declared before the early return — a hook cannot sit after a
@@ -137,10 +143,13 @@ export default function EditGroupModal({ open, onClose, onSave, onDelete, group 
       <Box className="m-row2">
         <Box className="m-field">
           <Box as="label" className="m-label">{t('editGroup.fixedDay')}</Box>
-          <select className="m-select" value={form.recurring_day} onChange={(e) => set('recurring_day', e.target.value)}>
-            <option value="">{t('common.none')}</option>
-            {DAYS.map((d) => <option key={d} value={d}>{t(`common.day${d}`)}</option>)}
-          </select>
+          <SelectMenu
+            value={String(form.recurring_day ?? '')}
+            onChange={(v) => set('recurring_day', v)}
+            options={dayOptions}
+            placeholder={t('common.none')}
+            ariaLabel={t('editGroup.fixedDay')}
+          />
         </Box>
         <Box className="m-field">
           <Box as="label" className="m-label">{t('editGroup.startTime')}</Box>

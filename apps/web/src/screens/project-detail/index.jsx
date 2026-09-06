@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import {
-  ChevronRight, ChevronDown, Plus, Pencil, Check, CalendarCheck, CalendarClock, Users, X, Trash2, Bell, GripVertical, Link2, ChevronLeft, Sprout, UserPlus,
+  ChevronRight, ChevronDown, Plus, Pencil, Check, CalendarCheck, CalendarClock, Users, X, Trash2, Bell, GripVertical, Link2, ChevronLeft, Sprout, UserPlus, PackagePlus,
 } from 'lucide-react'
 import { useProjects } from '../../hooks/useProjects'
 import { useSitePages } from '../../hooks/useSitePages'
@@ -17,10 +17,11 @@ import { useTransactions } from '../../hooks/useTransactions'
 import { useReminders } from '../../hooks/useReminders'
 import { useTasks } from '../../hooks/useTasks'
 import { useScheduledMeetings } from '../../hooks/useScheduledMeetings'
+import { useScheduledMeetingsGeneration } from '../../hooks/useScheduledMeetingsGeneration'
 import { usePointerDnd } from '../../hooks/usePointerDnd'
 import { useT } from '../../i18n/useT'
 import { Trans } from 'react-i18next'
-import { statusMetaOf, metaTitle, statusMetaOfLead, isPendingReview, financeQuery, currentMonthRange, isr, belongsToProject, scopeToProject, upcomingProjectMeetings } from '@simplicity/core'
+import { statusMetaOf, metaTitle, statusMetaOfLead, isPendingReview, financeQuery, currentMonthRange, isr, belongsToProject, scopeToProject, upcomingProjectMeetings, clientBalance, sessionsCountForClients, effectiveClientMeta } from '@simplicity/core'
 import { staleScheduledMeetingIds } from '../../lib/scheduledMeetings'
 import { buildRoute, ROUTES } from '../../lib/routes'
 import LoadingSplash from '../../components/LoadingSplash'
@@ -31,11 +32,13 @@ import { restoreClient } from '../../lib/api/clients'
 import { restoreGroupMember } from '../../lib/api/groupMembers'
 import { insertScheduledMeeting } from '../../lib/api/scheduledMeetings'
 import { pushUndo } from '../../lib/undo'
+import { newMembership, nextGroupTag, membershipQuota, membershipDues, packageUnitPrice } from '../../lib/groupMembership'
 import { loadOpenSections, saveOpenSections } from '../../lib/openSections'
 import AddGroupModal from '../../modals/AddGroupModal'
 import EditGroupModal from '../../modals/EditGroupModal'
 import EditProjectModal from '../../modals/EditProjectModal'
 import AddGroupMemberModal from '../../modals/AddGroupMemberModal'
+import AddMemberSessionsModal from '../../modals/AddMemberSessionsModal'
 import AddSessionModal from '../../modals/AddSessionModal'
 import AddClientModal from '../../modals/AddClientModal'
 import AddReminderModal from '../../modals/AddReminderModal'
@@ -95,12 +98,32 @@ export default function ProjectDetailScreen() {
      form in the app with no status to pick. */
   const { statuses: clientStatuses } = useClientStatuses()
   const { groups, loading: groupsLoading, addGroup, updateGroup, removeGroup, refetch: refetchGroups } = useGroups()
-  const { members, addMember, removeMember, refetch: refetchMembers } = useGroupMembers()
+  const { members, addMember, updateMember, removeMember, refetch: refetchMembers, loading: membersLoading } = useGroupMembers()
   const { sessions, addSession, updateSession, removeSession, refetch: refetchSessions } = useSessions()
   const { transactions } = useTransactions()
   const { reminders, loading: remindersLoading, addReminder, completeReminder, removeReminder, refetch: refetchReminders } = useReminders()
   const { tasks, loading: tasksLoading, addTask, toggleTask, removeTask } = useTasks()
-  const { meetings: scheduledMeetings, removeMeeting, refetch: refetchMeetings, loading: meetingsLoading } = useScheduledMeetings()
+  const { meetings: scheduledMeetings, addMeeting, removeMeeting, refetch: refetchMeetings, loading: meetingsLoading } = useScheduledMeetings()
+
+  /* Materialise the recurring client/group slots into real pending meetings
+     while this screen is open — the same engine the home screen and the
+     calendar mount, and it belongs here for the same reason.
+
+     "פגישות מתוכננות" READS scheduled_meetings and nothing wrote them from
+     here. So a coach who gave a group its "ראשון 10:00" in the section right
+     above, and stayed on the page, was told the project has no upcoming
+     meetings: the slot existed, the rows did not, and the only way to make
+     them was to go and open some other screen, or wait for the nightly cron.
+     The section that stated the fact was the one place that could not
+     produce it.
+
+     Idempotent and latched across mounts (see the hook), so co-existing with
+     the other two is safe: whichever runs first materialises the rows, the
+     rest find nothing due. */
+  useScheduledMeetingsGeneration({
+    clients, groups, members, meetings: scheduledMeetings, addMeeting,
+    loading: meetingsLoading || clientsLoading || groupsLoading || membersLoading,
+  })
 
   /* When a group's recurring slot changes or is cleared, drop the future
      pending meetings generated for the OLD slot so stale occurrences don't
@@ -153,6 +176,17 @@ export default function ProjectDetailScreen() {
   /* Pending group status change (when ≥1 client will flip) → confirm dialog. */
   const [pendingStatusChange, setPendingStatusChange] = useState(null)
   const [pendingAssign, setPendingAssign] = useState(null) /* { client, group } */
+  /* Member whose card is being renewed → { membership, group, client }. */
+  const [renewFor, setRenewFor] = useState(null)
+  /* Group waiting for the client the add-client form is about to create. */
+  const [newClientForGroup, setNewClientForGroup] = useState(null)
+  /* An empty groups section is a facilitator's anchor sitting on a
+     therapist's project, open on every visit to say there is nothing in it.
+     It starts closed there, and this local flag is the one tap that opens
+     it — deliberately NOT the shared sessionStorage map, which remembers a
+     choice about a section that has content. As soon as the project has a
+     group the stored preference takes over again and this goes unused. */
+  const [showEmptyGroups, setShowEmptyGroups] = useState(false)
 
   const project = projects.find((p) => p.id === id)
   const projectGroups = useMemo(() => groups.filter((g) => g.project_id === id), [groups, id])
@@ -192,6 +226,47 @@ export default function ProjectDetailScreen() {
 
   /* Ids of this project's clients — the fallback half of the scoping rule. */
   const projClientIds = useMemo(() => new Set(projectClients.map((c) => c.id)), [projectClients])
+
+  /* The order the clients section lists them in: whoever is still working
+     with you first, their group-mates together, then the names. Former
+     clients sink to the bottom rather than sitting between two current ones
+     — after a couple of cohorts they are most of the list, and the section
+     had no order at all beyond whatever the fetch returned. */
+  const orderedProjectClients = useMemo(() => {
+    const rank = (c) => (effectiveClientMeta(c, members, groups) === 'past' ? 1 : 0)
+    return [...projectClients].sort((a, b) => (
+      rank(a) - rank(b)
+      || (a.group_id || '').localeCompare(b.group_id || '')
+      || (a.name || '').localeCompare(b.name || '', 'he')
+    ))
+  }, [projectClients, members, groups])
+
+  /* Every member's balance, computed once per data change rather than per
+     row — the same map the clients screen keeps, for the same reason: the
+     alternative re-scans the whole transactions array for each member on
+     every render. Covers the project's clients AND anyone in one of its
+     groups, which after the membership fix is the same set, but legacy rows
+     can still hold a member who was never moved into the project. */
+  const balanceByClient = useMemo(() => {
+    const gids = new Set(projectGroups.map((g) => g.id))
+    const ids = new Set(projectClients.map((c) => c.id))
+    liveMembers.forEach((m) => { if (gids.has(m.group_id)) ids.add(m.client_id) })
+    const map = new Map()
+    clients.forEach((c) => {
+      if (ids.has(c.id)) map.set(c.id, clientBalance(c, transactions, sessions, members, groups))
+    })
+    return map
+  }, [clients, projectClients, projectGroups, liveMembers, transactions, sessions, members, groups])
+
+  /* Meetings held in this project THIS MONTH — the second figure on the
+     stats card. It replaces a group count of zero on every project a
+     therapist will ever open, and it is the number a 1-on-1 practice
+     actually watches. Counted the same way the clients screen counts it,
+     so the two agree. */
+  const sessionsThisMonth = useMemo(
+    () => sessionsCountForClients(projectClients, currentMonthRange(), sessions, members, groups),
+    [projectClients, sessions, members, groups],
+  )
 
   /* The same monthly/cumulative choice the projects LIST offers. The screen
      used to be locked to the current month, and the guide had to apologise for
@@ -255,6 +330,17 @@ export default function ProjectDetailScreen() {
   const MEETINGS_SHOWN = 6
   const meetingsOverflow = Math.max(0, upcomingMeetings.length - MEETINGS_SHOWN)
 
+  /* The soonest upcoming meeting per group — half of "where does this group
+     stand". `upcomingMeetings` is already sorted, so the first hit per group
+     is the next one. */
+  const nextByGroup = useMemo(() => {
+    const map = new Map()
+    upcomingMeetings.forEach((m) => {
+      if (m.subject_type === 'group' && !map.has(m.subject_id)) map.set(m.subject_id, m)
+    })
+    return map
+  }, [upcomingMeetings])
+
   const projectTasks = useMemo(
     () => tasks.filter((t) => !t.deleted_at && belongsToProject(t, id, projClientIds)),
     [tasks, id, projClientIds],
@@ -283,6 +369,18 @@ export default function ProjectDetailScreen() {
     saveOpenSections(OPEN_SEC_KEY, next)
     return next
   })
+  /* Whether the groups section stands open. With groups in it this is the
+     remembered choice, exactly as before. With none it is a local
+     disclosure that starts CLOSED: the section had nothing to show and said
+     so in a sentence, on every visit, to every therapist who will never run
+     a group. The header and its chevron stay, so opening it — and the
+     "+ קבוצה חדשה" inside — is one tap. */
+  const groupsOpen = projectGroups.length > 0 ? openSec.groups : showEmptyGroups
+  const toggleGroupsSection = () => {
+    if (projectGroups.length > 0) toggleSec('groups')
+    else setShowEmptyGroups((v) => !v)
+  }
+
   const toggleGroupSessions = (gid) => {
     setOpenGroupSessions((prev) => {
       const next = new Set(prev)
@@ -385,16 +483,7 @@ export default function ProjectDetailScreen() {
     }
     const alreadyMember = liveMembers.some((m) => m.client_id === client.id && m.group_id === group.id)
     if (!alreadyMember) {
-      await addMember({
-        group_id: group.id,
-        client_id: client.id,
-        joined_at: new Date().toISOString(),
-        left_at: null,
-        total_override: null,
-        has_custom_price: false,
-        package_sessions_override: null,
-        left_mid_process: false,
-      }).catch(() => {})
+      await addMember(newMembership(group.id, client.id)).catch(() => {})
     }
     /* Mirror the single-group tag (clients.group_id) to the latest group. */
     if (client.group_id !== group.id) await updateClient(client.id, { group_id: group.id }).catch(() => {})
@@ -503,15 +592,82 @@ export default function ProjectDetailScreen() {
 
   /* Remove a single member from a group (the chip X) with undo. Wired
      here, not in the hook, so internal member moves and the group-delete
-     cascade don't each pop their own toast. */
+     cascade don't each pop their own toast.
+     The client row's own tag (clients.group_id) goes with the row. It used
+     to stay behind: the chip vanished, the client's row in the list below
+     still said the group's name, and the card still counted them — "חבר
+     אחד", and no one in it. A client who is also in another group keeps
+     that group's name instead of falling to "פרטי". */
   const handleRemoveMember = (m) => {
     if (!m) return
+    const client = clientById.get(m.client_id)
+    const retag = !!client && client.group_id === m.group_id
+    const nextTag = retag ? nextGroupTag(m.client_id, m.id, liveMembers) : null
     removeMember(m.id)
+    if (retag) updateClient(client.id, { group_id: nextTag }).catch(() => {})
     pushUndo({
       label: t('detail.undo.memberRemoved'),
-      undo: async () => { try { await restoreGroupMember(m.id) } finally { refetchMembers() } },
-      redo: async () => { await removeMember(m.id).catch(() => {}) },
+      undo: async () => {
+        try { await restoreGroupMember(m.id) } finally { refetchMembers() }
+        if (retag) await updateClient(client.id, { group_id: m.group_id }).catch(() => {})
+      },
+      redo: async () => {
+        await removeMember(m.id).catch(() => {})
+        if (retag) await updateClient(client.id, { group_id: nextTag }).catch(() => {})
+      },
     })
+  }
+
+  /* Sell one member another card of meetings — the yoga model, where the
+     group runs on and students buy ten classes at a time. Both numbers move
+     together: the member's own quota and the dues that come with it, priced
+     off the group's package (owner decision 2026-09-03). The per-member
+     override in the client's edit form is where a different price goes.
+     Raising what someone owes gets the same one-step undo the client card's
+     equivalent has. */
+  const renewMemberCard = async ({ quota, total, count }) => {
+    const m = renewFor?.membership
+    if (!m) return
+    const prev = { package_sessions_override: m.package_sessions_override ?? null, total_override: m.total_override ?? null, has_custom_price: !!m.has_custom_price }
+    const next = { package_sessions_override: quota, total_override: total, has_custom_price: true }
+    await updateMember(m.id, next)
+    const name = clientById.get(m.client_id)?.name || t('detail.groups.removeMemberFallback')
+    pushUndo({
+      label: t('detail.groups.renewUndo', { name, count }),
+      undo: async () => { await updateMember(m.id, prev) },
+      redo: async () => { await updateMember(m.id, next) },
+    })
+  }
+
+  /* The add-client form, opened from inside "הוספת חבר". Creates the client
+     the ordinary way and then puts them in the group that sent us here —
+     the same three writes addMemberFromModal does, in the same order, for a
+     client who did not exist a moment ago. Plain "+ לקוח/ה לפרויקט" passes
+     no group and lands in the first branch. */
+  const addClientToGroup = async (payload) => {
+    const g = newClientForGroup
+    const row = await addClient(g ? { ...payload, group_id: g.id } : payload)
+    if (g && row?.id) await addMember(newMembership(g.id, row.id)).catch(() => {})
+    return row
+  }
+
+  /* "הוספת חבר" — the membership row, plus the two tags on the client row
+     that have to agree with it. The single-group tag: the project's client
+     list reads it, and it was left null on this path, so a member added
+     here showed as "פרטי" one section down. And the project: a group
+     belongs to one project, and the picker offers clients from outside it,
+     so a client who joins moves in — the same rule the edit form applies in
+     reverse when a project change drops the group. */
+  const addMemberFromModal = async (payload) => {
+    const row = await addMember(payload)
+    const client = clientById.get(payload.client_id)
+    if (client) {
+      const patch = {}
+      if (client.group_id !== payload.group_id) patch.group_id = payload.group_id
+      if (client.project_id !== id) patch.project_id = id
+      if (Object.keys(patch).length) await updateClient(client.id, patch).catch(() => {})
+    }
+    return row
   }
 
   /* ── render ─────────────────────────────────────────────── */
@@ -554,15 +710,26 @@ export default function ProjectDetailScreen() {
 
       {/* Who is in the project. The money moved to its own card below so the
           same figure never appears in two places. */}
-      <Box as="section" className="pd-stats pd-stats-2">
+      {/* The group count is here only when there ARE groups. A therapist
+          running 1-on-1 work opens every project onto a stat that reads
+          "0 קבוצות" and will for as long as they use the app — a permanent
+          answer to a question they never asked. What replaced it is the
+          figure a 1-on-1 practice does watch, and a facilitator gets both. */}
+      <Box as="section" className={`pd-stats ${projectGroups.length ? 'pd-stats-3' : 'pd-stats-2'}`}>
         <Box className="pd-stat divided-end">
           <Txt as="p" className="pd-stat-v mono">{projectClients.length}</Txt>
           <Txt as="p" className="pd-stat-l">{t('detail.stats.clients')}</Txt>
         </Box>
-        <Box className="pd-stat">
-          <Txt as="p" className="pd-stat-v mono">{projectGroups.length}</Txt>
-          <Txt as="p" className="pd-stat-l">{t('detail.stats.groups')}</Txt>
+        <Box className={`pd-stat${projectGroups.length ? ' divided-end' : ''}`}>
+          <Txt as="p" className="pd-stat-v mono">{sessionsThisMonth}</Txt>
+          <Txt as="p" className="pd-stat-l">{t('detail.stats.sessionsMonth')}</Txt>
         </Box>
+        {projectGroups.length > 0 && (
+          <Box className="pd-stat">
+            <Txt as="p" className="pd-stat-v mono">{projectGroups.length}</Txt>
+            <Txt as="p" className="pd-stat-l">{t('detail.stats.groups')}</Txt>
+          </Box>
+        )}
       </Box>
 
       {/* Income, expenses, and what is left — the question the screen could
@@ -615,13 +782,13 @@ export default function ProjectDetailScreen() {
 
       {/* ── Groups section ────────────────────────────────── */}
       <Box as="section" className="pd-section">
-        <Btn type="button" className="pd-sec-head" onClick={() => toggleSec('groups')} aria-expanded={openSec.groups} aria-controls={openSec.groups ? 'pd-sec-groups' : undefined}>
+        <Btn type="button" className="pd-sec-head" onClick={toggleGroupsSection} aria-expanded={groupsOpen} aria-controls={groupsOpen ? 'pd-sec-groups' : undefined}>
           <Txt as="p" className="pd-sec-title">
             {t('detail.groups.title')} {projectGroups.length > 0 && <Txt className="pd-sec-count">{projectGroups.length}</Txt>}
           </Txt>
-          <ChevronDown size={16} strokeWidth={1.6} className={`pd-sec-chev${openSec.groups ? ' open' : ''}`} aria-hidden="true" />
+          <ChevronDown size={16} strokeWidth={1.6} className={`pd-sec-chev${groupsOpen ? ' open' : ''}`} aria-hidden="true" />
         </Btn>
-        {openSec.groups && (
+        {groupsOpen && (
           <Box id="pd-sec-groups" className="pd-sec-body">
             {groupsLoading ? (
               <Txt as="p" className="pd-empty">{t('detail.sectionLoading')}</Txt>
@@ -645,6 +812,19 @@ export default function ProjectDetailScreen() {
                 const groupSessions = sessions
                   .filter((s) => s.group_id === g.id)
                   .sort((a, b) => new Date(b.date) - new Date(a.date))
+                /* Where the group stands. `held` counts the meetings logged
+                   against it; `quota` is the package's, and is absent for a
+                   group billed by the meeting or not at all — there is no
+                   target to count towards, so the line says the count alone
+                   rather than inventing a denominator. */
+                const held = groupSessions.length
+                const quota = billingMode === 'package' ? (g.package_sessions || 0) : 0
+                const nextMeeting = nextByGroup.get(g.id) || null
+                const owingCount = groupMembers
+                  .filter((m) => (balanceByClient.get(m.client_id)?.balance ?? 0) > 0).length
+                /* A card of meetings only means something where meetings come
+                   in cards: a priced package with a number of them. */
+                const canRenew = billingMode === 'package' && (g.package_sessions || 0) > 0
                 return (
                   <Box as="article"
                     key={g.id}
@@ -676,19 +856,81 @@ export default function ProjectDetailScreen() {
                       {priceLabel && <><Txt className="gc-dot">·</Txt><Txt>{priceLabel}</Txt></>}
                       {recurring && <><Txt className="gc-dot">·</Txt><Txt>{recurring}</Txt></>}
                     </Txt>
+                    {/* Where the group stands, and who still owes — the two
+                        questions a facilitator opens a group to ask, and the
+                        two the card could not answer. The meetings held were
+                        reachable only by unfolding the calendar button below,
+                        and "who owes" meant opening every member's file in
+                        turn. The line above stays what it was: who is in it
+                        and on what terms. */}
+                    <Box className="gc-progress">
+                      <Txt className="gc-progress-text">
+                        {quota
+                          ? t('detail.groups.progressOf', { held, quota })
+                          : t('detail.groups.progressPlain', { count: held })}
+                        {nextMeeting && (
+                          <>
+                            <Txt className="gc-dot"> · </Txt>
+                            {t('detail.groups.nextMeeting', {
+                              date: fmtShortDate(nextMeeting.scheduled_at),
+                              time: fmtTime(nextMeeting.scheduled_at),
+                            })}
+                          </>
+                        )}
+                      </Txt>
+                      {owingCount > 0 && (
+                        <Txt className="gc-owing">{t('detail.groups.owing', { count: owingCount })}</Txt>
+                      )}
+                    </Box>
                     <Box className="gc-members">
                       {groupMembers.length === 0 ? (
                         <Txt as="p" className="gc-empty">{t('detail.groups.noMembers')}</Txt>
                       ) : (
                         groupMembers.map((m) => {
                           const c = clientById.get(m.client_id)
+                          const name = c?.name || t('detail.groups.fallbackClient')
+                          const bal = balanceByClient.get(m.client_id)
+                          const owes = bal?.balance ?? 0
+                          /* Their balance is the whole client's. For a pure
+                             group member that IS the group's, exactly; for
+                             someone who also runs a private series it is
+                             both, and saying which is what a payment does
+                             not yet record. So the row says so rather than
+                             letting the number pass as the group's alone. */
+                          const mixed = (bal?.tracks?.length || 0) > 1
                           return (
-                            <Txt key={m.id} className="gc-chip">
-                              {c?.name || t('detail.groups.fallbackClient')}
-                              <Btn type="button" className="gc-chip-x" onClick={() => handleRemoveMember(m)} aria-label={t('detail.groups.removeMemberAria', { name: c?.name || t('detail.groups.removeMemberFallback') })}>
-                                <X size={11} strokeWidth={2} aria-hidden="true" />
+                            <Box key={m.id} className="gc-member">
+                              <Box className="gc-member-id">
+                                <Txt as="p" className="gc-member-name">{name}</Txt>
+                                {mixed && owes > 0 && (
+                                  <Txt as="p" className="gc-member-sub">{t('detail.groups.memberMixed')}</Txt>
+                                )}
+                              </Box>
+                              {owes > 0 && (
+                                <Txt className="gc-member-owes mono" aria-label={t('detail.groups.memberOwesAria', { name })}>
+                                  {isr(owes)}
+                                </Txt>
+                              )}
+                              {/* Another card of meetings, for a group that
+                                  sells them in blocks. Per member, because a
+                                  card is: one student renews, the rest do
+                                  not. Meaningless where the group charges by
+                                  the meeting or nothing at all. */}
+                              {canRenew && (
+                                <Btn
+                                  type="button"
+                                  className="gc-member-btn"
+                                  onClick={() => setRenewFor({ membership: m, group: g, name })}
+                                  aria-label={t('detail.groups.renewAria', { name })}
+                                  title={t('detail.groups.renewAria', { name })}
+                                >
+                                  <PackagePlus size={13} strokeWidth={1.8} aria-hidden="true" />
+                                </Btn>
+                              )}
+                              <Btn type="button" className="gc-member-x" onClick={() => handleRemoveMember(m)} aria-label={t('detail.groups.removeMemberAria', { name })}>
+                                <X size={13} strokeWidth={2} aria-hidden="true" />
                               </Btn>
-                            </Txt>
+                            </Box>
                           )
                         })
                       )}
@@ -775,20 +1017,28 @@ export default function ProjectDetailScreen() {
             ) : projectClients.length === 0 ? (
               <Txt as="p" className="pd-empty">{t('detail.clients.empty')}</Txt>
             ) : (
-              projectClients.map((c) => {
+              orderedProjectClients.map((c) => {
                 const g = c.group_id ? projectGroups.find((gg) => gg.id === c.group_id) : null
+                const past = effectiveClientMeta(c, members, groups) === 'past'
                 return (
                   <Box
                     key={c.id}
                     role="button"
                     tabIndex={0}
-                    className={`pd-client${clientDnd.dragId === c.id ? ' dragging' : ''}`}
+                    className={`pd-client${clientDnd.dragId === c.id ? ' dragging' : ''}${past ? ' is-past' : ''}`}
                     onClick={() => navigate(buildRoute(ROUTES.CLIENT, { id: c.id }))}
                     onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate(buildRoute(ROUTES.CLIENT, { id: c.id })) } }}
                     {...clientDnd.draggableProps(c.id)}
                   >
                     <GripVertical size={16} strokeWidth={1.5} className="pd-client-grip" aria-hidden="true" />
                     <Txt className="pd-client-name">{c.name}</Txt>
+                    {/* Who is no longer working with you. The list said nothing
+                        about it, so after two cohorts a project read as a
+                        roster of thirty current clients when six of them were
+                        current. The clients screen has always had a tab for
+                        this; here the whole project is one list, so the row
+                        carries it. */}
+                    {past && <Txt className="pd-client-tag past">{t('detail.clients.past')}</Txt>}
                     {g ? (
                       <Txt className="pd-client-tag group-member">{g.name}</Txt>
                     ) : (
@@ -1127,12 +1377,34 @@ export default function ProjectDetailScreen() {
         open={!!addMemberFor}
         onClose={() => setAddMemberFor(null)}
         group={addMemberFor}
+        project={project}
+        /* Someone who walked in today is not on the picker yet. Hand the
+            group to the add-client form and put them in it on save, instead
+            of making the coach add the client, come back, and find them. */
+        onCreateClient={() => { setNewClientForGroup(addMemberFor); setAddMemberFor(null); setShowAddClient(true) }}
         availableClients={
           addMemberFor
             ? clients.filter((c) => !liveMembers.some((m) => m.group_id === addMemberFor.id && m.client_id === c.id))
             : []
         }
-        onSave={addMember}
+        onSave={addMemberFromModal}
+      />
+      {/* Another card of meetings for one member. Keyed on the membership so
+          the sheet re-seeds per person (Modal keeps its children mounted).
+          The quota and the dues it starts from are the member's own when
+          they have been set individually, and the group's otherwise — the
+          same precedence clientBalance applies. */}
+      <AddMemberSessionsModal
+        key={`renew-${renewFor?.membership.id || 'none'}`}
+        open={!!renewFor}
+        onClose={() => setRenewFor(null)}
+        memberName={renewFor?.name || ''}
+        groupName={renewFor?.group.name || ''}
+        groupColor={renewFor?.group.color || ''}
+        unitPrice={renewFor ? packageUnitPrice(renewFor.group) : 0}
+        currentQuota={renewFor ? membershipQuota(renewFor.membership, renewFor.group) : 0}
+        currentTotal={renewFor ? membershipDues(renewFor.membership, renewFor.group) : 0}
+        onSave={renewMemberCard}
       />
       <AddSessionModal
         key={logSessionFor?.id}
@@ -1147,13 +1419,14 @@ export default function ProjectDetailScreen() {
           to spread the payload and overwrite project_id afterwards, so picking
           a different project in a visible field did nothing, silently. */}
       <AddClientModal
-        key={`add-client-${id}`}
+        key={`add-client-${id}-${newClientForGroup?.id || ''}`}
         open={showAddClient}
-        onClose={() => setShowAddClient(false)}
+        onClose={() => { setShowAddClient(false); setNewClientForGroup(null) }}
         projects={projects}
         statuses={clientStatuses}
         initialProject={id}
-        onSave={addClient}
+        groupName={newClientForGroup?.name || ''}
+        onSave={addClientToGroup}
       />
       <AddReminderModal
         open={showAddReminder}

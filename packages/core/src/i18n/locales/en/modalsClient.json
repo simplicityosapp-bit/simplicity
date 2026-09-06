@@ -43,7 +43,8 @@
   },
   "addClient": {
     "titleLabel": "New client",
-    "toastSaved": "Client saved"
+    "toastSaved": "Client saved",
+    "intoGroup": "The client will be added to \"{{group}}\"."
   },
   "editClient": {
     "title": "Edit client",
@@ -66,9 +67,10 @@
     "groupSessions": "Sessions · {{name}}",
     "groupSessionsVal": "Done {{held}} · Scheduled {{quota}}",
     "pricePerSession": "Price per session ₪",
-    "totalDueOptional": "Total due (optional)",
+    "totalDueOptional": "Personal track total (optional)",
     "totalDuePlaceholder": "Automatic: {{formula}}",
-    "totalDueHint": "If you enter an amount here it overrides the automatic calculation ({{formula}}) — handy for imported data.",
+    "totalDueHint": "If you enter an amount here it overrides the automatic calculation ({{formula}}) — handy for imported data. Group dues come from the group, not from here.",
+    "noPersonalTrack": "This client has no personal track — their billing comes from the group. The fields here open a personal process alongside it, so there is no need to repeat the group's numbers in them.",
     "billingCardLabel": "How much was paid, how much is left",
     "paid": "Paid",
     "balance": "Balance",
@@ -202,7 +204,22 @@
     "allMembers": "All your clients are already members of this group.",
     "joinDateOptional": "Join date (optional)",
     "addAction": "Add",
-    "clientRequired": "Please choose a client."
+    "clientRequired": "Please choose a client.",
+    "inProject": "In this project",
+    "elsewhere": "Outside the project",
+    "movesToProject": "The client will move to “{{project}}” — a group belongs to one project only.",
+    "newClient": "New client"
+  },
+  "memberSessions": {
+    "title": "New card",
+    "howMany": "How many meetings to add?",
+    "countRequired": "Please enter a number of meetings.",
+    "previewQuota": "Meeting allowance: {{from}} → {{to}}",
+    "previewMoney": "{{n}} × {{price}} = {{amount}} will be added to what {{name}} owes.",
+    "previewFree": "The group has no package price, so the balance will not change.",
+    "note": "The price comes from the group's package price. You can change it by hand on the client card, under \"Special price in the group\".",
+    "saveFailed": "Could not add. Please try again.",
+    "undo": "{{n}} meetings added for {{name}}"
   },
   "deleteGroup": {
     "title": "Delete group",

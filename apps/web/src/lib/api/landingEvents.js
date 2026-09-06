@@ -5,12 +5,24 @@
    (sessionStorage) links view → signup_start within one session and is
    NOT a persistent identifier — it clears when the tab closes. Each event
    type is sent at most once per tab-session. Failures are swallowed: this
-   never blocks navigation or shows the visitor an error. */
+   never blocks navigation or shows the visitor an error.
+
+   The id is ALSO mirrored to localStorage, because the funnel's last stage —
+   signup_complete — happens after the landing page is gone: on the signup
+   screen, or after a full-page round trip to Google and back. Only the id
+   travels; it still maps to no person and carries no user_id. */
 
 import { supabase } from '../supabase'
 
 const SID_KEY = 'lp_sid'
 const SENT_PREFIX = 'lp_sent_'
+/* Survives the landing → signup navigation, a refresh, and the OAuth round
+   trip — which sessionStorage alone does not (a new tab starts empty). */
+const PERSISTED_SID_KEY = 'simplicity_landing_sid'
+/* Holds the sid signup_complete was already sent for, so the event fires once
+   per landing session rather than once per browser: a fresh landing visit
+   mints a new sid and this stops matching. */
+const COMPLETE_SENT_KEY = 'simplicity_landing_signup_complete_sent'
 
 function sessionId() {
   try {
@@ -19,8 +31,20 @@ function sessionId() {
       id = (window.crypto?.randomUUID?.() || `${Date.now()}-${Math.random().toString(36).slice(2)}`)
       window.sessionStorage.setItem(SID_KEY, id)
     }
+    /* Mirrored on every call, not only at creation: localStorage may have been
+       cleared, or this tab may predate the key existing. */
+    try { window.localStorage.setItem(PERSISTED_SID_KEY, id) } catch { /* ignore */ }
     return id
   } catch { return null }
+}
+
+/* Post one event. Never throws, never returns a rejected promise. */
+function send(type, sid) {
+  try {
+    supabase.functions
+      .invoke('landing-events', { method: 'POST', body: { type, sid } })
+      .catch(() => { /* fire-and-forget */ })
+  } catch { /* ignore */ }
 }
 
 /* Send a landing funnel event ('view' | 'signup_start') at most once per
@@ -31,10 +55,28 @@ export function trackLandingEvent(type) {
     if (window.sessionStorage.getItem(flag)) return
     window.sessionStorage.setItem(flag, '1')
   } catch { /* sessionStorage unavailable — still try to send once */ }
-  const sid = sessionId()
+  send(type, sessionId())
+}
+
+/* The funnel's last stage: an account was actually created. Called from every
+   signup path (email/password on success, Google on the authenticated return)
+   and carries the sid the visitor arrived with, so the whole chain
+   view → signup_start → signup_complete shares one session id.
+
+   'direct' when nothing is stored — someone who reached /signup without ever
+   passing through the landing page. (session_id is nullable, so this is a
+   deliberate label, not a NOT NULL workaround.)
+
+   Sent at most once per landing session, and wrapped end to end: a failure
+   here must never block a signup that already succeeded. */
+export function trackSignupComplete() {
   try {
-    supabase.functions
-      .invoke('landing-events', { method: 'POST', body: { type, sid } })
-      .catch(() => { /* fire-and-forget */ })
-  } catch { /* ignore */ }
+    let sid = 'direct'
+    try { sid = window.localStorage.getItem(PERSISTED_SID_KEY) || 'direct' } catch { /* ignore */ }
+    try {
+      if (window.localStorage.getItem(COMPLETE_SENT_KEY) === sid) return
+      window.localStorage.setItem(COMPLETE_SENT_KEY, sid)
+    } catch { /* localStorage unavailable — still try to send once */ }
+    send('signup_complete', sid)
+  } catch { /* never let analytics break a completed signup */ }
 }

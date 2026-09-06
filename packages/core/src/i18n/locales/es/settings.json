@@ -132,7 +132,8 @@
     "dpa": "Tratamiento de datos",
     "guideIntro": "Un recorrido completo por cada pantalla: qué hace, consejos y preguntas habituales.",
     "guideTips": "Consejos",
-    "guideFaq": "Preguntas habituales"
+    "guideFaq": "Preguntas habituales",
+    "guideJump": "Ir a un capítulo"
   },
   "profile": {
     "fullName": "Nombre completo",
@@ -302,7 +303,25 @@
     "tabs": {
       "guide": "Guía",
       "faq": "Preguntas frecuentes"
-    }
+    },
+    "search": {
+      "placeholder": "Buscar en la ayuda…",
+      "aria": "Buscar en la guía y en las preguntas frecuentes",
+      "clear": "Borrar la búsqueda",
+      "results_one": "1 resultado",
+      "results_other": "{{count}} resultados",
+      "inGuide": "De la guía",
+      "inFaq": "De las preguntas frecuentes",
+      "openChapter": "Abrir el capítulo",
+      "none": "No encontramos nada para «{{query}}».",
+      "noneHint": "Prueba con otra palabra — «estado», «pago» o «calendario», por ejemplo — o revisa la lista de capítulos."
+    },
+    "contact": {
+      "title": "¿No encontraste lo que buscabas?",
+      "body": "Escríbenos: una duda, una petición o algo que no funciona. Lo leemos todo.",
+      "cta": "Habla con nosotros"
+    },
+    "openScreen": "Abrir la pantalla"
   },
   "search": {
     "placeholder": "Buscar en los ajustes…",

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useNavigate, useLocation } from 'react-router-dom'
 import {
@@ -59,16 +59,21 @@ function useHeaderAnchor(pathname, screenKey) {
 export default function HelpFab({ screenKey }) {
   const { t } = useT('components')
   const [open, setOpen] = useState(false)
+  /* Where focus goes when the sheet closes. Returning it to the button that
+     opened the sheet is the half of a dialog people notice only when it is
+     missing: without it, closing drops focus on <body> and the next Tab
+     starts again from the top of the page. */
+  const openerRef = useRef(null)
   const navigate = useNavigate()
   const location = useLocation()
   const skip = NO_HELP_SCREENS.has(screenKey)
   const help = skip ? null : (getHelpScreen(screenKey) || getHelpScreen('home'))
   const { status, node } = useHeaderAnchor(location.pathname, screenKey)
 
-  /* Close on Escape while open. */
+  /* Close on Escape while open, and hand focus back to the button. */
   useEffect(() => {
     if (!open) return undefined
-    const onKey = (e) => { if (e.key === 'Escape') setOpen(false) }
+    const onKey = (e) => { if (e.key === 'Escape') { setOpen(false); openerRef.current?.focus() } }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
   }, [open])
@@ -80,6 +85,7 @@ export default function HelpFab({ screenKey }) {
   const fab = (
     <Btn
       type="button"
+      ref={openerRef}
       className={`help-fab${status === 'found' ? ' in-header' : ''}`}
       onClick={() => setOpen(true)}
       aria-label={t('help.fabAria', { title: help.title })}
@@ -108,13 +114,16 @@ export default function HelpFab({ screenKey }) {
         key={screenKey || 'home'}
         open={open}
         help={help}
-        onClose={() => setOpen(false)}
-        /* Straight to the guide. This used to aim at a TAB inside a section
-           inside a group inside settings — and named only the section, so it
-           landed on a screen with everything collapsed and nothing to read. */
+        onClose={() => { setOpen(false); openerRef.current?.focus() }}
+        /* Straight to this screen's chapter, opened. It used to aim at a TAB
+           inside a section inside a group inside settings — and named only the
+           section, so it landed on a page with everything collapsed and
+           nothing to read. Moving the guide to its own screen fixed the depth
+           but kept the ending: seventeen shut rows, and the one you wanted
+           somewhere among them. */
         onOpenGuide={() => {
           setOpen(false)
-          navigate(ROUTES.HELP)
+          navigate(`${ROUTES.HELP}?screen=${encodeURIComponent(screenKey || 'home')}`)
         }}
       />
     </>
@@ -124,6 +133,47 @@ export default function HelpFab({ screenKey }) {
 function HelpSheet({ open, help, onClose, onOpenGuide }) {
   const { t } = useT('components')
   const [tab, setTab] = useState('features')
+  const sheetRef = useRef(null)
+
+  /* It says role="dialog" aria-modal="true", and until now it behaved like
+     neither: focus stayed on the ? button behind the scrim, and Tab walked
+     the page underneath — a screen reader was told the rest of the app was
+     inert while the keyboard proved otherwise. The tour bubble already does
+     this properly; this is the same move. */
+  useLayoutEffect(() => {
+    const el = sheetRef.current
+    if (!open || !el) return
+    /* The sheet is visibility:hidden while shut, and .focus() on a hidden
+       element is a no-op. The class flips in this same commit, so read a
+       layout property first to force the style recalculation through before
+       asking for focus — without it the sheet opened with focus still on the
+       button behind it, which is exactly the bug this effect exists to fix.
+       preventScroll: the sheet slides up over a screen the reader chose to be
+       looking at, and focusing must not jump it. */
+    void el.offsetHeight
+    el.focus({ preventScroll: true })
+  }, [open])
+
+  /* Reopening starts at the top of the guidance rather than wherever the
+     last read ended, which on a long sheet looked like it had opened in the
+     middle of a sentence. */
+  useLayoutEffect(() => {
+    if (!open) return
+    setTab('features') // eslint-disable-line react-hooks/set-state-in-effect
+    const body = sheetRef.current?.querySelector('.help-body')
+    if (body) body.scrollTop = 0
+  }, [open])
+
+  const onKeyDown = (e) => {
+    if (e.key !== 'Tab') return
+    const f = [...(sheetRef.current?.querySelectorAll('button, summary, a[href]') || [])]
+      .filter((el) => el.offsetParent !== null)
+    if (!f.length) return
+    const first = f[0]
+    const last = f[f.length - 1]
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus() }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus() }
+  }
 
   const counts = {
     features: help.features?.length || 0,
@@ -133,6 +183,9 @@ function HelpSheet({ open, help, onClose, onOpenGuide }) {
 
   return (
     <Box as="aside"
+      ref={sheetRef}
+      tabIndex={-1}
+      onKeyDown={onKeyDown}
       className={`help-sheet${open ? ' open' : ''}`}
       role="dialog"
       aria-modal="true"

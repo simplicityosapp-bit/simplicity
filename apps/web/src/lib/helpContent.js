@@ -1581,7 +1581,6 @@ export const ABOUT_CONTENT = {
       "body": "נבנתה בעברית, עם לשון פנייה שמתאימה לך (זכר/נקבה/נייטרלי), עבור קהילת המטפל׊׉, המאמנ׊׉ והיועצ׊׉ כאן."
     }
   ],
-  "version": "0.1.0",
   "built_with": "נבנתה בשיתוף פעולה עם Claude (Anthropic)."
 }
 
@@ -1594,6 +1593,32 @@ export function getHelpScreen(key) {
   const s = i18n.t('help:screens.' + key, { returnObjects: true })
   if (s && typeof s === 'object' && !Array.isArray(s) && s.title) return s
   return HELP_SCREENS[key] || null
+}
+
+/* Reading order for the /help guide. Deliberate, not the raw key order — but
+   the list is no longer the gate. It was, and three screens that have a written
+   chapter in four languages were simply absent from the manual: the page
+   builder, the booking pages and the community. Nothing failed, the guide
+   opened with "הסבר מלא לכל מסך באפליקציה", and the test that guards the guide
+   checks the CONTENT against the routes rather than what the screen renders, so
+   it stayed green. Anything documented and not listed here is appended rather
+   than dropped, and a test pins that. */
+const GUIDE_ORDER = [
+  'home', 'clients', 'leads', 'sitePages', 'finance', 'projects', 'tasks',
+  'calendar', 'bookingPages', 'goals', 'insights', 'moon', 'reports',
+  'connections', 'community', 'settings', 'trash',
+]
+
+/* Owner-only. Documented for whoever maintains the console, never in the
+   manual a coach reads. */
+export const GUIDE_EXCLUDED = new Set(['admin'])
+
+export function guideOrder() {
+  const documented = Object.keys(i18n.t('help:screens', { returnObjects: true }) || HELP_SCREENS)
+  const known = documented.filter((k) => !GUIDE_EXCLUDED.has(k))
+  const listed = GUIDE_ORDER.filter((k) => known.includes(k))
+  const rest = known.filter((k) => !GUIDE_ORDER.includes(k))
+  return [...listed, ...rest]
 }
 
 export function getGlobalFaq() {

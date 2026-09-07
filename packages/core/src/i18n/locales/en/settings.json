@@ -177,7 +177,7 @@
     "export": "Export data",
     "exportHint": "One place for every export: everything together in an Excel file (a sheet per type), or a single export of transactions / clients / projects to CSV.",
     "import": "Import from a file (CSV / Excel)",
-    "importHint": "Supports CSV, TSV and Excel — several files and sheets at once are fine. It auto-detects columns (name, phone, email, project, amount, date and more), lets you map them by hand, and review everything before anything is saved.",
+    "importHint": "Upload your clients or payments file — we read what is in it, and you approve everything before it is saved.",
     "importProcessing": "Processing the file…",
     "importUnsupported": "Couldn't read the file — that format isn't supported. You can import CSV or Excel (xlsx/xls); a Numbers or Google Sheets file can be exported to CSV.",
     "importFailed": "Couldn't read the file — make sure it's a valid CSV or Excel file and isn't currently open in another program.",
@@ -199,7 +199,14 @@
     "restartHint": "Reopens the setup wizard from the first step. Handy if you skipped partway through.",
     "exportClients": "Export clients (CSV)",
     "exportTransactions": "Export transactions (CSV)",
-    "importTooLarge": "“{{name}}” is too large (over {{mb}}MB) — it would freeze the browser before we could read it. Export a smaller range, or split it into several files."
+    "importTooLarge": "“{{name}}” is too large (over {{mb}}MB) — it would freeze the browser before we could read it. Export a smaller range, or split it into several files.",
+    "importFormats": "CSV, TSV or Excel (xlsx/xls). Several files at once, and files with several sheets, are fine.",
+    "importFormatsAria": "Which files can be imported",
+    "importSeeClients": "See the clients",
+    "importSeeMoney": "See it in Money",
+    "importDrop": "or just drag the file here",
+    "importTemplate": "Download an example file",
+    "importTemplateFile": "simplicity-example.csv"
   },
   "danger": {
     "resetTitle": "Reset account",

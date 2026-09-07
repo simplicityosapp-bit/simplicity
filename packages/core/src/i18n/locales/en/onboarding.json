@@ -33,7 +33,7 @@
     "loading": "Loading what you already have…",
     "tabAria": "{{label}}: {{included}} of {{total}} will be included",
     "includeAll": "Include all",
-    "clearAll": "Clear all",
+    "clearAll": "Clear selection",
     "txIssues": "{{count}} rows with an invalid amount or date won't be imported as transactions",
     "truncated": "Long sheets were cut to the first {{cap}} rows each (out of {{raw}} rows in the file)",
     "loadMore": "Show {{count}} more (of {{total}})",
@@ -71,7 +71,8 @@
     },
     "project": {
       "namePlaceholder": "Project name",
-      "missingName": "Name missing"
+      "missingName": "Name missing",
+      "nameLabel": "Project name"
     },
     "lead": {
       "namePlaceholder": "Lead name",
@@ -220,7 +221,11 @@
     "loadMore_one": "Show 1 more (of {{total}})",
     "loadMore_other": "Show {{count}} more (of {{total}})",
     "txIssues_one": "1 row with an invalid amount or date won't be imported as a transaction",
-    "txIssues_other": "{{count}} rows with an invalid amount or date won't be imported as transactions"
+    "txIssues_other": "{{count}} rows with an invalid amount or date won't be imported as transactions",
+    "missingProjects_one": "The file refers to a project that does not exist: {{names}}.",
+    "missingProjects_other": "The file refers to {{count}} projects that do not exist: {{names}}.",
+    "missingProjects": "The file refers to {{count}} projects that do not exist: {{names}}.",
+    "createMissingProjects": "Create them"
   },
   "modal": {
     "title": "Import from a file",
@@ -393,7 +398,11 @@
       "empty": "We didn't find anything to import in this table — pick another type, or leave it as “Don't import”."
     },
     "editManually": "Advanced editing",
-    "confirm": "Looks good, continue"
+    "confirm": "Looks good, continue",
+    "confirmToReview": "Looks right — review it",
+    "dropped_one": "1 column wasn't recognized and will be left out — use “Advanced editing” to place it.",
+    "dropped_other": "{{count}} columns weren't recognized and will be left out — use “Advanced editing” to place them.",
+    "dropped": "{{count}} columns weren't recognized and will be left out — use “Advanced editing” to place them."
   },
   "csvMap": {
     "title": "From your file — confirm the column mapping",

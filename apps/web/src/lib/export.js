@@ -83,7 +83,7 @@ function ymd(date) {
 
 /* Build a CSV string (BOM + quoted cells) from a header row + data rows,
    then trigger a download under `filename`. */
-function downloadCsv(headers, rows, filename) {
+export function downloadCsv(headers, rows, filename) {
   const csv = '﻿' + [headers, ...rows].map((r) => r.map(esc).join(',')).join('\n')
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
   const url = URL.createObjectURL(blob)

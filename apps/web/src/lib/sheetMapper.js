@@ -360,6 +360,32 @@ export function setSheetType(sheet, type) {
    exactly the "one sheet with everything" case the import now extracts). */
 const PAY_MARK_FIELDS = ['paid', 'income', 'amount', 'total_due', 'payment_method', 'payment_date']
 
+/* The columns worth putting in front of the user: a real header, and either a
+   field already chosen or actual data underneath. A headerless or wholly empty
+   column is noise — there is nothing to decide about it.
+
+   One definition, two callers: the mapping editor renders these (recognised
+   ones collapsed, unmapped ones highlighted), and the recognition step counts
+   the unmapped to say how many would be left out. They said the same thing in
+   two places before, which is one edit away from disagreeing. */
+export function sheetColumnsForMapping(sheet) {
+  if (!sheet || sheet.type === 'matrix' || sheet.type === 'ignore') return []
+  const rows = sheet.rows || []
+  const sampleAt = (colIdx) => {
+    for (const r of rows) { const v = String(r[colIdx] ?? '').trim(); if (v) return v }
+    return ''
+  }
+  return (sheet.headers || []).map((header, colIdx) => {
+    const field = (sheet.mapping || [])[colIdx] || ''
+    return { header, colIdx, field, sample: sampleAt(colIdx) }
+  }).filter((c) => c.header && (c.field || c.sample))
+}
+
+/* How many columns this sheet would silently leave out as it stands. */
+export function unmappedColumnCount(sheet) {
+  return sheetColumnsForMapping(sheet).filter((c) => !c.field).length
+}
+
 /* Summarise a sheet for the recognition wizard: how many records it yields,
    and whether it carries payment data / a payment-method column. Pure +
    deterministic, mirroring projectSheet's view of the sheet. Type correction

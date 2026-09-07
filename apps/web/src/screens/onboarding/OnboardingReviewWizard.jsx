@@ -169,6 +169,29 @@ export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, 
     return Array.from(names)
   }, [existingProjects, state.projects])
 
+  /* Projects the file talks about but nobody is going to create. A clients
+     sheet with a "פרויקט" column and no projects sheet beside it is the
+     ordinary case, and it used to paint "הפרויקט לא ייווצר" in red under
+     every single row — an accurate warning about something the screen gave
+     no way to act on, since with no project rows there wasn't even a tab to
+     go to. The names are right there in the file; offer to make them. */
+  const missingProjectNames = useMemo(() => {
+    const byKey = new Map()
+    const note = (name) => {
+      const clean = (name || '').trim()
+      if (!clean || willProjectNames.has(norm(clean))) return
+      if (!byKey.has(norm(clean))) byKey.set(norm(clean), clean)
+    }
+    state.clients.forEach((c, i) => { if (isIncluded('clients', i, c) && isValid('clients', c)) note(c.project_name) })
+    state.transactions.forEach((tx, i) => { if (isIncluded('transactions', i, tx) && isValid('transactions', tx)) note(tx.project_name) })
+    return Array.from(byKey.values())
+  }, [state.clients, state.transactions, overrides.clients, overrides.transactions, willProjectNames]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const createMissingProjects = () => {
+    setDirty(true)
+    setState((s) => ({ ...s, projects: [...s.projects, ...missingProjectNames.map((name) => ({ name }))] }))
+  }
+
   /* Client names for the sessions tab's client picker — existing clients
      plus the ones being created in this import. */
   const clientOptions = useMemo(() => {
@@ -468,6 +491,14 @@ export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, 
               {t('review.txIssues', { count: txIssues })}
             </Txt>
           )}
+          {missingProjectNames.length > 0 && (tab === 'clients' || tab === 'transactions') && (
+            <Txt className="obrw-offer">
+              {t('review.missingProjects', { count: missingProjectNames.length, names: missingProjectNames.join(', ') })}
+              <Btn type="button" className="obrw-bulk-btn" onClick={createMissingProjects}>
+                {t('review.createMissingProjects')}
+              </Btn>
+            </Txt>
+          )}
           {/* On EVERY tab. It used to be pinned to the clients tab, so a coach
               whose payments sheet was the one cut at the cap never saw that
               anything had been dropped — the missing rows just weren't there. */}
@@ -493,27 +524,48 @@ export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, 
             return (
               <Box className={`obrw-row${inc ? '' : ' off'}${invalid ? ' invalid' : ''}`} key={i}>
                 {renderToggle('clients', i, c, inc)}
+                {/* Every box says what it is. The placeholders vanish the
+                    moment a value lands — and every one of these rows arrives
+                    filled — so a bare "300" beside a bare "12" left the reader
+                    guessing which was the price. Worse on a phone, where they
+                    stack into a column of unlabelled numbers. The transactions
+                    tab already worked this way; the pattern is just shared. */}
                 <Box className="obrw-fields">
-                  <Input className="obrw-input obrw-grow" value={c.name || ''} placeholder={t('review.client.namePlaceholder')} aria-label={t('review.client.nameAria')} disabled={!inc}
-                    onChange={(e) => patchRow('clients', i, { name: e.target.value })} />
-                  <select className="obrw-input obrw-cl-proj" value={c.project_name || ''} title={t('review.client.projectTitle')} aria-label={t('review.client.projectTitle')} disabled={!inc}
-                    onChange={(e) => patchRow('clients', i, { project_name: e.target.value || null })}>
-                    <option value="">{t('review.client.noProject')}</option>
-                    {opts.map((n) => <option key={n} value={n}>{n}</option>)}
-                  </select>
+                  <Box as="label" className="obrw-field obrw-grow">
+                    <Txt className="obrw-lbl">{t('review.client.nameAria')}</Txt>
+                    <Input className="obrw-input" value={c.name || ''} placeholder={t('review.client.namePlaceholder')} disabled={!inc}
+                      onChange={(e) => patchRow('clients', i, { name: e.target.value })} />
+                  </Box>
+                  <Box as="label" className="obrw-field obrw-cl-proj">
+                    <Txt className="obrw-lbl">{t('review.client.projectTitle')}</Txt>
+                    <select className="obrw-input" value={c.project_name || ''} disabled={!inc}
+                      onChange={(e) => patchRow('clients', i, { project_name: e.target.value || null })}>
+                      <option value="">{t('review.client.noProject')}</option>
+                      {opts.map((n) => <option key={n} value={n}>{n}</option>)}
+                    </select>
+                  </Box>
                   {/* The list carries the app's spelling ("פעיל׌"); the row
                       carries the file's ("פעיל"). Show the option that means
                       the same thing, or the select falls back to its first
                       row and the status looks unset. */}
-                  <select className={`obrw-input obrw-cl-status${c.status_unsure ? ' unsure' : ''}`} value={statusOptionFor(c.status_name)} title={t('review.client.statusTitle')} aria-label={t('review.client.statusAria')} disabled={!inc}
-                    onChange={(e) => patchRow('clients', i, { status_name: e.target.value || null, status_unsure: false })}>
-                    <option value="">{t('review.client.statusDefault')}</option>
-                    {clientStatusOptions.map((s) => <option key={s} value={s}>{s}</option>)}
-                  </select>
-                  <Input className="obrw-input obrw-num" type="number" min="0" value={c.sessions ?? ''} placeholder={t('review.client.sessionsPlaceholder')} title={t('review.client.sessionsTitle')} aria-label={t('review.client.sessionsTitle')} disabled={!inc}
-                    onChange={(e) => patchRow('clients', i, { sessions: Number(e.target.value) || 0 })} />
-                  <Input className="obrw-input obrw-num" type="number" min="0" value={c.price_per_session ?? ''} placeholder={t('review.client.pricePlaceholder')} title={t('review.client.priceTitle')} aria-label={t('review.client.priceTitle')} disabled={!inc}
-                    onChange={(e) => patchRow('clients', i, { price_per_session: Number(e.target.value) || 0 })} />
+                  <Box as="label" className="obrw-field obrw-cl-status">
+                    <Txt className="obrw-lbl">{t('review.client.statusTitle')}</Txt>
+                    <select className={`obrw-input${c.status_unsure ? ' unsure' : ''}`} value={statusOptionFor(c.status_name)} disabled={!inc}
+                      onChange={(e) => patchRow('clients', i, { status_name: e.target.value || null, status_unsure: false })}>
+                      <option value="">{t('review.client.statusDefault')}</option>
+                      {clientStatusOptions.map((s) => <option key={s} value={s}>{s}</option>)}
+                    </select>
+                  </Box>
+                  <Box as="label" className="obrw-field obrw-num">
+                    <Txt className="obrw-lbl">{t('review.client.sessionsTitle')}</Txt>
+                    <Input className="obrw-input" type="number" min="0" value={c.sessions ?? ''} placeholder={t('review.client.sessionsPlaceholder')} disabled={!inc}
+                      onChange={(e) => patchRow('clients', i, { sessions: Number(e.target.value) || 0 })} />
+                  </Box>
+                  <Box as="label" className="obrw-field obrw-num">
+                    <Txt className="obrw-lbl">{t('review.client.priceTitle')}</Txt>
+                    <Input className="obrw-input" type="number" min="0" value={c.price_per_session ?? ''} placeholder={t('review.client.pricePlaceholder')} disabled={!inc}
+                      onChange={(e) => patchRow('clients', i, { price_per_session: Number(e.target.value) || 0 })} />
+                  </Box>
                   {invalid && <Txt className="obrw-invalid">{t('review.client.missingName')}</Txt>}
                   {c.status_unsure && inc && <Txt className="obrw-unsure">{t('review.client.statusUnsure')}</Txt>}
                   {projectOrphan && <Txt className="obrw-invalid">{t('review.client.projectOrphan')}</Txt>}
@@ -533,8 +585,11 @@ export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, 
               <Box className={`obrw-row${inc ? '' : ' off'}${invalid ? ' invalid' : ''}`} key={i}>
                 {renderToggle('projects', i, p, inc)}
                 <Box className="obrw-fields">
-                  <Input className="obrw-input obrw-grow" value={p.name || ''} placeholder={t('review.project.namePlaceholder')} disabled={!inc}
-                    onChange={(e) => patchRow('projects', i, { name: e.target.value })} />
+                  <Box as="label" className="obrw-field obrw-grow">
+                    <Txt className="obrw-lbl">{t('review.project.nameLabel')}</Txt>
+                    <Input className="obrw-input" value={p.name || ''} placeholder={t('review.project.namePlaceholder')} disabled={!inc}
+                      onChange={(e) => patchRow('projects', i, { name: e.target.value })} />
+                  </Box>
                   {invalid && <Txt className="obrw-invalid">{t('review.project.missingName')}</Txt>}
                 </Box>
                 {exists && <Txt className="obrw-badge">{t('review.badge.exists')}</Txt>}
@@ -551,10 +606,16 @@ export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, 
               <Box className={`obrw-row${inc ? '' : ' off'}${invalid ? ' invalid' : ''}`} key={i}>
                 {renderToggle('leads', i, l, inc)}
                 <Box className="obrw-fields">
-                  <Input className="obrw-input obrw-grow" value={l.name || ''} placeholder={t('review.lead.namePlaceholder')} aria-label={t('review.lead.nameAria')} disabled={!inc}
-                    onChange={(e) => patchRow('leads', i, { name: e.target.value })} />
-                  <Input className={`obrw-input obrw-cl-proj${l.status_unsure ? ' unsure' : ''}`} value={l.status_name || ''} placeholder={t('review.lead.statusPlaceholder')} title={t('review.lead.statusTitle')} aria-label={t('review.lead.statusAria')} disabled={!inc}
-                    onChange={(e) => patchRow('leads', i, { status_name: e.target.value || null, status_unsure: false })} />
+                  <Box as="label" className="obrw-field obrw-grow">
+                    <Txt className="obrw-lbl">{t('review.lead.nameAria')}</Txt>
+                    <Input className="obrw-input" value={l.name || ''} placeholder={t('review.lead.namePlaceholder')} disabled={!inc}
+                      onChange={(e) => patchRow('leads', i, { name: e.target.value })} />
+                  </Box>
+                  <Box as="label" className="obrw-field obrw-cl-proj">
+                    <Txt className="obrw-lbl">{t('review.lead.statusTitle')}</Txt>
+                    <Input className={`obrw-input${l.status_unsure ? ' unsure' : ''}`} value={l.status_name || ''} placeholder={t('review.lead.statusPlaceholder')} disabled={!inc}
+                      onChange={(e) => patchRow('leads', i, { status_name: e.target.value || null, status_unsure: false })} />
+                  </Box>
                   {invalid && <Txt className="obrw-invalid">{t('review.lead.missingName')}</Txt>}
                   {l.status_unsure && inc && <Txt className="obrw-unsure">{t('review.lead.statusUnsure')}</Txt>}
                 </Box>
@@ -575,21 +636,21 @@ export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, 
               <Box className={`obrw-row${inc ? '' : ' off'}${invalid ? ' invalid' : ''}`} key={i}>
                 {renderToggle('transactions', i, tx, inc)}
                 <Box className="obrw-fields">
-                  <Box as="label" className="obrw-tx-field obrw-tx-type">
-                    <Txt className="obrw-tx-lbl">{t('review.tx.type')}</Txt>
+                  <Box as="label" className="obrw-field obrw-tx-type">
+                    <Txt className="obrw-lbl">{t('review.tx.type')}</Txt>
                     <select className="obrw-input" value={tx.type || 'income'} disabled={!inc}
                       onChange={(e) => patchRow('transactions', i, { type: e.target.value })}>
                       <option value="income">{t('review.tx.income')}</option>
                       <option value="expense">{t('review.tx.expense')}</option>
                     </select>
                   </Box>
-                  <Box as="label" className="obrw-tx-field obrw-tx-amount">
-                    <Txt className="obrw-tx-lbl">{t('review.tx.amount')}</Txt>
+                  <Box as="label" className="obrw-field obrw-tx-amount">
+                    <Txt className="obrw-lbl">{t('review.tx.amount')}</Txt>
                     <Input className="obrw-input" type="number" value={tx.amount ?? ''} placeholder={t('review.tx.amountPlaceholder')} disabled={!inc}
                       onChange={(e) => patchRow('transactions', i, { amount: Number(e.target.value) || 0 })} />
                   </Box>
-                  <Box as="label" className="obrw-tx-field obrw-tx-date">
-                    <Txt className="obrw-tx-lbl">{tx.recurring ? t('review.tx.frequency') : t('review.tx.date')}</Txt>
+                  <Box as="label" className="obrw-field obrw-tx-date">
+                    <Txt className="obrw-lbl">{tx.recurring ? t('review.tx.frequency') : t('review.tx.date')}</Txt>
                     {tx.recurring ? (
                       <Txt className="obrw-recurring" title={t('review.tx.recurringTitle')}><Repeat size={12} strokeWidth={1.5} aria-hidden="true" /> {t('review.tx.recurringMonthly')}</Txt>
                     ) : (
@@ -597,16 +658,16 @@ export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, 
                         onChange={(e) => patchRow('transactions', i, { date: e.target.value })} />
                     )}
                   </Box>
-                  <Box as="label" className="obrw-tx-field obrw-tx-proj">
-                    <Txt className="obrw-tx-lbl">{t('review.tx.project')}</Txt>
+                  <Box as="label" className="obrw-field obrw-tx-proj">
+                    <Txt className="obrw-lbl">{t('review.tx.project')}</Txt>
                     <select className="obrw-input" value={tx.project_name || ''} disabled={!inc}
                       onChange={(e) => patchRow('transactions', i, { project_name: e.target.value || null })}>
                       <option value="">{t('review.tx.noProject')}</option>
                       {projectOptions.map((n) => <option key={n} value={n}>{n}</option>)}
                     </select>
                   </Box>
-                  <Box as="label" className="obrw-tx-field obrw-grow">
-                    <Txt className="obrw-tx-lbl">{t('review.tx.desc')}</Txt>
+                  <Box as="label" className="obrw-field obrw-grow">
+                    <Txt className="obrw-lbl">{t('review.tx.desc')}</Txt>
                     <Input className="obrw-input" value={tx.desc || ''} placeholder={t('review.tx.descPlaceholder')} disabled={!inc}
                       onChange={(e) => patchRow('transactions', i, { desc: e.target.value || null })} />
                   </Box>
@@ -635,21 +696,21 @@ export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, 
               <Box className={`obrw-row${inc ? '' : ' off'}${invalid ? ' invalid' : ''}`} key={i}>
                 {renderToggle('sessions', i, s, inc)}
                 <Box className="obrw-fields">
-                  <Box as="label" className="obrw-tx-field obrw-grow">
-                    <Txt className="obrw-tx-lbl">{t('review.session.client')}</Txt>
+                  <Box as="label" className="obrw-field obrw-grow">
+                    <Txt className="obrw-lbl">{t('review.session.client')}</Txt>
                     <select className="obrw-input" value={s.client_name || ''} disabled={!inc}
                       onChange={(e) => patchRow('sessions', i, { client_name: e.target.value || null })}>
                       <option value="">{t('review.session.pickClient')}</option>
                       {opts.map((n) => <option key={n} value={n}>{n}</option>)}
                     </select>
                   </Box>
-                  <Box as="label" className="obrw-tx-field obrw-tx-date">
-                    <Txt className="obrw-tx-lbl">{t('review.session.date')}</Txt>
+                  <Box as="label" className="obrw-field obrw-tx-date">
+                    <Txt className="obrw-lbl">{t('review.session.date')}</Txt>
                     <DateField className="obrw-input" value={s.date || ''} disabled={!inc}
                       onChange={(e) => patchRow('sessions', i, { date: e.target.value })} />
                   </Box>
-                  <Box as="label" className="obrw-tx-field obrw-grow">
-                    <Txt className="obrw-tx-lbl">{t('review.session.summary')}</Txt>
+                  <Box as="label" className="obrw-field obrw-grow">
+                    <Txt className="obrw-lbl">{t('review.session.summary')}</Txt>
                     <Input className="obrw-input" value={s.summary || ''} placeholder={t('review.session.summaryPlaceholder')} disabled={!inc}
                       onChange={(e) => patchRow('sessions', i, { summary: e.target.value || null })} />
                   </Box>

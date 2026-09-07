@@ -205,6 +205,17 @@
 }
 .obrw-bulk-btn:hover { text-decoration: underline; }
 .obrw-bulk-sep { color: var(--stone); font-size: calc(11px * var(--text-scale)); }
+/* An offer, not a warning — the app noticed something and can act on it, so
+   it reads in the ordinary text colour with the action inline. */
+.obrw-offer {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  flex: 1 1 100%;
+  font-size: calc(11.5px * var(--text-scale));
+  color: var(--stone);
+}
 .obrw-warn {
   display: inline-flex;
   align-items: center;
@@ -350,18 +361,18 @@
 
 /* Labeled transaction field — tiny caption above the input so the
    date/amount are unambiguous. */
-.obrw-tx-field {
+.obrw-field {
   display: flex;
   flex-direction: column;
   gap: 2px;
   min-width: 0;
 }
-.obrw-tx-field .obrw-input { width: 100%; }
+.obrw-field .obrw-input { width: 100%; }
 .obrw-tx-amount { flex: 0 0 auto; width: 90px; }
 .obrw-tx-date   { flex: 0 0 auto; width: 150px; }
 .obrw-tx-proj   { flex: 0 0 auto; width: 130px; }
-.obrw-tx-field.obrw-grow { flex: 1 1 120px; }
-.obrw-tx-lbl {
+.obrw-field.obrw-grow { flex: 1 1 120px; }
+.obrw-lbl {
   font-family: var(--mg-font);
   font-size: calc(9.5px * var(--text-scale));
   font-weight: 600;
@@ -483,8 +494,8 @@
   .obrw-fields { gap: 8px; }
   .obrw-input { min-width: 60px; min-height: 40px; }
   .obrw-toggle { width: 34px; height: 34px; }
-  .obrw-tx-lbl { font-size: calc(11px * var(--text-scale)); }
-  .obrw-grow, .obrw-tx-field.obrw-grow { flex: 1 1 100%; }
+  .obrw-lbl { font-size: calc(11px * var(--text-scale)); }
+  .obrw-grow, .obrw-field.obrw-grow { flex: 1 1 100%; }
   /* clients: pair the two number boxes on one line; selects full width */
   .obrw-num { width: calc(50% - 4px); }
   .obrw-cl-proj, .obrw-cl-status { flex: 1 1 100%; width: auto; }

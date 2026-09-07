@@ -26,25 +26,61 @@ function makeCrashScreen(err) {
   };
 }
 
-// Apply the saved light/dark palette BEFORE the app (and every screen's
-// StyleSheet.create) evaluates — RN freezes StyleSheet colors at module load, so
-// the palette must be set first. App is required AFTER applyThemeColors so its
-// module graph (screens → StyleSheet.create) runs only once the palette is set.
-async function boot() {
-  try {
-    const mode = await AsyncStorage.getItem(THEME_KEY);
-    applyThemeColors(mode === 'dark' ? 'dark' : 'light');
-  } catch {
-    try { applyThemeColors('light'); } catch { /* palette stays at defaults */ }
+// The saved palette must be applied BEFORE the app (and every screen's
+// StyleSheet.create) evaluates — RN freezes StyleSheet colors at module load.
+// Reading it means awaiting AsyncStorage, which is asynchronous.
+//
+// That await must NOT sit between module evaluation and registerRootComponent:
+// native calls runApplication('main') as soon as the bundle finishes evaluating,
+// and in a release build (embedded bundle, no Metro round-trip to absorb the
+// delay) native wins that race — crashing with `Invariant Violation: "main" has
+// not been registered` before the await resolves. Dev builds hide this; the
+// launcher's own timing lets registration land first.
+//
+// So Root registers SYNCHRONOUSLY below and does the async work in an effect,
+// with `require('./App')` still deferred until after the palette is set — which
+// keeps the frozen-StyleSheet invariant intact.
+function Root() {
+  // eslint-disable-next-line global-require
+  const React = require('react');
+  // eslint-disable-next-line global-require
+  const { View, ActivityIndicator } = require('react-native');
+  const [Screen, setScreen] = React.useState(null);
+
+  React.useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const mode = await AsyncStorage.getItem(THEME_KEY);
+        applyThemeColors(mode === 'dark' ? 'dark' : 'light');
+      } catch {
+        try { applyThemeColors('light'); } catch { /* palette stays at defaults */ }
+      }
+      if (cancelled) return;
+      let Next;
+      try {
+        // eslint-disable-next-line global-require
+        Next = require('./App').default;
+      } catch (e) {
+        Next = makeCrashScreen(e);
+      }
+      // Store the component itself, not a lazy initialiser result.
+      setScreen(() => Next);
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  // Deliberately inline styles from the app's own palette-free constants: this
+  // renders before the App graph is required, so it must not pull in any module
+  // that calls StyleSheet.create with `colors`.
+  if (!Screen) {
+    return React.createElement(
+      View,
+      { style: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: '#fbf7f2' } },
+      React.createElement(ActivityIndicator, { color: '#C97B5E' }),
+    );
   }
-  let App;
-  try {
-    // eslint-disable-next-line global-require
-    App = require('./App').default;
-  } catch (e) {
-    App = makeCrashScreen(e);
-  }
-  registerRootComponent(App);
+  return React.createElement(Screen);
 }
 
-boot();
+registerRootComponent(Root);

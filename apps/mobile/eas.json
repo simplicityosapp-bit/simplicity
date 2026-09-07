@@ -19,6 +19,9 @@
         "EXPO_PUBLIC_SUPABASE_URL": "https://rdurkakzyymxhocvhufw.supabase.co",
         "EXPO_PUBLIC_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJkdXJrYWt6eXlteGhvY3ZodWZ3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEwOTEzOTksImV4cCI6MjA5NjY2NzM5OX0.sLeMw0k8bkv5hVUcuC2Hko40EpGKM_FGxx4IwuBjQlk",
         "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "952433410395-c39g43b4roi41nkqadata7dshd28mku4.apps.googleusercontent.com"
+      },
+      "android": {
+        "buildType": "apk"
       }
     },
     "production": {

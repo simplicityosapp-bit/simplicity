@@ -205,6 +205,17 @@
 }
 .obrw-bulk-btn:hover { text-decoration: underline; }
 .obrw-bulk-sep { color: var(--stone); font-size: calc(11px * var(--text-scale)); }
+/* An offer, not a warning — the app noticed something and can act on it, so
+   it reads in the ordinary text colour with the action inline. */
+.obrw-offer {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  flex: 1 1 100%;
+  font-size: calc(11.5px * var(--text-scale));
+  color: var(--stone);
+}
 .obrw-warn {
   display: inline-flex;
   align-items: center;
@@ -350,18 +361,18 @@
 
 /* Labeled transaction field — tiny caption above the input so the
    date/amount are unambiguous. */
-.obrw-tx-field {
+.obrw-field {
   display: flex;
   flex-direction: column;
   gap: 2px;
   min-width: 0;
 }
-.obrw-tx-field .obrw-input { width: 100%; }
+.obrw-field .obrw-input { width: 100%; }
 .obrw-tx-amount { flex: 0 0 auto; width: 90px; }
 .obrw-tx-date   { flex: 0 0 auto; width: 150px; }
 .obrw-tx-proj   { flex: 0 0 auto; width: 130px; }
-.obrw-tx-field.obrw-grow { flex: 1 1 120px; }
-.obrw-tx-lbl {
+.obrw-field.obrw-grow { flex: 1 1 120px; }
+.obrw-lbl {
   font-family: var(--mg-font);
   font-size: calc(9.5px * var(--text-scale));
   font-weight: 600;
@@ -422,6 +433,10 @@
 [data-theme="dark"] .obrw-foot { border-color: rgba(240, 235, 224, 0.1); }
 .obrw-summary { margin: 0; font-size: calc(12.5px * var(--text-scale)); color: var(--stone); }
 .obrw-summary strong { color: var(--espresso); font-family: var(--mg-font-num); }
+/* The rows the ticked clients bring with them — payments, plans, meetings.
+   Its own line, one step quieter than the counts above it: a consequence of
+   the choice, not part of it. */
+.obrw-summary-derived { display: block; margin-top: 2px; font-size: calc(11.5px * var(--text-scale)); color: var(--stone); }
 .obrw-actions { display: flex; gap: 10px; }
 
 /* ── Result / error view ─────────────────────────────────────── */
@@ -479,8 +494,8 @@
   .obrw-fields { gap: 8px; }
   .obrw-input { min-width: 60px; min-height: 40px; }
   .obrw-toggle { width: 34px; height: 34px; }
-  .obrw-tx-lbl { font-size: calc(11px * var(--text-scale)); }
-  .obrw-grow, .obrw-tx-field.obrw-grow { flex: 1 1 100%; }
+  .obrw-lbl { font-size: calc(11px * var(--text-scale)); }
+  .obrw-grow, .obrw-field.obrw-grow { flex: 1 1 100%; }
   /* clients: pair the two number boxes on one line; selects full width */
   .obrw-num { width: calc(50% - 4px); }
   .obrw-cl-proj, .obrw-cl-status { flex: 1 1 100%; width: auto; }
@@ -494,3 +509,14 @@
   /* the count is redundant on mobile (the tab's aria-label still says it) */
   .obrw-tab-count { display: none; }
 }
+
+/* Empty body — no live sheet left. Centred, with room for the way back. */
+.obrw-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 32px 0;
+  text-align: center;
+}
+.obrw-empty .ob-btn { display: inline-flex; align-items: center; gap: 6px; }

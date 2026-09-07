@@ -33,9 +33,9 @@
     "loading": "Chargement de ce que vous avez déjà…",
     "tabAria": "{{label}} : {{included}} sur {{total}} seront inclus",
     "includeAll": "Tout inclure",
-    "clearAll": "Tout désélectionner",
+    "clearAll": "Tout décocher",
     "txIssues": "{{count}} lignes avec un montant ou une date invalide ne seront pas importées comme transactions",
-    "truncated": "Le fichier a été limité aux {{cap}} premières lignes (sur {{raw}})",
+    "truncated": "Les feuilles longues ont été coupées aux {{cap}} premières lignes chacune (sur {{raw}} lignes du fichier)",
     "loadMore": "Afficher {{count}} de plus (sur {{total}})",
     "tabs": {
       "clients": "Clients",
@@ -71,7 +71,8 @@
     },
     "project": {
       "namePlaceholder": "Nom du projet",
-      "missingName": "Nom manquant"
+      "missingName": "Nom manquant",
+      "nameLabel": "Nom du projet"
     },
     "lead": {
       "namePlaceholder": "Nom du prospect",
@@ -116,7 +117,26 @@
       "clients": "clients",
       "projects": "projets",
       "leads": "prospects",
-      "transactions": "transactions"
+      "transactions": "transactions",
+      "sessions": "séances",
+      "alsoLead": "Seront aussi créés :",
+      "alsoPayments_one": "1 paiement",
+      "alsoPayments_other": "{{count}} paiements",
+      "alsoPlans_one": "1 échéancier",
+      "alsoPlans_other": "{{count}} échéanciers",
+      "alsoSessions_one": "1 séance",
+      "alsoSessions_other": "{{count}} séances",
+      "alsoEstimated": "(ce que le fichier laisse sans date reçoit une date estimée)",
+      "clients_one": "client",
+      "clients_other": "clients",
+      "projects_one": "projet",
+      "projects_other": "projets",
+      "leads_one": "prospect",
+      "leads_other": "prospects",
+      "transactions_one": "transaction",
+      "transactions_other": "transactions",
+      "sessions_one": "séance",
+      "sessions_other": "séances"
     },
     "confirm": {
       "savingCreate": "Création…",
@@ -147,8 +167,22 @@
         "projects": "{{count}} projets",
         "leads": "{{count}} prospects",
         "transactions": "{{count}} transactions",
-        "recurring": "{{count}} dépenses récurrentes"
-      }
+        "recurring": "{{count}} dépenses récurrentes",
+        "clients_one": "1 client",
+        "clients_other": "{{count}} clients",
+        "projects_one": "1 projet",
+        "projects_other": "{{count}} projets",
+        "leads_one": "1 prospect",
+        "leads_other": "{{count}} prospects",
+        "transactions_one": "1 transaction",
+        "transactions_other": "{{count}} transactions",
+        "recurring_one": "1 dépense récurrente",
+        "recurring_other": "{{count}} dépenses récurrentes"
+      },
+      "failedLine_one": "1 ligne n'a pas été retenue. Voici pourquoi :",
+      "failedLine_other": "{{count}} lignes n'ont pas été retenues. Voici pourquoi :",
+      "moreErrors_one": "et 1 autre ligne similaire…",
+      "moreErrors_other": "et {{count}} autres lignes similaires…"
     },
     "error": {
       "who": {
@@ -183,7 +217,15 @@
         "transactions": "Création des transactions…",
         "leads": "Création des prospects…"
       }
-    }
+    },
+    "loadMore_one": "Afficher 1 de plus (sur {{total}})",
+    "loadMore_other": "Afficher {{count}} de plus (sur {{total}})",
+    "txIssues_one": "1 ligne avec un montant ou une date invalide ne sera pas importée comme transaction",
+    "txIssues_other": "{{count}} lignes avec un montant ou une date invalide ne seront pas importées comme transactions",
+    "missingProjects_one": "Le fichier renvoie à un projet qui n’existe pas : {{names}}.",
+    "missingProjects_other": "Le fichier renvoie à {{count}} projets qui n’existent pas : {{names}}.",
+    "missingProjects": "Le fichier renvoie à {{count}} projets qui n’existent pas : {{names}}.",
+    "createMissingProjects": "Les créer"
   },
   "modal": {
     "title": "Importer depuis un fichier",
@@ -197,7 +239,10 @@
     "notReady": "Choisissez ce que contient chaque feuille et associez les colonnes du nom / du montant.",
     "pickYear": "Choisissez une année pour chaque feuille mensuelle",
     "toReview": "Continuer vers la vérification",
-    "reopenRecognize": "Résumé de la reconnaissance"
+    "reopenRecognize": "Résumé de la reconnaissance",
+    "allRemoved": "Vous avez retiré toutes les feuilles de cet import — il ne reste rien à importer.",
+    "restoreSheets": "Rétablir les feuilles",
+    "nothingToImport": "Plus aucune feuille à importer."
   },
   "sheet": {
     "removeAria": "Retirer la feuille",
@@ -315,7 +360,13 @@
         "summary": "Résumé",
         "notes": "Notes"
       }
-    }
+    },
+    "unmapped_one": "Il y a 1 colonne que nous laisserons de côté à moins que vous ne lui choisissiez un champ — vous pouvez tout à fait l'ignorer.",
+    "unmapped_other": "Il y a {{count}} colonnes que nous laisserons de côté à moins que vous ne leur choisissiez un champ — vous pouvez tout à fait les ignorer.",
+    "recognizedShow_one": "Afficher la colonne reconnue automatiquement",
+    "recognizedShow_other": "Afficher les {{count}} colonnes reconnues automatiquement",
+    "recognizedHide_one": "Masquer la colonne reconnue automatiquement",
+    "recognizedHide_other": "Masquer les {{count}} colonnes reconnues automatiquement"
   },
   "recognize": {
     "title": "Qu'avons-nous trouvé dans votre fichier ?",
@@ -327,7 +378,15 @@
       "clients": "{{count}} clients",
       "payments": "{{count}} paiements",
       "leads": "{{count}} prospects",
-      "projects": "{{count}} projets"
+      "projects": "{{count}} projets",
+      "clients_one": "1 client",
+      "clients_other": "{{count}} clients",
+      "leads_one": "1 prospect",
+      "leads_other": "{{count}} prospects",
+      "payments_one": "1 paiement",
+      "payments_other": "{{count}} paiements",
+      "projects_one": "1 projet",
+      "projects_other": "{{count}} projets"
     },
     "detectedAs": "Détecté comme :",
     "typeAria": "Type de tableau pour {{name}}",
@@ -339,7 +398,11 @@
       "empty": "Nous n'avons rien trouvé à importer dans ce tableau — choisissez un autre type, ou laissez-le sur « Ne pas importer »."
     },
     "editManually": "Modification avancée",
-    "confirm": "Tout est bon, continuer"
+    "confirm": "Tout est bon, continuer",
+    "confirmToReview": "Ça correspond — passer à la vérification",
+    "dropped_one": "1 colonne n’a pas été reconnue et sera laissée de côté — utilisez « Édition avancée » pour l’affecter.",
+    "dropped_other": "{{count}} colonnes n’ont pas été reconnues et seront laissées de côté — utilisez « Édition avancée » pour les affecter.",
+    "dropped": "{{count}} colonnes n’ont pas été reconnues et seront laissées de côté — utilisez « Édition avancée » pour les affecter."
   },
   "csvMap": {
     "title": "Depuis votre fichier — confirmez la correspondance des colonnes",

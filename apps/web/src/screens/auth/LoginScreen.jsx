@@ -3,8 +3,9 @@ import { Link, useLocation } from 'react-router-dom'
 import { Mail, Lock, Eye, EyeOff } from 'lucide-react'
 import { supabase } from '../../lib/supabase'
 import { ROUTES } from '../../lib/routes'
-import { translateAuthError } from '../../auth/authErrors'
+import { translateAuthError, authErrorKey } from '../../auth/authErrors'
 import GoogleButton from '../../auth/GoogleButton'
+import ResendConfirmation from '../../auth/ResendConfirmation'
 import { useT } from '../../i18n/useT'
 import LanguageSwitcher from '../../i18n/LanguageSwitcher'
 import './AuthScreen.css'
@@ -20,11 +21,23 @@ export default function LoginScreen() {
      Seeded rather than assigned, so typing and re-submitting clears it. */
   const { state } = useLocation()
   const [error, setError] = useState(state?.authError || '')
+  /* The KIND of failure, kept alongside the sentence, because two of them have
+     an obvious next move and the sentence alone cannot be matched on. A wrong
+     password wants a way to reset one; an unconfirmed address wants the mail
+     sent again — and that one was a wall with no door in it, since nothing in
+     the app could send another. */
+  const [errorKind, setErrorKind] = useState('')
   const [busy, setBusy] = useState(false)
+
+  const fail = (msg) => {
+    setError(translateAuthError(msg))
+    setErrorKind(authErrorKey(msg))
+  }
 
   const submit = async (e) => {
     e.preventDefault()
     setError('')
+    setErrorKind('')
     if (!email || !password) {
       setError(t('fillEmailPassword'))
       return
@@ -32,10 +45,10 @@ export default function LoginScreen() {
     setBusy(true)
     try {
       const { error } = await supabase.auth.signInWithPassword({ email, password })
-      if (error) setError(translateAuthError(error.message))
+      if (error) fail(error.message)
       // On success the AuthProvider switches the app to the authenticated view.
     } catch (err) {
-      setError(translateAuthError(err?.message))
+      fail(err?.message)
     } finally {
       setBusy(false)
     }
@@ -59,14 +72,24 @@ export default function LoginScreen() {
               the page's h1, so it is the first thing read aloud too. */}
           <Txt as="h1" className="auth-title">{t('login')}</Txt>
           {/* role="alert": a wrong password is announced, not just drawn. */}
-          {error && <Txt as="p" className="auth-error" role="alert">{error}</Txt>}
+          {error && (
+            <Txt as="p" className="auth-error" role="alert">
+              {error}
+              {errorKind === 'invalidLogin' && (
+                <Link to={ROUTES.RESET_PASSWORD} className="auth-error-cta">{t('forgotPassword')}</Link>
+              )}
+            </Txt>
+          )}
+          {/* The mail never arrived, or was deleted, or went to spam. Offered
+              here rather than only after signing up, because this is where
+              someone who signed up days ago comes back and finds the door
+              shut. */}
+          {errorKind === 'emailNotConfirmed' && <ResendConfirmation email={email} />}
 
           <Box className="auth-group">
             {/* The name of the field, on the page, staying there. It used to
                 live in the placeholder — which is to say it left as soon as
-                anyone typed. A sibling of the field, not its parent: see
-                AuthScreen.css for why that distinction decides whether a
-                screen reader hears anything at all. */}
+                anyone typed. */}
             <Txt as="label" className="auth-label" htmlFor="login-email">{t('emailPlaceholder')}</Txt>
             <Box as="label" className="auth-field" htmlFor="login-email">
               <Txt className="auth-field-icon"><Mail size={16} strokeWidth={1.6} aria-hidden="true" /></Txt>

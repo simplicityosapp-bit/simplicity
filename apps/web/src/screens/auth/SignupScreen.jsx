@@ -7,6 +7,8 @@ import { ROUTES } from '../../lib/routes'
 import { translateAuthError } from '../../auth/authErrors'
 import { checkPasswordStrength } from '../../lib/passwordStrength'
 import GoogleButton from '../../auth/GoogleButton'
+import ResendConfirmation from '../../auth/ResendConfirmation'
+import LanguageSwitcher from '../../i18n/LanguageSwitcher'
 import { useT } from '../../i18n/useT'
 import { buildConsent, stashPendingConsent } from '../../lib/legal'
 import { trackSignupComplete } from '../../lib/api/landingEvents'
@@ -22,6 +24,7 @@ export default function SignupScreen() {
   const [agreeTerms, setAgreeTerms] = useState(false)
   const [agreeMarketing, setAgreeMarketing] = useState(false)
   const [error, setError] = useState('')
+  const [emailTaken, setEmailTaken] = useState(false)
   const [busy, setBusy] = useState(false)
   const [sent, setSent] = useState(false)
 
@@ -34,20 +37,28 @@ export default function SignupScreen() {
   const [consentTried, setConsentTried] = useState(false)
   const showConsentErr = consentTried && !canConsent
 
+  /* Same idea for the password: the rule is on the page from the start, and
+     when it is not met the SAME line says so — next to the field, not in the
+     error slot above the email box. It used to be told twice and both times
+     too late: the rule lived in the placeholder, which leaves the instant
+     anyone types, and the complaint only arrived on a submit that failed.
+     Raised on blur (a rule quoted at someone three characters in is nagging,
+     not helping) and by a submit attempt, and it clears itself the moment the
+     password is good enough. */
+  const [pwBlurred, setPwBlurred] = useState(false)
+  const pwIssue = checkPasswordStrength(password)
+  const showPwIssue = pwBlurred && password.length > 0 && !!pwIssue
+
   const submit = async (e) => {
     e.preventDefault()
     setError('')
+    setEmailTaken(false)
     if (!email || !password) {
       setError(t('fillEmailPassword'))
       return
     }
-    const pwIssue = checkPasswordStrength(password)
-    if (pwIssue === 'tooShort') {
-      setError(t('signupScreen.passwordMin8'))
-      return
-    }
-    if (pwIssue === 'tooCommon') {
-      setError(t('signupScreen.passwordTooCommon'))
+    if (pwIssue) {
+      setPwBlurred(true)
       return
     }
     if (!canConsent) {
@@ -75,6 +86,10 @@ export default function SignupScreen() {
          user couldn't already find by trying to log in. */
       if (data.user && Array.isArray(data.user.identities) && data.user.identities.length === 0) {
         setError(translateAuthError('already registered'))
+        /* "That address is already registered. You can log in." — true, and
+           until now the only way to act on it was to scroll past the whole
+           form to the line at the foot. The message carries the door now. */
+        setEmailTaken(true)
         return
       }
       /* A real new account exists from here on (the already-registered case
@@ -104,9 +119,18 @@ export default function SignupScreen() {
           </Box>
           <Box className="auth-form auth-msg-card">
             <Txt className="auth-msg-icon"><MailCheck size={34} strokeWidth={1.4} aria-hidden="true" /></Txt>
-            <Txt as="p" className="auth-title">{t('signupScreen.checkEmailTitle')}</Txt>
+            <Txt as="h1" className="auth-title">{t('signupScreen.checkEmailTitle')}</Txt>
             <Txt as="p" className="auth-sub">{t('signupScreen.sentBody', { email })}</Txt>
             <Link to={ROUTES.LOGIN} className="auth-btn auth-btn-primary">{t('backToLogin')}</Link>
+            {/* The two ways this screen used to be a dead end. Waiting for a
+                mail that never came left nothing to press; and a typo in the
+                address left nothing but the browser's Back button, which
+                throws the form away. Going back to the form keeps every field
+                as it was, so it is one correction and not a re-fill. */}
+            <ResendConfirmation email={email} />
+            <Btn type="button" className="auth-link-sm" onClick={() => setSent(false)}>
+              {t('signupScreen.wrongEmail')}
+            </Btn>
           </Box>
         </Box>
       </Box>
@@ -130,14 +154,17 @@ export default function SignupScreen() {
               a confirmation mail was coming arrived on the screen after it. */}
           <Txt as="h1" className="auth-title">{t('signupScreen.title')}</Txt>
           <Txt as="p" className="auth-sub">{t('signupScreen.subtitle')}</Txt>
-          {error && <Txt as="p" className="auth-error" role="alert">{error}</Txt>}
+          {error && (
+            <Txt as="p" className="auth-error" role="alert">
+              {error}
+              {emailTaken && <Link to={ROUTES.LOGIN} className="auth-error-cta">{t('login')}</Link>}
+            </Txt>
+          )}
 
           <Box className="auth-group">
             {/* The name of the field, on the page, staying there — it used to
                 live in the placeholder, which is to say it left the moment
-                anyone typed. A sibling of the field, not its parent: see
-                AuthScreen.css for why that decides whether a screen reader
-                hears anything at all. */}
+                anyone typed. */}
             <Txt as="label" className="auth-label" htmlFor="signup-email">{t('emailPlaceholder')}</Txt>
             <Box as="label" className="auth-field" htmlFor="signup-email">
               <Txt className="auth-field-icon"><Mail size={16} strokeWidth={1.6} aria-hidden="true" /></Txt>
@@ -163,9 +190,11 @@ export default function SignupScreen() {
                 autoComplete="new-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                /* With the label saying what the box is, the placeholder is
-                   free to go back to being the hint it was written as. */
-                placeholder={t('min8chars')}
+                /* No placeholder: the rule it used to carry is on the line
+                   below now, where it stays put. */
+                onBlur={() => setPwBlurred(true)}
+                aria-describedby="signup-pass-hint"
+                aria-invalid={showPwIssue || undefined}
               />
               <Btn
                 type="button"
@@ -178,6 +207,16 @@ export default function SignupScreen() {
                   : <Eye size={16} strokeWidth={1.6} aria-hidden="true" />}
               </Btn>
             </Box>
+            <Txt
+              as="p"
+              id="signup-pass-hint"
+              className={showPwIssue ? 'auth-hint auth-hint-bad' : 'auth-hint'}
+              aria-live="polite"
+            >
+              {showPwIssue
+                ? t(pwIssue === 'tooCommon' ? 'signupScreen.passwordTooCommon' : 'signupScreen.passwordMin8')
+                : t('min8chars')}
+            </Txt>
           </Box>
 
           <Box className="auth-checks">
@@ -241,6 +280,12 @@ export default function SignupScreen() {
         </Box>
 
         <Txt as="p" className="auth-foot">{t('signupScreen.haveAccount')} <Link to={ROUTES.LOGIN} className="auth-foot-cta">{t('login')}</Link></Txt>
+
+        {/* The login screen has had one of these all along. Someone who lands
+            straight on /signup — from the landing page's own button, or a
+            shared link — had no way to change the language of the screen they
+            were being asked to hand over an address on. */}
+        <LanguageSwitcher className="auth-langs" />
       </Box>
     </Box>
   )

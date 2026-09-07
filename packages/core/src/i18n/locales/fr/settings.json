@@ -177,7 +177,7 @@
     "export": "Exporter les données",
     "exportHint": "Un seul endroit pour toutes les exportations : tout ensemble dans un fichier Excel (une feuille par type), ou une exportation individuelle des transactions / clients / projets au format CSV.",
     "import": "Importer depuis un fichier (CSV / Excel)",
-    "importHint": "Prend en charge CSV, TSV et Excel — plusieurs fichiers et feuilles à la fois, c'est possible. Détecte automatiquement les colonnes (nom, téléphone, e-mail, projet, montant, date et plus), vous laisse les associer à la main et tout vérifier avant que rien ne soit enregistré.",
+    "importHint": "Importez votre fichier de clients ou de paiements — nous lisons ce qu’il contient, et vous validez tout avant l’enregistrement.",
     "importProcessing": "Traitement du fichier…",
     "importUnsupported": "Impossible de lire le fichier — ce format n'est pas pris en charge. Vous pouvez importer du CSV ou de l'Excel (xlsx/xls) ; un fichier Numbers ou Google Sheets peut être exporté au format CSV.",
     "importFailed": "Impossible de lire le fichier — assurez-vous qu'il s'agit d'un CSV ou d'un Excel valide et qu'il n'est pas ouvert dans un autre programme.",
@@ -198,7 +198,15 @@
     "restartOnboarding": "Recommencer l'introduction",
     "restartHint": "Rouvre l'assistant de configuration depuis la première étape. Pratique si vous l'avez sauté en cours de route.",
     "exportClients": "Exporter les clients (CSV)",
-    "exportTransactions": "Exporter les mouvements (CSV)"
+    "exportTransactions": "Exporter les mouvements (CSV)",
+    "importTooLarge": "« {{name}} » est trop volumineux (plus de {{mb}} Mo) — il bloquerait le navigateur avant même la lecture. Exportez une plage plus petite, ou divisez-le en plusieurs fichiers.",
+    "importFormats": "CSV, TSV ou Excel (xlsx/xls). Plusieurs fichiers à la fois, et des fichiers à plusieurs feuilles, sont acceptés.",
+    "importFormatsAria": "Quels fichiers peuvent être importés",
+    "importSeeClients": "Voir les clients",
+    "importSeeMoney": "Voir dans Argent",
+    "importDrop": "ou faites simplement glisser le fichier ici",
+    "importTemplate": "Télécharger un fichier exemple",
+    "importTemplateFile": "simplicity-exemple.csv"
   },
   "danger": {
     "resetTitle": "Réinitialiser le compte",

@@ -177,7 +177,7 @@
     "export": "Exportar datos",
     "exportHint": "Un único lugar para todas las exportaciones: todo junto en un archivo Excel (una hoja por tipo), o una exportación individual de transacciones / clientes / proyectos a CSV.",
     "import": "Importar desde un archivo (CSV / Excel)",
-    "importHint": "Admite CSV, TSV y Excel — varios archivos y hojas a la vez no son problema. Detecta automáticamente las columnas (nombre, teléfono, correo, proyecto, importe, fecha y más), te deja asignarlas a mano y revisarlo todo antes de guardar nada.",
+    "importHint": "Sube tu archivo de clientes o pagos — reconocemos lo que hay dentro y tú lo apruebas todo antes de guardarse.",
     "importProcessing": "Procesando el archivo…",
     "importUnsupported": "No se pudo leer el archivo — ese formato no es compatible. Puedes importar CSV o Excel (xlsx/xls); un archivo de Numbers o Google Sheets se puede exportar a CSV.",
     "importFailed": "No se pudo leer el archivo — asegúrate de que sea un CSV o Excel válido y de que no esté abierto en otro programa.",
@@ -198,7 +198,15 @@
     "restartOnboarding": "Reiniciar la introducción",
     "restartHint": "Vuelve a abrir el asistente de configuración desde el primer paso. Útil si lo saltaste a la mitad.",
     "exportClients": "Exportar clientes (CSV)",
-    "exportTransactions": "Exportar movimientos (CSV)"
+    "exportTransactions": "Exportar movimientos (CSV)",
+    "importTooLarge": "«{{name}}» es demasiado grande (más de {{mb}}MB) — bloquearía el navegador antes de poder leerlo. Exporta un rango menor o divídelo en varios archivos.",
+    "importFormats": "CSV, TSV o Excel (xlsx/xls). Puedes subir varios archivos a la vez, y archivos con varias hojas.",
+    "importFormatsAria": "Qué archivos se pueden importar",
+    "importSeeClients": "Ver los clientes",
+    "importSeeMoney": "Verlo en Dinero",
+    "importDrop": "o simplemente arrastra el archivo aquí",
+    "importTemplate": "Descargar un archivo de ejemplo",
+    "importTemplateFile": "simplicity-ejemplo.csv"
   },
   "danger": {
     "resetTitle": "Restablecer la cuenta",

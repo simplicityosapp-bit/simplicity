@@ -1,10 +1,13 @@
-import { useState, useRef } from 'react'
-import { X, AlertTriangle, Sparkles } from 'lucide-react'
+import { useState, useRef, useEffect } from 'react'
+import { createPortal } from 'react-dom'
+import { X, AlertTriangle, Sparkles, RotateCcw } from 'lucide-react'
 import UnifiedSheetImporter from './UnifiedSheetImporter'
 import RecognitionWizard from './RecognitionWizard'
 import OnboardingReviewWizard from './OnboardingReviewWizard'
 import { finalizeOnboardingImport } from '../../lib/onboardingImport'
 import { buildReviewFromSheets } from '../../lib/importFlow'
+import { sheetRecognitionInfo, unmappedColumnCount } from '../../lib/sheetMapper'
+import { acquireModalLock } from '../../lib/modalLock'
 import { useT } from '../../i18n/useT'
 import './OnboardingScreen.css'        /* ob-* primitives (btn / map / input) */
 import './OnboardingReviewWizard.css'
@@ -24,6 +27,9 @@ import { Box, Txt, Btn } from '../../components/ui'  /* obrw-* modal shell */
    keeping: a plain-language summary in front of the column-by-column
    mapping, so a user who only needs to confirm never has to read the
    detailed editor at all.
+
+   All three phases go out through ONE portal to <body> (see below), so
+   this is also the single place that holds the scroll lock.
    ════════════════════════════════════════════════════════════════ */
 
 export default function ImportDataModal({ parsed: initialParsed, onClose, onImported }) {
@@ -42,6 +48,22 @@ export default function ImportDataModal({ parsed: initialParsed, onClose, onImpo
   const truncated = liveSheets.some((s) => s.truncated)
 
   const onSheetsChange = (nextSheets) => setParsed((p) => ({ ...p, sheets: nextSheets }))
+  const removedAny = (parsed?.sheets || []).some((s) => s.removed)
+  const restoreSheets = () => onSheetsChange((parsed?.sheets || []).map((s) => ({ ...s, removed: false })))
+
+  const goToReview = () => { setReview(reviewObj); setPhase('review') }
+
+  /* Is there anything in this file the user actually has to settle before we
+     can show them the result? A sheet that would produce nothing, a months
+     matrix with no year, or nothing reviewable at all. If not, "נראה טוב"
+     means what it says and goes to the review.
+
+     It used to land on the column-mapping editor — the same screen as
+     "עריכה מתקדמת", the one the recognition step exists to spare people.
+     Answering "yes, that's my file" and being handed a table of dropdowns
+     reads as the app not having listened. */
+  const needsAttention = !reviewObj || yearMissing
+    || liveSheets.some((s) => sheetRecognitionInfo(s).empty)
 
   /* onProgress comes from the wizard, which owns the bar — the importer
      writes one row at a time and reports each one, so a long file shows
@@ -56,8 +78,20 @@ export default function ImportDataModal({ parsed: initialParsed, onClose, onImpo
     onClose()
   }
 
+  /* Freeze the screen behind us — the same lock every other modal takes, so
+     touch scrolling can't bleed through to the settings page underneath. */
+  useEffect(() => acquireModalLock(), [])
+
+  /* Every phase paints through ONE portal to <body>. These dialogs used to
+     render in place, inside `.screen` — which sets `isolation: isolate`
+     (index.css), so their z-index:720 was sealed inside the screen's own
+     layer and `.mg-bottombar` (a sibling of .screen, z-index 200) painted
+     straight over them. On a phone that left "אישור ויצירה" half-buried
+     under the nav bar. Out at <body> the 720 means what it says. */
+  const layer = (node) => createPortal(node, document.body)
+
   if (phase === 'review') {
-    return (
+    return layer(
       <OnboardingReviewWizard
         parsed={review}
         onConfirm={handleConfirm}
@@ -68,18 +102,21 @@ export default function ImportDataModal({ parsed: initialParsed, onClose, onImpo
   }
 
   if (showRecognition && liveSheets.length > 0) {
-    return (
+    return layer(
       <RecognitionWizard
         sheets={parsed.sheets}
         onChange={onSheetsChange}
-        onConfirm={() => setShowRecognition(false)}
+        onConfirm={() => (needsAttention ? setShowRecognition(false) : goToReview())}
         onEditManually={() => setShowRecognition(false)}
+        onClose={onClose}
+        needsAttention={needsAttention}
+        unmappedCount={liveSheets.reduce((n, s) => n + unmappedColumnCount(s), 0)}
       />
     )
   }
 
   /* ── Mapping phase ── */
-  return (
+  return layer(
     <Box className="obrw-back" role="dialog" aria-modal="true" aria-label={t('modal.dialogAria')}>
       <Box className="obrw-panel">
         <Box as="header" className="obrw-head">
@@ -106,9 +143,21 @@ export default function ImportDataModal({ parsed: initialParsed, onClose, onImpo
               <UnifiedSheetImporter sheets={parsed.sheets} onChange={onSheetsChange} />
             </>
           ) : (
-            <Txt as="p" className="obrw-loading-txt" style={{ textAlign: 'center', padding: '32px 0' }}>
-              {t('modal.noData')}
-            </Txt>
+            /* Two very different situations wore the same sentence. "We found
+               nothing in your file" is right for an empty file — and wrong,
+               and quietly accusing, right after someone taps the little × on
+               a sheet card and empties the import themselves. Removal only
+               sets `removed`, so the way back is still sitting in the array. */
+            <Box className="obrw-empty">
+              <Txt as="p" className="obrw-loading-txt">
+                {removedAny ? t('modal.allRemoved') : t('modal.noData')}
+              </Txt>
+              {removedAny && (
+                <Btn type="button" className="ob-btn ghost" onClick={restoreSheets}>
+                  <RotateCcw size={14} strokeWidth={1.8} aria-hidden="true" /> {t('modal.restoreSheets')}
+                </Btn>
+              )}
+            </Box>
           )}
           {truncated && (
             <Txt as="p" className="obrw-warn" style={{ marginTop: 10 }}>
@@ -119,13 +168,15 @@ export default function ImportDataModal({ parsed: initialParsed, onClose, onImpo
         </Box>
 
         <Box as="footer" className="obrw-foot">
+          {/* With no live sheet there is nothing to type or map, so asking for
+              it read as an instruction the screen gave no way to follow. */}
           <Txt as="p" className="obrw-summary">
-            {reviewObj ? t('modal.ready') : t('modal.notReady')}
+            {reviewObj ? t('modal.ready') : liveSheets.length === 0 ? t('modal.nothingToImport') : t('modal.notReady')}
           </Txt>
           <Box className="obrw-actions">
             <Btn type="button" className="ob-btn ghost" onClick={onClose}>{t('common.cancel')}</Btn>
             <Btn type="button" className="ob-btn primary" disabled={!reviewObj || yearMissing}
-              onClick={() => { setReview(reviewObj); setPhase('review') }}>
+              onClick={goToReview}>
               {yearMissing ? t('modal.pickYear') : t('modal.toReview')}
             </Btn>
           </Box>

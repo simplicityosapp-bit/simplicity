@@ -33,9 +33,9 @@
     "loading": "Loading what you already have…",
     "tabAria": "{{label}}: {{included}} of {{total}} will be included",
     "includeAll": "Include all",
-    "clearAll": "Clear all",
+    "clearAll": "Clear selection",
     "txIssues": "{{count}} rows with an invalid amount or date won't be imported as transactions",
-    "truncated": "The file was cut to the first {{cap}} rows (out of {{raw}})",
+    "truncated": "Long sheets were cut to the first {{cap}} rows each (out of {{raw}} rows in the file)",
     "loadMore": "Show {{count}} more (of {{total}})",
     "tabs": {
       "clients": "Clients",
@@ -71,7 +71,8 @@
     },
     "project": {
       "namePlaceholder": "Project name",
-      "missingName": "Name missing"
+      "missingName": "Name missing",
+      "nameLabel": "Project name"
     },
     "lead": {
       "namePlaceholder": "Lead name",
@@ -116,7 +117,26 @@
       "clients": "clients",
       "projects": "projects",
       "leads": "leads",
-      "transactions": "transactions"
+      "transactions": "transactions",
+      "sessions": "meetings",
+      "alsoLead": "These will also create:",
+      "alsoPayments_one": "1 payment",
+      "alsoPayments_other": "{{count}} payments",
+      "alsoPlans_one": "1 payment plan",
+      "alsoPlans_other": "{{count}} payment plans",
+      "alsoSessions_one": "1 meeting",
+      "alsoSessions_other": "{{count}} meetings",
+      "alsoEstimated": "(anything the file left undated gets an estimated date)",
+      "clients_one": "client",
+      "clients_other": "clients",
+      "projects_one": "project",
+      "projects_other": "projects",
+      "leads_one": "lead",
+      "leads_other": "leads",
+      "transactions_one": "transaction",
+      "transactions_other": "transactions",
+      "sessions_one": "meeting",
+      "sessions_other": "meetings"
     },
     "confirm": {
       "savingCreate": "Creating…",
@@ -147,8 +167,22 @@
         "projects": "{{count}} projects",
         "leads": "{{count}} leads",
         "transactions": "{{count}} transactions",
-        "recurring": "{{count}} recurring expenses"
-      }
+        "recurring": "{{count}} recurring expenses",
+        "clients_one": "1 client",
+        "clients_other": "{{count}} clients",
+        "projects_one": "1 project",
+        "projects_other": "{{count}} projects",
+        "leads_one": "1 lead",
+        "leads_other": "{{count}} leads",
+        "transactions_one": "1 transaction",
+        "transactions_other": "{{count}} transactions",
+        "recurring_one": "1 recurring expense",
+        "recurring_other": "{{count}} recurring expenses"
+      },
+      "failedLine_one": "1 row didn't make it. Here's why:",
+      "failedLine_other": "{{count}} rows didn't make it. Here's why:",
+      "moreErrors_one": "and 1 more similar row…",
+      "moreErrors_other": "and {{count}} more similar rows…"
     },
     "error": {
       "who": {
@@ -183,7 +217,15 @@
         "transactions": "Creating transactions…",
         "leads": "Creating leads…"
       }
-    }
+    },
+    "loadMore_one": "Show 1 more (of {{total}})",
+    "loadMore_other": "Show {{count}} more (of {{total}})",
+    "txIssues_one": "1 row with an invalid amount or date won't be imported as a transaction",
+    "txIssues_other": "{{count}} rows with an invalid amount or date won't be imported as transactions",
+    "missingProjects_one": "The file refers to a project that does not exist: {{names}}.",
+    "missingProjects_other": "The file refers to {{count}} projects that do not exist: {{names}}.",
+    "missingProjects": "The file refers to {{count}} projects that do not exist: {{names}}.",
+    "createMissingProjects": "Create them"
   },
   "modal": {
     "title": "Import from a file",
@@ -197,7 +239,10 @@
     "notReady": "Choose what's in each sheet and map the name / amount columns.",
     "pickYear": "Pick a year for each monthly sheet",
     "toReview": "Continue to review",
-    "reopenRecognize": "Recognition summary"
+    "reopenRecognize": "Recognition summary",
+    "allRemoved": "You've removed every sheet from this import — there's nothing left to bring in.",
+    "restoreSheets": "Bring the sheets back",
+    "nothingToImport": "No sheet left to import."
   },
   "sheet": {
     "removeAria": "Remove sheet",
@@ -315,7 +360,13 @@
         "summary": "Summary",
         "notes": "Notes"
       }
-    }
+    },
+    "unmapped_one": "There is 1 column we'll set aside unless you pick a field for it — it's fine to ignore it.",
+    "unmapped_other": "There are {{count}} columns we'll set aside unless you pick a field for them — it's fine to ignore them.",
+    "recognizedShow_one": "Show 1 auto-recognized column",
+    "recognizedShow_other": "Show {{count}} auto-recognized columns",
+    "recognizedHide_one": "Hide 1 auto-recognized column",
+    "recognizedHide_other": "Hide {{count}} auto-recognized columns"
   },
   "recognize": {
     "title": "What did we find in your file?",
@@ -327,7 +378,15 @@
       "clients": "{{count}} clients",
       "payments": "{{count}} payments",
       "leads": "{{count}} leads",
-      "projects": "{{count}} projects"
+      "projects": "{{count}} projects",
+      "clients_one": "1 client",
+      "clients_other": "{{count}} clients",
+      "leads_one": "1 lead",
+      "leads_other": "{{count}} leads",
+      "payments_one": "1 payment",
+      "payments_other": "{{count}} payments",
+      "projects_one": "1 project",
+      "projects_other": "{{count}} projects"
     },
     "detectedAs": "Detected as:",
     "typeAria": "Table type for {{name}}",
@@ -339,7 +398,11 @@
       "empty": "We didn't find anything to import in this table — pick another type, or leave it as “Don't import”."
     },
     "editManually": "Advanced editing",
-    "confirm": "Looks good, continue"
+    "confirm": "Looks good, continue",
+    "confirmToReview": "Looks right — review it",
+    "dropped_one": "1 column wasn't recognized and will be left out — use “Advanced editing” to place it.",
+    "dropped_other": "{{count}} columns weren't recognized and will be left out — use “Advanced editing” to place them.",
+    "dropped": "{{count}} columns weren't recognized and will be left out — use “Advanced editing” to place them."
   },
   "csvMap": {
     "title": "From your file — confirm the column mapping",

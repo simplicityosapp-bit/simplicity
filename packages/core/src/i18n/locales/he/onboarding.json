@@ -35,9 +35,9 @@
     "loading": "טוען את הנתונים הקיימים…",
     "tabAria": "{{label}}: {{included}} מתוך {{total}} ייכללו",
     "includeAll": "כלול הכל",
-    "clearAll": "בטל הכל",
+    "clearAll": "לנקות סימון",
     "txIssues": "{{count}} שורות עם סכום/תאריך לא תקין לא יובאו כתנועות",
-    "truncated": "הקובץ נקטע ל-{{cap}} שורות ראשונות (מתוך {{raw}})",
+    "truncated": "טבלאות ארוכות נקטעו ל-{{cap}} השורות הראשונות בכל טבלה (מתוך {{raw}} שורות בקובץ)",
     "loadMore": "הצג עוד {{count}} (מתוך {{total}})",
     "tabs": {
       "clients": "לקוחות",
@@ -75,7 +75,8 @@
     },
     "project": {
       "namePlaceholder": "שם הפרויקט",
-      "missingName": "חסר שם"
+      "missingName": "חסר שם",
+      "nameLabel": "שם הפרויקט"
     },
     "lead": {
       "namePlaceholder": "שם הליד",
@@ -124,7 +125,42 @@
       "clients": "לקוחות",
       "projects": "פרויקטים",
       "leads": "לידים",
-      "transactions": "תנועות"
+      "transactions": "תנועות",
+      "sessions": "פגישות",
+      "alsoLead": "בנוסף ייווצרו מהן:",
+      "alsoPayments_one": "תשלום אחד",
+      "alsoPayments_two": "{{count}} תשלומים",
+      "alsoPayments_many": "{{count}} תשלומים",
+      "alsoPayments_other": "{{count}} תשלומים",
+      "alsoPlans_one": "פריסת תשלומים אחת",
+      "alsoPlans_two": "{{count}} פריסות תשלומים",
+      "alsoPlans_many": "{{count}} פריסות תשלומים",
+      "alsoPlans_other": "{{count}} פריסות תשלומים",
+      "alsoSessions_one": "פגישה אחת",
+      "alsoSessions_two": "{{count}} פגישות",
+      "alsoSessions_many": "{{count}} פגישות",
+      "alsoSessions_other": "{{count}} פגישות",
+      "alsoEstimated": "(למה שאין לו תאריך בקובץ נציב תאריך משוער)",
+      "clients_one": "לקוח",
+      "clients_two": "לקוחות",
+      "clients_many": "לקוחות",
+      "clients_other": "לקוחות",
+      "projects_one": "פרויקט",
+      "projects_two": "פרויקטים",
+      "projects_many": "פרויקטים",
+      "projects_other": "פרויקטים",
+      "leads_one": "ליד",
+      "leads_two": "לידים",
+      "leads_many": "לידים",
+      "leads_other": "לידים",
+      "transactions_one": "תנועה",
+      "transactions_two": "תנועות",
+      "transactions_many": "תנועות",
+      "transactions_other": "תנועות",
+      "sessions_one": "פגישה",
+      "sessions_two": "פגישות",
+      "sessions_many": "פגישות",
+      "sessions_other": "פגישות"
     },
     "confirm": {
       "savingCreate": "יוצר…",
@@ -155,8 +191,36 @@
         "projects": "{{count}} פרויקטים",
         "leads": "{{count}} לידים",
         "transactions": "{{count}} תנועות",
-        "recurring": "{{count}} הוצאות חוזרות"
-      }
+        "recurring": "{{count}} הוצאות חוזרות",
+        "clients_one": "לקוח אחד",
+        "clients_two": "{{count}} לקוחות",
+        "clients_many": "{{count}} לקוחות",
+        "clients_other": "{{count}} לקוחות",
+        "projects_one": "פרויקט אחד",
+        "projects_two": "{{count}} פרויקטים",
+        "projects_many": "{{count}} פרויקטים",
+        "projects_other": "{{count}} פרויקטים",
+        "leads_one": "ליד אחד",
+        "leads_two": "{{count}} לידים",
+        "leads_many": "{{count}} לידים",
+        "leads_other": "{{count}} לידים",
+        "transactions_one": "תנועה אחת",
+        "transactions_two": "{{count}} תנועות",
+        "transactions_many": "{{count}} תנועות",
+        "transactions_other": "{{count}} תנועות",
+        "recurring_one": "הוצאה חוזרת אחת",
+        "recurring_two": "{{count}} הוצאות חוזרות",
+        "recurring_many": "{{count}} הוצאות חוזרות",
+        "recurring_other": "{{count}} הוצאות חוזרות"
+      },
+      "failedLine_one": "שורה אחת לא נכנסה. הנה למה:",
+      "failedLine_two": "{{count}} שורות לא נכנסו. הנה למה:",
+      "failedLine_many": "{{count}} שורות לא נכנסו. הנה למה:",
+      "failedLine_other": "{{count}} שורות לא נכנסו. הנה למה:",
+      "moreErrors_one": "ועוד שורה אחת דומה…",
+      "moreErrors_two": "ועוד {{count}} שורות דומות…",
+      "moreErrors_many": "ועוד {{count}} שורות דומות…",
+      "moreErrors_other": "ועוד {{count}} שורות דומות…"
     },
     "error": {
       "who": {
@@ -191,7 +255,21 @@
         "transactions": "יוצר תנועות…",
         "leads": "יוצר לידים…"
       }
-    }
+    },
+    "loadMore_one": "הצג עוד שורה אחת (מתוך {{total}})",
+    "loadMore_two": "הצג עוד {{count}} (מתוך {{total}})",
+    "loadMore_many": "הצג עוד {{count}} (מתוך {{total}})",
+    "loadMore_other": "הצג עוד {{count}} (מתוך {{total}})",
+    "txIssues_one": "שורה אחת עם סכום/תאריך לא תקין לא תיובא כתנועה",
+    "txIssues_two": "{{count}} שורות עם סכום/תאריך לא תקין לא יובאו כתנועות",
+    "txIssues_many": "{{count}} שורות עם סכום/תאריך לא תקין לא יובאו כתנועות",
+    "txIssues_other": "{{count}} שורות עם סכום/תאריך לא תקין לא יובאו כתנועות",
+    "missingProjects": "הקובץ מפנה ל-{{count}} פרויקטים שאינם קיימים: {{names}}.",
+    "missingProjects_one": "הקובץ מפנה לפרויקט אחד שאינו קיים: {{names}}.",
+    "missingProjects_two": "הקובץ מפנה ל-{{count}} פרויקטים שאינם קיימים: {{names}}.",
+    "missingProjects_many": "הקובץ מפנה ל-{{count}} פרויקטים שאינם קיימים: {{names}}.",
+    "missingProjects_other": "הקובץ מפנה ל-{{count}} פרויקטים שאינם קיימים: {{names}}.",
+    "createMissingProjects": "ליצור אותם"
   },
   "modal": {
     "title": "ייבוא מקובץ",
@@ -205,7 +283,10 @@
     "notReady": "בחרו לכל טבלה מה יש בה ומפו את עמודות השם / הסכום.",
     "pickYear": "בחרו שנה לכל טבלת חודשים",
     "toReview": "המשך לסקירה",
-    "reopenRecognize": "סיכום הזיהוי"
+    "reopenRecognize": "סיכום הזיהוי",
+    "allRemoved": "הסרת את כל הטבלאות מהייבוא הזה — לא נשאר מה לייבא.",
+    "restoreSheets": "להחזיר את הטבלאות",
+    "nothingToImport": "לא נשארה טבלה לייבוא."
   },
   "sheet": {
     "removeAria": "הסר טבלה",
@@ -329,7 +410,27 @@
       }
     },
     "pickYear_male": "בחר שנה",
-    "pickYear_female": "בחרי שנה"
+    "pickYear_female": "בחרי שנה",
+    "recognizedShow_one": "הצג עמודה אחת שזוהתה אוטומטית",
+    "recognizedShow_two": "הצג {{count}} עמודות שזוהו אוטומטית",
+    "recognizedShow_many": "הצג {{count}} עמודות שזוהו אוטומטית",
+    "recognizedShow_other": "הצג {{count}} עמודות שזוהו אוטומטית",
+    "recognizedHide_one": "הסתר עמודה אחת שזוהתה אוטומטית",
+    "recognizedHide_two": "הסתר {{count}} עמודות שזוהו אוטומטית",
+    "recognizedHide_many": "הסתר {{count}} עמודות שזוהו אוטומטית",
+    "recognizedHide_other": "הסתר {{count}} עמודות שזוהו אוטומטית",
+    "unmapped_one": "יש עמודה אחת שנשאיר בצד אם לא תבחר/י לה שדה — אפשר להתעלם ממנה בלי בעיה.",
+    "unmapped_two": "יש {{count}} עמודות שנשאיר בצד אם לא תבחר/י להן שדה — אפשר להתעלם מהן בלי בעיה.",
+    "unmapped_many": "יש {{count}} עמודות שנשאיר בצד אם לא תבחר/י להן שדה — אפשר להתעלם מהן בלי בעיה.",
+    "unmapped_other": "יש {{count}} עמודות שנשאיר בצד אם לא תבחר/י להן שדה — אפשר להתעלם מהן בלי בעיה.",
+    "unmapped_male_one": "יש עמודה אחת שנשאיר בצד אם לא תבחר לה שדה — אפשר להתעלם ממנה בלי בעיה.",
+    "unmapped_male_two": "יש {{count}} עמודות שנשאיר בצד אם לא תבחר להן שדה — אפשר להתעלם מהן בלי בעיה.",
+    "unmapped_male_many": "יש {{count}} עמודות שנשאיר בצד אם לא תבחר להן שדה — אפשר להתעלם מהן בלי בעיה.",
+    "unmapped_male_other": "יש {{count}} עמודות שנשאיר בצד אם לא תבחר להן שדה — אפשר להתעלם מהן בלי בעיה.",
+    "unmapped_female_one": "יש עמודה אחת שנשאיר בצד אם לא תבחרי לה שדה — אפשר להתעלם ממנה בלי בעיה.",
+    "unmapped_female_two": "יש {{count}} עמודות שנשאיר בצד אם לא תבחרי להן שדה — אפשר להתעלם מהן בלי בעיה.",
+    "unmapped_female_many": "יש {{count}} עמודות שנשאיר בצד אם לא תבחרי להן שדה — אפשר להתעלם מהן בלי בעיה.",
+    "unmapped_female_other": "יש {{count}} עמודות שנשאיר בצד אם לא תבחרי להן שדה — אפשר להתעלם מהן בלי בעיה."
   },
   "recognize": {
     "title": "מה מצאנו בקובץ?",
@@ -341,7 +442,23 @@
       "clients": "{{count}} לקוחות",
       "payments": "{{count}} תשלומים",
       "leads": "{{count}} לידים",
-      "projects": "{{count}} פרויקטים"
+      "projects": "{{count}} פרויקטים",
+      "clients_one": "לקוח אחד",
+      "clients_two": "{{count}} לקוחות",
+      "clients_many": "{{count}} לקוחות",
+      "clients_other": "{{count}} לקוחות",
+      "leads_one": "ליד אחד",
+      "leads_two": "{{count}} לידים",
+      "leads_many": "{{count}} לידים",
+      "leads_other": "{{count}} לידים",
+      "payments_one": "תשלום אחד",
+      "payments_two": "{{count}} תשלומים",
+      "payments_many": "{{count}} תשלומים",
+      "payments_other": "{{count}} תשלומים",
+      "projects_one": "פרויקט אחד",
+      "projects_two": "{{count}} פרויקטים",
+      "projects_many": "{{count}} פרויקטים",
+      "projects_other": "{{count}} פרויקטים"
     },
     "detectedAs": "זוהה כ:",
     "typeAria": "סוג הטבלה {{name}}",
@@ -353,7 +470,13 @@
       "empty": "לא זיהינו מידע לייבוא בטבלה הזו — בחרו סוג אחר, או השאירו «לא לייבא»."
     },
     "editManually": "עריכה מתקדמת",
-    "confirm": "נראה טוב, המשך"
+    "confirm": "נראה טוב, המשך",
+    "confirmToReview": "נראה טוב, לסקירה",
+    "dropped": "{{count}} עמודות לא זוהו ויישארו בחוץ — «עריכה מתקדמת» כדי לשייך אותן.",
+    "dropped_one": "עמודה אחת לא זוהתה ותישאר בחוץ — «עריכה מתקדמת» כדי לשייך אותה.",
+    "dropped_two": "{{count}} עמודות לא זוהו ויישארו בחוץ — «עריכה מתקדמת» כדי לשייך אותן.",
+    "dropped_many": "{{count}} עמודות לא זוהו ויישארו בחוץ — «עריכה מתקדמת» כדי לשייך אותן.",
+    "dropped_other": "{{count}} עמודות לא זוהו ויישארו בחוץ — «עריכה מתקדמת» כדי לשייך אותן."
   },
   "csvMap": {
     "title": "מהקובץ שלך — אישור מיפוי עמודות",

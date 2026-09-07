@@ -50,7 +50,7 @@ export default function ResetPasswordScreen() {
           </Box>
           <Box className="auth-form auth-msg-card">
             <Txt className="auth-msg-icon"><MailCheck size={34} strokeWidth={1.4} aria-hidden="true" /></Txt>
-            <Txt as="p" className="auth-title">{t('reset.sentTitle')}</Txt>
+            <Txt as="h1" className="auth-title">{t('reset.sentTitle')}</Txt>
             <Txt as="p" className="auth-sub">
               <Trans t={t} i18nKey="reset.sentBody" values={{ email }} components={[<bdi key="e" />]} />
             </Txt>
@@ -73,22 +73,27 @@ export default function ResetPasswordScreen() {
         </Box>
 
         <Box as="form" className="auth-form" onSubmit={submit}>
-          <Txt as="p" className="auth-title">{t('reset.title')}</Txt>
+          <Txt as="h1" className="auth-title">{t('reset.title')}</Txt>
           <Txt as="p" className="auth-sub">{t('reset.subtitle')}</Txt>
 
-          {error && <Txt as="p" className="auth-error">{error}</Txt>}
+          {error && <Txt as="p" className="auth-error" role="alert">{error}</Txt>}
 
-          <Box as="label" className="auth-field" htmlFor="reset-email">
-            <Txt className="auth-field-icon"><Mail size={16} strokeWidth={1.6} aria-hidden="true" /></Txt>
-            <Input
-              id="reset-email"
-              type="email"
-              dir="ltr"
-              autoComplete="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Email"
-            />
+          {/* Same labelled field as login and signup. This screen is one click
+              from both, and it was the last one still naming its box with the
+              English word "Email". */}
+          <Box className="auth-group">
+            <Txt as="label" className="auth-label" htmlFor="reset-email">{t('emailPlaceholder')}</Txt>
+            <Box as="label" className="auth-field" htmlFor="reset-email">
+              <Txt className="auth-field-icon"><Mail size={16} strokeWidth={1.6} aria-hidden="true" /></Txt>
+              <Input
+                id="reset-email"
+                type="email"
+                dir="ltr"
+                autoComplete="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </Box>
           </Box>
 
           <Btn className="auth-btn auth-btn-primary" type="submit" disabled={busy}>

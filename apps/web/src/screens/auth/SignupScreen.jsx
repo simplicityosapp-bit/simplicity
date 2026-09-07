@@ -7,6 +7,7 @@ import { ROUTES } from '../../lib/routes'
 import { translateAuthError } from '../../auth/authErrors'
 import { checkPasswordStrength } from '../../lib/passwordStrength'
 import GoogleButton from '../../auth/GoogleButton'
+import ResendConfirmation from '../../auth/ResendConfirmation'
 import LanguageSwitcher from '../../i18n/LanguageSwitcher'
 import { useT } from '../../i18n/useT'
 import { buildConsent, stashPendingConsent } from '../../lib/legal'
@@ -23,6 +24,7 @@ export default function SignupScreen() {
   const [agreeTerms, setAgreeTerms] = useState(false)
   const [agreeMarketing, setAgreeMarketing] = useState(false)
   const [error, setError] = useState('')
+  const [emailTaken, setEmailTaken] = useState(false)
   const [busy, setBusy] = useState(false)
   const [sent, setSent] = useState(false)
 
@@ -50,6 +52,7 @@ export default function SignupScreen() {
   const submit = async (e) => {
     e.preventDefault()
     setError('')
+    setEmailTaken(false)
     if (!email || !password) {
       setError(t('fillEmailPassword'))
       return
@@ -83,6 +86,10 @@ export default function SignupScreen() {
          user couldn't already find by trying to log in. */
       if (data.user && Array.isArray(data.user.identities) && data.user.identities.length === 0) {
         setError(translateAuthError('already registered'))
+        /* "That address is already registered. You can log in." — true, and
+           until now the only way to act on it was to scroll past the whole
+           form to the line at the foot. The message carries the door now. */
+        setEmailTaken(true)
         return
       }
       /* A real new account exists from here on (the already-registered case
@@ -112,9 +119,18 @@ export default function SignupScreen() {
           </Box>
           <Box className="auth-form auth-msg-card">
             <Txt className="auth-msg-icon"><MailCheck size={34} strokeWidth={1.4} aria-hidden="true" /></Txt>
-            <Txt as="p" className="auth-title">{t('signupScreen.checkEmailTitle')}</Txt>
+            <Txt as="h1" className="auth-title">{t('signupScreen.checkEmailTitle')}</Txt>
             <Txt as="p" className="auth-sub">{t('signupScreen.sentBody', { email })}</Txt>
             <Link to={ROUTES.LOGIN} className="auth-btn auth-btn-primary">{t('backToLogin')}</Link>
+            {/* The two ways this screen used to be a dead end. Waiting for a
+                mail that never came left nothing to press; and a typo in the
+                address left nothing but the browser's Back button, which
+                throws the form away. Going back to the form keeps every field
+                as it was, so it is one correction and not a re-fill. */}
+            <ResendConfirmation email={email} />
+            <Btn type="button" className="auth-link-sm" onClick={() => setSent(false)}>
+              {t('signupScreen.wrongEmail')}
+            </Btn>
           </Box>
         </Box>
       </Box>
@@ -138,7 +154,12 @@ export default function SignupScreen() {
               a confirmation mail was coming arrived on the screen after it. */}
           <Txt as="h1" className="auth-title">{t('signupScreen.title')}</Txt>
           <Txt as="p" className="auth-sub">{t('signupScreen.subtitle')}</Txt>
-          {error && <Txt as="p" className="auth-error" role="alert">{error}</Txt>}
+          {error && (
+            <Txt as="p" className="auth-error" role="alert">
+              {error}
+              {emailTaken && <Link to={ROUTES.LOGIN} className="auth-error-cta">{t('login')}</Link>}
+            </Txt>
+          )}
 
           <Box className="auth-group">
             {/* The name of the field, on the page, staying there — it used to

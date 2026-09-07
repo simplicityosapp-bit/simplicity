@@ -7,7 +7,13 @@
 }
 .lang-switch-opt {
   appearance: none;
-  border: 1px solid var(--divider);
+  /* Not --divider: that is the hairline between rows in a list, 6% of the ink
+     colour, and it has to sit on a card to be seen at all. Both places these
+     pills appear — the auth screens and the onboarding welcome — stand them on
+     a photograph, where 6% is nothing and the unselected languages read as
+     loose words rather than as things you can press. Tied to the text colour
+     so it turns over with the theme. */
+  border: 1px solid color-mix(in srgb, var(--stone) 30%, transparent);
   background: transparent;
   padding: 3px 10px;
   border-radius: 999px;

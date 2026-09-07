@@ -57,6 +57,24 @@ describe('settings deep links', () => {
     expect(groupOfSection('')).toBeNull()
     expect(groupOfSection('nope')).toBeNull()
   })
+
+  /* The derivation is worth only as much as the call sites let it be: an
+     explicit `openGroup` BEATS it. Both home-setup rows named one, and both
+     named a group that does not exist — 'data' (that is the SECTION's key;
+     its group is 'account') and 'workflow' (the group is 'work'). The wrong
+     name won, no group opened, and both tasks on the home card led to a
+     settings screen with nothing on it. Name a real group, or — better —
+     name none and let the section speak for itself. */
+  it('never asks for a group that is not one', () => {
+    const CALLERS = ['../src/hooks/useSetupTasks.js', '../src/components/HelpFab.jsx', '../src/lib/profileHealth.js']
+    const groupKeys = new Set(SETTINGS_TREE.map((g) => g.key))
+    CALLERS.forEach((rel) => {
+      const src = readFileSync(new URL(rel, import.meta.url), 'utf8')
+      ;[...src.matchAll(/openGroup:\s*'([^']+)'/g)].map((m) => m[1]).forEach((key) => {
+        expect(groupKeys.has(key), `${rel} asks for group "${key}", which does not exist`).toBe(true)
+      })
+    })
+  })
 })
 
 /* ── The regrouped tree ───────────────────────────────────────────

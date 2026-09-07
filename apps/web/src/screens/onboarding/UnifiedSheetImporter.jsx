@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { FileSpreadsheet, X, AlertTriangle, CheckCircle2, HelpCircle, ChevronUp, ChevronDown } from 'lucide-react'
 import {
-  SHEET_TYPES, sheetTypeLabel, sheetTypeHelp, entityFields,
+  SHEET_TYPES, sheetTypeLabel, sheetTypeHelp, entityFields, sheetColumnsForMapping,
   setSheetType, remapSheetColumn, projectSheet,
 } from '../../lib/sheetMapper'
 import { flattenMatrix } from '../../lib/pivotImport'
@@ -72,10 +72,6 @@ export default function UnifiedSheetImporter({ sheets, onChange }) {
       {live.map((sheet) => {
         const isFlat = sheet.type !== 'matrix' && sheet.type !== 'ignore'
         const fields = entityFields(sheet.type)
-        const sample = (colIdx) => {
-          for (const r of sheet.rows) { const v = String(r[colIdx] ?? '').trim(); if (v) return v }
-          return ''
-        }
         /* What this one table will actually produce — so a sheet typed as
            the wrong entity (yielding nothing) gets a visible, fixable nudge
            instead of silently contributing zero. */
@@ -130,23 +126,21 @@ export default function UnifiedSheetImporter({ sheets, onChange }) {
                 first and highlighted (they need the user); recognized ones
                 collapse behind a toggle so a 15-column sheet isn't a wall. */}
             {isFlat && (() => {
-              const colData = sheet.headers
-                .map((h, colIdx) => ({ h, colIdx, field: sheet.mapping[colIdx] || '' }))
-                /* Keep columns that have a header AND either are already
-                   mapped or actually contain data — an unmapped, totally
-                   empty column is just noise, so we don't ask about it. */
-                .filter((c) => c.h && (c.field || sample(c.colIdx)))
+              /* Which columns are worth asking about lives in sheetMapper, so
+                 the recognition step's "N columns would be left out" counts
+                 exactly what this editor lists. */
+              const colData = sheetColumnsForMapping(sheet)
               const unmapped = colData.filter((c) => !c.field)
               const recognized = colData.filter((c) => c.field)
               const showAll = !!sheet._showAllCols
-              const renderCol = ({ h, colIdx, field }) => (
+              const renderCol = ({ header, colIdx, field, sample: sampleValue }) => (
                 <Box className={`usi-col${field ? '' : ' unmapped'}`} key={colIdx}>
                   <Txt className="usi-col-name">
                     {field ? <CheckCircle2 size={12} strokeWidth={2} aria-hidden="true" /> : <HelpCircle size={12} strokeWidth={2} aria-hidden="true" />}
-                    <Txt className="usi-col-h" title={h}><bdi>{h}</bdi></Txt>
-                    {sample(colIdx) && <Txt className="usi-col-sample" title={sample(colIdx)}>{t('sheet.colSample')}<bdi>{sample(colIdx)}</bdi></Txt>}
+                    <Txt className="usi-col-h" title={header}><bdi>{header}</bdi></Txt>
+                    {sampleValue && <Txt className="usi-col-sample" title={sampleValue}>{t('sheet.colSample')}<bdi>{sampleValue}</bdi></Txt>}
                   </Txt>
-                  <select className="usi-select usi-col-select" value={field} aria-label={t('sheet.colMapAria', { header: h })} onChange={(e) => changeColumn(sheet, colIdx, e.target.value)}>
+                  <select className="usi-select usi-col-select" value={field} aria-label={t('sheet.colMapAria', { header })} onChange={(e) => changeColumn(sheet, colIdx, e.target.value)}>
                     <option value="">{t('sheet.colIgnore')}</option>
                     {fields.map((f) => <option key={f.key} value={f.key}>{f.label}</option>)}
                   </select>
@@ -154,9 +148,16 @@ export default function UnifiedSheetImporter({ sheets, onChange }) {
               )
               return (
                 <Box className="usi-cols">
-                  <Txt as="p" className="usi-cols-intro">
-                    {t('sheet.colsIntro')}
-                  </Txt>
+                  {/* Only when a column row is actually on screen to explain.
+                      It led with "the grey value is an example from the first
+                      row" even on a card whose columns were all recognised and
+                      collapsed behind the toggle — describing something the
+                      reader could not see. */}
+                  {(unmapped.length > 0 || showAll) && (
+                    <Txt as="p" className="usi-cols-intro">
+                      {t('sheet.colsIntro')}
+                    </Txt>
+                  )}
                   {colData.length === 0 && (
                     <Txt as="p" className="usi-ask"><AlertTriangle size={13} strokeWidth={1.9} aria-hidden="true" /> {t('sheet.noCols')}</Txt>
                   )}

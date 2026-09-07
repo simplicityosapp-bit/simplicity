@@ -1053,6 +1053,37 @@ html[dir="ltr"] .set-profile-body .m-pills.has-more {
 [data-theme="dark"] .set-data-action:hover:not(:disabled) {
   background: rgba(240, 235, 224, 0.06);
 }
+/* The section's headline action. Import is the one thing the home setup card
+   sends people here to do, and it sat as the middle of three identical glass
+   pills. Uses the app's own primary token, not --clay: clay already means
+   "destructive" two buttons further down this same section. */
+.set-data-action.primary {
+  border-color: transparent;
+  background: var(--mg-btn-primary-bg);
+  color: var(--on-accent);
+}
+.set-data-action.primary:hover:not(:disabled) {
+  background: var(--mg-btn-primary-bg-hover);
+}
+/* At night the primary swatch is a light Moonglow, so the label must go dark
+   — the same correction the cookie banner's accept button makes. */
+[data-theme="dark"] .set-data-action.primary {
+  color: var(--espresso-on-light, #2A2520);
+}
+[data-theme="dark"] .set-data-action.primary:hover:not(:disabled) {
+  background: var(--mg-btn-primary-bg-hover);
+}
+/* Arrived from the home card's import task: a brief ring, so the eye lands on
+   the button the card was talking about. Fades itself out. */
+.set-data-action.callout { animation: setDataCallout 2.6s ease-out; }
+@keyframes setDataCallout {
+  0%, 70% { box-shadow: 0 0 0 4px color-mix(in srgb, var(--sage) 45%, transparent); }
+  100%    { box-shadow: 0 0 0 0 transparent; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .set-data-action.callout { animation: none; box-shadow: 0 0 0 3px color-mix(in srgb, var(--sage) 45%, transparent); }
+}
+
 /* Destructive variant — a SOLID brand-red button (opaque bg + white text) so
    the account reset/delete actions stand out, instead of clay text on glass
    that blends into the background (beta 10/06). */
@@ -1185,10 +1216,24 @@ html[dir="ltr"] .set-profile-body .m-pills.has-more {
 /* Import result. Three tones, set from the message's own kind rather than
    from sniffing its text: ok (something was written), info (the file was
    read but produced nothing), error (it wasn't read at all). */
-.set-import-msg { font-weight: 600; }
-.set-import-msg.ok { color: var(--sage); }
-.set-import-msg.error { color: var(--clay-on-dark); }
-.set-import-msg.info { color: var(--stone); }
+.set-import-msg .set-data-hint { font-weight: 600; margin: 0; }
+.set-import-msg.ok .set-data-hint { color: var(--sage); }
+.set-import-msg.error .set-data-hint { color: var(--clay-on-dark); }
+.set-import-msg.info .set-data-hint { color: var(--stone); }
+/* Where the imported rows actually live — offered right where the import
+   finishes, instead of leaving the user in Settings with a green sentence. */
+.set-import-links { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 6px; }
+.set-import-link {
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: var(--mg-font);
+  font-size: calc(12.5px * var(--text-scale));
+  font-weight: 600;
+  color: var(--sage);
+  text-decoration: underline;
+  cursor: pointer;
+}
 
 /* Danger zone — visually separated block at the bottom of the data tab. */
 .set-danger-zone {
@@ -1291,4 +1336,34 @@ html[dir="ltr"] .set-profile-body .m-pills.has-more {
 
   /* Buttons and their hints stop sharing a cramped line with the edge. */
   .set-data-action { align-self: stretch; justify-content: center; }
+}
+
+/* Drop target around the import button. Invisible until a file is over it —
+   a dashed box sitting on the page all day would read as broken layout. */
+.set-import-drop {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: var(--mg-btn-radius);
+  border: 1px dashed transparent;
+  transition: border-color 0.15s, background 0.15s;
+}
+.set-import-drop.over {
+  border-color: var(--sage);
+  background: color-mix(in srgb, var(--sage) 12%, transparent);
+}
+.set-import-drop-hint {
+  margin: 0;
+  font-family: var(--mg-font);
+  font-size: calc(11.5px * var(--text-scale));
+  color: var(--stone);
+}
+/* No pointer, no drag: on a touch device the line would be a promise the
+   device cannot keep. */
+@media (hover: none) {
+  .set-import-drop { padding: 0; border: none; }
+  .set-import-drop-hint { display: none; }
 }

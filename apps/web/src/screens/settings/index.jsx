@@ -8,6 +8,7 @@ import {
 import { SECTION_DEFS, SECTION_GROUPS, groupOfSection, soleSectionOf } from './sections'
 import { searchTree } from './searchSettings'
 import { ROUTES } from '../../lib/routes'
+import InfoPopover from '../../components/InfoPopover'
 import { buildSheetsFromFiles, ACCEPT } from '../../lib/importFlow'
 import { MAX_IMPORT_BYTES } from '../../lib/csvImport'
 import ImportDataModal from '../onboarding/ImportDataModal'
@@ -37,7 +38,7 @@ import { useT } from '../../i18n/useT'
    is re-created on a language change. */
 import i18n, { LANGUAGE_OPTIONS, setLanguage as applyLanguage } from '@simplicity/core/i18n'
 import { questionText, describeSchedule, formatDateAs, formatTimeAs } from '@simplicity/core'
-import { exportTransactionsCSV, exportClientsCSV, exportProjectsCSV, exportAllXLSX } from '../../lib/export'
+import { exportTransactionsCSV, exportClientsCSV, exportProjectsCSV, exportAllXLSX, downloadCsv } from '../../lib/export'
 import { loadSensitiveExportData } from '../../lib/exportSensitive'
 import ExportDataModal from '../../modals/ExportDataModal'
 import { defaultOnboarding } from '../../lib/preferences'
@@ -659,7 +660,9 @@ export default function SettingsScreen() {
      has already scrolled for, so the request retires itself without a
      second render. */
   const [scrollReq, setScrollReq] = useState(
-    () => (location.state?.openSection ? { section: location.state.openSection, nav: location.key } : null),
+    () => (location.state?.openSection
+      ? { section: location.state.openSection, nav: location.key, focusImport: !!location.state.openImport }
+      : null),
   )
   const scrolledForNav = useRef(null)
   /* The initializers above only run on mount. When the user is ALREADY on
@@ -674,7 +677,7 @@ export default function SettingsScreen() {
     setPrevNavKey(location.key)
     const section = location.state?.openSection
     const group = location.state?.openGroup || groupOfSection(section)
-    if (section) { setOpen((o) => ({ ...o, [section]: true })); setScrollReq({ section, nav: location.key }) }
+    if (section) { setOpen((o) => ({ ...o, [section]: true })); setScrollReq({ section, nav: location.key, focusImport: !!location.state?.openImport }) }
     if (group) setOpenGroups((g) => ({ ...g, [group]: true }))
   }
 
@@ -689,6 +692,15 @@ export default function SettingsScreen() {
     if (!el) return
     scrolledForNav.current = scrollReq.nav
     el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    /* Arrived from the home card's "ייבוא מקובץ" task: put the caret on the
+       button it meant, and let it glow long enough to be noticed. */
+    if (scrollReq.focusImport) {
+      const btn = importBtnRef.current
+      if (!btn) return
+      btn.focus({ preventScroll: true })
+      btn.classList.add('callout')
+      setTimeout(() => btn.classList.remove('callout'), 2600)
+    }
   })
   const [showAddQ, setShowAddQ] = useState(false)
   /* "Where do I change X?" — answered without knowing which heading X was
@@ -761,6 +773,22 @@ export default function SettingsScreen() {
      every sheet via the shared multi-sheet engine → open the same
      mapping+review modal onboarding uses. */
   const importFileRef = useRef(null)
+  const importBtnRef = useRef(null)
+  const [importDragging, setImportDragging] = useState(false)
+  /* A starter file in the shape the detector reads best. Built from the
+     translated field labels, so it stays in the user's own language and
+     cannot drift from what the mapper is looking for. */
+  const downloadImportTemplate = () => {
+    const f = (k) => i18n.t(`onboarding:sheet.fields.clients.${k}`)
+    downloadCsv(
+      [f('name'), f('phone'), f('email'), f('status'), f('project'), f('sessions'), f('price_per_session'), f('paid')],
+      [
+        ['דנה כהן', '050-1234567', 'dana@example.com', 'פעיל', 'ליווי אישי', '12', '300', '3600'],
+        ['יעל לוי', '052-7654321', 'yael@example.com', 'בהפסקה', 'סדנת הורים', '4', '250', '1000'],
+      ],
+      t('data.importTemplateFile'),
+    )
+  }
   const [importParsed, setImportParsed] = useState(null)
   /* { text, kind: 'ok' | 'error' | 'info' }. The kind used to be inferred by
      testing whether the message STARTED WITH a translated error prefix —
@@ -1016,26 +1044,61 @@ export default function SettingsScreen() {
             style={{ display: 'none' }}
             onChange={(e) => { onPickImport(e.target.files); e.target.value = '' }}
           />
-          <Btn
-            type="button"
-            className="set-data-action"
-            onClick={() => importFileRef.current?.click()}
-            disabled={importBusy}
-            style={{ marginTop: 10 }}
+          {/* A file dragged onto this area imports too. On a desktop the file
+              is usually already on screen next to the browser, and dragging it
+              over is the shortest path there is; the button stays for everyone
+              else, and it is still the only thing a phone needs. */}
+          <Box
+            className={`set-import-drop${importDragging ? ' over' : ''}`}
+            onDragOver={(e) => { e.preventDefault(); if (!importBusy) setImportDragging(true) }}
+            onDragLeave={(e) => { if (!e.currentTarget.contains(e.relatedTarget)) setImportDragging(false) }}
+            onDrop={(e) => { e.preventDefault(); setImportDragging(false); if (!importBusy) onPickImport(e.dataTransfer?.files) }}
           >
-            <Upload size={15} strokeWidth={1.7} aria-hidden="true" />
-            {t('data.import')}
-          </Btn>
+            {/* The one action in this section anybody is sent here to do — the
+                home setup card links straight at it. It used to be the middle
+                of three identical ghost buttons, level with "ייצוא" and with
+                "התחל/י מחדש את ההיכרות". */}
+            <Btn
+              ref={importBtnRef}
+              type="button"
+              className="set-data-action primary"
+              onClick={() => importFileRef.current?.click()}
+              disabled={importBusy}
+            >
+              <Upload size={15} strokeWidth={1.7} aria-hidden="true" />
+              {t('data.import')}
+            </Btn>
+            <Txt as="p" className="set-import-drop-hint">{t('data.importDrop')}</Txt>
+          </Box>
+          {/* One plain line about what happens. The formats — CSV/TSV/Excel,
+              several files, several sheets — were in the same paragraph, which
+              made the whole thing read as a spec sheet; they live behind the
+              "?" now, for the person who actually wants them. */}
           <Txt as="p" className="set-data-hint">
             {t('data.importHint')}
+            <InfoPopover text={t('data.importFormats')} label={t('data.importFormatsAria')} />
           </Txt>
+          {/* "What is it supposed to look like?" answered with a file rather
+              than a paragraph — the columns our detector reads best, filled
+              with two example rows, ready to be opened and overwritten. */}
+          <Btn type="button" className="set-import-link" onClick={downloadImportTemplate} style={{ marginTop: 6, alignSelf: 'flex-start' }}>
+            {t('data.importTemplate')}
+          </Btn>
           {importBusy && (
             <Txt as="p" className="set-data-hint" role="status" aria-live="polite">{t('data.importProcessing')}</Txt>
           )}
           {importMsg && (
-            <Txt as="p" className={`set-data-hint set-import-msg ${importMsg.kind}`} role="status" aria-live="polite">
-              {importMsg.text}
-            </Txt>
+            <Box className={`set-import-msg ${importMsg.kind}`} role="status" aria-live="polite">
+              <Txt as="p" className="set-data-hint">{importMsg.text}</Txt>
+              {/* A rare, heavy action used to end on a grey line of text and
+                  leave you in Settings, with no way to look at what arrived. */}
+              {importMsg.kind === 'ok' && (
+                <Box className="set-import-links">
+                  <Btn type="button" className="set-import-link" onClick={() => navigate(ROUTES.CLIENTS)}>{t('data.importSeeClients')}</Btn>
+                  <Btn type="button" className="set-import-link" onClick={() => navigate(ROUTES.FINANCE)}>{t('data.importSeeMoney')}</Btn>
+                </Box>
+              )}
+            </Box>
           )}
 
           <Btn

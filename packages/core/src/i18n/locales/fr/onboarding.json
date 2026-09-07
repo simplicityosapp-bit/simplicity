@@ -33,7 +33,7 @@
     "loading": "Chargement de ce que vous avez déjà…",
     "tabAria": "{{label}} : {{included}} sur {{total}} seront inclus",
     "includeAll": "Tout inclure",
-    "clearAll": "Tout désélectionner",
+    "clearAll": "Tout décocher",
     "txIssues": "{{count}} lignes avec un montant ou une date invalide ne seront pas importées comme transactions",
     "truncated": "Les feuilles longues ont été coupées aux {{cap}} premières lignes chacune (sur {{raw}} lignes du fichier)",
     "loadMore": "Afficher {{count}} de plus (sur {{total}})",
@@ -71,7 +71,8 @@
     },
     "project": {
       "namePlaceholder": "Nom du projet",
-      "missingName": "Nom manquant"
+      "missingName": "Nom manquant",
+      "nameLabel": "Nom du projet"
     },
     "lead": {
       "namePlaceholder": "Nom du prospect",
@@ -220,7 +221,11 @@
     "loadMore_one": "Afficher 1 de plus (sur {{total}})",
     "loadMore_other": "Afficher {{count}} de plus (sur {{total}})",
     "txIssues_one": "1 ligne avec un montant ou une date invalide ne sera pas importée comme transaction",
-    "txIssues_other": "{{count}} lignes avec un montant ou une date invalide ne seront pas importées comme transactions"
+    "txIssues_other": "{{count}} lignes avec un montant ou une date invalide ne seront pas importées comme transactions",
+    "missingProjects_one": "Le fichier renvoie à un projet qui n’existe pas : {{names}}.",
+    "missingProjects_other": "Le fichier renvoie à {{count}} projets qui n’existent pas : {{names}}.",
+    "missingProjects": "Le fichier renvoie à {{count}} projets qui n’existent pas : {{names}}.",
+    "createMissingProjects": "Les créer"
   },
   "modal": {
     "title": "Importer depuis un fichier",
@@ -393,7 +398,11 @@
       "empty": "Nous n'avons rien trouvé à importer dans ce tableau — choisissez un autre type, ou laissez-le sur « Ne pas importer »."
     },
     "editManually": "Modification avancée",
-    "confirm": "Tout est bon, continuer"
+    "confirm": "Tout est bon, continuer",
+    "confirmToReview": "Ça correspond — passer à la vérification",
+    "dropped_one": "1 colonne n’a pas été reconnue et sera laissée de côté — utilisez « Édition avancée » pour l’affecter.",
+    "dropped_other": "{{count}} colonnes n’ont pas été reconnues et seront laissées de côté — utilisez « Édition avancée » pour les affecter.",
+    "dropped": "{{count}} colonnes n’ont pas été reconnues et seront laissées de côté — utilisez « Édition avancée » pour les affecter."
   },
   "csvMap": {
     "title": "Depuis votre fichier — confirmez la correspondance des colonnes",

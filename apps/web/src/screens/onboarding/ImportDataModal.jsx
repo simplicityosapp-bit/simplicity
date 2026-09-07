@@ -6,6 +6,7 @@ import RecognitionWizard from './RecognitionWizard'
 import OnboardingReviewWizard from './OnboardingReviewWizard'
 import { finalizeOnboardingImport } from '../../lib/onboardingImport'
 import { buildReviewFromSheets } from '../../lib/importFlow'
+import { sheetRecognitionInfo, unmappedColumnCount } from '../../lib/sheetMapper'
 import { acquireModalLock } from '../../lib/modalLock'
 import { useT } from '../../i18n/useT'
 import './OnboardingScreen.css'        /* ob-* primitives (btn / map / input) */
@@ -50,6 +51,20 @@ export default function ImportDataModal({ parsed: initialParsed, onClose, onImpo
   const removedAny = (parsed?.sheets || []).some((s) => s.removed)
   const restoreSheets = () => onSheetsChange((parsed?.sheets || []).map((s) => ({ ...s, removed: false })))
 
+  const goToReview = () => { setReview(reviewObj); setPhase('review') }
+
+  /* Is there anything in this file the user actually has to settle before we
+     can show them the result? A sheet that would produce nothing, a months
+     matrix with no year, or nothing reviewable at all. If not, "נראה טוב"
+     means what it says and goes to the review.
+
+     It used to land on the column-mapping editor — the same screen as
+     "עריכה מתקדמת", the one the recognition step exists to spare people.
+     Answering "yes, that's my file" and being handed a table of dropdowns
+     reads as the app not having listened. */
+  const needsAttention = !reviewObj || yearMissing
+    || liveSheets.some((s) => sheetRecognitionInfo(s).empty)
+
   /* onProgress comes from the wizard, which owns the bar — the importer
      writes one row at a time and reports each one, so a long file shows
      movement instead of a button that has said "יוצר…" for a minute. */
@@ -91,9 +106,11 @@ export default function ImportDataModal({ parsed: initialParsed, onClose, onImpo
       <RecognitionWizard
         sheets={parsed.sheets}
         onChange={onSheetsChange}
-        onConfirm={() => setShowRecognition(false)}
+        onConfirm={() => (needsAttention ? setShowRecognition(false) : goToReview())}
         onEditManually={() => setShowRecognition(false)}
         onClose={onClose}
+        needsAttention={needsAttention}
+        unmappedCount={liveSheets.reduce((n, s) => n + unmappedColumnCount(s), 0)}
       />
     )
   }
@@ -159,7 +176,7 @@ export default function ImportDataModal({ parsed: initialParsed, onClose, onImpo
           <Box className="obrw-actions">
             <Btn type="button" className="ob-btn ghost" onClick={onClose}>{t('common.cancel')}</Btn>
             <Btn type="button" className="ob-btn primary" disabled={!reviewObj || yearMissing}
-              onClick={() => { setReview(reviewObj); setPhase('review') }}>
+              onClick={goToReview}>
               {yearMissing ? t('modal.pickYear') : t('modal.toReview')}
             </Btn>
           </Box>

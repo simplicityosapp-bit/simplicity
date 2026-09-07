@@ -19,7 +19,7 @@ import { Box, Txt, Btn } from '../../components/ui'
    detailed editor (reachable via "advanced") stays the single source.
    ════════════════════════════════════════════════════════════════ */
 
-export default function RecognitionWizard({ sheets, onChange, onConfirm, onEditManually, onClose }) {
+export default function RecognitionWizard({ sheets, onChange, onConfirm, onEditManually, onClose, needsAttention = true, unmappedCount = 0 }) {
   const { t } = useT('onboarding')
   const panelRef = useRef(null)
   const restoreFocusRef = useRef(null)
@@ -84,6 +84,14 @@ export default function RecognitionWizard({ sheets, onChange, onConfirm, onEditM
               : t('recognize.summaryEmpty')}
           </Txt>
 
+          {/* Confirming here can now go straight to the review, skipping the
+              column editor entirely — so this is the last place the columns we
+              did not recognise can be mentioned. Said plainly, next to the
+              door that leads to them, rather than left as a surprise. */}
+          {unmappedCount > 0 && (
+            <Txt as="p" className="rw-dropped">{t('recognize.dropped', { count: unmappedCount })}</Txt>
+          )}
+
           <Box className="rw-sheets">
             {infos.map(({ sheet, info }) => (
               <Box className={`rw-sheet${info.empty ? ' attention' : ''}`} key={sheet.id}>
@@ -118,7 +126,11 @@ export default function RecognitionWizard({ sheets, onChange, onConfirm, onEditM
 
         <Box as="footer" className="rw-foot">
           <Btn type="button" className="ob-btn ghost" onClick={onEditManually}>{t('recognize.editManually')}</Btn>
-          <Btn type="button" className="ob-btn primary" onClick={onConfirm}>{t('recognize.confirm')}</Btn>
+          {/* Named for where it lands: the review when the file is clear, the
+              column editor when something here still has to be settled. */}
+          <Btn type="button" className="ob-btn primary" onClick={onConfirm}>
+            {needsAttention ? t('recognize.confirm') : t('recognize.confirmToReview')}
+          </Btn>
         </Box>
       </Box>
     </Box>

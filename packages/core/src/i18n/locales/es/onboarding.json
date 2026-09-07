@@ -33,7 +33,7 @@
     "loading": "Cargando lo que ya tienes…",
     "tabAria": "{{label}}: se incluirán {{included}} de {{total}}",
     "includeAll": "Incluir todo",
-    "clearAll": "Borrar todo",
+    "clearAll": "Quitar selección",
     "txIssues": "{{count}} filas con un importe o una fecha no válidos no se importarán como transacciones",
     "truncated": "Las hojas largas se recortaron a las primeras {{cap}} filas cada una (de {{raw}} filas del archivo)",
     "loadMore": "Mostrar {{count}} más (de {{total}})",
@@ -71,7 +71,8 @@
     },
     "project": {
       "namePlaceholder": "Nombre del proyecto",
-      "missingName": "Falta el nombre"
+      "missingName": "Falta el nombre",
+      "nameLabel": "Nombre del proyecto"
     },
     "lead": {
       "namePlaceholder": "Nombre del prospecto",
@@ -220,7 +221,11 @@
     "loadMore_one": "Mostrar 1 más (de {{total}})",
     "loadMore_other": "Mostrar {{count}} más (de {{total}})",
     "txIssues_one": "1 fila con un importe o una fecha no válidos no se importará como transacción",
-    "txIssues_other": "{{count}} filas con un importe o una fecha no válidos no se importarán como transacciones"
+    "txIssues_other": "{{count}} filas con un importe o una fecha no válidos no se importarán como transacciones",
+    "missingProjects_one": "El archivo menciona un proyecto que no existe: {{names}}.",
+    "missingProjects_other": "El archivo menciona {{count}} proyectos que no existen: {{names}}.",
+    "missingProjects": "El archivo menciona {{count}} proyectos que no existen: {{names}}.",
+    "createMissingProjects": "Crearlos"
   },
   "modal": {
     "title": "Importar desde un archivo",
@@ -393,7 +398,11 @@
       "empty": "No encontramos nada para importar en esta tabla — elige otro tipo, o déjala como «No importar»."
     },
     "editManually": "Edición avanzada",
-    "confirm": "Se ve bien, continuar"
+    "confirm": "Se ve bien, continuar",
+    "confirmToReview": "Se ve bien — a la revisión",
+    "dropped_one": "1 columna no se reconoció y quedará fuera — usa «Edición avanzada» para asignarla.",
+    "dropped_other": "{{count}} columnas no se reconocieron y quedarán fuera — usa «Edición avanzada» para asignarlas.",
+    "dropped": "{{count}} columnas no se reconocieron y quedarán fuera — usa «Edición avanzada» para asignarlas."
   },
   "csvMap": {
     "title": "De tu archivo — confirma la asignación de columnas",

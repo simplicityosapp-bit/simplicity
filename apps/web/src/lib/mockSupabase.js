@@ -8,13 +8,14 @@
    lib/supabase.js). Purpose: visual verification of UI changes when an
    interactive login isn't available.
 
-   The query builder is a Proxy: every PostgREST filter/modifier
-   (select/eq/is/order/in/gte/…) is a chainable no-op, and awaiting the
-   chain resolves to the table's mock rows. Filters are intentionally
-   ignored — the fixtures are single-user and non-deleted, so returning
-   the whole table is correct for rendering. Writes mutate the in-memory
-   fixtures so interactions (toggle a question, complete a reminder, add
-   an answer) reflect live until reload.
+   The query builder is a Proxy. `eq` and `in` are really applied; every
+   other filter/modifier (select/is/order/gte/…) is a chainable no-op, and
+   awaiting the chain resolves to the table's mock rows. Ignoring the rest
+   is fine for rendering — the fixtures are single-user and non-deleted, so
+   the whole table is the right answer. It is NOT fine for a delete, which
+   is why the two that narrow a row set are honoured. Writes mutate the
+   in-memory fixtures so interactions (toggle a question, complete a
+   reminder, add an answer) reflect live until reload.
    ════════════════════════════════════════════════════════════════ */
 
 import { MOCK_DB } from '../data/mock'
@@ -56,7 +57,7 @@ let MOCK_PREFS = (() => {
 })()
 
 function computeResult(state) {
-  const { table, op, payload, eqs, single } = state
+  const { table, op, payload, eqs, ins, single } = state
 
   /* user_preferences is special: the row wraps the blob in `.preferences`. */
   if (table === 'user_preferences') {
@@ -71,7 +72,12 @@ function computeResult(state) {
 
   const src = MOCK_DB[table]
   const arr = Array.isArray(src) ? src : src ? [src] : []
+  /* `in` is honoured, not waved through. It used to sit in the chainable
+     no-op bucket with the other filters — harmless on a select, destructive
+     on a delete: `delete().in('id', […])` narrowed to nothing, `matches`
+     answered true for every row, and the preview lost the whole table. */
   const matches = (row) => eqs.every(([c, v]) => row[c] === v)
+    && (ins || []).every(([c, vals]) => Array.isArray(vals) && vals.includes(row[c]))
 
   if (op === 'insert' || op === 'upsert') {
     /* Content signature (ignoring server-owned id/timestamps) so that
@@ -79,9 +85,14 @@ function computeResult(state) {
        duplicate rows — the real DB's unique constraints would reject them. */
     // eslint-disable-next-line no-unused-vars -- id/created_at/updated_at are destructured only to omit these server-owned fields from the content signature.
     const sig = (r) => { const { id, created_at, updated_at, ...rest } = r; return JSON.stringify(rest) }
+    /* created_at AND updated_at, stamped together and equal — both real
+       columns are NOT NULL DEFAULT now(), and code asking "has anyone
+       edited this since it was written?" needs the pair to exist. */
+    const stampedAt = new Date().toISOString()
     const rows = (Array.isArray(payload) ? payload : [payload]).map((r) => ({
       id: uuid(),
-      created_at: new Date().toISOString(),
+      created_at: stampedAt,
+      updated_at: stampedAt,
       ...r,
     }))
     if (Array.isArray(src)) {
@@ -104,15 +115,23 @@ function computeResult(state) {
     return { data: null, error: null }
   }
 
-  /* select — return a fresh array of fresh row copies so a hook can't alias
-     and mutate the live fixtures (which would duplicate rows alongside the
-     hook's own optimistic updates). */
-  if (single) return { data: arr[0] ? { ...arr[0] } : null, error: null }
-  return { data: arr.map((r) => ({ ...r })), error: null }
+  /* select — `eq` and `in` narrow the result here too, not just on writes.
+     They used to be ignored on the way out, which is invisible while a
+     select only feeds rendering (the fixtures are single-user, so the whole
+     table was the right answer anyway) and wrong the moment a select DECIDES
+     something: "which rows belong to this import?" came back as every row in
+     the table, and the undo built on that answer would have swept the lot.
+
+     Fresh copies of fresh rows, so a hook can't alias and mutate the live
+     fixtures (which would duplicate rows alongside its own optimistic
+     updates). */
+  const rows = arr.filter(matches)
+  if (single) return { data: rows[0] ? { ...rows[0] } : null, error: null }
+  return { data: rows.map((r) => ({ ...r })), error: null }
 }
 
 function makeQuery(table) {
-  const state = { table, op: 'select', payload: null, eqs: [], single: false }
+  const state = { table, op: 'select', payload: null, eqs: [], ins: [], single: false }
 
   const handler = {
     get(_t, prop) {
@@ -134,8 +153,10 @@ function makeQuery(table) {
           return () => { state.op = 'delete'; return proxy }
         case 'eq':
           return (col, val) => { state.eqs.push([col, val]); return proxy }
+        case 'in':
+          return (col, vals) => { state.ins.push([col, vals]); return proxy }
         default:
-          /* every other filter/modifier (select, order, is, not, gte, in,
+          /* every other filter/modifier (select, order, is, not, gte,
              limit, range, neq, ilike, or, match, …) is a chainable no-op. */
           return () => proxy
       }

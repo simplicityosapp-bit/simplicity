@@ -3,7 +3,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import { useNavigate, useLocation } from 'react-router-dom'
 import {
   ChevronDown, ChevronUp, ChevronLeft, Target, Sparkles,
-  Plus, Trash2, CalendarDays, Download, Upload, Search, X, Settings,
+  Plus, Trash2, CalendarDays, Download, Upload, Search, X, Settings, RotateCcw,
 } from 'lucide-react'
 import { SECTION_DEFS, SECTION_GROUPS, groupOfSection, soleSectionOf } from './sections'
 import { searchTree } from './searchSettings'
@@ -11,6 +11,7 @@ import { ROUTES } from '../../lib/routes'
 import InfoPopover from '../../components/InfoPopover'
 import { buildSheetsFromFiles, ACCEPT } from '../../lib/importFlow'
 import { MAX_IMPORT_BYTES } from '../../lib/csvImport'
+import { previewUndoImport, undoImportBatch } from '../../lib/api/importBatch'
 import ImportDataModal from '../onboarding/ImportDataModal'
 import { useUserQuestions } from '../../hooks/useUserQuestions'
 import { useUserPreferences } from '../../hooks/useUserPreferences'
@@ -830,8 +831,20 @@ export default function SettingsScreen() {
     qc.invalidateQueries()
     /* Ticks "import your file" off the home setup card. Unlike the other
        two tasks there is no row whose existence means "done" — imported
-       clients look exactly like typed ones — so the act is recorded. */
-    updatePrefs({ setup: { imported_at: new Date().toISOString() } })
+       clients look exactly like typed ones — so the act is recorded.
+
+       The batch id rides along: it is the ONLY handle on the rows this
+       import just wrote, and without keeping it the undo has nothing to
+       aim at. One import at a time — the offer is for the last one, which
+       is the one anybody regrets. */
+    updatePrefs({
+      setup: {
+        imported_at: new Date().toISOString(),
+        last_import: summary?.batchId
+          ? { batch_id: summary.batchId, at: new Date().toISOString(), file: importParsed?.file_name || null }
+          : null,
+      },
+    })
     if (summary) {
       const c = summary.clients?.created || 0
       const p = summary.projects?.created || 0
@@ -846,15 +859,60 @@ export default function SettingsScreen() {
       if (l) parts.push(t('data.importLeads', { count: l }))
       if (tx) parts.push(t('data.importTransactions', { count: tx }))
       if (sCount) parts.push(t('data.importSessions', { count: sCount }))
+      /* Rows the file updated rather than created. Counted separately and
+         said separately: "2 לקוחות" for an import that also rewrote three
+         existing ones is a report of half the work. */
+      const updated = (summary.clients?.updated || 0) + (summary.leads?.updated || 0)
+      const updNote = updated > 0 ? t('data.importUpdatedNote', { count: updated }) : ''
       setImportMsg(
-        parts.length === 0
+        parts.length === 0 && updated === 0
           /* Nothing was written. Not a failure, but not a success either —
              it reads as "your file did nothing", so it gets the neutral tone. */
           ? { text: t('data.importNone'), kind: 'info' }
-          : { text: t('data.importSuccess', { parts: parts.join(' · '), estNote }), kind: 'ok' },
+          : parts.length === 0
+            /* Only updates: nothing was created, so say that instead of
+               opening with an empty "imported:" list. */
+            ? { text: t('data.importOnlyUpdated', { count: updated }), kind: 'ok', links: true }
+            : { text: t('data.importSuccess', { parts: parts.join(' · '), estNote }) + updNote, kind: 'ok', links: true },
       )
     }
   }
+  /* ── Undo the last import ────────────────────────────────────────
+     The only rows it can touch are the ones that import wrote (they carry
+     its batch id; everything else carries NULL), and of those, only the
+     ones nobody has edited since. A row the user has since corrected is
+     kept and counted, and the result line says so — an undo that quietly
+     leaves rows behind is worse than one that never existed. */
+  const lastImport = prefs?.setup?.last_import || null
+  const [undoingImport, setUndoingImport] = useState(false)
+  const [confirmUndoImport, setConfirmUndoImport] = useState(false)
+  const [undoPreview, setUndoPreview] = useState(null)
+  const openUndoImport = async () => {
+    setConfirmUndoImport(true)
+    setUndoPreview(null)
+    try { setUndoPreview(await previewUndoImport(lastImport?.batch_id)) } catch { /* the dialog copes without it */ }
+  }
+  const doUndoImport = async () => {
+    if (undoingImport) return
+    setUndoingImport(true)
+    try {
+      const { removed, kept } = await undoImportBatch(lastImport.batch_id)
+      qc.invalidateQueries()
+      await updatePrefs({ setup: { last_import: null } })
+      setImportMsg({
+        text: kept > 0
+          ? t('data.undoneWithKept', { count: removed, kept })
+          : t('data.undone', { count: removed }),
+        kind: kept > 0 ? 'info' : 'ok',
+      })
+      setConfirmUndoImport(false)
+    } catch (e) {
+      setImportMsg({ text: t('data.undoFailed', { detail: e?.message || '' }), kind: 'error' })
+    } finally {
+      setUndoingImport(false)
+    }
+  }
+
   const navigate = useNavigate()
   const toggle = (key) => setOpen((cur) => ({ ...cur, [key]: !cur[key] }))
   const toggleGroup = (key) => setOpenGroups((cur) => ({ ...cur, [key]: !cur[key] }))
@@ -1091,14 +1149,34 @@ export default function SettingsScreen() {
             <Box className={`set-import-msg ${importMsg.kind}`} role="status" aria-live="polite">
               <Txt as="p" className="set-data-hint">{importMsg.text}</Txt>
               {/* A rare, heavy action used to end on a grey line of text and
-                  leave you in Settings, with no way to look at what arrived. */}
-              {importMsg.kind === 'ok' && (
+                  leave you in Settings, with no way to look at what arrived.
+                  Only after an IMPORT: after an undo there is nothing new to
+                  go and see, and the invitation would be nonsense. */}
+              {importMsg.links && (
                 <Box className="set-import-links">
                   <Btn type="button" className="set-import-link" onClick={() => navigate(ROUTES.CLIENTS)}>{t('data.importSeeClients')}</Btn>
                   <Btn type="button" className="set-import-link" onClick={() => navigate(ROUTES.FINANCE)}>{t('data.importSeeMoney')}</Btn>
                 </Box>
               )}
             </Box>
+          )}
+
+          {/* The way back. Offered only while there IS a last import to undo,
+              and it retires itself the moment one is undone — a button that
+              claims it can reverse something it can no longer find is worse
+              than no button. Quiet, not destructive-red: this removes rows
+              the app wrote, not rows the user did. */}
+          {lastImport?.batch_id && (
+            <Btn
+              type="button"
+              className="set-data-action"
+              onClick={openUndoImport}
+              disabled={undoingImport || importBusy}
+              style={{ marginTop: 10 }}
+            >
+              <RotateCcw size={15} strokeWidth={1.7} aria-hidden="true" />
+              {t('data.undoImport')}
+            </Btn>
           )}
 
           <Btn
@@ -1295,6 +1373,23 @@ export default function SettingsScreen() {
           onImported={onImported}
         />
       )}
+
+      {/* The numbers come from previewUndoImport, so the dialog quotes what
+          the undo will ACTUALLY do rather than what the import once claimed:
+          rows deleted since, or edited since, change both figures. Until the
+          count arrives it says so instead of guessing. */}
+      <ConfirmModal
+        open={confirmUndoImport}
+        onClose={() => setConfirmUndoImport(false)}
+        title={t('data.undoTitle')}
+        confirmLabel={undoingImport ? t('data.undoing') : t('data.undoConfirm')}
+        message={undoPreview
+          ? (undoPreview.kept > 0
+            ? t('data.undoMessageWithKept', { count: undoPreview.removable, kept: undoPreview.kept })
+            : t('data.undoMessage', { count: undoPreview.removable }))
+          : t('data.undoCounting')}
+        onConfirm={doUndoImport}
+      />
 
       <ConfirmModal
         open={showRestartOb}

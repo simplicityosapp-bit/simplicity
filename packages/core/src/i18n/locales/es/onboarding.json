@@ -136,7 +136,10 @@
       "transactions_one": "transacción",
       "transactions_other": "transacciones",
       "sessions_one": "sesión",
-      "sessions_other": "sesiones"
+      "sessions_other": "sesiones",
+      "andUpdated_one": "Se actualizará 1 registro existente — solo los campos que trae el archivo.",
+      "andUpdated_other": "Se actualizarán {{count}} registros existentes — solo los campos que trae el archivo.",
+      "andUpdated": "Se actualizarán {{count}} registros existentes — solo los campos que trae el archivo."
     },
     "confirm": {
       "savingCreate": "Creando…",
@@ -225,7 +228,13 @@
     "missingProjects_one": "El archivo menciona un proyecto que no existe: {{names}}.",
     "missingProjects_other": "El archivo menciona {{count}} proyectos que no existen: {{names}}.",
     "missingProjects": "El archivo menciona {{count}} proyectos que no existen: {{names}}.",
-    "createMissingProjects": "Crearlos"
+    "createMissingProjects": "Crearlos",
+    "existing": {
+      "skip": "Omitir",
+      "update": "Actualizar",
+      "duplicate": "Añadir igual",
+      "groupAria": "{{name}} ya existe — qué hacer"
+    }
   },
   "modal": {
     "title": "Importar desde un archivo",

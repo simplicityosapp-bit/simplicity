@@ -160,7 +160,12 @@
       "sessions_one": "פגישה",
       "sessions_two": "פגישות",
       "sessions_many": "פגישות",
-      "sessions_other": "פגישות"
+      "sessions_other": "פגישות",
+      "andUpdated": "יעודכנו {{count}} רשומות קיימות — רק שדות שהקובץ מילא.",
+      "andUpdated_one": "תעודכן רשומה קיימת אחת — רק שדות שהקובץ מילא.",
+      "andUpdated_two": "יעודכנו {{count}} רשומות קיימות — רק שדות שהקובץ מילא.",
+      "andUpdated_many": "יעודכנו {{count}} רשומות קיימות — רק שדות שהקובץ מילא.",
+      "andUpdated_other": "יעודכנו {{count}} רשומות קיימות — רק שדות שהקובץ מילא."
     },
     "confirm": {
       "savingCreate": "יוצר…",
@@ -269,7 +274,13 @@
     "missingProjects_two": "הקובץ מפנה ל-{{count}} פרויקטים שאינם קיימים: {{names}}.",
     "missingProjects_many": "הקובץ מפנה ל-{{count}} פרויקטים שאינם קיימים: {{names}}.",
     "missingProjects_other": "הקובץ מפנה ל-{{count}} פרויקטים שאינם קיימים: {{names}}.",
-    "createMissingProjects": "ליצור אותם"
+    "createMissingProjects": "ליצור אותם",
+    "existing": {
+      "skip": "לדלג",
+      "update": "לעדכן",
+      "duplicate": "ליצור בנוסף",
+      "groupAria": "{{name}} כבר קיים — מה לעשות"
+    }
   },
   "modal": {
     "title": "ייבוא מקובץ",

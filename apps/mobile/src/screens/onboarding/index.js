@@ -1,44 +1,23 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { View, Text, StyleSheet } from 'react-native'
-import { colors, type } from '../../theme/theme'
-import i18n from '../../lib/i18n'
 import { useOnboarding } from '../../lib/onboarding'
 import OnboardingShell from './OnboardingShell'
 import WelcomeGate from './WelcomeGate'
-import { useStepCTA } from './useStepCTA'
 import Step1Profile from './steps/Step1Profile'
 import Step2Project from './steps/Step2Project'
 import Step3Clients from './steps/Step3Clients'
 import Step4Goals from './steps/Step4Goals'
+import Step5Finish from './steps/Step5Finish'
 
 /* The onboarding flow. Mirrors apps/web/src/screens/onboarding/index.jsx:
    the welcome gate shows until acknowledged, then the current step drives
-   the body, and finishing releases the guard in App.js.
-
-   The step BODIES are still placeholders — they land next, a pair at a
-   time. Each one already speaks the real CTA contract, so swapping a
-   placeholder for a real step changes only that file. */
-
-/* Temporary stand-in for a step that has not been built yet. It publishes
-   a CTA the way a real step will, and reports itself as not-yet-fillable
-   so the shell offers "later" rather than claiming there is something to
-   save. */
-function StepPlaceholder({ step, setCTA }) {
-  useStepCTA(setCTA, { onNext: undefined, canAdvance: false })
-  return (
-    <View style={styles.placeholder}>
-      <Text style={styles.step}>{step}</Text>
-      <Text style={styles.note}>{i18n.t('common:soon', { defaultValue: 'בקרוב' })}</Text>
-    </View>
-  )
-}
+   the body, and finishing releases the guard in App.js. */
 
 const STEPS = {
   profile: Step1Profile,
   projects: Step2Project,
   clients: Step3Clients,
   goals: Step4Goals,
-  finish: StepPlaceholder,
+  finish: Step5Finish,
 }
 
 export default function OnboardingScreen() {
@@ -95,8 +74,3 @@ export default function OnboardingScreen() {
   )
 }
 
-const styles = StyleSheet.create({
-  placeholder: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 8, paddingVertical: 40 },
-  step: { ...type.displayL, color: colors.text },
-  note: { ...type.caption, color: colors.textSub },
-})

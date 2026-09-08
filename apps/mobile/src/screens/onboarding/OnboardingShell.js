@@ -35,7 +35,7 @@ export default function OnboardingShell({ ob, cta, children }) {
   const rtl = (i18n.language || '').startsWith('he')
   const BackArrow = rtl ? ChevronRight : ChevronLeft
   const align = { textAlign: rtl ? 'right' : 'left' }
-  const t = (k, fallback, vars) => i18n.t('onboarding:' + k, { defaultValue: fallback, ...vars })
+  const t = (k, vars) => i18n.t('onboarding:' + k, vars)
 
   /* The primary CTA is async on most steps. Wired straight through, a
      rejection became an unhandled promise rejection: the user pressed and
@@ -46,7 +46,7 @@ export default function OnboardingShell({ ob, cta, children }) {
     try {
       await cta?.onNext?.()
     } catch {
-      Alert.alert(t('shell.saveFailed', 'לא הצלחנו לשמור. אפשר לנסות שוב.'))
+      Alert.alert(t('shell.saveFailed'))
     }
   }
 
@@ -71,7 +71,7 @@ export default function OnboardingShell({ ob, cta, children }) {
       await ob.skipAll()
     } catch {
       setExiting(false)
-      Alert.alert(t('shell.saveFailed', 'לא הצלחנו לשמור. אפשר לנסות שוב.'))
+      Alert.alert(t('shell.saveFailed'))
     }
   }
 
@@ -85,8 +85,8 @@ export default function OnboardingShell({ ob, cta, children }) {
      stuck. Filled → it saves; empty or not yet valid → it says so and
      moves on, and the hint beside it says what filling it in would get. */
   const primaryLabel = busy
-    ? t('shell.saving', 'שומר…')
-    : (canAdvance ? (cta?.nextLabel || t('shell.next', 'הלאה')) : t('shell.later', 'אחר כך'))
+    ? t('shell.saving')
+    : (canAdvance ? (cta?.nextLabel || t('shell.next')) : t('shell.later'))
   const onPrimary = canAdvance ? runNext : onSkipStep
 
   return (
@@ -99,7 +99,7 @@ export default function OnboardingShell({ ob, cta, children }) {
 
         <View style={styles.head}>
           <Text style={styles.counter}>
-            {t('shell.stepCounter', 'צעד {{current}} מתוך {{total}}', {
+            {t('shell.stepCounter', {
               current: ob.stepIndex + 1,
               total: ob.total,
             })}
@@ -131,7 +131,7 @@ export default function OnboardingShell({ ob, cta, children }) {
               style={({ pressed }) => [styles.back, isFirst && styles.disabled, pressed && styles.pressed]}
             >
               <BackArrow size={16} strokeWidth={1.5} color={colors.text} />
-              <Text style={styles.backLabel}>{t('shell.back', 'חזרה')}</Text>
+              <Text style={styles.backLabel}>{t('shell.back')}</Text>
             </Pressable>
 
             <Pressable
@@ -146,7 +146,7 @@ export default function OnboardingShell({ ob, cta, children }) {
               ]}
             >
               <Text style={[styles.primaryLabel, !canAdvance && styles.primaryQuietLabel]}>
-                {skipping ? t('shell.saving', 'שומר…') : primaryLabel}
+                {skipping ? t('shell.saving') : primaryLabel}
               </Text>
             </Pressable>
           </View>
@@ -155,7 +155,7 @@ export default function OnboardingShell({ ob, cta, children }) {
               link under the buttons, not a third control competing. */}
           <Pressable accessibilityRole="button" onPress={onExit} disabled={exiting}>
             <Text style={styles.exit}>
-              {exiting ? t('shell.saving', 'שומר…') : t('shell.exit', 'לצאת מההיכרות')}
+              {exiting ? t('shell.saving') : t('shell.exit')}
             </Text>
           </Pressable>
         </View>

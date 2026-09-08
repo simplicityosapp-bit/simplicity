@@ -43,7 +43,7 @@ export default function WelcomeGate({ onStart, onSkip }) {
     }
   }
 
-  const t = (k, fallback) => i18n.t('onboarding:' + k, { defaultValue: fallback })
+  const t = (k) => i18n.t('onboarding:' + k)
 
   const Option = ({ onPress, title, sub, primary }) => (
     <Pressable
@@ -74,19 +74,19 @@ export default function WelcomeGate({ onStart, onSkip }) {
           transition={200}
         />
         <Text style={styles.name}>Simplicity</Text>
-        <Text style={styles.tag}>{t('welcome.tagline', 'Business OS')}</Text>
+        <Text style={styles.tag}>{t('welcome.tagline')}</Text>
 
         <View style={styles.options}>
           <Option
             primary
             onPress={once(onStart)}
-            title={t('welcome.startTitle', 'נתחיל בהיכרות קצרה')}
-            sub={t('welcome.startSub', 'ארבעה צעדים: שם, דרך העבודה, לקוח ראשון ויעד. כמה דקות.')}
+            title={t('welcome.startTitle')}
+            sub={t('welcome.startSub')}
           />
           <Option
             onPress={once(onSkip)}
-            title={t('welcome.skipTitle', 'להיכנס ישר למערכת')}
-            sub={t('welcome.skipSub', 'את ההיכרות אפשר לעשות אחר כך, מההגדרות.')}
+            title={t('welcome.skipTitle')}
+            sub={t('welcome.skipSub')}
           />
         </View>
       </View>

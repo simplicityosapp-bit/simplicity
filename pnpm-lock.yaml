@@ -98,6 +98,10 @@ importers:
       react-native-web:
         specifier: ^0.21.2
         version: 0.21.2(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+    devDependencies:
+      vitest:
+        specifier: ^4.1.8
+        version: 4.1.9(@types/node@26.0.1)(vite@8.1.1(@types/node@26.0.1)(terser@5.48.0)(yaml@2.9.0))
 
   apps/web:
     dependencies:

@@ -36,7 +36,11 @@
     "start": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
-    "web": "expo start --web"
+    "web": "expo start --web",
+    "test": "vitest run"
   },
-  "private": true
+  "private": true,
+  "devDependencies": {
+    "vitest": "^4.1.8"
+  }
 }

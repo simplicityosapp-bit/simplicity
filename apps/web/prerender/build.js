@@ -1,10 +1,14 @@
 /* ════════════════════════════════════════════════════════════════
    PRERENDER BUILD — bake static HTML for the two public routes.
    ════════════════════════════════════════════════════════════════
-   Runs straight after `vite build` (see the "build" script). It does not
-   touch dist/index.html: that stays the empty SPA shell every other route
-   still falls back to. It only ADDS files under dist/prerender/, which
-   vercel.json points "/" and "/legal" at.
+   Runs straight after `vite build` (see the "build" script). The empty
+   shell Vite emitted is preserved as dist/app.html — that is what the
+   catch-all rewrite serves, so every route behind the login still gets a
+   blank root to mount into. dist/index.html is then REPLACED by the
+   prerendered landing page, because Vercel resolves "/" on the filesystem
+   before it ever consults the rewrite table (see routes.js). The legal
+   documents are not files at their public URLs, so they can be — and are —
+   reached by rewrites, and live under dist/prerender/.
 
    How the HTML is produced: a Vite dev server in middleware mode gives us
    ssrLoadModule(), which runs prerender/entry.jsx through the same
@@ -23,11 +27,10 @@ import { createServer } from 'vite'
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { fileURLToPath } from 'node:url'
 import path from 'node:path'
-import { MIN_HTML_BYTES, PRERENDER_ROUTES } from './routes.js'
+import { MIN_HTML_BYTES, PRERENDER_ROUTES, SPA_SHELL } from './routes.js'
 
 const webRoot = fileURLToPath(new URL('..', import.meta.url))
 const distDir = path.join(webRoot, 'dist')
-const outDir = path.join(distDir, 'prerender')
 
 /* The exact placeholder Vite emits. Matched as a literal (not a regex) so a
    change to the template is a loud failure rather than a silent miss. */
@@ -126,8 +129,14 @@ function verify(route, body, expected, missingI18nKeys) {
 
 const template = await readFile(path.join(distDir, 'index.html'), 'utf8')
 if (!template.includes(ROOT_DIV)) {
+  /* Also what you get from running this twice without rebuilding: the
+     first run replaced index.html with the rendered landing page, so the
+     placeholder is gone. Failing here beats prerendering a prerender. */
   throw new Error(`prerender: "${ROOT_DIV}" not found in dist/index.html — run \`vite build\` first`)
 }
+
+/* Keep the empty shell before index.html is overwritten below. */
+await writeFile(path.join(distDir, SPA_SHELL), template, 'utf8')
 
 const vite = await createServer({
   root: webRoot,
@@ -140,7 +149,6 @@ const vite = await createServer({
 
 try {
   const entry = await vite.ssrLoadModule('/prerender/entry.jsx')
-  await mkdir(outDir, { recursive: true })
 
   for (const route of PRERENDER_ROUTES) {
     /* Only the keys THIS render failed to resolve. Bracketing the call keeps
@@ -179,9 +187,16 @@ try {
       html = setMeta(html, 'property', 'og:url', route.canonical)
     }
 
-    await writeFile(path.join(outDir, route.out), html, 'utf8')
+    const target = path.join(distDir, route.out)
+    await mkdir(path.dirname(target), { recursive: true })
+    await writeFile(target, html, 'utf8')
+
     const kb = (Buffer.byteLength(html, 'utf8') / 1024).toFixed(1)
-    console.log(`prerender  ${route.location.padEnd(22)} → dist/prerender/${route.out.padEnd(20)} ${kb} kB  (${expected.length} strings verified)`)
+    const how = route.rewrite === false ? 'filesystem' : 'rewrite'
+    console.log(
+      `prerender  ${route.location.padEnd(22)} → dist/${route.out.padEnd(30)} ${kb.padStart(5)} kB  ` +
+        `via ${how.padEnd(10)} (${expected.length} strings verified)`,
+    )
   }
 } finally {
   await vite.close()

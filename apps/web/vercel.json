@@ -24,10 +24,6 @@
       "destination": "/prerender/legal-terms.html"
     },
     {
-      "source": "/",
-      "destination": "/prerender/home.html"
-    },
-    {
       "source": "/p/:slug",
       "destination": "/api/page?kind=landing&slug=:slug"
     },
@@ -37,7 +33,7 @@
     },
     {
       "source": "/(.*)",
-      "destination": "/index.html"
+      "destination": "/app.html"
     }
   ],
   "headers": [

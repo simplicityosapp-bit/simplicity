@@ -60,7 +60,7 @@ export const PRERENDER_ROUTES = [
        is what og:title and twitter:title get — Hebrew, unchanged, because a
        shared link should still look Hebrew to whoever receives it. Omit
        socialTitle and the social tags keep index.html's own values. */
-    title: 'Simplicity — מדיניות פרטיות',
+    title: 'Simplicity | מדיניות פרטיות',
     socialTitle: 'מדיניות פרטיות — סימפליסיטי',
     description:
       'מדיניות הפרטיות של סימפליסיטי: אילו נתונים נאספים, היכן הם מאוחסנים (שרתי האיחוד האירופי באירלנד), מי ניגש אליהם, וכיצד לייצא או למחוק אותם.',
@@ -71,7 +71,7 @@ export const PRERENDER_ROUTES = [
     kind: 'legal',
     location: '/legal?tab=terms',
     legalTab: 'terms',
-    title: 'Simplicity — תנאי שימוש',
+    title: 'Simplicity | תנאי שימוש',
     socialTitle: 'תנאי שימוש — סימפליסיטי',
     description:
       'תנאי השימוש בשירות סימפליסיטי — מערכת הפעלה לעסק למטפלים, מאמנים, מנטורים ומנחים.',
@@ -82,7 +82,7 @@ export const PRERENDER_ROUTES = [
     kind: 'legal',
     location: '/legal?tab=dpa',
     legalTab: 'dpa',
-    title: 'Simplicity — הסכם עיבוד נתונים (DPA)',
+    title: 'Simplicity | הסכם עיבוד נתונים (DPA)',
     socialTitle: 'הסכם עיבוד נתונים (DPA) — סימפליסיטי',
     description:
       'הסכם עיבוד הנתונים בין סימפליסיטי למשתמשי השירות — היקף העיבוד, אמצעי האבטחה, וזכויות בעל המאגר.',

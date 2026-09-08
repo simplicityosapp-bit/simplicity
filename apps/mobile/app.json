@@ -35,7 +35,16 @@
     },
     "owner": "simplicity-os",
     "plugins": [
-      "expo-status-bar"
+      "expo-status-bar",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 200,
+          "resizeMode": "contain",
+          "backgroundColor": "#fbf7f2"
+        }
+      ]
     ]
   }
 }

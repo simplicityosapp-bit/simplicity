@@ -136,7 +136,10 @@
       "transactions_one": "transaction",
       "transactions_other": "transactions",
       "sessions_one": "séance",
-      "sessions_other": "séances"
+      "sessions_other": "séances",
+      "andUpdated_one": "1 fiche existante sera mise à jour — seulement les champs remplis dans le fichier.",
+      "andUpdated_other": "{{count}} fiches existantes seront mises à jour — seulement les champs remplis dans le fichier.",
+      "andUpdated": "{{count}} fiches existantes seront mises à jour — seulement les champs remplis dans le fichier."
     },
     "confirm": {
       "savingCreate": "Création…",
@@ -225,7 +228,13 @@
     "missingProjects_one": "Le fichier renvoie à un projet qui n’existe pas : {{names}}.",
     "missingProjects_other": "Le fichier renvoie à {{count}} projets qui n’existent pas : {{names}}.",
     "missingProjects": "Le fichier renvoie à {{count}} projets qui n’existent pas : {{names}}.",
-    "createMissingProjects": "Les créer"
+    "createMissingProjects": "Les créer",
+    "existing": {
+      "skip": "Ignorer",
+      "update": "Mettre à jour",
+      "duplicate": "Ajouter quand même",
+      "groupAria": "{{name}} existe déjà — que faire"
+    }
   },
   "modal": {
     "title": "Importer depuis un fichier",

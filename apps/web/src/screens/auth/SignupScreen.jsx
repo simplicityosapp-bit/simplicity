@@ -222,7 +222,7 @@ export default function SignupScreen() {
           <Box className="auth-checks">
             <Box as="label" className="auth-check">
               <Input type="checkbox" checked={agreePolicies} onChange={(e) => setAgreePolicies(e.target.checked)} />
-              <Txt className="auth-check-box" aria-hidden="true"><Check size={13} strokeWidth={3} /></Txt>
+              <Txt className="auth-check-box" aria-hidden="true"><Check size={15} strokeWidth={3} /></Txt>
               <Txt className="auth-check-label">
                 <Trans
                   t={t}
@@ -236,7 +236,7 @@ export default function SignupScreen() {
             </Box>
             <Box as="label" className="auth-check">
               <Input type="checkbox" checked={agreeTerms} onChange={(e) => setAgreeTerms(e.target.checked)} />
-              <Txt className="auth-check-box" aria-hidden="true"><Check size={13} strokeWidth={3} /></Txt>
+              <Txt className="auth-check-box" aria-hidden="true"><Check size={15} strokeWidth={3} /></Txt>
               <Txt className="auth-check-label">
                 <Trans
                   t={t}
@@ -249,7 +249,7 @@ export default function SignupScreen() {
             </Box>
             <Box as="label" className="auth-check">
               <Input type="checkbox" checked={agreeMarketing} onChange={(e) => setAgreeMarketing(e.target.checked)} />
-              <Txt className="auth-check-box" aria-hidden="true"><Check size={13} strokeWidth={3} /></Txt>
+              <Txt className="auth-check-box" aria-hidden="true"><Check size={15} strokeWidth={3} /></Txt>
               <Txt className="auth-check-label">
                 {t('signupScreen.consentMarketing')}
               </Txt>

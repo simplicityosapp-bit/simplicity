@@ -1,9 +1,10 @@
 import { Suspense, useEffect, useRef, useState } from 'react'
 import {
-  BrowserRouter, Routes, Route, Navigate, useLocation,
+  BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate,
 } from 'react-router-dom'
 
 import { ROUTES } from './lib/routes'
+import { isReturnable, takeReturnPath } from './lib/authReturn'
 import { isAdminUser } from './lib/admin'
 import { screenKeyFromPath } from './lib/nav'
 import { useTheme } from './hooks/useTheme'
@@ -98,6 +99,7 @@ function ScreenFallback() {
 
 function AppShell() {
   const location = useLocation()
+  const navigate = useNavigate()
   const screen = screenKeyFromPath(location.pathname)
   const { user } = useAuth()
   const { isDark, toggleTheme } = useTheme()
@@ -112,6 +114,26 @@ function AppShell() {
      .screen, so navigating is still possible while frozen, which makes this the
      one place a stuck user reliably passes through. */
   useEffect(() => { reconcileModalLock() }, [location.pathname])
+
+  /* Land a Google sign-in on the page the visitor originally asked for.
+     Google returns to the ORIGIN — "/" — which matches the home route, so the
+     signed-in catch-all that handles this for a password sign-in never runs
+     here and the stashed path would simply sit there unread. (Measured: the
+     return landed on home with the stash untouched.) So the shell reads it,
+     which is the first place on the OAuth path that is past the gates and
+     certain to render.
+
+     Held back until onboarding is done and we are not inside it — a brand-new
+     account has somewhere it must be first, and the stash's own expiry then
+     decides whether a link followed before a whole wizard is still worth
+     honouring. takeReturnPath is one-shot, so re-runs find nothing. */
+  useEffect(() => {
+    const ob = prefs?.onboarding
+    if (!(ob?.completed_at || ob?.skipped_at)) return
+    if (location.pathname.startsWith(ROUTES.ONBOARDING)) return
+    const to = takeReturnPath()
+    if (returnable(to)) navigate(to, { replace: true })
+  }, [prefs, location.pathname, navigate])
 
   /* Toggle theme on the local hook (fast) AND persist to prefs. */
   const handleToggleTheme = () => {
@@ -305,13 +327,7 @@ function AppShell() {
    send one BACK to after they sign in — that is a loop, not a destination. */
 const AUTH_PATHS = new Set([ROUTES.LOGIN, ROUTES.SIGNUP, ROUTES.RESET_PASSWORD, ROUTES.UPDATE_PASSWORD])
 
-/* Is `to` a path of our own that we may bounce to after a sign-in? Rejects a
-   protocol-relative "//host" (that is somebody else's site) and the auth
-   screens themselves. */
-function isReturnable(to) {
-  if (typeof to !== 'string' || !to.startsWith('/') || to.startsWith('//')) return false
-  return !AUTH_PATHS.has(to.split('?')[0])
-}
+const returnable = (to) => isReturnable(to, AUTH_PATHS)
 
 function AuthGate() {
   const { pathname, search } = useLocation()
@@ -328,7 +344,7 @@ function AuthGate() {
       <Route path={ROUTES.RESET_PASSWORD} element={<ResetPasswordScreen />} />
       <Route
         path="*"
-        element={<Navigate to={ROUTES.LOGIN} replace state={isReturnable(from) ? { from } : null} />}
+        element={<Navigate to={ROUTES.LOGIN} replace state={returnable(from) ? { from } : null} />}
       />
     </Routes>
   )
@@ -336,18 +352,21 @@ function AuthGate() {
 
 /* The signed-in catch-all. Normally home — but if the visitor was sent to the
    sign-in screen from somewhere, that somewhere is where they meant to be.
-   Signing in does not navigate (the session simply arrives and Root renders
-   the app), so the state AuthGate left on this location is still here.
 
-   Carries no state onward, which is what stops this looping: if `from` turns
-   out to match no route, we land back on this catch-all with nothing to read
-   and go home. It cannot survive a Google sign-in either — that leaves the
-   page entirely and comes back at the origin — so the OAuth path still lands
-   home. */
+   Two ways of hearing it, because the two sign-ins lose different things. A
+   password sign-in never navigates — the session arrives and the app
+   re-renders on the same location — so the state AuthGate left is still here.
+   Google leaves the page and comes back at the origin, taking the router
+   state with it; that path is read from the stash GoogleButton wrote on its
+   way out (see lib/authReturn).
+
+   Carries no state onward, and the stash is one-shot, which is what stops
+   this looping: a `from` matching no route lands back on this catch-all with
+   nothing left to read, and goes home. */
 function HomeOrIntended() {
   const { state } = useLocation()
-  const from = state?.from
-  return <Navigate to={isReturnable(from) ? from : ROUTES.HOME} replace />
+  const from = state?.from ?? takeReturnPath()
+  return <Navigate to={returnable(from) ? from : ROUTES.HOME} replace />
 }
 
 /* When the user returns from an OAuth provider (e.g. Google), the URL

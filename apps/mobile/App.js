@@ -5,7 +5,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 import { useFonts } from 'expo-font'
 import { fontAssets } from './src/lib/fonts'
-import i18n, { setupI18n } from './src/lib/i18n'
+import i18n, { setupI18n, whenI18nReady } from './src/lib/i18n'
 import { AuthProvider, useAuth } from './src/lib/auth'
 import { DrawerProvider, useDrawer } from './src/lib/drawer'
 import { FormOptionsProvider } from './src/lib/formOptions'
@@ -123,12 +123,37 @@ function AuthedApp({ lang }) {
   )
 }
 
+/* Wait for the chosen language before the first paint. Only Hebrew ships with
+   the engine, so on a non-Hebrew device i18next answers from the Hebrew
+   fallback until the real bundle lands a tick later — the first screen would
+   paint in Hebrew and then swap. That first screen is now the onboarding
+   welcome.
+
+   Raced against a short timeout for the same reason the font gate tolerates a
+   rejected font: a bundle that never arrives should cost a moment, not the
+   whole app. Falling through early just means the old behaviour — Hebrew,
+   then a swap — rather than a screen that never comes. */
+const I18N_WAIT_MS = 2000
+
+function useI18nReady() {
+  const [ready, setReady] = useState(false)
+  useEffect(() => {
+    let alive = true
+    const done = () => { if (alive) setReady(true) }
+    const timer = setTimeout(done, I18N_WAIT_MS)
+    whenI18nReady().then(done, done).finally(() => clearTimeout(timer))
+    return () => { alive = false; clearTimeout(timer) }
+  }, [])
+  return ready
+}
+
 export default function App() {
   // Don't brick the app on a font that a device rejects: if useFonts errors
   // (e.g. Android's stricter TTF parser refusing an asset), proceed with the
   // system fallback instead of hanging on the spinner forever.
   const [fontsLoaded, fontError] = useFonts(fontAssets)
-  if (!fontsLoaded && !fontError) {
+  const langReady = useI18nReady()
+  if (!langReady || (!fontsLoaded && !fontError)) {
     return (
       <View style={styles.center}>
         <ActivityIndicator color="#C97B5E" />

@@ -6,7 +6,7 @@
   "packageManager": "pnpm@11.9.0",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build && node prerender/build.js",
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "vitest run",

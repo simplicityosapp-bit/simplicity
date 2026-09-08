@@ -12,6 +12,7 @@
     "web:test": "pnpm --filter mangata-react test",
     "web:lint": "pnpm --filter mangata-react lint",
     "mobile": "pnpm --filter simplicity-expo start",
-    "core:typecheck": "pnpm --filter @simplicity/core typecheck"
+    "core:typecheck": "pnpm --filter @simplicity/core typecheck",
+    "core:test": "pnpm --filter @simplicity/core test"
   }
 }

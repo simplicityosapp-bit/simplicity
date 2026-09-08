@@ -16,28 +16,42 @@
    were true of the HTML, and false of the app.
 
    Each entry below is rendered to static HTML at build time (see
-   build.js) into dist/prerender/<out>. vercel.json rewrites the public
-   URL to that file; every OTHER path still falls through to the empty
-   index.html and stays a pure SPA.
+   build.js) into dist/<out>. Every OTHER path still falls through to the
+   empty shell and stays a pure SPA.
 
-   `kind` picks the component to render (see entry.jsx). `location` is
-   the URL the router is given, so ?tab= selects the legal document.
-   The meta fields override index.html's homepage defaults — without
-   them all three legal tabs would share the landing page's <title>.
+   ── Why "/" is written to index.html and the shell moved to app.html ──
+   Vercel applies vercel.json `rewrites` only AFTER the filesystem misses.
+   "/legal" is not a file, so its rewrite fires; "/" resolves to
+   dist/index.html on the filesystem and never reaches the rewrite table
+   at all. Measured in production, not guessed: with a `{"source": "/"}`
+   rewrite in place, all five legal URLs served their prerendered pages
+   and "/" alone kept serving the empty shell.
+
+   So the homepage cannot be routed to — it has to BE index.html. The
+   empty shell it displaced becomes SPA_SHELL, which the catch-all rewrite
+   points at, and deep links keep getting a blank root to mount into
+   rather than a flash of the landing page.
    ════════════════════════════════════════════════════════════════ */
 
 const SITE = 'https://simplicity-os.com'
 
+/* The untouched empty shell, for the "/(.*)" catch-all. Deep routes
+   (/clients, /settings …) are rewritten here. */
+export const SPA_SHELL = 'app.html'
+
 export const PRERENDER_ROUTES = [
   {
-    out: 'home.html',
+    /* Served straight off the filesystem — see the header. No rewrite
+       exists for it, and none would ever run. */
+    out: 'index.html',
+    rewrite: false,
     kind: 'landing',
     location: '/',
     /* No meta overrides: index.html's own title/description/canonical are
        already written for the homepage. Only the body is filled in. */
   },
   {
-    out: 'legal-privacy.html',
+    out: 'prerender/legal-privacy.html',
     kind: 'legal',
     location: '/legal?tab=privacy',
     legalTab: 'privacy',
@@ -47,7 +61,7 @@ export const PRERENDER_ROUTES = [
     canonical: `${SITE}/legal?tab=privacy`,
   },
   {
-    out: 'legal-terms.html',
+    out: 'prerender/legal-terms.html',
     kind: 'legal',
     location: '/legal?tab=terms',
     legalTab: 'terms',
@@ -57,7 +71,7 @@ export const PRERENDER_ROUTES = [
     canonical: `${SITE}/legal?tab=terms`,
   },
   {
-    out: 'legal-dpa.html',
+    out: 'prerender/legal-dpa.html',
     kind: 'legal',
     location: '/legal?tab=dpa',
     legalTab: 'dpa',

@@ -8,6 +8,8 @@ import WelcomeGate from './WelcomeGate'
 import { useStepCTA } from './useStepCTA'
 import Step1Profile from './steps/Step1Profile'
 import Step2Project from './steps/Step2Project'
+import Step3Clients from './steps/Step3Clients'
+import Step4Goals from './steps/Step4Goals'
 
 /* The onboarding flow. Mirrors apps/web/src/screens/onboarding/index.jsx:
    the welcome gate shows until acknowledged, then the current step drives
@@ -34,8 +36,8 @@ function StepPlaceholder({ step, setCTA }) {
 const STEPS = {
   profile: Step1Profile,
   projects: Step2Project,
-  clients: StepPlaceholder,
-  goals: StepPlaceholder,
+  clients: Step3Clients,
+  goals: Step4Goals,
   finish: StepPlaceholder,
 }
 

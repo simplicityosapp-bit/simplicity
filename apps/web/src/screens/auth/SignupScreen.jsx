@@ -164,9 +164,7 @@ export default function SignupScreen() {
           <Box className="auth-group">
             {/* The name of the field, on the page, staying there — it used to
                 live in the placeholder, which is to say it left the moment
-                anyone typed. A sibling of the field, not its parent: see
-                AuthScreen.css for why that decides whether a screen reader
-                hears anything at all. */}
+                anyone typed. */}
             <Txt as="label" className="auth-label" htmlFor="signup-email">{t('emailPlaceholder')}</Txt>
             <Box as="label" className="auth-field" htmlFor="signup-email">
               <Txt className="auth-field-icon"><Mail size={16} strokeWidth={1.6} aria-hidden="true" /></Txt>

@@ -180,13 +180,20 @@
    which. Worse for someone unsure they typed the right thing in the first
    place — which is the whole audience here.
 
-   Two <label>s point at the input, on purpose. The visible one is a SIBLING
-   of the field, not its parent: a label wrapping its control contributes no
-   accessible name in Chrome (checked against a wrapping and a sibling probe
-   side by side in the page — the wrapped one came back nameless), so the
-   first arrangement here looked right and told a screen reader nothing. The
-   pill keeps its own wrapping label, textless, purely so that clicking the
-   icon or the padding still lands the caret in the box. */
+   Two <label>s point at the input, on purpose: the visible one above the
+   pill carries the name, and the pill keeps a second, textless one of its own
+   so that clicking the icon or the padding still lands the caret in the box.
+
+   An earlier version of this comment claimed the visible label had to be a
+   SIBLING because a label wrapping its control contributes no accessible name
+   in Chrome. That is wrong, and worth saying so here rather than leaving the
+   claim to be believed: `<label><input> text</label>` is the canonical
+   accessible pattern and names its control everywhere. What actually happened
+   is that the agent-facing accessibility snapshot used to check this resolves
+   `label[for]` but NOT implicit wrapping labels, and reported a control that
+   was correctly named as unnamed. The arrangement below is fine and stays —
+   an explicit `for` is no worse — but nobody should read this file and
+   conclude that wrapping a control in its label breaks it. */
 .auth-group {
   display: block;
 }

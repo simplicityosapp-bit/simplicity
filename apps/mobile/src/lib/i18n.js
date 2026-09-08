@@ -19,6 +19,16 @@ function deviceLang() {
   }
 }
 
+/* Resolves once the chosen language is actually usable. See setupI18n: on a
+   non-Hebrew device the first paint would otherwise land on the Hebrew
+   fallback and flip a tick later. Never rejects — a language that fails to
+   load leaves the app on Hebrew, which is what it did before. */
+let readyPromise = Promise.resolve()
+
+export function whenI18nReady() {
+  return readyPromise
+}
+
 // Call once at startup, before the first render. Idempotent (initI18n guards).
 export function setupI18n() {
   const lng = deviceLang()
@@ -26,10 +36,18 @@ export function setupI18n() {
   // Only `he` ships with the engine (see @simplicity/core/i18n) — a device in
   // another language has to pull that bundle in. Metro has no code splitting,
   // so the module is already in the bundle and this settles on the next tick;
-  // changeLanguage after it is what tells react-i18next to re-render. Kept
-  // fire-and-forget so setupI18n stays synchronous for App.js.
+  // changeLanguage after it is what tells react-i18next to re-render.
+  //
+  // That tick is visible. Until it lands, i18next answers from the Hebrew
+  // fallback, so the first screen paints in Hebrew and then swaps to the
+  // device language. It went unnoticed while that screen was the login form;
+  // it is now the onboarding welcome — the first thing a new user ever sees,
+  // and a flash of the wrong language is a poor hello. App.js waits on
+  // whenI18nReady() the way it already waits on fonts.
   if (lng !== DEFAULT_LANG) {
-    loadLanguage(lng).then(() => i18n.changeLanguage(lng)).catch(() => { /* falls back to he */ })
+    readyPromise = loadLanguage(lng)
+      .then(() => i18n.changeLanguage(lng))
+      .catch(() => { /* falls back to he */ })
   }
   // Register the dynamic 'reflections' namespace (moon/mirror reflection text)
   // AFTER init. The module's import-time side-effect runs before init on native

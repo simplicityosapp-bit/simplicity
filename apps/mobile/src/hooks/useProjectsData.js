@@ -57,5 +57,26 @@ export function useProjectsData() {
     if (e) { load() }
   }, [load])
 
-  return { ...state, loading, error, refetch: load, addProject, updateProject, removeProject }
+  /* Groups, for onboarding's second step: it plants one starter group when
+     the user says they work in groups, and takes it away again if they come
+     back and switch to one-to-one. This hook already loads groups, so the
+     writes belong beside the reads — useProjectDetailData has the same pair,
+     but it fetches six tables for one project and onboarding has no project
+     to point it at yet. */
+  const addGroup = useCallback(async (payload) => {
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session) throw new Error('no session')
+    const { data, error: e } = await supabase.from('groups').insert({ ...payload, user_id: session.user.id }).select().single()
+    if (e) throw e
+    setState((s) => ({ ...s, groups: [...s.groups, data] }))
+    return data
+  }, [])
+
+  const removeGroup = useCallback(async (id) => {
+    setState((s) => ({ ...s, groups: s.groups.filter((g) => g.id !== id) }))
+    const { error: e } = await supabase.from('groups').update({ deleted_at: new Date().toISOString() }).eq('id', id)
+    if (e) { load() }
+  }, [load])
+
+  return { ...state, loading, error, refetch: load, addProject, updateProject, removeProject, addGroup, removeGroup }
 }

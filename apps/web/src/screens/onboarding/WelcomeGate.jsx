@@ -2,7 +2,6 @@ import { useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ArrowLeft } from 'lucide-react'
 import { ROUTES } from '../../lib/routes'
-import { useUserPreferences } from '../../hooks/useUserPreferences'
 import { useOnboarding } from '../../hooks/useOnboarding'
 import { useT } from '../../i18n/useT'
 import LanguageSwitcher from '../../i18n/LanguageSwitcher'
@@ -17,7 +16,6 @@ import { Box, Txt, Btn } from '../../components/ui'
 export default function WelcomeGate() {
   const { t } = useT('onboarding')
   const navigate = useNavigate()
-  const { update } = useUserPreferences()
   const ob = useOnboarding()
 
   /* Both choices are two sequential writes with nothing in between to stop a
@@ -36,14 +34,14 @@ export default function WelcomeGate() {
   }
 
   const onStart = once(async () => {
-    await update({ onboarding: { welcome_seen: true } })
+    await ob.seeWelcome()
     await ob.markStarted()
     /* The parent OnboardingScreen will re-render and now render the
        regular OnboardingShell at the current step (defaults to 'profile'). */
   })
 
   const onSkip = once(async () => {
-    await update({ onboarding: { welcome_seen: true } })
+    await ob.seeWelcome()
     await ob.skipAll()
     navigate(ROUTES.HOME, { replace: true })
   })

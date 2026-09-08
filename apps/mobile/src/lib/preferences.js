@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react'
+import { createContext, useContext, useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { I18nManager } from 'react-native'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { setCurrentCurrency, setDateTimeFormat, setHebrewCalendar } from '@simplicity/core'
@@ -58,7 +58,19 @@ export function roleLabel(key, gender) {
 // mirrors the web userPreferences API). A single provider loads once and shares
 // { prefs, update } so every screen reads the same reactive state (background
 // mode, language, sort/scope, etc.). update() is optimistic + persists.
-const PreferencesContext = createContext({ prefs: {}, update: async () => {} })
+/* `status` matters to anything that GATES on a preference rather than just
+   reads one. prefs starts as {} and fills asynchronously, so an absent key
+   means "not loaded yet" just as often as it means "not set" — and the
+   onboarding gate cannot tell those apart without this. Reading it as "not
+   set" would send an existing, long-onboarded user back through the flow on
+   every cold start. 'error' is kept distinct from 'ready' for the same
+   reason: when the read fails we know nothing, so a gate must let the user
+   through rather than trap them behind a flow they already finished. */
+const PreferencesContext = createContext({
+  prefs: {},
+  update: async () => {},
+  status: 'loading',
+})
 
 // One-level deep merge (mirrors web deepMerge): nested objects (design/format/
 // widgets/profile…) merge key-by-key instead of being replaced wholesale, so a
@@ -79,6 +91,7 @@ function deepMerge(base, patch) {
 
 export function PreferencesProvider({ children }) {
   const [prefs, setPrefs] = useState({})
+  const [status, setStatus] = useState('loading')
   const ref = useRef({})
   // True once the user has interacted, so the initial server load doesn't revert
   // a change made during cold-start (mirrors web's prefsRef==null guard).
@@ -92,9 +105,16 @@ export function PreferencesProvider({ children }) {
     ;(async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession()
-        if (!session) return
+        /* No session: nothing to load and nothing to gate — this provider only
+           mounts inside the authed tree, so treat it as a finished read rather
+           than leaving every consumer waiting on 'loading' forever. */
+        if (!session) { if (alive) setStatus('ready'); return }
         const { data } = await supabase.from('user_preferences').select('preferences').eq('user_id', session.user.id).maybeSingle()
+        /* A user with no row yet reads as {} — genuinely "nothing set", which
+           is exactly what a first-run gate should see. Distinct from the catch
+           below, where we simply do not know. */
         const p = (data && data.preferences) || {}
+        if (alive) setStatus('ready')
         // RACE FIX: if the user already toggled something before this load
         // resolved, adopting the server value would silently revert their change
         // (the read started BEFORE they clicked). Only adopt when untouched.
@@ -115,7 +135,7 @@ export function PreferencesProvider({ children }) {
         if (eff.design?.theme === 'dark' || eff.design?.theme === 'light') {
           AsyncStorage.setItem(THEME_KEY, eff.design.theme).catch(() => {})
         }
-      } catch { /* keep defaults */ }
+      } catch { if (alive) setStatus('error') /* keep defaults */ }
     })()
     return () => { alive = false }
   }, [])
@@ -145,7 +165,8 @@ export function PreferencesProvider({ children }) {
     return task
   }, [])
 
-  return <PreferencesContext.Provider value={{ prefs, update }}>{children}</PreferencesContext.Provider>
+  const value = useMemo(() => ({ prefs, update, status }), [prefs, update, status])
+  return <PreferencesContext.Provider value={value}>{children}</PreferencesContext.Provider>
 }
 
 export const usePreferences = () => useContext(PreferencesContext)

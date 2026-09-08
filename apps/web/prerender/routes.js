@@ -55,7 +55,13 @@ export const PRERENDER_ROUTES = [
     kind: 'legal',
     location: '/legal?tab=privacy',
     legalTab: 'privacy',
-    title: 'מדיניות פרטיות — סימפליסיטי',
+    /* `title` is the <title> tag and leads with the Latin brand, matching
+       the OAuth consent screen's App name (see index.html). `socialTitle`
+       is what og:title and twitter:title get — Hebrew, unchanged, because a
+       shared link should still look Hebrew to whoever receives it. Omit
+       socialTitle and the social tags keep index.html's own values. */
+    title: 'Simplicity — מדיניות פרטיות',
+    socialTitle: 'מדיניות פרטיות — סימפליסיטי',
     description:
       'מדיניות הפרטיות של סימפליסיטי: אילו נתונים נאספים, היכן הם מאוחסנים (שרתי האיחוד האירופי באירלנד), מי ניגש אליהם, וכיצד לייצא או למחוק אותם.',
     canonical: `${SITE}/legal?tab=privacy`,
@@ -65,7 +71,8 @@ export const PRERENDER_ROUTES = [
     kind: 'legal',
     location: '/legal?tab=terms',
     legalTab: 'terms',
-    title: 'תנאי שימוש — סימפליסיטי',
+    title: 'Simplicity — תנאי שימוש',
+    socialTitle: 'תנאי שימוש — סימפליסיטי',
     description:
       'תנאי השימוש בשירות סימפליסיטי — מערכת הפעלה לעסק למטפלים, מאמנים, מנטורים ומנחים.',
     canonical: `${SITE}/legal?tab=terms`,
@@ -75,7 +82,8 @@ export const PRERENDER_ROUTES = [
     kind: 'legal',
     location: '/legal?tab=dpa',
     legalTab: 'dpa',
-    title: 'הסכם עיבוד נתונים (DPA) — סימפליסיטי',
+    title: 'Simplicity — הסכם עיבוד נתונים (DPA)',
+    socialTitle: 'הסכם עיבוד נתונים (DPA) — סימפליסיטי',
     description:
       'הסכם עיבוד הנתונים בין סימפליסיטי למשתמשי השירות — היקף העיבוד, אמצעי האבטחה, וזכויות בעל המאגר.',
     canonical: `${SITE}/legal?tab=dpa`,

@@ -169,10 +169,14 @@ try {
     verify(route, body, expected, missed)
 
     let html = template.replace(ROOT_DIV, `<div id="root">${body}</div>`)
-    if (route.title) {
-      html = setTitle(html, route.title)
-      html = setMeta(html, 'property', 'og:title', route.title)
-      html = setMeta(html, 'name', 'twitter:title', route.title)
+    /* The <title> and the social title are deliberately separate strings:
+       the tab title leads with the Latin brand to match the OAuth consent
+       screen, while a shared link keeps its Hebrew card. Setting one must
+       never quietly set the other. */
+    if (route.title) html = setTitle(html, route.title)
+    if (route.socialTitle) {
+      html = setMeta(html, 'property', 'og:title', route.socialTitle)
+      html = setMeta(html, 'name', 'twitter:title', route.socialTitle)
     }
     if (route.description) {
       html = setMeta(html, 'name', 'description', route.description)

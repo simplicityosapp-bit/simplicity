@@ -11,6 +11,8 @@ import { DrawerProvider, useDrawer } from './src/lib/drawer'
 import { FormOptionsProvider } from './src/lib/formOptions'
 import { PreferencesProvider, usePreferences } from './src/lib/preferences'
 import { isDeletionPending } from './src/lib/account'
+import { useOnboarding, shouldOnboard } from './src/lib/onboarding'
+import OnboardingScreen from './src/screens/onboarding'
 import LoginScreen from './src/screens/LoginScreen'
 import PendingDeletionScreen from './src/screens/PendingDeletionScreen'
 import AppNavigator, { navigationRef } from './src/navigation/AppNavigator'
@@ -82,8 +84,30 @@ function Root() {
 // Inside PreferencesProvider so it can read prefs: while an account-deletion
 // request is within its grace window, gate the whole app to the pending screen.
 function AuthedApp({ lang }) {
-  const { prefs } = usePreferences()
+  const { prefs, status } = usePreferences()
+  const ob = useOnboarding()
   if (isDeletionPending(prefs)) return <PendingDeletionScreen />
+
+  // Onboarding guard. Sits BELOW the deletion gate — an account on its way
+  // out has no business being introduced to the app — and above everything
+  // else, because the flow creates the project, client and goal the rest of
+  // the app then shows.
+  //
+  // While preferences are still loading we show the startup spinner rather
+  // than guess: prefs arrive as {}, and reading that as "never onboarded"
+  // would march an existing user back through the flow on every cold start.
+  // shouldOnboard() also lets the user through when the read FAILED — we
+  // know nothing then, and trapping someone who finished months ago is a
+  // worse failure than the free-tier cap going unapplied for one session.
+  if (status === 'loading') {
+    return (
+      <View style={styles.center}>
+        <ActivityIndicator color="#C97B5E" />
+      </View>
+    )
+  }
+  if (shouldOnboard(ob)) return <OnboardingScreen key={lang} />
+
   return (
     <FormOptionsProvider>
       <View style={styles.fill} key={lang}>

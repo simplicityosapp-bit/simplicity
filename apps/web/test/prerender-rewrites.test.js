@@ -97,6 +97,17 @@ describe('prerender rewrites', () => {
     }
   })
 
+  it('builds /p/ and /lead/ pages on the empty shell, not the landing page', () => {
+    /* api/page.js fetches the shell and injects the user's SEO into it.
+       Once index.html became the prerendered landing page, fetching it there
+       served every published page with Simplicity's own marketing copy in
+       the body, under the user's title — caught in production, not here,
+       which is why this test exists. */
+    const src = readFileSync(join(here, '..', 'api', 'page.js'), 'utf8')
+    expect(src, 'api/page.js must fetch the empty shell').toContain(`/${SPA_SHELL}`)
+    expect(src, 'api/page.js still references index.html, which is now the landing page').not.toContain('/index.html')
+  })
+
   it('serves the /privacy and /terms aliases from the matching document', () => {
     const alias = (source) => rewrites.find((r) => r.source === source)?.destination
     expect(alias('/privacy')).toBe('/prerender/legal-privacy.html')

@@ -2,12 +2,18 @@
    SSR META — server-side meta injection for public builder pages.
    ════════════════════════════════════════════════════════════════
    Target of the rewrites for /p/<slug> and /lead/<slug> (vercel.json).
-   Serves the SPA's index.html with the page's SEO (title + og/twitter)
+   Serves the SPA's empty shell with the page's SEO (title + og/twitter)
    injected, so social crawlers — which don't run JS — see per-page cards.
    Real visitors get the same shell and the React app boots as usual.
 
+   That shell is app.html, NOT index.html. index.html is the prerendered
+   marketing landing page (see prerender/routes.js), so fetching it here
+   would serve every user's published page with Simplicity's own homepage
+   copy in the body, under the user's title and og:description. app.html is
+   the blank root this function has always meant by "the shell".
+
    BULLETPROOF: any failure (no config, fetch error, bad data) falls back to
-   the unmodified index.html. It can never break the public page. */
+   the unmodified shell. It can never break the public page. */
 
 const SUPABASE_URL = 'https://rdurkakzyymxhocvhufw.supabase.co'
 // Canonical public origin for og:url — fixed, not derived from the (spoofable)
@@ -70,10 +76,10 @@ export default async function handler(req, res) {
   // 1) Fetch the SPA shell. If even this fails, let the static file serve.
   let html
   try {
-    const r = await fetch(`${base}/index.html`)
+    const r = await fetch(`${base}/app.html`)
     html = await r.text()
   } catch {
-    res.setHeader('Location', '/index.html'); res.status(302).end(); return
+    res.setHeader('Location', '/app.html'); res.status(302).end(); return
   }
 
   // 2) Best-effort meta injection — never throws out of here.

@@ -15,20 +15,20 @@
        old shape, or any other caller, still works.
    ════════════════════════════════════════════════════════════════ */
 
-import { insertClient, listClients } from './api/clients'
-import { insertProject, listProjects } from './api/projects'
-import { insertTransaction, listTransactions } from './api/transactions'
-import { insertPaymentPlan, insertPaymentInstallments, listPaymentPlans } from './api/paymentPlans'
+import { insertClient as insertClientRaw, updateClient, listClients } from './api/clients'
+import { insertProject as insertProjectRaw, listProjects } from './api/projects'
+import { insertTransaction as insertTransactionRaw, listTransactions } from './api/transactions'
+import { insertPaymentPlan as insertPaymentPlanRaw, insertPaymentInstallments as insertPaymentInstallmentsRaw, listPaymentPlans } from './api/paymentPlans'
 import { generateInstallments, installmentsCoveredByPaid } from '@simplicity/core'
-import { insertRecurring, listRecurring } from './api/recurring'
-import { insertClientStatus, listClientStatuses } from './api/clientStatuses'
-import { insertLeadStatus, listLeadStatuses } from './api/leadStatuses'
-import { insertLead, listLeads } from './api/leads'
-import { insertSession, listSessions } from './api/sessions'
+import { insertRecurring as insertRecurringRaw, listRecurring } from './api/recurring'
+import { insertClientStatus as insertClientStatusRaw, listClientStatuses } from './api/clientStatuses'
+import { insertLeadStatus as insertLeadStatusRaw, listLeadStatuses } from './api/leadStatuses'
+import { insertLead as insertLeadRaw, updateLead, listLeads } from './api/leads'
+import { insertSession as insertSessionRaw, listSessions } from './api/sessions'
 import { normalizeDate } from './csvImport'
 import { mapValueToMeta } from './statusImport'
 import { mgStrip } from './multiGender'
-import { listCategories, insertCategory, CATEGORY_COLORS } from './api/categories'
+import { listCategories, insertCategory as insertCategoryRaw, CATEGORY_COLORS } from './api/categories'
 
 const norm = (s) => (s || '').trim().toLowerCase()
 /* Status names carry the app's dual-gender merge glyphs; a file's plain
@@ -74,20 +74,73 @@ export function clientRowSideEffects(c = {}) {
   }
 }
 
+/* ────────────────────────────────────────────────────────────────
+   One import, one batch id, stamped on every row it writes.
+   ────────────────────────────────────────────────────────────────
+   Undoing an import is "delete the rows this import made" — which is only
+   answerable if the rows say which import made them. Wrapping the writers
+   ONCE, here, rather than threading `import_batch_id` through a dozen
+   payloads scattered over four hundred lines, is what makes it impossible
+   to forget one: a writer that is not wrapped does not exist in the
+   importer's scope at all. `import-undo.test.js` holds that line.
+
+   Arrays pass through too (insertPaymentInstallments takes one). */
+function stampWith(batchId, fn) {
+  return (row) => fn(Array.isArray(row)
+    ? row.map((r) => ({ ...r, import_batch_id: batchId }))
+    : { ...row, import_batch_id: batchId })
+}
+
+/* Only what the file actually said. An empty cell is "the spreadsheet has
+   nothing to say about this", never "clear what the app already holds" —
+   updating a client from a sheet that carries names and phones must not
+   wipe the prices and notes it says nothing about. */
+function filledOnly(fields) {
+  const out = {}
+  Object.entries(fields).forEach(([k, v]) => {
+    if (v === null || v === undefined || v === '') return
+    out[k] = v
+  })
+  return out
+}
+
+/* The four stored buckets, from the meta the status resolution produced. */
+const metaToStatus = (meta) =>
+  (meta === 'past' ? 'past' : meta === 'no_status' ? 'no_status' : meta === 'wandering' ? 'wandering' : 'active')
+
+const newBatchId = () => (globalThis.crypto?.randomUUID
+  ? globalThis.crypto.randomUUID()
+  /* Older WebViews. Only ever a label, never a security boundary. */
+  : `${Date.now().toString(16)}-${Math.random().toString(16).slice(2, 10)}-${Math.random().toString(16).slice(2, 10)}`)
+
 export async function finalizeOnboardingImport(input = {}) {
   /* Clock for dated derived rows (client payments). Caller may pass
      input.nowIso; default to the real now (app runtime, not a workflow). */
   const nowIso = input.nowIso || new Date().toISOString()
+  /* Stamped for the life of this call. Returned in the summary so the UI
+     can offer to undo exactly this import and no other. */
+  const batchId = input.batchId || newBatchId()
+  const insertClient = stampWith(batchId, insertClientRaw)
+  const insertProject = stampWith(batchId, insertProjectRaw)
+  const insertTransaction = stampWith(batchId, insertTransactionRaw)
+  const insertPaymentPlan = stampWith(batchId, insertPaymentPlanRaw)
+  const insertPaymentInstallments = stampWith(batchId, insertPaymentInstallmentsRaw)
+  const insertRecurring = stampWith(batchId, insertRecurringRaw)
+  const insertClientStatus = stampWith(batchId, insertClientStatusRaw)
+  const insertLeadStatus = stampWith(batchId, insertLeadStatusRaw)
+  const insertLead = stampWith(batchId, insertLeadRaw)
+  const insertSession = stampWith(batchId, insertSessionRaw)
+  const insertCategory = stampWith(batchId, insertCategoryRaw)
   /* Placeholder date for amounts the file gave us with no real date — the
      last day of the previous year (clear, non-distorting). Defined up here
      because the payment-plan path (inside the client loop) needs it too. */
   const estimatedDate = `${new Date(nowIso).getFullYear() - 1}-12-31`
   const summary = {
     projects:       { created: 0, skipped: 0, failed: 0 },
-    clients:        { created: 0, skipped: 0, failed: 0 },
+    clients:        { created: 0, updated: 0, skipped: 0, failed: 0 },
     transactions:   { created: 0, skipped: 0, failed: 0, dateEstimated: 0 },
     recurring:      { created: 0, skipped: 0, failed: 0 },
-    leads:          { created: 0, skipped: 0, failed: 0 },
+    leads:          { created: 0, updated: 0, skipped: 0, failed: 0 },
     clientStatuses: { created: 0, skipped: 0, failed: 0 },
     leadStatuses:   { created: 0, skipped: 0, failed: 0 },
     paymentPlans:   { created: 0, skipped: 0, failed: 0 },
@@ -130,8 +183,8 @@ export async function finalizeOnboardingImport(input = {}) {
     const rows = []
     records.forEach((rec) => {
       const name = (rec.status_name || '').trim()
-      if (!name || seen.has(norm(name))) return
-      seen.add(norm(name))
+      if (!name || seen.has(normStatus(name))) return
+      seen.add(normStatus(name))
       rows.push({ display_name: name, meta_category: mapValueToMeta(name, kind) })
     })
     return rows
@@ -263,13 +316,47 @@ export async function finalizeOnboardingImport(input = {}) {
     tick('clients')
     const key = norm(c.name)
     if (!key) continue
-    if (clientIdByName.has(key)) { summary.clients.skipped += 1; continue }
     const project_id = c.project_name ? (projectIdByName.get(norm(c.project_name)) || null) : null
     /* Resolve an imported status name → its row id + meta bucket. An
        explicit status_meta on the row still wins if there's no name. */
     const statusName = c.status_name ? normStatus(c.status_name) : null
     const status_id = statusName ? (clientStatusIdByName.get(statusName) || null) : null
     const resolvedMeta = (statusName && clientStatusMetaByName.get(statusName)) || c.status_meta || 'active'
+
+    /* A name already in the app. The review asked what to do with it and
+       the answer rides on the row; with no answer, skip — an import must
+       never quietly overwrite what is already there. `duplicate` falls
+       through to the insert below and knowingly makes a second row.
+
+       The update writes ONLY the fields the file actually filled in, and
+       is not stamped with the batch id: this row is not something the
+       import created, so an undo must never delete it. (An undo does not
+       put the old values back either — see the note in importBatch.js.) */
+    if (clientIdByName.has(key)) {
+      const mode = c._onExisting
+      if (mode === 'update') {
+        const patch = filledOnly({
+          phone: c.phone, email: c.email, address: c.address,
+          birth_date: c.birth_date, notes: c.notes,
+          sessions: Number(c.sessions) || null,
+          price_per_session: Number(c.price_per_session) || null,
+          project_id,
+          status_id,
+          status_meta: c.status_name ? resolvedMeta : null,
+          status: c.status_name ? metaToStatus(resolvedMeta) : null,
+        })
+        if (Object.keys(patch).length === 0) { summary.clients.skipped += 1; continue }
+        try {
+          await updateClient(clientIdByName.get(key), patch)
+          summary.clients.updated += 1
+        } catch (e) {
+          summary.clients.failed += 1
+          summary.errors.push(`client "${c.name}": ${e.message || 'unknown'}`)
+        }
+        continue
+      }
+      if (mode !== 'duplicate') { summary.clients.skipped += 1; continue }
+    }
     /* Total due: an explicit "סה״כ לתשלום" wins. Otherwise, if the file
        only gave us how much was PAID (no total, and no sessions×price to
        compute one), assume the paid amount IS the total — otherwise the
@@ -290,7 +377,7 @@ export async function finalizeOnboardingImport(input = {}) {
     try {
       const row = await insertClient({
         name: c.name.trim(),
-        status: resolvedMeta === 'past' ? 'past' : resolvedMeta === 'no_status' ? 'no_status' : resolvedMeta === 'wandering' ? 'wandering' : 'active',
+        status: metaToStatus(resolvedMeta),
         status_meta: resolvedMeta,
         status_id,
         project_id,
@@ -602,14 +689,42 @@ export async function finalizeOnboardingImport(input = {}) {
   let existingLeads = []
   try { existingLeads = await listLeads() } catch { /* assume none */ }
   const seenLeadNames = new Set(existingLeads.map((l) => norm(l?.name)).filter(Boolean))
+  /* Name → id, for the leads that were here BEFORE this import: the only
+     ones an "update" can point at. */
+  const leadIdByName = new Map(existingLeads.filter((l) => l?.name && l?.id).map((l) => [norm(l.name), l.id]))
   for (const l of leads) {
     tick('leads')
     const name = (l.name || '').trim()
     if (!name) { summary.leads.skipped += 1; continue }
-    if (seenLeadNames.has(norm(name))) { summary.leads.skipped += 1; continue }
     const statusName = l.status_name ? normStatus(l.status_name) : null
     const status_id = statusName ? (leadStatusIdByName.get(statusName) || null) : null
     const status_meta = (statusName && leadStatusMetaByName.get(statusName)) || l.status_meta || 'in_process'
+    /* Same three answers as the clients loop — see the note there. The id
+       map only holds leads that were in the app before this run, so a name
+       repeated WITHIN the file still falls to the seen-set below. */
+    if (seenLeadNames.has(norm(name))) {
+      const existingId = leadIdByName.get(norm(name))
+      const mode = l._onExisting
+      if (mode === 'update' && existingId) {
+        const patch = filledOnly({
+          phone: l.phone,
+          notes: l.notes,
+          inquiry_date: normalizeDate(l.inquiry_date) || null,
+          status_id,
+          status_meta: l.status_name ? status_meta : null,
+        })
+        if (Object.keys(patch).length === 0) { summary.leads.skipped += 1; continue }
+        try {
+          await updateLead(existingId, patch)
+          summary.leads.updated += 1
+        } catch (e) {
+          summary.leads.failed += 1
+          summary.errors.push(`lead "${name}": ${e.message || 'unknown'}`)
+        }
+        continue
+      }
+      if (mode !== 'duplicate') { summary.leads.skipped += 1; continue }
+    }
     try {
       await insertLead({
         name,
@@ -628,5 +743,8 @@ export async function finalizeOnboardingImport(input = {}) {
     }
   }
 
+  /* What every row this call wrote is labelled with — the caller keeps it
+     so the undo has something to aim at. */
+  summary.batchId = batchId
   return summary
 }

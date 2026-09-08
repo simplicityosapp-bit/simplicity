@@ -136,7 +136,10 @@
       "transactions_one": "transaction",
       "transactions_other": "transactions",
       "sessions_one": "meeting",
-      "sessions_other": "meetings"
+      "sessions_other": "meetings",
+      "andUpdated_one": "1 existing record will be updated — only the fields the file filled in.",
+      "andUpdated_other": "{{count}} existing records will be updated — only the fields the file filled in.",
+      "andUpdated": "{{count}} existing records will be updated — only the fields the file filled in."
     },
     "confirm": {
       "savingCreate": "Creating…",
@@ -225,7 +228,13 @@
     "missingProjects_one": "The file refers to a project that does not exist: {{names}}.",
     "missingProjects_other": "The file refers to {{count}} projects that do not exist: {{names}}.",
     "missingProjects": "The file refers to {{count}} projects that do not exist: {{names}}.",
-    "createMissingProjects": "Create them"
+    "createMissingProjects": "Create them",
+    "existing": {
+      "skip": "Skip",
+      "update": "Update",
+      "duplicate": "Add anyway",
+      "groupAria": "{{name}} already exists — what to do"
+    }
   },
   "modal": {
     "title": "Import from a file",

@@ -520,3 +520,51 @@
   text-align: center;
 }
 .obrw-empty .ob-btn { display: inline-flex; align-items: center; gap: 6px; }
+
+/* ── "This name is already here" — the three answers ───────────────
+   Takes the tick's place on a row whose name already exists, because the
+   question there is not whether to include it but what to do with it.
+   Same segmented shape as the matrix row's income/expense/skip pills in
+   the mapping step, so it is a control the user has already met. */
+.obrw-modes {
+  display: inline-flex;
+  flex: none;
+  gap: 2px;
+  padding: 2px;
+  border-radius: 10px;
+  border: 1px solid rgba(42, 37, 32, 0.14);
+  background: rgba(255, 255, 255, 0.5);
+}
+[data-theme="dark"] .obrw-modes {
+  border-color: rgba(240, 235, 224, 0.18);
+  background: rgba(28, 25, 21, 0.5);
+}
+.obrw-mode {
+  padding: 5px 9px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  font-family: var(--mg-font);
+  font-size: calc(11px * var(--text-scale));
+  font-weight: 600;
+  color: var(--stone);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.obrw-mode.on { background: var(--sage); color: var(--on-accent); }
+/* "duplicate" is the one that can surprise: it leaves two rows with the
+   same name. Marked when chosen, never shouted at before. */
+.obrw-mode.on:last-child { background: var(--clay); }
+
+@media (max-width: 600px) {
+  /* Its own full-width line UNDER the fields. The row is a non-wrapping
+     flex line built around a 26px tick, and three Hebrew words in its
+     place squeezed the field column and rode over it. Wrapping the row is
+     what gives the control somewhere to go; `order` puts it after the
+     fields, where the question reads as being about the row above it. */
+  .obrw-row { flex-wrap: wrap; }
+  .obrw-modes { flex: 1 1 100%; order: 3; justify-content: stretch; }
+  .obrw-mode { flex: 1 1 0; padding: 9px 4px; }
+  /* The badge that says WHY the question is there belongs with it. */
+  .obrw-row:has(.obrw-modes) .obrw-badge { order: 2; }
+}

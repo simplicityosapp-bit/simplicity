@@ -114,7 +114,31 @@ export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, 
     if (type === 'leads') return existingLeadNames.has(norm(row.name))
     return false
   }
+  /* ── A name that already exists is a question, not a verdict ──────
+     It used to be answered for the user: excluded, badged "כבר קיים",
+     with no way to say otherwise. So a coach who re-exported their sheet
+     after fixing forty phone numbers could import it and receive nothing.
+
+     Three answers, per row. `skip` stays the default — an import must
+     never quietly overwrite what is already in the app:
+       skip      — leave the existing row exactly as it is (default)
+       update    — let the file fill in what it knows about that row
+       duplicate — create a second row with the same name anyway
+     Rows whose name is new have no such question and keep the plain
+     include/exclude toggle. */
+  const EXISTING_MODES = ['skip', 'update', 'duplicate']
+  const [existingMode, setExistingMode] = useState({ clients: {}, projects: {}, leads: {}, transactions: {}, sessions: {} })
+  const modeOf = (type, idx) => existingMode[type]?.[idx] || 'skip'
+  const setMode = (type, idx, mode) => {
+    setDirty(true)
+    setExistingMode((s) => ({ ...s, [type]: { ...s[type], [idx]: mode } }))
+  }
+  /* Only where "update" means something: a project row is a name and
+     nothing else, so updating one would write the value it already has. */
+  const asksAboutExisting = (type) => type === 'clients' || type === 'leads'
+
   const isIncluded = (type, idx, row) => {
+    if (rowExists(type, row) && asksAboutExisting(type)) return modeOf(type, idx) !== 'skip'
     const o = overrides[type][idx]
     return o === undefined ? !rowExists(type, row) : o
   }
@@ -133,7 +157,18 @@ export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, 
     if (type === 'sessions') return (row.client_name || '').trim().length > 0
     return (row.name || '').trim().length > 0
   }
-  const creatableRows = (type) => state[type].filter((row, i) => isIncluded(type, i, row) && isValid(type, row))
+  /* Split the ticked rows by what will actually happen to them: a row set
+     to "update" is not created, and counting it as created would make the
+     footer promise new clients that never appear. */
+  const isUpdate = (type, idx, row) => asksAboutExisting(type) && rowExists(type, row) && modeOf(type, idx) === 'update'
+  const countOf = (type) => {
+    let created = 0; let updated = 0
+    state[type].forEach((row, i) => {
+      if (!isIncluded(type, i, row) || !isValid(type, row)) return
+      if (isUpdate(type, i, row)) updated += 1; else created += 1
+    })
+    return { created, updated }
+  }
 
   /* Names that will exist after this import (existing ∪ creatable) — used
      to tell the user when a transaction references something that won't
@@ -291,13 +326,14 @@ export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, 
   }
 
   const counts = {
-    clients: creatableRows('clients').length,
-    projects: creatableRows('projects').length,
-    leads: creatableRows('leads').length,
-    transactions: creatableRows('transactions').length,
-    sessions: creatableRows('sessions').length,
+    clients: countOf('clients').created,
+    projects: countOf('projects').created,
+    leads: countOf('leads').created,
+    transactions: countOf('transactions').created,
+    sessions: countOf('sessions').created,
   }
-  const totalIncluded = counts.clients + counts.projects + counts.leads + counts.transactions + counts.sessions
+  const updates = countOf('clients').updated + countOf('leads').updated
+  const totalIncluded = counts.clients + counts.projects + counts.leads + counts.transactions + counts.sessions + updates
   const txIssues = parsed?.transaction_issues || 0
 
   /* The rows the ticked CLIENTS will spawn on their own — payments from a
@@ -325,10 +361,16 @@ export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, 
     confirmingRef.current = true
     setBusy(true)
     try {
+      /* `_onExisting` rides along on the rows whose name is already taken,
+         because only this screen knows which answer the user gave. Anything
+         else the importer would have to guess. */
       const strip = (type) => state[type]
-        .filter((row, i) => isIncluded(type, i, row) && isValid(type, row))
+        .map((row, i) => [row, i])
+        .filter(([row, i]) => isIncluded(type, i, row) && isValid(type, row))
         // eslint-disable-next-line no-unused-vars -- _row is destructured only to strip the UI-only field from the persisted payload.
-        .map(({ _row, ...rest }) => rest)
+        .map(([{ _row, ...rest }, i]) => (asksAboutExisting(type) && rowExists(type, rest)
+          ? { ...rest, _onExisting: modeOf(type, i) }
+          : rest))
       const summary = await onConfirm(
         { projects: strip('projects'), clients: strip('clients'), leads: strip('leads'), transactions: strip('transactions'), sessions: strip('sessions') },
         { onProgress: setProgress },
@@ -346,12 +388,31 @@ export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, 
     }
   }
 
-  const renderToggle = (type, i, row, inc) => (
-    <Btn type="button" className={`obrw-toggle${inc ? ' on' : ''}`} onClick={() => toggle(type, i, row)}
-      aria-pressed={inc} aria-label={inc ? t('review.toggle.includedAria') : t('review.toggle.excludedAria')}>
-      {inc ? <Check size={14} strokeWidth={2.4} /> : <RotateCcw size={13} strokeWidth={2} />}
-    </Btn>
-  )
+  /* A new name gets the tick. A name that is already in the app gets the
+     question instead — three words, in the row, rather than a badge that
+     announced a decision already made. */
+  const renderToggle = (type, i, row, inc) => {
+    if (asksAboutExisting(type) && rowExists(type, row)) {
+      const mode = modeOf(type, i)
+      return (
+        <Box className="obrw-modes" role="group" aria-label={t('review.existing.groupAria', { name: row.name })}>
+          {EXISTING_MODES.map((m) => (
+            <Btn key={m} type="button" aria-pressed={mode === m}
+              className={`obrw-mode${mode === m ? ' on' : ''}`}
+              onClick={() => setMode(type, i, m)}>
+              {t(`review.existing.${m}`)}
+            </Btn>
+          ))}
+        </Box>
+      )
+    }
+    return (
+      <Btn type="button" className={`obrw-toggle${inc ? ' on' : ''}`} onClick={() => toggle(type, i, row)}
+        aria-pressed={inc} aria-label={inc ? t('review.toggle.includedAria') : t('review.toggle.excludedAria')}>
+        {inc ? <Check size={14} strokeWidth={2.4} /> : <RotateCcw size={13} strokeWidth={2} />}
+      </Btn>
+    )
+  }
 
   /* ── Result / error view (after a confirm that hit failures) ── */
   if (result) {
@@ -735,17 +796,29 @@ export default function OnboardingReviewWizard({ parsed, onConfirm, onComplete, 
               leave the meetings out entirely while the button counted them
               — so the two numbers beside each other disagreed. */}
           <Txt as="p" className="obrw-summary">
-            {t('review.summary.willCreate')}:{' '}
-            {/* The noun agrees with the number — the count has to reach t(),
-                or a one-row import reads "1 תנועות". */}
-            {['clients', 'projects', 'leads', 'transactions', 'sessions']
-              .filter((kind) => counts[kind] > 0)
-              .map((kind, i) => (
-                <span key={kind}>
-                  {i > 0 ? ' · ' : null}
-                  <strong>{counts[kind]}</strong> {t(`review.summary.${kind}`, { count: counts[kind] })}
-                </span>
-              ))}
+            {/* Only when something is actually being created. An import that
+                only updates existing rows would otherwise open with a bare
+                "ייווצרו:" and nothing after it. */}
+            {counts.clients + counts.projects + counts.leads + counts.transactions + counts.sessions > 0 && (
+              <>
+                {t('review.summary.willCreate')}:{' '}
+                {/* The noun agrees with the number — the count has to reach
+                    t(), or a one-row import reads "1 תנועות". */}
+                {['clients', 'projects', 'leads', 'transactions', 'sessions']
+                  .filter((kind) => counts[kind] > 0)
+                  .map((kind, i) => (
+                    <span key={kind}>
+                      {i > 0 ? ' · ' : null}
+                      <strong>{counts[kind]}</strong> {t(`review.summary.${kind}`, { count: counts[kind] })}
+                    </span>
+                  ))}
+              </>
+            )}
+            {updates > 0 && (
+              <Txt as="span" className="obrw-summary-derived">
+                {t('review.summary.andUpdated', { count: updates })}
+              </Txt>
+            )}
             {derived.transactions + derived.plans + derived.sessions > 0 && (
               <Txt as="span" className="obrw-summary-derived">
                 {t('review.summary.alsoLead')}{' '}

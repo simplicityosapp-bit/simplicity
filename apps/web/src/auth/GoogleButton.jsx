@@ -1,6 +1,8 @@
 import { useState } from 'react'
+import { useLocation } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { translateAuthError } from './authErrors'
+import { stashReturnPath } from '../lib/authReturn'
 
 function GoogleG() {
   return (
@@ -26,8 +28,18 @@ function GoogleG() {
    unread. */
 export default function GoogleButton({ onError, label, disabled = false, onBeforeAuth }) {
   const [busy, setBusy] = useState(false)
+  /* AuthGate leaves the page the visitor was headed for on the location, and
+     the signed-in catch-all reads it back. That survives a password sign-in,
+     which never navigates — but not this button, which leaves the page and
+     returns at the origin with the router state gone. This is the last moment
+     the path exists, so it goes somewhere that survives the round trip. Here
+     rather than in the two screens: this button is what loses it, so this
+     button is what saves it, and neither caller has to remember. */
+  const { state } = useLocation()
+
   const click = async () => {
     if (disabled || busy) return
+    stashReturnPath(state?.from)
     if (onBeforeAuth) onBeforeAuth()
     setBusy(true)
     try {

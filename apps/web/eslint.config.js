@@ -21,12 +21,13 @@ export default defineConfig([
     },
   },
   {
-    /* Node contexts, not browser: api/ is a Vercel serverless function and
-       test/ runs under vitest. Both legitimately read `process`, which
-       globals.browser doesn't declare — the resulting no-undef errors were
-       standing noise that made a genuinely clean run indistinguishable from
-       a broken one. */
-    files: ['api/**/*.{js,jsx}', 'test/**/*.{js,jsx}'],
+    /* Node contexts, not browser: api/ is a Vercel serverless function,
+       test/ runs under vitest, and prerender/ is a build step that runs in
+       Node (its entry.jsx also renders browser components, so it needs both
+       sets). All three legitimately read `process`, which globals.browser
+       doesn't declare — the resulting no-undef errors were standing noise
+       that made a genuinely clean run indistinguishable from a broken one. */
+    files: ['api/**/*.{js,jsx}', 'test/**/*.{js,jsx}', 'prerender/**/*.{js,jsx}'],
     languageOptions: {
       globals: { ...globals.browser, ...globals.node },
     },

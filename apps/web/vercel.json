@@ -2,6 +2,32 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "rewrites": [
     {
+      "source": "/legal",
+      "has": [{ "type": "query", "key": "tab", "value": "terms" }],
+      "destination": "/prerender/legal-terms.html"
+    },
+    {
+      "source": "/legal",
+      "has": [{ "type": "query", "key": "tab", "value": "dpa" }],
+      "destination": "/prerender/legal-dpa.html"
+    },
+    {
+      "source": "/legal",
+      "destination": "/prerender/legal-privacy.html"
+    },
+    {
+      "source": "/privacy",
+      "destination": "/prerender/legal-privacy.html"
+    },
+    {
+      "source": "/terms",
+      "destination": "/prerender/legal-terms.html"
+    },
+    {
+      "source": "/",
+      "destination": "/prerender/home.html"
+    },
+    {
       "source": "/p/:slug",
       "destination": "/api/page?kind=landing&slug=:slug"
     },

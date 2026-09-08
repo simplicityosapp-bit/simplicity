@@ -555,12 +555,19 @@
   width: 0;
   height: 0;
 }
+/* 24px, not 20. The row has always been the target — the whole thing is one
+   <label>, so the text and the gap toggle it too — but the box is the only
+   part that LOOKS like a control, and at 20px beside a 52px field it read as
+   decoration next to the three sentences it governs. 24 is also the floor
+   WCAG 2.2 sets for a target's own size, so the visible control clears it on
+   its own now rather than on the row's coat-tails. The nudge that sat it on
+   the first line of text goes with the extra height. */
 .auth-check-box {
   flex-shrink: 0;
-  width: 20px;
-  height: 20px;
-  margin-top: 1px;
-  border-radius: 6px;
+  width: 24px;
+  height: 24px;
+  margin-top: 0;
+  border-radius: 7px;
   border: 1.5px solid color-mix(in srgb, var(--espresso) 28%, transparent);
   background: color-mix(in srgb, var(--pure-white) 60%, transparent);
   display: inline-flex;

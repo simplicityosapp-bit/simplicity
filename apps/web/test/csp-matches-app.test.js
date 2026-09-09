@@ -20,10 +20,25 @@ import { fileURLToPath } from 'node:url'
 import { dirname, join } from 'node:path'
 
 const here = dirname(fileURLToPath(import.meta.url))
-const read = (p) => readFileSync(join(here, '..', p), 'utf8')
+
+/* Line endings are normalised on the way in, and that is not cosmetic — it is
+   the difference between this suite meaning something and not.
+
+   There is no .gitattributes here, so a Windows checkout gets CRLF while the
+   blob — and therefore what Vercel builds and serves — is LF. The pinned
+   hashes had been computed from a CRLF working copy, so they matched on the
+   machine that generated them and matched nothing in production: every inline
+   script on the live site was outside the policy, and this suite passed
+   anyway on every developer's machine. Hash what ships, not what is on disk. */
+const read = (p) => readFileSync(join(here, '..', p), 'utf8').replace(/\r\n/g, '\n')
 
 /* The build copies index.html's inline scripts through byte-for-byte, so the
-   source file is a faithful stand-in and this needs no build step. */
+   source file is a faithful stand-in and this needs no build step. The
+   prerendered homepage carries one MORE inline script than the source — the
+   FAQ schema the landing screen renders — but that one is
+   application/ld+json, a data block the browser never executes and script-src
+   does not govern, so it needs no hash. An EXECUTABLE inline script added by a
+   component would need one, and would not be visible here. */
 const INLINE_SCRIPT = /<script(?![^>]*\bsrc=)[^>]*>([\s\S]*?)<\/script>/g
 const sha256 = (body) => `sha256-${createHash('sha256').update(body, 'utf8').digest('base64')}`
 

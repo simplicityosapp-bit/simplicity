@@ -1,6 +1,6 @@
-import { StyleSheet } from 'react-native'
 import { Image } from 'expo-image'
 import { treeStage } from '@simplicity/core'
+import { themed } from '../../theme/themed'
 
 /* The growing tree in the header — one image per step, from the ten-stage
    asset set shared with web (apps/web/public/onboarding-tree). Which stage
@@ -38,6 +38,6 @@ export default function OnboardingTree({ stepIndex = 0 }) {
   )
 }
 
-const styles = StyleSheet.create({
+const styles = themed((c, t) => ({
   tree: { width: 96, height: 96 },
-})
+}))

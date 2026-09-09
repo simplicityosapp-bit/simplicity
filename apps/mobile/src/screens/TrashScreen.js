@@ -7,6 +7,7 @@ import { fmtShortDate, fmtTimeAgo, isr } from '@simplicity/core'
 import { useTrash, TRASH_TYPES } from '../hooks/useTrash'
 import i18n from '../lib/i18n'
 import { colors } from '../theme/theme'
+import { themed } from '../theme/themed'
 
 // Recycle bin (mirrors web TrashScreen) — soft-deleted rows grouped by entity,
 // each restorable within 30 days.
@@ -103,21 +104,21 @@ export default function TrashScreen() {
   )
 }
 
-const styles = StyleSheet.create({
+const styles = themed((c, t) => ({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   content: { paddingHorizontal: 20, paddingBottom: 96, gap: 16 },
-  error: { color: colors.danger, fontSize: 13 },
+  error: { color: c.danger, fontSize: 13 },
   empty: { alignItems: 'center', gap: 12, paddingVertical: 60 },
-  emptyText: { fontSize: 14, color: colors.textFaint, textAlign: 'center', lineHeight: 20 },
+  emptyText: { fontSize: 14, color: c.textFaint, textAlign: 'center', lineHeight: 20 },
   group: { gap: 8 },
-  groupHead: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 12, paddingHorizontal: 16, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.divider },
-  groupName: { fontSize: 14, fontWeight: '600', color: colors.textSub, flex: 1 },
-  groupCount: { fontSize: 12, fontWeight: '600', color: colors.textSub, backgroundColor: colors.fillStrong, minWidth: 22, textAlign: 'center', borderRadius: 10, paddingVertical: 1, paddingHorizontal: 6, overflow: 'hidden' },
+  groupHead: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 12, paddingHorizontal: 16, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: c.divider },
+  groupName: { fontSize: 14, fontWeight: '600', color: c.textSub, flex: 1 },
+  groupCount: { fontSize: 12, fontWeight: '600', color: c.textSub, backgroundColor: c.fillStrong, minWidth: 22, textAlign: 'center', borderRadius: 10, paddingVertical: 1, paddingHorizontal: 6, overflow: 'hidden' },
   row: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12, paddingHorizontal: 16 },
-  rowBorder: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.divider },
+  rowBorder: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: c.divider },
   rowMain: { flex: 1, gap: 2 },
-  rowLabel: { fontSize: 15, fontWeight: '500', color: colors.text },
-  rowMeta: { fontSize: 12, color: colors.textFaint },
-  restore: { flexDirection: 'row', alignItems: 'center', gap: 5, paddingVertical: 6, paddingHorizontal: 12, borderRadius: 999, borderWidth: 1, borderColor: colors.divider, backgroundColor: 'transparent' },
-  restoreText: { fontSize: 13, fontWeight: '500', color: colors.text },
-})
+  rowLabel: { fontSize: 15, fontWeight: '500', color: c.text },
+  rowMeta: { fontSize: 12, color: c.textFaint },
+  restore: { flexDirection: 'row', alignItems: 'center', gap: 5, paddingVertical: 6, paddingHorizontal: 12, borderRadius: 999, borderWidth: 1, borderColor: c.divider, backgroundColor: 'transparent' },
+  restoreText: { fontSize: 13, fontWeight: '500', color: c.text },
+}))

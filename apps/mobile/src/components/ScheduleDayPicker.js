@@ -1,6 +1,7 @@
-import { View, Text, TextInput, Pressable, StyleSheet } from 'react-native'
+import { View, Text, TextInput, Pressable } from 'react-native'
 import i18n from '../lib/i18n'
 import { colors } from '../theme/theme'
+import { themed } from '../theme/themed'
 
 // Controlled weekday / interval picker (mirrors web ScheduleDayPicker). Three
 // modes: every day / specific weekdays / every X days. Fires onChange({mode,days,x}).
@@ -47,19 +48,19 @@ export default function ScheduleDayPicker({ mode, days, x, onChange }) {
   )
 }
 
-const styles = StyleSheet.create({
+const styles = themed((c, t) => ({
   wrap: { gap: 10 },
   modes: { flexDirection: 'row', gap: 8 },
-  mode: { flex: 1, paddingVertical: 9, borderRadius: 999, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.cardFlat, alignItems: 'center' },
-  modeOn: { backgroundColor: colors.brand, borderColor: colors.brand },
-  modeText: { fontSize: 12.5, color: colors.textSub },
-  modeTextOn: { color: colors.onBrand, fontWeight: '600' },
+  mode: { flex: 1, paddingVertical: 9, borderRadius: 999, borderWidth: 1, borderColor: c.border, backgroundColor: c.cardFlat, alignItems: 'center' },
+  modeOn: { backgroundColor: c.brand, borderColor: c.brand },
+  modeText: { fontSize: 12.5, color: c.textSub },
+  modeTextOn: { color: c.onBrand, fontWeight: '600' },
   dayPills: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
-  day: { width: 38, height: 38, borderRadius: 19, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.cardFlat, alignItems: 'center', justifyContent: 'center' },
-  dayOn: { backgroundColor: colors.brand, borderColor: colors.brand },
-  dayText: { fontSize: 13, color: colors.text },
-  dayTextOn: { color: colors.onBrand, fontWeight: '600' },
+  day: { width: 38, height: 38, borderRadius: 19, borderWidth: 1, borderColor: c.border, backgroundColor: c.cardFlat, alignItems: 'center', justifyContent: 'center' },
+  dayOn: { backgroundColor: c.brand, borderColor: c.brand },
+  dayText: { fontSize: 13, color: c.text },
+  dayTextOn: { color: c.onBrand, fontWeight: '600' },
   xRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  xLabel: { fontSize: 14, color: colors.textSub },
-  xInput: { width: 64, borderWidth: 1, borderColor: colors.border, borderRadius: 12, paddingVertical: 9, paddingHorizontal: 12, fontSize: 15, color: colors.text, backgroundColor: colors.card, textAlign: 'center' },
-})
+  xLabel: { fontSize: 14, color: c.textSub },
+  xInput: { width: 64, borderWidth: 1, borderColor: c.border, borderRadius: 12, paddingVertical: 9, paddingHorizontal: 12, fontSize: 15, color: c.text, backgroundColor: c.card, textAlign: 'center' },
+}))

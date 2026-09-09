@@ -1,11 +1,12 @@
 import { useMemo } from 'react'
-import { View, Text, Pressable, StyleSheet, ScrollView, ActivityIndicator, RefreshControl, Share, Linking } from 'react-native'
+import { View, Text, Pressable, ScrollView, ActivityIndicator, RefreshControl, Share, Linking } from 'react-native'
 import { LayoutTemplate, ClipboardList, CalendarClock, Share2, ExternalLink } from 'lucide-react-native'
 import i18n from '../lib/i18n'
 import Screen from '../components/Screen'
 import ScreenHead from '../components/ScreenHead'
 import Card from '../components/Card'
 import { colors } from '../theme/theme'
+import { themed } from '../theme/themed'
 import { useSitePages } from '../hooks/useSitePages'
 
 // Public pages — READ-ONLY on mobile (the drag-drop builder is desktop): the
@@ -78,23 +79,23 @@ export default function PagesScreen() {
   )
 }
 
-const styles = StyleSheet.create({
+const styles = themed((c, t) => ({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   content: { paddingHorizontal: 20, paddingBottom: 96, gap: 16 },
-  error: { color: colors.danger, fontSize: 13 },
-  empty: { color: colors.textFaint, fontSize: 14, textAlign: 'center', marginTop: 24, paddingHorizontal: 20, lineHeight: 20 },
+  error: { color: c.danger, fontSize: 13 },
+  empty: { color: c.textFaint, fontSize: 14, textAlign: 'center', marginTop: 24, paddingHorizontal: 20, lineHeight: 20 },
   group: { gap: 8 },
   groupHead: { flexDirection: 'row', alignItems: 'center', gap: 8, marginHorizontal: 2 },
-  groupName: { flex: 1, fontSize: 11, fontWeight: '600', color: colors.textSub, letterSpacing: 0.4, textTransform: 'uppercase' },
-  groupCount: { fontSize: 12, fontWeight: '600', color: colors.textSub, backgroundColor: colors.fillStrong, minWidth: 22, textAlign: 'center', borderRadius: 10, paddingVertical: 1, paddingHorizontal: 6, overflow: 'hidden' },
+  groupName: { flex: 1, fontSize: 11, fontWeight: '600', color: c.textSub, letterSpacing: 0.4, textTransform: 'uppercase' },
+  groupCount: { fontSize: 12, fontWeight: '600', color: c.textSub, backgroundColor: c.fillStrong, minWidth: 22, textAlign: 'center', borderRadius: 10, paddingVertical: 1, paddingHorizontal: 6, overflow: 'hidden' },
   row: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 13, paddingHorizontal: 16 },
   rowText: { flex: 1, gap: 4 },
-  rowTitle: { fontSize: 15, color: colors.text },
+  rowTitle: { fontSize: 15, color: c.text },
   status: { alignSelf: 'flex-start', paddingVertical: 1, paddingHorizontal: 8, borderRadius: 999 },
   statusOn: { backgroundColor: 'rgba(139,168,136,0.16)' },
-  statusOff: { backgroundColor: colors.fillStrong },
+  statusOff: { backgroundColor: c.fillStrong },
   statusText: { fontSize: 10, fontWeight: '600' },
-  statusTextOn: { color: colors.positive },
-  statusTextOff: { color: colors.textSub },
+  statusTextOn: { color: c.positive },
+  statusTextOff: { color: c.textSub },
   action: { width: 34, height: 34, borderRadius: 17, alignItems: 'center', justifyContent: 'center' },
-})
+}))

@@ -14,6 +14,7 @@ import ScreenCount from '../components/ScreenCount'
 import Card from '../components/Card'
 import AddQuestionModal from '../modals/AddQuestionModal'
 import { colors } from '../theme/theme'
+import { themed } from '../theme/themed'
 import { usePreferences } from '../lib/preferences'
 import { useInsightsData } from '../hooks/useInsightsData'
 
@@ -194,47 +195,47 @@ export default function InsightsScreen() {
   )
 }
 
-const styles = StyleSheet.create({
+const styles = themed((c, t) => ({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   content: { paddingHorizontal: 20, paddingBottom: 96, gap: 14 },
-  error: { color: colors.danger, fontSize: 13 },
-  empty: { color: colors.textFaint, fontSize: 14, textAlign: 'center', marginTop: 24 },
+  error: { color: c.danger, fontSize: 13 },
+  empty: { color: c.textFaint, fontSize: 14, textAlign: 'center', marginTop: 24 },
 
   mirror: { flexDirection: 'row', alignItems: 'flex-start', gap: 10, padding: 16 },
-  mirrorText: { fontSize: 13, color: colors.text, lineHeight: 19 },
-  mirrorTextMuted: { color: colors.textSub },
+  mirrorText: { fontSize: 13, color: c.text, lineHeight: 19 },
+  mirrorTextMuted: { color: c.textSub },
 
   qcard: { padding: 16, gap: 12 },
   qcardOff: { opacity: 0.6 },
   qhead: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   qicon: { fontSize: 18 },
-  qtext: { flex: 1, fontSize: 15, fontWeight: '600', color: colors.text },
-  todayPill: { fontSize: 12, fontWeight: '600', color: colors.positive, backgroundColor: 'rgba(139,168,136,0.15)', minWidth: 22, textAlign: 'center', borderRadius: 999, paddingVertical: 1, paddingHorizontal: 7, overflow: 'hidden' },
-  toggle: { width: 40, height: 24, borderRadius: 999, backgroundColor: colors.cardFlat, borderWidth: 1, borderColor: colors.border, padding: 2, justifyContent: 'center' },
-  toggleOn: { backgroundColor: colors.moonDeep, borderColor: colors.moonDeep },
-  knob: { width: 18, height: 18, borderRadius: 9, backgroundColor: colors.onBrand },
+  qtext: { flex: 1, fontSize: 15, fontWeight: '600', color: c.text },
+  todayPill: { fontSize: 12, fontWeight: '600', color: c.positive, backgroundColor: 'rgba(139,168,136,0.15)', minWidth: 22, textAlign: 'center', borderRadius: 999, paddingVertical: 1, paddingHorizontal: 7, overflow: 'hidden' },
+  toggle: { width: 40, height: 24, borderRadius: 999, backgroundColor: c.cardFlat, borderWidth: 1, borderColor: c.border, padding: 2, justifyContent: 'center' },
+  toggleOn: { backgroundColor: c.moonDeep, borderColor: c.moonDeep },
+  knob: { width: 18, height: 18, borderRadius: 9, backgroundColor: c.onBrand },
   knobOn: { alignSelf: 'flex-end' },
 
   yn: { flexDirection: 'row', gap: 10 },
-  ynBtn: { flex: 1, paddingVertical: 12, borderRadius: 12, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.cardFlat, alignItems: 'center' },
-  ynText: { fontSize: 15, fontWeight: '600', color: colors.text },
+  ynBtn: { flex: 1, paddingVertical: 12, borderRadius: 12, borderWidth: 1, borderColor: c.border, backgroundColor: c.cardFlat, alignItems: 'center' },
+  ynText: { fontSize: 15, fontWeight: '600', color: c.text },
   sliderRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  sliderVal: { fontSize: 16, fontWeight: '700', color: colors.text, width: 24, textAlign: 'center' },
-  save: { width: 34, height: 34, borderRadius: 17, backgroundColor: 'rgba(139,168,136,0.18)', borderWidth: 1, borderColor: colors.positive, alignItems: 'center', justifyContent: 'center' },
+  sliderVal: { fontSize: 16, fontWeight: '700', color: c.text, width: 24, textAlign: 'center' },
+  save: { width: 34, height: 34, borderRadius: 17, backgroundColor: 'rgba(139,168,136,0.18)', borderWidth: 1, borderColor: c.positive, alignItems: 'center', justifyContent: 'center' },
 
   stats: { flexDirection: 'row' },
   stat: { flex: 1, alignItems: 'center', gap: 3 },
-  statDivided: { borderLeftWidth: StyleSheet.hairlineWidth, borderRightWidth: StyleSheet.hairlineWidth, borderColor: colors.divider },
-  statL: { fontSize: 11, color: colors.textSub },
+  statDivided: { borderLeftWidth: StyleSheet.hairlineWidth, borderRightWidth: StyleSheet.hairlineWidth, borderColor: c.divider },
+  statL: { fontSize: 11, color: c.textSub },
   statVrow: { flexDirection: 'row', alignItems: 'center', gap: 5 },
-  statV: { fontSize: 18, fontWeight: '600', color: colors.text },
+  statV: { fontSize: 18, fontWeight: '600', color: c.text },
   delta: { fontSize: 11, fontWeight: '700' },
-  deltaUp: { color: colors.positive },
-  deltaDown: { color: colors.danger },
+  deltaUp: { color: c.positive },
+  deltaDown: { color: c.danger },
 
   viz: { paddingVertical: 2 },
-  vizEmpty: { fontSize: 12, color: colors.textFaint, paddingVertical: 14, textAlign: 'center' },
+  vizEmpty: { fontSize: 12, color: c.textFaint, paddingVertical: 14, textAlign: 'center' },
 
   del: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingTop: 4 },
-  delText: { fontSize: 12, color: colors.textFaint },
-})
+  delText: { fontSize: 12, color: c.textFaint },
+}))

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { View, Text, Pressable, StyleSheet } from 'react-native'
+import { View, Text, Pressable } from 'react-native'
 import { Plus } from 'lucide-react-native'
 import QuickActionsModal from '../../modals/QuickActionsModal'
 import AddTaskModal from '../../modals/AddTaskModal'
@@ -13,6 +13,7 @@ import QuickGoalUpdatePicker from '../../modals/QuickGoalUpdatePicker'
 import AddGoalEntryModal from '../../modals/AddGoalEntryModal'
 import i18n from '../../lib/i18n'
 import { colors } from '../../theme/theme'
+import { themed } from '../../theme/themed'
 
 // Two quick-add CTAs on home (mirrors web QuickRow):
 //  • הוספה מהירה → QuickActionsModal launcher → the picked Add* modal
@@ -62,11 +63,11 @@ export default function QuickRow({ clients, goals, categories, addTask, addEntry
   )
 }
 
-const styles = StyleSheet.create({
+const styles = themed((c, t) => ({
   row: { flexDirection: 'row', gap: 10, marginTop: 12 },
   btn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, paddingVertical: 13, borderRadius: 14 },
-  primary: { backgroundColor: colors.btnBg },
-  primaryText: { fontSize: 15, fontWeight: '600', color: colors.onBtn },
-  secondary: { backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border },
-  secondaryText: { fontSize: 15, fontWeight: '600', color: colors.text },
-})
+  primary: { backgroundColor: c.btnBg },
+  primaryText: { fontSize: 15, fontWeight: '600', color: c.onBtn },
+  secondary: { backgroundColor: c.card, borderWidth: 1, borderColor: c.border },
+  secondaryText: { fontSize: 15, fontWeight: '600', color: c.text },
+}))

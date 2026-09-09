@@ -2,6 +2,7 @@ import { Modal, View, Text, Pressable, ScrollView, StyleSheet, KeyboardAvoidingV
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { X } from 'lucide-react-native'
 import { colors } from '../theme/theme'
+import { themed } from '../theme/themed'
 
 // Bottom-sheet modal — a slide-up cream panel with a title + close, over a
 // backdrop. The home quick-add flows (launcher, add-task, goal update) render
@@ -35,16 +36,16 @@ export default function Sheet({ open, onClose, title, children }) {
   )
 }
 
-const styles = StyleSheet.create({
+const styles = themed((c, t) => ({
   overlay: { flex: 1, justifyContent: 'flex-end' },
-  backdrop: { ...StyleSheet.absoluteFillObject, backgroundColor: colors.overlay },
+  backdrop: { ...StyleSheet.absoluteFillObject, backgroundColor: c.overlay },
   kav: { flex: 1, justifyContent: 'flex-end' },
   sheet: {
-    backgroundColor: colors.bg, borderTopLeftRadius: 24, borderTopRightRadius: 24,
+    backgroundColor: c.bg, borderTopLeftRadius: 24, borderTopRightRadius: 24,
     paddingHorizontal: 20, paddingTop: 18, maxHeight: '86%',
   },
   head: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 },
-  title: { flex: 1, fontSize: 20, fontWeight: '700', color: colors.text },
-  close: { width: 32, height: 32, borderRadius: 16, backgroundColor: colors.cardFlat, alignItems: 'center', justifyContent: 'center' },
+  title: { flex: 1, fontSize: 20, fontWeight: '700', color: c.text },
+  close: { width: 32, height: 32, borderRadius: 16, backgroundColor: c.cardFlat, alignItems: 'center', justifyContent: 'center' },
   body: { gap: 16, paddingBottom: 8 },
-})
+}))

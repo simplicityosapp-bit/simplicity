@@ -1,6 +1,7 @@
 import { View, StyleSheet } from 'react-native'
 import { Image } from 'expo-image'
 import { backgrounds, colors } from '../theme/theme'
+import { themed } from '../theme/themed'
 import { usePreferences } from '../lib/preferences'
 
 // Screen frame with a background that honours the user's "רקע" preference
@@ -22,7 +23,7 @@ export default function Screen({ name, children }) {
   )
 }
 
-const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: colors.bg },
-  scrim: { backgroundColor: colors.scrim },
-})
+const styles = themed((c, t) => ({
+  root: { flex: 1, backgroundColor: c.bg },
+  scrim: { backgroundColor: c.scrim },
+}))

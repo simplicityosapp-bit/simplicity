@@ -11,6 +11,7 @@ import Card from '../components/Card'
 import AddMeetingModal from '../modals/AddMeetingModal'
 import EventDetailsModal from '../modals/EventDetailsModal'
 import { colors } from '../theme/theme'
+import { themed } from '../theme/themed'
 import { useCalendarData } from '../hooks/useCalendarData'
 
 // Calendar screen (mirrors web): a month grid of the merged feed (meetings +
@@ -200,38 +201,38 @@ export default function CalendarScreen() {
   )
 }
 
-const styles = StyleSheet.create({
+const styles = themed((c, t) => ({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   content: { paddingHorizontal: 20, paddingBottom: 96, gap: 14 },
-  error: { color: colors.danger, fontSize: 13 },
-  empty: { color: colors.textFaint, fontSize: 14, textAlign: 'center', marginTop: 12 },
+  error: { color: c.danger, fontSize: 13 },
+  empty: { color: c.textFaint, fontSize: 14, textAlign: 'center', marginTop: 12 },
 
   // Grid
   grid: { paddingVertical: 14, paddingHorizontal: 10, gap: 6 },
   monthNav: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 6, marginBottom: 4 },
-  monthLabel: { fontSize: 15, fontWeight: '600', color: colors.text },
+  monthLabel: { fontSize: 15, fontWeight: '600', color: c.text },
   weekHead: { flexDirection: 'row' },
-  weekday: { flex: 1, textAlign: 'center', fontSize: 11, fontWeight: '600', color: colors.textSub },
+  weekday: { flex: 1, textAlign: 'center', fontSize: 11, fontWeight: '600', color: c.textSub },
   week: { flexDirection: 'row' },
   cell: { flex: 1, aspectRatio: 1, alignItems: 'center', justifyContent: 'center', padding: 2 },
   cellInner: { width: '100%', height: '100%', borderRadius: 10, alignItems: 'center', justifyContent: 'center', gap: 3 },
-  cellSel: { backgroundColor: colors.brand },
+  cellSel: { backgroundColor: c.brand },
   cellToday: { backgroundColor: 'rgba(139,168,136,0.10)', borderWidth: 1, borderColor: 'rgba(139,168,136,0.45)' },
-  cellNum: { fontSize: 13, color: colors.text },
-  cellNumSel: { color: colors.onBrand, fontWeight: '600' },
-  cellNumToday: { color: colors.text, fontWeight: '600' },
+  cellNum: { fontSize: 13, color: c.text },
+  cellNumSel: { color: c.onBrand, fontWeight: '600' },
+  cellNumToday: { color: c.text, fontWeight: '600' },
   dots: { flexDirection: 'row', gap: 2, height: 4 },
   evDot: { width: 4, height: 4, borderRadius: 2 },
 
   // Agenda
-  dayLabel: { fontSize: 14, fontWeight: '600', color: colors.textSub, marginTop: 2 },
+  dayLabel: { fontSize: 14, fontWeight: '600', color: c.textSub, marginTop: 2 },
   row: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 13, paddingHorizontal: 16 },
   rowFlip: { flexDirection: 'row-reverse' },
   eventTitleRtl: { textAlign: 'right' },
-  rowBorder: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.divider },
-  time: { fontSize: 13, color: colors.textSub, width: 48 },
+  rowBorder: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: c.divider },
+  time: { fontSize: 13, color: c.textSub, width: 48 },
   dot: { width: 8, height: 8, borderRadius: 4 },
-  eventTitle: { flex: 1, fontSize: 15, color: colors.text },
-  kindTag: { fontSize: 11, color: colors.textFaint, backgroundColor: colors.cardFlat, paddingHorizontal: 8, paddingVertical: 2, borderRadius: 999, overflow: 'hidden' },
+  eventTitle: { flex: 1, fontSize: 15, color: c.text },
+  kindTag: { fontSize: 11, color: c.textFaint, backgroundColor: c.cardFlat, paddingHorizontal: 8, paddingVertical: 2, borderRadius: 999, overflow: 'hidden' },
   confirm: { width: 30, height: 30, borderRadius: 15, borderWidth: 1, borderColor: 'rgba(139,168,136,0.4)', alignItems: 'center', justifyContent: 'center' },
-})
+}))

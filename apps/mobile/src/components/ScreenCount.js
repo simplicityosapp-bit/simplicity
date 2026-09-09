@@ -1,6 +1,7 @@
-import { Text, StyleSheet, I18nManager } from 'react-native'
+import { Text, I18nManager } from 'react-native'
 import i18n from '../lib/i18n'
 import { colors } from '../theme/theme'
+import { themed } from '../theme/themed'
 
 // A one-line count under the screen header — "42 לקוחות", "8 יעדים".
 //
@@ -28,11 +29,11 @@ export default function ScreenCount({ children }) {
   )
 }
 
-const styles = StyleSheet.create({
+const styles = themed((c, t) => ({
   count: {
     fontSize: 13,
     fontWeight: '500',
-    color: colors.textSub,
+    color: c.textSub,
     marginTop: -4,
     marginBottom: 2,
     /* Matches the header card's inset so the caption lines up with the title
@@ -40,4 +41,4 @@ const styles = StyleSheet.create({
     paddingHorizontal: 4,
     writingDirection: I18nManager.isRTL ? 'rtl' : 'ltr',
   },
-})
+}))

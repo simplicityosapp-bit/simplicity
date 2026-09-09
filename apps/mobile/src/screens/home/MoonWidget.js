@@ -8,6 +8,7 @@ import InfoPopover from '../../components/InfoPopover'
 import Card from '../../components/Card'
 import i18n from '../../lib/i18n'
 import { colors, shadow } from '../../theme/theme'
+import { themed } from '../../theme/themed'
 
 // "מבט על" — pace-based confidence ring chip (mirrors web MoonWidget). Tapping
 // toggles the inline expansion (rendered below the top row by HomeScreen):
@@ -108,33 +109,33 @@ function Chip({ children }) {
   )
 }
 
-const styles = StyleSheet.create({
+const styles = themed((c, t) => ({
   wrap: { alignItems: 'center', gap: 8 },
   chipShadow: { width: SIZE, height: SIZE, borderRadius: SIZE / 2, ...shadow.card },
-  chipClip: { width: SIZE, height: SIZE, borderRadius: SIZE / 2, overflow: 'hidden', borderWidth: 1, borderColor: colors.glassBorder, alignItems: 'center', justifyContent: 'center' },
-  chipTint: { backgroundColor: colors.glassTint },
+  chipClip: { width: SIZE, height: SIZE, borderRadius: SIZE / 2, overflow: 'hidden', borderWidth: 1, borderColor: c.glassBorder, alignItems: 'center', justifyContent: 'center' },
+  chipTint: { backgroundColor: c.glassTint },
   ring: { ...StyleSheet.absoluteFillObject, transform: [{ rotate: '-90deg' }] },
-  num: { fontSize: 26, fontWeight: '600', color: colors.text, fontVariant: ['tabular-nums'] },
-  kicker: { fontSize: 10, color: colors.textSub, marginTop: 1 },
-  goalInside: { fontSize: 9, color: colors.textFaint, fontWeight: '500', marginTop: 3, textAlign: 'center', fontVariant: ['tabular-nums'] },
+  num: { fontSize: 26, fontWeight: '600', color: c.text, fontVariant: ['tabular-nums'] },
+  kicker: { fontSize: 10, color: c.textSub, marginTop: 1 },
+  goalInside: { fontSize: 9, color: c.textFaint, fontWeight: '500', marginTop: 3, textAlign: 'center', fontVariant: ['tabular-nums'] },
   labelRow: { flexDirection: 'row', alignItems: 'center', gap: 3 },
-  chipLabel: { fontSize: 11, fontWeight: '500', color: colors.textSub },
-  emptyLabel: { fontSize: 11, color: colors.brand, fontWeight: '600', textAlign: 'center' },
+  chipLabel: { fontSize: 11, fontWeight: '500', color: c.textSub },
+  emptyLabel: { fontSize: 11, color: c.brand, fontWeight: '600', textAlign: 'center' },
   // expansion
   exp: { paddingVertical: 16, paddingHorizontal: 18, gap: 12, marginTop: 4 },
-  reflection: { fontSize: 14, fontWeight: '500', color: colors.text, lineHeight: 20 },
-  expEmpty: { fontSize: 13, color: colors.textFaint },
+  reflection: { fontSize: 14, fontWeight: '500', color: c.text, lineHeight: 20 },
+  expEmpty: { fontSize: 13, color: c.textFaint },
   cat: { gap: 6 },
   catHead: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   catDot: { width: 8, height: 8, borderRadius: 4 },
-  catName: { flex: 1, fontSize: 13, fontWeight: '500', color: colors.text },
+  catName: { flex: 1, fontSize: 13, fontWeight: '500', color: c.text },
   bars: { flexDirection: 'row', gap: 14 },
   barCol: { flex: 1, gap: 4 },
   barHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  barLbl: { fontSize: 11, color: colors.textSub },
-  barVal: { fontSize: 11, fontWeight: '500', color: colors.textSub, fontVariant: ['tabular-nums'] },
-  barTrack: { height: 5, borderRadius: 3, backgroundColor: colors.divider, overflow: 'hidden' },
+  barLbl: { fontSize: 11, color: c.textSub },
+  barVal: { fontSize: 11, fontWeight: '500', color: c.textSub, fontVariant: ['tabular-nums'] },
+  barTrack: { height: 5, borderRadius: 3, backgroundColor: c.divider, overflow: 'hidden' },
   barFill: { height: 5, borderRadius: 3 },
   link: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 5, paddingTop: 4 },
-  linkText: { fontSize: 13, fontWeight: '600', color: colors.brand },
-})
+  linkText: { fontSize: 13, fontWeight: '600', color: c.brand },
+}))

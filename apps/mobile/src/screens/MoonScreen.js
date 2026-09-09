@@ -9,6 +9,7 @@ import ScreenHead from '../components/ScreenHead'
 import Card from '../components/Card'
 import Select from '../components/Select'
 import { colors } from '../theme/theme'
+import { themed } from '../theme/themed'
 import { useGoalsData } from '../hooks/useGoalsData'
 
 // Moon screen ("מבט על", mirrors web moon-glance core): a confidence ring +
@@ -300,71 +301,71 @@ function MultiTrendChart({ days, series }) {
   )
 }
 
-const styles = StyleSheet.create({
+const styles = themed((c, t) => ({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 14, paddingHorizontal: 40 },
   content: { paddingHorizontal: 20, paddingBottom: 96, gap: 16 },
-  error: { color: colors.danger, fontSize: 13 },
-  empty: { color: colors.textFaint, fontSize: 14, textAlign: 'center', lineHeight: 20 },
-  emptyBtn: { paddingVertical: 10, paddingHorizontal: 20, borderRadius: 999, backgroundColor: colors.brand },
-  emptyBtnText: { fontSize: 14, fontWeight: '600', color: colors.onBrand },
+  error: { color: c.danger, fontSize: 13 },
+  empty: { color: c.textFaint, fontSize: 14, textAlign: 'center', lineHeight: 20 },
+  emptyBtn: { paddingVertical: 10, paddingHorizontal: 20, borderRadius: 999, backgroundColor: c.brand },
+  emptyBtnText: { fontSize: 14, fontWeight: '600', color: c.onBrand },
 
   hero: { alignItems: 'center', paddingVertical: 20, gap: 6 },
   ringWrap: { width: 132, height: 132, alignItems: 'center', justifyContent: 'center' },
   ringSvg: { ...StyleSheet.absoluteFillObject, transform: [{ rotate: '-90deg' }] },
-  ringNum: { fontSize: 28, fontWeight: '600', color: colors.text, fontVariant: ['tabular-nums'] },
-  ringKicker: { fontSize: 11, color: colors.textSub, marginTop: 1 },
-  ringSub: { fontSize: 12, color: colors.textSub },
-  reflection: { fontSize: 13, color: colors.text, textAlign: 'center', lineHeight: 19, marginTop: 4, paddingHorizontal: 6 },
+  ringNum: { fontSize: 28, fontWeight: '600', color: c.text, fontVariant: ['tabular-nums'] },
+  ringKicker: { fontSize: 11, color: c.textSub, marginTop: 1 },
+  ringSub: { fontSize: 12, color: c.textSub },
+  reflection: { fontSize: 13, color: c.text, textAlign: 'center', lineHeight: 19, marginTop: 4, paddingHorizontal: 6 },
 
   section: { gap: 8 },
-  sectionH: { alignSelf: 'flex-start', fontSize: 12, fontWeight: '600', color: colors.textSub, letterSpacing: 0.6, backgroundColor: colors.fillStrong, paddingVertical: 3, paddingHorizontal: 12, borderRadius: 999, overflow: 'hidden' },
+  sectionH: { alignSelf: 'flex-start', fontSize: 12, fontWeight: '600', color: c.textSub, letterSpacing: 0.6, backgroundColor: c.fillStrong, paddingVertical: 3, paddingHorizontal: 12, borderRadius: 999, overflow: 'hidden' },
   catCard: { paddingVertical: 4, paddingHorizontal: 16 },
   cat: { paddingVertical: 12, gap: 8 },
-  catBorder: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.divider },
+  catBorder: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: c.divider },
   catHead: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   catDot: { width: 9, height: 9, borderRadius: 5 },
-  catName: { flex: 1, fontSize: 14, fontWeight: '500', color: colors.text },
+  catName: { flex: 1, fontSize: 14, fontWeight: '500', color: c.text },
   dualRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  dualLabel: { fontSize: 11, color: colors.textSub, width: 42 },
-  dualTrack: { flex: 1, height: 7, borderRadius: 4, backgroundColor: colors.fillStrong, overflow: 'hidden' },
+  dualLabel: { fontSize: 11, color: c.textSub, width: 42 },
+  dualTrack: { flex: 1, height: 7, borderRadius: 4, backgroundColor: c.fillStrong, overflow: 'hidden' },
   dualFill: { height: 7, borderRadius: 4 },
-  dualPct: { fontSize: 11, color: colors.textSub, width: 34, textAlign: 'right' },
+  dualPct: { fontSize: 11, color: c.textSub, width: 34, textAlign: 'right' },
 
   trendCard: { paddingVertical: 14, paddingHorizontal: 14, gap: 12 },
   trendStats: { flexDirection: 'row' },
   trendStat: { flex: 1, alignItems: 'center', gap: 3 },
-  trendStatDivided: { borderLeftWidth: StyleSheet.hairlineWidth, borderRightWidth: StyleSheet.hairlineWidth, borderColor: colors.divider },
-  trendStatV: { fontSize: 18, fontWeight: '600', color: colors.text, fontVariant: ['tabular-nums'] },
-  trendStatL: { fontSize: 10, color: colors.textSub, textTransform: 'uppercase', letterSpacing: 0.3 },
+  trendStatDivided: { borderLeftWidth: StyleSheet.hairlineWidth, borderRightWidth: StyleSheet.hairlineWidth, borderColor: c.divider },
+  trendStatV: { fontSize: 18, fontWeight: '600', color: c.text, fontVariant: ['tabular-nums'] },
+  trendStatL: { fontSize: 10, color: c.textSub, textTransform: 'uppercase', letterSpacing: 0.3 },
 
   footerLink: { alignSelf: 'center', paddingVertical: 8 },
-  footerLinkText: { fontSize: 13, color: colors.brand, fontWeight: '500' },
+  footerLinkText: { fontSize: 13, color: c.brand, fontWeight: '500' },
 
   corrEmptyCard: { paddingVertical: 16, paddingHorizontal: 18 },
-  corrEmpty: { fontSize: 13, color: colors.textSub, lineHeight: 19 },
+  corrEmpty: { fontSize: 13, color: c.textSub, lineHeight: 19 },
   corrCard: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 14, paddingHorizontal: 16 },
   corrText: { flex: 1, gap: 4 },
-  corrLine: { fontSize: 13, color: colors.text, lineHeight: 19 },
-  corrBold: { fontWeight: '700', color: colors.text },
-  corrSub: { fontSize: 11, color: colors.textFaint },
-  corrNote: { fontSize: 11, color: colors.textFaint, lineHeight: 16, paddingHorizontal: 4 },
+  corrLine: { fontSize: 13, color: c.text, lineHeight: 19 },
+  corrBold: { fontWeight: '700', color: c.text },
+  corrSub: { fontSize: 11, color: c.textFaint },
+  corrNote: { fontSize: 11, color: c.textFaint, lineHeight: 16, paddingHorizontal: 4 },
 
   ovPills: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  ovPill: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 6, paddingHorizontal: 12, borderRadius: 999, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.cardFlat },
-  ovPillOn: { borderColor: colors.brand, backgroundColor: colors.brandSoft },
+  ovPill: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 6, paddingHorizontal: 12, borderRadius: 999, borderWidth: 1, borderColor: c.border, backgroundColor: c.cardFlat },
+  ovPillOn: { borderColor: c.brand, backgroundColor: c.brandSoft },
   ovPillOff: { opacity: 0.4 },
   ovDot: { width: 8, height: 8, borderRadius: 4 },
-  ovPillText: { fontSize: 12, color: colors.textSub },
-  ovPillTextOn: { color: colors.text, fontWeight: '600' },
+  ovPillText: { fontSize: 12, color: c.textSub },
+  ovPillTextOn: { color: c.text, fontWeight: '600' },
   ovCard: { paddingVertical: 14, paddingHorizontal: 12, gap: 10 },
-  ovEmpty: { fontSize: 12, color: colors.textFaint, textAlign: 'center', paddingVertical: 20 },
+  ovEmpty: { fontSize: 12, color: c.textFaint, textAlign: 'center', paddingVertical: 20 },
   mtWrap: { gap: 10 },
   mtLegend: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
   mtLegendItem: { flexDirection: 'row', alignItems: 'center', gap: 5 },
   mtLegendDot: { width: 8, height: 8, borderRadius: 4 },
-  mtLegendLabel: { fontSize: 11, color: colors.textSub, maxWidth: 90 },
-  mtLegendVal: { fontSize: 11, fontWeight: '600', color: colors.text, fontVariant: ['tabular-nums'] },
-})
+  mtLegendLabel: { fontSize: 11, color: c.textSub, maxWidth: 90 },
+  mtLegendVal: { fontSize: 11, fontWeight: '600', color: c.text, fontVariant: ['tabular-nums'] },
+}))
 
 DualBar.displayName = 'DualBar'
 TrendStat.displayName = 'TrendStat'

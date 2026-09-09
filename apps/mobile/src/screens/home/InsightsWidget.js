@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { View, Text, Pressable, StyleSheet } from 'react-native'
+import { View, Text, Pressable } from 'react-native'
 import { useNavigation } from '@react-navigation/native'
 import Slider from '@react-native-community/slider'
 import { Sparkles, Check } from 'lucide-react-native'
@@ -7,6 +7,7 @@ import { questionText, isQuestionDueToday } from '@simplicity/core'
 import i18n from '../../lib/i18n'
 import Card from '../../components/Card'
 import { colors } from '../../theme/theme'
+import { themed } from '../../theme/themed'
 
 // Daily-question widget (mirrors web InsightsWidget): the next unanswered active
 // question due today + a live control — a 1–10 slider (10 = best) or yes/no —
@@ -119,20 +120,20 @@ export default function InsightsWidget({ questions, answers, addAnswer }) {
   )
 }
 
-const styles = StyleSheet.create({
+const styles = themed((c, t) => ({
   wrap: { marginTop: 12 },
   inner: { paddingVertical: 16, paddingHorizontal: 18, gap: 12 },
   qRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  q: { flex: 1, fontSize: 15, color: colors.text, lineHeight: 21 },
-  empty: { fontSize: 14, color: colors.textSub, textAlign: 'center' },
+  q: { flex: 1, fontSize: 15, color: c.text, lineHeight: 21 },
+  empty: { fontSize: 14, color: c.textSub, textAlign: 'center' },
   ynRow: { flexDirection: 'row', gap: 10 },
-  ynBtn: { flex: 1, paddingVertical: 11, borderRadius: 999, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.cardFlat, alignItems: 'center' },
-  ynText: { fontSize: 15, fontWeight: '500', color: colors.text },
+  ynBtn: { flex: 1, paddingVertical: 11, borderRadius: 999, borderWidth: 1, borderColor: c.border, backgroundColor: c.cardFlat, alignItems: 'center' },
+  ynText: { fontSize: 15, fontWeight: '500', color: c.text },
   sliderRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   slider: { flex: 1, height: 36 },
   saveCol: { alignItems: 'center', gap: 2, width: 40 },
-  val: { fontSize: 14, fontWeight: '600', color: colors.moonDeep, fontVariant: ['tabular-nums'] },
-  saveBtn: { width: 34, height: 34, borderRadius: 17, backgroundColor: colors.brand, alignItems: 'center', justifyContent: 'center' },
+  val: { fontSize: 14, fontWeight: '600', color: c.moonDeep, fontVariant: ['tabular-nums'] },
+  saveBtn: { width: 34, height: 34, borderRadius: 17, backgroundColor: c.brand, alignItems: 'center', justifyContent: 'center' },
   saveBtnOff: { opacity: 0.4 },
-  compare: { fontSize: 12, color: colors.textSub, textAlign: 'center', marginTop: -4 },
-})
+  compare: { fontSize: 12, color: c.textSub, textAlign: 'center', marginTop: -4 },
+}))

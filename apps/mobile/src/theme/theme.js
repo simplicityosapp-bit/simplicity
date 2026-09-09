@@ -1,13 +1,16 @@
-import { reloadApp } from '../lib/appReload'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
 // Warm Precision (Mångata) tokens, mapped from apps/web tokens.css. Light is the
 // default; dark mirrors the web [data-theme="dark"] "Moonlight" remap.
 //
-// RN freezes StyleSheet.create() colors at module load, so the active palette is
-// applied ONCE at boot (index.js: read the saved mode → applyThemeColors → then
-// dynamically import the app) BEFORE any screen module evaluates. Switching theme
-// persists the choice and reloads the app (like the RTL flip).
+// RN freezes StyleSheet.create() colors at module load, so the saved palette is
+// applied at boot (index.js: read the saved mode → applyThemeColors → then
+// dynamically import the app) BEFORE any screen module evaluates. That is what
+// stops the app flashing light on launch for a dark-mode user.
+//
+// Switching AFTERWARDS no longer reloads: sheets are declared with themed()
+// (see theme/themed.js), which resolves them per access, so setThemeMode swaps
+// the palette in place and asks the tree to repaint.
 
 const LIGHT = {
   bg: '#F7F3EE', card: '#FFFCF7', cardFlat: '#F5EFE2',
@@ -74,18 +77,32 @@ export function applyThemeColors(mode) {
   applyBackgroundSet(activeMode)
 }
 
-export const THEME_KEY = 'mg-theme'
-/* Persist the choice, then reload so boot re-runs with the new palette — RN
-   freezes StyleSheet colours at module load, so a live swap isn't possible
-   without deriving every style at render time (mirrors the RTL reload).
+/* Who to tell when the palette changes. App.js re-renders the tree on this,
+   which is what makes a switch visible: themed() sheets resolve per access,
+   so they hand back the new mode's colours as soon as anything repaints. */
+const listeners = new Set()
+export function subscribeTheme(fn) {
+  listeners.add(fn)
+  return () => listeners.delete(fn)
+}
 
-   The reload itself lives in lib/appReload, not here: it was written twice,
-   once here and once inside SettingsScreen, and both copies were wrong the
-   same way. See that file for what was broken and why this path works in a
-   release build. */
-export async function persistThemeAndReload(mode) {
-  try { await AsyncStorage.setItem(THEME_KEY, mode) } catch { /* best-effort */ }
-  await reloadApp()
+export const THEME_KEY = 'mg-theme'
+/* Switch the palette and remember the choice. No reload.
+
+   This used to persist and then restart the app, because StyleSheet.create
+   copies colour values at module load and a screen built at boot could not
+   be told about a new palette. themed() (see theme/themed.js) resolves a
+   sheet on access instead, so the swap is now just: change the palette,
+   tell everyone, let the tree repaint.
+
+   Persisting still matters — boot reads THEME_KEY before any screen module
+   evaluates, so the app opens in the right palette rather than flashing
+   light first. Storage failure is not worth interrupting a theme switch
+   for: the palette still changes, it just will not be remembered. */
+export async function setThemeMode(mode) {
+  applyThemeColors(mode)
+  listeners.forEach((fn) => { try { fn(activeMode) } catch { /* one bad listener must not stop the rest */ } })
+  try { await AsyncStorage.setItem(THEME_KEY, mode) } catch { /* applies now, forgotten next launch */ }
 }
 
 export const radius = { card: 20, pill: 999 }

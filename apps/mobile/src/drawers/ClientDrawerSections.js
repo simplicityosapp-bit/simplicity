@@ -6,6 +6,7 @@ import Card from '../components/Card'
 import PaymentPlanSection from './PaymentPlanSection'
 import i18n from '../lib/i18n'
 import { colors } from '../theme/theme'
+import { themed } from '../theme/themed'
 
 // Client drawer activity + contact panels (mirrors web ClientDrawerSections):
 // collapsible sections for sessions / payments / tasks / timeline and
@@ -340,70 +341,70 @@ export default function ClientDrawerSections({ client: c, txns, tasks = [], remi
   )
 }
 
-const styles = StyleSheet.create({
+const styles = themed((c, t) => ({
   group: { gap: 0, marginBottom: 6 },
-  groupTitle: { fontSize: 11, fontWeight: '600', color: colors.textSub, letterSpacing: 0.6, marginHorizontal: 2, marginTop: 8, marginBottom: 8 },
+  groupTitle: { fontSize: 11, fontWeight: '600', color: c.textSub, letterSpacing: 0.6, marginHorizontal: 2, marginTop: 8, marginBottom: 8 },
   sectionOuter: { marginBottom: 8 },
   section: {},
   secHead: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 14 },
   secTitleWrap: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 13 },
   secEdit: { padding: 8 },
   secChevron: { paddingVertical: 13, paddingHorizontal: 4 },
-  secTitle: { fontSize: 14, fontWeight: '600', color: colors.text },
-  secCount: { fontSize: 11, fontWeight: '500', color: colors.textSub, backgroundColor: colors.fillStrong, borderRadius: 10, paddingVertical: 1, paddingHorizontal: 8, overflow: 'hidden' },
+  secTitle: { fontSize: 14, fontWeight: '600', color: c.text },
+  secCount: { fontSize: 11, fontWeight: '500', color: c.textSub, backgroundColor: c.fillStrong, borderRadius: 10, paddingVertical: 1, paddingHorizontal: 8, overflow: 'hidden' },
   secBody: { paddingHorizontal: 14, paddingBottom: 14, gap: 8 },
-  line: { fontSize: 13, color: colors.text },
-  note: { fontSize: 13, color: colors.text, lineHeight: 19 },
+  line: { fontSize: 13, color: c.text },
+  note: { fontSize: 13, color: c.text, lineHeight: 19 },
   inline: { gap: 8 },
-  inlineLabel: { fontSize: 11, color: colors.textSub },
+  inlineLabel: { fontSize: 11, color: c.textSub },
   inlineInput: {
     minHeight: 44,
     paddingHorizontal: 12,
     paddingVertical: 10,
     borderRadius: 12,
     borderWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.border,
-    backgroundColor: colors.inputBg,
+    borderColor: c.border,
+    backgroundColor: c.inputBg,
     fontSize: 13,
-    color: colors.text,
+    color: c.text,
   },
   inlineArea: { minHeight: 88, textAlignVertical: 'top' },
-  inlineErr: { fontSize: 12, color: colors.danger },
+  inlineErr: { fontSize: 12, color: c.danger },
   inlineActions: { flexDirection: 'row', justifyContent: 'flex-end', gap: 8, marginTop: 2 },
   inlineBtn: { minHeight: 44, justifyContent: 'center', paddingHorizontal: 14, borderRadius: 12 },
-  inlineBtnSave: { backgroundColor: colors.btnBg },
-  inlineCancel: { fontSize: 13, color: colors.textSub },
+  inlineBtnSave: { backgroundColor: c.btnBg },
+  inlineCancel: { fontSize: 13, color: c.textSub },
   /* btnBg/onBtn, NOT brand/onBrand: brand becomes Misted Sage at night and
      a white glyph on it is the low-contrast trap the web side already has a
      separate primary-button token for. This pair is that token. */
-  inlineSave: { fontSize: 13, color: colors.onBtn },
-  noteTs: { fontSize: 11, color: colors.textFaint, marginTop: 6 },
-  empty: { fontSize: 12, color: colors.textFaint, textAlign: 'center', paddingVertical: 4 },
+  inlineSave: { fontSize: 13, color: c.onBtn },
+  noteTs: { fontSize: 11, color: c.textFaint, marginTop: 6 },
+  empty: { fontSize: 12, color: c.textFaint, textAlign: 'center', paddingVertical: 4 },
 
   sessRow: { gap: 6, paddingVertical: 4 },
   sessHead: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  sessNum: { width: 22, height: 22, borderRadius: 11, textAlign: 'center', lineHeight: 22, overflow: 'hidden', fontSize: 11, fontWeight: '500', color: colors.textSub, backgroundColor: colors.fillStrong },
-  sessDate: { flex: 1, fontSize: 12, color: colors.textSub },
-  sessSummary: { fontSize: 13, color: colors.text, lineHeight: 19 },
+  sessNum: { width: 22, height: 22, borderRadius: 11, textAlign: 'center', lineHeight: 22, overflow: 'hidden', fontSize: 11, fontWeight: '500', color: c.textSub, backgroundColor: c.fillStrong },
+  sessDate: { flex: 1, fontSize: 12, color: c.textSub },
+  sessSummary: { fontSize: 13, color: c.text, lineHeight: 19 },
 
   paySummary: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingBottom: 4 },
-  paySummaryL: { fontSize: 12, color: colors.textSub },
-  paySummaryV: { fontSize: 13, fontWeight: '600', color: colors.text },
+  paySummaryL: { fontSize: 12, color: c.textSub },
+  paySummaryV: { fontSize: 13, fontWeight: '600', color: c.text },
 
   row: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 7 },
   rowFlip: { flexDirection: 'row-reverse' },
   txtRtl: { textAlign: 'right' },
   rowDot: { width: 8, height: 8, borderRadius: 4 },
   rowBody: { flex: 1, gap: 2 },
-  rowTitle: { fontSize: 13, color: colors.text },
+  rowTitle: { fontSize: 13, color: c.text },
   grow: { flex: 1 },
-  done: { textDecorationLine: 'line-through', color: colors.textFaint },
-  rowSub: { fontSize: 11, color: colors.textFaint },
-  rowAmt: { fontSize: 13, fontWeight: '600', color: colors.text },
+  done: { textDecorationLine: 'line-through', color: c.textFaint },
+  rowSub: { fontSize: 11, color: c.textFaint },
+  rowAmt: { fontSize: 13, fontWeight: '600', color: c.text },
 
   tlRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10, paddingVertical: 6 },
-  tlLabel: { flex: 1, fontSize: 13, color: colors.text },
-  tlDate: { fontSize: 11, color: colors.textFaint },
-})
+  tlLabel: { flex: 1, fontSize: 13, color: c.text },
+  tlDate: { fontSize: 11, color: c.textFaint },
+}))
 
 Section.displayName = 'Section'

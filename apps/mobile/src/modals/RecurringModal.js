@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react'
-import { View, Text, TextInput, Pressable, StyleSheet } from 'react-native'
+import { View, Text, TextInput, Pressable } from 'react-native'
 import Sheet from '../components/Sheet'
 import Select from '../components/Select'
 import { useFormOptions } from '../lib/formOptions'
 import i18n from '../lib/i18n'
 import { colors } from '../theme/theme'
+import { themed } from '../theme/themed'
 
 // Add/edit a recurring transaction template (mirrors web RecurringModal): type ·
 // amount · desc · WHEN (by-schedule cadence OR on-meeting) · client/project/
@@ -143,33 +144,33 @@ export default function RecurringModal({ open, onClose, onSave, template = null 
   )
 }
 
-const styles = StyleSheet.create({
+const styles = themed((c, t) => ({
   pills: { flexDirection: 'row', gap: 8 },
-  pill: { flex: 1, paddingVertical: 11, borderRadius: 999, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.cardFlat, alignItems: 'center' },
-  pillIncome: { backgroundColor: colors.positive, borderColor: colors.positive },
-  pillExpense: { backgroundColor: colors.danger, borderColor: colors.danger },
-  pillText: { fontSize: 14, color: colors.text },
-  pillTextOn: { color: colors.onBrand, fontWeight: '600' },
-  segPill: { flex: 1, paddingVertical: 9, borderRadius: 999, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.cardFlat, alignItems: 'center' },
-  segOn: { backgroundColor: colors.brand, borderColor: colors.brand },
-  segText: { fontSize: 13, color: colors.textSub },
+  pill: { flex: 1, paddingVertical: 11, borderRadius: 999, borderWidth: 1, borderColor: c.border, backgroundColor: c.cardFlat, alignItems: 'center' },
+  pillIncome: { backgroundColor: c.positive, borderColor: c.positive },
+  pillExpense: { backgroundColor: c.danger, borderColor: c.danger },
+  pillText: { fontSize: 14, color: c.text },
+  pillTextOn: { color: c.onBrand, fontWeight: '600' },
+  segPill: { flex: 1, paddingVertical: 9, borderRadius: 999, borderWidth: 1, borderColor: c.border, backgroundColor: c.cardFlat, alignItems: 'center' },
+  segOn: { backgroundColor: c.brand, borderColor: c.brand },
+  segText: { fontSize: 13, color: c.textSub },
   row2: { flexDirection: 'row', gap: 12 },
   field: { gap: 6 },
   fieldFlex: { flex: 1, gap: 6 },
-  label: { fontSize: 13, color: colors.textSub },
-  input: { borderWidth: 1, borderColor: colors.border, borderRadius: 12, paddingVertical: 11, paddingHorizontal: 14, fontSize: 15, color: colors.text, backgroundColor: colors.card },
-  inputErr: { borderColor: colors.danger },
-  hint: { fontSize: 12, color: colors.textFaint, lineHeight: 17 },
+  label: { fontSize: 13, color: c.textSub },
+  input: { borderWidth: 1, borderColor: c.border, borderRadius: 12, paddingVertical: 11, paddingHorizontal: 14, fontSize: 15, color: c.text, backgroundColor: c.card },
+  inputErr: { borderColor: c.danger },
+  hint: { fontSize: 12, color: c.textFaint, lineHeight: 17 },
   activeRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  check: { width: 22, height: 22, borderRadius: 6, borderWidth: 1.5, borderColor: colors.border, alignItems: 'center', justifyContent: 'center' },
-  checkOn: { backgroundColor: colors.brand, borderColor: colors.brand },
-  checkMark: { color: colors.onBrand, fontSize: 13, fontWeight: '700' },
-  activeLabel: { fontSize: 14, color: colors.text },
-  error: { color: colors.danger, fontSize: 13 },
+  check: { width: 22, height: 22, borderRadius: 6, borderWidth: 1.5, borderColor: c.border, alignItems: 'center', justifyContent: 'center' },
+  checkOn: { backgroundColor: c.brand, borderColor: c.brand },
+  checkMark: { color: c.onBrand, fontSize: 13, fontWeight: '700' },
+  activeLabel: { fontSize: 14, color: c.text },
+  error: { color: c.danger, fontSize: 13 },
   actions: { flexDirection: 'row', gap: 12, marginTop: 4 },
-  cancel: { flex: 1, paddingVertical: 13, borderRadius: 12, borderWidth: 1, borderColor: colors.border, alignItems: 'center' },
-  cancelText: { fontSize: 15, color: colors.textSub },
-  save: { flex: 1, paddingVertical: 13, borderRadius: 12, backgroundColor: colors.btnBg, alignItems: 'center' },
+  cancel: { flex: 1, paddingVertical: 13, borderRadius: 12, borderWidth: 1, borderColor: c.border, alignItems: 'center' },
+  cancelText: { fontSize: 15, color: c.textSub },
+  save: { flex: 1, paddingVertical: 13, borderRadius: 12, backgroundColor: c.btnBg, alignItems: 'center' },
   saveOff: { opacity: 0.5 },
-  saveText: { fontSize: 15, fontWeight: '600', color: colors.onBtn },
-})
+  saveText: { fontSize: 15, fontWeight: '600', color: c.onBtn },
+}))

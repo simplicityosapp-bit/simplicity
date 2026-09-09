@@ -1,8 +1,9 @@
-import { View, Text, Pressable, StyleSheet } from 'react-native'
+import { View, Text, Pressable } from 'react-native'
 import { Wallet, CheckSquare, Users, UserPlus, FolderOpen, Bell, Calendar } from 'lucide-react-native'
 import Sheet from '../components/Sheet'
 import i18n from '../lib/i18n'
 import { colors } from '../theme/theme'
+import { themed } from '../theme/themed'
 
 // Quick-actions launcher (mirrors web QuickActionsModal) — a tile grid of every
 // "add" entry-point; tapping a tile closes this sheet and signals the parent to
@@ -33,11 +34,11 @@ export default function QuickActionsModal({ open, onClose, onPick }) {
   )
 }
 
-const styles = StyleSheet.create({
+const styles = themed((c, t) => ({
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
   tile: {
-    flexBasis: '31%', flexGrow: 1, backgroundColor: colors.card, borderRadius: 16,
-    borderWidth: 1, borderColor: colors.border, paddingVertical: 18, alignItems: 'center', gap: 8,
+    flexBasis: '31%', flexGrow: 1, backgroundColor: c.card, borderRadius: 16,
+    borderWidth: 1, borderColor: c.border, paddingVertical: 18, alignItems: 'center', gap: 8,
   },
-  label: { fontSize: 13, color: colors.text },
-})
+  label: { fontSize: 13, color: c.text },
+}))

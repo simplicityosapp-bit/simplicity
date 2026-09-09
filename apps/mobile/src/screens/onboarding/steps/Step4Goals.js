@@ -1,8 +1,9 @@
 import { useState } from 'react'
-import { View, Text, TextInput, Pressable, StyleSheet } from 'react-native'
+import { View, Text, TextInput, Pressable } from 'react-native'
 import { Star, Plus, Check } from 'lucide-react-native'
 import { formatGoalValue, timeFrameLabel } from '@simplicity/core'
 import { colors, type } from '../../../theme/theme'
+import { themed } from '../../../theme/themed'
 import i18n from '../../../lib/i18n'
 import { useGoalsData } from '../../../hooks/useGoalsData'
 import { ALL_METRICS, OTHER_METRIC_KEY, OTHER_METRIC, metricName } from '../../../lib/goalPresets'
@@ -306,23 +307,23 @@ export default function Step4Goals({ ob, setCTA }) {
   )
 }
 
-const styles = StyleSheet.create({
+const styles = themed((c, t) => ({
   root: { gap: 14 },
   rowRtl: { flexDirection: 'row-reverse' },
-  intro: { ...type.heading, color: colors.text },
-  introSub: { ...type.caption, color: colors.textSub },
+  intro: { ...t.heading, color: c.text },
+  introSub: { ...t.caption, color: c.textSub },
   field: { gap: 7 },
-  label: { ...type.caption, color: colors.textSub },
-  help: { ...type.micro, color: colors.textFaint },
+  label: { ...t.caption, color: c.textSub },
+  help: { ...t.micro, color: c.textFaint },
   input: {
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: c.border,
     borderRadius: 12,
     paddingVertical: 11,
     paddingHorizontal: 14,
     fontSize: 15,
-    color: colors.text,
-    backgroundColor: colors.card,
+    color: c.text,
+    backgroundColor: c.card,
   },
   list: { gap: 8 },
   existing: {
@@ -333,13 +334,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.card,
+    borderColor: c.border,
+    backgroundColor: c.card,
   },
-  existingOn: { borderColor: colors.brand, backgroundColor: colors.brandSoft },
+  existingOn: { borderColor: c.brand, backgroundColor: c.brandSoft },
   existingBody: { flex: 1, gap: 2 },
-  existingName: { ...type.body, color: colors.text },
-  existingMeta: { ...type.micro, color: colors.textFaint },
+  existingName: { ...t.body, color: c.text },
+  existingMeta: { ...t.micro, color: c.textFaint },
   dot: { width: 10, height: 10, borderRadius: 5 },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   tile: {
@@ -350,31 +351,31 @@ const styles = StyleSheet.create({
     paddingHorizontal: 6,
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.cardFlat,
+    borderColor: c.border,
+    backgroundColor: c.cardFlat,
   },
-  tileOn: { borderColor: colors.brand, backgroundColor: colors.brandSoft },
+  tileOn: { borderColor: c.brand, backgroundColor: c.brandSoft },
   tileIcon: { fontSize: 20 },
-  tileLabel: { fontSize: 12, color: colors.text, textAlign: 'center' },
-  tileLabelOn: { color: colors.brand, fontWeight: '600' },
+  tileLabel: { fontSize: 12, color: c.text, textAlign: 'center' },
+  tileLabelOn: { color: c.brand, fontWeight: '600' },
   gcard: {
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.card,
+    borderColor: c.border,
+    backgroundColor: c.card,
     padding: 14,
     gap: 10,
   },
   gcardHead: { flexDirection: 'row', alignItems: 'flex-start', gap: 10 },
   gcardTitleBlock: { flex: 1, gap: 3 },
-  gcardTitle: { ...type.heading, color: colors.text },
+  gcardTitle: { ...t.heading, color: c.text },
   gcardCat: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  gcardCatText: { ...type.micro, color: colors.textFaint, flex: 1 },
-  gcardPct: { ...type.body, color: colors.textSub },
-  gcardTrack: { height: 6, borderRadius: 3, backgroundColor: colors.fill, overflow: 'hidden' },
-  gcardFill: { width: '0%', height: '100%', backgroundColor: colors.brand },
+  gcardCatText: { ...t.micro, color: c.textFaint, flex: 1 },
+  gcardPct: { ...t.body, color: c.textSub },
+  gcardTrack: { height: 6, borderRadius: 3, backgroundColor: c.fill, overflow: 'hidden' },
+  gcardFill: { width: '0%', height: '100%', backgroundColor: c.brand },
   gcardMeta: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  gcardTarget: { ...type.micro, color: colors.textSub },
+  gcardTarget: { ...t.micro, color: c.textSub },
   stars: { flexDirection: 'row', gap: 2 },
-  err: { ...type.caption, color: colors.danger },
-})
+  err: { ...t.caption, color: c.danger },
+}))

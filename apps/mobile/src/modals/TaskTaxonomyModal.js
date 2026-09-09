@@ -1,9 +1,10 @@
 import { useState } from 'react'
-import { View, Text, TextInput, Pressable, StyleSheet, Alert } from 'react-native'
+import { View, Text, TextInput, Pressable, Alert } from 'react-native'
 import { Plus, X } from 'lucide-react-native'
 import Sheet from '../components/Sheet'
 import i18n from '../lib/i18n'
 import { colors } from '../theme/theme'
+import { themed } from '../theme/themed'
 import { CATEGORY_COLORS } from '../hooks/useFinanceData'
 
 // Manage the shared task taxonomy — custom statuses + categories (mirrors web
@@ -114,27 +115,27 @@ export default function TaskTaxonomyModal({ open, onClose, statuses = [], catego
   )
 }
 
-const styles = StyleSheet.create({
+const styles = themed((c, t) => ({
   section: { gap: 10, marginBottom: 8 },
-  label: { fontSize: 13, fontWeight: '600', color: colors.textSub },
-  hint: { fontSize: 12, color: colors.textFaint, lineHeight: 17 },
+  label: { fontSize: 13, fontWeight: '600', color: c.textSub },
+  hint: { fontSize: 12, color: c.textFaint, lineHeight: 17 },
   pills: { flexDirection: 'row', gap: 8 },
-  pill: { paddingVertical: 8, paddingHorizontal: 16, borderRadius: 999, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.cardFlat },
-  pillOn: { backgroundColor: colors.brand, borderColor: colors.brand },
-  pillText: { fontSize: 13, color: colors.textSub },
-  pillTextOn: { color: colors.onBrand, fontWeight: '600' },
+  pill: { paddingVertical: 8, paddingHorizontal: 16, borderRadius: 999, borderWidth: 1, borderColor: c.border, backgroundColor: c.cardFlat },
+  pillOn: { backgroundColor: c.brand, borderColor: c.brand },
+  pillText: { fontSize: 13, color: c.textSub },
+  pillTextOn: { color: c.onBrand, fontWeight: '600' },
   swatches: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   swatch: { width: 26, height: 26, borderRadius: 13, borderWidth: 2, borderColor: 'transparent' },
-  swatchOn: { borderColor: colors.text },
+  swatchOn: { borderColor: c.text },
   bucket: { gap: 6 },
-  bucketLabel: { fontSize: 12, fontWeight: '600', color: colors.textFaint },
+  bucketLabel: { fontSize: 12, fontWeight: '600', color: c.textFaint },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  chip: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 6, paddingHorizontal: 10, borderRadius: 999, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.cardFlat },
+  chip: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 6, paddingHorizontal: 10, borderRadius: 999, borderWidth: 1, borderColor: c.border, backgroundColor: c.cardFlat },
   chipDot: { width: 8, height: 8, borderRadius: 4 },
-  chipText: { fontSize: 13, color: colors.text },
-  emptyHint: { fontSize: 12, color: colors.textFaint },
+  chipText: { fontSize: 13, color: c.text },
+  emptyHint: { fontSize: 12, color: c.textFaint },
   addRow: { flexDirection: 'row', gap: 8, alignItems: 'center' },
-  input: { flex: 1, borderWidth: 1, borderColor: colors.border, borderRadius: 12, paddingVertical: 10, paddingHorizontal: 14, fontSize: 15, color: colors.text, backgroundColor: colors.card },
-  addBtn: { width: 44, height: 44, borderRadius: 12, backgroundColor: colors.brand, alignItems: 'center', justifyContent: 'center' },
+  input: { flex: 1, borderWidth: 1, borderColor: c.border, borderRadius: 12, paddingVertical: 10, paddingHorizontal: 14, fontSize: 15, color: c.text, backgroundColor: c.card },
+  addBtn: { width: 44, height: 44, borderRadius: 12, backgroundColor: c.brand, alignItems: 'center', justifyContent: 'center' },
   addBtnOff: { opacity: 0.5 },
-})
+}))

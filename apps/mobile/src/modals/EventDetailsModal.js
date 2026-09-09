@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react'
-import { View, Text, TextInput, Pressable, StyleSheet, Alert } from 'react-native'
+import { View, Text, TextInput, Pressable, Alert } from 'react-native'
 import { Check, X, Pencil, Trash2, CalendarDays, Clock } from 'lucide-react-native'
 import { formatWhen, fmtTime, isr } from '@simplicity/core'
 import Sheet from '../components/Sheet'
 import i18n from '../lib/i18n'
 import { colors } from '../theme/theme'
+import { themed } from '../theme/themed'
 
 // Detail + action sheet opened by tapping a calendar agenda row (mirrors web
 // EventDetailsModal). A pending meeting → confirm ("happened") / skip ("didn't");
@@ -186,25 +187,25 @@ export default function EventDetailsModal({ open, onClose, event, onConfirmMeeti
   )
 }
 
-const styles = StyleSheet.create({
+const styles = themed((c, t) => ({
   head: { flexDirection: 'row', alignItems: 'center', gap: 12, marginBottom: 4 },
   icon: { width: 40, height: 40, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
   headText: { flex: 1, minWidth: 0, gap: 3 },
-  title: { fontSize: 16, fontWeight: '600', color: colors.text },
-  when: { fontSize: 13, color: colors.textSub },
+  title: { fontSize: 16, fontWeight: '600', color: c.text },
+  when: { fontSize: 13, color: c.textSub },
   block: { gap: 10, marginTop: 6 },
-  question: { fontSize: 14, color: colors.text },
-  confirmed: { fontSize: 14, color: colors.positive, marginTop: 8 },
+  question: { fontSize: 14, color: c.text },
+  confirmed: { fontSize: 14, color: c.positive, marginTop: 8 },
   field: { gap: 6 },
   row2: { flexDirection: 'row', gap: 12 },
   flex: { flex: 1, gap: 6 },
-  label: { fontSize: 13, color: colors.textSub },
-  input: { borderWidth: 1, borderColor: colors.border, borderRadius: 12, paddingVertical: 11, paddingHorizontal: 14, fontSize: 15, color: colors.text, backgroundColor: colors.card },
-  error: { color: colors.danger, fontSize: 13 },
+  label: { fontSize: 13, color: c.textSub },
+  input: { borderWidth: 1, borderColor: c.border, borderRadius: 12, paddingVertical: 11, paddingHorizontal: 14, fontSize: 15, color: c.text, backgroundColor: c.card },
+  error: { color: c.danger, fontSize: 13 },
   actions: { flexDirection: 'row', gap: 12, marginTop: 8 },
   btn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: 13, borderRadius: 12 },
-  approve: { backgroundColor: colors.brand },
-  approveText: { fontSize: 15, fontWeight: '600', color: colors.onBrand },
-  skip: { borderWidth: 1, borderColor: colors.border },
-  skipText: { fontSize: 15, color: colors.textSub },
-})
+  approve: { backgroundColor: c.brand },
+  approveText: { fontSize: 15, fontWeight: '600', color: c.onBrand },
+  skip: { borderWidth: 1, borderColor: c.border },
+  skipText: { fontSize: 15, color: c.textSub },
+}))

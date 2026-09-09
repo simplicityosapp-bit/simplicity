@@ -13,6 +13,7 @@ import AddTaskModal from '../modals/AddTaskModal'
 import AddReminderModal from '../modals/AddReminderModal'
 import TaskTaxonomyModal from '../modals/TaskTaxonomyModal'
 import { colors } from '../theme/theme'
+import { themed } from '../theme/themed'
 import { useFormOptions } from '../lib/formOptions'
 import { useTasksList } from '../hooks/useTasksList'
 import { useRemindersList } from '../hooks/useRemindersList'
@@ -379,69 +380,69 @@ function ReminderRow({ reminder, first, clientName, count, onComplete, onEdit })
   )
 }
 
-const styles = StyleSheet.create({
+const styles = themed((c, t) => ({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   content: { paddingHorizontal: 20, paddingBottom: 96, gap: 12 },
-  error: { color: colors.danger, fontSize: 13 },
-  empty: { color: colors.textFaint, fontSize: 14, textAlign: 'center', marginTop: 24 },
+  error: { color: c.danger, fontSize: 13 },
+  empty: { color: c.textFaint, fontSize: 14, textAlign: 'center', marginTop: 24 },
 
   hero: { paddingVertical: 16, paddingHorizontal: 12, gap: 12 },
-  heroTitle: { fontSize: 11, fontWeight: '500', color: colors.textSub, letterSpacing: 0.4, textAlign: 'center' },
+  heroTitle: { fontSize: 11, fontWeight: '500', color: c.textSub, letterSpacing: 0.4, textAlign: 'center' },
   heroGrid: { flexDirection: 'row' },
   heroStat: { flex: 1, alignItems: 'center', gap: 4 },
-  heroStatDivided: { borderLeftWidth: StyleSheet.hairlineWidth, borderRightWidth: StyleSheet.hairlineWidth, borderColor: colors.divider },
-  heroStatL: { fontSize: 9, fontWeight: '500', color: colors.textSub, letterSpacing: 0.4, textTransform: 'uppercase' },
-  heroStatV: { fontSize: 22, fontWeight: '500', color: colors.text },
-  heroStatAccent: { color: colors.brand },
+  heroStatDivided: { borderLeftWidth: StyleSheet.hairlineWidth, borderRightWidth: StyleSheet.hairlineWidth, borderColor: c.divider },
+  heroStatL: { fontSize: 9, fontWeight: '500', color: c.textSub, letterSpacing: 0.4, textTransform: 'uppercase' },
+  heroStatV: { fontSize: 22, fontWeight: '500', color: c.text },
+  heroStatAccent: { color: c.brand },
 
   seg: { flexDirection: 'row', padding: 2, alignSelf: 'center' },
   segBtn: { paddingVertical: 6, paddingHorizontal: 16, borderRadius: 999 },
-  segOn: { backgroundColor: colors.brand },
-  segText: { fontSize: 12, color: colors.textSub },
-  segTextOn: { color: colors.onBrand, fontWeight: '600' },
+  segOn: { backgroundColor: c.brand },
+  segText: { fontSize: 12, color: c.textSub },
+  segTextOn: { color: c.onBrand, fontWeight: '600' },
 
   // Category filter bar
   catBar: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   catPills: { flexDirection: 'row', gap: 6, paddingVertical: 2 },
   catPill: { flexDirection: 'row', alignItems: 'center', gap: 5, paddingVertical: 6, paddingHorizontal: 12 },
   catDot: { width: 8, height: 8, borderRadius: 4 },
-  catText: { fontSize: 12, color: colors.textSub },
-  catTextOn: { color: colors.onBrand, fontWeight: '600' },
+  catText: { fontSize: 12, color: c.textSub },
+  catTextOn: { color: c.onBrand, fontWeight: '600' },
   manageBtn: { flexDirection: 'row', alignItems: 'center', gap: 5, paddingVertical: 6, paddingHorizontal: 12 },
   clearBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: 8, paddingHorizontal: 14, alignSelf: 'center', borderColor: 'rgba(181,99,78,0.35)' },
-  clearText: { fontSize: 12, fontWeight: '500', color: colors.danger },
-  confirmMsg: { fontSize: 14, color: colors.text, lineHeight: 20 },
+  clearText: { fontSize: 12, fontWeight: '500', color: c.danger },
+  confirmMsg: { fontSize: 14, color: c.text, lineHeight: 20 },
   confirmActions: { flexDirection: 'row', gap: 12, marginTop: 4 },
-  confirmCancel: { flex: 1, paddingVertical: 13, borderRadius: 12, borderWidth: 1, borderColor: colors.border, alignItems: 'center' },
-  confirmCancelText: { fontSize: 15, color: colors.textSub },
-  confirmDelete: { flex: 1, paddingVertical: 13, borderRadius: 12, backgroundColor: colors.dangerFill, alignItems: 'center' },
-  confirmDeleteText: { fontSize: 15, fontWeight: '600', color: colors.onBrand },
+  confirmCancel: { flex: 1, paddingVertical: 13, borderRadius: 12, borderWidth: 1, borderColor: c.border, alignItems: 'center' },
+  confirmCancelText: { fontSize: 15, color: c.textSub },
+  confirmDelete: { flex: 1, paddingVertical: 13, borderRadius: 12, backgroundColor: c.dangerFill, alignItems: 'center' },
+  confirmDeleteText: { fontSize: 15, fontWeight: '600', color: c.onBrand },
 
   groupOuter: { marginTop: 0 },
   group: {},
   groupHead: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 13, paddingHorizontal: 14 },
   groupDot: { width: 10, height: 10, borderRadius: 5 },
-  groupLabel: { flex: 1, fontSize: 14, fontWeight: '600', color: colors.text },
-  groupCount: { fontSize: 11, fontWeight: '500', color: colors.textSub, backgroundColor: colors.fillStrong, borderRadius: 10, paddingVertical: 1, paddingHorizontal: 8, overflow: 'hidden' },
+  groupLabel: { flex: 1, fontSize: 14, fontWeight: '600', color: c.text },
+  groupCount: { fontSize: 11, fontWeight: '500', color: c.textSub, backgroundColor: c.fillStrong, borderRadius: 10, paddingVertical: 1, paddingHorizontal: 8, overflow: 'hidden' },
   groupBody: { paddingHorizontal: 14, paddingBottom: 6 },
 
   row: { flexDirection: 'row', alignItems: 'flex-start', gap: 10, paddingVertical: 11 },
   rowFlip: { flexDirection: 'row-reverse' },
-  rowBorder: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.divider },
-  check: { width: 22, height: 22, borderRadius: 11, borderWidth: 1.5, borderColor: colors.divider, alignItems: 'center', justifyContent: 'center', marginTop: 1 },
-  checkOn: { backgroundColor: colors.positive, borderColor: colors.positive },
+  rowBorder: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: c.divider },
+  check: { width: 22, height: 22, borderRadius: 11, borderWidth: 1.5, borderColor: c.divider, alignItems: 'center', justifyContent: 'center', marginTop: 1 },
+  checkOn: { backgroundColor: c.positive, borderColor: c.positive },
   textWrap: { flex: 1, gap: 3 },
   titleRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  text: { flex: 1, fontSize: 14, color: colors.text, lineHeight: 20 },
-  textDone: { color: colors.textFaint, textDecorationLine: 'line-through' },
-  chip: { fontSize: 10, color: colors.textSub, backgroundColor: colors.fill, borderRadius: 8, paddingVertical: 1, paddingHorizontal: 7, overflow: 'hidden' },
+  text: { flex: 1, fontSize: 14, color: c.text, lineHeight: 20 },
+  textDone: { color: c.textFaint, textDecorationLine: 'line-through' },
+  chip: { fontSize: 10, color: c.textSub, backgroundColor: c.fill, borderRadius: 8, paddingVertical: 1, paddingHorizontal: 7, overflow: 'hidden' },
   metaRow: { flexDirection: 'row', alignItems: 'center', gap: 8, flexWrap: 'wrap' },
-  catTag: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingVertical: 1, paddingHorizontal: 7, borderRadius: 8, backgroundColor: colors.fill },
+  catTag: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingVertical: 1, paddingHorizontal: 7, borderRadius: 8, backgroundColor: c.fill },
   catTagDot: { width: 6, height: 6, borderRadius: 3 },
-  catTagText: { fontSize: 10, color: colors.textSub },
-  meta: { fontSize: 12, color: colors.textFaint },
-  metaOverdue: { color: colors.amberWarn },
-})
+  catTagText: { fontSize: 10, color: c.textSub },
+  meta: { fontSize: 12, color: c.textFaint },
+  metaOverdue: { color: c.amberWarn },
+}))
 
 HeroStat.displayName = 'HeroStat'
 Segmented.displayName = 'Segmented'

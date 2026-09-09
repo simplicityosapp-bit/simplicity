@@ -9,6 +9,7 @@ import ScreenHead from '../components/ScreenHead'
 import Card from '../components/Card'
 import AddProjectModal from '../modals/AddProjectModal'
 import { colors } from '../theme/theme'
+import { themed } from '../theme/themed'
 import { useProjectsData } from '../hooks/useProjectsData'
 
 // Projects screen (mirrors web): monthly/cumulative hero (projects · assigned
@@ -137,41 +138,41 @@ function CardStat({ label, value, divided }) {
 HeroStat.displayName = 'HeroStat'
 CardStat.displayName = 'CardStat'
 
-const styles = StyleSheet.create({
+const styles = themed((c, t) => ({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   content: { paddingHorizontal: 20, paddingBottom: 96, gap: 14 },
-  error: { color: colors.danger, fontSize: 13 },
+  error: { color: c.danger, fontSize: 13 },
 
   hero: { paddingVertical: 16, paddingHorizontal: 16, gap: 14 },
-  toggle: { flexDirection: 'row', gap: 6, backgroundColor: colors.cardFlat, borderRadius: 999, padding: 4, alignSelf: 'center' },
+  toggle: { flexDirection: 'row', gap: 6, backgroundColor: c.cardFlat, borderRadius: 999, padding: 4, alignSelf: 'center' },
   toggleBtn: { paddingVertical: 7, paddingHorizontal: 20, borderRadius: 999 },
-  toggleOn: { backgroundColor: colors.brand },
-  toggleText: { fontSize: 13, color: colors.textSub },
-  toggleTextOn: { color: colors.onBrand, fontWeight: '600' },
-  heroTitle: { fontSize: 12, fontWeight: '600', color: colors.textSub, textAlign: 'center', letterSpacing: 0.3 },
+  toggleOn: { backgroundColor: c.brand },
+  toggleText: { fontSize: 13, color: c.textSub },
+  toggleTextOn: { color: c.onBrand, fontWeight: '600' },
+  heroTitle: { fontSize: 12, fontWeight: '600', color: c.textSub, textAlign: 'center', letterSpacing: 0.3 },
   heroGrid: { flexDirection: 'row' },
   heroStat: { flex: 1, alignItems: 'center', gap: 4 },
-  heroStatDivided: { borderLeftWidth: StyleSheet.hairlineWidth, borderRightWidth: StyleSheet.hairlineWidth, borderColor: colors.divider },
-  heroStatL: { fontSize: 11, color: colors.textSub },
-  heroStatV: { fontSize: 20, fontWeight: '600', color: colors.text },
+  heroStatDivided: { borderLeftWidth: StyleSheet.hairlineWidth, borderRightWidth: StyleSheet.hairlineWidth, borderColor: c.divider },
+  heroStatL: { fontSize: 11, color: c.textSub },
+  heroStatV: { fontSize: 20, fontWeight: '600', color: c.text },
 
   empty: { alignItems: 'center', gap: 12, paddingVertical: 50 },
-  emptyText: { fontSize: 14, color: colors.textFaint, textAlign: 'center' },
+  emptyText: { fontSize: 14, color: c.textFaint, textAlign: 'center' },
 
   card: { padding: 16, gap: 12 },
   cardHead: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   dot: { width: 12, height: 12, borderRadius: 6 },
-  cardName: { fontSize: 16, fontWeight: '600', color: colors.text, flex: 1 },
-  tag: { flexDirection: 'row', alignItems: 'center', gap: 3, paddingVertical: 3, paddingHorizontal: 8, borderRadius: 999, backgroundColor: colors.fill },
-  tagText: { fontSize: 11, fontWeight: '500', color: colors.textSub },
+  cardName: { fontSize: 16, fontWeight: '600', color: c.text, flex: 1 },
+  tag: { flexDirection: 'row', alignItems: 'center', gap: 3, paddingVertical: 3, paddingHorizontal: 8, borderRadius: 999, backgroundColor: c.fill },
+  tagText: { fontSize: 11, fontWeight: '500', color: c.textSub },
   /* Finished project — the clay/danger hue at low opacity, matching the web
      card's .ps-tag.ended. Text uses the theme's primary ink so it flips with
      dark mode instead of staying near-black on a dark chip. */
   tagEnded: { paddingVertical: 3, paddingHorizontal: 8, borderRadius: 999, backgroundColor: 'rgba(181, 99, 78, 0.16)' },
-  tagEndedText: { fontSize: 11, fontWeight: '500', color: colors.text },
+  tagEndedText: { fontSize: 11, fontWeight: '500', color: c.text },
   cardStats: { flexDirection: 'row' },
   cardStat: { flex: 1, alignItems: 'center', gap: 3 },
-  cardStatDivided: { borderLeftWidth: StyleSheet.hairlineWidth, borderRightWidth: StyleSheet.hairlineWidth, borderColor: colors.divider },
-  cardStatV: { fontSize: 16, fontWeight: '600', color: colors.text },
-  cardStatL: { fontSize: 11, color: colors.textSub },
-})
+  cardStatDivided: { borderLeftWidth: StyleSheet.hairlineWidth, borderRightWidth: StyleSheet.hairlineWidth, borderColor: c.divider },
+  cardStatV: { fontSize: 16, fontWeight: '600', color: c.text },
+  cardStatL: { fontSize: 11, color: c.textSub },
+}))

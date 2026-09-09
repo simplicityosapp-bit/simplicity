@@ -6,6 +6,7 @@ import { tasksAndReminders, formatWhen } from '@simplicity/core'
 import i18n from '../../lib/i18n'
 import WidgetCard from '../../components/WidgetCard'
 import { colors } from '../../theme/theme'
+import { themed } from '../../theme/themed'
 
 // "משימות ותזכורות" — one card for everything still owed.
 //
@@ -86,19 +87,19 @@ export default function NextTasksWidget({ tasks, reminders, onToggle, onComplete
   )
 }
 
-const styles = StyleSheet.create({
+const styles = themed((c, t) => ({
   row: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 16 },
   rowFlip: { flexDirection: 'row-reverse' },
   textRtl: { textAlign: 'right' },
   rowMain: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 13 },
-  rowBorder: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.divider },
-  check: { width: 26, height: 26, borderRadius: 13, borderWidth: 1, borderColor: colors.divider, alignItems: 'center', justifyContent: 'center' },
+  rowBorder: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: c.divider },
+  check: { width: 26, height: 26, borderRadius: 13, borderWidth: 1, borderColor: c.divider, alignItems: 'center', justifyContent: 'center' },
   dot: { width: 8, height: 8, borderRadius: 4 },
-  dotUrgent: { backgroundColor: colors.danger },
-  dotRegular: { backgroundColor: colors.amberWarn },
-  text: { flex: 1, fontSize: 14, color: colors.text },
-  when: { fontSize: 11, color: colors.textFaint },
+  dotUrgent: { backgroundColor: c.danger },
+  dotRegular: { backgroundColor: c.amberWarn },
+  text: { flex: 1, fontSize: 14, color: c.text },
+  when: { fontSize: 11, color: c.textFaint },
   /* A passed deadline says so in colour, as it does on the tasks screen. */
-  whenOverdue: { color: colors.danger },
-  empty: { padding: 16, fontSize: 14, color: colors.textFaint, textAlign: 'center' },
-})
+  whenOverdue: { color: c.danger },
+  empty: { padding: 16, fontSize: 14, color: c.textFaint, textAlign: 'center' },
+}))

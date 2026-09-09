@@ -1,4 +1,4 @@
-import { View, Text, Pressable, StyleSheet } from 'react-native'
+import { View, Text, Pressable } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { AlertTriangle } from 'lucide-react-native'
 import { fmtShortDate } from '@simplicity/core'
@@ -8,6 +8,7 @@ import { usePreferences } from '../lib/preferences'
 import Screen from '../components/Screen'
 import Card from '../components/Card'
 import { colors } from '../theme/theme'
+import { themed } from '../theme/themed'
 
 // Shown INSTEAD of the app while an account-deletion request is within its grace
 // window (mirrors the web pending-deletion gate): the scheduled date + a cancel
@@ -40,12 +41,12 @@ export default function PendingDeletionScreen() {
   )
 }
 
-const styles = StyleSheet.create({
+const styles = themed((c, t) => ({
   wrap: { flex: 1, paddingHorizontal: 24, justifyContent: 'flex-start' },
   card: { alignItems: 'center', gap: 14, paddingVertical: 28, paddingHorizontal: 22 },
-  title: { fontSize: 20, fontWeight: '700', color: colors.text, textAlign: 'center' },
-  body: { fontSize: 14, color: colors.textSub, textAlign: 'center', lineHeight: 20 },
-  cancelBtn: { backgroundColor: colors.brand, borderRadius: 12, paddingVertical: 14, paddingHorizontal: 20, alignItems: 'center', alignSelf: 'stretch', marginTop: 4 },
-  cancelText: { fontSize: 15, fontWeight: '600', color: colors.onBrand },
-  signOut: { fontSize: 14, color: colors.danger, marginTop: 4 },
-})
+  title: { fontSize: 20, fontWeight: '700', color: c.text, textAlign: 'center' },
+  body: { fontSize: 14, color: c.textSub, textAlign: 'center', lineHeight: 20 },
+  cancelBtn: { backgroundColor: c.brand, borderRadius: 12, paddingVertical: 14, paddingHorizontal: 20, alignItems: 'center', alignSelf: 'stretch', marginTop: 4 },
+  cancelText: { fontSize: 15, fontWeight: '600', color: c.onBrand },
+  signOut: { fontSize: 14, color: c.danger, marginTop: 4 },
+}))

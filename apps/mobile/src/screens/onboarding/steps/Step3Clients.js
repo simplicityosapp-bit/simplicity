@@ -1,7 +1,8 @@
 import { useState } from 'react'
-import { View, Text, TextInput, Pressable, StyleSheet } from 'react-native'
+import { View, Text, TextInput, Pressable } from 'react-native'
 import { X, Phone, Plus } from 'lucide-react-native'
 import { colors, type } from '../../../theme/theme'
+import { themed } from '../../../theme/themed'
 import i18n from '../../../lib/i18n'
 import { useClientsList } from '../../../hooks/useClientsList'
 import { useStepCTA } from '../useStepCTA'
@@ -199,22 +200,22 @@ export default function Step3Clients({ ob, setCTA }) {
   )
 }
 
-const styles = StyleSheet.create({
+const styles = themed((c, t) => ({
   root: { gap: 14 },
   rowRtl: { flexDirection: 'row-reverse' },
-  intro: { ...type.heading, color: colors.text },
-  introSub: { ...type.caption, color: colors.textSub },
+  intro: { ...t.heading, color: c.text },
+  introSub: { ...t.caption, color: c.textSub },
   field: { gap: 7 },
-  label: { ...type.caption, color: colors.textSub },
+  label: { ...t.caption, color: c.textSub },
   input: {
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: c.border,
     borderRadius: 12,
     paddingVertical: 11,
     paddingHorizontal: 14,
     fontSize: 15,
-    color: colors.text,
-    backgroundColor: colors.card,
+    color: c.text,
+    backgroundColor: c.card,
   },
   addAnother: {
     flexDirection: 'row',
@@ -224,10 +225,10 @@ const styles = StyleSheet.create({
     paddingVertical: 11,
     borderRadius: 999,
     borderWidth: 1,
-    borderColor: colors.brand,
-    backgroundColor: colors.brandSoft,
+    borderColor: c.brand,
+    backgroundColor: c.brandSoft,
   },
-  addAnotherLabel: { ...type.body, color: colors.brand },
+  addAnotherLabel: { ...t.body, color: c.brand },
   list: { gap: 8 },
   row: {
     flexDirection: 'row',
@@ -236,8 +237,8 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.card,
+    borderColor: c.border,
+    backgroundColor: c.card,
   },
   avatar: {
     width: 32,
@@ -245,14 +246,14 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: colors.brandSoft,
+    backgroundColor: c.brandSoft,
   },
-  avatarText: { fontSize: 12, fontWeight: '600', color: colors.brand },
+  avatarText: { fontSize: 12, fontWeight: '600', color: c.brand },
   rowBody: { flex: 1, gap: 2 },
-  rowName: { ...type.body, color: colors.text },
+  rowName: { ...t.body, color: c.text },
   metaRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  rowMeta: { ...type.micro, color: colors.textFaint },
+  rowMeta: { ...t.micro, color: c.textFaint },
   remove: { padding: 4 },
   pressed: { opacity: 0.7 },
-  err: { ...type.caption, color: colors.danger },
-})
+  err: { ...t.caption, color: c.danger },
+}))

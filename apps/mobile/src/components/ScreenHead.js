@@ -1,10 +1,11 @@
 import { Fragment } from 'react'
-import { View, Text, Pressable, StyleSheet, I18nManager } from 'react-native'
+import { View, Text, Pressable, I18nManager } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Plus } from 'lucide-react-native'
 import Card from './Card'
 import i18n from '../lib/i18n'
 import { colors, shadow } from '../theme/theme'
+import { themed } from '../theme/themed'
 
 // Shared screen header (mirrors the web .screen-top): a glass card holding the
 // big title + optional meta chips + tagline, beside a large circular terracotta
@@ -55,7 +56,7 @@ export default function ScreenHead({ title, meta = [], tagline, onAdd, addLabel 
   )
 }
 
-const styles = StyleSheet.create({
+const styles = themed((c, t) => ({
   // Lives as the first child inside each screen's scroll content (so it scrolls
   // with the page, like web — not pinned). The content container pads 20
   // horizontally + has a row gap; the head only owns the top clearance
@@ -67,13 +68,13 @@ const styles = StyleSheet.create({
   topFlip: { flexDirection: 'row-reverse' },
   // Glass card, ~62% like the web .screen-head; title on top, meta + tagline below.
   card: { flexBasis: '62%', flexShrink: 1, maxWidth: 280, paddingTop: 16, paddingBottom: 14, paddingHorizontal: 18, alignItems: 'stretch', gap: 6 },
-  title: { fontSize: 24, fontWeight: '700', letterSpacing: -0.5, lineHeight: 26, color: colors.text },
+  title: { fontSize: 24, fontWeight: '700', letterSpacing: -0.5, lineHeight: 26, color: c.text },
   metaRow: { flexDirection: 'row', alignItems: 'center', gap: 8, flexWrap: 'wrap' },
   rowFlip: { flexDirection: 'row-reverse' },
-  lbl: { fontSize: 10, fontWeight: '500', letterSpacing: 0.4, color: colors.textSub, textTransform: 'uppercase' },
-  dot: { fontSize: 10, color: colors.textSub, opacity: 0.4 },
-  tagline: { fontSize: 11, fontWeight: '500', color: colors.textSub },
+  lbl: { fontSize: 10, fontWeight: '500', letterSpacing: 0.4, color: c.textSub, textTransform: 'uppercase' },
+  dot: { fontSize: 10, color: c.textSub, opacity: 0.4 },
+  tagline: { fontSize: 11, fontWeight: '500', color: c.textSub },
   // Terracotta circular FAB centered in the remaining space (web .cta-add, 72px).
   fabSlot: { flex: 1, alignItems: 'center' },
-  fab: { width: 72, height: 72, borderRadius: 36, backgroundColor: colors.brand, alignItems: 'center', justifyContent: 'center', ...shadow.card },
-})
+  fab: { width: 72, height: 72, borderRadius: 36, backgroundColor: c.brand, alignItems: 'center', justifyContent: 'center', ...shadow.card },
+}))

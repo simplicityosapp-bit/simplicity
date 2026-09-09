@@ -7,6 +7,7 @@ import i18n from '../../lib/i18n'
 import WidgetCard from '../../components/WidgetCard'
 import Sheet from '../../components/Sheet'
 import { colors } from '../../theme/theme'
+import { themed } from '../../theme/themed'
 
 // "דרושה תשומת לב" — action items derived by shared core attentionItems, in a
 // collapsible card (Bell). Each row carries an `icon` name (mapped to lucide,
@@ -135,24 +136,24 @@ export default function AttentionWidget({ data, projects = [], financeCategories
   )
 }
 
-const styles = StyleSheet.create({
+const styles = themed((c, t) => ({
   row: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 13, paddingHorizontal: 16 },
   rowFlip: { flexDirection: 'row-reverse' },
   textRtl: { textAlign: 'right' },
-  rowBorder: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.divider },
-  text: { flex: 1, fontSize: 14, color: colors.text, lineHeight: 20 },
-  empty: { fontSize: 13, color: colors.textFaint, textAlign: 'center', paddingVertical: 12 },
+  rowBorder: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: c.divider },
+  text: { flex: 1, fontSize: 14, color: c.text, lineHeight: 20 },
+  empty: { fontSize: 13, color: c.textFaint, textAlign: 'center', paddingVertical: 12 },
   personRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12, paddingVertical: 12 },
   personMain: { flex: 1 },
-  personName: { fontSize: 15, color: colors.text },
-  waBtn: { width: 38, height: 38, borderRadius: 19, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.cardFlat },
+  personName: { fontSize: 15, color: c.text },
+  waBtn: { width: 38, height: 38, borderRadius: 19, alignItems: 'center', justifyContent: 'center', backgroundColor: c.cardFlat },
   bulkBtn: { flexDirection: 'row', alignItems: 'center', gap: 5, alignSelf: 'flex-end', paddingVertical: 5, paddingHorizontal: 12, borderRadius: 999, borderWidth: 1, borderColor: 'rgba(139,168,136,0.4)', backgroundColor: 'rgba(139,168,136,0.10)', marginBottom: 6 },
-  bulkText: { fontSize: 13, fontWeight: '500', color: colors.positive },
+  bulkText: { fontSize: 13, fontWeight: '500', color: c.positive },
   txRow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 11 },
   txMain: { flex: 1, minWidth: 0 },
-  txDesc: { fontSize: 14, color: colors.text },
-  txMeta: { fontSize: 12, color: colors.textSub, marginTop: 2 },
+  txDesc: { fontSize: 14, color: c.text },
+  txMeta: { fontSize: 12, color: c.textSub, marginTop: 2 },
   txAmt: { fontSize: 14, fontVariant: ['tabular-nums'] },
   txActions: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  txBtn: { width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.cardFlat },
-})
+  txBtn: { width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center', backgroundColor: c.cardFlat },
+}))

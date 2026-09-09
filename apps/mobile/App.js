@@ -6,6 +6,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context'
 import { useFonts } from 'expo-font'
 import { fontAssets } from './src/lib/fonts'
 import i18n, { setupI18n, whenI18nReady } from './src/lib/i18n'
+import { getThemeMode, subscribeTheme } from './src/theme/theme'
 import { AuthProvider, useAuth } from './src/lib/auth'
 import { DrawerProvider, useDrawer } from './src/lib/drawer'
 import { FormOptionsProvider } from './src/lib/formOptions'
@@ -66,6 +67,17 @@ function Root() {
     i18n.on('languageChanged', onChange)
     return () => i18n.off('languageChanged', onChange)
   }, [])
+
+  /* Same idea for the palette, and the same reason: screens read `colors`
+     and their themed() sheets during render, not through a hook, so an
+     in-place swap repaints nothing on its own. This subscription is what
+     turns setThemeMode into something visible — and it is why changing
+     theme no longer restarts the app. Held as state rather than a key so
+     the switch does NOT remount: the user stays on the screen they were
+     on, which was the whole point of doing this. */
+  const [themeMode, setThemeModeState] = useState(getThemeMode)
+  useEffect(() => subscribeTheme(setThemeModeState), [])
+
   if (!ready) {
     return (
       <View style={styles.center}>
@@ -76,14 +88,20 @@ function Root() {
   if (!session) return <LoginScreen key={lang} />
   return (
     <PreferencesProvider>
-      <AuthedApp lang={lang} />
+      <AuthedApp lang={lang} themeMode={themeMode} />
     </PreferencesProvider>
   )
 }
 
 // Inside PreferencesProvider so it can read prefs: while an account-deletion
 // request is within its grace window, gate the whole app to the pending screen.
-function AuthedApp({ lang }) {
+//
+// `themeMode` is deliberately unread. Screens pick the palette up by
+// re-rendering, which Root already causes — but passing it makes the
+// dependency real, so wrapping this in React.memo later cannot silently stop
+// theme switches from reaching the app. Deleting it would look like a tidy-up
+// and would be a trap.
+function AuthedApp({ lang, themeMode }) { // eslint-disable-line no-unused-vars
   const { prefs, status } = usePreferences()
   const ob = useOnboarding()
   if (isDeletionPending(prefs)) return <PendingDeletionScreen />

@@ -9,7 +9,8 @@ import { supabase } from '../lib/supabase'
 import { useAuth } from '../lib/auth'
 import { usePreferences, roleLabel } from '../lib/preferences'
 import i18n from '../lib/i18n'
-import { colors, space, persistThemeAndReload, getThemeMode } from '../theme/theme'
+import { colors, space, setThemeMode, getThemeMode } from '../theme/theme'
+import { themed } from '../theme/themed'
 
 // The "עוד" drawer — a right-anchored frosted-glass sheet mirroring web's
 // MenuDrawer: a profile chip, a 3-col glass GRID of the primary screens, then
@@ -90,7 +91,7 @@ export default function Drawer({ open, onClose, onNavigate, activeScreen }) {
   const toggleTheme = () => {
     const next = dark ? 'light' : 'dark'
     try { update({ design: { theme: next } }) } catch { /* best-effort */ }
-    persistThemeAndReload(next)
+    setThemeMode(next)
   }
   const email = session?.user?.email || ''
   const name = prefs.profile?.full_name || i18n.t('nav:profile.myProfile', { defaultValue: 'הפרופיל שלי' })
@@ -176,51 +177,51 @@ export default function Drawer({ open, onClose, onNavigate, activeScreen }) {
 }
 
 const GAP = 8
-const styles = StyleSheet.create({
+const styles = themed((c, t) => ({
   overlay: { ...StyleSheet.absoluteFillObject, zIndex: 100 },
   backdrop: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(42,37,32,0.35)' },
   panel: {
     position: 'absolute', top: 0, bottom: 0, right: 0, width: '86%', maxWidth: 380,
     borderTopLeftRadius: 24, borderBottomLeftRadius: 24, overflow: 'hidden',
-    borderLeftWidth: 0.5, borderLeftColor: colors.glassBorder,
+    borderLeftWidth: 0.5, borderLeftColor: c.glassBorder,
     shadowColor: '#2A2520', shadowOpacity: 0.18, shadowRadius: 24, shadowOffset: { width: -6, height: 0 }, elevation: 12,
   },
-  panelVeil: { backgroundColor: colors.panelBg }, // ≈ web --modal-bg over the blur
+  panelVeil: { backgroundColor: c.panelBg }, // ≈ web --modal-bg over the blur
   body: { flex: 1, paddingHorizontal: space.screenPadH },
   titleRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  title: { fontSize: 22, fontWeight: '700', color: colors.text, letterSpacing: -0.4 },
-  close: { width: 30, height: 30, borderRadius: 15, backgroundColor: colors.fillStrong, borderWidth: 0.5, borderColor: colors.border, alignItems: 'center', justifyContent: 'center' },
-  sub: { fontSize: 10, fontWeight: '500', color: colors.textSub, letterSpacing: 1, marginTop: 4, marginBottom: 14, textTransform: 'uppercase' },
+  title: { fontSize: 22, fontWeight: '700', color: c.text, letterSpacing: -0.4 },
+  close: { width: 30, height: 30, borderRadius: 15, backgroundColor: c.fillStrong, borderWidth: 0.5, borderColor: c.border, alignItems: 'center', justifyContent: 'center' },
+  sub: { fontSize: 10, fontWeight: '500', color: c.textSub, letterSpacing: 1, marginTop: 4, marginBottom: 14, textTransform: 'uppercase' },
   scroll: { paddingBottom: 40, gap: 4 },
   // profile chip
-  profile: { flexDirection: 'row', alignItems: 'center', gap: 11, backgroundColor: colors.glassTint, borderRadius: 20, borderWidth: 0.5, borderColor: colors.divider, paddingVertical: 11, paddingHorizontal: 12, marginBottom: 4 },
-  avatar: { width: 34, height: 34, borderRadius: 17, backgroundColor: colors.brand, alignItems: 'center', justifyContent: 'center' },
-  avatarText: { fontSize: 14, fontWeight: '700', color: colors.onBrand },
+  profile: { flexDirection: 'row', alignItems: 'center', gap: 11, backgroundColor: c.glassTint, borderRadius: 20, borderWidth: 0.5, borderColor: c.divider, paddingVertical: 11, paddingHorizontal: 12, marginBottom: 4 },
+  avatar: { width: 34, height: 34, borderRadius: 17, backgroundColor: c.brand, alignItems: 'center', justifyContent: 'center' },
+  avatarText: { fontSize: 14, fontWeight: '700', color: c.onBrand },
   profileText: { flex: 1, gap: 2 },
-  profileName: { fontSize: 14, fontWeight: '500', color: colors.text },
-  profileMeta: { fontSize: 11, color: colors.textSub },
+  profileName: { fontSize: 14, fontWeight: '500', color: c.text },
+  profileMeta: { fontSize: 11, color: c.textSub },
   // grid
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: GAP, marginTop: 6, marginBottom: 4 },
   tile: {
     flexBasis: '30%', flexGrow: 1,
-    backgroundColor: colors.fill, borderRadius: 14, borderWidth: 1, borderColor: colors.border,
+    backgroundColor: c.fill, borderRadius: 14, borderWidth: 1, borderColor: c.border,
     paddingVertical: 14, alignItems: 'center', gap: 6,
   },
-  tileActive: { backgroundColor: colors.brand, borderColor: colors.brand },
-  tileLabel: { fontSize: 12, fontWeight: '500', color: colors.text },
-  tileLabelActive: { color: colors.onBrand, fontWeight: '600' },
+  tileActive: { backgroundColor: c.brand, borderColor: c.brand },
+  tileLabel: { fontSize: 12, fontWeight: '500', color: c.text },
+  tileLabelActive: { color: c.onBrand, fontWeight: '600' },
   // section label
-  sectionLbl: { fontSize: 10, fontWeight: '500', color: colors.textSub, letterSpacing: 1, textTransform: 'uppercase', marginTop: 14, marginHorizontal: 4, marginBottom: 2 },
+  sectionLbl: { fontSize: 10, fontWeight: '500', color: c.textSub, letterSpacing: 1, textTransform: 'uppercase', marginTop: 14, marginHorizontal: 4, marginBottom: 2 },
   // link rows
-  link: { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: colors.inputBg, borderRadius: 20, borderWidth: 0.5, borderColor: colors.border, paddingVertical: 11, paddingHorizontal: 14, marginTop: 2 },
-  linkIcon: { width: 34, height: 34, borderRadius: 17, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.glassTint, borderWidth: 0.5, borderColor: colors.divider },
+  link: { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: c.inputBg, borderRadius: 20, borderWidth: 0.5, borderColor: c.border, paddingVertical: 11, paddingHorizontal: 14, marginTop: 2 },
+  linkIcon: { width: 34, height: 34, borderRadius: 17, alignItems: 'center', justifyContent: 'center', backgroundColor: c.glassTint, borderWidth: 0.5, borderColor: c.divider },
   linkLogo: { width: 22, height: 22 },
   linkText: { flex: 1 },
-  linkTitle: { fontSize: 14, fontWeight: '500', color: colors.text },
-  linkSub: { fontSize: 10, color: colors.textSub, marginTop: 1, letterSpacing: 0.2 },
+  linkTitle: { fontSize: 14, fontWeight: '500', color: c.text },
+  linkSub: { fontSize: 10, color: c.textSub, marginTop: 1, letterSpacing: 0.2 },
   // theme switch
-  switch: { width: 46, height: 26, borderRadius: 13, backgroundColor: colors.fillStrong, padding: 3, justifyContent: 'center' },
+  switch: { width: 46, height: 26, borderRadius: 13, backgroundColor: c.fillStrong, padding: 3, justifyContent: 'center' },
   switchOn: { backgroundColor: 'rgba(90,106,140,0.5)' },
-  switchThumb: { width: 20, height: 20, borderRadius: 10, backgroundColor: colors.knob },
+  switchThumb: { width: 20, height: 20, borderRadius: 10, backgroundColor: c.knob },
   switchThumbOn: { alignSelf: 'flex-end' },
-})
+}))

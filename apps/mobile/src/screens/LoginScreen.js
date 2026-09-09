@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { View, Text, TextInput, Pressable, StyleSheet, ActivityIndicator, ScrollView, Linking } from 'react-native'
+import { View, Text, TextInput, Pressable, ActivityIndicator, ScrollView, Linking } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Check } from 'lucide-react-native'
 import i18n from '../lib/i18n'
@@ -10,6 +10,7 @@ import GoogleButton from '../components/GoogleButton'
 import Screen from '../components/Screen'
 import Card from '../components/Card'
 import { colors } from '../theme/theme'
+import { themed } from '../theme/themed'
 
 // Strings come from @simplicity/core's shared `auth` namespace — the same source
 // the web login/signup screens use, so the two never drift.
@@ -211,30 +212,30 @@ function ConsentRow({ checked, onToggle, label, onLink }) {
 }
 
 const BRAND = colors.brand
-const styles = StyleSheet.create({
+const styles = themed((c, t) => ({
   scroll: { flexGrow: 1, justifyContent: 'center', paddingHorizontal: 20 },
   wrap: { gap: 14 },
   brand: { fontSize: 15, letterSpacing: 1, color: BRAND, textAlign: 'center', fontWeight: '600' },
-  title: { fontSize: 26, fontWeight: '600', color: colors.text, textAlign: 'center', marginBottom: 8 },
+  title: { fontSize: 26, fontWeight: '600', color: c.text, textAlign: 'center', marginBottom: 8 },
   input: {
-    borderWidth: 1, borderColor: colors.border, borderRadius: 12, paddingHorizontal: 16,
-    paddingVertical: 13, fontSize: 16, color: colors.text, backgroundColor: colors.card,
+    borderWidth: 1, borderColor: c.border, borderRadius: 12, paddingHorizontal: 16,
+    paddingVertical: 13, fontSize: 16, color: c.text, backgroundColor: c.card,
   },
   pwRow: { position: 'relative', justifyContent: 'center' },
   pwInput: { paddingEnd: 84 },
   pwToggle: { position: 'absolute', end: 14, top: -10, color: BRAND, fontSize: 13 },
   forgotWrap: { alignItems: 'flex-end', marginTop: -6 },
   link: { color: BRAND, fontSize: 14, fontWeight: '600' },
-  error: { color: colors.danger, fontSize: 14, textAlign: 'center' },
+  error: { color: c.danger, fontSize: 14, textAlign: 'center' },
   btn: { backgroundColor: BRAND, borderRadius: 12, paddingVertical: 15, alignItems: 'center', marginTop: 4 },
   btnBusy: { opacity: 0.7 },
-  btnText: { color: colors.onBrand, fontSize: 16, fontWeight: '600' },
+  btnText: { color: c.onBrand, fontSize: 16, fontWeight: '600' },
   divider: { flexDirection: 'row', alignItems: 'center', gap: 12, marginVertical: 2 },
-  dividerLine: { flex: 1, height: 1, backgroundColor: colors.border },
-  dividerText: { color: colors.textFaint, fontSize: 13 },
-  foot: { textAlign: 'center', color: colors.textSub, fontSize: 14, marginTop: 8 },
+  dividerLine: { flex: 1, height: 1, backgroundColor: c.border },
+  dividerText: { color: c.textFaint, fontSize: 13 },
+  foot: { textAlign: 'center', color: c.textSub, fontSize: 14, marginTop: 8 },
   consentRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 10, paddingVertical: 2 },
-  checkbox: { width: 22, height: 22, borderRadius: 6, borderWidth: 1, borderColor: colors.border, alignItems: 'center', justifyContent: 'center', marginTop: 1 },
+  checkbox: { width: 22, height: 22, borderRadius: 6, borderWidth: 1, borderColor: c.border, alignItems: 'center', justifyContent: 'center', marginTop: 1 },
   checkboxOn: { backgroundColor: BRAND, borderColor: BRAND },
-  consentText: { flex: 1, fontSize: 13, color: colors.textSub, lineHeight: 18 },
-})
+  consentText: { flex: 1, fontSize: 13, color: c.textSub, lineHeight: 18 },
+}))

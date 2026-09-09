@@ -1,8 +1,9 @@
 import { useState } from 'react'
-import { View, Text, Pressable, Modal, StyleSheet } from 'react-native'
+import { View, Text, Pressable, Modal } from 'react-native'
 import { HelpCircle } from 'lucide-react-native'
 import i18n from '../lib/i18n'
 import { colors, shadow } from '../theme/theme'
+import { themed } from '../theme/themed'
 
 // Small "?" → info popover, mirroring web InfoPopover. On mobile the body shows
 // in a light transparent Modal (tap outside to close) rather than a portal —
@@ -30,8 +31,8 @@ export default function InfoPopover({ text, label }) {
   )
 }
 
-const styles = StyleSheet.create({
+const styles = themed((c, t) => ({
   backdrop: { flex: 1, backgroundColor: 'rgba(42,37,32,0.28)', alignItems: 'center', justifyContent: 'center', paddingHorizontal: 32 },
-  body: { maxWidth: 320, backgroundColor: colors.card, borderRadius: 16, borderWidth: 0.5, borderColor: colors.border, paddingVertical: 14, paddingHorizontal: 16, ...shadow.card },
-  text: { fontSize: 14, lineHeight: 20, color: colors.textSub },
-})
+  body: { maxWidth: 320, backgroundColor: c.card, borderRadius: 16, borderWidth: 0.5, borderColor: c.border, paddingVertical: 14, paddingHorizontal: 16, ...shadow.card },
+  text: { fontSize: 14, lineHeight: 20, color: c.textSub },
+}))

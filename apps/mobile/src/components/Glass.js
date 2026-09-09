@@ -1,6 +1,7 @@
 import { View, Pressable, StyleSheet } from 'react-native'
 import { BlurView } from './SafeBlur'
 import { colors } from '../theme/theme'
+import { themed } from '../theme/themed'
 
 // Frosted-glass chrome matching the Card's translucency (BlurView + cream veil +
 // hairline) but WITHOUT its shadow/large radius — for small chrome (pills,
@@ -33,8 +34,8 @@ export function GlassPressable({ radius = 999, on = false, onColor = colors.bran
   )
 }
 
-const styles = StyleSheet.create({
+const styles = themed((c, t) => ({
   base: { overflow: 'hidden', borderWidth: 0.5 },
-})
+}))
 
 Layers.displayName = 'Layers'

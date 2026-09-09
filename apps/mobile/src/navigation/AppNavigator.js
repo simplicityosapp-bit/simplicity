@@ -32,7 +32,12 @@ function Tabs() {
   return (
     <Tab.Navigator
         initialRouteName="Home"
-        screenOptions={{ headerShown: false }}
+        /* freezeOnBlur: a tab navigator keeps every visited screen MOUNTED, so
+           without this any state a shared hook publishes re-renders all four of
+           them, on every change, forever. react-native-screens is already a
+           dependency; this is the switch that makes it stop rendering the three
+           nobody is looking at. */
+        screenOptions={{ headerShown: false, freezeOnBlur: true }}
         tabBar={() => null}
       >
         <Tab.Screen name="Clients" component={ClientsScreen} />
@@ -46,7 +51,10 @@ function Tabs() {
 export default function AppNavigator() {
   return (
     <NavigationContainer ref={navigationRef}>
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
+      {/* Same reasoning as the tabs: a native stack keeps the screens below the
+          top one mounted, and a dozen of them re-rendering behind the one on
+          screen is paid for on every transition. */}
+      <Stack.Navigator screenOptions={{ headerShown: false, freezeOnBlur: true }}>
         <Stack.Screen name="Main" component={Tabs} />
         <Stack.Screen name="Goals" component={GoalsScreen} />
         <Stack.Screen name="Leads" component={LeadsScreen} />

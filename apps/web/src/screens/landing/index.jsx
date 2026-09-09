@@ -96,10 +96,16 @@ export default function LandingScreen() {
     { icon: SlidersHorizontal, title: t('demo.points.tailored.title'), text: t('demo.points.tailored.text') },
   ]
 
+  /* "מוגן ושמור" sits last of the three, not first. The section is the page's
+     short explainer, and leading it with the security card made a visitor
+     read the whole block as a security notice — the owner asked for the order
+     to make more sense, with that card lower. Reading it after "נבנתה בעברית"
+     and "בלי פרסומות" leaves it as the closing reassurance it is. The section
+     keeps its place in the page; only the cards inside it moved. */
   const TRUST = [
-    { icon: ShieldCheck, title: t('trust.secure.title'), text: t('trust.secure.text') },
     { icon: Languages, title: t('trust.hebrew.title'), text: t('trust.hebrew.text') },
     { icon: EyeOff, title: t('trust.noAds.title'), text: t('trust.noAds.text') },
+    { icon: ShieldCheck, title: t('trust.secure.title'), text: t('trust.secure.text') },
   ]
 
   /* FAQ — answers interpolate the (glyph-bearing) role nouns, so each one is

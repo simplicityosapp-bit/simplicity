@@ -52,6 +52,7 @@ const BLOCK_ICON = {
 import { ICON_NAMES, iconByName } from '../../lib/pageIcons'
 import { uploadPageAsset, assetPathFromUrl, removePageAsset } from '../../lib/pageAssets'
 import { setLeaveGuard, clearLeaveGuard, confirmLeave } from '../../lib/leaveGuard'
+import { usePopoverSide } from '../../hooks/usePopoverSide'
 import { useProjects } from '../../hooks/useProjects'
 import { useBookingPages } from '../../hooks/useBookingPages'
 import { useT } from '../../i18n/useT'
@@ -112,6 +113,7 @@ export default function Editor({ page, onSave, onBack }) {
   const [overflowOpen, setOverflowOpen] = useState(false) // top-bar "⋯" menu (unpublish…)
   const [publishOk, setPublishOk] = useState(false)       // brief "published!" confirmation toast
   const overflowRef = useRef(null)
+  const overflowPop = usePopoverSide(overflowRef, overflowOpen)
   const [mobileSheet, setMobileSheet] = useState(false) // inspector bottom-sheet (mobile)
   // The inspector is a static side panel on desktop but a MODAL bottom-sheet at
   // ≤767px (the CSS breakpoint). Track that breakpoint so the dialog semantics +
@@ -590,7 +592,7 @@ export default function Editor({ page, onSave, onBack }) {
             <Box className="spe-overflow" ref={overflowRef}>
               <Btn className="spe-icon-btn" onClick={() => setOverflowOpen((v) => !v)} aria-haspopup="menu" aria-expanded={overflowOpen} title={t('editor.more', { defaultValue: 'עוד' })} aria-label={t('editor.more', { defaultValue: 'עוד' })}><MoreHorizontal size={18} /></Btn>
               {overflowOpen ? (
-                <Box className="spe-overflow-menu" role="menu">
+                <Box className="spe-overflow-menu" role="menu" style={overflowPop.style}>
                   <Btn role="menuitem" onClick={() => { setOverflowOpen(false); unpublish() }} disabled={saving}>{t('editor.unpublish')}</Btn>
                 </Box>
               ) : null}

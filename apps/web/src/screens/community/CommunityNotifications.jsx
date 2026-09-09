@@ -5,6 +5,7 @@ import CommunityAvatar from './CommunityAvatar'
 import { useCommunityNotifications } from '../../hooks/useCommunityNotifications'
 import { useT } from '../../i18n/useT'
 import { Box, Txt, Btn } from '../../components/ui'
+import { usePopoverSide } from '../../hooks/usePopoverSide'
 
 /* Bell + unread badge + dropdown inbox. Opening the panel marks everything read
    (the common pattern) — the badge is "since you last looked". */
@@ -13,6 +14,7 @@ export default function CommunityNotifications({ enabled }) {
   const { notifications, unreadCount, markAllRead } = useCommunityNotifications({ enabled })
   const [open, setOpen] = useState(false)
   const wrapRef = useRef(null)
+  const panelPop = usePopoverSide(wrapRef, open)
 
   useEffect(() => {
     if (!open) return undefined
@@ -45,7 +47,7 @@ export default function CommunityNotifications({ enabled }) {
       </Btn>
 
       {open && (
-        <Box className="cmt-notif-panel" role="region" aria-label={t('chat.notif.title')}>
+        <Box className="cmt-notif-panel" role="region" aria-label={t('chat.notif.title')} style={panelPop.style}>
           <Txt as="p" className="cmt-notif-panel-title">{t('chat.notif.title')}</Txt>
           {notifications.length === 0 ? (
             <Txt as="p" className="cmt-notif-empty">{t('chat.notif.empty')}</Txt>

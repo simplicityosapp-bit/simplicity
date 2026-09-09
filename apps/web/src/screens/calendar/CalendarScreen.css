@@ -460,7 +460,8 @@
 .cal-monthpick-panel {
   position: absolute;
   top: calc(100% + 6px);
-  inset-inline-end: 0;                    /* anchor to the trigger's start/right edge (RTL-safe) */
+  /* side + width cap set inline via usePopoverSide, which opens the panel
+     toward the centre and never past an edge. */
   z-index: 30;
   width: min(240px, calc(100vw - 24px));  /* never wider than the viewport */
   padding: 12px;

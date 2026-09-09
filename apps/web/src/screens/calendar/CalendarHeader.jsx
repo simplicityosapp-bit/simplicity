@@ -5,6 +5,7 @@ import {
   hebrewMonthsOfYear, hebrewParts, isSameHebrewMonth, stepHebrewMonth,
 } from '@simplicity/core'
 import { useT } from '../../i18n/useT'
+import { usePopoverSide } from '../../hooks/usePopoverSide'
 import { Box, Txt, Btn } from '../../components/ui'
 
 const VIEW_KEYS = ['schedule', 'day', 'week', 'month']
@@ -37,6 +38,7 @@ function MonthPicker({ date, onPick }) {
   const [open, setOpen] = useState(false)
   const [year, setYear] = useState(date.getFullYear())
   const ref = useRef(null)
+  const panelPop = usePopoverSide(ref, open)
   useEffect(() => {
     if (!open) return undefined
     const onDoc = (e) => { if (ref.current && !ref.current.contains(e.target)) setOpen(false) }
@@ -60,7 +62,7 @@ function MonthPicker({ date, onPick }) {
         <ChevronDown size={14} strokeWidth={1.7} aria-hidden="true" />
       </Btn>
       {open && (
-        <Box className="cal-monthpick-panel" role="dialog" aria-label={t('monthPicker.dialogAria')}>
+        <Box className="cal-monthpick-panel" role="dialog" aria-label={t('monthPicker.dialogAria')} style={panelPop.style}>
           <Box className="cal-monthpick-year">
             <Btn type="button" onClick={() => setYear((y) => y - 1)} aria-label={t('monthPicker.prevYear')}><ChevronRight size={15} strokeWidth={1.7} aria-hidden="true" /></Btn>
             <Txt className="mono">{year}</Txt>
@@ -88,6 +90,7 @@ function HebrewMonthPicker({ date, onPick }) {
   const [open, setOpen] = useState(false)
   const [ref, setRef] = useState(date)
   const wrapRef = useRef(null)
+  const panelPop = usePopoverSide(wrapRef, open)
   useEffect(() => {
     if (!open) return undefined
     const onDoc = (e) => { if (wrapRef.current && !wrapRef.current.contains(e.target)) setOpen(false) }
@@ -113,7 +116,7 @@ function HebrewMonthPicker({ date, onPick }) {
         <ChevronDown size={14} strokeWidth={1.7} aria-hidden="true" />
       </Btn>
       {open && (
-        <Box className="cal-monthpick-panel" role="dialog" aria-label={t('monthPicker.dialogAria')}>
+        <Box className="cal-monthpick-panel" role="dialog" aria-label={t('monthPicker.dialogAria')} style={panelPop.style}>
           <Box className="cal-monthpick-year">
             <Btn type="button" onClick={() => setRef(stepHebrewMonth(months[0].date, -1))} aria-label={t('monthPicker.prevYear')}><ChevronRight size={15} strokeWidth={1.7} aria-hidden="true" /></Btn>
             <Txt>{yearText}</Txt>

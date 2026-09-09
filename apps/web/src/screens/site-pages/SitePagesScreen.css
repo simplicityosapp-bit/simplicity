@@ -248,7 +248,7 @@
 /* "⋯" overflow menu (unpublish, …) */
 .spe-overflow { position: relative; }
 .spe-overflow-menu {
-  position: absolute; top: calc(100% + 6px); inset-inline-end: 0; z-index: 20; min-width: 170px;
+  position: absolute; top: calc(100% + 6px); z-index: 20; min-width: 170px; /* side + width cap set inline via usePopoverSide */
   background: var(--pure-white); border: 1px solid var(--divider); border-radius: 12px;
   box-shadow: var(--spb-elev-pop), var(--spb-hairline); padding: 6px; animation: mgFadeUp 0.16s var(--spb-ease);
 }

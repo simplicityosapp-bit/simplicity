@@ -50,15 +50,21 @@ const ANON_KEY = process.env.SUPABASE_PUBLISHABLE_KEY || 'sb_publishable_vr-jk0p
    turn into an error the browser sees or a retry it makes. The timeout is
    there because this runs before the 204 — a slow Supabase must not hold a
    beacon open. */
-async function store(violations) {
+async function store(req, violations) {
   /* Only ever from a real deployment. This endpoint's own test suite calls
      the handler directly with fixture violations, and vitest does not stub
-     fetch — so without this line `npm test` posts them to the production
-     table. It did, twice, before this line existed: evil.test and vimeo.test
-     landed in csp_violations from a local test run. VERCEL is set in every
-     Vercel build and runtime and nowhere else, which is exactly the
-     distinction wanted here. */
-  if (!process.env.VERCEL) return
+     fetch — so without a guard `npm test` posts them to the production table.
+     It did, twice, before this existed: evil.test and vimeo.test landed in
+     csp_violations from a local test run.
+
+     The guard reads the REQUEST, not the environment. `process.env.VERCEL` is
+     the obvious choice and it does not work here: it only exists when the
+     project has "Automatically expose System Environment Variables" switched
+     on, which this one does not — the first version of this guard shipped,
+     was live, and silently forwarded nothing. `x-vercel-id` is set by the
+     edge on every request that actually reaches a function, so a real report
+     always carries it and a hand-built test request never does. */
+  if (!(req.headers && (req.headers['x-vercel-id'] || process.env.VERCEL))) return
   try {
     await fetch(`${SUPABASE_URL}/functions/v1/csp-report`, {
       method: 'POST',
@@ -131,7 +137,7 @@ export default async function handler(req, res) {
       console.warn('[csp] violation', JSON.stringify(v))
       violations.push(v)
     }
-    if (violations.length) await store(violations)
+    if (violations.length) await store(req, violations)
   } catch (e) {
     console.error('[csp] report handler error', e)
   }

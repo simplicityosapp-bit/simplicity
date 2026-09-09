@@ -38,6 +38,6 @@ export default defineConfig({
     setupFiles: ['./test/setup.js'],
     /* Never scan git worktrees the harness drops under .claude/ — they are
        stale full-repo copies that would shadow the real suite. */
-    exclude: [...configDefaults.exclude, '**/.claude/**'],
+    exclude: [...configDefaults.exclude, '**/.claude/**', '**/*.test.jsx'],
   },
 })

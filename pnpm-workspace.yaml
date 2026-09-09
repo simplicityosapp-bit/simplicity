@@ -6,7 +6,9 @@ packages:
   - "apps/*"
   - "packages/*"
 allowBuilds:
+  '@parcel/watcher': false
   sharp: true
+  unrs-resolver: false
 minimumReleaseAgeExclude:
   - '@expo/cli@57.0.2 || 57.0.23'
   - '@expo/fingerprint@0.20.1'

@@ -14,16 +14,28 @@ import { defineConfig, configDefaults } from 'vitest/config'
    ships (forceRTL and accessibilityState are both no-ops there). Worth
    doing, worth doing deliberately, and not silently conflated with this.
 
-   `react-native` is aliased to `react-native-web` so a module that
-   incidentally imports a primitive still resolves — RN ships untranspiled
+   `react-native` resolves to react-native-web so a module that
+   incidentally imports a primitive still loads — RN ships untranspiled
    Flow, which node cannot parse. react-native-web is already a dependency
-   here for the browser preview, so this costs nothing. */
+   here for the browser preview, so this costs nothing.
+
+   NOTE for anyone mocking a primitive: because of that alias, the
+   specifier is rewritten before a mock is matched, so `vi.mock('react-
+   native')` silently does nothing. Mock 'react-native-web'. (And a
+   `require()` executed inside a function bypasses both the alias and the
+   mock registry — it runs through node's loader — so lazily-required
+   modules cannot be mocked here at all.)
+
+   Assets are handled by test/setup.js rather than an alias, because every
+   asset reference in this app is a `require()` that node resolves at
+   runtime. */
 export default defineConfig({
   resolve: {
     alias: { 'react-native': 'react-native-web' },
   },
   test: {
     environment: 'node',
+    setupFiles: ['./test/setup.js'],
     /* Never scan git worktrees the harness drops under .claude/ — they are
        stale full-repo copies that would shadow the real suite. */
     exclude: [...configDefaults.exclude, '**/.claude/**'],

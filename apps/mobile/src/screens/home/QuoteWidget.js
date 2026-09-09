@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { Text, Pressable, StyleSheet } from 'react-native'
+import { Text, Pressable } from 'react-native'
 import { useQuote } from '../../hooks/useQuote'
 import { useUserQuotes } from '../../hooks/useUserQuotes'
 import { usePreferences } from '../../lib/preferences'
@@ -7,6 +7,7 @@ import Card from '../../components/Card'
 import QuoteSourceModal from '../../modals/QuoteSourceModal'
 import i18n from '../../lib/i18n'
 import { colors } from '../../theme/theme'
+import { themed } from '../../theme/themed'
 
 // Daily quote — tap opens the source picker + personal pool manager (mirrors web
 // QuoteWidget). Source: prefs.quoteSource ('system' | 'personal'). Personal picks
@@ -64,10 +65,10 @@ export default function QuoteWidget() {
   )
 }
 
-const styles = StyleSheet.create({
+const styles = themed((c, t) => ({
   press: { flex: 1 },
   card: { flex: 1 },
   inner: { flex: 1, paddingVertical: 18, paddingHorizontal: 18, alignItems: 'center', justifyContent: 'center', gap: 6 },
-  text: { fontSize: 15, fontWeight: '500', color: colors.text, textAlign: 'center', lineHeight: 21 },
-  author: { fontSize: 12, color: colors.textSub, textAlign: 'center' },
-})
+  text: { fontSize: 15, fontWeight: '500', color: c.text, textAlign: 'center', lineHeight: 21 },
+  author: { fontSize: 12, color: c.textSub, textAlign: 'center' },
+}))

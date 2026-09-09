@@ -1,9 +1,10 @@
 import { useState } from 'react'
-import { View, Text, TextInput, Pressable, StyleSheet } from 'react-native'
+import { View, Text, TextInput, Pressable } from 'react-native'
 import { Trash2, Plus } from 'lucide-react-native'
 import Sheet from '../components/Sheet'
 import i18n from '../lib/i18n'
 import { colors } from '../theme/theme'
+import { themed } from '../theme/themed'
 
 // Quote source picker + personal pool manager (ports web QuoteSourceModal):
 // pick system/personal, add/remove personal quotes (user_quotes). Source persists
@@ -77,19 +78,19 @@ export default function QuoteSourceModal({ open, onClose, source, onChangeSource
   )
 }
 
-const styles = StyleSheet.create({
-  label: { fontSize: 13, fontWeight: '500', color: colors.textSub, marginTop: 14, marginBottom: 6 },
+const styles = themed((c, t) => ({
+  label: { fontSize: 13, fontWeight: '500', color: c.textSub, marginTop: 14, marginBottom: 6 },
   pills: { flexDirection: 'row', gap: 8 },
-  pill: { flex: 1, paddingVertical: 10, borderRadius: 12, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.cardFlat, alignItems: 'center' },
-  pillOn: { backgroundColor: colors.brand, borderColor: colors.brand },
-  pillText: { fontSize: 14, color: colors.textSub },
-  pillTextOn: { color: colors.onBrand, fontWeight: '600' },
-  hint: { fontSize: 12, color: colors.textFaint, marginTop: 8, lineHeight: 17 },
+  pill: { flex: 1, paddingVertical: 10, borderRadius: 12, borderWidth: 1, borderColor: c.border, backgroundColor: c.cardFlat, alignItems: 'center' },
+  pillOn: { backgroundColor: c.brand, borderColor: c.brand },
+  pillText: { fontSize: 14, color: c.textSub },
+  pillTextOn: { color: c.onBrand, fontWeight: '600' },
+  hint: { fontSize: 12, color: c.textFaint, marginTop: 8, lineHeight: 17 },
   addRow: { flexDirection: 'row', gap: 8, alignItems: 'center' },
-  input: { flex: 1, borderWidth: 1, borderColor: colors.border, borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10, fontSize: 14, color: colors.text, backgroundColor: colors.inputBg },
-  addBtn: { width: 44, height: 44, borderRadius: 12, backgroundColor: colors.brand, alignItems: 'center', justifyContent: 'center' },
+  input: { flex: 1, borderWidth: 1, borderColor: c.border, borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10, fontSize: 14, color: c.text, backgroundColor: c.inputBg },
+  addBtn: { width: 44, height: 44, borderRadius: 12, backgroundColor: c.brand, alignItems: 'center', justifyContent: 'center' },
   list: { gap: 6 },
-  row: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: colors.fill, borderRadius: 12, paddingVertical: 10, paddingHorizontal: 12 },
-  rowText: { flex: 1, fontSize: 14, color: colors.text, lineHeight: 19 },
-  error: { fontSize: 13, color: colors.danger, marginTop: 10 },
-})
+  row: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: c.fill, borderRadius: 12, paddingVertical: 10, paddingHorizontal: 12 },
+  rowText: { flex: 1, fontSize: 14, color: c.text, lineHeight: 19 },
+  error: { fontSize: 13, color: c.danger, marginTop: 10 },
+}))

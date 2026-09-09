@@ -1,10 +1,11 @@
 import { useSyncExternalStore, useEffect, useRef } from 'react'
-import { View, Text, Pressable, StyleSheet, Animated, Easing } from 'react-native'
+import { View, Text, Pressable, Animated, Easing } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { RotateCcw, X, Check } from 'lucide-react-native'
 import { subscribe, getSnapshot, performUndo, dismiss } from '../lib/undo'
 import i18n from '../lib/i18n'
 import { colors } from '../theme/theme'
+import { themed } from '../theme/themed'
 
 // <UndoToast> — the visible half of the undo system, mirroring the web
 // component. Mounted once at the app shell; renders nothing while idle.
@@ -68,7 +69,7 @@ export default function UndoToast() {
   )
 }
 
-const styles = StyleSheet.create({
+const styles = themed((c, t) => ({
   // Sits above the bottom tab bar so it never covers the nav.
   wrap: { position: 'absolute', left: 12, right: 12, alignItems: 'stretch' },
   toast: {
@@ -78,12 +79,12 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 14,
     borderRadius: 14,
-    backgroundColor: colors.text,
+    backgroundColor: c.text,
   },
-  label: { flex: 1, fontSize: 13, color: colors.card },
-  action: { flexDirection: 'row', alignItems: 'center', gap: 5, paddingVertical: 5, paddingHorizontal: 10, borderRadius: 999, backgroundColor: colors.btnBg },
-  actionText: { fontSize: 13, fontWeight: '600', color: colors.onBtn },
+  label: { flex: 1, fontSize: 13, color: c.card },
+  action: { flexDirection: 'row', alignItems: 'center', gap: 5, paddingVertical: 5, paddingHorizontal: 10, borderRadius: 999, backgroundColor: c.btnBg },
+  actionText: { fontSize: 13, fontWeight: '600', color: c.onBtn },
   x: { padding: 4 },
   doneRow: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 8 },
-  bar: { height: 2, borderRadius: 2, backgroundColor: colors.btnBg, marginTop: -2 },
-})
+  bar: { height: 2, borderRadius: 2, backgroundColor: c.btnBg, marginTop: -2 },
+}))

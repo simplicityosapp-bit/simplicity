@@ -1,7 +1,8 @@
 import { useState } from 'react'
-import { View, Text, Pressable, ScrollView, StyleSheet, Alert, I18nManager } from 'react-native'
+import { View, Text, Pressable, ScrollView, Alert, I18nManager } from 'react-native'
 import { ChevronLeft, ChevronRight, Info } from 'lucide-react-native'
 import { colors, radius, space, type } from '../../theme/theme'
+import { themed } from '../../theme/themed'
 import i18n from '../../lib/i18n'
 import Screen from '../../components/Screen'
 import OnboardingTree from './OnboardingTree'
@@ -23,11 +24,11 @@ import OnboardingTree from './OnboardingTree'
    · No focus move between steps. The web shell moves DOM focus to the new
      question because advancing left focus on <body>; React Native has no
      equivalent trap, and the screen reader reads the new screen anyway.
-   · No theme toggle. Web offers one in the corner, but this app freezes
-     StyleSheet colours at boot, so changing the palette calls
-     persistThemeAndReload — restarting the app in the middle of the flow.
-     Introducing yourself to someone should not require rebooting them.
-     The toggle stays where it already lives, in the drawer. */
+   · No theme toggle. Web offers one in the corner. The reason this shell
+     did without has since gone: switching used to restart the app, which
+     is no thing to do to someone mid-introduction, and it no longer does.
+     What remains is only that the toggle lives in the drawer — a
+     placement decision rather than a constraint, and open to revisiting. */
 export default function OnboardingShell({ ob, cta, children }) {
   const [skipping, setSkipping] = useState(false)
   const [exiting, setExiting] = useState(false)
@@ -164,19 +165,19 @@ export default function OnboardingShell({ ob, cta, children }) {
   )
 }
 
-const styles = StyleSheet.create({
+const styles = themed((c, t) => ({
   frame: { flex: 1, paddingTop: space.headerTop, paddingHorizontal: space.screenPadH },
-  track: { flexDirection: 'row', height: 4, borderRadius: 2, backgroundColor: colors.fill, overflow: 'hidden' },
-  fill: { backgroundColor: colors.brand },
+  track: { flexDirection: 'row', height: 4, borderRadius: 2, backgroundColor: c.fill, overflow: 'hidden' },
+  fill: { backgroundColor: c.brand },
   head: { alignItems: 'center', paddingTop: 14, gap: 2 },
-  counter: { ...type.micro, color: colors.textFaint },
+  counter: { ...t.micro, color: c.textFaint },
   body: { flex: 1 },
   bodyContent: { paddingTop: 10, paddingBottom: 18, gap: 12 },
   foot: { paddingBottom: 22, gap: 10 },
   footRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   rowRtl: { flexDirection: 'row-reverse' },
   hintRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  hint: { ...type.micro, color: colors.textFaint, flex: 1 },
+  hint: { ...t.micro, color: c.textFaint, flex: 1 },
   back: {
     flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row',
     alignItems: 'center',
@@ -186,21 +187,21 @@ const styles = StyleSheet.create({
     paddingHorizontal: 18,
     borderRadius: radius.pill,
     borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.card,
+    borderColor: c.border,
+    backgroundColor: c.card,
   },
-  backLabel: { ...type.body, color: colors.text },
+  backLabel: { ...t.body, color: c.text },
   primary: {
     flex: 1,
     alignItems: 'center',
     paddingVertical: 14,
     borderRadius: radius.pill,
-    backgroundColor: colors.btnBg,
+    backgroundColor: c.btnBg,
   },
-  primaryQuiet: { backgroundColor: colors.fillStrong },
-  primaryLabel: { ...type.body, color: colors.onBtn },
-  primaryQuietLabel: { color: colors.text },
+  primaryQuiet: { backgroundColor: c.fillStrong },
+  primaryLabel: { ...t.body, color: c.onBtn },
+  primaryQuietLabel: { color: c.text },
   disabled: { opacity: 0.45 },
   pressed: { opacity: 0.75 },
-  exit: { ...type.caption, color: colors.textSub, textAlign: 'center', textDecorationLine: 'underline' },
-})
+  exit: { ...t.caption, color: c.textSub, textAlign: 'center', textDecorationLine: 'underline' },
+}))

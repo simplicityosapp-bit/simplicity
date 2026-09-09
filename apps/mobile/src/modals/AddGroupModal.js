@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react'
-import { View, Text, TextInput, Pressable, StyleSheet, Alert } from 'react-native'
+import { View, Text, TextInput, Pressable, Alert } from 'react-native'
 import { Trash2 } from 'lucide-react-native'
 import Sheet from '../components/Sheet'
 import i18n from '../lib/i18n'
 import { colors } from '../theme/theme'
+import { themed } from '../theme/themed'
 
 // Add/edit a group under a project (mirrors web AddGroupModal): name + color +
 // billing (package price/sessions or per-session). Pass a `group` to edit it.
@@ -130,28 +131,28 @@ export default function AddGroupModal({ open, onClose, onSave, onDelete, group =
   )
 }
 
-const styles = StyleSheet.create({
+const styles = themed((c, t) => ({
   field: { gap: 6 },
   row2: { flexDirection: 'row', gap: 12 },
   flex: { flex: 1, gap: 6 },
-  label: { fontSize: 13, color: colors.textSub },
-  input: { borderWidth: 1, borderColor: colors.border, borderRadius: 12, paddingVertical: 11, paddingHorizontal: 14, fontSize: 15, color: colors.text, backgroundColor: colors.card },
-  inputErr: { borderColor: colors.danger },
-  hint: { fontSize: 12, color: colors.textFaint, lineHeight: 16 },
+  label: { fontSize: 13, color: c.textSub },
+  input: { borderWidth: 1, borderColor: c.border, borderRadius: 12, paddingVertical: 11, paddingHorizontal: 14, fontSize: 15, color: c.text, backgroundColor: c.card },
+  inputErr: { borderColor: c.danger },
+  hint: { fontSize: 12, color: c.textFaint, lineHeight: 16 },
   swatches: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
   swatch: { width: 34, height: 34, borderRadius: 17, borderWidth: 2, borderColor: 'transparent' },
-  swatchOn: { borderColor: colors.text },
+  swatchOn: { borderColor: c.text },
   pills: { flexDirection: 'row', gap: 8 },
-  pill: { flex: 1, paddingVertical: 10, borderRadius: 999, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.cardFlat, alignItems: 'center' },
-  pillOn: { backgroundColor: colors.brand, borderColor: colors.brand },
-  pillText: { fontSize: 14, color: colors.text },
-  pillTextOn: { color: colors.onBrand, fontWeight: '600' },
-  error: { color: colors.danger, fontSize: 13 },
+  pill: { flex: 1, paddingVertical: 10, borderRadius: 999, borderWidth: 1, borderColor: c.border, backgroundColor: c.cardFlat, alignItems: 'center' },
+  pillOn: { backgroundColor: c.brand, borderColor: c.brand },
+  pillText: { fontSize: 14, color: c.text },
+  pillTextOn: { color: c.onBrand, fontWeight: '600' },
+  error: { color: c.danger, fontSize: 13 },
   actions: { flexDirection: 'row', alignItems: 'center', gap: 12, marginTop: 4 },
-  delete: { width: 46, paddingVertical: 13, borderRadius: 12, borderWidth: 1, borderColor: colors.border, alignItems: 'center' },
-  cancel: { flex: 1, paddingVertical: 13, borderRadius: 12, borderWidth: 1, borderColor: colors.border, alignItems: 'center' },
-  cancelText: { fontSize: 15, color: colors.textSub },
-  save: { flex: 1, paddingVertical: 13, borderRadius: 12, backgroundColor: colors.btnBg, alignItems: 'center' },
+  delete: { width: 46, paddingVertical: 13, borderRadius: 12, borderWidth: 1, borderColor: c.border, alignItems: 'center' },
+  cancel: { flex: 1, paddingVertical: 13, borderRadius: 12, borderWidth: 1, borderColor: c.border, alignItems: 'center' },
+  cancelText: { fontSize: 15, color: c.textSub },
+  save: { flex: 1, paddingVertical: 13, borderRadius: 12, backgroundColor: c.btnBg, alignItems: 'center' },
   saveOff: { opacity: 0.5 },
-  saveText: { fontSize: 15, fontWeight: '600', color: colors.onBtn },
-})
+  saveText: { fontSize: 15, fontWeight: '600', color: c.onBtn },
+}))

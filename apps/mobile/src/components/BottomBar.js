@@ -6,6 +6,7 @@ import { Users, ClipboardList, Home, Wallet, Menu } from 'lucide-react-native'
 import i18n from '../lib/i18n'
 import { useDrawer } from '../lib/drawer'
 import { navigationRef } from '../navigation/AppNavigator'
+import { themed } from '../theme/themed'
 
 // Persistent bottom tab bar (mirrors web BottomNav): a dark frosted-glass bar
 // with per-tab brand-color icon chips + cream labels. Rendered ONCE at the App
@@ -66,11 +67,11 @@ export default function BottomBar() {
   )
 }
 
-const styles = StyleSheet.create({
+const styles = themed((c, t) => ({
   bar: { position: 'absolute', left: 0, right: 0, bottom: 0, flexDirection: 'row', paddingTop: 10, paddingHorizontal: 6, borderTopWidth: 1, borderTopColor: 'rgba(240,235,224,0.10)', overflow: 'hidden' },
   barFlip: { flexDirection: 'row-reverse' },
   tint: { backgroundColor: 'rgba(42,37,32,0.42)' },
   item: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 4, paddingTop: 2 },
   chip: { width: 44, height: 34, borderRadius: 14, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
   label: { fontSize: 10, fontWeight: '500', color: CREAM },
-})
+}))

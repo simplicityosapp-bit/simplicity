@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { View, Text, TextInput, Pressable, StyleSheet, Alert } from 'react-native'
+import { View, Text, TextInput, Pressable, Alert } from 'react-native'
 import { Trash2 } from 'lucide-react-native'
 import { questionText, scheduledOccurrences, buildSchedulePattern } from '@simplicity/core'
 import Sheet from '../components/Sheet'
@@ -8,6 +8,7 @@ import ScheduleDayPicker from '../components/ScheduleDayPicker'
 import { useFormOptions } from '../lib/formOptions'
 import i18n from '../lib/i18n'
 import { colors } from '../theme/theme'
+import { themed } from '../theme/themed'
 
 // Edit a goal (mirrors web EditGoalModal): label / time-frame / target /
 // target-date / importance / project+group / delete, PLUS — for manual "other"
@@ -275,30 +276,30 @@ export default function EditGoalModal({ open, onClose, onSave, onDelete, goal, c
   )
 }
 
-const styles = StyleSheet.create({
+const styles = themed((c, t) => ({
   field: { gap: 6 },
   row2: { flexDirection: 'row', gap: 12 },
   flex: { flex: 1, gap: 6 },
-  label: { fontSize: 13, color: colors.textSub },
-  subLabel: { fontSize: 12, color: colors.textSub, marginTop: 8 },
-  input: { borderWidth: 1, borderColor: colors.border, borderRadius: 12, paddingVertical: 11, paddingHorizontal: 14, fontSize: 15, color: colors.text, backgroundColor: colors.card },
-  inputErr: { borderColor: colors.danger },
+  label: { fontSize: 13, color: c.textSub },
+  subLabel: { fontSize: 12, color: c.textSub, marginTop: 8 },
+  input: { borderWidth: 1, borderColor: c.border, borderRadius: 12, paddingVertical: 11, paddingHorizontal: 14, fontSize: 15, color: c.text, backgroundColor: c.card },
+  inputErr: { borderColor: c.danger },
   pills: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  pill: { flexGrow: 1, minWidth: 64, paddingVertical: 10, paddingHorizontal: 12, borderRadius: 999, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.cardFlat, alignItems: 'center' },
-  pillOn: { backgroundColor: colors.brand, borderColor: colors.brand },
-  pillText: { fontSize: 14, color: colors.text },
-  pillTextOn: { color: colors.onBrand, fontWeight: '600' },
+  pill: { flexGrow: 1, minWidth: 64, paddingVertical: 10, paddingHorizontal: 12, borderRadius: 999, borderWidth: 1, borderColor: c.border, backgroundColor: c.cardFlat, alignItems: 'center' },
+  pillOn: { backgroundColor: c.brand, borderColor: c.brand },
+  pillText: { fontSize: 14, color: c.text },
+  pillTextOn: { color: c.onBrand, fontWeight: '600' },
   iconRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  iconBtn: { width: 40, height: 40, borderRadius: 12, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.cardFlat, alignItems: 'center', justifyContent: 'center' },
-  iconOn: { borderColor: colors.brand, backgroundColor: colors.brandSoft },
+  iconBtn: { width: 40, height: 40, borderRadius: 12, borderWidth: 1, borderColor: c.border, backgroundColor: c.cardFlat, alignItems: 'center', justifyContent: 'center' },
+  iconOn: { borderColor: c.brand, backgroundColor: c.brandSoft },
   iconGlyph: { fontSize: 18 },
-  hint: { color: colors.textSub, fontSize: 13, lineHeight: 19 },
-  error: { color: colors.danger, fontSize: 13 },
+  hint: { color: c.textSub, fontSize: 13, lineHeight: 19 },
+  error: { color: c.danger, fontSize: 13 },
   actions: { flexDirection: 'row', alignItems: 'center', gap: 12, marginTop: 4 },
-  delete: { width: 46, paddingVertical: 13, borderRadius: 12, borderWidth: 1, borderColor: colors.border, alignItems: 'center' },
-  cancel: { flex: 1, paddingVertical: 13, borderRadius: 12, borderWidth: 1, borderColor: colors.border, alignItems: 'center' },
-  cancelText: { fontSize: 15, color: colors.textSub },
-  save: { flex: 1, paddingVertical: 13, borderRadius: 12, backgroundColor: colors.btnBg, alignItems: 'center' },
+  delete: { width: 46, paddingVertical: 13, borderRadius: 12, borderWidth: 1, borderColor: c.border, alignItems: 'center' },
+  cancel: { flex: 1, paddingVertical: 13, borderRadius: 12, borderWidth: 1, borderColor: c.border, alignItems: 'center' },
+  cancelText: { fontSize: 15, color: c.textSub },
+  save: { flex: 1, paddingVertical: 13, borderRadius: 12, backgroundColor: c.btnBg, alignItems: 'center' },
   saveOff: { opacity: 0.5 },
-  saveText: { fontSize: 15, fontWeight: '600', color: colors.onBtn },
-})
+  saveText: { fontSize: 15, fontWeight: '600', color: c.onBtn },
+}))

@@ -7,6 +7,7 @@ import Sheet from '../components/Sheet'
 import { ClientsTrend, NetBars } from '../screens/home/TileDrillCharts'
 import i18n from '../lib/i18n'
 import { colors } from '../theme/theme'
+import { themed } from '../theme/themed'
 
 // Drill-down modal opened by tapping a home chip (ports web TileDrillModal +
 // its 3 mobile panels: today / net / clients). Per-tile filters persist under
@@ -239,50 +240,50 @@ export default function TileDrillModal({
   )
 }
 
-const styles = StyleSheet.create({
+const styles = themed((c, t) => ({
   scroll: { maxHeight: 460 },
   scrollBody: { paddingBottom: 8 },
-  num: { fontSize: 34, fontWeight: '600', color: colors.text, textAlign: 'center', fontVariant: ['tabular-nums'] },
-  numLbl: { fontSize: 12, color: colors.textSub, textAlign: 'center', marginTop: 2, marginBottom: 8 },
+  num: { fontSize: 34, fontWeight: '600', color: c.text, textAlign: 'center', fontVariant: ['tabular-nums'] },
+  numLbl: { fontSize: 12, color: c.textSub, textAlign: 'center', marginTop: 2, marginBottom: 8 },
   chartBlock: { marginVertical: 8 },
-  chartLbl: { fontSize: 11, fontWeight: '500', color: colors.textFaint, marginBottom: 4, textTransform: 'uppercase', letterSpacing: 0.4 },
+  chartLbl: { fontSize: 11, fontWeight: '500', color: c.textFaint, marginBottom: 4, textTransform: 'uppercase', letterSpacing: 0.4 },
   legend: { flexDirection: 'row', gap: 16, marginTop: 6, justifyContent: 'center' },
   legendKey: { flexDirection: 'row', alignItems: 'center', gap: 5 },
   swatch: { width: 9, height: 9, borderRadius: 2 },
-  legendText: { fontSize: 11, color: colors.textSub },
-  fieldLbl: { fontSize: 12, fontWeight: '500', color: colors.textSub, marginTop: 12, marginBottom: 6 },
-  sectionLbl: { fontSize: 12, fontWeight: '600', color: colors.textSub, marginTop: 14, marginBottom: 6, letterSpacing: 0.3 },
+  legendText: { fontSize: 11, color: c.textSub },
+  fieldLbl: { fontSize: 12, fontWeight: '500', color: c.textSub, marginTop: 12, marginBottom: 6 },
+  sectionLbl: { fontSize: 12, fontWeight: '600', color: c.textSub, marginTop: 14, marginBottom: 6, letterSpacing: 0.3 },
   pills: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  pill: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 7, paddingHorizontal: 12, borderRadius: 999, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.cardFlat },
-  pillOn: { backgroundColor: colors.brand, borderColor: colors.brand },
-  pillText: { fontSize: 13, color: colors.textSub },
-  pillTextOn: { color: colors.onBrand, fontWeight: '600' },
+  pill: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 7, paddingHorizontal: 12, borderRadius: 999, borderWidth: 1, borderColor: c.border, backgroundColor: c.cardFlat },
+  pillOn: { backgroundColor: c.brand, borderColor: c.brand },
+  pillText: { fontSize: 13, color: c.textSub },
+  pillTextOn: { color: c.onBrand, fontWeight: '600' },
   pillDot: { width: 8, height: 8, borderRadius: 4 },
-  emptyInline: { fontSize: 12, color: colors.textFaint, paddingVertical: 4 },
+  emptyInline: { fontSize: 12, color: c.textFaint, paddingVertical: 4 },
   list: { gap: 2, marginTop: 2 },
-  listRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10, paddingVertical: 9, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.divider },
-  listName: { flex: 1, fontSize: 14, color: colors.text },
-  listMeta: { fontSize: 12, color: colors.textSub },
-  listMore: { fontSize: 12, color: colors.textFaint, paddingTop: 6, textAlign: 'center' },
-  empty: { fontSize: 13, color: colors.textFaint, textAlign: 'center', paddingVertical: 10 },
+  listRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10, paddingVertical: 9, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: c.divider },
+  listName: { flex: 1, fontSize: 14, color: c.text },
+  listMeta: { fontSize: 12, color: c.textSub },
+  listMore: { fontSize: 12, color: c.textFaint, paddingTop: 6, textAlign: 'center' },
+  empty: { fontSize: 13, color: c.textFaint, textAlign: 'center', paddingVertical: 10 },
   miniStats: { flexDirection: 'row', gap: 8, marginTop: 14 },
-  mini: { flex: 1, alignItems: 'center', gap: 2, backgroundColor: colors.fill, borderRadius: 12, paddingVertical: 10 },
-  miniL: { fontSize: 10, color: colors.textSub },
-  miniV: { fontSize: 15, fontWeight: '600', color: colors.text, fontVariant: ['tabular-nums'] },
+  mini: { flex: 1, alignItems: 'center', gap: 2, backgroundColor: c.fill, borderRadius: 12, paddingVertical: 10 },
+  miniL: { fontSize: 10, color: c.textSub },
+  miniV: { fontSize: 15, fontWeight: '600', color: c.text, fontVariant: ['tabular-nums'] },
   // today rows
-  todayRow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 9, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.divider },
+  todayRow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 9, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: c.divider },
   todayMain: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 8 },
-  todayTime: { fontSize: 12, color: colors.textSub, fontVariant: ['tabular-nums'], width: 42 },
-  todayName: { flex: 1, fontSize: 14, color: colors.text },
+  todayTime: { fontSize: 12, color: c.textSub, fontVariant: ['tabular-nums'], width: 42 },
+  todayName: { flex: 1, fontSize: 14, color: c.text },
   todayKind: { fontSize: 11, fontWeight: '600' },
   todayActs: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  todayAct: { width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.cardFlat },
-  todayConfirm: { width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.positive },
+  todayAct: { width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center', backgroundColor: c.cardFlat },
+  todayConfirm: { width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center', backgroundColor: c.positive },
   todayDone: { width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(139,168,136,0.2)' },
   // footer
   actions: { flexDirection: 'row', gap: 10, marginTop: 14 },
-  cancelBtn: { flex: 1, paddingVertical: 13, borderRadius: 14, borderWidth: 1, borderColor: colors.border, alignItems: 'center' },
-  cancelText: { fontSize: 15, fontWeight: '500', color: colors.textSub },
-  saveBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: 13, borderRadius: 14, backgroundColor: colors.btnBg },
-  saveText: { fontSize: 15, fontWeight: '600', color: colors.onBtn },
-})
+  cancelBtn: { flex: 1, paddingVertical: 13, borderRadius: 14, borderWidth: 1, borderColor: c.border, alignItems: 'center' },
+  cancelText: { fontSize: 15, fontWeight: '500', color: c.textSub },
+  saveBtn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: 13, borderRadius: 14, backgroundColor: c.btnBg },
+  saveText: { fontSize: 15, fontWeight: '600', color: c.onBtn },
+}))

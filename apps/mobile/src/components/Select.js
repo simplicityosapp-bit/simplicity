@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { View, Text, Pressable, StyleSheet } from 'react-native'
 import { ChevronDown, Check } from 'lucide-react-native'
 import { colors } from '../theme/theme'
+import { themed } from '../theme/themed'
 
 // Inline select field for the add/edit sheets — a tappable control that expands
 // an option list right below it (no nested Modal, so it composes inside the
@@ -36,16 +37,16 @@ export default function Select({ label, value, options = [], onChange, placehold
   )
 }
 
-const styles = StyleSheet.create({
+const styles = themed((c, t) => ({
   field: { gap: 6 },
-  label: { fontSize: 13, color: colors.textSub },
-  control: { flexDirection: 'row', alignItems: 'center', gap: 8, borderWidth: 1, borderColor: colors.border, borderRadius: 18, paddingVertical: 11, paddingHorizontal: 14, backgroundColor: colors.card },
-  value: { flex: 1, fontSize: 14, color: colors.text },
-  placeholder: { color: colors.textFaint },
+  label: { fontSize: 13, color: c.textSub },
+  control: { flexDirection: 'row', alignItems: 'center', gap: 8, borderWidth: 1, borderColor: c.border, borderRadius: 18, paddingVertical: 11, paddingHorizontal: 14, backgroundColor: c.card },
+  value: { flex: 1, fontSize: 14, color: c.text },
+  placeholder: { color: c.textFaint },
   chevOpen: { transform: [{ rotate: '180deg' }] },
-  options: { borderWidth: 1, borderColor: colors.border, borderRadius: 12, backgroundColor: colors.card, overflow: 'hidden' },
+  options: { borderWidth: 1, borderColor: c.border, borderRadius: 12, backgroundColor: c.card, overflow: 'hidden' },
   option: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8, paddingVertical: 12, paddingHorizontal: 14 },
-  optionBorder: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.divider },
-  optionText: { flex: 1, fontSize: 15, color: colors.text },
-  optionOn: { fontWeight: '600', color: colors.positive },
-})
+  optionBorder: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: c.divider },
+  optionText: { flex: 1, fontSize: 15, color: c.text },
+  optionOn: { fontWeight: '600', color: c.positive },
+}))

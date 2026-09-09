@@ -1,8 +1,9 @@
 import { useState } from 'react'
-import { View, Text, TextInput, Pressable, StyleSheet } from 'react-native'
+import { View, Text, TextInput, Pressable } from 'react-native'
 import Sheet from '../components/Sheet'
 import i18n from '../lib/i18n'
 import { colors } from '../theme/theme'
+import { themed } from '../theme/themed'
 
 // Log a manual progress entry for a goal category (mirrors web AddGoalEntryModal).
 // onSave receives a goal_entries-ready row (category_id from the picked category).
@@ -90,19 +91,19 @@ export default function AddGoalEntryModal({ open, onClose, onSave, category }) {
   )
 }
 
-const styles = StyleSheet.create({
+const styles = themed((c, t) => ({
   subRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   dot: { width: 10, height: 10, borderRadius: 5 },
-  sub: { fontSize: 14, color: colors.textSub },
+  sub: { fontSize: 14, color: c.textSub },
   field: { gap: 6 },
-  label: { fontSize: 13, color: colors.textSub },
-  input: { borderWidth: 1, borderColor: colors.border, borderRadius: 12, paddingVertical: 11, paddingHorizontal: 14, fontSize: 15, color: colors.text, backgroundColor: colors.card },
-  inputErr: { borderColor: colors.danger },
-  error: { color: colors.danger, fontSize: 13 },
+  label: { fontSize: 13, color: c.textSub },
+  input: { borderWidth: 1, borderColor: c.border, borderRadius: 12, paddingVertical: 11, paddingHorizontal: 14, fontSize: 15, color: c.text, backgroundColor: c.card },
+  inputErr: { borderColor: c.danger },
+  error: { color: c.danger, fontSize: 13 },
   actions: { flexDirection: 'row', gap: 12, marginTop: 4 },
-  cancel: { flex: 1, paddingVertical: 13, borderRadius: 12, borderWidth: 1, borderColor: colors.border, alignItems: 'center' },
-  cancelText: { fontSize: 15, color: colors.textSub },
-  save: { flex: 1, paddingVertical: 13, borderRadius: 12, backgroundColor: colors.btnBg, alignItems: 'center' },
+  cancel: { flex: 1, paddingVertical: 13, borderRadius: 12, borderWidth: 1, borderColor: c.border, alignItems: 'center' },
+  cancelText: { fontSize: 15, color: c.textSub },
+  save: { flex: 1, paddingVertical: 13, borderRadius: 12, backgroundColor: c.btnBg, alignItems: 'center' },
   saveOff: { opacity: 0.5 },
-  saveText: { fontSize: 15, fontWeight: '600', color: colors.onBtn },
-})
+  saveText: { fontSize: 15, fontWeight: '600', color: c.onBtn },
+}))

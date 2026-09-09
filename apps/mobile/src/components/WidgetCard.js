@@ -4,6 +4,7 @@ import { ChevronDown } from 'lucide-react-native'
 import i18n from '../lib/i18n'
 import Card from './Card'
 import { colors } from '../theme/theme'
+import { themed } from '../theme/themed'
 
 // Shared collapsible home widget card, matching web's .h-card: a glass card
 // with a header row (lucide icon + title + count + chevron) that toggles an
@@ -35,13 +36,13 @@ export default function WidgetCard({ Icon, title, count, summary, children, defa
   )
 }
 
-const styles = StyleSheet.create({
+const styles = themed((c, t) => ({
   wrap: { marginTop: 12 },
   head: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 15, paddingHorizontal: 16 },
   headFlip: { flexDirection: 'row-reverse' },
-  title: { flex: 1, fontSize: 17, fontWeight: '600', color: colors.text },
-  count: { fontSize: 13, color: colors.textSub },
+  title: { flex: 1, fontSize: 17, fontWeight: '600', color: c.text },
+  count: { fontSize: 13, color: c.textSub },
   chevOpen: { transform: [{ rotate: '180deg' }] },
-  body: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.divider },
-  summary: { paddingHorizontal: 16, paddingBottom: 15, marginTop: -4, fontSize: 13, color: colors.textSub },
-})
+  body: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: c.divider },
+  summary: { paddingHorizontal: 16, paddingBottom: 15, marginTop: -4, fontSize: 13, color: c.textSub },
+}))

@@ -12,7 +12,8 @@ import Screen from '../components/Screen'
 import ScreenHead from '../components/ScreenHead'
 import Card from '../components/Card'
 import Select from '../components/Select'
-import { colors, getThemeMode, persistThemeAndReload } from '../theme/theme'
+import { colors, getThemeMode, setThemeMode } from '../theme/theme'
+import { themed } from '../theme/themed'
 import { reloadApp } from '../lib/appReload'
 import { usePreferences } from '../hooks/usePreferences'
 import { applySavedLanguage, roleLabel } from '../lib/preferences'
@@ -171,13 +172,12 @@ export default function SettingsScreen() {
   const setDesign = (patch) => update({ design: patch })
   const setFormat = (k, v) => update({ format: { [k]: v } })
   /* Theme lives in prefs.design.theme (synced with web) AND AsyncStorage
-     THEME_KEY (read at boot — RN freezes StyleSheet colors, so a switch needs
-     a reload). persistThemeAndReload does the second write and the reload, so
-     this only has to record the preference; it used to repeat both, with its
-     own copy of a reload that did nothing in a release build. */
+     THEME_KEY (read at boot, so the app opens in the right palette rather
+     than flashing light). setThemeMode does that second write and swaps the
+     palette live, so this only records the preference. */
   const setTheme = async (mode) => {
     setDesign({ theme: mode })
-    await persistThemeAndReload(mode)
+    await setThemeMode(mode)
   }
   // Legal pages live on the web app; open them in the browser (same content).
   const openLegal = (tab) => { Linking.openURL(`https://simplicity-os.com/legal?tab=${tab}`).catch(() => {}) }
@@ -569,17 +569,17 @@ function TaxonomyManager({ title, items, placeholder, secondPlaceholder, onAdd, 
   )
 }
 
-const styles = StyleSheet.create({
+const styles = themed((c, t) => ({
   content: { paddingHorizontal: 20, paddingBottom: 96, gap: 14 },
 
   // Group (top level) — a glass card wrapping head + nested sections
   groupCard: {},
   groupHead: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 16, paddingHorizontal: 16 },
-  groupHeadOpen: { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.divider },
-  groupIcon: { width: 40, height: 40, borderRadius: 20, backgroundColor: colors.brandSoft, alignItems: 'center', justifyContent: 'center' },
+  groupHeadOpen: { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: c.divider },
+  groupIcon: { width: 40, height: 40, borderRadius: 20, backgroundColor: c.brandSoft, alignItems: 'center', justifyContent: 'center' },
   groupTitleWrap: { flex: 1 },
-  groupTitle: { fontSize: 17, fontWeight: '700', color: colors.text, letterSpacing: -0.4 },
-  groupSub: { fontSize: 12, color: colors.textFaint, marginTop: 2 },
+  groupTitle: { fontSize: 17, fontWeight: '700', color: c.text, letterSpacing: -0.4 },
+  groupSub: { fontSize: 12, color: c.textFaint, marginTop: 2 },
   groupChildren: { gap: 10, paddingHorizontal: 12, paddingTop: 12, paddingBottom: 14 },
   /* A one-section group renders that section's body straight into the
      children slot — no inner card, no second header, so no indent either. */
@@ -589,68 +589,68 @@ const styles = StyleSheet.create({
   sectionOuter: {},
   section: {},
   secHead: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 13, paddingHorizontal: 14 },
-  secIcon: { width: 34, height: 34, borderRadius: 17, backgroundColor: colors.brandSoft, alignItems: 'center', justifyContent: 'center' },
+  secIcon: { width: 34, height: 34, borderRadius: 17, backgroundColor: c.brandSoft, alignItems: 'center', justifyContent: 'center' },
   secTitleWrap: { flex: 1 },
-  secTitle: { fontSize: 15, fontWeight: '600', color: colors.text, letterSpacing: -0.2 },
-  secSub: { fontSize: 12, color: colors.textFaint, marginTop: 1 },
-  secBody: { paddingHorizontal: 14, paddingBottom: 16, gap: 14, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.divider, paddingTop: 14 },
+  secTitle: { fontSize: 15, fontWeight: '600', color: c.text, letterSpacing: -0.2 },
+  secSub: { fontSize: 12, color: c.textFaint, marginTop: 1 },
+  secBody: { paddingHorizontal: 14, paddingBottom: 16, gap: 14, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: c.divider, paddingTop: 14 },
 
   field: { gap: 6 },
-  label: { fontSize: 13, color: colors.textSub },
-  input: { borderWidth: 1, borderColor: colors.border, borderRadius: 12, paddingVertical: 11, paddingHorizontal: 14, fontSize: 15, color: colors.text, backgroundColor: colors.card },
-  hint: { fontSize: 11, color: colors.textFaint, lineHeight: 16 },
-  intro: { fontSize: 13, color: colors.textSub, lineHeight: 18 },
+  label: { fontSize: 13, color: c.textSub },
+  input: { borderWidth: 1, borderColor: c.border, borderRadius: 12, paddingVertical: 11, paddingHorizontal: 14, fontSize: 15, color: c.text, backgroundColor: c.card },
+  hint: { fontSize: 11, color: c.textFaint, lineHeight: 16 },
+  intro: { fontSize: 13, color: c.textSub, lineHeight: 18 },
   switchRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12 },
   switchLabel: { flex: 1 },
-  switchTrack: { width: 44, height: 26, borderRadius: 13, backgroundColor: colors.cardFlat, borderWidth: 1, borderColor: colors.border, padding: 2, flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start' },
-  switchTrackOn: { backgroundColor: colors.brand, borderColor: colors.brand, justifyContent: 'flex-end' },
-  switchKnob: { width: 20, height: 20, borderRadius: 10, backgroundColor: colors.card },
-  switchKnobOn: { backgroundColor: colors.onBrand },
+  switchTrack: { width: 44, height: 26, borderRadius: 13, backgroundColor: c.cardFlat, borderWidth: 1, borderColor: c.border, padding: 2, flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-start' },
+  switchTrackOn: { backgroundColor: c.brand, borderColor: c.brand, justifyContent: 'flex-end' },
+  switchKnob: { width: 20, height: 20, borderRadius: 10, backgroundColor: c.card },
+  switchKnobOn: { backgroundColor: c.onBrand },
   widgetRow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 6 },
   widgetReorder: { flexDirection: 'row', gap: 2 },
-  widgetName: { flex: 1, fontSize: 14, color: colors.text },
+  widgetName: { flex: 1, fontSize: 14, color: c.text },
 
   pills: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  pill: { paddingVertical: 8, paddingHorizontal: 14, borderRadius: 999, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.cardFlat },
-  pillOn: { backgroundColor: colors.text, borderColor: colors.text },
-  pillOnBrand: { backgroundColor: colors.brand, borderColor: colors.brand },
-  pillText: { fontSize: 13, color: colors.textSub },
-  pillTextOn: { color: colors.onBrand, fontWeight: '600' },
-  // Neutral "on" pill = colors.text fill (dark in light, cream in dark), so its
-  // label must be the inverse (colors.bg) to stay legible in BOTH themes — web
+  pill: { paddingVertical: 8, paddingHorizontal: 14, borderRadius: 999, borderWidth: 1, borderColor: c.border, backgroundColor: c.cardFlat },
+  pillOn: { backgroundColor: c.text, borderColor: c.text },
+  pillOnBrand: { backgroundColor: c.brand, borderColor: c.brand },
+  pillText: { fontSize: 13, color: c.textSub },
+  pillTextOn: { color: c.onBrand, fontWeight: '600' },
+  // Neutral "on" pill = c.text fill (dark in light, cream in dark), so its
+  // label must be the inverse (c.bg) to stay legible in BOTH themes — web
   // flips espresso↔cream the same way. onBrand (white) would vanish on the cream
   // dark-mode fill.
-  pillTextOnInv: { color: colors.bg, fontWeight: '600' },
+  pillTextOnInv: { color: c.bg, fontWeight: '600' },
 
-  rowBtn: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 12, paddingHorizontal: 14, borderRadius: 12, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card },
-  rowBtnText: { fontSize: 14, color: colors.text },
+  rowBtn: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 12, paddingHorizontal: 14, borderRadius: 12, borderWidth: 1, borderColor: c.border, backgroundColor: c.card },
+  rowBtnText: { fontSize: 14, color: c.text },
 
   // Config taxonomy managers
   taxBlock: { gap: 8 },
-  taxTitle: { fontSize: 13, fontWeight: '600', color: colors.textSub },
+  taxTitle: { fontSize: 13, fontWeight: '600', color: c.textSub },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  chip: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 6, paddingHorizontal: 10, borderRadius: 999, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.cardFlat },
-  chipEditing: { borderColor: colors.brand, backgroundColor: colors.brandSoft },
+  chip: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 6, paddingHorizontal: 10, borderRadius: 999, borderWidth: 1, borderColor: c.border, backgroundColor: c.cardFlat },
+  chipEditing: { borderColor: c.brand, backgroundColor: c.brandSoft },
   chipDot: { width: 8, height: 8, borderRadius: 4 },
   chipIcon: { fontSize: 12 },
-  chipText: { fontSize: 13, color: colors.text },
+  chipText: { fontSize: 13, color: c.text },
   addRow: { flexDirection: 'row', gap: 8, alignItems: 'center' },
   addInput: { flex: 1 },
   addSecond: { width: 70 },
-  addBtn: { width: 44, height: 44, borderRadius: 12, backgroundColor: colors.brand, alignItems: 'center', justifyContent: 'center' },
+  addBtn: { width: 44, height: 44, borderRadius: 12, backgroundColor: c.brand, alignItems: 'center', justifyContent: 'center' },
   addCancel: { width: 36, height: 44, alignItems: 'center', justifyContent: 'center' },
   metaPills: { flexDirection: 'row', gap: 6, flexWrap: 'wrap' },
-  metaPill: { paddingVertical: 5, paddingHorizontal: 12, borderRadius: 999, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.cardFlat },
-  metaPillOn: { backgroundColor: colors.text, borderColor: colors.text },
-  metaPillText: { fontSize: 12, color: colors.textSub },
+  metaPill: { paddingVertical: 5, paddingHorizontal: 12, borderRadius: 999, borderWidth: 1, borderColor: c.border, backgroundColor: c.cardFlat },
+  metaPillOn: { backgroundColor: c.text, borderColor: c.text },
+  metaPillText: { fontSize: 12, color: c.textSub },
 
   signOut: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, paddingVertical: 14, marginTop: 4 },
-  signOutText: { fontSize: 15, fontWeight: '600', color: colors.danger },
-  dangerZone: { marginTop: 8, paddingTop: 14, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.divider, gap: 8 },
-  dangerTitle: { fontSize: 13, fontWeight: '700', color: colors.danger },
+  signOutText: { fontSize: 15, fontWeight: '600', color: c.danger },
+  dangerZone: { marginTop: 8, paddingTop: 14, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: c.divider, gap: 8 },
+  dangerTitle: { fontSize: 13, fontWeight: '700', color: c.danger },
   dangerBtn: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 12, paddingHorizontal: 14, borderRadius: 12, borderWidth: 1, borderColor: 'rgba(181,99,78,0.4)', backgroundColor: 'rgba(181,99,78,0.06)' },
-  dangerBtnText: { fontSize: 14, color: colors.danger, fontWeight: '500' },
-})
+  dangerBtnText: { fontSize: 14, color: c.danger, fontWeight: '500' },
+}))
 
 Group.displayName = 'Group'
 Section.displayName = 'Section'

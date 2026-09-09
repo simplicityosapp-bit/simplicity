@@ -1,6 +1,7 @@
-import { View, Text, StyleSheet } from 'react-native'
+import { View, Text } from 'react-native'
 import { Sparkles, Folder, Users, Target } from 'lucide-react-native'
 import { colors, type } from '../../../theme/theme'
+import { themed } from '../../../theme/themed'
 import i18n from '../../../lib/i18n'
 import { useStepCTA } from '../useStepCTA'
 
@@ -96,26 +97,26 @@ export default function Step5Finish({ ob, onDone, setCTA }) {
   )
 }
 
-const styles = StyleSheet.create({
+const styles = themed((c, t) => ({
   root: { gap: 16 },
   rowRtl: { flexDirection: 'row-reverse' },
   titleRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 7 },
-  title: { ...type.heading, color: colors.text, textAlign: 'center' },
+  title: { ...t.heading, color: c.text, textAlign: 'center' },
   field: { gap: 8, alignItems: 'center' },
-  heading: { ...type.caption, color: colors.textSub, textAlign: 'center' },
+  heading: { ...t.caption, color: c.textSub, textAlign: 'center' },
   summary: {
     alignSelf: 'stretch',
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.card,
+    borderColor: c.border,
+    backgroundColor: c.card,
     paddingVertical: 4,
   },
   row: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 11, paddingHorizontal: 14 },
-  rowLabel: { ...type.body, color: colors.text, flex: 1 },
-  rowCount: { ...type.body, color: colors.brand, fontWeight: '600' },
-  note: { ...type.micro, color: colors.textFaint, textAlign: 'center' },
+  rowLabel: { ...t.body, color: c.text, flex: 1 },
+  rowCount: { ...t.body, color: c.brand, fontWeight: '600' },
+  note: { ...t.micro, color: c.textFaint, textAlign: 'center' },
   about: { gap: 10, alignSelf: 'stretch' },
-  aboutLine: { ...type.caption, color: colors.textSub, textAlign: 'center', lineHeight: 21 },
-  aboutLast: { color: colors.text, fontWeight: '600' },
-})
+  aboutLine: { ...t.caption, color: c.textSub, textAlign: 'center', lineHeight: 21 },
+  aboutLast: { color: c.text, fontWeight: '600' },
+}))

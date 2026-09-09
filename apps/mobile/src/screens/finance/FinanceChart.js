@@ -1,11 +1,12 @@
 import { useMemo } from 'react'
-import { View, Text, StyleSheet } from 'react-native'
+import { View, Text } from 'react-native'
 import Svg, { Path, Circle, Text as SvgText } from 'react-native-svg'
 import { Sparkles } from 'lucide-react-native'
 import { financeDailyBuckets, isr } from '@simplicity/core'
 import Card from '../../components/Card'
 import i18n from '../../lib/i18n'
 import { colors } from '../../theme/theme'
+import { themed } from '../../theme/themed'
 
 // Cumulative-income line for the selected month (mirrors web FinanceChart's core:
 // SVG line + soft area fill + a "today" dot + sparse x-axis labels). The goal
@@ -62,9 +63,9 @@ export default function FinanceChart({ month, transactions }) {
   )
 }
 
-const styles = StyleSheet.create({
+const styles = themed((c, t) => ({
   wrap: { paddingVertical: 16, paddingHorizontal: 14, gap: 10 },
   head: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  title: { fontSize: 13, fontWeight: '600', color: colors.text },
-  total: { fontSize: 13, fontWeight: '600', color: colors.brand },
-})
+  title: { fontSize: 13, fontWeight: '600', color: c.text },
+  total: { fontSize: 13, fontWeight: '600', color: c.brand },
+}))

@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react'
-import { View, Text, TextInput, Pressable, StyleSheet } from 'react-native'
+import { View, Text, TextInput, Pressable } from 'react-native'
 import { isr } from '@simplicity/core'
 import Sheet from '../components/Sheet'
 import i18n from '../lib/i18n'
 import { colors } from '../theme/theme'
+import { themed } from '../theme/themed'
 
 // Add meetings to a client's quota in one step — the mobile twin of web's
 // AddSessionsModal. Selling another block otherwise meant opening the edit
@@ -88,18 +89,18 @@ export default function AddSessionsModal({ open, onClose, onSave, client }) {
   )
 }
 
-const styles = StyleSheet.create({
+const styles = themed((c, t) => ({
   field: { gap: 6 },
-  label: { fontSize: 13, color: colors.textSub },
-  input: { borderWidth: 1, borderColor: colors.border, borderRadius: 12, paddingVertical: 11, paddingHorizontal: 14, fontSize: 15, color: colors.text, backgroundColor: colors.card },
-  preview: { backgroundColor: colors.fill, borderRadius: 12, paddingVertical: 10, paddingHorizontal: 12, gap: 4 },
-  previewLine: { fontSize: 12.5, color: colors.textSub, textAlign: 'center' },
-  hint: { fontSize: 11.5, lineHeight: 17, color: colors.textSub },
-  error: { color: colors.danger, fontSize: 13 },
+  label: { fontSize: 13, color: c.textSub },
+  input: { borderWidth: 1, borderColor: c.border, borderRadius: 12, paddingVertical: 11, paddingHorizontal: 14, fontSize: 15, color: c.text, backgroundColor: c.card },
+  preview: { backgroundColor: c.fill, borderRadius: 12, paddingVertical: 10, paddingHorizontal: 12, gap: 4 },
+  previewLine: { fontSize: 12.5, color: c.textSub, textAlign: 'center' },
+  hint: { fontSize: 11.5, lineHeight: 17, color: c.textSub },
+  error: { color: c.danger, fontSize: 13 },
   actions: { flexDirection: 'row', alignItems: 'center', gap: 12, marginTop: 4 },
-  cancel: { flex: 1, paddingVertical: 13, borderRadius: 12, borderWidth: 1, borderColor: colors.border, alignItems: 'center' },
-  cancelText: { fontSize: 15, color: colors.textSub },
-  save: { flex: 1, paddingVertical: 13, borderRadius: 12, backgroundColor: colors.btnBg, alignItems: 'center' },
+  cancel: { flex: 1, paddingVertical: 13, borderRadius: 12, borderWidth: 1, borderColor: c.border, alignItems: 'center' },
+  cancelText: { fontSize: 15, color: c.textSub },
+  save: { flex: 1, paddingVertical: 13, borderRadius: 12, backgroundColor: c.btnBg, alignItems: 'center' },
   saveOff: { opacity: 0.5 },
-  saveText: { fontSize: 15, fontWeight: '600', color: colors.onBtn },
-})
+  saveText: { fontSize: 15, fontWeight: '600', color: c.onBtn },
+}))

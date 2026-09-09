@@ -11,6 +11,7 @@ import ScreenHead from '../components/ScreenHead'
 import Card from '../components/Card'
 import InfoPopover from '../components/InfoPopover'
 import { colors } from '../theme/theme'
+import { themed } from '../theme/themed'
 import { useReportsData } from '../hooks/useReportsData'
 
 const METRIC_ICONS = {
@@ -109,26 +110,26 @@ export default function ReportsScreen() {
   )
 }
 
-const styles = StyleSheet.create({
+const styles = themed((c, t) => ({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   content: { paddingHorizontal: 20, paddingBottom: 96, gap: 16 },
-  error: { color: colors.danger, fontSize: 13 },
+  error: { color: c.danger, fontSize: 13 },
   pills: { gap: 8, paddingVertical: 2 },
-  pill: { paddingVertical: 8, paddingHorizontal: 14, borderRadius: 999, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.cardFlat },
-  pillOn: { backgroundColor: colors.text, borderColor: colors.text },
-  pillText: { fontSize: 13, color: colors.textSub },
-  // Inverse of the colors.text fill so it reads in both themes (white would vanish
+  pill: { paddingVertical: 8, paddingHorizontal: 14, borderRadius: 999, borderWidth: 1, borderColor: c.border, backgroundColor: c.cardFlat },
+  pillOn: { backgroundColor: c.text, borderColor: c.text },
+  pillText: { fontSize: 13, color: c.textSub },
+  // Inverse of the c.text fill so it reads in both themes (white would vanish
   // on the cream dark-mode fill).
-  pillTextOn: { color: colors.bg, fontWeight: '600' },
+  pillTextOn: { color: c.bg, fontWeight: '600' },
   group: { gap: 8 },
-  groupTitle: { fontSize: 11, fontWeight: '600', color: colors.textSub, letterSpacing: 0.4, paddingVertical: 10, paddingHorizontal: 14, backgroundColor: colors.fill, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.divider },
+  groupTitle: { fontSize: 11, fontWeight: '600', color: c.textSub, letterSpacing: 0.4, paddingVertical: 10, paddingHorizontal: 14, backgroundColor: c.fill, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: c.divider },
   row: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 11, paddingHorizontal: 16 },
-  rowBorder: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.divider },
-  rowLabel: { flex: 1, fontSize: 13, color: colors.text },
-  rowValue: { fontSize: 13, fontWeight: '600', color: colors.text, fontVariant: ['tabular-nums'] },
+  rowBorder: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: c.divider },
+  rowLabel: { flex: 1, fontSize: 13, color: c.text },
+  rowValue: { fontSize: 13, fontWeight: '600', color: c.text, fontVariant: ['tabular-nums'] },
   rowEmpty: { opacity: 0.6 }, // web .rep-row.empty — a 0/null metric reads dimmed
   emptyBox: { alignItems: 'center', gap: 12, paddingVertical: 48 },
-  emptyText: { fontSize: 14, color: colors.textFaint, textAlign: 'center' },
-  emptyCta: { paddingVertical: 8, paddingHorizontal: 16, borderRadius: 999, borderWidth: 1, borderColor: colors.border },
-  emptyCtaText: { fontSize: 13, fontWeight: '500', color: colors.brand },
-})
+  emptyText: { fontSize: 14, color: c.textFaint, textAlign: 'center' },
+  emptyCta: { paddingVertical: 8, paddingHorizontal: 16, borderRadius: 999, borderWidth: 1, borderColor: c.border },
+  emptyCtaText: { fontSize: 13, fontWeight: '500', color: c.brand },
+}))

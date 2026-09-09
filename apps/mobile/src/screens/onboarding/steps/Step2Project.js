@@ -1,7 +1,8 @@
 import { useState } from 'react'
-import { View, Text, TextInput, Pressable, StyleSheet } from 'react-native'
+import { View, Text, TextInput, Pressable } from 'react-native'
 import { User, Users, Layers, Plus, Check } from 'lucide-react-native'
 import { colors, type } from '../../../theme/theme'
+import { themed } from '../../../theme/themed'
 import i18n from '../../../lib/i18n'
 import { usePreferences } from '../../../lib/preferences'
 import { useProjectsData } from '../../../hooks/useProjectsData'
@@ -293,23 +294,23 @@ export default function Step2Project({ ob, setCTA }) {
   )
 }
 
-const styles = StyleSheet.create({
+const styles = themed((c, t) => ({
   root: { gap: 14 },
   rowRtl: { flexDirection: 'row-reverse' },
-  intro: { ...type.heading, color: colors.text },
-  introSub: { ...type.caption, color: colors.textSub },
+  intro: { ...t.heading, color: c.text },
+  introSub: { ...t.caption, color: c.textSub },
   field: { gap: 7 },
-  label: { ...type.caption, color: colors.textSub },
-  help: { ...type.micro, color: colors.textFaint },
+  label: { ...t.caption, color: c.textSub },
+  help: { ...t.micro, color: c.textFaint },
   input: {
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: c.border,
     borderRadius: 12,
     paddingVertical: 11,
     paddingHorizontal: 14,
     fontSize: 15,
-    color: colors.text,
-    backgroundColor: colors.card,
+    color: c.text,
+    backgroundColor: c.card,
   },
   existingList: { gap: 8 },
   existing: {
@@ -320,11 +321,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.card,
+    borderColor: c.border,
+    backgroundColor: c.card,
   },
-  existingOn: { borderColor: colors.brand, backgroundColor: colors.brandSoft },
-  existingName: { ...type.body, color: colors.text, flex: 1 },
+  existingOn: { borderColor: c.brand, backgroundColor: c.brandSoft },
+  existingName: { ...t.body, color: c.text, flex: 1 },
   dot: { width: 10, height: 10, borderRadius: 5 },
   modes: { flexDirection: 'row', gap: 8 },
   mode: {
@@ -334,39 +335,39 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     borderRadius: 14,
     borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.cardFlat,
+    borderColor: c.border,
+    backgroundColor: c.cardFlat,
   },
-  modeOn: { backgroundColor: colors.brand, borderColor: colors.brand },
-  modeLabel: { fontSize: 13, color: colors.text },
-  modeLabelOn: { color: colors.onBrand, fontWeight: '600' },
+  modeOn: { backgroundColor: c.brand, borderColor: c.brand },
+  modeLabel: { fontSize: 13, color: c.text },
+  modeLabelOn: { color: c.onBrand, fontWeight: '600' },
   swatches: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
   swatch: { width: 30, height: 30, borderRadius: 15, borderWidth: 2, borderColor: 'transparent' },
-  swatchOn: { borderColor: colors.text },
+  swatchOn: { borderColor: c.text },
   card: {
     borderRadius: 16,
     borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.card,
+    borderColor: c.border,
+    backgroundColor: c.card,
     padding: 14,
     gap: 12,
   },
   cardHead: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  cardName: { ...type.heading, color: colors.text, flex: 1 },
+  cardName: { ...t.heading, color: c.text, flex: 1 },
   section: { gap: 6 },
-  sectionTitle: { ...type.micro, color: colors.textFaint },
+  sectionTitle: { ...t.micro, color: c.textFaint },
   group: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 10,
     padding: 10,
     borderRadius: 12,
-    backgroundColor: colors.cardFlat,
+    backgroundColor: c.cardFlat,
   },
   groupBody: { flex: 1, gap: 2 },
-  groupName: { ...type.body, color: colors.text },
-  groupMeta: { ...type.micro, color: colors.textFaint },
+  groupName: { ...t.body, color: c.text },
+  groupMeta: { ...t.micro, color: c.textFaint },
   teaser: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  teaserText: { ...type.caption, color: colors.textSub, flex: 1 },
-  err: { ...type.caption, color: colors.danger },
-})
+  teaserText: { ...t.caption, color: c.textSub, flex: 1 },
+  err: { ...t.caption, color: c.danger },
+}))

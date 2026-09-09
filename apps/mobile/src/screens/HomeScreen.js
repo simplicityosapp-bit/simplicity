@@ -1,5 +1,5 @@
 import { useMemo, useState, useRef, useCallback } from 'react'
-import { View, Text, Pressable, StyleSheet, ScrollView, RefreshControl } from 'react-native'
+import { View, Text, Pressable, ScrollView, RefreshControl } from 'react-native'
 import { useNavigation, useFocusEffect } from '@react-navigation/native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { homeChips, todayItems, getTileFilters, moonGetData, isr } from '@simplicity/core'
@@ -13,6 +13,7 @@ import Card from '../components/Card'
 import InfoPopover from '../components/InfoPopover'
 import TileDrillModal from '../modals/TileDrillModal'
 import { colors, space } from '../theme/theme'
+import { themed } from '../theme/themed'
 import AttentionWidget from './home/AttentionWidget'
 import NextTasksWidget from './home/NextTasksWidget'
 import MoonWidget, { MoonExpansion } from './home/MoonWidget'
@@ -169,18 +170,18 @@ function Chip({ value, label, long, Icon, info, onPress }) {
   )
 }
 
-const styles = StyleSheet.create({
+const styles = themed((c, t) => ({
   content: { paddingHorizontal: space.screenPadH, paddingBottom: 96, gap: 8 },
   errorBox: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: 'rgba(181,99,78,0.12)', borderRadius: 12, padding: 12, marginBottom: 8 },
-  errorText: { color: colors.danger, fontSize: 13, flex: 1 },
-  retry: { color: colors.danger, fontSize: 18 },
+  errorText: { color: c.danger, fontSize: 13, flex: 1 },
+  retry: { color: c.danger, fontSize: 18 },
   topRow: { flexDirection: 'row', gap: 12, alignItems: 'center', marginBottom: 4 },
   chips: { flexDirection: 'row', gap: 12, marginTop: 12 },
   chipWrap: { flex: 1 },
   chipInner: { paddingTop: 26, paddingBottom: 14, paddingHorizontal: 12, alignItems: 'center', gap: 4 },
   chipIcon: { position: 'absolute', top: 12, end: 12 },
-  chipNum: { fontSize: 22, fontWeight: '500', color: colors.text, fontVariant: ['tabular-nums'] },
+  chipNum: { fontSize: 22, fontWeight: '500', color: c.text, fontVariant: ['tabular-nums'] },
   chipNumLong: { fontSize: 18 },
   chipLblRow: { flexDirection: 'row', alignItems: 'center', gap: 3 },
-  chipLbl: { fontSize: 11, fontWeight: '500', color: colors.textSub },
-})
+  chipLbl: { fontSize: 11, fontWeight: '500', color: c.textSub },
+}))

@@ -1,5 +1,6 @@
 import { Component } from 'react'
-import { View, Text, ScrollView, StyleSheet } from 'react-native'
+import { View, Text, ScrollView } from 'react-native'
+import { themed } from '../theme/themed'
 
 // Last-resort boundary: a render-phase crash otherwise white-screens a release
 // build (no redbox off-Metro). Here we paint the actual error + stack on screen
@@ -32,10 +33,10 @@ export default class ErrorBoundary extends Component {
   }
 }
 
-const styles = StyleSheet.create({
+const styles = themed((c, t) => ({
   wrap: { flex: 1, backgroundColor: '#1a1512' },
   content: { padding: 20, paddingTop: 60, gap: 12 },
   h: { color: '#ff8a65', fontSize: 20, fontWeight: '700' },
   msg: { color: '#fff', fontSize: 15 },
   stack: { color: '#c9b8a8', fontSize: 11, fontFamily: 'monospace' },
-})
+}))

@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect, useRef } from 'react'
-import { View, Text, Pressable, TextInput, StyleSheet } from 'react-native'
+import { View, Text, Pressable, TextInput } from 'react-native'
 import { ChevronDown, Plus, Check, RotateCcw, Trash2, CreditCard } from 'lucide-react-native'
 import { planInstallments, planBalance, generateInstallments, firstOfNextMonth, fmtShortDate, isr, PAY_METHODS, payMethodLabel } from '@simplicity/core'
 import { usePaymentPlans } from '../hooks/usePaymentPlans'
@@ -7,6 +7,7 @@ import Card from '../components/Card'
 import Select from '../components/Select'
 import i18n from '../lib/i18n'
 import { colors } from '../theme/theme'
+import { themed } from '../theme/themed'
 
 const T = (k, o) => i18n.t(`clients:plan.${k}`, o)
 
@@ -191,53 +192,53 @@ function SumCell({ l, v, accent }) {
 }
 SumCell.displayName = 'SumCell'
 
-const styles = StyleSheet.create({
+const styles = themed((c, t) => ({
   sectionOuter: { marginBottom: 8 },
   section: {},
   head: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 13, paddingHorizontal: 14 },
-  title: { fontSize: 14, fontWeight: '600', color: colors.text },
-  count: { fontSize: 11, fontWeight: '500', color: colors.textSub, backgroundColor: colors.fillStrong, borderRadius: 10, paddingVertical: 1, paddingHorizontal: 8, overflow: 'hidden' },
+  title: { fontSize: 14, fontWeight: '600', color: c.text },
+  count: { fontSize: 11, fontWeight: '500', color: c.textSub, backgroundColor: c.fillStrong, borderRadius: 10, paddingVertical: 1, paddingHorizontal: 8, overflow: 'hidden' },
   body: { gap: 12, paddingHorizontal: 14, paddingBottom: 14 },
-  empty: { fontSize: 12, color: colors.textFaint },
+  empty: { fontSize: 12, color: c.textFaint },
 
-  summary: { flexDirection: 'row', backgroundColor: colors.cardFlat, borderRadius: 14, paddingVertical: 12 },
+  summary: { flexDirection: 'row', backgroundColor: c.cardFlat, borderRadius: 14, paddingVertical: 12 },
   sumCell: { flex: 1, alignItems: 'center', gap: 3 },
-  sumL: { fontSize: 10, fontWeight: '500', color: colors.textSub, letterSpacing: 0.3 },
-  sumV: { fontSize: 15, fontWeight: '600', color: colors.text },
-  sumAccent: { color: colors.brand },
+  sumL: { fontSize: 10, fontWeight: '500', color: c.textSub, letterSpacing: 0.3 },
+  sumV: { fontSize: 15, fontWeight: '600', color: c.text },
+  sumAccent: { color: c.brand },
 
   list: { gap: 8 },
-  inst: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 10, paddingVertical: 10, paddingHorizontal: 12, borderRadius: 12, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card },
+  inst: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 10, paddingVertical: 10, paddingHorizontal: 12, borderRadius: 12, borderWidth: 1, borderColor: c.border, backgroundColor: c.card },
   instPaid: { backgroundColor: 'rgba(139,168,136,0.10)', borderColor: 'rgba(139,168,136,0.35)' },
-  instNum: { fontSize: 12, fontWeight: '700', color: colors.textSub, width: 34 },
+  instNum: { fontSize: 12, fontWeight: '700', color: c.textSub, width: 34 },
   instMid: { flex: 1, minWidth: 90, gap: 2 },
-  instAmt: { fontSize: 14, fontWeight: '600', color: colors.text },
-  instDate: { fontSize: 11, color: colors.textFaint },
+  instAmt: { fontSize: 14, fontWeight: '600', color: c.text },
+  instDate: { fontSize: 11, color: c.textFaint },
   markBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingVertical: 6, paddingHorizontal: 10, borderRadius: 999, borderWidth: 1, borderColor: 'rgba(139,168,136,0.4)', backgroundColor: 'rgba(139,168,136,0.10)' },
-  markText: { fontSize: 12, color: colors.positive, fontWeight: '500' },
+  markText: { fontSize: 12, color: c.positive, fontWeight: '500' },
   ghostBtn: { paddingVertical: 6, paddingHorizontal: 10, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
   receiveRow: { flexDirection: 'row', alignItems: 'center', gap: 8, width: '100%', marginTop: 4 },
-  primaryBtn: { paddingVertical: 9, paddingHorizontal: 14, borderRadius: 10, backgroundColor: colors.btnBg },
-  primaryText: { fontSize: 13, fontWeight: '600', color: colors.onBtn },
-  cancelText: { fontSize: 13, color: colors.textSub },
+  primaryBtn: { paddingVertical: 9, paddingHorizontal: 14, borderRadius: 10, backgroundColor: c.btnBg },
+  primaryText: { fontSize: 13, fontWeight: '600', color: c.onBtn },
+  cancelText: { fontSize: 13, color: c.textSub },
 
   delConfirm: { flexDirection: 'row', alignItems: 'center', gap: 10, flexWrap: 'wrap' },
-  delText: { fontSize: 13, color: colors.text, flex: 1 },
-  dangerBtn: { paddingVertical: 9, paddingHorizontal: 14, borderRadius: 10, backgroundColor: colors.dangerFill },
-  dangerText: { fontSize: 13, fontWeight: '600', color: colors.onBrand },
+  delText: { fontSize: 13, color: c.text, flex: 1 },
+  dangerBtn: { paddingVertical: 9, paddingHorizontal: 14, borderRadius: 10, backgroundColor: c.dangerFill },
+  dangerText: { fontSize: 13, fontWeight: '600', color: c.onBrand },
   delBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: 8 },
-  delBtnText: { fontSize: 12, color: colors.textFaint },
+  delBtnText: { fontSize: 12, color: c.textFaint },
 
   create: { gap: 12 },
-  createIntro: { fontSize: 12, color: colors.textSub, lineHeight: 17 },
+  createIntro: { fontSize: 12, color: c.textSub, lineHeight: 17 },
   createRow: { flexDirection: 'row', gap: 10 },
   field: { flex: 1, gap: 5 },
-  fieldL: { fontSize: 12, color: colors.textSub },
-  input: { borderWidth: 1, borderColor: colors.border, borderRadius: 10, paddingVertical: 10, paddingHorizontal: 12, fontSize: 14, color: colors.text, backgroundColor: colors.card },
-  preview: { fontSize: 12, color: colors.brand, fontWeight: '500' },
-  createGo: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: 12, borderRadius: 12, backgroundColor: colors.btnBg },
+  fieldL: { fontSize: 12, color: c.textSub },
+  input: { borderWidth: 1, borderColor: c.border, borderRadius: 10, paddingVertical: 10, paddingHorizontal: 12, fontSize: 14, color: c.text, backgroundColor: c.card },
+  preview: { fontSize: 12, color: c.brand, fontWeight: '500' },
+  createGo: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: 12, borderRadius: 12, backgroundColor: c.btnBg },
   createGoOff: { opacity: 0.45 },
-  createGoText: { fontSize: 14, fontWeight: '600', color: colors.onBtn },
+  createGoText: { fontSize: 14, fontWeight: '600', color: c.onBtn },
   createNote: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  createNoteText: { fontSize: 11, color: colors.textFaint, flex: 1, lineHeight: 15 },
-})
+  createNoteText: { fontSize: 11, color: c.textFaint, flex: 1, lineHeight: 15 },
+}))

@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react'
-import { View, Text, Pressable, StyleSheet } from 'react-native'
+import { View, Text, Pressable } from 'react-native'
 import Sheet from '../components/Sheet'
 import Select from '../components/Select'
 import i18n from '../lib/i18n'
 import { colors } from '../theme/theme'
+import { themed } from '../theme/themed'
 
 // Add a client to a group (mirrors web AddGroupMemberModal). availableClients
 // should already exclude current members; joined_at defaults to today.
@@ -53,13 +54,13 @@ export default function AddGroupMemberModal({ open, onClose, onSave, group, avai
   )
 }
 
-const styles = StyleSheet.create({
-  hint: { fontSize: 12, color: colors.textFaint },
-  error: { color: colors.danger, fontSize: 13 },
+const styles = themed((c, t) => ({
+  hint: { fontSize: 12, color: c.textFaint },
+  error: { color: c.danger, fontSize: 13 },
   actions: { flexDirection: 'row', gap: 12, marginTop: 4 },
-  cancel: { flex: 1, paddingVertical: 13, borderRadius: 12, borderWidth: 1, borderColor: colors.border, alignItems: 'center' },
-  cancelText: { fontSize: 15, color: colors.textSub },
-  save: { flex: 1, paddingVertical: 13, borderRadius: 12, backgroundColor: colors.btnBg, alignItems: 'center' },
+  cancel: { flex: 1, paddingVertical: 13, borderRadius: 12, borderWidth: 1, borderColor: c.border, alignItems: 'center' },
+  cancelText: { fontSize: 15, color: c.textSub },
+  save: { flex: 1, paddingVertical: 13, borderRadius: 12, backgroundColor: c.btnBg, alignItems: 'center' },
   saveOff: { opacity: 0.5 },
-  saveText: { fontSize: 15, fontWeight: '600', color: colors.onBtn },
-})
+  saveText: { fontSize: 15, fontWeight: '600', color: c.onBtn },
+}))

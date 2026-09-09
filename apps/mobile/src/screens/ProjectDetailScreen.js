@@ -13,6 +13,7 @@ import AddGroupModal from '../modals/AddGroupModal'
 import AddGroupMemberModal from '../modals/AddGroupMemberModal'
 import AddSessionModal from '../modals/AddSessionModal'
 import { colors } from '../theme/theme'
+import { themed } from '../theme/themed'
 import { useProjectDetailData } from '../hooks/useProjectDetailData'
 
 const D = (k, o) => i18n.t(`projects:detail.${k}`, o)
@@ -324,55 +325,55 @@ function Section({ title, count, children }) {
 Stat.displayName = 'Stat'
 Section.displayName = 'Section'
 
-const styles = StyleSheet.create({
+const styles = themed((c, t) => ({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   content: { paddingHorizontal: 20, paddingBottom: 96, gap: 16 },
-  error: { color: colors.danger, fontSize: 13 },
+  error: { color: c.danger, fontSize: 13 },
 
   headWrap: { paddingHorizontal: 16, paddingBottom: 12 },
   header: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 12, paddingHorizontal: 14 },
   hcolor: { width: 13, height: 13, borderRadius: 7 },
-  hname: { flex: 1, fontSize: 17, fontWeight: '600', color: colors.text, letterSpacing: -0.3 },
-  hmeta: { fontSize: 11, color: colors.textSub, marginTop: 2 },
-  hedit: { width: 34, height: 34, borderRadius: 17, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card },
+  hname: { flex: 1, fontSize: 17, fontWeight: '600', color: c.text, letterSpacing: -0.3 },
+  hmeta: { fontSize: 11, color: c.textSub, marginTop: 2 },
+  hedit: { width: 34, height: 34, borderRadius: 17, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: c.border, backgroundColor: c.card },
 
   stats: { flexDirection: 'row', paddingVertical: 16, paddingHorizontal: 8 },
   stat: { flex: 1, alignItems: 'center', gap: 4 },
-  statDivided: { borderLeftWidth: StyleSheet.hairlineWidth, borderRightWidth: StyleSheet.hairlineWidth, borderColor: colors.divider },
-  statV: { fontSize: 18, fontWeight: '600', color: colors.text },
-  statL: { fontSize: 11, color: colors.textSub },
+  statDivided: { borderLeftWidth: StyleSheet.hairlineWidth, borderRightWidth: StyleSheet.hairlineWidth, borderColor: c.divider },
+  statV: { fontSize: 18, fontWeight: '600', color: c.text },
+  statL: { fontSize: 11, color: c.textSub },
 
   section: { gap: 8 },
   secHead: { flexDirection: 'row', alignItems: 'center', gap: 8, marginHorizontal: 2 },
-  secTitle: { fontSize: 14, fontWeight: '600', color: colors.textSub, flex: 1 },
-  secCount: { fontSize: 13, color: colors.textFaint },
+  secTitle: { fontSize: 14, fontWeight: '600', color: c.textSub, flex: 1 },
+  secCount: { fontSize: 13, color: c.textFaint },
   secBody: {},
-  addChip: { width: 28, height: 28, borderRadius: 14, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.brandSoft },
+  addChip: { width: 28, height: 28, borderRadius: 14, alignItems: 'center', justifyContent: 'center', backgroundColor: c.brandSoft },
   gcard: { padding: 0 },
   grow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 12, paddingHorizontal: 14 },
   rowFlip: { flexDirection: 'row-reverse' },
   txtRtl: { textAlign: 'right' },
   gstatusRow: { flexDirection: 'row', gap: 6, paddingHorizontal: 14, paddingBottom: 10, flexWrap: 'wrap' },
-  gstatusPill: { paddingVertical: 5, paddingHorizontal: 11, borderRadius: 999, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.cardFlat },
-  gstatusOn: { backgroundColor: colors.brand, borderColor: colors.brand },
-  gstatusText: { fontSize: 12, color: colors.textSub },
-  gstatusTextOn: { color: colors.onBrand, fontWeight: '600' },
+  gstatusPill: { paddingVertical: 5, paddingHorizontal: 11, borderRadius: 999, borderWidth: 1, borderColor: c.border, backgroundColor: c.cardFlat },
+  gstatusOn: { backgroundColor: c.brand, borderColor: c.brand },
+  gstatusText: { fontSize: 12, color: c.textSub },
+  gstatusTextOn: { color: c.onBrand, fontWeight: '600' },
   gdot: { width: 11, height: 11, borderRadius: 6 },
-  gname: { fontSize: 15, fontWeight: '600', color: colors.text },
-  gsub: { fontSize: 12, color: colors.textFaint, marginTop: 1 },
-  gbody: { paddingHorizontal: 14, paddingBottom: 12, gap: 8, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.divider, paddingTop: 10 },
+  gname: { fontSize: 15, fontWeight: '600', color: c.text },
+  gsub: { fontSize: 12, color: c.textFaint, marginTop: 1 },
+  gbody: { paddingHorizontal: 14, paddingBottom: 12, gap: 8, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: c.divider, paddingTop: 10 },
   mrow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 },
-  mname: { flex: 1, fontSize: 14, color: colors.text },
-  mEmpty: { fontSize: 12, color: colors.textFaint },
+  mname: { flex: 1, fontSize: 14, color: c.text },
+  mEmpty: { fontSize: 12, color: c.textFaint },
   gactions: { flexDirection: 'row', alignItems: 'center', gap: 16, flexWrap: 'wrap' },
   addMember: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 6 },
-  addMemberText: { fontSize: 13, fontWeight: '500', color: colors.brand },
+  addMemberText: { fontSize: 13, fontWeight: '500', color: c.brand },
   row: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 12, paddingHorizontal: 16 },
-  rowBorder: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.divider },
+  rowBorder: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: c.divider },
   sdot: { width: 9, height: 9, borderRadius: 5 },
-  rowName: { flex: 1, fontSize: 14, color: colors.text },
-  rowSub: { fontSize: 12, color: colors.textFaint },
-  clientTag: { fontSize: 11, color: colors.textSub, backgroundColor: colors.fill, paddingVertical: 2, paddingHorizontal: 8, borderRadius: 999, overflow: 'hidden', maxWidth: 120 },
-  clientTagPrivate: { color: colors.textFaint },
-  empty: { fontSize: 13, color: colors.textFaint, textAlign: 'center', paddingVertical: 18 },
-})
+  rowName: { flex: 1, fontSize: 14, color: c.text },
+  rowSub: { fontSize: 12, color: c.textFaint },
+  clientTag: { fontSize: 11, color: c.textSub, backgroundColor: c.fill, paddingVertical: 2, paddingHorizontal: 8, borderRadius: 999, overflow: 'hidden', maxWidth: 120 },
+  clientTagPrivate: { color: c.textFaint },
+  empty: { fontSize: 13, color: c.textFaint, textAlign: 'center', paddingVertical: 18 },
+}))

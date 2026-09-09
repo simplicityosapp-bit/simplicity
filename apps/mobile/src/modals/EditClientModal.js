@@ -7,6 +7,7 @@ import Select from '../components/Select'
 import { useFormOptions } from '../lib/formOptions'
 import i18n from '../lib/i18n'
 import { colors } from '../theme/theme'
+import { themed } from '../theme/themed'
 
 // Edit a client — a foldable accordion mirroring the web EditClientModal:
 // details / more-details / scheduling / billing (live paid+balance) / groups.
@@ -398,45 +399,45 @@ function Pills({ options, value, onPick }) {
   )
 }
 
-const styles = StyleSheet.create({
-  acc: { borderRadius: 14, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card, overflow: 'hidden' },
-  accOpen: { borderColor: colors.brand },
+const styles = themed((c, t) => ({
+  acc: { borderRadius: 14, borderWidth: 1, borderColor: c.border, backgroundColor: c.card, overflow: 'hidden' },
+  accOpen: { borderColor: c.brand },
   accHead: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 13, paddingHorizontal: 14 },
-  accTitle: { fontSize: 14, fontWeight: '600', color: colors.text },
-  accSum: { flex: 1, textAlign: 'right', fontSize: 12, color: colors.textFaint },
-  accBody: { paddingHorizontal: 14, paddingBottom: 14, gap: 12, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.divider, paddingTop: 12 },
+  accTitle: { fontSize: 14, fontWeight: '600', color: c.text },
+  accSum: { flex: 1, textAlign: 'right', fontSize: 12, color: c.textFaint },
+  accBody: { paddingHorizontal: 14, paddingBottom: 14, gap: 12, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: c.divider, paddingTop: 12 },
 
   field: { gap: 6 },
   fieldFlex: { flex: 1 },
-  label: { fontSize: 13, color: colors.textSub },
-  input: { borderWidth: 1, borderColor: colors.border, borderRadius: 12, paddingVertical: 11, paddingHorizontal: 14, fontSize: 15, color: colors.text, backgroundColor: colors.card },
-  inputErr: { borderColor: colors.danger },
+  label: { fontSize: 13, color: c.textSub },
+  input: { borderWidth: 1, borderColor: c.border, borderRadius: 12, paddingVertical: 11, paddingHorizontal: 14, fontSize: 15, color: c.text, backgroundColor: c.card },
+  inputErr: { borderColor: c.danger },
   row2: { flexDirection: 'row', gap: 12 },
-  hint: { fontSize: 11, color: colors.textFaint },
-  clearLink: { fontSize: 13, color: colors.brand, fontWeight: '500' },
+  hint: { fontSize: 11, color: c.textFaint },
+  clearLink: { fontSize: 13, color: c.brand, fontWeight: '500' },
 
   pills: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  pill: { paddingVertical: 8, paddingHorizontal: 14, borderRadius: 999, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.cardFlat },
-  pillOn: { backgroundColor: colors.brand, borderColor: colors.brand },
-  pillText: { fontSize: 13, color: colors.textSub },
-  pillTextOn: { color: colors.onBrand, fontWeight: '600' },
+  pill: { paddingVertical: 8, paddingHorizontal: 14, borderRadius: 999, borderWidth: 1, borderColor: c.border, backgroundColor: c.cardFlat },
+  pillOn: { backgroundColor: c.brand, borderColor: c.brand },
+  pillText: { fontSize: 13, color: c.textSub },
+  pillTextOn: { color: c.onBrand, fontWeight: '600' },
 
   grpRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10, paddingVertical: 4 },
-  grpName: { fontSize: 13, color: colors.text },
-  grpVal: { fontSize: 13, color: colors.textSub },
+  grpName: { fontSize: 13, color: c.text },
+  grpVal: { fontSize: 13, color: c.textSub },
   perGroup: { gap: 8, marginTop: 8 },
   perGroupRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  perGroupName: { flex: 1, fontSize: 13, color: colors.text },
+  perGroupName: { flex: 1, fontSize: 13, color: c.text },
   perGroupInput: { flex: 1 },
 
-  error: { color: colors.danger, fontSize: 13 },
+  error: { color: c.danger, fontSize: 13 },
   actions: { flexDirection: 'row', alignItems: 'center', gap: 12, marginTop: 4 },
-  cancel: { flex: 1, paddingVertical: 13, borderRadius: 12, borderWidth: 1, borderColor: colors.border, alignItems: 'center' },
-  cancelText: { fontSize: 15, color: colors.textSub },
-  save: { flex: 1, paddingVertical: 13, borderRadius: 12, backgroundColor: colors.btnBg, alignItems: 'center' },
+  cancel: { flex: 1, paddingVertical: 13, borderRadius: 12, borderWidth: 1, borderColor: c.border, alignItems: 'center' },
+  cancelText: { fontSize: 15, color: c.textSub },
+  save: { flex: 1, paddingVertical: 13, borderRadius: 12, backgroundColor: c.btnBg, alignItems: 'center' },
   saveOff: { opacity: 0.5 },
-  saveText: { fontSize: 15, fontWeight: '600', color: colors.onBtn },
-})
+  saveText: { fontSize: 15, fontWeight: '600', color: c.onBtn },
+}))
 
 Section.displayName = 'Section'
 Field.displayName = 'Field'

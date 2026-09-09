@@ -14,6 +14,7 @@ import FinanceCategoriesModal from '../modals/FinanceCategoriesModal'
 import RecurringModal from '../modals/RecurringModal'
 import FinanceChart from './finance/FinanceChart'
 import { colors } from '../theme/theme'
+import { themed } from '../theme/themed'
 import { useFinanceData } from '../hooks/useFinanceData'
 import { confirmRemoveTransaction } from '../lib/recurringTx'
 import { useRecurring } from '../hooks/useRecurring'
@@ -390,23 +391,23 @@ function DeltaPill({ delta }) {
   )
 }
 
-const styles = StyleSheet.create({
+const styles = themed((c, t) => ({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   content: { paddingHorizontal: 20, paddingBottom: 96, gap: 16 },
-  error: { color: colors.danger, fontSize: 13 },
-  empty: { color: colors.textFaint, fontSize: 14, textAlign: 'center', marginTop: 24 },
+  error: { color: c.danger, fontSize: 13 },
+  empty: { color: c.textFaint, fontSize: 14, textAlign: 'center', marginTop: 24 },
   section: { gap: 8 },
-  sectionTitle: { fontSize: 14, fontWeight: '600', color: colors.textSub },
+  sectionTitle: { fontSize: 14, fontWeight: '600', color: c.textSub },
   pendingHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 },
   bulkBtn: { flexDirection: 'row', alignItems: 'center', gap: 5, paddingVertical: 5, paddingHorizontal: 12, borderRadius: 999, borderWidth: 1, borderColor: 'rgba(139,168,136,0.4)', backgroundColor: 'rgba(139,168,136,0.10)' },
-  bulkText: { fontSize: 12, fontWeight: '600', color: colors.positive },
+  bulkText: { fontSize: 12, fontWeight: '600', color: c.positive },
   summary: { paddingVertical: 18, paddingHorizontal: 20 },
   monthNav: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', alignSelf: 'stretch', marginBottom: 12 },
-  monthLabel: { fontSize: 14, fontWeight: '600', color: colors.textSub },
+  monthLabel: { fontSize: 14, fontWeight: '600', color: c.textSub },
   netRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 6 },
-  netLbl: { fontSize: 12, fontWeight: '500', color: colors.textSub },
-  sumNet: { fontSize: 36, fontWeight: '500', lineHeight: 36, color: colors.text, fontVariant: ['tabular-nums'], marginBottom: 12 },
-  heroDivider: { height: 1, backgroundColor: colors.divider, marginBottom: 14 },
+  netLbl: { fontSize: 12, fontWeight: '500', color: c.textSub },
+  sumNet: { fontSize: 36, fontWeight: '500', lineHeight: 36, color: c.text, fontVariant: ['tabular-nums'], marginBottom: 12 },
+  heroDivider: { height: 1, backgroundColor: c.divider, marginBottom: 14 },
   io: { flexDirection: 'row', gap: 12 },
   ioCard: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 12, minWidth: 0 },
   ioBody: { flex: 1, minWidth: 0 },
@@ -414,66 +415,66 @@ const styles = StyleSheet.create({
   ioIconInc: { backgroundColor: 'rgba(139,168,136,0.2)' },
   ioIconExp: { backgroundColor: 'rgba(181,99,78,0.18)' },
   ioHead: { flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 4 },
-  ioLbl: { fontSize: 11, fontWeight: '500', color: colors.textSub },
-  ioV: { fontSize: 22, fontWeight: '500', lineHeight: 22, color: colors.text, fontVariant: ['tabular-nums'] },
+  ioLbl: { fontSize: 11, fontWeight: '500', color: c.textSub },
+  ioV: { fontSize: 22, fontWeight: '500', lineHeight: 22, color: c.text, fontVariant: ['tabular-nums'] },
   deltaPill: { flexDirection: 'row', alignItems: 'center', gap: 3, paddingVertical: 2, paddingHorizontal: 7, borderRadius: 999 },
   deltaText: { fontSize: 10, fontWeight: '500', fontVariant: ['tabular-nums'] },
   deltaPos: { backgroundColor: 'rgba(139,168,136,0.14)' },
   deltaNeg: { backgroundColor: 'rgba(181,99,78,0.14)' },
-  deltaNeu: { backgroundColor: colors.fillStrong },
+  deltaNeu: { backgroundColor: c.fillStrong },
 
   // Breakdown card
   bd: { paddingVertical: 16, paddingHorizontal: 18, gap: 12 },
   bdHead: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  bdTitle: { fontSize: 13, fontWeight: '600', color: colors.text },
-  bdCount: { fontSize: 11, fontWeight: '500', color: colors.textSub, backgroundColor: colors.fillStrong, borderRadius: 10, paddingVertical: 1, paddingHorizontal: 8, overflow: 'hidden' },
-  bdEmpty: { fontSize: 12, color: colors.textFaint },
+  bdTitle: { fontSize: 13, fontWeight: '600', color: c.text },
+  bdCount: { fontSize: 11, fontWeight: '500', color: c.textSub, backgroundColor: c.fillStrong, borderRadius: 10, paddingVertical: 1, paddingHorizontal: 8, overflow: 'hidden' },
+  bdEmpty: { fontSize: 12, color: c.textFaint },
   bdRow: { gap: 6 },
   bdRowHead: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   bdDot: { width: 9, height: 9, borderRadius: 5 },
-  bdName: { flex: 1, fontSize: 13, color: colors.text },
-  bdAmt: { fontSize: 13, fontWeight: '600', color: colors.text },
-  bdBar: { height: 6, borderRadius: 3, backgroundColor: colors.fillStrong, overflow: 'hidden' },
+  bdName: { flex: 1, fontSize: 13, color: c.text },
+  bdAmt: { fontSize: 13, fontWeight: '600', color: c.text },
+  bdBar: { height: 6, borderRadius: 3, backgroundColor: c.fillStrong, overflow: 'hidden' },
   bdFill: { height: 6, borderRadius: 3 },
 
   // Recurring
   rec: { paddingVertical: 14, paddingHorizontal: 16, gap: 4 },
   recHead: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 6 },
-  recTitle: { fontSize: 13, fontWeight: '600', color: colors.text },
+  recTitle: { fontSize: 13, fontWeight: '600', color: c.text },
   recAdd: { flexDirection: 'row', alignItems: 'center', gap: 3 },
-  recAddText: { fontSize: 12, fontWeight: '500', color: colors.brand },
+  recAddText: { fontSize: 12, fontWeight: '500', color: c.brand },
   recRow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 11 },
   recPaused: { opacity: 0.55 },
   recMain: { flex: 1, gap: 2 },
-  recDesc: { fontSize: 14, color: colors.text },
-  recMeta: { fontSize: 11, color: colors.textFaint },
+  recDesc: { fontSize: 14, color: c.text },
+  recMeta: { fontSize: 11, color: c.textFaint },
   recAmt: { fontSize: 14, fontWeight: '600' },
   recActions: { flexDirection: 'row', alignItems: 'center', gap: 12 },
 
   // Export
   exportBtn: { flexDirection: 'row', alignItems: 'center', gap: 5, alignSelf: 'flex-end', paddingVertical: 6, paddingHorizontal: 14 },
-  exportText: { fontSize: 12, fontWeight: '500', color: colors.textSub },
+  exportText: { fontSize: 12, fontWeight: '500', color: c.textSub },
 
   // Skipped toggle
   skipToggle: { alignSelf: 'center', paddingVertical: 7, paddingHorizontal: 16 },
-  skipToggleText: { fontSize: 12, color: colors.textSub },
-  skipToggleTextOn: { color: colors.text, fontWeight: '600' },
+  skipToggleText: { fontSize: 12, color: c.textSub },
+  skipToggleTextOn: { color: c.text, fontWeight: '600' },
 
   // Rows
   row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 12, paddingVertical: 13, paddingHorizontal: 16 },
   rowFlip: { flexDirection: 'row-reverse' },
-  rowBorder: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.divider },
+  rowBorder: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: c.divider },
   info: { flex: 1, gap: 2 },
-  desc: { fontSize: 15, color: colors.text },
-  skippedText: { color: colors.textFaint, textDecorationLine: 'line-through' },
-  date: { fontSize: 12, color: colors.textFaint },
+  desc: { fontSize: 15, color: c.text },
+  skippedText: { color: c.textFaint, textDecorationLine: 'line-through' },
+  date: { fontSize: 12, color: c.textFaint },
   amount: { fontSize: 15, fontWeight: '600' },
   // Credit-noted income → struck through + muted (it's out of the totals; mirrors
   // web TransactionCard.credited).
-  creditedAmount: { textDecorationLine: 'line-through', color: colors.textFaint },
+  creditedAmount: { textDecorationLine: 'line-through', color: c.textFaint },
   actions: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   approve: { width: 34, height: 34, borderRadius: 17, borderWidth: 1, borderColor: 'rgba(139,168,136,0.4)', alignItems: 'center', justifyContent: 'center' },
-  skip: { width: 34, height: 34, borderRadius: 17, borderWidth: 1, borderColor: colors.border, alignItems: 'center', justifyContent: 'center' },
-})
+  skip: { width: 34, height: 34, borderRadius: 17, borderWidth: 1, borderColor: c.border, alignItems: 'center', justifyContent: 'center' },
+}))
 
 Breakdown.displayName = 'Breakdown'

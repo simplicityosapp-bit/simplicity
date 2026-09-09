@@ -1,7 +1,8 @@
-import { View, Text, Pressable, StyleSheet } from 'react-native'
+import { View, Text, Pressable } from 'react-native'
 import Sheet from '../components/Sheet'
 import i18n from '../lib/i18n'
 import { colors } from '../theme/theme'
+import { themed } from '../theme/themed'
 
 // Pick a manual goal category to log an entry for (mirrors web
 // QuickGoalUpdatePicker). Only categories with a live manual goal are shown.
@@ -32,11 +33,11 @@ export default function QuickGoalUpdatePicker({ open, onClose, categories = [], 
   )
 }
 
-const styles = StyleSheet.create({
-  empty: { fontSize: 14, color: colors.textSub, textAlign: 'center', paddingVertical: 12 },
-  choice: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12, paddingHorizontal: 14, borderRadius: 14, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card },
+const styles = themed((c, t) => ({
+  empty: { fontSize: 14, color: c.textSub, textAlign: 'center', paddingVertical: 12 },
+  choice: { flexDirection: 'row', alignItems: 'center', gap: 12, paddingVertical: 12, paddingHorizontal: 14, borderRadius: 14, borderWidth: 1, borderColor: c.border, backgroundColor: c.card },
   icon: { fontSize: 22 },
   info: { flex: 1, gap: 2 },
-  name: { fontSize: 15, fontWeight: '500', color: colors.text },
-  hint: { fontSize: 12, color: colors.textFaint },
-})
+  name: { fontSize: 15, fontWeight: '500', color: c.text },
+  hint: { fontSize: 12, color: c.textFaint },
+}))

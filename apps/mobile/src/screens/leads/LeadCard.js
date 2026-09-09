@@ -1,9 +1,10 @@
-import { View, Text, Pressable, StyleSheet, Linking, I18nManager } from 'react-native'
+import { View, Text, Pressable, Linking, I18nManager } from 'react-native'
 import { Clock, Check, CalendarDays, ArrowLeftRight, MessageCircle, X } from 'lucide-react-native'
 import { statusMetaOfLead, fmtShortDate } from '@simplicity/core'
 import { GlassPressable } from '../../components/Glass'
 import i18n from '../../lib/i18n'
 import { colors } from '../../theme/theme'
+import { themed } from '../../theme/themed'
 
 const T = (k, o) => i18n.t(`leads:card.${k}`, o)
 const todayYmd = () => {
@@ -84,28 +85,28 @@ export default function LeadCard({ lead, onEdit, onConvert, onDelete, onMove, so
   )
 }
 
-const styles = StyleSheet.create({
+const styles = themed((c, t) => ({
   card: { padding: 12, gap: 8 },
   dragging: { opacity: 0.4 },
   del: { position: 'absolute', top: 6, insetInlineEnd: 6, width: 22, height: 22, borderRadius: 11, alignItems: 'center', justifyContent: 'center', zIndex: 2 },
-  name: { fontSize: 14, fontWeight: '600', color: colors.text, paddingInlineEnd: 18 },
-  sub: { flexDirection: 'row', alignItems: 'center', gap: 5, alignSelf: 'flex-start', paddingVertical: 2, paddingHorizontal: 8, borderRadius: 999, backgroundColor: colors.fill },
+  name: { fontSize: 14, fontWeight: '600', color: c.text, paddingInlineEnd: 18 },
+  sub: { flexDirection: 'row', alignItems: 'center', gap: 5, alignSelf: 'flex-start', paddingVertical: 2, paddingHorizontal: 8, borderRadius: 999, backgroundColor: c.fill },
   subDot: { width: 7, height: 7, borderRadius: 4 },
-  subText: { fontSize: 12, color: colors.textSub },
+  subText: { fontSize: 12, color: c.textSub },
   src: { flexDirection: 'row', alignItems: 'center', gap: 5 },
   rowFlip: { flexDirection: 'row-reverse' },
   txtRtl: { textAlign: 'right' },
   srcDot: { width: 7, height: 7, borderRadius: 4 },
-  srcText: { fontSize: 12, color: colors.textSub },
-  srcNone: { color: colors.textFaint },
+  srcText: { fontSize: 12, color: c.textSub },
+  srcNone: { color: c.textFaint },
   line: { flexDirection: 'row', alignItems: 'center', gap: 5 },
-  lineText: { fontSize: 11, color: colors.textFaint },
-  fuText: { fontSize: 11, color: colors.textSub }, // web .lead-fu = var(--stone)
-  overdue: { color: colors.danger, fontWeight: '500' },
+  lineText: { fontSize: 11, color: c.textFaint },
+  fuText: { fontSize: 11, color: c.textSub }, // web .lead-fu = var(--stone)
+  overdue: { color: c.danger, fontWeight: '500' },
   foot: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 2 },
   converted: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  convertedText: { fontSize: 11, fontWeight: '600', color: colors.positive },
+  convertedText: { fontSize: 11, fontWeight: '600', color: c.positive },
   convertBtn: { flexDirection: 'row', alignItems: 'center', gap: 3, paddingVertical: 4, paddingHorizontal: 8, borderRadius: 999, borderWidth: 1, borderColor: 'rgba(139,168,136,0.4)', backgroundColor: 'rgba(139,168,136,0.10)' },
-  convertText: { fontSize: 11, fontWeight: '500', color: colors.text },
-  iconBtn: { width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.cardFlat },
-})
+  convertText: { fontSize: 11, fontWeight: '500', color: c.text },
+  iconBtn: { width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center', backgroundColor: c.cardFlat },
+}))

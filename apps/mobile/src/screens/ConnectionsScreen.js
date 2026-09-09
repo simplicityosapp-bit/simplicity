@@ -1,11 +1,12 @@
 import { useState } from 'react'
-import { View, Text, TextInput, Pressable, StyleSheet, ScrollView } from 'react-native'
+import { View, Text, TextInput, Pressable, ScrollView } from 'react-native'
 import { MessageCircle, CalendarClock, FileText, CreditCard, Check } from 'lucide-react-native'
 import i18n from '../lib/i18n'
 import Screen from '../components/Screen'
 import ScreenHead from '../components/ScreenHead'
 import Card from '../components/Card'
 import { colors } from '../theme/theme'
+import { themed } from '../theme/themed'
 import { usePreferences } from '../lib/preferences'
 
 // Connections — the mobile-feasible slice: WhatsApp click-to-chat message
@@ -88,20 +89,20 @@ export default function ConnectionsScreen() {
   )
 }
 
-const styles = StyleSheet.create({
+const styles = themed((c, t) => ({
   content: { paddingHorizontal: 20, paddingBottom: 96, gap: 12 },
   card: { gap: 12 },
   cardHead: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   statusCard: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  chip: { width: 38, height: 38, borderRadius: 19, alignItems: 'center', justifyContent: 'center', borderWidth: 0.5, borderColor: colors.divider },
+  chip: { width: 38, height: 38, borderRadius: 19, alignItems: 'center', justifyContent: 'center', borderWidth: 0.5, borderColor: c.divider },
   chipSage: { backgroundColor: 'rgba(139,168,136,0.16)', borderColor: 'rgba(139,168,136,0.32)' },
-  chipNeutral: { backgroundColor: colors.glassTint },
-  cardTitle: { fontSize: 15, fontWeight: '600', color: colors.text },
-  cardSub: { fontSize: 12, color: colors.textSub, marginTop: 1 },
+  chipNeutral: { backgroundColor: c.glassTint },
+  cardTitle: { fontSize: 15, fontWeight: '600', color: c.text },
+  cardSub: { fontSize: 12, color: c.textSub, marginTop: 1 },
   field: { gap: 5 },
-  fieldLabel: { fontSize: 13, fontWeight: '500', color: colors.textSub },
-  input: { minHeight: 44, borderWidth: 1, borderColor: colors.border, borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10, fontSize: 14, color: colors.text, backgroundColor: colors.inputBg, textAlignVertical: 'top' },
-  tokens: { fontSize: 11, color: colors.textFaint, letterSpacing: 0.3 },
-  saveBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, backgroundColor: colors.btnBg, borderRadius: 14, paddingVertical: 12, marginTop: 2 },
-  saveText: { fontSize: 15, fontWeight: '600', color: colors.onBtn },
-})
+  fieldLabel: { fontSize: 13, fontWeight: '500', color: c.textSub },
+  input: { minHeight: 44, borderWidth: 1, borderColor: c.border, borderRadius: 12, paddingHorizontal: 12, paddingVertical: 10, fontSize: 14, color: c.text, backgroundColor: c.inputBg, textAlignVertical: 'top' },
+  tokens: { fontSize: 11, color: c.textFaint, letterSpacing: 0.3 },
+  saveBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, backgroundColor: c.btnBg, borderRadius: 14, paddingVertical: 12, marginTop: 2 },
+  saveText: { fontSize: 15, fontWeight: '600', color: c.onBtn },
+}))

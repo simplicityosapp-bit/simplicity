@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react'
-import { View, Text, TextInput, Pressable, StyleSheet } from 'react-native'
+import { View, Text, TextInput, Pressable } from 'react-native'
 import Sheet from '../components/Sheet'
 import i18n from '../lib/i18n'
 import { colors } from '../theme/theme'
+import { themed } from '../theme/themed'
 import { ACCOUNT_DELETION_GRACE_DAYS } from '../lib/account'
 
 // Two-step permanent-delete confirm (mirrors web DeleteAccountModal): a warning,
@@ -54,16 +55,16 @@ export default function DeleteAccountModal({ open, onClose, onConfirm }) {
   )
 }
 
-const styles = StyleSheet.create({
-  warn: { fontSize: 13, color: colors.textSub, lineHeight: 19 },
-  label: { fontSize: 13, color: colors.textSub, marginTop: 4 },
-  input: { borderWidth: 1, borderColor: colors.border, borderRadius: 12, paddingVertical: 11, paddingHorizontal: 14, fontSize: 15, color: colors.text, backgroundColor: colors.card },
-  inputErr: { borderColor: colors.danger },
-  error: { color: colors.danger, fontSize: 13 },
+const styles = themed((c, t) => ({
+  warn: { fontSize: 13, color: c.textSub, lineHeight: 19 },
+  label: { fontSize: 13, color: c.textSub, marginTop: 4 },
+  input: { borderWidth: 1, borderColor: c.border, borderRadius: 12, paddingVertical: 11, paddingHorizontal: 14, fontSize: 15, color: c.text, backgroundColor: c.card },
+  inputErr: { borderColor: c.danger },
+  error: { color: c.danger, fontSize: 13 },
   actions: { flexDirection: 'row', gap: 12, marginTop: 8 },
-  cancel: { flex: 1, paddingVertical: 13, borderRadius: 12, borderWidth: 1, borderColor: colors.border, alignItems: 'center' },
-  cancelText: { fontSize: 15, color: colors.textSub },
-  danger: { flex: 1, paddingVertical: 13, borderRadius: 12, backgroundColor: colors.dangerFill, alignItems: 'center' },
-  dangerText: { fontSize: 15, fontWeight: '600', color: colors.onBrand },
+  cancel: { flex: 1, paddingVertical: 13, borderRadius: 12, borderWidth: 1, borderColor: c.border, alignItems: 'center' },
+  cancelText: { fontSize: 15, color: c.textSub },
+  danger: { flex: 1, paddingVertical: 13, borderRadius: 12, backgroundColor: c.dangerFill, alignItems: 'center' },
+  dangerText: { fontSize: 15, fontWeight: '600', color: c.onBrand },
   off: { opacity: 0.5 },
-})
+}))

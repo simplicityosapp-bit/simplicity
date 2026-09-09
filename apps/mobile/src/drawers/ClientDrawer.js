@@ -18,6 +18,7 @@ import { useRecurring } from '../hooks/useRecurring'
 import { confirmRemoveTransaction } from '../lib/recurringTx'
 import i18n from '../lib/i18n'
 import { colors } from '../theme/theme'
+import { themed } from '../theme/themed'
 
 // Client drawer ("תיק לקוח") — a slide-up overlay mirroring the web ClientDrawer:
 // avatar + name + status pill + edit, a 3-stat billing hero, a WhatsApp payment
@@ -466,60 +467,60 @@ function Action({ Icon, label, onPress }) {
   )
 }
 
-const styles = StyleSheet.create({
+const styles = themed((c, t) => ({
   overlay: { flex: 1, justifyContent: 'flex-end' },
   backdrop: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(42,37,32,0.35)' },
-  panel: { backgroundColor: colors.bg, borderTopLeftRadius: 24, borderTopRightRadius: 24, height: '92%', overflow: 'hidden' },
-  topbar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingTop: 14, paddingBottom: 12, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.divider },
-  topBtn: { width: 34, height: 34, borderRadius: 17, backgroundColor: colors.cardFlat, alignItems: 'center', justifyContent: 'center' },
-  topTitle: { fontSize: 15, fontWeight: '600', color: colors.textSub, letterSpacing: 0.3 },
+  panel: { backgroundColor: c.bg, borderTopLeftRadius: 24, borderTopRightRadius: 24, height: '92%', overflow: 'hidden' },
+  topbar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingTop: 14, paddingBottom: 12, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: c.divider },
+  topBtn: { width: 34, height: 34, borderRadius: 17, backgroundColor: c.cardFlat, alignItems: 'center', justifyContent: 'center' },
+  topTitle: { fontSize: 15, fontWeight: '600', color: c.textSub, letterSpacing: 0.3 },
   scroll: { paddingHorizontal: 20, paddingTop: 18, paddingBottom: 40, gap: 16 },
 
   header: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  av: { width: 48, height: 48, borderRadius: 24, backgroundColor: colors.brand, alignItems: 'center', justifyContent: 'center' },
-  avText: { fontSize: 16, fontWeight: '600', color: colors.onBrand },
+  av: { width: 48, height: 48, borderRadius: 24, backgroundColor: c.brand, alignItems: 'center', justifyContent: 'center' },
+  avText: { fontSize: 16, fontWeight: '600', color: c.onBrand },
   headId: { flex: 1, minWidth: 0, gap: 5 },
-  headName: { fontSize: 18, fontWeight: '700', color: colors.text },
+  headName: { fontSize: 18, fontWeight: '700', color: c.text },
   headSub: { flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap' },
   statusPill: { flexDirection: 'row', alignItems: 'center', gap: 3, paddingVertical: 3, paddingHorizontal: 9, borderRadius: 10 },
-  statusText: { fontSize: 11, fontWeight: '500', color: colors.text },
-  byGroup: { fontSize: 11, color: colors.textFaint },
+  statusText: { fontSize: 11, fontWeight: '500', color: c.text },
+  byGroup: { fontSize: 11, color: c.textFaint },
   revert: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  manualTag: { fontSize: 10, fontWeight: '600', color: colors.textSub, backgroundColor: colors.fillStrong, paddingVertical: 1, paddingHorizontal: 6, borderRadius: 8, overflow: 'hidden' },
-  revertText: { fontSize: 10, color: colors.textSub },
-  projText: { fontSize: 11, color: colors.textSub },
-  statusMenu: { marginTop: 8, marginStart: 58, borderRadius: 12, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card, padding: 4 },
+  manualTag: { fontSize: 10, fontWeight: '600', color: c.textSub, backgroundColor: c.fillStrong, paddingVertical: 1, paddingHorizontal: 6, borderRadius: 8, overflow: 'hidden' },
+  revertText: { fontSize: 10, color: c.textSub },
+  projText: { fontSize: 11, color: c.textSub },
+  statusMenu: { marginTop: 8, marginStart: 58, borderRadius: 12, borderWidth: 1, borderColor: c.border, backgroundColor: c.card, padding: 4 },
   statusOpt: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 9, paddingHorizontal: 10, borderRadius: 8 },
   statusDot: { width: 9, height: 9, borderRadius: 5 },
-  statusOptText: { flex: 1, fontSize: 13, color: colors.text },
-  statusOptOn: { color: colors.brand, fontWeight: '600' },
-  editBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingVertical: 6, paddingHorizontal: 11, borderRadius: 999, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card },
-  editText: { fontSize: 12, color: colors.textSub },
+  statusOptText: { flex: 1, fontSize: 13, color: c.text },
+  statusOptOn: { color: c.brand, fontWeight: '600' },
+  editBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingVertical: 6, paddingHorizontal: 11, borderRadius: 999, borderWidth: 1, borderColor: c.border, backgroundColor: c.card },
+  editText: { fontSize: 12, color: c.textSub },
 
   contact: { flexDirection: 'row', flexWrap: 'wrap', gap: 16, marginBottom: 12 },
   contactItem: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  contactText: { fontSize: 12, color: colors.textSub },
+  contactText: { fontSize: 12, color: c.textSub },
   hero: { flexDirection: 'row', paddingVertical: 16, paddingHorizontal: 8 },
   stat: { flex: 1, alignItems: 'center', gap: 5 },
-  statDivided: { borderLeftWidth: StyleSheet.hairlineWidth, borderRightWidth: StyleSheet.hairlineWidth, borderColor: colors.divider },
-  statLabel: { fontSize: 10, fontWeight: '500', color: colors.textSub, letterSpacing: 0.4, textTransform: 'uppercase' },
-  statValue: { fontSize: 20, fontWeight: '500', color: colors.text },
-  statAccent: { color: colors.brand },
+  statDivided: { borderLeftWidth: StyleSheet.hairlineWidth, borderRightWidth: StyleSheet.hairlineWidth, borderColor: c.divider },
+  statLabel: { fontSize: 10, fontWeight: '500', color: c.textSub, letterSpacing: 0.4, textTransform: 'uppercase' },
+  statValue: { fontSize: 20, fontWeight: '500', color: c.text },
+  statAccent: { color: c.brand },
 
-  billNote: { fontSize: 12, color: colors.textSub, textAlign: 'center', marginTop: -6 },
-  planHint: { fontSize: 12, color: colors.textSub, textAlign: 'center' },
+  billNote: { fontSize: 12, color: c.textSub, textAlign: 'center', marginTop: -6 },
+  planHint: { fontSize: 12, color: c.textSub, textAlign: 'center' },
   grpSessions: { gap: 6, marginTop: -4 },
   grpRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 },
-  grpName: { flex: 1, fontSize: 12, color: colors.textSub },
-  grpVal: { fontSize: 12, fontWeight: '600', color: colors.text },
+  grpName: { flex: 1, fontSize: 12, color: c.textSub },
+  grpVal: { fontSize: 12, fontWeight: '600', color: c.text },
 
   payRequest: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: 10, paddingHorizontal: 16, borderRadius: 14, borderWidth: 0.5, borderColor: 'rgba(139,168,136,0.4)', backgroundColor: 'rgba(139,168,136,0.10)' },
-  payRequestText: { fontSize: 13, fontWeight: '500', color: colors.positive },
+  payRequestText: { fontSize: 13, fontWeight: '500', color: c.positive },
 
   actions: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
-  action: { flexGrow: 1, flexBasis: '46%', alignItems: 'center', gap: 6, paddingVertical: 14, borderRadius: 14, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card },
-  actionLabel: { fontSize: 11.5, color: colors.text },
-})
+  action: { flexGrow: 1, flexBasis: '46%', alignItems: 'center', gap: 6, paddingVertical: 14, borderRadius: 14, borderWidth: 1, borderColor: c.border, backgroundColor: c.card },
+  actionLabel: { fontSize: 11.5, color: c.text },
+}))
 
 HeroStat.displayName = 'HeroStat'
 Action.displayName = 'Action'

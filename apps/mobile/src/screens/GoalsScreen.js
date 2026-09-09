@@ -11,6 +11,7 @@ import Card from '../components/Card'
 import AddGoalModal from '../modals/AddGoalModal'
 import EditGoalModal from '../modals/EditGoalModal'
 import { colors } from '../theme/theme'
+import { themed } from '../theme/themed'
 import { useGoalsData } from '../hooks/useGoalsData'
 import { useQuestions } from '../hooks/useQuestions'
 
@@ -129,19 +130,19 @@ function GoalCard({ scored: s, onEdit }) {
   )
 }
 
-const styles = StyleSheet.create({
+const styles = themed((c, t) => ({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   content: { paddingHorizontal: 20, paddingBottom: 96, gap: 18 },
-  error: { color: colors.danger, fontSize: 13 },
-  empty: { color: colors.textFaint, fontSize: 14, textAlign: 'center', marginTop: 24 },
+  error: { color: c.danger, fontSize: 13 },
+  empty: { color: c.textFaint, fontSize: 14, textAlign: 'center', marginTop: 24 },
   group: { gap: 10 },
-  catName: { fontSize: 11, fontWeight: '600', color: colors.textSub, letterSpacing: 0.66, marginHorizontal: 2 },
+  catName: { fontSize: 11, fontWeight: '600', color: c.textSub, letterSpacing: 0.66, marginHorizontal: 2 },
   // goal card
   gHead: { flexDirection: 'row', alignItems: 'flex-start', gap: 10, marginBottom: 12 },
   rowFlip: { flexDirection: 'row-reverse' },
   txtRtl: { textAlign: 'right' },
   gTitleBlock: { flex: 1, minWidth: 0 },
-  gTitle: { fontSize: 15, fontWeight: '600', color: colors.text },
+  gTitle: { fontSize: 15, fontWeight: '600', color: c.text },
   gCatRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 4 },
   /* Muted on purpose: a statement of fact about something finished, not a
      warning, sharing a line with the category and the date. */
@@ -151,23 +152,23 @@ const styles = StyleSheet.create({
     paddingVertical: 1,
     borderRadius: 999,
     borderWidth: StyleSheet.hairlineWidth,
-    borderColor: colors.textSub,
+    borderColor: c.textSub,
     fontSize: 10,
-    color: colors.textSub,
+    color: c.textSub,
   },
   gCatDot: { width: 8, height: 8, borderRadius: 4 },
-  gCatText: { flex: 1, fontSize: 11, color: colors.textSub },
-  gPct: { fontSize: 20, fontWeight: '500', color: colors.text, fontVariant: ['tabular-nums'], lineHeight: 20 },
-  gPctOver: { color: colors.positive },
+  gCatText: { flex: 1, fontSize: 11, color: c.textSub },
+  gPct: { fontSize: 20, fontWeight: '500', color: c.text, fontVariant: ['tabular-nums'], lineHeight: 20 },
+  gPctOver: { color: c.positive },
   gBars: { flexDirection: 'row', gap: 14 },
   gMeta: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 10 },
-  gTarget: { fontSize: 13, fontWeight: '500', color: colors.textSub, fontVariant: ['tabular-nums'] },
+  gTarget: { fontSize: 13, fontWeight: '500', color: c.textSub, fontVariant: ['tabular-nums'] },
   gStars: { flexDirection: 'row', gap: 2 },
   // dual bar column
   gbarCol: { flex: 1, gap: 4 },
   gbarHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  gbarLbl: { fontSize: 11, color: colors.textSub },
-  gbarVal: { fontSize: 11, fontWeight: '500', color: colors.textSub, fontVariant: ['tabular-nums'] },
-  gbarTrack: { height: 5, borderRadius: 3, backgroundColor: colors.divider, overflow: 'hidden' },
+  gbarLbl: { fontSize: 11, color: c.textSub },
+  gbarVal: { fontSize: 11, fontWeight: '500', color: c.textSub, fontVariant: ['tabular-nums'] },
+  gbarTrack: { height: 5, borderRadius: 3, backgroundColor: c.divider, overflow: 'hidden' },
   gbarFill: { height: 5, borderRadius: 3 },
-})
+}))

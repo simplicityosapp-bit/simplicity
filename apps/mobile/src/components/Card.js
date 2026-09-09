@@ -1,6 +1,7 @@
 import { View, StyleSheet } from 'react-native'
 import { BlurView } from './SafeBlur'
 import { colors, radius, shadow } from '../theme/theme'
+import { themed } from '../theme/themed'
 
 // Cream glass card — BlurView + a cream veil (per web --mg-card-* : cream over
 // blur, white hairline, radius 20, soft shadow). Shadow lives on an OUTER view
@@ -17,9 +18,9 @@ export default function Card({ style, contentStyle, padded = true, children }) {
   )
 }
 
-const styles = StyleSheet.create({
+const styles = themed((c, t) => ({
   shadow: { borderRadius: radius.card, ...shadow.card, backgroundColor: 'transparent' },
-  clip: { borderRadius: radius.card, overflow: 'hidden', borderWidth: 1, borderColor: colors.glassBorder },
-  tint: { backgroundColor: colors.glassTint },
+  clip: { borderRadius: radius.card, overflow: 'hidden', borderWidth: 1, borderColor: c.glassBorder },
+  tint: { backgroundColor: c.glassTint },
   padded: { paddingVertical: 24, paddingHorizontal: 28 }, // web --mg-card-pad 24×28
-})
+}))

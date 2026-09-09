@@ -1,8 +1,9 @@
 import { useRef, useState } from 'react'
-import { View, Text, Pressable, StyleSheet, I18nManager } from 'react-native'
+import { View, Text, Pressable, I18nManager } from 'react-native'
 import { Image } from 'expo-image'
 import { ChevronLeft, ChevronRight } from 'lucide-react-native'
 import { colors, radius, space, type } from '../../theme/theme'
+import { themed } from '../../theme/themed'
 import i18n from '../../lib/i18n'
 import Screen from '../../components/Screen'
 
@@ -94,7 +95,7 @@ export default function WelcomeGate({ onStart, onSkip }) {
   )
 }
 
-const styles = StyleSheet.create({
+const styles = themed((c, t) => ({
   root: {
     flex: 1,
     justifyContent: 'center',
@@ -102,8 +103,8 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   logo: { width: 72, height: 72, alignSelf: 'center', marginBottom: 10 },
-  name: { ...type.displayL, color: colors.text, textAlign: 'center' },
-  tag: { ...type.caption, color: colors.textSub, textAlign: 'center', marginBottom: 26 },
+  name: { ...t.displayL, color: c.text, textAlign: 'center' },
+  tag: { ...t.caption, color: c.textSub, textAlign: 'center', marginBottom: 26 },
   options: { gap: 12 },
   option: {
     flexDirection: I18nManager.isRTL ? 'row-reverse' : 'row',
@@ -114,12 +115,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: space.cardPadH,
     borderWidth: 1,
   },
-  optionPrimary: { backgroundColor: colors.btnBg, borderColor: colors.btnBg },
-  optionGhost: { backgroundColor: colors.card, borderColor: colors.border },
+  optionPrimary: { backgroundColor: c.btnBg, borderColor: c.btnBg },
+  optionGhost: { backgroundColor: c.card, borderColor: c.border },
   optionPressed: { opacity: 0.75 },
   optionText: { flex: 1, gap: 3 },
-  optionTitle: { ...type.heading, color: colors.text },
-  optionSub: { ...type.caption, color: colors.textSub },
-  onPrimary: { color: colors.onBtn },
-  onPrimarySub: { color: colors.onBtn, opacity: 0.85 },
-})
+  optionTitle: { ...t.heading, color: c.text },
+  optionSub: { ...t.caption, color: c.textSub },
+  onPrimary: { color: c.onBtn },
+  onPrimarySub: { color: c.onBtn, opacity: 0.85 },
+}))

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { View, Text, TextInput, Pressable, StyleSheet } from 'react-native'
+import { View, Text, TextInput, Pressable } from 'react-native'
 import { Trash2 } from 'lucide-react-native'
 import { PAY_METHODS, payMethodLabel } from '@simplicity/core'
 import Sheet from '../components/Sheet'
@@ -7,6 +7,7 @@ import Select from '../components/Select'
 import { useFormOptions } from '../lib/formOptions'
 import i18n from '../lib/i18n'
 import { colors } from '../theme/theme'
+import { themed } from '../theme/themed'
 
 // Add/edit a transaction (mirrors web AddTransactionModal: income/expense +
 // amount + date + description + client/category/payment-method selects). Pass a
@@ -210,36 +211,36 @@ export default function AddTransactionModal({ open, onClose, onSave, onDelete, t
   )
 }
 
-const styles = StyleSheet.create({
+const styles = themed((c, t) => ({
   pills: { flexDirection: 'row', gap: 8 },
-  pill: { flex: 1, paddingVertical: 11, borderRadius: 999, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.cardFlat, alignItems: 'center' },
-  pillIncome: { backgroundColor: colors.positive, borderColor: colors.positive },
-  pillExpense: { backgroundColor: colors.danger, borderColor: colors.danger },
-  pillText: { fontSize: 14, color: colors.text },
-  pillTextOn: { color: colors.onBrand, fontWeight: '600' },
+  pill: { flex: 1, paddingVertical: 11, borderRadius: 999, borderWidth: 1, borderColor: c.border, backgroundColor: c.cardFlat, alignItems: 'center' },
+  pillIncome: { backgroundColor: c.positive, borderColor: c.positive },
+  pillExpense: { backgroundColor: c.danger, borderColor: c.danger },
+  pillText: { fontSize: 14, color: c.text },
+  pillTextOn: { color: c.onBrand, fontWeight: '600' },
   row2: { flexDirection: 'row', gap: 12 },
   field: { gap: 6 },
   fieldFlex: { flex: 1, gap: 6 },
-  label: { fontSize: 13, color: colors.textSub },
-  input: { borderWidth: 1, borderColor: colors.border, borderRadius: 12, paddingVertical: 11, paddingHorizontal: 14, fontSize: 15, color: colors.text, backgroundColor: colors.card },
-  inputErr: { borderColor: colors.danger },
-  hint: { fontSize: 12, color: colors.textFaint, marginTop: -8 },
+  label: { fontSize: 13, color: c.textSub },
+  input: { borderWidth: 1, borderColor: c.border, borderRadius: 12, paddingVertical: 11, paddingHorizontal: 14, fontSize: 15, color: c.text, backgroundColor: c.card },
+  inputErr: { borderColor: c.danger },
+  hint: { fontSize: 12, color: c.textFaint, marginTop: -8 },
   catCreateRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   catInput: { flex: 1 },
-  catAdd: { paddingVertical: 11, paddingHorizontal: 16, borderRadius: 12, backgroundColor: colors.btnBg, alignItems: 'center' },
-  catAddText: { fontSize: 14, fontWeight: '600', color: colors.onBtn },
-  catCancel: { paddingVertical: 11, paddingHorizontal: 12, borderRadius: 12, borderWidth: 1, borderColor: colors.border, alignItems: 'center' },
+  catAdd: { paddingVertical: 11, paddingHorizontal: 16, borderRadius: 12, backgroundColor: c.btnBg, alignItems: 'center' },
+  catAddText: { fontSize: 14, fontWeight: '600', color: c.onBtn },
+  catCancel: { paddingVertical: 11, paddingHorizontal: 12, borderRadius: 12, borderWidth: 1, borderColor: c.border, alignItems: 'center' },
   statusPills: { flexDirection: 'row', gap: 8 },
-  statusPill: { flex: 1, paddingVertical: 9, borderRadius: 999, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.cardFlat, alignItems: 'center' },
-  statusPillOn: { backgroundColor: colors.brand, borderColor: colors.brand },
-  statusPillText: { fontSize: 13, color: colors.textSub },
-  statusPillTextOn: { color: colors.onBrand, fontWeight: '600' },
-  error: { color: colors.danger, fontSize: 13 },
+  statusPill: { flex: 1, paddingVertical: 9, borderRadius: 999, borderWidth: 1, borderColor: c.border, backgroundColor: c.cardFlat, alignItems: 'center' },
+  statusPillOn: { backgroundColor: c.brand, borderColor: c.brand },
+  statusPillText: { fontSize: 13, color: c.textSub },
+  statusPillTextOn: { color: c.onBrand, fontWeight: '600' },
+  error: { color: c.danger, fontSize: 13 },
   actions: { flexDirection: 'row', alignItems: 'center', gap: 12, marginTop: 4 },
-  delete: { width: 46, paddingVertical: 13, borderRadius: 12, borderWidth: 1, borderColor: colors.border, alignItems: 'center' },
-  cancel: { flex: 1, paddingVertical: 13, borderRadius: 12, borderWidth: 1, borderColor: colors.border, alignItems: 'center' },
-  cancelText: { fontSize: 15, color: colors.textSub },
-  save: { flex: 1, paddingVertical: 13, borderRadius: 12, backgroundColor: colors.btnBg, alignItems: 'center' },
+  delete: { width: 46, paddingVertical: 13, borderRadius: 12, borderWidth: 1, borderColor: c.border, alignItems: 'center' },
+  cancel: { flex: 1, paddingVertical: 13, borderRadius: 12, borderWidth: 1, borderColor: c.border, alignItems: 'center' },
+  cancelText: { fontSize: 15, color: c.textSub },
+  save: { flex: 1, paddingVertical: 13, borderRadius: 12, backgroundColor: c.btnBg, alignItems: 'center' },
   saveOff: { opacity: 0.5 },
-  saveText: { fontSize: 15, fontWeight: '600', color: colors.onBtn },
-})
+  saveText: { fontSize: 15, fontWeight: '600', color: c.onBtn },
+}))

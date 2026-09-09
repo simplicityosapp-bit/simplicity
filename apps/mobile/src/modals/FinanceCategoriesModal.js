@@ -1,10 +1,11 @@
 import { useState } from 'react'
-import { View, Text, TextInput, Pressable, StyleSheet, Alert } from 'react-native'
+import { View, Text, TextInput, Pressable, Alert } from 'react-native'
 import { Plus, X, Check } from 'lucide-react-native'
 import Sheet from '../components/Sheet'
 import { CATEGORY_COLORS } from '../hooks/useFinanceData'
 import i18n from '../lib/i18n'
 import { colors } from '../theme/theme'
+import { themed } from '../theme/themed'
 
 // Manage expense categories (mirrors web CategoriesSection). Add via the inline
 // input + a color swatch, remove via the chip's ×.
@@ -52,16 +53,16 @@ export default function FinanceCategoriesModal({ open, onClose, categories, onAd
   )
 }
 
-const styles = StyleSheet.create({
+const styles = themed((c, t) => ({
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  chip: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 6, paddingHorizontal: 10, borderRadius: 999, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.cardFlat },
+  chip: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 6, paddingHorizontal: 10, borderRadius: 999, borderWidth: 1, borderColor: c.border, backgroundColor: c.cardFlat },
   dot: { width: 8, height: 8, borderRadius: 4 },
-  chipText: { fontSize: 13, color: colors.text },
-  empty: { fontSize: 12, color: colors.textFaint },
+  chipText: { fontSize: 13, color: c.text },
+  empty: { fontSize: 12, color: c.textFaint },
   swatches: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginBottom: 4 },
   swatch: { width: 28, height: 28, borderRadius: 14, alignItems: 'center', justifyContent: 'center', borderWidth: 2, borderColor: 'transparent' },
-  swatchOn: { borderColor: colors.text },
+  swatchOn: { borderColor: c.text },
   addRow: { flexDirection: 'row', gap: 8, alignItems: 'center' },
-  input: { flex: 1, borderWidth: 1, borderColor: colors.border, borderRadius: 12, paddingVertical: 10, paddingHorizontal: 14, fontSize: 15, color: colors.text, backgroundColor: colors.card },
-  addBtn: { width: 44, height: 44, borderRadius: 12, backgroundColor: colors.brand, alignItems: 'center', justifyContent: 'center' },
-})
+  input: { flex: 1, borderWidth: 1, borderColor: c.border, borderRadius: 12, paddingVertical: 10, paddingHorizontal: 14, fontSize: 15, color: c.text, backgroundColor: c.card },
+  addBtn: { width: 44, height: 44, borderRadius: 12, backgroundColor: c.brand, alignItems: 'center', justifyContent: 'center' },
+}))

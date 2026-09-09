@@ -109,37 +109,39 @@ describe('CSP report endpoint', () => {
   describe('forwarding to the violations table', () => {
     const violation = { 'csp-report': { 'effective-directive': 'script-src', 'blocked-uri': 'https://evil.test/x.js' } }
 
-    it('does not reach the network outside a Vercel deployment', async () => {
+    /* The guard is on the REQUEST, not the environment: process.env.VERCEL
+       only exists when the project exposes system env vars, and this one does
+       not — a version of this guard shipped, went live, and forwarded
+       nothing. Every request that actually reaches a function carries
+       x-vercel-id; a hand-built one like these never does. */
+    const fromEdge = { 'x-vercel-id': 'fra1::abc123-1788962771054-0f3f6427a5bb' }
+
+    it('does not reach the network for a request that did not come from the edge', async () => {
       const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(null, { status: 204 }))
-      delete process.env.VERCEL
       await handler(post(violation), res())
       expect(fetchSpy, 'a test run must never post to production').not.toHaveBeenCalled()
     })
 
-    it('forwards once when it is running on Vercel', async () => {
+    it('forwards once for a request that came through the edge', async () => {
       const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(null, { status: 204 }))
-      process.env.VERCEL = '1'
-      try {
-        await handler(post(violation), res())
-        expect(fetchSpy).toHaveBeenCalledTimes(1)
-        const [url, init] = fetchSpy.mock.calls[0]
-        expect(String(url)).toMatch(/\/functions\/v1\/csp-report$/)
-        expect(JSON.parse(init.body).violations[0].blocked).toBe('https://evil.test/x.js')
-      } finally {
-        delete process.env.VERCEL
-      }
+      await handler(post(violation, fromEdge), res())
+      expect(fetchSpy).toHaveBeenCalledTimes(1)
+      const [url, init] = fetchSpy.mock.calls[0]
+      expect(String(url)).toMatch(/\/functions\/v1\/csp-report$/)
+      expect(JSON.parse(init.body).violations[0].blocked).toBe('https://evil.test/x.js')
+    })
+
+    it('forwards nothing when every violation was extension noise', async () => {
+      const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(null, { status: 204 }))
+      await handler(post({ 'csp-report': { 'effective-directive': 'script-src', 'blocked-uri': 'chrome-extension://a/b.js' } }, fromEdge), res())
+      expect(fetchSpy).not.toHaveBeenCalled()
     })
 
     it('still answers 204 when the forward fails', async () => {
       vi.spyOn(globalThis, 'fetch').mockRejectedValue(new Error('supabase is down'))
-      process.env.VERCEL = '1'
-      try {
-        const r = res()
-        await handler(post(violation), r)
-        expect(r.statusCode).toBe(204)
-      } finally {
-        delete process.env.VERCEL
-      }
+      const r = res()
+      await handler(post(violation, fromEdge), r)
+      expect(r.statusCode).toBe(204)
     })
   })
 })

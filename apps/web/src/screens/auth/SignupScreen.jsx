@@ -271,10 +271,18 @@ export default function SignupScreen() {
 
           <Box className="auth-divider"><Txt>{t('or')}</Txt></Box>
 
+          {/* Not `disabled={!canConsent}`. That is the exact thing the comment
+              above the email button rules out, and it was left in place here:
+              a visitor who had not ticked the boxes met a dead grey control
+              and no reason for it, on the one path that never shows the form's
+              validation. It now refuses the click the same way submit() does —
+              raising the consent line beside the checkboxes that names what is
+              missing — and the guard runs before consent is stashed or Google
+              is contacted, so nothing is bypassed by the button being live. */}
           <GoogleButton
             onError={setError}
             label={t('signupScreen.googleSignup')}
-            disabled={!canConsent}
+            guard={() => { setConsentTried(true); return canConsent }}
             onBeforeAuth={() => stashPendingConsent(buildConsent({ marketing: agreeMarketing }))}
           />
         </Box>

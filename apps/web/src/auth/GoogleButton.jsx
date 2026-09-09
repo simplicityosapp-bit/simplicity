@@ -16,9 +16,14 @@ function GoogleG() {
 }
 
 /* Shared "Sign in with Google" button. Needs the Google provider enabled in
-   Supabase (Auth → Providers). `disabled` gates the button (signup consent);
-   `onBeforeAuth` runs just before the OAuth redirect (used to stash consent
-   so it can be written to user_metadata on return).
+   Supabase (Auth → Providers). `onBeforeAuth` runs just before the OAuth
+   redirect (used to stash consent so it can be written to user_metadata on
+   return). `guard` is asked first and can refuse the click: it returns false
+   to stop before anything is stashed or sent, having said why in the caller's
+   own words. That is what a caller wants instead of `disabled` whenever the
+   reason is something the visitor can fix — a greyed-out button states a
+   verdict and withholds the reason. `disabled` remains for the cases where
+   there is nothing to explain.
 
    `label` comes from the caller's own t(). It used to carry a hardcoded
    Hebrew default, and the login screen took that default — so on a screen
@@ -26,7 +31,7 @@ function GoogleG() {
    translated was the one a visitor who does not read Hebrew would reach for
    first. auth:googleLogin had been sitting there in all four locales,
    unread. */
-export default function GoogleButton({ onError, label, disabled = false, onBeforeAuth }) {
+export default function GoogleButton({ onError, label, disabled = false, guard, onBeforeAuth }) {
   const [busy, setBusy] = useState(false)
   /* AuthGate leaves the page the visitor was headed for on the location, and
      the signed-in catch-all reads it back. That survives a password sign-in,
@@ -39,6 +44,9 @@ export default function GoogleButton({ onError, label, disabled = false, onBefor
 
   const click = async () => {
     if (disabled || busy) return
+    /* Before the return path is stashed and before consent is written down:
+       a refused click must leave no trace of having been half-taken. */
+    if (guard && !guard()) return
     stashReturnPath(state?.from)
     if (onBeforeAuth) onBeforeAuth()
     setBusy(true)

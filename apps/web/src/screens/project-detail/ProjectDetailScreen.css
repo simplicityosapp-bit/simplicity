@@ -145,7 +145,7 @@
    three stats keep their equal thirds and the divider stays centred. */
 .pd-money-toggle {
   position: absolute;
-  top: 8px;
+  top: 11px;
   inset-inline-end: 10px;
   z-index: 2;
 }
@@ -884,7 +884,16 @@
   position: relative;
   display: grid;
   grid-template-columns: 1fr 1fr 1fr;
-  padding: 34px 8px 14px;
+  /* The toggle is pinned in the corner and takes no flow space, so this top
+     padding is the only thing keeping the three figures out from under it.
+     34px was short of it at every text size — the pill paints 29-32px tall
+     and starts 11px down — so the net figure, the column directly beneath it,
+     ran under the pill, and the pill won on z-index. The heroes on the clients
+     and projects screens reserve this same corner with a title line and clear
+     the toggle by ~5px at every text size; with no title line here the padding
+     does it directly, and follows --text-scale so that clearance holds when
+     the label grows with the text-size preference. */
+  padding: calc(29px + 17px * var(--text-scale)) 8px 14px;
   margin-bottom: 14px;
   border-radius: var(--mg-card-radius);
   border: var(--mg-card-border);

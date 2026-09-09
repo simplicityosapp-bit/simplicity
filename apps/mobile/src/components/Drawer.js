@@ -106,11 +106,25 @@ export default function Drawer({ open, onClose, onNavigate, activeScreen }) {
   const meta = roleText || email
   const initial = (prefs.profile?.full_name || email).trim()[0]?.toUpperCase() || '?'
 
-  // Slide in from the right (1 = off-screen, 0 = in) + backdrop fade.
+  /* Slide in from the right (1 = off-screen, 0 = in) + backdrop fade.
+
+     This has to key off `open`, not off mount. `anim` is a ref, so `[anim]`
+     never changes and the effect ran exactly once - at mount, when open is
+     false and the early return below means there is no view yet. The animation
+     therefore played against a view that did not exist, and with
+     useNativeDriver the native side is left holding a value the mounted view
+     never agreed to; the panel could come up already translated off-screen,
+     which is a drawer that does not open. It only ever showed on a device: RN
+     Web has no native driver, so the preview animated the JS value and looked
+     fine.
+
+     Closing resets it, so the second open slides like the first instead of
+     appearing instantly on a value that is already 0. */
   const anim = useRef(new Animated.Value(1)).current
   useEffect(() => {
+    if (!open) { anim.setValue(1); return }
     Animated.timing(anim, { toValue: 0, duration: 300, useNativeDriver: true }).start()
-  }, [anim])
+  }, [anim, open])
   const translateX = anim.interpolate({ inputRange: [0, 1], outputRange: [0, 400] })
   const backdropOpacity = anim.interpolate({ inputRange: [0, 1], outputRange: [1, 0] })
 

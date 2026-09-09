@@ -1,4 +1,4 @@
-import { Platform } from 'react-native'
+import { reloadApp } from '../lib/appReload'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 
 // Warm Precision (Mångata) tokens, mapped from apps/web tokens.css. Light is the
@@ -75,35 +75,17 @@ export function applyThemeColors(mode) {
 }
 
 export const THEME_KEY = 'mg-theme'
-/* Persist the choice + reload so boot re-runs with the new palette (RN freezes
-   StyleSheet colours at module load, so a live swap isn't possible without
-   deriving every style at render time — mirrors the RTL reload).
+/* Persist the choice, then reload so boot re-runs with the new palette — RN
+   freezes StyleSheet colours at module load, so a live swap isn't possible
+   without deriving every style at render time (mirrors the RTL reload).
 
-   The reload used to be DevSettings.reload() alone. React Native assigns that
-   module ONLY inside `if (__DEV__)`, with no else branch, so in a release build
-   it is undefined and the call threw a TypeError straight into the catch. The
-   switch saved the preference and nothing else happened: the user flipped it,
-   the app stayed light, and the palette changed only if they killed and
-   reopened the app themselves. The old comment here already knew the answer —
-   "prod needs expo-updates.reloadAsync()" — but the package was never
-   installed.
-
-   Updates.reloadAsync() works in any build carrying expo-updates: with OTA
-   unconfigured the native side falls to DisabledUpdatesController, which still
-   implements relaunchReactApplicationForModule. It throws in __DEV__ by
-   design, so DevSettings stays as the fallback for a dev build. Best-effort
-   throughout — the preference is already stored, so the worst case is the old
-   behaviour (applies on next launch) rather than an exception thrown out of a
-   switch the user just tapped. */
+   The reload itself lives in lib/appReload, not here: it was written twice,
+   once here and once inside SettingsScreen, and both copies were wrong the
+   same way. See that file for what was broken and why this path works in a
+   release build. */
 export async function persistThemeAndReload(mode) {
   try { await AsyncStorage.setItem(THEME_KEY, mode) } catch { /* best-effort */ }
-  if (Platform.OS === 'web') { try { window.location.reload() } catch { /* noop */ } return }
-  try {
-    // eslint-disable-next-line global-require
-    await require('expo-updates').reloadAsync()
-    return
-  } catch { /* dev build, or Expo Go — fall through */ }
-  try { require('react-native').DevSettings.reload() } catch { /* applies on next launch */ }
+  await reloadApp()
 }
 
 export const radius = { card: 20, pill: 999 }

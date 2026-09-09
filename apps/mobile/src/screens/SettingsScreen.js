@@ -1,6 +1,5 @@
 import { useState } from 'react'
-import { View, Text, TextInput, Pressable, StyleSheet, ScrollView, Share, Alert, Platform, DevSettings, Linking } from 'react-native'
-import AsyncStorage from '@react-native-async-storage/async-storage'
+import { View, Text, TextInput, Pressable, StyleSheet, ScrollView, Share, Alert, Platform, Linking } from 'react-native'
 import Constants from 'expo-constants'
 import { useNavigation } from '@react-navigation/native'
 import { User, Palette, Database, LogOut, ChevronDown, ChevronUp, Sparkles, Download, X, Plus, Check, Wallet, Info, LayoutGrid, Trash2, Eye, Users, Leaf, Briefcase, Settings2, CalendarClock, Plug } from 'lucide-react-native'
@@ -13,7 +12,8 @@ import Screen from '../components/Screen'
 import ScreenHead from '../components/ScreenHead'
 import Card from '../components/Card'
 import Select from '../components/Select'
-import { colors, THEME_KEY, getThemeMode } from '../theme/theme'
+import { colors, getThemeMode, persistThemeAndReload } from '../theme/theme'
+import { reloadApp } from '../lib/appReload'
 import { usePreferences } from '../hooks/usePreferences'
 import { applySavedLanguage, roleLabel } from '../lib/preferences'
 import { useFinanceData } from '../hooks/useFinanceData'
@@ -170,16 +170,14 @@ export default function SettingsScreen() {
   // spread of the render-closure prefs risks dropping a concurrently-changed sibling).
   const setDesign = (patch) => update({ design: patch })
   const setFormat = (k, v) => update({ format: { [k]: v } })
-  // Theme lives in prefs.design.theme (synced with web) AND AsyncStorage THEME_KEY
-  // (read at boot — RN freezes StyleSheet colors, so a switch needs a reload).
-  const reloadApp = () => {
-    if (Platform.OS === 'web' && typeof window !== 'undefined' && window.location) { window.location.reload(); return }
-    try { DevSettings.reload() } catch { /* production build needs a manual restart */ }
-  }
+  /* Theme lives in prefs.design.theme (synced with web) AND AsyncStorage
+     THEME_KEY (read at boot — RN freezes StyleSheet colors, so a switch needs
+     a reload). persistThemeAndReload does the second write and the reload, so
+     this only has to record the preference; it used to repeat both, with its
+     own copy of a reload that did nothing in a release build. */
   const setTheme = async (mode) => {
     setDesign({ theme: mode })
-    try { await AsyncStorage.setItem(THEME_KEY, mode) } catch { /* boot defaults to light */ }
-    reloadApp()
+    await persistThemeAndReload(mode)
   }
   // Legal pages live on the web app; open them in the browser (same content).
   const openLegal = (tab) => { Linking.openURL(`https://simplicity-os.com/legal?tab=${tab}`).catch(() => {}) }
@@ -221,7 +219,23 @@ export default function SettingsScreen() {
             i18n.t('settings:danger.resetConfirmAgain', { defaultValue: 'בטוח/ה? הפעולה בלתי-הפיכה.' }),
             [
               { text: cancel, style: 'cancel' },
-              { text: T('danger.resetAction', { defaultValue: 'מחק הכל' }), style: 'destructive', onPress: async () => { try { await resetAllUserData() } catch { /* surfaced by reload */ } reloadApp() } },
+              {
+                text: T('danger.resetAction', { defaultValue: 'מחק הכל' }),
+                style: 'destructive',
+                /* resetAllUserData collects every table it could not clear and
+                   throws them as one message. That used to be swallowed on the
+                   grounds that the reload would "surface" it — but a reload
+                   only shows leftover rows with no reason attached, and a user
+                   who just wiped their account reads that as the delete having
+                   failed entirely. Say which parts survived, then reload either
+                   way so the screen matches whatever is actually left. */
+                onPress: async () => {
+                  let failure = null
+                  try { await resetAllUserData() } catch (e) { failure = e?.message || null }
+                  if (failure) Alert.alert(T('danger.resetTitle', { defaultValue: 'איפוס חשבון' }), failure)
+                  await reloadApp()
+                },
+              },
             ],
           ),
         },

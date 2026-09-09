@@ -10,7 +10,7 @@ import {
 import { ROUTES } from '../../lib/routes'
 import MG from '../../components/MG'
 import { mgToReadable } from '../../lib/multiGender'
-import { trackLandingEvent } from '../../lib/api/landingEvents'
+import { scrollDepthEvents, trackLandingEvent } from '../../lib/api/landingEvents'
 import { useT } from '../../i18n/useT'
 import { usePopoverSide } from '../../hooks/usePopoverSide'
 import { dirFor, APP_LANGS, setLanguage } from '@simplicity/core/i18n'
@@ -179,6 +179,11 @@ export default function LandingScreen() {
      clears so content reads and the centre stays calm. rAF-throttled. */
   useEffect(() => {
     let raf = 0
+    /* The funnel must not count the mount as a read. update() runs once
+       immediately for the visual state below, and at that point the page is
+       often still shorter than it will be — which used to log a full read
+       for two visitors in five. Only a real scroll flips this. */
+    let hasScrolled = false
     const update = () => {
       raf = 0
       const y = window.scrollY
@@ -188,19 +193,25 @@ export default function LandingScreen() {
       if (veilRef.current) veilRef.current.style.opacity = (0.12 + t * 0.83).toFixed(3)
       /* Anonymous scroll-depth funnel — each threshold fires once per session
          (the helper dedupes), so we can call it freely on every frame. */
-      const docH = document.documentElement.scrollHeight || 1
-      const depth = (y + vh) / docH
-      if (depth >= 0.5) trackLandingEvent('scroll_50')
-      if (depth >= 0.75) trackLandingEvent('scroll_75')
-      if (depth >= 0.98) trackLandingEvent('scroll_100')
+      const depths = scrollDepthEvents({
+        scrollY: y,
+        viewportH: vh,
+        docH: document.documentElement.scrollHeight || 1,
+        hasScrolled,
+      })
+      for (const type of depths) trackLandingEvent(type)
     }
-    const onScroll = () => { if (!raf) raf = requestAnimationFrame(update) }
+    const schedule = () => { if (!raf) raf = requestAnimationFrame(update) }
+    /* A resize is not a read, so it schedules a repaint without arming the
+       funnel — the visual state still has to follow the new viewport. */
+    const onScroll = () => { hasScrolled = true; schedule() }
+    const onResize = schedule
     update()
     window.addEventListener('scroll', onScroll, { passive: true })
-    window.addEventListener('resize', onScroll, { passive: true })
+    window.addEventListener('resize', onResize, { passive: true })
     return () => {
       window.removeEventListener('scroll', onScroll)
-      window.removeEventListener('resize', onScroll)
+      window.removeEventListener('resize', onResize)
       if (raf) cancelAnimationFrame(raf)
     }
   }, [])

@@ -17,6 +17,7 @@ import ReportsScreen from '../screens/ReportsScreen'
 import InsightsScreen from '../screens/InsightsScreen'
 import PagesScreen from '../screens/PagesScreen'
 import ConnectionsScreen from '../screens/ConnectionsScreen'
+import HelpScreen from '../screens/HelpScreen'
 
 export const navigationRef = createNavigationContainerRef()
 
@@ -59,6 +60,7 @@ export default function AppNavigator() {
         <Stack.Screen name="Insights" component={InsightsScreen} />
         <Stack.Screen name="Pages" component={PagesScreen} />
         <Stack.Screen name="Connections" component={ConnectionsScreen} />
+        <Stack.Screen name="Help" component={HelpScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   )

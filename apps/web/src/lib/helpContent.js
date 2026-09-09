@@ -12,6 +12,11 @@
    ════════════════════════════════════════════════════════════════════ */
 
 import i18n from '@simplicity/core/i18n'
+import {
+  getHelpScreen as coreGetHelpScreen,
+  guideOrder as coreGuideOrder,
+  getGlobalFaq as coreGetGlobalFaq,
+} from '@simplicity/core'
 
 export const HELP_SCREENS = {
   "community": {
@@ -1589,41 +1594,26 @@ export const ABOUT_CONTENT = {
    directly so you always get the active language's strings.
    Falls back to Hebrew raw data when a translation is not yet available. */
 
+/* The RULES about this manual — reading order, the owner-only exclusion,
+   and the search — live in @simplicity/core/domain/help, because
+   apps/mobile shows the same manual and a reading order that disagreed
+   between the two would not fail anywhere. It would just quietly be a
+   different manual.
+
+   The raw Hebrew above stays here as this app's fallback for a missing
+   bundle, and is handed to core rather than duplicated into it. */
+export { GUIDE_EXCLUDED } from '@simplicity/core'
+
 export function getHelpScreen(key) {
-  const s = i18n.t('help:screens.' + key, { returnObjects: true })
-  if (s && typeof s === 'object' && !Array.isArray(s) && s.title) return s
-  return HELP_SCREENS[key] || null
+  return coreGetHelpScreen(key, HELP_SCREENS[key] || null)
 }
 
-/* Reading order for the /help guide. Deliberate, not the raw key order — but
-   the list is no longer the gate. It was, and three screens that have a written
-   chapter in four languages were simply absent from the manual: the page
-   builder, the booking pages and the community. Nothing failed, the guide
-   opened with "הסבר מלא לכל מסך באפליקציה", and the test that guards the guide
-   checks the CONTENT against the routes rather than what the screen renders, so
-   it stayed green. Anything documented and not listed here is appended rather
-   than dropped, and a test pins that. */
-const GUIDE_ORDER = [
-  'home', 'clients', 'leads', 'sitePages', 'finance', 'projects', 'tasks',
-  'calendar', 'bookingPages', 'goals', 'insights', 'moon', 'reports',
-  'connections', 'community', 'settings', 'trash',
-]
-
-/* Owner-only. Documented for whoever maintains the console, never in the
-   manual a coach reads. */
-export const GUIDE_EXCLUDED = new Set(['admin'])
-
 export function guideOrder() {
-  const documented = Object.keys(i18n.t('help:screens', { returnObjects: true }) || HELP_SCREENS)
-  const known = documented.filter((k) => !GUIDE_EXCLUDED.has(k))
-  const listed = GUIDE_ORDER.filter((k) => known.includes(k))
-  const rest = known.filter((k) => !GUIDE_ORDER.includes(k))
-  return [...listed, ...rest]
+  return coreGuideOrder(Object.keys(HELP_SCREENS))
 }
 
 export function getGlobalFaq() {
-  const f = i18n.t('help:globalFaq', { returnObjects: true })
-  return Array.isArray(f) ? f : GLOBAL_FAQ
+  return coreGetGlobalFaq(GLOBAL_FAQ)
 }
 
 export function getAboutContent() {

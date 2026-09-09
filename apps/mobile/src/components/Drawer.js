@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react'
 import { View, Text, Image, Pressable, ScrollView, StyleSheet, Animated } from 'react-native'
 import { BlurView } from './SafeBlur'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { Home, Users, Heart, Wallet, ClipboardList, Target, CalendarDays, Settings, FolderOpen, Activity, BarChart3, Trash2, LayoutTemplate, Plug, Sun, Moon, X, LogOut, Pencil } from 'lucide-react-native'
+import { Home, Users, Heart, Wallet, ClipboardList, Target, CalendarDays, Settings, FolderOpen, Activity, BarChart3, Trash2, LayoutTemplate, Plug, Sun, Moon, X, LogOut, Pencil, BookOpen } from 'lucide-react-native'
 
 const LOGO = require('../../assets/logo.png')
 import { supabase } from '../lib/supabase'
@@ -39,6 +39,11 @@ const PERSONAL = [
   { key: 'reports', screen: 'Reports', Icon: BarChart3, title: 'nav:extras.reports', sub: 'nav:items.reportsSub', fb: 'דוחות' },
 ]
 const TOOLS = [
+  /* The manual. Web reaches it from its own menu drawer rather than from
+     Settings, where it used to sit four disclosures deep — and the labels
+     were already translated under nav:extras.help, waiting for a screen to
+     point at. */
+  { key: 'help', screen: 'Help', Icon: BookOpen, title: 'nav:extras.help', sub: 'nav:items.helpSub', fb: 'עזרה ומדריך' },
   { key: 'trash', screen: 'Trash', Icon: Trash2, tint: 'amber', title: 'nav:extras.trash', sub: 'nav:items.trashSub', fb: 'סל מיחזור' },
 ]
 

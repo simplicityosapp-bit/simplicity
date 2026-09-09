@@ -66,7 +66,7 @@
         },
         {
           "key": "Content-Security-Policy-Report-Only",
-          "value": "default-src 'self'; script-src 'self' 'sha256-+GweX+AnfUmzLbyXNhs9m29aZ2Ie0XbXi+fzdnCCE8M=' 'sha256-gwBaGzFWNhnlTK32LKMN2XnXIznsdzPjWoRLRB03NEw='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https://rdurkakzyymxhocvhufw.supabase.co wss://rdurkakzyymxhocvhufw.supabase.co; worker-src 'self' blob:; frame-src 'self' https://www.youtube.com https://player.vimeo.com https://www.google.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'; report-uri /api/csp-report; report-to csp"
+          "value": "default-src 'self'; script-src 'self' 'sha256-y4Jioyo+kzcANtksrU889IUi+N1sFmA1FCfqyOheigo=' 'sha256-cV5GZsNTlAefvya2NtRuwqYmxhU2rrSmsnlTVyHEQ5A='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https://rdurkakzyymxhocvhufw.supabase.co wss://rdurkakzyymxhocvhufw.supabase.co; worker-src 'self' blob:; frame-src 'self' https://www.youtube.com https://player.vimeo.com https://www.google.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'; report-uri /api/csp-report; report-to csp"
         }
       ]
     }

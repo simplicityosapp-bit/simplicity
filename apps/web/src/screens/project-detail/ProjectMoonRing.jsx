@@ -109,11 +109,17 @@ export default function ProjectMoonRing({ projectId }) {
   if (!overall) {
     return (
       <Box className="moon-block pd-moon-block">
+        {/* The same chip the branch above uses for a project whose goals have
+            all ended — glass, blur, empty track — rather than a shape of its
+            own. Only what is inside it differs. */}
         <Btn
           type="button"
-          className="pd-moon-empty"
+          className="moon-chip moon-chip-empty pd-moon-chip pd-moon-empty"
           onClick={() => setAddGoalOpen(true)}
         >
+          <svg className="moon-svg" viewBox="0 0 100 100" aria-hidden="true">
+            <circle className="moon-track" cx="50" cy="50" r={RADIUS} />
+          </svg>
           <Target size={20} strokeWidth={1.6} aria-hidden="true" />
           <Txt className="pd-moon-empty-text">{t('detail.moon.addGoal')}</Txt>
         </Btn>

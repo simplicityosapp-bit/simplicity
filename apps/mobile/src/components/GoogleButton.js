@@ -1,5 +1,6 @@
-import { Pressable, Text, ActivityIndicator, View } from 'react-native'
+import { Pressable, Text, ActivityIndicator, View, I18nManager } from 'react-native'
 import Svg, { Path } from 'react-native-svg'
+import i18n from '../lib/i18n'
 import { colors } from '../theme/theme'
 import { themed } from '../theme/themed'
 
@@ -21,6 +22,13 @@ function GoogleG() {
 // where the native Google module isn't available.
 export default function GoogleButton({ label, onPress, busy = false, disabled = false }) {
   const inactive = busy || disabled
+  /* The same explicit mirror ScreenHead and BottomBar make, and for the same
+     reason: the app is Hebrew-first, but I18nManager.forceRTL only takes effect
+     after a restart and RN Web ignores it entirely, so a Hebrew UI routinely
+     renders on an LTR engine. A plain `row` left the Google G on the wrong side
+     of a Hebrew label there. No-op on a genuinely RTL device, which mirrors the
+     row itself - the guard is what stops it flipping twice. */
+  const flip = (i18n.language || '').startsWith('he') && !I18nManager.isRTL
   return (
     <Pressable
       style={[styles.btn, inactive && styles.btnInactive]}
@@ -32,7 +40,7 @@ export default function GoogleButton({ label, onPress, busy = false, disabled = 
       {busy ? (
         <ActivityIndicator color={colors.brand} />
       ) : (
-        <View style={styles.inner}>
+        <View style={[styles.inner, flip && styles.innerFlip]}>
           <GoogleG />
           <Text style={styles.text}>{label}</Text>
         </View>
@@ -48,5 +56,6 @@ const styles = themed((c, t) => ({
   },
   btnInactive: { opacity: 0.5 },
   inner: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  innerFlip: { flexDirection: 'row-reverse' },
   text: { color: c.text, fontSize: 16, fontWeight: '600' },
 }))

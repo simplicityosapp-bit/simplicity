@@ -1,9 +1,10 @@
 import { useState } from 'react'
-import { View, Text, TextInput, Pressable, ActivityIndicator, ScrollView, Linking } from 'react-native'
+import { View, Text, TextInput, Pressable, ActivityIndicator, ScrollView, Linking, I18nManager } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Check } from 'lucide-react-native'
 import i18n from '../lib/i18n'
 import { supabase } from '../lib/supabase'
+import { checkPasswordStrength } from '@simplicity/core'
 import { buildConsent } from '../lib/legal'
 import { signInWithGoogle } from '../lib/googleSignIn'
 import GoogleButton from '../components/GoogleButton'
@@ -62,7 +63,17 @@ export default function LoginScreen() {
 
   const signup = async () => {
     if (!agree) { setError(t('auth:signupScreen.mustAccept', { defaultValue: 'יש לאשר את המדיניות ותנאי השימוש.' })); return }
-    if (password.length < 8) { setError(t('auth:signupScreen.passwordMin8', { defaultValue: 'הסיסמה צריכה להיות לפחות 8 תווים.' })); return }
+    /* The same gate the browser applies, from the same module - this screen
+       used to check length alone, so the phone accepted `password` while the
+       browser refused it. The weaker answer is the one that matters, because
+       it is the one that creates the account. */
+    const pwIssue = checkPasswordStrength(password)
+    if (pwIssue) {
+      setError(pwIssue === 'tooCommon'
+        ? t('auth:signupScreen.passwordTooCommon')
+        : t('auth:signupScreen.passwordMin8'))
+      return
+    }
     const { data, error: err } = await supabase.auth.signUp({
       email: email.trim(),
       password,
@@ -76,6 +87,19 @@ export default function LoginScreen() {
             : m.includes('weak') || m.includes('password') ? t('auth:signupScreen.passwordMin8')
               : t('auth:errors.generic'),
       )
+      return
+    }
+    /* Signing up with an address that already has an account does NOT come back
+       as an error: Supabase's email-enumeration protection answers with a
+       success so an attacker cannot probe which addresses are registered.
+       Taking that at face value is what this screen did - it showed the
+       check-your-inbox note for a mail that is never sent, and the person waits
+       for it. The tell is an empty identities array; a real new signup always
+       has one. The web signup screen has read it this way for a while, and this
+       is the same read, with the same message the error path above already uses,
+       so nothing is leaked that trying to log in would not reveal. */
+    if (data?.user && Array.isArray(data.user.identities) && data.user.identities.length === 0) {
+      setError(t('auth:errors.alreadyRegistered'))
       return
     }
     // No session yet = email confirmation required → show the check-email note.
@@ -201,8 +225,11 @@ export default function LoginScreen() {
 }
 
 function ConsentRow({ checked, onToggle, label, onLink }) {
+  /* Same mirror as GoogleButton below it: without this the tick box sits to the
+     LEFT of its Hebrew label whenever the engine has not gone RTL yet. */
+  const flip = (i18n.language || '').startsWith('he') && !I18nManager.isRTL
   return (
-    <Pressable style={styles.consentRow} onPress={onToggle} hitSlop={4}>
+    <Pressable style={[styles.consentRow, flip && styles.consentRowFlip]} onPress={onToggle} hitSlop={4}>
       <View style={[styles.checkbox, checked && styles.checkboxOn]}>{checked ? <Check size={13} strokeWidth={2.6} color={colors.onBrand} /> : null}</View>
       <Text style={styles.consentText}>
         {label}{onLink ? <Text> · <Text style={styles.link} onPress={onLink}>{i18n.t('auth:signupScreen.readMore', { defaultValue: 'קראו כאן' })}</Text></Text> : null}
@@ -234,6 +261,7 @@ const styles = themed((c, t) => ({
   dividerText: { color: c.textFaint, fontSize: 13 },
   foot: { textAlign: 'center', color: c.textSub, fontSize: 14, marginTop: 8 },
   consentRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 10, paddingVertical: 2 },
+  consentRowFlip: { flexDirection: 'row-reverse' },
   checkbox: { width: 22, height: 22, borderRadius: 6, borderWidth: 1, borderColor: c.border, alignItems: 'center', justifyContent: 'center', marginTop: 1 },
   checkboxOn: { backgroundColor: c.brand, borderColor: c.brand },
   consentText: { flex: 1, fontSize: 13, color: c.textSub, lineHeight: 18 },

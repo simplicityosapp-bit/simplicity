@@ -11,14 +11,24 @@
    before it is ever enforced: run in Report-Only, read what shows up here,
    and only then decide to enforce.
 
-   It used to log and nothing more, which turned out to be the same as having
-   nowhere to report to. Vercel's function logs are not retained for querying
-   on this plan — a two-hour window returned zero lines on 2026-09-09, even
-   for API calls made inside it — so every report ever produced was written
-   down and thrown away, including the ones the stale hashes were generating
-   on every single page load. Violations now go to the csp_violations table
-   (migration 0117) as well, which is a place that can still be read on
-   Thursday.
+   Two things had to be fixed before any of that was true, and both were
+   found on 2026-09-09 while trying to read what the policy had reported.
+
+   It never parsed a real report. Vercel fills req.body only for content types
+   it recognises, and a browser sends a CSP report as application/csp-report
+   or application/reports+json — neither of which it parses. req.body was
+   undefined, so the body was empty, so there was nothing to log. The same
+   payload posted as application/json went through and the two real ones did
+   not. See readStream below: the body is read off the request now.
+
+   And it logged where nothing is kept. Vercel's function logs are not
+   retained for querying on this plan — a two-hour window returned zero lines,
+   even for API calls made inside it. So violations now go to the
+   csp_violations table (migration 0117), which can still be read on Thursday.
+
+   Between them, every report this endpoint has ever been sent was discarded,
+   including the ones every page load was generating while the two pinned
+   script hashes matched nothing in production.
 
    Reached at /api/csp-report — Vercel matches the filesystem before the
    catch-all rewrite in vercel.json, which is the same way /api/page works.
@@ -82,10 +92,38 @@ async function store(req, violations) {
 /* Violations that are somebody's browser extension, not this app. */
 const NOISE = /^(chrome-extension|moz-extension|safari-extension|safari-web-extension|webkit-masked-url|about|blob|data):/i
 
-function parseBody(req) {
+/* Read the request stream ourselves. Vercel populates req.body only for
+   content types it recognises, and application/json is the one that matters
+   here — because the two types browsers ACTUALLY send a CSP report as are
+   application/csp-report (report-uri) and application/reports+json (the
+   Reporting API), and neither is parsed. req.body is undefined for both.
+
+   That is not a detail: it means this endpoint recorded nothing at all from
+   the day it was written. Not the table, which is new — the log line too.
+   Measured 2026-09-09 by posting one identical payload three times, changing
+   only the Content-Type: the application/json copy arrived, the two real
+   ones did not. */
+async function readStream(req) {
+  if (typeof req?.[Symbol.asyncIterator] !== 'function') return ''
+  try {
+    const chunks = []
+    let size = 0
+    for await (const chunk of req) {
+      size += chunk.length
+      if (size > MAX_BODY) return ''
+      chunks.push(chunk)
+    }
+    return Buffer.concat(chunks).toString('utf8')
+  } catch {
+    return ''
+  }
+}
+
+async function parseBody(req) {
   const raw = req.body
   if (raw && typeof raw === 'object' && !Buffer.isBuffer(raw)) return raw
-  const text = Buffer.isBuffer(raw) ? raw.toString('utf8') : typeof raw === 'string' ? raw : ''
+  let text = Buffer.isBuffer(raw) ? raw.toString('utf8') : typeof raw === 'string' ? raw : ''
+  if (!text) text = await readStream(req)
   if (!text || text.length > MAX_BODY) return null
   try { return JSON.parse(text) } catch { return null }
 }
@@ -120,7 +158,7 @@ export default async function handler(req, res) {
 
   try {
     const violations = []
-    for (const r of normalise(parseBody(req))) {
+    for (const r of normalise(await parseBody(req))) {
       const blocked = pick(r, 'blockedURL', 'blocked-uri')
       if (NOISE.test(blocked)) continue
       const directive = pick(r, 'effectiveDirective', 'effective-directive', 'violated-directive')

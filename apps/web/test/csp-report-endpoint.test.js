@@ -87,6 +87,49 @@ describe('CSP report endpoint', () => {
     expect(logged()).toHaveLength(0)
   })
 
+  /* A browser posts a CSP report as application/csp-report or
+     application/reports+json, and Vercel parses neither into req.body — so a
+     real report arrives with req.body undefined and the body still unread on
+     the request. Reading it is the difference between this endpoint working
+     and silently discarding everything, which is what it did until the stream
+     path existed. */
+  describe('a body Vercel did not parse', () => {
+    /* An IncomingMessage-shaped request: no .body, readable as a stream. */
+    const streamed = (text, headers = {}) => ({
+      method: 'POST',
+      headers,
+      async *[Symbol.asyncIterator]() { yield Buffer.from(text, 'utf8') },
+    })
+
+    it('reads the violation off the request stream', async () => {
+      const r = res()
+      await handler(streamed(JSON.stringify({
+        'csp-report': { 'effective-directive': 'script-src', 'blocked-uri': 'https://evil.test/x.js' },
+      })), r)
+      expect(r.statusCode).toBe(204)
+      expect(logged()).toHaveLength(1)
+      expect(logged()[0][1]).toContain('https://evil.test/x.js')
+    })
+
+    it('ignores an oversized stream instead of buffering it', async () => {
+      const r = res()
+      await handler(streamed('x'.repeat(64 * 1024)), r)
+      expect(r.statusCode).toBe(204)
+      expect(logged()).toHaveLength(0)
+    })
+
+    it('survives a stream that errors mid-read', async () => {
+      const r = res()
+      await handler({
+        method: 'POST', headers: {},
+        [Symbol.asyncIterator]() {
+          return { next: () => Promise.reject(new Error('connection reset')) }
+        },
+      }, r)
+      expect(r.statusCode).toBe(204)
+    })
+  })
+
   it('never throws, whatever it is sent', async () => {
     for (const body of [null, undefined, '', 'not json', '{"broken":', 42, [], {}]) {
       const r = res()

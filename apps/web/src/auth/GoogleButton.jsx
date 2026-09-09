@@ -1,8 +1,6 @@
 import { useState } from 'react'
 import { useLocation } from 'react-router-dom'
-import { supabase } from '../lib/supabase'
-import { translateAuthError } from './authErrors'
-import { stashReturnPath } from '../lib/authReturn'
+import { startGoogleOAuth } from './googleOAuth'
 
 function GoogleG() {
   return (
@@ -47,25 +45,12 @@ export default function GoogleButton({ onError, label, disabled = false, guard, 
     /* Before the return path is stashed and before consent is written down:
        a refused click must leave no trace of having been half-taken. */
     if (guard && !guard()) return
-    stashReturnPath(state?.from)
-    if (onBeforeAuth) onBeforeAuth()
     setBusy(true)
-    try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: { redirectTo: window.location.origin },
-      })
-      /* Success → a full-page redirect follows; keep `busy` latched so the
-         button can't fire a second signInWithOAuth (+ re-run onBeforeAuth)
-         during the slow window before the browser navigates away. */
-      if (error) {
-        setBusy(false)
-        if (onError) onError(translateAuthError(error.message))
-      }
-    } catch (e) {
-      setBusy(false)
-      if (onError) onError(translateAuthError(e?.message))
-    }
+    /* Success → a full-page redirect follows; keep `busy` latched so the
+       button can't fire a second signInWithOAuth (+ re-run onBeforeAuth)
+       during the slow window before the browser navigates away. */
+    const started = await startGoogleOAuth({ from: state?.from, onBeforeAuth, onError })
+    if (!started) setBusy(false)
   }
   return (
     <button type="button" className="auth-btn-google" onClick={click} disabled={disabled || busy}>

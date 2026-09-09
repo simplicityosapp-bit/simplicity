@@ -41,7 +41,8 @@
   position: absolute;
   z-index: 60;
   top: calc(100% + 6px);
-  inset-inline-start: 0;
+  /* horizontal side (left/right: 0) is set inline via usePopoverSide, which
+     also caps the width to the room beside the anchor — never spills off-edge. */
   width: 256px;
   padding: 12px;
   border-radius: var(--mg-card-radius);

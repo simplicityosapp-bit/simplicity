@@ -12,6 +12,7 @@ import MG from '../../components/MG'
 import { mgToReadable } from '../../lib/multiGender'
 import { trackLandingEvent } from '../../lib/api/landingEvents'
 import { useT } from '../../i18n/useT'
+import { usePopoverSide } from '../../hooks/usePopoverSide'
 import { dirFor, APP_LANGS, setLanguage } from '@simplicity/core/i18n'
 import { useUserPreferences } from '../../hooks/useUserPreferences'
 import './LandingScreen.css'
@@ -51,6 +52,7 @@ export default function LandingScreen() {
   const langRef = useRef(null)
   const [scrolled, setScrolled] = useState(false)
   const [langOpen, setLangOpen] = useState(false)
+  const langPop = usePopoverSide(langRef, langOpen)
   const [theme, setTheme] = useState(() =>
     (typeof document !== 'undefined' && document.documentElement.getAttribute('data-theme') === 'dark') ? 'dark' : 'light'
   )
@@ -253,7 +255,7 @@ export default function LandingScreen() {
                 <Txt className="lp-lang-code">{activeLang.toUpperCase()}</Txt>
               </Btn>
               {langOpen && (
-                <Box className="lp-lang-menu" role="menu">
+                <Box className="lp-lang-menu" role="menu" style={langPop.style}>
                   {APP_LANGS.map((l) => (
                     <Btn
                       key={l.code}

@@ -308,7 +308,8 @@ html:has(.lp-root)::-webkit-scrollbar { width: 0; height: 0; display: none; }
 .lp-lang-menu {
   position: absolute;
   top: calc(100% + 8px);
-  inset-inline-end: 0;
+  /* horizontal side (left/right: 0) is set inline via usePopoverSide, which
+     also caps the width to the room beside the anchor — never spills off-edge. */
   z-index: 60;
   display: flex;
   flex-direction: column;

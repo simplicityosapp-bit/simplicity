@@ -9,6 +9,7 @@ import { useUserPreferences } from '../hooks/useUserPreferences'
 import { useT } from '../i18n/useT'
 import './DateField.css'
 import { Box, Txt, Btn } from './ui'
+import { usePopoverSide } from '../hooks/usePopoverSide'
 
 /* Drop-in replacement for <input type="date">. The native picker displays
    in the BROWSER's UI language (e.g. MM/DD for English Chrome) and ignores
@@ -58,6 +59,11 @@ export default function DateField({ value, onChange, className = '', disabled = 
   const [placement, setPlacement] = useState('bottom')
   const [view, setView] = useState(() => selected || new Date())
   const ref = useRef(null)
+  /* The horizontal half of the same question `placement` answers vertically:
+     a 256px calendar pinned to the field's start edge runs off the screen
+     whenever the field sits within 256px of it, which on a phone is most of
+     them. */
+  const pop = usePopoverSide(ref, open)
 
   /* Jump the calendar to the selected month when opening (no effect — the
      sync happens in the toggle handler to avoid setState-in-render). */
@@ -136,7 +142,7 @@ export default function DateField({ value, onChange, className = '', disabled = 
         <Txt className={value ? 'datefield-val' : 'datefield-ph'}>{triggerText()}</Txt>
       </Btn>
       {open && !disabled && (
-        <Box className={`datefield-pop${placement === 'top' ? ' up' : ''}`} role="dialog" aria-label={t('dateField.dialogLabel')}>
+        <Box className={`datefield-pop${placement === 'top' ? ' up' : ''}`} role="dialog" aria-label={t('dateField.dialogLabel')} style={pop.style}>
           <Box className="datefield-nav">
             <Btn type="button" className="datefield-navbtn" onClick={() => shiftYear(-1)} aria-label={t('dateField.prevYear')}>
               <ChevronsRight size={16} strokeWidth={1.8} aria-hidden="true" />

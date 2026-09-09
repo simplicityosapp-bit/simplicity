@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { X, Pencil, Trash2, Check, Banknote, ChevronDown, RotateCcw, Phone, Mail, PackagePlus } from 'lucide-react'
+import { usePopoverSide } from '../../hooks/usePopoverSide'
 import { clientBalance, effectiveClientMeta, isGroupDriven, isStatusOverridden, planInstallments, planBalance, isr } from '@simplicity/core'
 import { usePaymentPlans } from '../../hooks/usePaymentPlans'
 import MG from '../../components/MG'
@@ -43,6 +44,8 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
   const [editTask, setEditTask] = useState(null)
   const [editReminder, setEditReminder] = useState(null)
   const [statusMenu, setStatusMenu] = useState(false)
+  const statusAnchorRef = useRef(null)
+  const statusPop = usePopoverSide(statusAnchorRef, statusMenu)
   const [paymentAmount, setPaymentAmount] = useState(null)
   const [paymentDesc, setPaymentDesc] = useState(null)
   /* Editing «שולם» or «יתרה» by hand no longer raises a bare yes/no prompt.
@@ -182,7 +185,7 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
                 <Box className="cd-h-id">
                   <Txt as="p" className="cd-h-name">{client.name}</Txt>
                   <Box className="cd-h-sub">
-                    <Txt className="cd-status-pick">
+                    <Txt className="cd-status-pick" ref={statusAnchorRef}>
                       <Btn
                         type="button"
                         className={`cd-h-status cd-status-${meta} is-btn`}
@@ -196,7 +199,7 @@ export default function ClientDrawer({ client, onClose, onDelete, projects = [],
                       {statusMenu && (
                         <>
                           <Btn type="button" className="cd-status-backdrop" aria-hidden="true" tabIndex={-1} onClick={() => setStatusMenu(false)} />
-                          <Box className="cd-status-menu" role="menu">
+                          <Box className="cd-status-menu" role="menu" style={statusPop.style}>
                             {Object.entries(STATUS_KEY).map(([k, labelKey]) => (
                               <Btn
                                 key={k}

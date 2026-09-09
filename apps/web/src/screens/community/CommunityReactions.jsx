@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { SmilePlus } from 'lucide-react'
 import { REACTION_EMOJIS } from '../../lib/api/communityMessages'
 import { Box, Txt, Btn } from '../../components/ui'
+import { usePopoverSide } from '../../hooks/usePopoverSide'
 
 /* The reaction strip under a bubble: existing reactions as toggle chips (emoji +
    count, highlighted when mine), plus an add-react trigger that opens the
@@ -11,6 +12,7 @@ export default function CommunityReactions({ reactions = [], myUserId, onToggle,
   const [pickerOpen, setPickerOpen] = useState(false)
   const [flipDown, setFlipDown] = useState(false)
   const wrapRef = useRef(null)
+  const pickerPop = usePopoverSide(wrapRef, pickerOpen)
 
   /* The palette opens UPWARD by default, but the feed is an overflow-clip
      container — near the top of the viewport the upward palette gets sliced off
@@ -77,7 +79,7 @@ export default function CommunityReactions({ reactions = [], myUserId, onToggle,
           <SmilePlus size={15} strokeWidth={1.7} aria-hidden="true" />
         </Btn>
         {pickerOpen && (
-          <Box className={`cmt-react-picker${flipDown ? ' down' : ''}`} role="menu" aria-label={addLabel}>
+          <Box className={`cmt-react-picker${flipDown ? ' down' : ''}`} role="menu" aria-label={addLabel} style={pickerPop.style}>
             {REACTION_EMOJIS.map((emoji) => (
               <Btn
                 key={emoji}

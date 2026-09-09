@@ -286,7 +286,7 @@ export default function TasksScreen() {
   const [selectedIds, setSelectedIds] = useState(() => new Set())
   const [bulkCatOpen, setBulkCatOpen] = useState(false)
   const bulkCatRef = useRef(null)
-  const bulkCatSide = usePopoverSide(bulkCatRef, bulkCatOpen)
+  const bulkCatPop = usePopoverSide(bulkCatRef, bulkCatOpen)
   const [confirmBulkDelete, setConfirmBulkDelete] = useState(false)
   const toggleSelect = (id) => setSelectedIds((prev) => {
     const next = new Set(prev)
@@ -306,7 +306,7 @@ export default function TasksScreen() {
      uses for the same job. */
   const [viewOpen, setViewOpen] = useState(false)
   const viewAnchorRef = useRef(null)
-  const viewSide = usePopoverSide(viewAnchorRef, viewOpen)
+  const viewPop = usePopoverSide(viewAnchorRef, viewOpen)
   const [collapsed, setCollapsed] = useState(() => new Set()) /* collapsed group keys */
   const toggleGroup = (key) => setCollapsed((prev) => {
     const next = new Set(prev)
@@ -868,7 +868,7 @@ export default function TasksScreen() {
             {viewEcho && <Txt className="mg-menu-active">· {viewEcho}</Txt>}
           </Btn>
           {viewOpen && (
-            <Box className="mg-menu-pop mg-menu-pop-wide" role="menu" style={{ [viewSide]: 0 }}>
+            <Box className="mg-menu-pop mg-menu-pop-wide" role="menu" style={viewPop.style}>
               {/* Reminders are still grouped by date and that isn't a choice —
                   they have no priority, project or category to group on. The
                   mixed list does have one thing to ask beyond the date, though:
@@ -1253,7 +1253,7 @@ export default function TasksScreen() {
                   aria-haspopup="menu"
                 >{t('bulk.category')}</Btn>
                 {bulkCatOpen && (
-                  <Box className="mg-menu-pop t-bulk-pop" role="menu" style={{ [bulkCatSide]: 0 }}>
+                  <Box className="mg-menu-pop t-bulk-pop" role="menu" style={bulkCatPop.style}>
                     <Txt as="p" className="mg-menu-h">{t('taxonomy.heading')}</Txt>
                     {taskCategories.map((c) => (
                       <Btn key={c.id} type="button" className="mg-menu-opt" onClick={() => bulkSetCategory(c.id)}>

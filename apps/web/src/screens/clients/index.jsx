@@ -206,12 +206,12 @@ export default function ClientsScreen() {
      controls that used to sit as a permanent row above the tabs. */
   const [viewOpen, setViewOpen] = useState(false)
   const viewAnchorRef = useRef(null)
-  const viewSide = usePopoverSide(viewAnchorRef, viewOpen)
+  const viewPop = usePopoverSide(viewAnchorRef, viewOpen)
   const [selectMode, setSelectMode] = useState(false)
   const [selectedIds, setSelectedIds] = useState(() => new Set())
   const [bulkMetaOpen, setBulkMetaOpen] = useState(false)
   const bulkMetaAnchorRef = useRef(null)
-  const bulkMetaSide = usePopoverSide(bulkMetaAnchorRef, bulkMetaOpen)
+  const bulkMetaPop = usePopoverSide(bulkMetaAnchorRef, bulkMetaOpen)
   const openClient = openId ? clientList.find((c) => c.id === openId) : null
 
   const sort = useMemo(() => ({ ...DEFAULT_SORT, ...(prefs?.clientsSort || {}) }), [prefs?.clientsSort])
@@ -456,7 +456,7 @@ export default function ClientsScreen() {
               )}
             </Btn>
             {viewOpen && (
-              <Box className="c-sort-pop" role="menu" style={{ [viewSide]: 0 }}>
+              <Box className="c-sort-pop" role="menu" style={viewPop.style}>
                 {/* Grouping leads, and wears the shared segmented control
                     rather than more rows: in a list of single-pick rows it
                     would look identical to the sort below, and it is a
@@ -664,7 +664,7 @@ export default function ClientsScreen() {
                 disabled={selectedIds.size === 0}
               >{t('bulk.changeStatus')} <ChevronLeft size={14} strokeWidth={1.5} aria-hidden="true" /></Btn>
               {bulkMetaOpen && (
-                <Box className="c-sort-pop c-bulk-pop" role="menu" style={{ [bulkMetaSide]: 0 }}>
+                <Box className="c-sort-pop c-bulk-pop" role="menu" style={bulkMetaPop.style}>
                   <Txt as="p" className="c-sort-h">{t('bulk.moveTo')}</Txt>
                   {BULK_META_OPTIONS.map((o) => (
                     <Btn

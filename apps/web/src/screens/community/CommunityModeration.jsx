@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Flag } from 'lucide-react'
 import { useCommunityReports } from '../../hooks/useCommunityReports'
 import { useT } from '../../i18n/useT'
+import { usePopoverSide } from '../../hooks/usePopoverSide'
 import { Box, Txt, Btn } from '../../components/ui'
 
 /* Admin-only reports queue: a flag + count in the header, opening a panel of
@@ -12,6 +13,7 @@ export default function CommunityModeration({ enabled, onRemoveMessage }) {
   const { reports, dismiss } = useCommunityReports({ enabled })
   const [open, setOpen] = useState(false)
   const wrapRef = useRef(null)
+  const panelPop = usePopoverSide(wrapRef, open)
 
   useEffect(() => {
     if (!open) return undefined
@@ -49,7 +51,7 @@ export default function CommunityModeration({ enabled, onRemoveMessage }) {
       </Btn>
 
       {open && (
-        <Box className="cmt-notif-panel cmt-mod-panel" aria-label={t('chat.mod.queueTitle')}>
+        <Box className="cmt-notif-panel cmt-mod-panel" aria-label={t('chat.mod.queueTitle')} style={panelPop.style}>
           <Txt as="p" className="cmt-notif-panel-title">{t('chat.mod.queueTitle')}</Txt>
           {groups.length === 0 ? (
             <Txt as="p" className="cmt-notif-empty">{t('chat.mod.queueEmpty')}</Txt>

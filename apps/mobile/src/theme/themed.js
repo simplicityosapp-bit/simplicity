@@ -1,5 +1,6 @@
+import { useEffect, useState } from 'react'
 import { StyleSheet } from 'react-native'
-import { colors, type, getThemeMode } from './theme'
+import { colors, type, getThemeMode, subscribeTheme } from './theme'
 
 /* themed() — a stylesheet that follows the active palette.
    ────────────────────────────────────────────────────────────────
@@ -55,4 +56,68 @@ export function themed(build) {
       return { enumerable: true, configurable: true }
     },
   })
+}
+
+/* themedMap() — the same trick for a plain lookup table.
+   ────────────────────────────────────────────────────────────────
+   themed() covers stylesheets, but a colour read is frozen wherever it
+   stands, and screens here keep small maps beside their sheet:
+
+     const PRIORITY_COLOR = { high: colors.danger, low: colors.positive }
+
+   That object is built once, at import, and hands out boot-time colours
+   for the rest of the session — so after a theme switch the dot keeps
+   the old palette while everything around it repaints. `fill` and
+   `textFaint` are the two that really bite, because they INVERT between
+   modes (see theme.js): a light fill frozen onto a dark card is a chip
+   nobody can see any more.
+
+     const PRIORITY_COLOR = themedMap((c) => ({ high: c.danger, low: c.positive }))
+
+   Reads stay exactly as they were — PRIORITY_COLOR[p] — since the proxy
+   resolves on access. Build an array and an array comes back, so .map
+   and spread keep working too.
+
+   Deliberately not StyleSheet.create: these hold bare colour strings and
+   bucket descriptors, not style objects. */
+export function themedMap(build) {
+  /* The first build doubles as the proxy target, so the resolved shape
+     and the target always agree — which is what keeps Array.isArray and
+     the ownKeys/descriptor invariants honest for array maps. */
+  const mode0 = getThemeMode()
+  const cache = { [mode0]: build(colors, type) }
+  const resolve = () => {
+    const mode = getThemeMode()
+    if (!cache[mode]) cache[mode] = build(colors, type)
+    return cache[mode]
+  }
+  return new Proxy(cache[mode0], {
+    get(_target, key) { return resolve()[key] },
+    ownKeys() { return Reflect.ownKeys(resolve()) },
+    getOwnPropertyDescriptor(_target, key) { return Reflect.getOwnPropertyDescriptor(resolve(), key) },
+  })
+}
+
+/* useThemeMode() — for colours that get captured rather than read.
+   ────────────────────────────────────────────────────────────────
+   themed() and themedMap() both resolve on ACCESS, which is enough for
+   anything read during render. A useMemo is the case they cannot cover:
+   it reads the colour live, correctly, and then caches the result. Its
+   dependency array says when to look again, and "the palette changed" is
+   not usually on that list — so a memoised colour outlives the switch
+   that should have replaced it, until some unrelated dependency happens
+   to move.
+
+   Name the mode and list it, and the memo recomputes with everything
+   else that depends on the palette:
+
+     const themeMode = useThemeMode()
+     const groups = useMemo(() => …, [tasks, themeMode])
+
+   Only needed when a colour crosses a memo boundary. Plain render-time
+   reads and themed()/themedMap() lookups already follow the palette. */
+export function useThemeMode() {
+  const [mode, setMode] = useState(getThemeMode)
+  useEffect(() => subscribeTheme(setMode), [])
+  return mode
 }

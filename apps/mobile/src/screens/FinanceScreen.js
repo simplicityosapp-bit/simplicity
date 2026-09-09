@@ -14,7 +14,7 @@ import FinanceCategoriesModal from '../modals/FinanceCategoriesModal'
 import RecurringModal from '../modals/RecurringModal'
 import FinanceChart from './finance/FinanceChart'
 import { colors } from '../theme/theme'
-import { themed } from '../theme/themed'
+import { themed, useThemeMode } from '../theme/themed'
 import { useFinanceData } from '../hooks/useFinanceData'
 import { confirmRemoveTransaction } from '../lib/recurringTx'
 import { useRecurring } from '../hooks/useRecurring'
@@ -99,6 +99,8 @@ export default function FinanceScreen() {
     () => transactions.filter((t) => !t.deleted_at && sameMonth(t.date, monthDate)),
     [transactions, monthDate],
   )
+  // The income/expense breakdown memos below bake a colour into each row.
+  const themeMode = useThemeMode()
   const pending = useMemo(() => monthTxs.filter((t) => t.status === 'pending').sort((a, b) => new Date(a.date) - new Date(b.date)), [monthTxs])
   const skippedCount = useMemo(() => monthTxs.filter((t) => t.status === 'skipped').length, [monthTxs])
   // Pending rows live in their own approval section (`pending` above) — exclude
@@ -122,7 +124,9 @@ export default function FinanceScreen() {
       const p = pid ? projectById[pid] : null
       return { id: pid || 'none', name: p?.name || i18n.t('finance:incomeByProject.noProject', { defaultValue: 'ללא פרויקט' }), color: p?.color || colors.textSub, sum, pct: max > 0 ? Math.round((sum / max) * 100) : 0 }
     }).sort((a, b) => b.sum - a.sum)
-  }, [monthTxs, projectOf, projectById])
+    /* themeMode: rows carry a colour, so the memo has to be rebuilt when
+       the palette changes — the fallback textSub differs between modes. */
+  }, [monthTxs, projectOf, projectById, themeMode])
   // Expenses by category (confirmed expenses).
   const expenseRows = useMemo(() => {
     const totals = new Map()
@@ -135,7 +139,7 @@ export default function FinanceScreen() {
       const c = cid ? categories.find((x) => x.id === cid) : null
       return { id: cid || 'none', name: c?.name || i18n.t('finance:expensesByCategory.noCategory', { defaultValue: 'ללא קטגוריה' }), color: c?.color || colors.textSub, sum, pct: max > 0 ? Math.round((sum / max) * 100) : 0 }
     }).sort((a, b) => b.sum - a.sum)
-  }, [monthTxs, categories])
+  }, [monthTxs, categories, themeMode]) // themeMode: as above
 
   const txMeta = (t) => [clientById[t.client_id] || t.recipient_name, t.type === 'expense' ? categoryById[t.category_id] : null, payMethodLabel(t.payment_method)].filter(Boolean).join(' · ')
 

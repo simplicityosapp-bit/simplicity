@@ -10,7 +10,7 @@ import { useAuth } from '../lib/auth'
 import { usePreferences, roleLabel } from '../lib/preferences'
 import i18n from '../lib/i18n'
 import { colors, space, setThemeMode, getThemeMode } from '../theme/theme'
-import { themed } from '../theme/themed'
+import { themed, themedMap } from '../theme/themed'
 
 // The "עוד" drawer — a right-anchored frosted-glass sheet mirroring web's
 // MenuDrawer: a profile chip, a 3-col glass GRID of the primary screens, then
@@ -47,10 +47,10 @@ const TOOLS = [
   { key: 'trash', screen: 'Trash', Icon: Trash2, tint: 'amber', title: 'nav:extras.trash', sub: 'nav:items.trashSub', fb: 'סל מיחזור' },
 ]
 
-const TINT = {
-  moon: { bg: 'rgba(90,106,140,0.16)', border: 'rgba(90,106,140,0.32)', color: colors.moonDeep },
-  amber: { bg: 'rgba(212,165,116,0.16)', border: 'rgba(212,165,116,0.32)', color: colors.amberWarn },
-}
+const TINT = themedMap((c) => ({
+  moon: { bg: 'rgba(90,106,140,0.16)', border: 'rgba(90,106,140,0.32)', color: c.moonDeep },
+  amber: { bg: 'rgba(212,165,116,0.16)', border: 'rgba(212,165,116,0.32)', color: c.amberWarn },
+}))
 
 function LinkRow({ Icon, logo, tint, title, sub, danger, onPress }) {
   const t = tint ? TINT[tint] : null
@@ -68,7 +68,9 @@ function LinkRow({ Icon, logo, tint, title, sub, danger, onPress }) {
 }
 
 // Light/dark toggle (mirrors web's drawer theme switch) — persists the choice
-// and reloads so the new palette applies (RN freezes StyleSheet colors).
+// and swaps the palette in place. It used to restart the app afterwards,
+// because StyleSheet.create froze its colours at module load; themed() and
+// themedMap() resolve on access instead, so the switch is just a repaint.
 function ThemeToggle({ dark, onToggle }) {
   return (
     <Pressable style={styles.link} onPress={onToggle}>

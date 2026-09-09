@@ -211,11 +211,10 @@ function ConsentRow({ checked, onToggle, label, onLink }) {
   )
 }
 
-const BRAND = colors.brand
 const styles = themed((c, t) => ({
   scroll: { flexGrow: 1, justifyContent: 'center', paddingHorizontal: 20 },
   wrap: { gap: 14 },
-  brand: { fontSize: 15, letterSpacing: 1, color: BRAND, textAlign: 'center', fontWeight: '600' },
+  brand: { fontSize: 15, letterSpacing: 1, color: c.brand, textAlign: 'center', fontWeight: '600' },
   title: { fontSize: 26, fontWeight: '600', color: c.text, textAlign: 'center', marginBottom: 8 },
   input: {
     borderWidth: 1, borderColor: c.border, borderRadius: 12, paddingHorizontal: 16,
@@ -223,11 +222,11 @@ const styles = themed((c, t) => ({
   },
   pwRow: { position: 'relative', justifyContent: 'center' },
   pwInput: { paddingEnd: 84 },
-  pwToggle: { position: 'absolute', end: 14, top: -10, color: BRAND, fontSize: 13 },
+  pwToggle: { position: 'absolute', end: 14, top: -10, color: c.brand, fontSize: 13 },
   forgotWrap: { alignItems: 'flex-end', marginTop: -6 },
-  link: { color: BRAND, fontSize: 14, fontWeight: '600' },
+  link: { color: c.brand, fontSize: 14, fontWeight: '600' },
   error: { color: c.danger, fontSize: 14, textAlign: 'center' },
-  btn: { backgroundColor: BRAND, borderRadius: 12, paddingVertical: 15, alignItems: 'center', marginTop: 4 },
+  btn: { backgroundColor: c.brand, borderRadius: 12, paddingVertical: 15, alignItems: 'center', marginTop: 4 },
   btnBusy: { opacity: 0.7 },
   btnText: { color: c.onBrand, fontSize: 16, fontWeight: '600' },
   divider: { flexDirection: 'row', alignItems: 'center', gap: 12, marginVertical: 2 },
@@ -236,6 +235,6 @@ const styles = themed((c, t) => ({
   foot: { textAlign: 'center', color: c.textSub, fontSize: 14, marginTop: 8 },
   consentRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 10, paddingVertical: 2 },
   checkbox: { width: 22, height: 22, borderRadius: 6, borderWidth: 1, borderColor: c.border, alignItems: 'center', justifyContent: 'center', marginTop: 1 },
-  checkboxOn: { backgroundColor: BRAND, borderColor: BRAND },
+  checkboxOn: { backgroundColor: c.brand, borderColor: c.brand },
   consentText: { flex: 1, fontSize: 13, color: c.textSub, lineHeight: 18 },
 }))

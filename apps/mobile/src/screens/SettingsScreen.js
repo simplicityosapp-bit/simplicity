@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { View, Text, TextInput, Pressable, StyleSheet, ScrollView, Share, Alert, Platform, Linking } from 'react-native'
 import Constants from 'expo-constants'
 import { useNavigation } from '@react-navigation/native'
-import { User, Palette, Database, LogOut, ChevronDown, ChevronUp, Sparkles, Download, X, Plus, Check, Wallet, Info, LayoutGrid, Trash2, Eye, Users, Leaf, Briefcase, Settings2, CalendarClock, Plug } from 'lucide-react-native'
+import { User, Palette, Database, LogOut, ChevronDown, ChevronUp, Sparkles, Download, X, Plus, Check, Wallet, Info, LayoutGrid, Trash2, Eye, Users, Leaf, Briefcase, Settings2, CalendarClock, Plug, BookOpen } from 'lucide-react-native'
 import { LANGUAGE_OPTIONS } from '@simplicity/core/i18n'
 import { fmtShortDate, payMethodLabel, formatDateAs, formatTimeAs, SETTINGS_TREE, soleSectionKeyOf } from '@simplicity/core'
 import i18n, { setGenderContext } from '../lib/i18n'
@@ -58,19 +58,24 @@ const GROUP_ICON = { personal: User, appearance: Eye, work: Briefcase, account: 
 // Rows that leave settings. The tree names them; each app resolves the name
 // to its own destination, since a react-router path means nothing here.
 // A key with no entry is simply not drawn — this build has no subscription
-// or help screen, so those rows don't appear.
+// screen, so that row does not appear.
+// `help` is mapped but the shared tree does not currently list it as a link
+// (web reaches the manual from its menu drawer, and so does this app). The
+// entry costs nothing and means the row resolves the day the tree does list
+// it, rather than silently going nowhere.
 // Settings is a STACK screen, so a bare name only resolves to another stack
 // screen. Clients is a TAB inside "Main" — navigating to it by name from here
 // is not handled by any navigator and silently does nothing, which is how
-// BottomBar and TileDrillModal already reach it. Leads / Connections / Trash
-// are stack screens and take the plain form.
+// BottomBar and TileDrillModal already reach it. Leads / Connections / Help /
+// Trash are stack screens and take the plain form.
 const LINK_TARGET = {
   clients: ['Main', { screen: 'Clients' }],
   leads: ['Leads'],
   connections: ['Connections'],
+  help: ['Help'],
   trash: ['Trash'],
 }
-const LINK_ICON = { clients: Users, leads: Leaf, connections: Plug, trash: Trash2 }
+const LINK_ICON = { clients: Users, leads: Leaf, connections: Plug, help: BookOpen, trash: Trash2 }
 
 // On/off switch (mirrors web Switch). RN has no built-in, so it's a pill track + knob.
 function Switch({ checked, onChange }) {
@@ -461,7 +466,7 @@ export default function SettingsScreen() {
              one-section "נתונים" and "אודות" groups earned. */
           const sole = soleSectionKeyOf(g)
           /* Links this build can actually resolve. There is no subscription
-             or help screen here, so those rows simply aren't drawn. */
+             screen here, so that row simply isn't drawn. */
           const links = (g.links || []).filter((k) => LINK_TARGET[k])
           return (
             <Group

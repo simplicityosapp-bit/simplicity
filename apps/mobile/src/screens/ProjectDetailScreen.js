@@ -13,11 +13,11 @@ import AddGroupModal from '../modals/AddGroupModal'
 import AddGroupMemberModal from '../modals/AddGroupMemberModal'
 import AddSessionModal from '../modals/AddSessionModal'
 import { colors } from '../theme/theme'
-import { themed } from '../theme/themed'
+import { themed, themedMap } from '../theme/themed'
 import { useProjectDetailData } from '../hooks/useProjectDetailData'
 
 const D = (k, o) => i18n.t(`projects:detail.${k}`, o)
-const STATUS_DOT = { active: colors.positive, wandering: colors.amberWarn, past: '#b3a99c', no_status: '#cbb9a8' }
+const STATUS_DOT = themedMap((c) => ({ active: c.positive, wandering: c.amberWarn, past: '#b3a99c', no_status: '#cbb9a8' }))
 const GSTATUS_KEYS = ['active', 'in_development', 'ended']
 
 // Project detail (scoped v1 of web's project-detail): header + stats + clients

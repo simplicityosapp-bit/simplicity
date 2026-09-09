@@ -56,6 +56,36 @@ react-native-web silently drops.
   screen's graph has to be added there, or the suite fails before asserting and
   the failure reads like a broken component.
 
+## Colours: read them, never keep them
+
+The palette is one object that gets MUTATED when the theme changes, so a
+colour is only correct if it is read at the moment it is used. Anything that
+copies a value out and holds it keeps the palette that was live when it ran,
+and nothing throws — the screen simply repaints around one stubborn element
+that stayed the old colour. `fill`, `textFaint`, `textSub` and `brand` invert
+between modes, so a stale one is often invisible rather than merely wrong.
+
+Three places a copy hides, and what to write instead:
+
+| Where | Instead of | Write |
+|---|---|---|
+| A stylesheet | `StyleSheet.create({ … colors.text })` | `themed((c, t) => ({ … c.text }))` |
+| A module-level map or list | `const DOT = { high: colors.danger }` | `themedMap((c) => ({ high: c.danger }))` |
+| Inside a `useMemo` | any `colors.x`, or a themed lookup | keep it, and add `themeMode` from `useThemeMode()` to the deps |
+
+The memo one is the sneakiest: it reads the colour live and correctly, then
+caches the result behind a dependency list that has nothing to do with the
+theme, so the value outlives the switch that should have replaced it.
+
+Reads during render — `style={{ color: colors.text }}`, or a `themed()` /
+`themedMap()` lookup — need nothing. They already resolve on access. Default
+parameters (`onColor = colors.brand`) are fine too; they evaluate per call.
+
+Two throwaway scanners found every instance of the first two classes: grep for
+`colors.` at module scope outside a `themed(` block, and for `colors.` inside a
+`useMemo` whose deps omit the theme. Worth re-running after a batch of new
+screens.
+
 ## Assets
 
 `test/setup.js` (vitest) teaches node's CommonJS loader what a `.webp` or

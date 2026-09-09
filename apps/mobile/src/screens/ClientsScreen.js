@@ -14,7 +14,7 @@ import AddClientModal from '../modals/AddClientModal'
 import ClientDrawer from '../drawers/ClientDrawer'
 import { useFormOptions } from '../lib/formOptions'
 import { colors, shadow } from '../theme/theme'
-import { themed } from '../theme/themed'
+import { themed, themedMap } from '../theme/themed'
 import { useClientsList } from '../hooks/useClientsList'
 import { usePreferences } from '../hooks/usePreferences'
 import { useConfigTaxonomy } from '../hooks/useConfigTaxonomy'
@@ -26,12 +26,12 @@ const TABS = [
   { key: 'no_status', icon: CircleDashed },
 ]
 const SORT_OPTIONS = ['name', 'balance', 'paid', 'sessions', 'created', 'oldest']
-const STATUS_PILL = {
+const STATUS_PILL = themedMap((c) => ({
   active: 'rgba(139,168,136,0.14)',
   wandering: 'rgba(212,165,116,0.16)',
-  past: colors.fill,
-  no_status: colors.fill,
-}
+  past: c.fill,
+  no_status: c.fill,
+}))
 const statusKey = (m) => (m === 'no_status' ? 'noStatus' : m)
 const initials = (name) => (name || '').split(' ').map((w) => w[0] || '').join('').slice(0, 2).toUpperCase()
 

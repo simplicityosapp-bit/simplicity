@@ -159,13 +159,18 @@ describe('the guide and the app agree', () => {
    ORDER now, with anything missing from it appended rather than dropped, and
    these tests pin both halves.
 
-   Source-read rather than imported: helpContent.js pulls in i18n and four
-   locale bundles, which would drag half the app into a plain-node test. Same
-   reason coachmark-copy.test.js reads its registry out of the file.
+   Source-read rather than imported: the module pulls in i18n and four locale
+   bundles, which would drag half the app into a plain-node test. Same reason
+   coachmark-copy.test.js reads its registry out of the file.
+
+   The lists now live in @simplicity/core/domain/help — apps/mobile shows the
+   same manual, and a reading order that disagreed between the two apps would
+   not fail anywhere, it would just quietly be a different manual. This test
+   follows them there, which is what its own "did it move?" was for.
    ════════════════════════════════════════════════════════════════ */
 describe('the guide screen', () => {
   const listFromSource = (name) => {
-    const src = readFileSync(new URL('../src/lib/helpContent.js', import.meta.url), 'utf8')
+    const src = readFileSync(new URL('../../../packages/core/src/domain/help.ts', import.meta.url), 'utf8')
     const m = src.match(new RegExp(`const ${name} = (?:new Set\\()?\\[([^\\]]+)\\]`))
     if (!m) throw new Error(`${name} not found — did it move?`)
     return m[1].split(',').map((x) => x.trim().replace(/^['"]|['"]$/g, '')).filter(Boolean)

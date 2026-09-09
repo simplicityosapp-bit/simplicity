@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react'
 import { View, Text, Image, Pressable, ScrollView, StyleSheet, Animated } from 'react-native'
 import { BlurView } from './SafeBlur'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { Home, Users, Heart, Wallet, ClipboardList, Target, CalendarDays, Settings, FolderOpen, Activity, BarChart3, Trash2, LayoutTemplate, Plug, Sun, Moon, X, LogOut, Pencil } from 'lucide-react-native'
+import { Home, Users, Heart, Wallet, ClipboardList, Target, CalendarDays, Settings, FolderOpen, Activity, BarChart3, Trash2, LayoutTemplate, Plug, Sun, Moon, X, LogOut, Pencil, BookOpen } from 'lucide-react-native'
 
 const LOGO = require('../../assets/logo.png')
 import { supabase } from '../lib/supabase'
@@ -10,7 +10,7 @@ import { useAuth } from '../lib/auth'
 import { usePreferences, roleLabel } from '../lib/preferences'
 import i18n from '../lib/i18n'
 import { colors, space, setThemeMode, getThemeMode } from '../theme/theme'
-import { themed } from '../theme/themed'
+import { themed, themedMap } from '../theme/themed'
 
 // The "עוד" drawer — a right-anchored frosted-glass sheet mirroring web's
 // MenuDrawer: a profile chip, a 3-col glass GRID of the primary screens, then
@@ -39,13 +39,18 @@ const PERSONAL = [
   { key: 'reports', screen: 'Reports', Icon: BarChart3, title: 'nav:extras.reports', sub: 'nav:items.reportsSub', fb: 'דוחות' },
 ]
 const TOOLS = [
+  /* The manual. Web reaches it from its own menu drawer rather than from
+     Settings, where it used to sit four disclosures deep — and the labels
+     were already translated under nav:extras.help, waiting for a screen to
+     point at. */
+  { key: 'help', screen: 'Help', Icon: BookOpen, title: 'nav:extras.help', sub: 'nav:items.helpSub', fb: 'עזרה ומדריך' },
   { key: 'trash', screen: 'Trash', Icon: Trash2, tint: 'amber', title: 'nav:extras.trash', sub: 'nav:items.trashSub', fb: 'סל מיחזור' },
 ]
 
-const TINT = {
-  moon: { bg: 'rgba(90,106,140,0.16)', border: 'rgba(90,106,140,0.32)', color: colors.moonDeep },
-  amber: { bg: 'rgba(212,165,116,0.16)', border: 'rgba(212,165,116,0.32)', color: colors.amberWarn },
-}
+const TINT = themedMap((c) => ({
+  moon: { bg: 'rgba(90,106,140,0.16)', border: 'rgba(90,106,140,0.32)', color: c.moonDeep },
+  amber: { bg: 'rgba(212,165,116,0.16)', border: 'rgba(212,165,116,0.32)', color: c.amberWarn },
+}))
 
 function LinkRow({ Icon, logo, tint, title, sub, danger, onPress }) {
   const t = tint ? TINT[tint] : null
@@ -63,7 +68,9 @@ function LinkRow({ Icon, logo, tint, title, sub, danger, onPress }) {
 }
 
 // Light/dark toggle (mirrors web's drawer theme switch) — persists the choice
-// and reloads so the new palette applies (RN freezes StyleSheet colors).
+// and swaps the palette in place. It used to restart the app afterwards,
+// because StyleSheet.create froze its colours at module load; themed() and
+// themedMap() resolve on access instead, so the switch is just a repaint.
 function ThemeToggle({ dark, onToggle }) {
   return (
     <Pressable style={styles.link} onPress={onToggle}>

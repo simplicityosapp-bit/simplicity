@@ -17,7 +17,7 @@ import LeadCard from './leads/LeadCard'
 import AddLeadModal from '../modals/AddLeadModal'
 import ConvertLeadModal from '../modals/ConvertLeadModal'
 import { colors } from '../theme/theme'
-import { themed } from '../theme/themed'
+import { themed, themedMap } from '../theme/themed'
 import { useFormOptions } from '../lib/formOptions'
 import { usePreferences } from '../lib/preferences'
 import { useLeadsList } from '../hooks/useLeadsList'
@@ -26,7 +26,7 @@ const DEFAULT_FILTER = { period: 'all', project: '', group: '', status: '', sour
 
 // Fallback column-dot colors when a meta has no default sub-status (metaColor
 // then returns a CSS var, which RN can't use).
-const META_COLOR = { in_process: '#D9A566', converted: colors.positive, not_relevant: '#b3a99c' }
+const META_COLOR = themedMap((c) => ({ in_process: '#D9A566', converted: c.positive, not_relevant: '#b3a99c' }))
 const COL_W = Math.min(300, Math.round(Dimensions.get('window').width * 0.82))
 const todayYmd = () => {
   const d = new Date()

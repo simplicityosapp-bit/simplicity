@@ -25,7 +25,7 @@ vi.mock('@react-native-async-storage/async-storage', () => ({
 const {
   setThemeMode, applyThemeColors, subscribeTheme, getThemeMode, colors, type, THEME_KEY,
 } = await import('../src/theme/theme')
-const { themed } = await import('../src/theme/themed')
+const { themed, themedMap } = await import('../src/theme/themed')
 
 beforeEach(() => {
   setItem.mockClear()
@@ -141,5 +141,74 @@ describe('a themed stylesheet', () => {
 
   it('is enumerable, so Object.keys and spreading still see it', () => {
     expect(Object.keys(styles).sort()).toEqual(['card', 'label'])
+  })
+})
+
+/* Stylesheets were only half of it. Screens also keep small colour maps
+   beside their sheet — status pills, priority dots, reminder buckets —
+   and those were plain objects built once at import, handing out
+   boot-time colours forever. The sheet around them repainted on a
+   switch and the dot did not. `fill` is the one that actually hides
+   things: it inverts between modes, so a light fill left on a dark card
+   is a chip you can no longer see. */
+describe('a themed colour map', () => {
+  const PILL = themedMap((c) => ({
+    active: 'rgba(139,168,136,0.14)', // fixed by design, not from the palette
+    past: c.fill,
+  }))
+
+  it('resolves against whichever palette is live at the moment it is read', async () => {
+    await setThemeMode('light')
+    const light = PILL.past
+
+    await setThemeMode('dark')
+    expect(PILL.past).not.toBe(light)
+
+    /* Toggling BACK has to return the original value. A cache keyed on
+       first-read rather than on mode would pass the first switch and
+       fail here — which is exactly how this would reach a device. */
+    await setThemeMode('light')
+    expect(PILL.past).toBe(light)
+  })
+
+  it('leaves values that were never palette colours alone', async () => {
+    await setThemeMode('dark')
+    expect(PILL.active).toBe('rgba(139,168,136,0.14)')
+  })
+
+  it('is enumerable, so Object.keys and spreading still see it', () => {
+    expect(Object.keys(PILL).sort()).toEqual(['active', 'past'])
+  })
+
+  /* Reminder buckets are an ordered list, not a lookup — the screen maps
+     over them to build its groups. Proxying an array target keeps
+     Array.isArray, .map and spread working, so the call sites did not
+     have to change when they became themed. */
+  describe('built as an array', () => {
+    const BUCKETS = themedMap((c) => ([
+      { key: 'overdue', color: c.danger },
+      { key: 'later', color: c.textFaint },
+    ]))
+
+    it('is still an array', () => {
+      expect(Array.isArray(BUCKETS)).toBe(true)
+      expect(BUCKETS.length).toBe(2)
+      /* A proxy may not report an array's own `length` as configurable
+         when its target's is not — get that wrong and this throws a
+         TypeError rather than quietly returning the wrong value. */
+      expect(Object.keys(BUCKETS)).toEqual(['0', '1'])
+    })
+
+    it('maps and spreads like one', () => {
+      expect(BUCKETS.map((b) => b.key)).toEqual(['overdue', 'later'])
+      expect([...BUCKETS].map((b) => b.key)).toEqual(['overdue', 'later'])
+    })
+
+    it('follows the palette through .map', async () => {
+      await setThemeMode('light')
+      const light = BUCKETS.map((b) => b.color)
+      await setThemeMode('dark')
+      expect(BUCKETS.map((b) => b.color)).not.toEqual(light)
+    })
   })
 })

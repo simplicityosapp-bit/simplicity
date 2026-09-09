@@ -13,24 +13,25 @@ import AddTaskModal from '../modals/AddTaskModal'
 import AddReminderModal from '../modals/AddReminderModal'
 import TaskTaxonomyModal from '../modals/TaskTaxonomyModal'
 import { colors } from '../theme/theme'
-import { themed } from '../theme/themed'
+import { themed, themedMap, useThemeMode } from '../theme/themed'
 import { useFormOptions } from '../lib/formOptions'
 import { useTasksList } from '../hooks/useTasksList'
 import { useRemindersList } from '../hooks/useRemindersList'
 import { useTaskTaxonomy } from '../hooks/useTaskTaxonomy'
 
-const PRIORITY_COLOR = { high: colors.danger, medium: colors.amberWarn, low: colors.positive }
+const PRIORITY_COLOR = themedMap((c) => ({ high: c.danger, medium: c.amberWarn, low: c.positive }))
 const PRIORITY_GROUPS = ['high', 'medium', 'low']
 const TASK_FILTERS = ['todo', 'done', 'all']
 const REM_FILTERS = ['todo', 'recurring', 'done']
 const GROUP_BY = ['priority', 'project', 'category']
-const FALLBACK = colors.textFaint
-const REM_BUCKETS = [
-  { key: 'overdue', color: colors.danger },
-  { key: 'today', color: colors.amberWarn },
-  { key: 'week', color: colors.positive },
-  { key: 'later', color: colors.textFaint },
-]
+// The dot colour for a project/category that has none of its own.
+const fallbackColor = () => colors.textFaint
+const REM_BUCKETS = themedMap((c) => ([
+  { key: 'overdue', color: c.danger },
+  { key: 'today', color: c.amberWarn },
+  { key: 'week', color: c.positive },
+  { key: 'later', color: c.textFaint },
+]))
 
 function dateToBucket(due, now) {
   if (Number.isNaN(+due)) return null
@@ -72,6 +73,8 @@ export default function TasksScreen() {
 
   const isTasks = view === 'tasks'
   const switchView = (v) => { setView(v); setFilter('todo') }
+  // Both group memos below put palette colours in their result — see their deps.
+  const themeMode = useThemeMode()
   const clientById = useMemo(() => Object.fromEntries(clients.map((c) => [c.id, c.name])), [clients])
   const projectById = useMemo(() => Object.fromEntries(projects.map((p) => [p.id, p.name])), [projects])
   const statusById = useMemo(() => Object.fromEntries((taskStatuses || []).map((s) => [s.id, s])), [taskStatuses])
@@ -98,21 +101,23 @@ export default function TasksScreen() {
   }, [tasks, filter, categoryFilters])
   const taskGroups = useMemo(() => {
     if (groupBy === 'project') {
-      const gs = projects.map((p) => ({ key: `p-${p.id}`, label: p.name, color: p.color || FALLBACK, items: filteredTasks.filter((t) => t.project_id === p.id) }))
+      const gs = projects.map((p) => ({ key: `p-${p.id}`, label: p.name, color: p.color || fallbackColor(), items: filteredTasks.filter((t) => t.project_id === p.id) }))
       const none = filteredTasks.filter((t) => !t.project_id || !projects.some((p) => p.id === t.project_id))
-      if (none.length) gs.push({ key: 'p-none', label: i18n.t('tasks:groupBy.noProject', { defaultValue: 'ללא פרויקט' }), color: FALLBACK, items: none })
+      if (none.length) gs.push({ key: 'p-none', label: i18n.t('tasks:groupBy.noProject', { defaultValue: 'ללא פרויקט' }), color: fallbackColor(), items: none })
       return gs.filter((g) => g.items.length)
     }
     if (groupBy === 'category') {
-      const gs = taskCategories.map((c) => ({ key: `c-${c.id}`, label: c.name, color: c.color || FALLBACK, items: filteredTasks.filter((t) => t.category_id === c.id) }))
+      const gs = taskCategories.map((c) => ({ key: `c-${c.id}`, label: c.name, color: c.color || fallbackColor(), items: filteredTasks.filter((t) => t.category_id === c.id) }))
       const none = filteredTasks.filter((t) => !t.category_id || !taskCategories.some((c) => c.id === t.category_id))
-      if (none.length) gs.push({ key: 'c-none', label: i18n.t('tasks:groupBy.noCategory', { defaultValue: 'ללא קטגוריה' }), color: FALLBACK, items: none })
+      if (none.length) gs.push({ key: 'c-none', label: i18n.t('tasks:groupBy.noCategory', { defaultValue: 'ללא קטגוריה' }), color: fallbackColor(), items: none })
       return gs.filter((g) => g.items.length)
     }
     return PRIORITY_GROUPS
       .map((g) => ({ key: `pri-${g}`, label: i18n.t(`tasks:priority.${g}`), color: PRIORITY_COLOR[g], items: filteredTasks.filter((t) => (t.priority || 'medium') === g) }))
       .filter((g) => g.items.length)
-  }, [groupBy, filteredTasks, projects, taskCategories])
+    /* themeMode: the group dots are colours, and a memo would otherwise
+       hand back the palette that was live when it last ran. */
+  }, [groupBy, filteredTasks, projects, taskCategories, themeMode])
 
   // ── reminder groups ──
   const reminderGroups = useMemo(() => {
@@ -146,7 +151,9 @@ export default function TasksScreen() {
         datedTasks: dated.filter((t) => dateToBucket(new Date(t.due_at), now) === b.key),
       }))
       .filter((g) => g.items.length || g.datedTasks.length)
-  }, [isTasks, filter, reminders, tasks, now, categoryFilters]) // eslint-disable-line react-hooks/exhaustive-deps
+    /* themeMode: as above — the bucket and recurrence colours are baked
+       into this result, so it has to be rebuilt when the palette moves. */
+  }, [isTasks, filter, reminders, tasks, now, categoryFilters, themeMode]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const groups = isTasks ? taskGroups : reminderGroups
   const filters = isTasks ? TASK_FILTERS : REM_FILTERS

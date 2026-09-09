@@ -18,18 +18,18 @@ import { useRecurring } from '../hooks/useRecurring'
 import { confirmRemoveTransaction } from '../lib/recurringTx'
 import i18n from '../lib/i18n'
 import { colors } from '../theme/theme'
-import { themed } from '../theme/themed'
+import { themed, themedMap } from '../theme/themed'
 
 // Client drawer ("תיק לקוח") — a slide-up overlay mirroring the web ClientDrawer:
 // avatar + name + status pill + edit, a 3-stat billing hero, a WhatsApp payment
 // request when the client owes, quick actions, and the recent payments + notes.
 // Opened in place from the clients list (not a pushed screen).
-const STATUS_PILL = {
+const STATUS_PILL = themedMap((c) => ({
   active: { bg: 'rgba(139,168,136,0.16)', dot: '#8BA888' },
   wandering: { bg: 'rgba(212,165,116,0.18)', dot: '#D4A574' },
-  past: { bg: colors.fill, dot: '#b3a99c' },
-  no_status: { bg: colors.fill, dot: '#cbb9a8' },
-}
+  past: { bg: c.fill, dot: '#b3a99c' },
+  no_status: { bg: c.fill, dot: '#cbb9a8' },
+}))
 const STATUS_ORDER = ['active', 'wandering', 'past', 'no_status']
 const initials = (name) => (name || '').split(' ').map((w) => w[0] || '').join('').slice(0, 2).toUpperCase()
 

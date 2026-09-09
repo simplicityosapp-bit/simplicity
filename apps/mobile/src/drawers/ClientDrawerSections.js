@@ -6,14 +6,14 @@ import Card from '../components/Card'
 import PaymentPlanSection from './PaymentPlanSection'
 import i18n from '../lib/i18n'
 import { colors } from '../theme/theme'
-import { themed } from '../theme/themed'
+import { themed, themedMap } from '../theme/themed'
 
 // Client drawer activity + contact panels (mirrors web ClientDrawerSections):
 // collapsible sections for sessions / payments / tasks / timeline and
 // more-details / notes / reminders / memberships. Rows for sessions, payments
 // and tasks are tappable to edit; the rest are read-only (edit via the client
 // Edit button).
-const PRIORITY_COLOR = { high: colors.danger, medium: colors.amberWarn, low: colors.positive }
+const PRIORITY_COLOR = themedMap((c) => ({ high: c.danger, medium: c.amberWarn, low: c.positive }))
 const live = (a) => (a || []).filter((r) => !r.deleted_at)
 const T = (k, o) => i18n.t(`clients:sections.${k}`, o)
 

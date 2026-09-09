@@ -11,14 +11,14 @@ import Card from '../components/Card'
 import AddMeetingModal from '../modals/AddMeetingModal'
 import EventDetailsModal from '../modals/EventDetailsModal'
 import { colors } from '../theme/theme'
-import { themed } from '../theme/themed'
+import { themed, themedMap } from '../theme/themed'
 import { useCalendarData } from '../hooks/useCalendarData'
 
 // Calendar screen (mirrors web): a month grid of the merged feed (meetings +
 // synced events + reminders + lead follow-ups) with per-day dots, plus the
 // selected day's agenda below. Tap a day to see its events. (Event creation /
 // tap-to-confirm are later increments.)
-const KIND_COLOR = { meeting: colors.positive, calendar: colors.moonDeep, reminder: colors.amberWarn, followup: colors.brand }
+const KIND_COLOR = themedMap((c) => ({ meeting: c.positive, calendar: c.moonDeep, reminder: c.amberWarn, followup: c.brand }))
 const WEEKDAYS = ['א', 'ב', 'ג', 'ד', 'ה', 'ו', 'ש']
 const pad = (n) => String(n).padStart(2, '0')
 const keyOf = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`

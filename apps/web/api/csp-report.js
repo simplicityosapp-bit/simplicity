@@ -11,13 +11,25 @@
    before it is ever enforced: run in Report-Only, read what shows up here,
    and only then decide to enforce.
 
+   It used to log and nothing more, which turned out to be the same as having
+   nowhere to report to. Vercel's function logs are not retained for querying
+   on this plan — a two-hour window returned zero lines on 2026-09-09, even
+   for API calls made inside it — so every report ever produced was written
+   down and thrown away, including the ones the stale hashes were generating
+   on every single page load. Violations now go to the csp_violations table
+   (migration 0117) as well, which is a place that can still be read on
+   Thursday.
+
    Reached at /api/csp-report — Vercel matches the filesystem before the
    catch-all rewrite in vercel.json, which is the same way /api/page works.
 
    DESIGN NOTES
    - Public and unauthenticated, because browsers post these with no
-     credentials. It therefore does nothing but log: no database, no fetch,
-     nothing an attacker could aim somewhere.
+     credentials. It holds no secret beyond the publishable key and cannot
+     read anything back: the table it feeds has RLS on with no policy, and
+     the write happens in the `csp-report` edge function behind a per-IP rate
+     limit and a cap on violations per request. A forged report costs a row
+     in a diagnostic table that exists to be dropped.
    - Always answers 204, even on garbage. A report endpoint that errors makes
      browsers retry, and a violation is not worth a retry storm.
    - Extension noise is dropped. A large share of real-world CSP reports come
@@ -26,6 +38,32 @@
    ════════════════════════════════════════════════════════════════ */
 
 const MAX_BODY = 16 * 1024
+
+const SUPABASE_URL = 'https://rdurkakzyymxhocvhufw.supabase.co'
+// Publishable (anon) key — the same one shipped in the client bundle and used
+// by api/page.js; safe to embed. The edge function it calls holds the service
+// role, which is what actually writes the table.
+const ANON_KEY = process.env.SUPABASE_PUBLISHABLE_KEY || 'sb_publishable_vr-jk0ptqv6xdF-NRTMQ6w_RIQYkZ5A'
+
+/* Hand the surviving violations to the edge function that can write them.
+   Best-effort by design: a report is a diagnostic, and losing one must never
+   turn into an error the browser sees or a retry it makes. The timeout is
+   there because this runs before the 204 — a slow Supabase must not hold a
+   beacon open. */
+async function store(violations) {
+  try {
+    await fetch(`${SUPABASE_URL}/functions/v1/csp-report`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        apikey: ANON_KEY,
+        Authorization: `Bearer ${ANON_KEY}`,
+      },
+      body: JSON.stringify({ violations }),
+      signal: AbortSignal.timeout(2000),
+    })
+  } catch { /* swallowed on purpose — see above */ }
+}
 
 /* Violations that are somebody's browser extension, not this app. */
 const NOISE = /^(chrome-extension|moz-extension|safari-extension|safari-web-extension|webkit-masked-url|about|blob|data):/i
@@ -67,6 +105,7 @@ export default async function handler(req, res) {
   }
 
   try {
+    const violations = []
     for (const r of normalise(parseBody(req))) {
       const blocked = pick(r, 'blockedURL', 'blocked-uri')
       if (NOISE.test(blocked)) continue
@@ -74,13 +113,17 @@ export default async function handler(req, res) {
       const doc = pick(r, 'documentURL', 'document-uri')
       const source = pick(r, 'sourceFile', 'source-file')
       if (NOISE.test(source)) continue
-      // One line per violation — Vercel's function logs are the reader.
-      console.warn('[csp] violation', JSON.stringify({
+      const v = {
         directive, blocked, doc, source,
         line: r.lineNumber ?? r['line-number'] ?? null,
         sample: pick(r, 'scriptSample', 'script-sample'),
-      }))
+      }
+      // Still one line per violation: the logs are gone within the hour, but
+      // they are the only reader while tailing a deploy live.
+      console.warn('[csp] violation', JSON.stringify(v))
+      violations.push(v)
     }
+    if (violations.length) await store(violations)
   } catch (e) {
     console.error('[csp] report handler error', e)
   }

@@ -907,11 +907,20 @@ function ResizeHandle({ width, onResize }) {
     }
     const end = () => {
       window.removeEventListener('pointermove', move); window.removeEventListener('pointerup', end)
+      window.removeEventListener('pointercancel', end)
       document.body.classList.remove('sp-resizing'); cleanupRef.current = null; setLive(null)
     }
     cleanupRef.current = end
     document.body.classList.add('sp-resizing')
     window.addEventListener('pointermove', move); window.addEventListener('pointerup', end)
+    /* A drag does not always end in a pointerup. On touch the browser can claim
+       the gesture mid-drag - a scroll or a pinch taking over - and send
+       pointercancel instead, and pointerup then never arrives. Without this the
+       drag never ends: the listeners stay on window, and body keeps sp-resizing,
+       which is an app-wide `cursor: ew-resize !important` plus user-select:none.
+       Both live on <body>, so they survive every route change and only a reload
+       clears them. */
+    window.addEventListener('pointercancel', end)
   }
   return (
     <Txt className="sp-resize-handle" onPointerDown={onDown} aria-hidden="true">
@@ -1068,14 +1077,20 @@ function Section({ section, index = 0, free, layoutKey = 'layout', canvasW = FRE
     }
     const end = (commit) => {
       window.removeEventListener('pointermove', mv); window.removeEventListener('pointerup', up)
+      window.removeEventListener('pointercancel', cancel)
       document.body.classList.remove('sp-moving'); dragRef.current = null
       clearGuides(page)
       if (commit && moved) edit(layoutKey, last)
     }
     const up = () => end(true)
+    /* Same interrupted-gesture case as the width handle above, and the block
+       keeps its committed position rather than wherever the cancelled drag had
+       reached: the coach did not let go there, the browser took the pointer. */
+    const cancel = () => end(false)
     dragRef.current = () => end(false)
     document.body.classList.add('sp-moving')
     window.addEventListener('pointermove', mv); window.addEventListener('pointerup', up)
+    window.addEventListener('pointercancel', cancel)
   }
 
   const wrapCls = `sp-block sp-block-${type}${colored ? ' sp-colored' : ''}`

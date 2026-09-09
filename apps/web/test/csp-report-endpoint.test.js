@@ -101,4 +101,45 @@ describe('CSP report endpoint', () => {
     expect(r.statusCode).toBe(204)
     expect(logged()).toHaveLength(0)
   })
+
+  /* The handler forwards surviving violations to an edge function that writes
+     them to csp_violations. Running this suite must not be a way to write to
+     the production table — which it briefly was: the evil.test and vimeo.test
+     fixtures above reached it from a local `npm test`. */
+  describe('forwarding to the violations table', () => {
+    const violation = { 'csp-report': { 'effective-directive': 'script-src', 'blocked-uri': 'https://evil.test/x.js' } }
+
+    it('does not reach the network outside a Vercel deployment', async () => {
+      const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(null, { status: 204 }))
+      delete process.env.VERCEL
+      await handler(post(violation), res())
+      expect(fetchSpy, 'a test run must never post to production').not.toHaveBeenCalled()
+    })
+
+    it('forwards once when it is running on Vercel', async () => {
+      const fetchSpy = vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response(null, { status: 204 }))
+      process.env.VERCEL = '1'
+      try {
+        await handler(post(violation), res())
+        expect(fetchSpy).toHaveBeenCalledTimes(1)
+        const [url, init] = fetchSpy.mock.calls[0]
+        expect(String(url)).toMatch(/\/functions\/v1\/csp-report$/)
+        expect(JSON.parse(init.body).violations[0].blocked).toBe('https://evil.test/x.js')
+      } finally {
+        delete process.env.VERCEL
+      }
+    })
+
+    it('still answers 204 when the forward fails', async () => {
+      vi.spyOn(globalThis, 'fetch').mockRejectedValue(new Error('supabase is down'))
+      process.env.VERCEL = '1'
+      try {
+        const r = res()
+        await handler(post(violation), r)
+        expect(r.statusCode).toBe(204)
+      } finally {
+        delete process.env.VERCEL
+      }
+    })
+  })
 })

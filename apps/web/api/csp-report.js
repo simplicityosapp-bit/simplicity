@@ -51,6 +51,14 @@ const ANON_KEY = process.env.SUPABASE_PUBLISHABLE_KEY || 'sb_publishable_vr-jk0p
    there because this runs before the 204 — a slow Supabase must not hold a
    beacon open. */
 async function store(violations) {
+  /* Only ever from a real deployment. This endpoint's own test suite calls
+     the handler directly with fixture violations, and vitest does not stub
+     fetch — so without this line `npm test` posts them to the production
+     table. It did, twice, before this line existed: evil.test and vimeo.test
+     landed in csp_violations from a local test run. VERCEL is set in every
+     Vercel build and runtime and nowhere else, which is exactly the
+     distinction wanted here. */
+  if (!process.env.VERCEL) return
   try {
     await fetch(`${SUPABASE_URL}/functions/v1/csp-report`, {
       method: 'POST',

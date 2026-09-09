@@ -174,6 +174,14 @@ export function defaultPreferences() {
        while some steps still wait for the thing they explain to render —
        see lib/tourProgress.js. Absent = nothing shown yet. No migration. */
     tours: {},
+    /* One-time acknowledgements the coach has clicked through. Map of key →
+       true. `invoiceApiCost` is set by the confirmation that stands in front
+       of the first invoice-provider connection: the provider's own API may
+       bill them for every document issued, and that is a thing to be told
+       once, before the decision, rather than nagged about afterwards.
+       Absent/empty = never acknowledged, so existing users meet the
+       confirmation on their next connect and no migration is needed. */
+    acknowledgements: {},
     /* Account-deletion request (30-day grace). null = no pending deletion.
        When set: { requested_at, scheduled_for } (ISO). Preserved across
        loads by the `...cur` spread in migratePreferences — no migration. */
@@ -281,6 +289,9 @@ export function migratePreferences(input) {
       : {},
     tours: (cur.tours && typeof cur.tours === 'object' && !Array.isArray(cur.tours))
       ? cur.tours
+      : {},
+    acknowledgements: (cur.acknowledgements && typeof cur.acknowledgements === 'object' && !Array.isArray(cur.acknowledgements))
+      ? cur.acknowledgements
       : {},
     whatsapp: migrateWhatsApp(cur.whatsapp),
   }

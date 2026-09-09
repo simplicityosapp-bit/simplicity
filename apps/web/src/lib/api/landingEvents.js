@@ -88,6 +88,45 @@ export function trackLandingEvent(type) {
   send(type, sessionId())
 }
 
+/* ════════════════════════════════════════════════════════════════
+   Which scroll-depth thresholds a viewport position has passed.
+   ════════════════════════════════════════════════════════════════
+   Pure, so the rule can be tested without a browser — and it needed one.
+   The landing screen used to evaluate these thresholds directly, including
+   on the very first call, which happens at mount before the visitor has
+   touched anything. At that moment the page is routinely shorter than it
+   will be (images still loading, reveal blocks not yet expanded), so
+
+       depth = (scrollY + viewportH) / docH
+
+   comes out at or near 1 with nobody having scrolled, and all three
+   thresholds fire in the same millisecond. Measured over 366 real sessions:
+   42% of scroll_50 and 38% of scroll_100 were logged within one second of
+   the view event. Genuine readers take 44 seconds on average to reach the
+   bottom; none of them do it in one.
+
+   So two guards. Nothing counts until the visitor has actually scrolled —
+   a resize is not a scroll, and neither is a restored scroll position. And
+   a document that cannot meaningfully scroll has no depth to report: the
+   ratio is meaningless when the page fits the screen. */
+const THRESHOLDS = [
+  [0.5, 'scroll_50'],
+  [0.75, 'scroll_75'],
+  [0.98, 'scroll_100'],
+]
+
+/* How much taller than the viewport the document must be before depth means
+   anything. A page within a couple of hundred pixels of the viewport is one
+   screen; calling the bottom of it "read to 100%" is noise. */
+const MIN_SCROLLABLE_PX = 200
+
+export function scrollDepthEvents({ scrollY, viewportH, docH, hasScrolled }) {
+  if (!hasScrolled) return []
+  if (!(docH > viewportH + MIN_SCROLLABLE_PX)) return []
+  const depth = (scrollY + viewportH) / docH
+  return THRESHOLDS.filter(([at]) => depth >= at).map(([, type]) => type)
+}
+
 /* The funnel's last stage: an account was actually created. Called from every
    signup path (email/password on success, Google on the authenticated return)
    and carries the sid the visitor arrived with, so the whole chain

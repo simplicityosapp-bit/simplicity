@@ -19,6 +19,7 @@ export default function SignupScreen() {
   const { t } = useT('auth')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [confirm, setConfirm] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [agreePolicies, setAgreePolicies] = useState(false) // privacy + DPA (one control, two consents)
   const [agreeTerms, setAgreeTerms] = useState(false)
@@ -49,6 +50,13 @@ export default function SignupScreen() {
   const pwIssue = checkPasswordStrength(password)
   const showPwIssue = pwBlurred && password.length > 0 && !!pwIssue
 
+  /* The second field exists to catch a typo in the first, so it is judged on
+     the same terms: raised on blur or on a submit attempt, never while the
+     characters are still arriving, and it clears itself the moment the two agree. */
+  const [confirmBlurred, setConfirmBlurred] = useState(false)
+  const confirmMismatch = confirm !== password
+  const showConfirmIssue = confirmBlurred && confirm.length > 0 && confirmMismatch
+
   const submit = async (e) => {
     e.preventDefault()
     setError('')
@@ -59,6 +67,10 @@ export default function SignupScreen() {
     }
     if (pwIssue) {
       setPwBlurred(true)
+      return
+    }
+    if (confirmMismatch) {
+      setConfirmBlurred(true)
       return
     }
     if (!canConsent) {
@@ -216,6 +228,36 @@ export default function SignupScreen() {
               {showPwIssue
                 ? t(pwIssue === 'tooCommon' ? 'signupScreen.passwordTooCommon' : 'signupScreen.passwordMin8')
                 : t('min8chars')}
+            </Txt>
+          </Box>
+
+          {/* Deliberately without an eye of its own: there is one password on
+              this form and one control that reveals it, so this field follows
+              showPassword rather than carrying a second button that toggles
+              the same idea. */}
+          <Box className="auth-group">
+            <Txt as="label" className="auth-label" htmlFor="signup-confirm">{t('signupScreen.confirmPasswordLabel')}</Txt>
+            <Box as="label" className="auth-field" htmlFor="signup-confirm">
+              <Txt className="auth-field-icon"><Lock size={16} strokeWidth={1.6} aria-hidden="true" /></Txt>
+              <Input
+                id="signup-confirm"
+                type={showPassword ? 'text' : 'password'}
+                dir="ltr"
+                autoComplete="new-password"
+                value={confirm}
+                onChange={(e) => setConfirm(e.target.value)}
+                onBlur={() => setConfirmBlurred(true)}
+                aria-describedby="signup-confirm-hint"
+                aria-invalid={showConfirmIssue || undefined}
+              />
+            </Box>
+            <Txt
+              as="p"
+              id="signup-confirm-hint"
+              className={showConfirmIssue ? 'auth-hint auth-hint-bad' : 'auth-hint'}
+              aria-live="polite"
+            >
+              {showConfirmIssue ? t('signupScreen.passwordsDoNotMatch') : t('signupScreen.confirmPasswordHint')}
             </Txt>
           </Box>
 

@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
 import { FileText, Check, CircleAlert, Link2Off, RefreshCw, HelpCircle, Loader2, TriangleAlert } from 'lucide-react'
 import { useInvoiceProvider } from '../../hooks/useInvoiceProvider'
+import { useUserPreferences } from '../../hooks/useUserPreferences'
 import { useT } from '../../i18n/useT'
 import { Box, Txt, Btn, Input } from '../../components/ui'
+import ConfirmModal from '../../modals/ConfirmModal'
 
 /* Supported invoice services. Each declares its two credential SLOTS — the
    generic api_key/api_secret slots are LABELLED per provider (Green Invoice:
@@ -38,6 +40,16 @@ function errMsg(code, t) {
 export default function InvoiceCard() {
   const { t } = useT('connections')
   const inv = useInvoiceProvider()
+  const { prefs, update: updatePrefs } = useUserPreferences()
+  /* The cost caution has been standing on this card all along, which meant it
+     could be read past on the way to the fields. It now also has to be
+     answered — once, at the moment the coach commits — because the charge it
+     warns about is levied by the provider, on their account, and lands after
+     the fact. Recorded in preferences so it is asked once per coach and not
+     once per visit; absent for every existing user, which is the right
+     default: nobody has answered it yet. */
+  const costAcked = !!prefs?.acknowledgements?.invoiceApiCost
+  const [costGate, setCostGate] = useState(false)
   const providerLabel = (k) => (k === 'greeninvoice' || k === 'sumit' ? t(`providers.${k}`) : k)
   const envLabel = (e) => (e === 'production' ? t('env.production') : t('env.sandbox'))
   const status = inv.status
@@ -95,7 +107,14 @@ export default function InvoiceCard() {
     setReconnecting(true)
   }
 
-  const onConnect = async () => {
+  /* The gate. Everything below it is the connection itself, so an
+     unacknowledged coach never reaches a credential submit by any path. */
+  const onConnect = () => {
+    if (!costAcked) { setCostGate(true); return }
+    doConnect()
+  }
+
+  const doConnect = async () => {
     setLocalErr(''); setOkMsg(''); setBusyAction('connect')
     try {
       await inv.connect({ provider, apiKey: creds.apiKey.trim(), apiSecret: creds.apiSecret.trim(), environment })
@@ -207,6 +226,23 @@ export default function InvoiceCard() {
         <TriangleAlert size={16} strokeWidth={1.8} aria-hidden="true" />
         <Txt>{t('invoiceCard.costWarning')}</Txt>
       </Box>
+
+      {/* Same sentence as the note above, deliberately: the coach is being
+          asked to answer the thing they were shown, not a second version of
+          it that could drift away from it. The acknowledgement is written
+          before the connection is attempted, so a provider error leaves it
+          answered and does not ask again. */}
+      <ConfirmModal
+        open={costGate}
+        onClose={() => setCostGate(false)}
+        title={t('invoiceCard.costConfirmTitle')}
+        message={t('invoiceCard.costWarning')}
+        confirmLabel={t('invoiceCard.costConfirmConfirm')}
+        onConfirm={async () => {
+          await updatePrefs({ acknowledgements: { invoiceApiCost: true } })
+          await doConnect()
+        }}
+      />
 
       {localErr && (
         <Txt as="p" className="conn-error" role="alert"><CircleAlert size={14} strokeWidth={1.7} aria-hidden="true" /> {localErr}</Txt>

@@ -44,6 +44,14 @@
           "resizeMode": "contain",
           "backgroundColor": "#fbf7f2"
         }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "useFrameworks": "static"
+          }
+        }
       ]
     ]
   }

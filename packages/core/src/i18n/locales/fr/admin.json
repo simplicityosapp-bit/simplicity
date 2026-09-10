@@ -12,7 +12,8 @@
   },
   "state": {
     "loading": "Chargement…",
-    "loadError": "Impossible de charger les données"
+    "loadError": "Impossible de charger les données",
+    "forbidden": "Cette zone est réservée aux administrateurs."
   },
   "dashboard": {
     "title": "Tableau de bord",

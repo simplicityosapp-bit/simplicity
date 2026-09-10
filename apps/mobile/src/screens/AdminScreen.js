@@ -60,7 +60,7 @@ export default function AdminScreen() {
         <ScreenHead title={T('nav.title')} tagline={allowed ? T(`${tab}.subtitle`) : undefined} />
 
         {!allowed ? (
-          <Text style={styles.denied}>{T('state.loadError')}</Text>
+          <Text style={styles.denied}>{T('state.forbidden')}</Text>
         ) : (
           <>
             <View style={styles.tabs}>

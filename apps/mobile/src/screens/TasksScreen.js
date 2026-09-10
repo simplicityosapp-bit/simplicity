@@ -197,7 +197,7 @@ export default function TasksScreen() {
 
           {/* Category filter + manage — shared across tasks + reminders */}
           <View style={styles.catBar}>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.catPills}>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.catScroll} contentContainerStyle={styles.catPills}>
               {taskCategories.length ? (
                 <>
                   <GlassPressable radius={999} on={categoryFilters.size === 0} style={styles.catPill} onPress={() => setCategoryFilters(new Set())}>
@@ -313,11 +313,16 @@ function emptyMsg(isTasks, filter) {
   return i18n.t(filter === 'done' ? 'tasks:empty.remindersDone' : 'tasks:empty.remindersTodo', { defaultValue: '—' })
 }
 
-function HeroStat({ label, value, accent, divided }) {
+/* No accent on any of the three. "Urgent" used to be painted in the brand
+   colour, which is a mobile-only divergence — web gives all three hero stats
+   the same --espresso — and in night mode that colour is Misted Sage on a dark
+   card: 3.83:1, under AA, and the FAINTEST of the three. The number meant to
+   catch the eye was the one that receded. */
+function HeroStat({ label, value, accent, divided }) { // eslint-disable-line no-unused-vars
   return (
     <View style={[styles.heroStat, divided && styles.heroStatDivided]}>
       <Text style={styles.heroStatL}>{label}</Text>
-      <Text style={[styles.heroStatV, accent && styles.heroStatAccent]}>{value}</Text>
+      <Text style={styles.heroStatV}>{value}</Text>
     </View>
   )
 }
@@ -405,7 +410,6 @@ const styles = themed((c, t) => ({
   heroStatDivided: { borderLeftWidth: StyleSheet.hairlineWidth, borderRightWidth: StyleSheet.hairlineWidth, borderColor: c.divider },
   heroStatL: { fontSize: 9, fontWeight: '500', color: c.textSub, letterSpacing: 0.4, textTransform: 'uppercase' },
   heroStatV: { fontSize: 22, fontWeight: '500', color: c.text },
-  heroStatAccent: { color: c.brand },
 
   seg: { flexDirection: 'row', padding: 2, alignSelf: 'center' },
   segBtn: { paddingVertical: 6, paddingHorizontal: 16, borderRadius: 999 },
@@ -414,7 +418,12 @@ const styles = themed((c, t) => ({
   segTextOn: { color: c.onBrand, fontWeight: '600' },
 
   // Category filter bar
-  catBar: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  /* Wraps, and the pill strip claims the whole first line. "סטטוסים
+     וקטגוריות" is a fixed 164pt that does not shrink, and it sat in the same
+     row as the filter: on a 375pt screen that left the filter 163 — a pill and
+     a half — for a secondary link to the taxonomy editor. */
+  catBar: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 8 },
+  catScroll: { flexBasis: '100%' },
   catPills: { flexDirection: 'row', gap: 6, paddingVertical: 2 },
   catPill: { flexDirection: 'row', alignItems: 'center', gap: 5, paddingVertical: 6, paddingHorizontal: 12 },
   catDot: { width: 8, height: 8, borderRadius: 4 },

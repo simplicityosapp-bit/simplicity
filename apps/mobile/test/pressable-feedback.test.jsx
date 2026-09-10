@@ -67,6 +67,31 @@ describe('Pressable feedback', () => {
     expect(s.opacity).toBeLessThan(1)  // and the dim is added, not swapped in
   })
 
+  /* The disabled half. Fifty-two controls took a `disabled` prop and changed
+     nothing about how they looked when it was set — mostly a `busy` flag
+     during a save, so the control went dead at the moment the user was
+     waiting on it and gave no sign. */
+  it('dims while disabled', () => {
+    const s = flatten(composePressedStyle(CARD, REST, true))
+    expect(s.backgroundColor).toBe('papayawhip')
+    expect(s.opacity).toBeLessThan(1)
+  })
+
+  it('shows the disabled state, not the pressed one, if both are somehow set', () => {
+    const off = flatten(composePressedStyle(CARD, DOWN, true))
+    const down = flatten(composePressedStyle(CARD, DOWN, false))
+    expect(off.opacity).not.toBe(down.opacity)
+  })
+
+  /* Thirty-five call sites already dim themselves, most of them to 0.45.
+     Style flattening resolves the last opacity rather than multiplying, so
+     they must not end up dimmed twice. */
+  it('does not compound with a call site that already dims itself', () => {
+    const own = { opacity: 0.4 }
+    const s = flatten(composePressedStyle([CARD, own], REST, true))
+    expect(s.opacity).toBeGreaterThan(0.3)
+    expect(s.opacity).toBeLessThan(1)
+  })
   it('passes presses and props straight through', () => {
     const onPress = jest.fn()
     render(

@@ -31,20 +31,45 @@ import { Pressable as RNPressable, StyleSheet } from 'react-native'
 
 const PRESSED_OPACITY = 0.62
 
+/* And the other half of the same silence: `disabled`.
+   ────────────────────────────────────────────────────────────────
+   Fifty-two of the eighty-seven controls that take a `disabled` prop
+   changed nothing about how they looked when it was set. Most take it
+   from a `busy` flag during a save — so the button stopped responding at
+   exactly the moment the user was waiting on it, and looked no different
+   while it did. With the missing press feedback that was two silences in
+   a row: the tap says nothing, then the button says nothing.
+
+   0.45 is the value the thirty-five that DID dim already used (0.4-0.5,
+   most often 0.45). Style flattening means the last opacity wins rather
+   than multiplying, so those keep the look they have instead of dimming
+   twice — their own rules become redundant, not compounding. Sites whose
+   disabled state is a colour rather than an opacity compose with this
+   cleanly, since they set a different property. */
+const DISABLED_OPACITY = 0.45
+
 /* Exported for its own test. RN resolves the style function inside
    Pressable, so the composition — the part that can silently swallow a
    caller's appearance — is only reachable from the outside as this. */
-export function composePressedStyle(style, state) {
+export function composePressedStyle(style, state, disabled) {
   const base = typeof style === 'function' ? style(state) : style
+  if (disabled) return [base, styles.disabled]
   return state.pressed ? [base, styles.pressed] : base
 }
 
-export function Pressable({ style, ...rest }) {
-  return <RNPressable {...rest} style={(state) => composePressedStyle(style, state)} />
+export function Pressable({ style, disabled, ...rest }) {
+  return (
+    <RNPressable
+      {...rest}
+      disabled={disabled}
+      style={(state) => composePressedStyle(style, state, disabled)}
+    />
+  )
 }
 
 const styles = StyleSheet.create({
   pressed: { opacity: PRESSED_OPACITY },
+  disabled: { opacity: DISABLED_OPACITY },
 })
 
 export default Pressable

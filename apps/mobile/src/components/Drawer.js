@@ -151,7 +151,7 @@ export default function Drawer({ open, onClose, onNavigate, activeScreen }) {
         <View style={styles.body}>
           <View style={styles.titleRow}>
             <Text style={styles.title}>{i18n.t('nav:more', { defaultValue: 'עוד' })}</Text>
-            <Pressable style={styles.close} onPress={onClose} hitSlop={8}>
+            <Pressable style={styles.close} onPress={onClose} hitSlop={8} accessibilityLabel={i18n.t('common:close', { defaultValue: 'סגירה' })}>
               <X size={16} strokeWidth={1.6} color={colors.textSub} />
             </Pressable>
           </View>

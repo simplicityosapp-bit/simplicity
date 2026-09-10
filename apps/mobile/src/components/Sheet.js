@@ -2,6 +2,7 @@ import { Modal, View, Text, ScrollView, StyleSheet, KeyboardAvoidingView, Platfo
 import { Pressable } from './Pressable'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { X } from 'lucide-react-native'
+import i18n from '../lib/i18n'
 import { colors } from '../theme/theme'
 import { themed } from '../theme/themed'
 
@@ -50,7 +51,7 @@ export default function Sheet({ open, onClose, title, children }) {
           <View style={[styles.sheet, { paddingBottom: insets.bottom + 20 }]}>
             <View style={styles.head}>
               <Text style={styles.title} numberOfLines={1}>{title}</Text>
-              <Pressable style={styles.close} onPress={onClose} hitSlop={8}>
+              <Pressable style={styles.close} onPress={onClose} hitSlop={8} accessibilityLabel={i18n.t('common:close', { defaultValue: 'סגירה' })}>
                 <X size={16} strokeWidth={1.8} color={colors.textSub} />
               </Pressable>
             </View>

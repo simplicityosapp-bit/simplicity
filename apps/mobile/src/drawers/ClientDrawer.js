@@ -216,11 +216,11 @@ export default function ClientDrawer({ clientId, clients, transactions, sessions
         >
           <View style={[styles.panel, { paddingBottom: insets.bottom }]}>
             <View style={styles.topbar}>
-              <Pressable style={styles.topBtn} onPress={onClose} hitSlop={8}>
+              <Pressable style={styles.topBtn} onPress={onClose} hitSlop={8} accessibilityLabel={i18n.t('common:close', { defaultValue: 'סגירה' })}>
                 <X size={18} strokeWidth={1.7} color={colors.textSub} />
               </Pressable>
               <Text style={styles.topTitle}>{i18n.t('clients:drawer.title', { defaultValue: 'תיק לקוח' })}</Text>
-              <Pressable style={styles.topBtn} onPress={del} hitSlop={8}>
+              <Pressable style={styles.topBtn} onPress={del} hitSlop={8} accessibilityLabel={i18n.t('clients:bulk.delete', { defaultValue: 'מחיקה' })}>
                 <Trash2 size={17} strokeWidth={1.7} color={colors.danger} />
               </Pressable>
             </View>

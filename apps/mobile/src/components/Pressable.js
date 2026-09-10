@@ -57,11 +57,31 @@ export function composePressedStyle(style, state, disabled) {
   return state.pressed ? [base, styles.pressed] : base
 }
 
-export function Pressable({ style, disabled, ...rest }) {
+/* What a screen reader is told this thing is.
+   ────────────────────────────────────────────────────────────────
+   Forty of the app's three hundred and sixty-four controls named a
+   role. The rest arrived at VoiceOver and TalkBack as text: every row
+   in the "עוד" drawer, "התנתקות" among them, announced as a label with
+   nothing to say it can be activated.
+
+   Anything that takes a press IS a button unless it says otherwise, so
+   that is the default — and a caller that knows better (a checkbox, a
+   switch, a tab, a link) keeps what it passed. Only `onPress` counts:
+   a Pressable used purely as a layout wrapper should not claim to be
+   something you can press.
+
+   Labels are the other half and cannot be defaulted — RN already reads
+   a control's own <Text> when there is one, so what is left unnamed is
+   the icon-only controls, and each of those needs a word chosen for it.
+   Fixed here where the shared chrome could be reached; the per-screen
+   ones are still open. */
+export function Pressable({ style, disabled, accessibilityRole, onPress, ...rest }) {
   return (
     <RNPressable
       {...rest}
+      onPress={onPress}
       disabled={disabled}
+      accessibilityRole={accessibilityRole || (onPress ? 'button' : undefined)}
       style={(state) => composePressedStyle(style, state, disabled)}
     />
   )

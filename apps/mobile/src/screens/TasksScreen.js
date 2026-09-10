@@ -328,7 +328,7 @@ function Segmented({ options, value, onPick }) {
       {options.map((o) => {
         const on = value === o.k
         return (
-          <Pressable key={o.k} style={[styles.segBtn, on && styles.segOn]} onPress={() => onPick(o.k)}>
+          <Pressable key={o.k} style={[styles.segBtn, on && styles.segOn]} onPress={() => onPick(o.k)} hitSlop={8}>
             <Text style={[styles.segText, on && styles.segTextOn]}>{o.label}</Text>
           </Pressable>
         )
@@ -348,7 +348,9 @@ function TaskRow({ task, first, clientById, projectById, status, category, onTog
   const align = rtl ? 'right' : 'left'
   return (
     <View style={[styles.row, !first && styles.rowBorder, flip && styles.rowFlip]}>
-      <Pressable onPress={onToggle} hitSlop={8} accessibilityRole="checkbox" accessibilityState={{ checked: isDone }}>
+      {/* The most-tapped control on the screen, and a 22pt circle: 11 of slop
+          makes it 44 without changing how it looks. */}
+      <Pressable onPress={onToggle} hitSlop={11} accessibilityRole="checkbox" accessibilityState={{ checked: isDone }}>
         <View style={[styles.check, isDone && styles.checkOn]}>{isDone ? <Check size={13} strokeWidth={3} color={colors.onBrand} /> : null}</View>
       </Pressable>
       <Pressable style={styles.textWrap} onPress={onEdit}>

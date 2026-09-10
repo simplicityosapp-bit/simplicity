@@ -353,10 +353,10 @@ export default function ClientsScreen() {
             <Text style={styles.heroTitle}>{i18n.t(`clients:hero.${statusKey(tab)}`, { defaultValue: i18n.t('clients:summary', { defaultValue: 'סיכום' }) })}</Text>
             {tab !== 'past' && tab !== 'no_status' ? (
               <View style={styles.scopeToggle}>
-                <Pressable style={[styles.scopeBtn, scope === 'monthly' && styles.scopeOn]} onPress={() => setScope('monthly')}>
+                <Pressable style={[styles.scopeBtn, scope === 'monthly' && styles.scopeOn]} onPress={() => setScope('monthly')} hitSlop={11}>
                   <Text style={[styles.scopeText, scope === 'monthly' && styles.scopeTextOn]}>{i18n.t('clients:hero.monthly', { defaultValue: 'חודשי' })}</Text>
                 </Pressable>
-                <Pressable style={[styles.scopeBtn, scope === 'cumulative' && styles.scopeOn]} onPress={() => setScope('cumulative')}>
+                <Pressable style={[styles.scopeBtn, scope === 'cumulative' && styles.scopeOn]} onPress={() => setScope('cumulative')} hitSlop={11}>
                   <Text style={[styles.scopeText, scope === 'cumulative' && styles.scopeTextOn]}>{i18n.t('clients:hero.cumulative', { defaultValue: 'מצטבר' })}</Text>
                 </Pressable>
               </View>

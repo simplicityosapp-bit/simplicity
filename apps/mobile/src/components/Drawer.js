@@ -157,7 +157,10 @@ export default function Drawer({ open, onClose, onNavigate, activeScreen }) {
           </View>
           <Text style={styles.sub}>{i18n.t('nav:drawerSubtitle', { defaultValue: 'תפריט · העדפות וכלים אישיים' })}</Text>
 
-          <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+          {/* insets.bottom, not just a fixed 40: the panel takes insets.top at
+              the head and took nothing at the foot, so on a phone with a gesture
+              bar the last row — which is «התנתקות» — sat underneath it. */}
+          <ScrollView contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom + 24 }]} showsVerticalScrollIndicator={false}>
             <Pressable style={styles.profile} onPress={() => go('Settings')}>
               <View style={styles.avatar}><Text style={styles.avatarText}>{initial}</Text></View>
               <View style={styles.profileText}>
@@ -231,7 +234,7 @@ const styles = themed((c, t) => ({
   title: { fontSize: 22, fontWeight: '700', color: c.text, letterSpacing: -0.4 },
   close: { width: 30, height: 30, borderRadius: 15, backgroundColor: c.fillStrong, borderWidth: 0.5, borderColor: c.border, alignItems: 'center', justifyContent: 'center' },
   sub: { fontSize: 10, fontWeight: '500', color: c.textSub, letterSpacing: 1, marginTop: 4, marginBottom: 14, textTransform: 'uppercase' },
-  scroll: { paddingBottom: 40, gap: 4 },
+  scroll: { gap: 4 },
   // profile chip
   profile: { flexDirection: 'row', alignItems: 'center', gap: 11, backgroundColor: c.glassTint, borderRadius: 20, borderWidth: 0.5, borderColor: c.divider, paddingVertical: 11, paddingHorizontal: 12, marginBottom: 4 },
   avatar: { width: 34, height: 34, borderRadius: 17, backgroundColor: c.brand, alignItems: 'center', justifyContent: 'center' },

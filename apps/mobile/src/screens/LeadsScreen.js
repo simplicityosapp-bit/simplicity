@@ -217,6 +217,10 @@ export default function LeadsScreen() {
       ) : (
         <ScrollView
           contentContainerStyle={[styles.content, bottomPad]}
+          /* Without this the first tap after typing is spent closing the
+             keyboard and never reaches what was tapped — the "why do I have to
+             press twice" report. */
+          keyboardShouldPersistTaps="handled"
           refreshControl={<RefreshControl refreshing={loading} onRefresh={refetch} tintColor={colors.brand} />}
         >
           <ScreenHead

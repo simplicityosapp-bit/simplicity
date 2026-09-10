@@ -396,6 +396,9 @@ export default function ClientsScreen() {
           )}
           contentContainerStyle={[styles.content, bottomPad]}
           showsVerticalScrollIndicator={false}
+          /* The search sits in the header: without this the first tap on a
+             result is spent closing the keyboard instead of opening the card. */
+          keyboardShouldPersistTaps="handled"
           refreshControl={<RefreshControl refreshing={loading} onRefresh={refetch} tintColor={colors.brand} />}
         />
       )}

@@ -322,7 +322,6 @@ export default function SettingsScreen() {
           </Field>
           <Field label={T('design.theme', { defaultValue: 'מצב יום/לילה' })}>
             <Pills options={THEMES.map((m) => ({ k: m, label: T(`options.theme.${m}`, { defaultValue: m }) }))} value={prefs.design?.theme || getThemeMode()} onPick={setTheme} />
-            <Text style={styles.hint}>{T('design.themeHint', { defaultValue: 'החלפת המצב מרעננת את האפליקציה.' })}</Text>
           </Field>
           {/* Text-size control is hidden until app-wide font scaling is built — RN has
               no global font-scale (no central Text primitive), so the pref currently
@@ -469,7 +468,9 @@ export default function SettingsScreen() {
 
   return (
     <Screen name="tasks">
-      <ScrollView contentContainerStyle={[styles.content, bottomPad]} showsVerticalScrollIndicator={false}>
+      {/* Settings edits in place — a tap on the next control after typing has
+          to land on the control, not be eaten closing the keyboard. */}
+      <ScrollView contentContainerStyle={[styles.content, bottomPad]} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
         <ScreenHead title={i18n.t('settings:header.title', { defaultValue: 'הגדרות' })} />
 
         {SETTINGS_TREE.map((g) => {

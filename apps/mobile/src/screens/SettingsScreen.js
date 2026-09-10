@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { View, Text, TextInput, Pressable, StyleSheet, ScrollView, Share, Alert, Platform, Linking } from 'react-native'
+import { View, Text, TextInput, Pressable, StyleSheet, ScrollView, Share, Alert, Platform, Linking, I18nManager } from 'react-native'
 import Constants from 'expo-constants'
 import { useNavigation } from '@react-navigation/native'
 import { User, Palette, Database, LogOut, ChevronDown, ChevronUp, Sparkles, Download, X, Plus, Check, Wallet, Info, LayoutGrid, Trash2, Eye, Users, Leaf, Briefcase, Settings2, CalendarClock, Plug, BookOpen } from 'lucide-react-native'
@@ -307,7 +307,17 @@ export default function SettingsScreen() {
         <>
           <Field label={T('design.language', { defaultValue: 'שפה' })}>
             <Pills options={LANGUAGE_OPTIONS.map((l) => ({ k: l.v, label: l.l }))} value={lang} onPick={setLanguage} />
-            {lang === 'he' ? null : <Text style={styles.hint}>{T('design.rtlHint', { defaultValue: 'שינוי כיווניות מלא מתעדכן לאחר הפעלה מחדש.' })}</Text>}
+            {/* Show the hint when the layout ON SCREEN disagrees with the
+                language just picked — which is the only thing a restart
+                fixes. This used to read `lang === 'he' ? null : hint`, so it
+                appeared when leaving Hebrew and stayed hidden when entering
+                it: the direction that needs the restart most, in an app whose
+                users mostly arrive in Hebrew, was the one nobody was told
+                about. It also kept showing on an English device already
+                running LTR, where there was nothing to restart for. */}
+            {I18nManager.isRTL !== (lang === 'he')
+              ? <Text style={styles.hint}>{T('design.rtlHint', { defaultValue: 'שינוי כיווניות מלא מתעדכן לאחר הפעלה מחדש.' })}</Text>
+              : null}
           </Field>
           <Field label={T('design.theme', { defaultValue: 'מצב יום/לילה' })}>
             <Pills options={THEMES.map((m) => ({ k: m, label: T(`options.theme.${m}`, { defaultValue: m }) }))} value={prefs.design?.theme || getThemeMode()} onPick={setTheme} />

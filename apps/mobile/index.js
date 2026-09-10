@@ -5,6 +5,7 @@ import 'react-native-gesture-handler';
 import { registerRootComponent } from 'expo';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { applyThemeColors, THEME_KEY } from './src/theme/theme';
+import { setBootLanguage, LANG_KEY } from './src/lib/bootPrefs';
 
 // Release builds have no redbox: an uncaught error while evaluating the App
 // module graph (a screen import, i18n, theme…) closes the app instantly with no
@@ -51,8 +52,15 @@ function Root() {
     let cancelled = false;
     (async () => {
       try {
-        const mode = await AsyncStorage.getItem(THEME_KEY);
+        const [mode, lang] = await Promise.all([
+          AsyncStorage.getItem(THEME_KEY),
+          AsyncStorage.getItem(LANG_KEY),
+        ]);
         applyThemeColors(mode === 'dark' ? 'dark' : 'light');
+        // Layout direction follows the language and can only be applied to the
+        // NEXT process, so setupI18n has to see the chosen language rather than
+        // the device locale. Same read, same reason as the palette.
+        setBootLanguage(lang);
       } catch {
         try { applyThemeColors('light'); } catch { /* palette stays at defaults */ }
       }

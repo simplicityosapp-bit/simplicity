@@ -6,9 +6,17 @@ import { registerReflections } from '@simplicity/core/i18n/reflections'
 import { registerQuotes } from '../i18n/registerQuotes'
 import { registerPresets } from '../i18n/registerPresets'
 import { getLocales } from 'expo-localization'
-import { I18nManager } from 'react-native'
+import { I18nManager, Platform } from 'react-native'
+import { getBootLanguage, pickLanguage, rtlRelaunchNeeded } from './bootPrefs'
 
 const SUPPORTED = ['he', 'en', 'es', 'fr']
+
+/* The language this session will actually run in: what the user chose last
+   time if we have it, the device otherwise. index.js caches the choice before
+   this module is reached — see lib/bootPrefs. */
+function chosenLang() {
+  return pickLanguage(getBootLanguage(), deviceLang(), SUPPORTED)
+}
 
 function deviceLang() {
   try {
@@ -25,13 +33,18 @@ function deviceLang() {
    load leaves the app on Hebrew, which is what it did before. */
 let readyPromise = Promise.resolve()
 
+/* Set when the layout direction this session is running with is not the one
+   the language wants, and only a relaunch can fix it. App.js acts on it. */
+let rtlRelaunch = false
+export function needsRtlRelaunch() { return rtlRelaunch }
+
 export function whenI18nReady() {
   return readyPromise
 }
 
 // Call once at startup, before the first render. Idempotent (initI18n guards).
 export function setupI18n() {
-  const lng = deviceLang()
+  const lng = chosenLang()
   initI18n({ lng, dev: __DEV__ })
   // Only `he` ships with the engine (see @simplicity/core/i18n) — a device in
   // another language has to pull that bundle in. Metro has no code splitting,
@@ -68,6 +81,15 @@ export function setupI18n() {
     } catch {
       /* no-op — some platforms (web) ignore forceRTL */
     }
+    /* forceRTL is written for the NEXT process and changes nothing in this
+       one, so isRTL still disagrees here — that is the signal, not a bug.
+       Left alone it meant the first launch after an install ran with an LTR
+       engine while the app is Hebrew: the twenty-odd rows that mirror
+       themselves by hand flipped and the other three hundred did not.
+
+       Web is excluded because forceRTL is a documented no-op there, so the
+       flag would never clear and reloadApp() would loop the page. */
+    rtlRelaunch = rtlRelaunchNeeded({ platform: Platform.OS, isRTL: I18nManager.isRTL, wantRtl: rtl })
   }
   installGenderContext()
   return i18n

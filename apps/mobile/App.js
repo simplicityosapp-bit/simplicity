@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react'
-import { View, ActivityIndicator, StyleSheet } from 'react-native'
+import { View, ActivityIndicator, StyleSheet, I18nManager } from 'react-native'
 import { StatusBar } from 'expo-status-bar'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 import { useFonts } from 'expo-font'
 import { fontAssets } from './src/lib/fonts'
-import i18n, { setupI18n, whenI18nReady } from './src/lib/i18n'
+import i18n, { setupI18n, whenI18nReady, needsRtlRelaunch } from './src/lib/i18n'
 import { getThemeMode, subscribeTheme } from './src/theme/theme'
 import { AuthProvider, useAuth } from './src/lib/auth'
 import { DrawerProvider, useDrawer } from './src/lib/drawer'
@@ -13,6 +14,8 @@ import { FormOptionsProvider } from './src/lib/formOptions'
 import { BottomBarProvider } from './src/lib/bottomBar'
 import { PreferencesProvider, usePreferences } from './src/lib/preferences'
 import { isDeletionPending } from './src/lib/account'
+import { reloadApp } from './src/lib/appReload'
+import { shouldRelaunchForRtl } from './src/lib/bootPrefs'
 import { useOnboarding, shouldOnboard } from './src/lib/onboarding'
 import OnboardingScreen from './src/screens/onboarding'
 import LoginScreen from './src/screens/LoginScreen'
@@ -170,12 +173,56 @@ function useI18nReady() {
   return ready
 }
 
+/* Apply a layout direction that only the next process can have.
+   ────────────────────────────────────────────────────────────────
+   setupI18n calls I18nManager.forceRTL, which RN writes for the NEXT
+   launch and applies to none of this one. Nothing ever acted on that, so
+   the first run after an install rendered in a direction the app was not
+   built for: the twenty-odd rows that mirror themselves by hand flipped,
+   the other three hundred did not, and the mixed result stood until the
+   user happened to kill the app themselves. The preview could never show
+   it — forceRTL is a no-op on react-native-web, so the preview is
+   permanently in the state that is wrong on a phone.
+
+   reloadApp() already exists and already works in a release build; it is
+   what "delete everything" uses. This just calls it.
+
+   The stored key is what stops a loop. If forceRTL fails to take — an OEM
+   build, a permission, anything — isRTL never agrees and every launch
+   would relaunch forever. One attempt is allowed per direction, so a
+   failure costs one extra launch and then leaves the app alone, which is
+   exactly today's behaviour. Reaching the other direction later re-arms it.
+
+   Deliberately not gated behind the spinner: the relaunch lands in a
+   moment, and a screen that renders and goes is a far better failure than
+   a spinner that never ends if the relaunch is swallowed. */
+const RTL_RELAUNCH_KEY = 'mg-rtl-relaunch'
+
+function useRtlRelaunch() {
+  useEffect(() => {
+    if (!needsRtlRelaunch()) return undefined
+    let alive = true
+    ;(async () => {
+      // The direction we are trying to reach, i.e. the one we do NOT have.
+      const want = I18nManager.isRTL ? 'ltr' : 'rtl'
+      let tried = null
+      try { tried = await AsyncStorage.getItem(RTL_RELAUNCH_KEY) } catch { /* treat as untried */ }
+      if (!alive || !shouldRelaunchForRtl(tried, want)) return
+      try { await AsyncStorage.setItem(RTL_RELAUNCH_KEY, want) } catch { /* may cost one more attempt */ }
+      if (!alive) return
+      reloadApp()
+    })()
+    return () => { alive = false }
+  }, [])
+}
+
 export default function App() {
   // Don't brick the app on a font that a device rejects: if useFonts errors
   // (e.g. Android's stricter TTF parser refusing an asset), proceed with the
   // system fallback instead of hanging on the spinner forever.
   const [fontsLoaded, fontError] = useFonts(fontAssets)
   const langReady = useI18nReady()
+  useRtlRelaunch()
   if (!langReady || (!fontsLoaded && !fontError)) {
     return (
       <View style={styles.center}>

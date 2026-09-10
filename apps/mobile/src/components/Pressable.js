@@ -50,10 +50,18 @@ const DISABLED_OPACITY = 0.45
 
 /* Exported for its own test. RN resolves the style function inside
    Pressable, so the composition — the part that can silently swallow a
-   caller's appearance — is only reachable from the outside as this. */
-export function composePressedStyle(style, state, disabled) {
+   caller's appearance — is only reachable from the outside as this.
+
+   `disabled` dims only when there is an onPress to disable. Not every
+   `disabled` in this app means "temporarily unavailable": the calendar
+   marks an agenda row that has no detail view to open, and settings
+   marks a chip in a list that is read-only here. Those rows are CONTENT
+   — dimming them to 45% is dimming the thing the user came to read, and
+   it is the shape a blanket rule gets wrong. A control with no handler
+   was never a button, so there is nothing to grey out. */
+export function composePressedStyle(style, state, disabled, pressable = true) {
   const base = typeof style === 'function' ? style(state) : style
-  if (disabled) return [base, styles.disabled]
+  if (disabled) return pressable ? [base, styles.disabled] : base
   return state.pressed ? [base, styles.pressed] : base
 }
 
@@ -82,7 +90,7 @@ export function Pressable({ style, disabled, accessibilityRole, onPress, ...rest
       onPress={onPress}
       disabled={disabled}
       accessibilityRole={accessibilityRole || (onPress ? 'button' : undefined)}
-      style={(state) => composePressedStyle(style, state, disabled)}
+      style={(state) => composePressedStyle(style, state, disabled, !!onPress)}
     />
   )
 }

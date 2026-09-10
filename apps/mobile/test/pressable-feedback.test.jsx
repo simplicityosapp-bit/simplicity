@@ -92,6 +92,20 @@ describe('Pressable feedback', () => {
     expect(s.opacity).toBeGreaterThan(0.3)
     expect(s.opacity).toBeLessThan(1)
   })
+  /* A 'disabled' with no handler behind it is not a greyed-out control, it is
+     content: the calendar marks an agenda row with no detail view to open, and
+     settings marks a chip in a read-only list. Dimming those dims the thing the
+     user came to read — which a blanket rule did, until this. */
+  it('does not dim a disabled thing that was never pressable', () => {
+    const s = flatten(composePressedStyle(CARD, REST, true, false))
+    expect(s.backgroundColor).toBe('papayawhip')
+    expect(s.opacity).toBeUndefined()
+  })
+
+  it('still dims a real button that is disabled', () => {
+    const s = flatten(composePressedStyle(CARD, REST, true, true))
+    expect(s.opacity).toBeLessThan(1)
+  })
   it('passes presses and props straight through', () => {
     const onPress = jest.fn()
     render(

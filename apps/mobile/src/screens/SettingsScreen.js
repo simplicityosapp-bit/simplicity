@@ -573,7 +573,9 @@ function TaxonomyManager({ title, items, placeholder, secondPlaceholder, onAdd, 
         {items.length ? items.map((it) => (
           <View key={it.id} style={[styles.chip, editId === it.id && styles.chipEditing]}>
             {it.color ? <View style={[styles.chipDot, { backgroundColor: it.color }]} /> : null}
-            <Pressable onPress={() => startEdit(it)} disabled={!onUpdate}><Text style={styles.chipText}>{it.label}</Text></Pressable>
+            {/* No handler rather than a disabled one when the list is read-only:
+                the chip is a label to read, and greying it out greys out the word. */}
+            <Pressable onPress={onUpdate ? () => startEdit(it) : undefined}><Text style={styles.chipText}>{it.label}</Text></Pressable>
             <Pressable onPress={() => onRemove(it.id)} hitSlop={6}><X size={12} strokeWidth={2} color={colors.textFaint} /></Pressable>
           </View>
         )) : <Text style={styles.hint}>{i18n.t('settings:common.none', { defaultValue: '—' })}</Text>}

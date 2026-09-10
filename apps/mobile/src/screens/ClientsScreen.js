@@ -560,7 +560,14 @@ const styles = themed((c, t) => ({
   empty: { color: c.textFaint, fontSize: 14, textAlign: 'center', marginTop: 24, lineHeight: 20 },
 
   // Controls row (glass backgrounds provided by <Glass>/<GlassPressable>)
-  controls: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  // Wraps. Four pills whose width comes from their own translated labels do not
+  // fit one line on a phone: at 375pt "תתי-סטטוסים" started 54pt past the right
+  // edge and was simply unreachable — and it is the only way into the sub-status
+  // editor, which moved here from Settings precisely to be reachable. Nothing
+  // here shrinks, and the row is inside the VERTICAL scroller, so an overflow is
+  // clipped rather than scrolled to. `gap` covers both axes, so the second line
+  // spaces itself.
+  controls: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 8 },
   sortBtn: { flexDirection: 'row', alignItems: 'center', gap: 5, paddingVertical: 7, paddingHorizontal: 12 },
   sortBtnText: { fontSize: 12, color: c.text },
   toggle: { flexDirection: 'row', padding: 2 },

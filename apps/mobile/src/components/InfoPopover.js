@@ -21,7 +21,16 @@ export default function InfoPopover({ text, label }) {
       >
         <HelpCircle size={13} strokeWidth={1.7} color={colors.textFaint} />
       </Pressable>
-      <Modal visible={open} transparent animationType="fade" onRequestClose={() => setOpen(false)}>
+      {/* Same reason as the sheets: without these the dimmed backdrop stops
+          below the status bar, leaving an undimmed strip across the top. */}
+      <Modal
+        visible={open}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setOpen(false)}
+        statusBarTranslucent
+        navigationBarTranslucent
+      >
         <Pressable style={styles.backdrop} onPress={() => setOpen(false)}>
           <View style={styles.body}>
             <Text style={styles.text}>{text}</Text>

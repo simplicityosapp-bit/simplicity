@@ -11,8 +11,21 @@ import { themed } from '../theme/themed'
 // clipped by the home ScrollView.
 export default function Sheet({ open, onClose, title, children }) {
   const insets = useSafeAreaInsets()
+  /* Android gives a Modal its own window, and by default that window
+     stops below the status bar while the app behind it draws edge-to-edge.
+     The backdrop therefore dimmed everything except a bright strip along
+     the top, with a hard edge across it. Both flags let the window cover
+     what the app covers; the panel already pads itself by insets.bottom,
+     so nothing lands under the gesture bar. */
   return (
-    <Modal visible={open} transparent animationType="slide" onRequestClose={onClose}>
+    <Modal
+      visible={open}
+      transparent
+      animationType="slide"
+      onRequestClose={onClose}
+      statusBarTranslucent
+      navigationBarTranslucent
+    >
       <View style={styles.overlay}>
         <Pressable style={styles.backdrop} onPress={onClose} />
         {/* Fill the overlay + anchor to the bottom so the sheet's maxHeight '86%'

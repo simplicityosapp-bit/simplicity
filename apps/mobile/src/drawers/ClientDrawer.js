@@ -186,8 +186,21 @@ export default function ClientDrawer({ clientId, clients, transactions, sessions
      payment, session…) is its own Modal and gets its own back. */
   const closeTop = () => { if (statusMenu) setStatusMenu(false); else onClose() }
 
+  /* Android gives a Modal its own window, and by default that window
+     stops below the status bar while the app behind it draws edge-to-edge.
+     The backdrop therefore dimmed everything except a bright strip along
+     the top, with a hard edge across it. Both flags let the window cover
+     what the app covers; the panel already pads itself by insets.bottom,
+     so nothing lands under the gesture bar. */
   return (
-    <Modal visible={!!clientId} transparent animationType="slide" onRequestClose={closeTop}>
+    <Modal
+      visible={!!clientId}
+      transparent
+      animationType="slide"
+      onRequestClose={closeTop}
+      statusBarTranslucent
+      navigationBarTranslucent
+    >
       <View style={styles.overlay}>
         <Pressable style={styles.backdrop} onPress={onClose} />
         {/* The client file holds editable fields — notes, «פרטים נוספים», the

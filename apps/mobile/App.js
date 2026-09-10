@@ -8,6 +8,7 @@ import { useFonts } from 'expo-font'
 import { fontAssets } from './src/lib/fonts'
 import i18n, { setupI18n, whenI18nReady, needsRtlRelaunch } from './src/lib/i18n'
 import { getThemeMode, subscribeTheme } from './src/theme/theme'
+import { useThemeMode } from './src/theme/themed'
 import { AuthProvider, useAuth } from './src/lib/auth'
 import { DrawerProvider, useDrawer } from './src/lib/drawer'
 import { FormOptionsProvider } from './src/lib/formOptions'
@@ -56,6 +57,24 @@ function DrawerHost() {
       activeScreen={navigationRef.isReady() ? navigationRef.getCurrentRoute()?.name : undefined}
     />
   )
+}
+
+/* The status bar follows the app's OWN theme, not the system's.
+   ────────────────────────────────────────────────────────────────
+   This was <StatusBar style="auto" />, which derives the icon colour from
+   the OS colour scheme — and app.json pins userInterfaceStyle to "light",
+   so the OS always answered "light" and the icons were always dark. Night
+   mode is this app's own preference, kept in AsyncStorage, which the system
+   knows nothing about: the ground under the clock became #15140F and the
+   clock stayed dark on top of it.
+
+   useThemeMode subscribes to the same switch the palette does, so the bar
+   turns over with everything else rather than on the next launch. "light"
+   here means light CONTENT — white icons — which is what a dark ground
+   needs. */
+function ThemedStatusBar() {
+  const mode = useThemeMode()
+  return <StatusBar style={mode === 'dark' ? 'light' : 'dark'} />
 }
 
 function Root() {
@@ -237,7 +256,7 @@ export default function App() {
           <AuthProvider>
             <DrawerProvider>
               <Root />
-              <StatusBar style="auto" />
+              <ThemedStatusBar />
             </DrawerProvider>
           </AuthProvider>
         </SafeAreaProvider>

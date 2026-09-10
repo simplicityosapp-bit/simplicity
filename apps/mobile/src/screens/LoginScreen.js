@@ -160,19 +160,33 @@ export default function LoginScreen() {
           <Text style={styles.title}>{title}</Text>
 
           <TextInput
-            style={styles.input} placeholder="Email" placeholderTextColor={colors.textFaint}
-            autoCapitalize="none" keyboardType="email-address" autoComplete="email"
+            style={styles.input} placeholder={t('auth:emailPlaceholder', { defaultValue: 'כתובת אימייל' })} placeholderTextColor={colors.textFaint}
+            autoCapitalize="none" keyboardType="email-address" autoComplete="email" textContentType="emailAddress"
             value={email} onChangeText={setEmail} editable={!busy}
           />
 
           {mode !== 'reset' ? (
             <View style={styles.pwRow}>
               <TextInput
-                style={[styles.input, styles.pwInput]} placeholder="Password" placeholderTextColor={colors.textFaint}
+                style={[styles.input, styles.pwInput]} placeholder={t('auth:passwordPlaceholder', { defaultValue: 'סיסמה' })} placeholderTextColor={colors.textFaint}
                 secureTextEntry={!show} autoCapitalize="none" value={password} onChangeText={setPassword} editable={!busy}
+                /* Without these a password manager has nothing to fill. signup
+                   wants a NEW password so the manager offers to generate one. */
+                autoComplete={mode === 'signup' ? 'new-password' : 'current-password'}
+                textContentType={mode === 'signup' ? 'newPassword' : 'password'}
               />
-              <Pressable onPress={() => setShow((s) => !s)} accessibilityLabel={show ? t('auth:hidePassword') : t('auth:showPassword')} hitSlop={8}>
-                <Text style={styles.pwToggle}>{show ? t('auth:hidePassword') : t('auth:showPassword')}</Text>
+              {/* The label used to be absolutely positioned INSIDE an unstyled
+                  Pressable, which left the Pressable itself zero pixels tall —
+                  and Android does not deliver touches to a child drawn outside
+                  its parent, so most of the visible words were not tappable.
+                  The box is the thing positioned now; the text just sits in it. */}
+              <Pressable
+                style={styles.pwToggle}
+                onPress={() => setShow((s) => !s)}
+                accessibilityLabel={show ? t('auth:hidePassword') : t('auth:showPassword')}
+                hitSlop={8}
+              >
+                <Text style={styles.pwToggleText}>{show ? t('auth:hidePassword') : t('auth:showPassword')}</Text>
               </Pressable>
             </View>
           ) : null}
@@ -250,7 +264,8 @@ const styles = themed((c, t) => ({
   },
   pwRow: { position: 'relative', justifyContent: 'center' },
   pwInput: { paddingEnd: 84 },
-  pwToggle: { position: 'absolute', end: 14, top: -10, color: c.brand, fontSize: 13 },
+  pwToggle: { position: 'absolute', end: 8, top: 0, bottom: 0, justifyContent: 'center', paddingHorizontal: 6 },
+  pwToggleText: { color: c.brand, fontSize: 13 },
   forgotWrap: { alignItems: 'flex-end', marginTop: -6 },
   link: { color: c.brand, fontSize: 14, fontWeight: '600' },
   error: { color: c.danger, fontSize: 14, textAlign: 'center' },

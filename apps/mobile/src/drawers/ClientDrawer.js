@@ -1,5 +1,5 @@
 import { useMemo, useState, useRef, useEffect } from 'react'
-import { Modal, View, Text, StyleSheet, ScrollView, Linking, Alert } from 'react-native'
+import { Modal, View, Text, StyleSheet, ScrollView, Linking, Alert, KeyboardAvoidingView, Platform } from 'react-native'
 import { Pressable } from '../components/Pressable'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { X, Trash2, Pencil, Banknote, MessageCircle, ChevronDown, Check, RotateCcw, Phone, Mail, PackagePlus } from 'lucide-react-native'
@@ -190,154 +190,166 @@ export default function ClientDrawer({ clientId, clients, transactions, sessions
     <Modal visible={!!clientId} transparent animationType="slide" onRequestClose={closeTop}>
       <View style={styles.overlay}>
         <Pressable style={styles.backdrop} onPress={onClose} />
-        <View style={[styles.panel, { paddingBottom: insets.bottom }]}>
-          <View style={styles.topbar}>
-            <Pressable style={styles.topBtn} onPress={onClose} hitSlop={8}>
-              <X size={18} strokeWidth={1.7} color={colors.textSub} />
-            </Pressable>
-            <Text style={styles.topTitle}>{i18n.t('clients:drawer.title', { defaultValue: 'תיק לקוח' })}</Text>
-            <Pressable style={styles.topBtn} onPress={del} hitSlop={8}>
-              <Trash2 size={17} strokeWidth={1.7} color={colors.danger} />
-            </Pressable>
-          </View>
+        {/* The client file holds editable fields — notes, «פרטים נוספים», the
+            inline session and payment rows — inside a panel pinned to the
+            bottom at a fixed 92% height, and had no keyboard handling at all,
+            so the keyboard came up over whatever was being typed into. Same
+            wrapper the Sheet uses, for the same reason; box-none keeps taps in
+            the strip above the panel reaching the backdrop. */}
+        <KeyboardAvoidingView
+          style={styles.kav}
+          pointerEvents="box-none"
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        >
+          <View style={[styles.panel, { paddingBottom: insets.bottom }]}>
+            <View style={styles.topbar}>
+              <Pressable style={styles.topBtn} onPress={onClose} hitSlop={8}>
+                <X size={18} strokeWidth={1.7} color={colors.textSub} />
+              </Pressable>
+              <Text style={styles.topTitle}>{i18n.t('clients:drawer.title', { defaultValue: 'תיק לקוח' })}</Text>
+              <Pressable style={styles.topBtn} onPress={del} hitSlop={8}>
+                <Trash2 size={17} strokeWidth={1.7} color={colors.danger} />
+              </Pressable>
+            </View>
 
-          {client ? (
-            <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
-              {/* Header — avatar + name + status pill + project + edit */}
-              <View style={styles.header}>
-                <View style={styles.av}><Text style={styles.avText}>{initials(client.name)}</Text></View>
-                <View style={styles.headId}>
-                  <Text style={styles.headName} numberOfLines={1}>{client.name}</Text>
-                  <View style={styles.headSub}>
-                    <Pressable
-                      style={[styles.statusPill, { backgroundColor: (STATUS_PILL[meta] || STATUS_PILL.no_status).bg }]}
-                      onPress={() => setStatusMenu((o) => !o)}
-                    >
-                      <Text style={styles.statusText}>{i18n.t(`clients:status.${meta === 'no_status' ? 'noStatus' : meta}`, { defaultValue: '' })}</Text>
-                      <ChevronDown size={12} strokeWidth={2} color={colors.textSub} />
-                    </Pressable>
-                    {groupDriven ? (
-                      <Text style={styles.byGroup}>{i18n.t('clients:drawer.byGroup', { defaultValue: ' · לפי הקבוצה' })}</Text>
+            {client ? (
+              <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+                {/* Header — avatar + name + status pill + project + edit */}
+                <View style={styles.header}>
+                  <View style={styles.av}><Text style={styles.avText}>{initials(client.name)}</Text></View>
+                  <View style={styles.headId}>
+                    <Text style={styles.headName} numberOfLines={1}>{client.name}</Text>
+                    <View style={styles.headSub}>
+                      <Pressable
+                        style={[styles.statusPill, { backgroundColor: (STATUS_PILL[meta] || STATUS_PILL.no_status).bg }]}
+                        onPress={() => setStatusMenu((o) => !o)}
+                      >
+                        <Text style={styles.statusText}>{i18n.t(`clients:status.${meta === 'no_status' ? 'noStatus' : meta}`, { defaultValue: '' })}</Text>
+                        <ChevronDown size={12} strokeWidth={2} color={colors.textSub} />
+                      </Pressable>
+                      {groupDriven ? (
+                        <Text style={styles.byGroup}>{i18n.t('clients:drawer.byGroup', { defaultValue: ' · לפי הקבוצה' })}</Text>
+                      ) : null}
+                      {isMember && overridden ? (
+                        <Pressable style={styles.revert} onPress={revertToGroup}>
+                          <Text style={styles.manualTag}>{i18n.t('clients:drawer.statusManual', { defaultValue: 'ידני' })}</Text>
+                          <RotateCcw size={11} strokeWidth={1.8} color={colors.textSub} />
+                          <Text style={styles.revertText}>{i18n.t('clients:drawer.revertToGroup', { defaultValue: 'חזרה לסטטוס הקבוצה' })}</Text>
+                        </Pressable>
+                      ) : null}
+                      {project ? <Text style={styles.projText}>· {project.name}</Text> : null}
+                    </View>
+                    {statusMenu ? (
+                      <View style={styles.statusMenu}>
+                        {STATUS_ORDER.map((k) => (
+                          <Pressable key={k} style={styles.statusOpt} onPress={() => changeStatus(k)}>
+                            <View style={[styles.statusDot, { backgroundColor: STATUS_PILL[k].dot }]} />
+                            <Text style={[styles.statusOptText, meta === k && styles.statusOptOn]}>{i18n.t(`clients:status.${k === 'no_status' ? 'noStatus' : k}`)}</Text>
+                            {meta === k ? <Check size={13} strokeWidth={2} color={colors.brand} /> : null}
+                          </Pressable>
+                        ))}
+                      </View>
                     ) : null}
-                    {isMember && overridden ? (
-                      <Pressable style={styles.revert} onPress={revertToGroup}>
-                        <Text style={styles.manualTag}>{i18n.t('clients:drawer.statusManual', { defaultValue: 'ידני' })}</Text>
-                        <RotateCcw size={11} strokeWidth={1.8} color={colors.textSub} />
-                        <Text style={styles.revertText}>{i18n.t('clients:drawer.revertToGroup', { defaultValue: 'חזרה לסטטוס הקבוצה' })}</Text>
+                  </View>
+                  <Pressable style={styles.editBtn} onPress={() => setEditing(true)} hitSlop={6}>
+                    <Pencil size={13} strokeWidth={1.7} color={colors.textSub} />
+                    <Text style={styles.editText}>{i18n.t('clients:drawer.edit', { defaultValue: 'ערוך' })}</Text>
+                  </Pressable>
+                </View>
+
+                {/* Phone and email were collected on every client and shown
+                    nowhere — the phone only ever fed the WhatsApp button, the
+                    email nothing at all. Pressable so the platform does the
+                    obvious thing: tel: dials, mailto: opens the mail app. The
+                    number displays exactly as typed; only the dial target is
+                    stripped. Matches the web client file. */}
+                {client.phone || client.email ? (
+                  <View style={styles.contact}>
+                    {client.phone ? (
+                      <Pressable style={styles.contactItem} onPress={() => Linking.openURL(`tel:${String(client.phone).replace(/[^\d+]/g, '')}`)}>
+                        <Phone size={13} strokeWidth={1.7} color={colors.textSub} />
+                        <Text style={styles.contactText}>{client.phone}</Text>
                       </Pressable>
                     ) : null}
-                    {project ? <Text style={styles.projText}>· {project.name}</Text> : null}
+                    {client.email ? (
+                      <Pressable style={styles.contactItem} onPress={() => Linking.openURL(`mailto:${client.email}`)}>
+                        <Mail size={13} strokeWidth={1.7} color={colors.textSub} />
+                        <Text style={styles.contactText}>{client.email}</Text>
+                      </Pressable>
+                    ) : null}
                   </View>
-                  {statusMenu ? (
-                    <View style={styles.statusMenu}>
-                      {STATUS_ORDER.map((k) => (
-                        <Pressable key={k} style={styles.statusOpt} onPress={() => changeStatus(k)}>
-                          <View style={[styles.statusDot, { backgroundColor: STATUS_PILL[k].dot }]} />
-                          <Text style={[styles.statusOptText, meta === k && styles.statusOptOn]}>{i18n.t(`clients:status.${k === 'no_status' ? 'noStatus' : k}`)}</Text>
-                          {meta === k ? <Check size={13} strokeWidth={2} color={colors.brand} /> : null}
-                        </Pressable>
-                      ))}
-                    </View>
-                  ) : null}
+                ) : null}
+
+                {/* Billing hero — sessions / paid / balance */}
+                <Card padded={false} contentStyle={styles.hero}>
+                  <HeroStat label={i18n.t('clients:drawer.sessions', { defaultValue: 'פגישות' })} value={sessLabel} />
+                  <HeroStat label={i18n.t('clients:drawer.paid', { defaultValue: 'שולם' })} value={isr(bal.paid)} divided />
+                  <HeroStat label={i18n.t('clients:drawer.balance', { defaultValue: 'יתרה' })} value={isr(bal.balance)} accent={bal.balance > 0} />
+                </Card>
+
+                {/* Per-session billing note — names the model so the growing balance is clear */}
+                {bal.perSession ? (
+                  <Text style={styles.billNote}>{i18n.t('clients:drawer.perSessionNote', { price: isr(client.price_per_session || 0) })}</Text>
+                ) : null}
+
+                {/* Payment plan hint — quick glance (full plan is in the sections below) */}
+                {plan && planBal ? (
+                  <Text style={styles.planHint}>{i18n.t('clients:drawer.planHint', { received: planBal.receivedCount, total: planBal.count, remaining: isr(planBal.remaining) })}</Text>
+                ) : null}
+
+                {/* Group sessions — read-only breakdown, one row per group */}
+                {bal.groupSessions.length > 0 ? (
+                  <View style={styles.grpSessions}>
+                    {bal.groupSessions.map((gs) => (
+                      <View key={gs.id} style={styles.grpRow}>
+                        <Text style={styles.grpName} numberOfLines={1}>{i18n.t('clients:drawer.groupSessions', { name: gs.name })}{gs.ended ? i18n.t('clients:drawer.groupEnded', { defaultValue: ' (הסתיימה)' }) : ''}</Text>
+                        <Text style={styles.grpVal}>{gs.held}/{gs.quota || 0}</Text>
+                      </View>
+                    ))}
+                  </View>
+                ) : null}
+
+                {/* Payment request — only when the client owes money */}
+                {bal.balance > 0 && client.phone ? (
+                  <Pressable
+                    style={styles.payRequest}
+                    onPress={() => whatsapp(`${i18n.t('clients:drawer.requestPayment', { defaultValue: 'דרישת תשלום' })} · ${isr(bal.balance)}`)}
+                  >
+                    <MessageCircle size={15} strokeWidth={1.8} color={colors.positive} />
+                    <Text style={styles.payRequestText}>{i18n.t('clients:drawer.requestPayment', { defaultValue: 'דרישת תשלום בוואטסאפ' })}</Text>
+                  </Pressable>
+                ) : null}
+
+                {/* Quick actions (2×2) */}
+                <View style={styles.actions}>
+                  <Action Icon={Check} label={i18n.t('clients:drawer.logSession', { defaultValue: 'תיעוד פגישה' })} onPress={() => setLogging(true)} />
+                  <Action Icon={Banknote} label={i18n.t('clients:drawer.receivedPayment', { defaultValue: 'קיבלתי תשלום' })} onPress={() => setPaying(true)} />
+                  <Action Icon={PackagePlus} label={i18n.t('clients:addSessions.title')} onPress={() => setAddingSessions(true)} />
+                  {client.phone ? <Action Icon={MessageCircle} label="WhatsApp" onPress={() => whatsapp()} /> : null}
                 </View>
-                <Pressable style={styles.editBtn} onPress={() => setEditing(true)} hitSlop={6}>
-                  <Pencil size={13} strokeWidth={1.7} color={colors.textSub} />
-                  <Text style={styles.editText}>{i18n.t('clients:drawer.edit', { defaultValue: 'ערוך' })}</Text>
-                </Pressable>
-              </View>
 
-              {/* Phone and email were collected on every client and shown
-                  nowhere — the phone only ever fed the WhatsApp button, the
-                  email nothing at all. Pressable so the platform does the
-                  obvious thing: tel: dials, mailto: opens the mail app. The
-                  number displays exactly as typed; only the dial target is
-                  stripped. Matches the web client file. */}
-              {client.phone || client.email ? (
-                <View style={styles.contact}>
-                  {client.phone ? (
-                    <Pressable style={styles.contactItem} onPress={() => Linking.openURL(`tel:${String(client.phone).replace(/[^\d+]/g, '')}`)}>
-                      <Phone size={13} strokeWidth={1.7} color={colors.textSub} />
-                      <Text style={styles.contactText}>{client.phone}</Text>
-                    </Pressable>
-                  ) : null}
-                  {client.email ? (
-                    <Pressable style={styles.contactItem} onPress={() => Linking.openURL(`mailto:${client.email}`)}>
-                      <Mail size={13} strokeWidth={1.7} color={colors.textSub} />
-                      <Text style={styles.contactText}>{client.email}</Text>
-                    </Pressable>
-                  ) : null}
-                </View>
-              ) : null}
-
-              {/* Billing hero — sessions / paid / balance */}
-              <Card padded={false} contentStyle={styles.hero}>
-                <HeroStat label={i18n.t('clients:drawer.sessions', { defaultValue: 'פגישות' })} value={sessLabel} />
-                <HeroStat label={i18n.t('clients:drawer.paid', { defaultValue: 'שולם' })} value={isr(bal.paid)} divided />
-                <HeroStat label={i18n.t('clients:drawer.balance', { defaultValue: 'יתרה' })} value={isr(bal.balance)} accent={bal.balance > 0} />
-              </Card>
-
-              {/* Per-session billing note — names the model so the growing balance is clear */}
-              {bal.perSession ? (
-                <Text style={styles.billNote}>{i18n.t('clients:drawer.perSessionNote', { price: isr(client.price_per_session || 0) })}</Text>
-              ) : null}
-
-              {/* Payment plan hint — quick glance (full plan is in the sections below) */}
-              {plan && planBal ? (
-                <Text style={styles.planHint}>{i18n.t('clients:drawer.planHint', { received: planBal.receivedCount, total: planBal.count, remaining: isr(planBal.remaining) })}</Text>
-              ) : null}
-
-              {/* Group sessions — read-only breakdown, one row per group */}
-              {bal.groupSessions.length > 0 ? (
-                <View style={styles.grpSessions}>
-                  {bal.groupSessions.map((gs) => (
-                    <View key={gs.id} style={styles.grpRow}>
-                      <Text style={styles.grpName} numberOfLines={1}>{i18n.t('clients:drawer.groupSessions', { name: gs.name })}{gs.ended ? i18n.t('clients:drawer.groupEnded', { defaultValue: ' (הסתיימה)' }) : ''}</Text>
-                      <Text style={styles.grpVal}>{gs.held}/{gs.quota || 0}</Text>
-                    </View>
-                  ))}
-                </View>
-              ) : null}
-
-              {/* Payment request — only when the client owes money */}
-              {bal.balance > 0 && client.phone ? (
-                <Pressable
-                  style={styles.payRequest}
-                  onPress={() => whatsapp(`${i18n.t('clients:drawer.requestPayment', { defaultValue: 'דרישת תשלום' })} · ${isr(bal.balance)}`)}
-                >
-                  <MessageCircle size={15} strokeWidth={1.8} color={colors.positive} />
-                  <Text style={styles.payRequestText}>{i18n.t('clients:drawer.requestPayment', { defaultValue: 'דרישת תשלום בוואטסאפ' })}</Text>
-                </Pressable>
-              ) : null}
-
-              {/* Quick actions (2×2) */}
-              <View style={styles.actions}>
-                <Action Icon={Check} label={i18n.t('clients:drawer.logSession', { defaultValue: 'תיעוד פגישה' })} onPress={() => setLogging(true)} />
-                <Action Icon={Banknote} label={i18n.t('clients:drawer.receivedPayment', { defaultValue: 'קיבלתי תשלום' })} onPress={() => setPaying(true)} />
-                <Action Icon={PackagePlus} label={i18n.t('clients:addSessions.title')} onPress={() => setAddingSessions(true)} />
-                {client.phone ? <Action Icon={MessageCircle} label="WhatsApp" onPress={() => whatsapp()} /> : null}
-              </View>
-
-              <ClientDrawerSections
-                client={client}
-                txns={transactions}
-                tasks={tasks}
-                reminders={reminders}
-                sessions={sessions}
-                members={members}
-                groups={groups}
-                onEditClient={() => setEditing(true)}
-                /* «פרטים נוספים» and «הערות» edit in place now instead of
-                   opening the whole form — same as web. Passed straight
-                   through: the sections do their own optimistic save. */
-                onUpdateClient={updateClient}
-                onEditTx={setEditTx}
-                onEditSession={setEditSession}
-                onEditTask={setEditTask}
-                onEditReminder={updateReminder ? setEditReminder : undefined}
-              />
-            </ScrollView>
-          ) : null}
-        </View>
+                <ClientDrawerSections
+                  client={client}
+                  txns={transactions}
+                  tasks={tasks}
+                  reminders={reminders}
+                  sessions={sessions}
+                  members={members}
+                  groups={groups}
+                  onEditClient={() => setEditing(true)}
+                  /* «פרטים נוספים» and «הערות» edit in place now instead of
+                     opening the whole form — same as web. Passed straight
+                     through: the sections do their own optimistic save. */
+                  onUpdateClient={updateClient}
+                  onEditTx={setEditTx}
+                  onEditSession={setEditSession}
+                  onEditTask={setEditTask}
+                  onEditReminder={updateReminder ? setEditReminder : undefined}
+                />
+              </ScrollView>
+            ) : null}
+          </View>
+        </KeyboardAvoidingView>
       </View>
 
       <EditClientModal
@@ -475,6 +487,7 @@ function Action({ Icon, label, onPress }) {
 
 const styles = themed((c, t) => ({
   overlay: { flex: 1, justifyContent: 'flex-end' },
+  kav: { flex: 1, justifyContent: 'flex-end' },
   backdrop: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(42,37,32,0.35)' },
   panel: { backgroundColor: c.bg, borderTopLeftRadius: 24, borderTopRightRadius: 24, height: '92%', overflow: 'hidden' },
   topbar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingTop: 14, paddingBottom: 12, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: c.divider },

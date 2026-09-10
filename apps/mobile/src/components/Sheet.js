@@ -18,7 +18,21 @@ export default function Sheet({ open, onClose, title, children }) {
         {/* Fill the overlay + anchor to the bottom so the sheet's maxHeight '86%'
             resolves against the full screen height (an auto-height wrapper left a
             tall form — e.g. Add Client — unconstrained, overflowing off the top).
-            box-none lets taps in the empty area above the sheet reach the backdrop. */}
+            box-none lets taps in the empty area above the sheet reach the backdrop.
+
+            `behavior={undefined}` on Android is deliberate and is what Expo's
+            own keyboard guide prescribes — "just having the KeyboardAvoidingView
+            prevents covering the input". Do not 'fix' it to 'height' on the
+            reasoning below without a device in hand:
+
+            edge-to-edge has been on by default since SDK 53, and from Android 15
+            adjustResize no longer resizes the window, which is the mechanism the
+            undefined behavior relies on. If a report says the keyboard covers an
+            add/edit form on Android, this line is the first suspect — but the
+            preview cannot reach it (Platform.OS is 'web' there and there is no
+            soft keyboard), so it needs a real check rather than a guess. Expo's
+            escape hatches, in order: softwareKeyboardLayoutMode 'pan' in
+            app.json, then react-native-keyboard-controller. */}
         <KeyboardAvoidingView style={styles.kav} pointerEvents="box-none" behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
           <View style={[styles.sheet, { paddingBottom: insets.bottom + 20 }]}>
             <View style={styles.head}>

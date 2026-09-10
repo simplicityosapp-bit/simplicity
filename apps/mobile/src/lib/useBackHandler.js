@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { BackHandler } from 'react-native'
+import { BackHandler, Platform } from 'react-native'
 
 /* Android's back gesture/button, for overlays that are NOT a <Modal>.
    ────────────────────────────────────────────────────────────────
@@ -19,14 +19,17 @@ import { BackHandler } from 'react-native'
    re-subscribe on every render, which would keep moving this handler to the
    front of a queue it is already at the front of.
 
-   Inert where there is no hardware back — iOS has none, and react-native-web
-   hands back a stub subscription. Neither needs a guard. */
+   Inert where there is no hardware back: iOS has none. Web is skipped
+   outright — react-native-web does not merely no-op, it logs
+   "BackHandler is not supported on web and should not be used" as an ERROR on
+   every subscribe, so opening the drawer once buried the preview console under
+   eight of them. Nothing is lost: there is no hardware back to catch. */
 export function useBackHandler(enabled, onBack) {
   const cb = useRef(onBack)
   useEffect(() => { cb.current = onBack }, [onBack])
 
   useEffect(() => {
-    if (!enabled) return undefined
+    if (!enabled || Platform.OS === 'web') return undefined
     const sub = BackHandler.addEventListener('hardwareBackPress', () => {
       cb.current?.()
       return true

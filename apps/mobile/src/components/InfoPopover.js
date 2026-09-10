@@ -13,9 +13,9 @@ export default function InfoPopover({ text, label }) {
   const [open, setOpen] = useState(false)
   return (
     <>
+      {/* 13pt icon: 10 of slop still left it at 33, under both platforms'
+          minimum. 16 takes it to 45 without moving anything. */}
       <Pressable
-        {/* 13pt icon: 10 of slop still left it at 33, under both platforms'
-            minimum. 16 takes it to 45 without moving anything. */}
         hitSlop={16}
         onPress={() => setOpen(true)}
         accessibilityRole="button"

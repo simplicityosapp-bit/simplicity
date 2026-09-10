@@ -1,6 +1,6 @@
 import { useMemo, useRef, useState, useEffect, useCallback } from 'react'
 import { useFocusEffect } from '@react-navigation/native'
-import { View, Text, TextInput, StyleSheet, ScrollView, ActivityIndicator, RefreshControl, Dimensions, Animated, Linking, Alert, I18nManager } from 'react-native'
+import { View, Text, TextInput, StyleSheet, ScrollView, ActivityIndicator, RefreshControl, useWindowDimensions, Animated, Linking, Alert, I18nManager } from 'react-native'
 import { Pressable } from '../components/Pressable'
 import { GestureDetector, Gesture } from 'react-native-gesture-handler'
 import { Bell, Check, MessageCircle, ChevronLeft, ChevronUp, ChevronDown, Search, SlidersHorizontal, Plus, X } from 'lucide-react-native'
@@ -29,7 +29,7 @@ const DEFAULT_FILTER = { period: 'all', project: '', group: '', status: '', sour
 // Fallback column-dot colors when a meta has no default sub-status (metaColor
 // then returns a CSS var, which RN can't use).
 const META_COLOR = themedMap((c) => ({ in_process: '#D9A566', converted: c.positive, not_relevant: '#b3a99c' }))
-const COL_W = Math.min(300, Math.round(Dimensions.get('window').width * 0.82))
+const colWidthFor = (w) => Math.min(300, Math.round(w * 0.82))
 const todayYmd = () => {
   const d = new Date()
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
@@ -42,6 +42,14 @@ const todayYmd = () => {
 // updateLead's source). Pending public-page leads sit in a review strip above.
 export default function LeadsScreen() {
   const bottomPad = useBottomPad()
+  /* Column width followed a Dimensions read taken once, at module load, so a
+     split screen or an unfolded device kept the width from whenever the bundle
+     happened to evaluate. The ref is for the gesture handlers, which run
+     outside render and would otherwise close over a stale value. */
+  const { width: winWidth } = useWindowDimensions()
+  const colW = colWidthFor(winWidth)
+  const colWRef = useRef(colW)
+  colWRef.current = colW
   const { leads, loading, error, refetch, addLead, updateLead, deleteLead, addClient, addGroupMember } = useLeadsList()
   const confirmDeleteLead = (id, name) => {
     Alert.alert(
@@ -160,7 +168,7 @@ export default function LeadsScreen() {
 
   // ── Drag-and-drop (long-press to pick up) with horizontal edge auto-scroll ──
   const boardRef = useRef(null)
-  const boardBox = useRef({ x: 0, width: Dimensions.get('window').width }) // screen coords
+  const boardBox = useRef({ x: 0, y: 0, width: winWidth, height: 0 }) // screen coords
   const scrollX = useRef(0)
   const colX = useRef({}) // { metaKey: { x, width } } in board-content coords
   const overMeta = useRef(null)
@@ -182,14 +190,20 @@ export default function LeadsScreen() {
       boardRef.current?.scrollTo({ x: next, animated: false })
     }, 16)
   }
-  const hitMeta = (absX) => {
+  /* A drop is only a drop over the board. This used to resolve by X alone,
+     so dragging a card UP to abort — over the header, off the board entirely —
+     still landed it in whichever column happened to share that x, and moved
+     the lead. Wrong data, from a gesture that meant "never mind". */
+  const hitMeta = (absX, absY) => {
+    const { y, height } = boardBox.current
+    if (height > 0 && (absY < y || absY > y + height)) return null
     const relX = absX - boardBox.current.x + scrollX.current
     for (const m of LEAD_META) { const c = colX.current[m.key]; if (c && relX >= c.x && relX <= c.x + c.width) return m.key }
     return null
   }
   const onDragMove = (absX, absY) => {
-    ghost.setValue({ x: absX - COL_W / 2, y: absY - 28 })
-    overMeta.current = hitMeta(absX)
+    ghost.setValue({ x: absX - colWRef.current / 2, y: absY - 28 })
+    overMeta.current = hitMeta(absX, absY)
     const local = absX - boardBox.current.x
     if (local < 52) startEdgeScroll(-1)
     else if (local > boardBox.current.width - 52) startEdgeScroll(1)
@@ -205,7 +219,7 @@ export default function LeadsScreen() {
   const makePan = (lead) => Gesture.Pan()
     .activateAfterLongPress(220)
     .runOnJS(true)
-    .onStart((e) => { setDragLead(lead); ghost.setValue({ x: e.absoluteX - COL_W / 2, y: e.absoluteY - 28 }) })
+    .onStart((e) => { setDragLead(lead); ghost.setValue({ x: e.absoluteX - colWRef.current / 2, y: e.absoluteY - 28 }) })
     .onUpdate((e) => onDragMove(e.absoluteX, e.absoluteY))
     .onEnd(() => onDrop(lead))
     .onFinalize(() => { stopEdgeScroll(); setDragLead(null) })
@@ -307,7 +321,7 @@ export default function LeadsScreen() {
              card to pick it up and drag between columns (edge = auto-scroll);
              the ⇄ control is the tap-to-move fallback. */}
           <View
-            onLayout={() => boardRef.current?.measureInWindow?.((x, y, w) => { boardBox.current = { x, width: w } })}
+            onLayout={() => boardRef.current?.measureInWindow?.((x, y, w, h) => { boardBox.current = { x, y, width: w, height: h } })}
           >
             <ScrollView
               ref={boardRef}
@@ -325,7 +339,7 @@ export default function LeadsScreen() {
                 return (
                   <View
                     key={m.key}
-                    style={{ width: COL_W }}
+                    style={{ width: colW }}
                     onLayout={(e) => { colX.current[m.key] = { x: e.nativeEvent.layout.x, width: e.nativeEvent.layout.width } }}
                   >
                     <Card padded={false} style={over ? styles.colOver : undefined} contentStyle={styles.colFrame}>
@@ -358,7 +372,7 @@ export default function LeadsScreen() {
           </View>
           {/* Floating ghost of the lifted card */}
           {dragLead ? (
-            <Animated.View pointerEvents="none" style={[styles.ghost, { width: COL_W, transform: ghost.getTranslateTransform() }]}>
+            <Animated.View pointerEvents="none" style={[styles.ghost, { width: colW, transform: ghost.getTranslateTransform() }]}>
               <LeadCard lead={dragLead} sources={leadSources} statuses={leadStatuses} />
             </Animated.View>
           ) : null}

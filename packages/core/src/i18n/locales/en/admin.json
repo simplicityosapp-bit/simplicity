@@ -12,7 +12,8 @@
   },
   "state": {
     "loading": "Loading…",
-    "loadError": "Couldn't load the data"
+    "loadError": "Couldn't load the data",
+    "forbidden": "This area is for system administrators only."
   },
   "dashboard": {
     "title": "Dashboard",

@@ -12,7 +12,8 @@
   },
   "state": {
     "loading": "Cargando…",
-    "loadError": "No se pudieron cargar los datos"
+    "loadError": "No se pudieron cargar los datos",
+    "forbidden": "Esta área es solo para administradores del sistema."
   },
   "dashboard": {
     "title": "Panel",

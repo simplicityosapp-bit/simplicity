@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { View, Text, StyleSheet } from 'react-native'
+import { View, Text, ScrollView, StyleSheet } from 'react-native'
 import { Pressable } from './Pressable'
 import { ChevronDown, Check } from 'lucide-react-native'
 import { colors } from '../theme/theme'
@@ -26,7 +26,12 @@ export default function Select({ label, value, options = [], onChange, placehold
         <ChevronDown size={18} strokeWidth={1.6} color={colors.textFaint} style={open ? styles.chevOpen : null} />
       </Pressable>
       {open ? (
-        <View style={styles.options}>
+        /* Bounded and scrollable. The list expands into the form rather than
+           floating over it, so picking a client out of eighty pushed the rest
+           of the sheet — and the buttons — past the bottom of an 86%-tall
+           panel. nestedScrollEnabled is what makes an inner scroller work at
+           all on Android. */
+        <ScrollView style={styles.options} nestedScrollEnabled keyboardShouldPersistTaps="handled">
           {options.map((o, i) => {
             const on = o.value === value
             return (
@@ -36,7 +41,7 @@ export default function Select({ label, value, options = [], onChange, placehold
               </Pressable>
             )
           })}
-        </View>
+        </ScrollView>
       ) : null}
     </View>
   )
@@ -49,7 +54,7 @@ const styles = themed((c, t) => ({
   value: { flex: 1, fontSize: 14, color: c.text },
   placeholder: { color: c.textFaint },
   chevOpen: { transform: [{ rotate: '180deg' }] },
-  options: { borderWidth: 1, borderColor: c.border, borderRadius: 12, backgroundColor: c.card, overflow: 'hidden' },
+  options: { maxHeight: 232, borderWidth: 1, borderColor: c.border, borderRadius: 12, backgroundColor: c.card, overflow: 'hidden' },
   option: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8, paddingVertical: 12, paddingHorizontal: 14 },
   optionBorder: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: c.divider },
   optionText: { flex: 1, fontSize: 15, color: c.text },

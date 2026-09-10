@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { View, Text, TextInput, StyleSheet, ScrollView, ActivityIndicator, RefreshControl } from 'react-native'
+import { View, Text, TextInput, StyleSheet, ScrollView, FlatList, ActivityIndicator, RefreshControl } from 'react-native'
 import { Pressable } from '../components/Pressable'
 import { useRoute, useNavigation, useFocusEffect } from '@react-navigation/native'
 import { Search, Wallet, ArrowUpDown, Check, X, Trash2, CheckCircle2, Clock, CircleSlash, CircleDashed, Tags, Plus } from 'lucide-react-native'
@@ -172,6 +172,27 @@ export default function ClientsScreen() {
     return [...map.values()].sort((a, b) => (a.project ? 0 : 1) - (b.project ? 0 : 1))
   }, [groupBy, shown, projects])
 
+  /* One flat array for the list, so BOTH views virtualise.
+     The screen used to render every client card at once inside a ScrollView —
+     fine for the six in the mock, less so for a coach with two hundred, where
+     each of those cards is an avatar, a status pill and a three-column stat
+     row that all had to exist before the first one could be looked at.
+
+     The project view keeps its group headings by putting them IN the data
+     rather than wrapping each group in a View: that wrapper only supplied
+     `gap: 12`, which the list's own content container already provides, so
+     flattening changes nothing on screen and lets the headings scroll out of
+     the window with everything else. */
+  const rows = useMemo(() => {
+    if (groupBy !== 'project') return shown.map((e) => ({ kind: 'client', key: e.c.id, e }))
+    const out = []
+    grouped.forEach(({ project, items }) => {
+      out.push({ kind: 'projHead', key: 'head:' + (project?.id || '__none'), project, count: items.length })
+      items.forEach((e) => out.push({ kind: 'client', key: e.c.id, e }))
+    })
+    return out
+  }, [groupBy, shown, grouped])
+
   // Per-tab hero totals — monthly (count + range paid) or cumulative (done/allot).
   const hero = useMemo(() => {
     const tabClients = enriched.filter((e) => e.meta === tab).map((e) => e.c)
@@ -251,131 +272,132 @@ export default function ClientsScreen() {
     )
   }
 
+  /* Passed to the list as an ELEMENT, never as a component. FlatList renders
+     a component prop as <Header />, so an inline arrow gives it a new type on
+     every render, and the search field inside would be unmounted and remade
+     between keystrokes — losing focus each time. As an element it reconciles
+     like any other child and the field keeps the cursor. */
+  const listHeader = (
+    <>
+      <ScreenHead
+        title={i18n.t('clients:title', { defaultValue: 'לקוחות' })}
+        onAdd={() => setAdding(true)}
+        addLabel={i18n.t('clients:addClientAria', { defaultValue: 'הוספת לקוח' })}
+      />
+      <ScreenCount>{i18n.t('clients:countLabel', { count: total, defaultValue: `${total} לקוחות` })}</ScreenCount>
+      {error ? <Text style={styles.error}>{error}</Text> : null}
+      {/* Controls — sort + group-by toggle + select (glass like the cards) */}
+      <View style={styles.controls}>
+        <GlassPressable radius={999} style={styles.sortBtn} onPress={() => setSortOpen(true)}>
+          <ArrowUpDown size={14} strokeWidth={1.7} color={colors.textSub} />
+          <Text style={styles.sortBtnText}>{i18n.t('clients:sort.label', { defaultValue: 'מיון' })}</Text>
+        </GlassPressable>
+        <Glass radius={999} style={styles.toggle}>
+          <Pressable style={[styles.toggleBtn, groupBy === 'status' && styles.toggleOn]} onPress={() => setGroupBy('status')}>
+            <Text style={[styles.toggleText, groupBy === 'status' && styles.toggleTextOn]}>{i18n.t('clients:groupBy.status', { defaultValue: 'סטטוס' })}</Text>
+          </Pressable>
+          <Pressable style={[styles.toggleBtn, groupBy === 'project' && styles.toggleOn]} onPress={() => setGroupBy('project')}>
+            <Text style={[styles.toggleText, groupBy === 'project' && styles.toggleTextOn]}>{i18n.t('clients:groupBy.project', { defaultValue: 'פרויקט' })}</Text>
+          </Pressable>
+        </Glass>
+        <GlassPressable radius={999} on={selectMode} onColor={colors.text} style={styles.selectBtn} onPress={() => (selectMode ? exitSelect() : setSelectMode(true))}>
+          <Text style={[styles.selectBtnText, selectMode && styles.toggleTextOn]}>{selectMode ? i18n.t('clients:select.cancel', { defaultValue: 'בטל בחירה' }) : i18n.t('clients:select.enter', { defaultValue: 'בחר/י' })}</Text>
+        </GlassPressable>
+        {/* The sub-status editor. It lived in Settings, which was the only
+            place on this platform that could create or delete one, while
+            THIS screen named them on every card and filtered by them. */}
+        <GlassPressable radius={999} style={styles.sortBtn} onPress={() => setStatusesOpen(true)}>
+          <Tags size={14} strokeWidth={1.7} color={colors.textSub} />
+          <Text style={styles.sortBtnText}>{i18n.t('clients:statuses.link', { defaultValue: 'תתי-סטטוסים' })}</Text>
+        </GlassPressable>
+      </View>
+      {/* Status tabs (status mode only) */}
+      {groupBy === 'status' && !balanceOnly ? (
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.tabs}>
+          {TABS.map(({ key, icon: Icon }) => {
+            if (key === 'no_status' && !counts.no_status) return null
+            const on = tab === key
+            return (
+              <GlassPressable key={key} radius={20} on={on} style={styles.tab} onPress={() => setTab(key)}>
+                <Icon size={14} strokeWidth={1.7} color={on ? colors.onBrand : colors.textSub} />
+                <Text style={[styles.tabText, on && styles.tabTextOn]}>{i18n.t(`clients:status.${statusKey(key)}`)}</Text>
+                <Text style={[styles.tabCount, on && styles.tabTextOn]}>{counts[key] || 0}</Text>
+              </GlassPressable>
+            )
+          })}
+        </ScrollView>
+      ) : null}
+      {/* Search + open-balance filter */}
+      <View style={styles.searchRow}>
+        <Glass radius={14} style={styles.search}>
+          <Search size={16} strokeWidth={1.6} color={colors.textFaint} />
+          <TextInput
+            style={styles.searchInput}
+            value={query}
+            onChangeText={setQuery}
+            placeholder={i18n.t('clients:search', { defaultValue: 'חיפוש לקוח…' })}
+            placeholderTextColor={colors.textFaint}
+          />
+        </Glass>
+        <GlassPressable radius={999} on={balanceOnly} style={styles.balFilter} onPress={() => setBalanceOnly(!balanceOnly)}>
+          <Wallet size={13} strokeWidth={1.8} color={balanceOnly ? colors.onBrand : colors.textSub} />
+          <Text style={[styles.balFilterText, balanceOnly && styles.tabTextOn]}>
+            {i18n.t('clients:balanceFilter', { defaultValue: 'יתרה פתוחה' })}{openBalanceCount > 0 ? ` · ${openBalanceCount}` : ''}
+          </Text>
+        </GlassPressable>
+      </View>
+      {/* Per-tab hero summary with monthly/cumulative toggle (status mode) */}
+      {groupBy === 'status' && total > 0 ? (
+        <Card padded={false} contentStyle={styles.hero}>
+          <View style={styles.heroTop}>
+            <Text style={styles.heroTitle}>{i18n.t(`clients:hero.${statusKey(tab)}`, { defaultValue: i18n.t('clients:summary', { defaultValue: 'סיכום' }) })}</Text>
+            {tab !== 'past' && tab !== 'no_status' ? (
+              <View style={styles.scopeToggle}>
+                <Pressable style={[styles.scopeBtn, scope === 'monthly' && styles.scopeOn]} onPress={() => setScope('monthly')}>
+                  <Text style={[styles.scopeText, scope === 'monthly' && styles.scopeTextOn]}>{i18n.t('clients:hero.monthly', { defaultValue: 'חודשי' })}</Text>
+                </Pressable>
+                <Pressable style={[styles.scopeBtn, scope === 'cumulative' && styles.scopeOn]} onPress={() => setScope('cumulative')}>
+                  <Text style={[styles.scopeText, scope === 'cumulative' && styles.scopeTextOn]}>{i18n.t('clients:hero.cumulative', { defaultValue: 'מצטבר' })}</Text>
+                </Pressable>
+              </View>
+            ) : null}
+          </View>
+          <View style={styles.heroGrid}>
+            {hero.map((s, i) => <HeroStat key={s.l} label={s.l} value={s.v} divided={i === 1} />)}
+          </View>
+        </Card>
+      ) : null}
+    </>
+  )
   return (
     <Screen name="clients">
       {loading && !clients.length ? (
         <View style={styles.center}><ActivityIndicator color={colors.brand} /></View>
       ) : (
-        <ScrollView
-          contentContainerStyle={[styles.content, bottomPad]}
-          showsVerticalScrollIndicator={false}
-          refreshControl={<RefreshControl refreshing={loading} onRefresh={refetch} tintColor={colors.brand} />}
-        >
-          <ScreenHead
-            title={i18n.t('clients:title', { defaultValue: 'לקוחות' })}
-            onAdd={() => setAdding(true)}
-            addLabel={i18n.t('clients:addClientAria', { defaultValue: 'הוספת לקוח' })}
-          />
-          <ScreenCount>{i18n.t('clients:countLabel', { count: total, defaultValue: `${total} לקוחות` })}</ScreenCount>
-          {error ? <Text style={styles.error}>{error}</Text> : null}
-
-          {/* Controls — sort + group-by toggle + select (glass like the cards) */}
-          <View style={styles.controls}>
-            <GlassPressable radius={999} style={styles.sortBtn} onPress={() => setSortOpen(true)}>
-              <ArrowUpDown size={14} strokeWidth={1.7} color={colors.textSub} />
-              <Text style={styles.sortBtnText}>{i18n.t('clients:sort.label', { defaultValue: 'מיון' })}</Text>
-            </GlassPressable>
-            <Glass radius={999} style={styles.toggle}>
-              <Pressable style={[styles.toggleBtn, groupBy === 'status' && styles.toggleOn]} onPress={() => setGroupBy('status')}>
-                <Text style={[styles.toggleText, groupBy === 'status' && styles.toggleTextOn]}>{i18n.t('clients:groupBy.status', { defaultValue: 'סטטוס' })}</Text>
-              </Pressable>
-              <Pressable style={[styles.toggleBtn, groupBy === 'project' && styles.toggleOn]} onPress={() => setGroupBy('project')}>
-                <Text style={[styles.toggleText, groupBy === 'project' && styles.toggleTextOn]}>{i18n.t('clients:groupBy.project', { defaultValue: 'פרויקט' })}</Text>
-              </Pressable>
-            </Glass>
-            <GlassPressable radius={999} on={selectMode} onColor={colors.text} style={styles.selectBtn} onPress={() => (selectMode ? exitSelect() : setSelectMode(true))}>
-              <Text style={[styles.selectBtnText, selectMode && styles.toggleTextOn]}>{selectMode ? i18n.t('clients:select.cancel', { defaultValue: 'בטל בחירה' }) : i18n.t('clients:select.enter', { defaultValue: 'בחר/י' })}</Text>
-            </GlassPressable>
-            {/* The sub-status editor. It lived in Settings, which was the only
-                place on this platform that could create or delete one, while
-                THIS screen named them on every card and filtered by them. */}
-            <GlassPressable radius={999} style={styles.sortBtn} onPress={() => setStatusesOpen(true)}>
-              <Tags size={14} strokeWidth={1.7} color={colors.textSub} />
-              <Text style={styles.sortBtnText}>{i18n.t('clients:statuses.link', { defaultValue: 'תתי-סטטוסים' })}</Text>
-            </GlassPressable>
-          </View>
-
-          {/* Status tabs (status mode only) */}
-          {groupBy === 'status' && !balanceOnly ? (
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.tabs}>
-              {TABS.map(({ key, icon: Icon }) => {
-                if (key === 'no_status' && !counts.no_status) return null
-                const on = tab === key
-                return (
-                  <GlassPressable key={key} radius={20} on={on} style={styles.tab} onPress={() => setTab(key)}>
-                    <Icon size={14} strokeWidth={1.7} color={on ? colors.onBrand : colors.textSub} />
-                    <Text style={[styles.tabText, on && styles.tabTextOn]}>{i18n.t(`clients:status.${statusKey(key)}`)}</Text>
-                    <Text style={[styles.tabCount, on && styles.tabTextOn]}>{counts[key] || 0}</Text>
-                  </GlassPressable>
-                )
-              })}
-            </ScrollView>
-          ) : null}
-
-          {/* Search + open-balance filter */}
-          <View style={styles.searchRow}>
-            <Glass radius={14} style={styles.search}>
-              <Search size={16} strokeWidth={1.6} color={colors.textFaint} />
-              <TextInput
-                style={styles.searchInput}
-                value={query}
-                onChangeText={setQuery}
-                placeholder={i18n.t('clients:search', { defaultValue: 'חיפוש לקוח…' })}
-                placeholderTextColor={colors.textFaint}
-              />
-            </Glass>
-            <GlassPressable radius={999} on={balanceOnly} style={styles.balFilter} onPress={() => setBalanceOnly(!balanceOnly)}>
-              <Wallet size={13} strokeWidth={1.8} color={balanceOnly ? colors.onBrand : colors.textSub} />
-              <Text style={[styles.balFilterText, balanceOnly && styles.tabTextOn]}>
-                {i18n.t('clients:balanceFilter', { defaultValue: 'יתרה פתוחה' })}{openBalanceCount > 0 ? ` · ${openBalanceCount}` : ''}
-              </Text>
-            </GlassPressable>
-          </View>
-
-          {/* Per-tab hero summary with monthly/cumulative toggle (status mode) */}
-          {groupBy === 'status' && total > 0 ? (
-            <Card padded={false} contentStyle={styles.hero}>
-              <View style={styles.heroTop}>
-                <Text style={styles.heroTitle}>{i18n.t(`clients:hero.${statusKey(tab)}`, { defaultValue: i18n.t('clients:summary', { defaultValue: 'סיכום' }) })}</Text>
-                {tab !== 'past' && tab !== 'no_status' ? (
-                  <View style={styles.scopeToggle}>
-                    <Pressable style={[styles.scopeBtn, scope === 'monthly' && styles.scopeOn]} onPress={() => setScope('monthly')}>
-                      <Text style={[styles.scopeText, scope === 'monthly' && styles.scopeTextOn]}>{i18n.t('clients:hero.monthly', { defaultValue: 'חודשי' })}</Text>
-                    </Pressable>
-                    <Pressable style={[styles.scopeBtn, scope === 'cumulative' && styles.scopeOn]} onPress={() => setScope('cumulative')}>
-                      <Text style={[styles.scopeText, scope === 'cumulative' && styles.scopeTextOn]}>{i18n.t('clients:hero.cumulative', { defaultValue: 'מצטבר' })}</Text>
-                    </Pressable>
-                  </View>
-                ) : null}
+        <FlatList
+          data={rows}
+          keyExtractor={(r) => r.key}
+          renderItem={({ item }) => (
+            item.kind === 'projHead' ? (
+              <View style={styles.projHead}>
+                <View style={[styles.projDot, { backgroundColor: item.project?.color || colors.textSub }]} />
+                <Text style={styles.projName} numberOfLines={1}>{item.project?.name || i18n.t('clients:project.none', { defaultValue: 'ללא פרויקט' })}</Text>
+                <Text style={styles.projCount}>{item.count}</Text>
               </View>
-              <View style={styles.heroGrid}>
-                {hero.map((s, i) => <HeroStat key={s.l} label={s.l} value={s.v} divided={i === 1} />)}
-              </View>
-            </Card>
-          ) : null}
-
-          {/* Client cards — flat or project-grouped */}
-          {shown.length ? (
-            groupBy === 'project'
-              ? grouped.map(({ project, items }) => (
-                <View key={project?.id || '__none'} style={styles.projGroup}>
-                  <View style={styles.projHead}>
-                    <View style={[styles.projDot, { backgroundColor: project?.color || colors.textSub }]} />
-                    <Text style={styles.projName} numberOfLines={1}>{project?.name || i18n.t('clients:project.none', { defaultValue: 'ללא פרויקט' })}</Text>
-                    <Text style={styles.projCount}>{items.length}</Text>
-                  </View>
-                  {items.map(renderCard)}
-                </View>
-              ))
-              : shown.map(renderCard)
-          ) : (
+            ) : renderCard(item.e)
+          )}
+          ListHeaderComponent={listHeader}
+          ListEmptyComponent={(
             <Text style={styles.empty}>
               {query || balanceOnly
                 ? i18n.t('clients:empty.noSearchResults', { defaultValue: 'לא נמצאו לקוחות.' })
                 : (total ? i18n.t('clients:empty.noneInCategory', { defaultValue: 'אין לקוחות בקטגוריה זו.' }) : i18n.t('clients:empty.firstClient', { defaultValue: 'עדיין אין לקוחות.' }))}
             </Text>
           )}
-        </ScrollView>
+          contentContainerStyle={[styles.content, bottomPad]}
+          showsVerticalScrollIndicator={false}
+          refreshControl={<RefreshControl refreshing={loading} onRefresh={refetch} tintColor={colors.brand} />}
+        />
       )}
 
       {/* Bulk action bar */}

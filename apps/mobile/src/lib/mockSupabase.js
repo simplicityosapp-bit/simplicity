@@ -14,6 +14,7 @@
    mutate the in-memory fixtures so interactions stick until reload.
    ════════════════════════════════════════════════════════════════ */
 import { MOCK_DB } from '../data/mock'
+import { adminInvoke } from '../data/mockAdmin'
 
 const uuid = () => (globalThis.crypto && globalThis.crypto.randomUUID ? globalThis.crypto.randomUUID() : 'mock-' + Math.random().toString(16).slice(2))
 
@@ -23,7 +24,13 @@ const FAKE_SESSION = {
   expires_in: 999999,
   expires_at: Math.floor(8640000000000 / 1000),
   refresh_token: 'mock-refresh-token',
-  user: { id: 'mock-user-001', aud: 'authenticated', role: 'authenticated', email: 'demo@simplicity.local', app_metadata: { provider: 'mock' }, user_metadata: { full_name: 'מאמן/ת לדוגמה' } },
+  /* app_metadata.role is what isAdminUser() reads, so stamping it here is
+     what opens the admin console in preview. Deliberately a PROMOTED admin
+     rather than the hardcoded owner email: the owner shortcut skips the
+     permission checks entirely, so previewing as one would never exercise
+     the per-permission gating the console actually ships. */
+  user: { id: 'mock-user-001', aud: 'authenticated', role: 'authenticated', email: 'demo@simplicity.local', user_metadata: { full_name: 'מאמן/ת לדוגמה' },
+    app_metadata: { provider: 'mock', role: 'admin', admin_perms: { delete_users: true, set_subscriber: true, manage_admins: true } } },
 }
 
 function computeResult(state) {
@@ -76,7 +83,14 @@ export function makeMockClient() {
   return {
     from: (table) => makeQuery(table),
     rpc: () => Promise.resolve({ data: [], error: null }),
-    functions: { invoke: async () => ({ data: null, error: null }) },
+    functions: {
+      invoke: async (name, opts) => {
+        // The console talks to exactly one function; synthesise its payloads so
+        // the four tabs render end-to-end here. Everything else stays a no-op.
+        if (name === 'admin') return { data: adminInvoke(opts?.body), error: null }
+        return { data: null, error: null }
+      },
+    },
     channel: () => ({ on() { return this }, subscribe() { return this }, unsubscribe() { return Promise.resolve('ok') } }),
     removeChannel: () => Promise.resolve('ok'),
     auth: {

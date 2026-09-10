@@ -9,6 +9,7 @@ import { isAdminUser } from '@simplicity/core'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../lib/auth'
 import { usePreferences, roleLabel } from '../lib/preferences'
+import { useBackHandler } from '../lib/useBackHandler'
 import i18n from '../lib/i18n'
 import { colors, space, setThemeMode, getThemeMode } from '../theme/theme'
 import { themed, themedMap } from '../theme/themed'
@@ -129,6 +130,11 @@ export default function Drawer({ open, onClose, onNavigate, activeScreen }) {
   }, [anim, open])
   const translateX = anim.interpolate({ inputRange: [0, 1], outputRange: [0, 400] })
   const backdropOpacity = anim.interpolate({ inputRange: [0, 1], outputRange: [1, 0] })
+
+  /* Android back closes the drawer instead of falling through to the
+     navigator underneath it — see lib/useBackHandler. Called above the early
+     return so the hook order is stable across open/closed. */
+  useBackHandler(open, onClose)
 
   const go = (screen) => { onClose(); onNavigate(screen) }
   if (!open) return null

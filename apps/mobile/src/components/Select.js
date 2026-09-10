@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { View, Text, Pressable, StyleSheet } from 'react-native'
 import { ChevronDown, Check } from 'lucide-react-native'
 import { colors } from '../theme/theme'
+import { useBackHandler } from '../lib/useBackHandler'
 import { themed } from '../theme/themed'
 
 // Inline select field for the add/edit sheets — a tappable control that expands
@@ -11,6 +12,9 @@ import { themed } from '../theme/themed'
 export default function Select({ label, value, options = [], onChange, placeholder }) {
   const [open, setOpen] = useState(false)
   const selected = options.find((o) => o.value === value)
+  /* Back collapses the option list first. Only reaches here when the Select
+     sits on a screen (Settings); inside a Sheet the Modal takes the press. */
+  useBackHandler(open, () => setOpen(false))
   return (
     <View style={styles.field}>
       {label ? <Text style={styles.label}>{label}</Text> : null}

@@ -180,8 +180,13 @@ export default function ClientDrawer({ clientId, clients, transactions, sessions
       : `${bal.groupSessions.filter((g) => !g.ended).reduce((s, g) => s + g.held, 0)}/${bal.groupSessions.filter((g) => !g.ended).reduce((s, g) => s + (g.quota || 0), 0) || 0}`)
     : '—'
 
+  /* Android back peels one layer: an open status menu first, the whole drawer
+     only once nothing is stacked on top of it. Everything else in here (edit,
+     payment, session…) is its own Modal and gets its own back. */
+  const closeTop = () => { if (statusMenu) setStatusMenu(false); else onClose() }
+
   return (
-    <Modal visible={!!clientId} transparent animationType="slide" onRequestClose={onClose}>
+    <Modal visible={!!clientId} transparent animationType="slide" onRequestClose={closeTop}>
       <View style={styles.overlay}>
         <Pressable style={styles.backdrop} onPress={onClose} />
         <View style={[styles.panel, { paddingBottom: insets.bottom }]}>

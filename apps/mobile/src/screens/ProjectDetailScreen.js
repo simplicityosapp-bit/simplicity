@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
-import { View, Text, Pressable, StyleSheet, ScrollView, ActivityIndicator, RefreshControl, Alert, I18nManager } from 'react-native'
+import { View, Text, StyleSheet, ScrollView, ActivityIndicator, RefreshControl, Alert, I18nManager } from 'react-native'
+import { Pressable } from '../components/Pressable'
 import { useRoute, useNavigation } from '@react-navigation/native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Pencil, Users, CalendarDays, Plus, ChevronDown, X, Check } from 'lucide-react-native'

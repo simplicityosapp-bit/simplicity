@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { View, Text, Pressable, StyleSheet } from 'react-native'
+import { View, Text, StyleSheet } from 'react-native'
+import { Pressable } from './Pressable'
 import { ChevronDown, Check } from 'lucide-react-native'
 import { colors } from '../theme/theme'
 import { useBackHandler } from '../lib/useBackHandler'

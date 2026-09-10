@@ -1,5 +1,6 @@
 import { useSyncExternalStore, useEffect, useRef } from 'react'
-import { View, Text, Pressable, Animated, Easing } from 'react-native'
+import { View, Text, Animated, Easing } from 'react-native'
+import { Pressable } from './Pressable'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { RotateCcw, X, Check } from 'lucide-react-native'
 import { subscribe, getSnapshot, performUndo, dismiss } from '../lib/undo'

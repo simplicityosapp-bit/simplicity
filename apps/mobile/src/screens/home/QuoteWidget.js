@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
-import { Text, Pressable } from 'react-native'
+import { Text } from 'react-native'
+import { Pressable } from '../../components/Pressable'
 import { useQuote } from '../../hooks/useQuote'
 import { useUserQuotes } from '../../hooks/useUserQuotes'
 import { usePreferences } from '../../lib/preferences'

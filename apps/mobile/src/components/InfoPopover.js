@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { View, Text, Pressable, Modal } from 'react-native'
+import { View, Text, Modal } from 'react-native'
+import { Pressable } from './Pressable'
 import { HelpCircle } from 'lucide-react-native'
 import i18n from '../lib/i18n'
 import { colors, shadow } from '../theme/theme'

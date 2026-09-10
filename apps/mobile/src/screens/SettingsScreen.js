@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { View, Text, TextInput, Pressable, StyleSheet, ScrollView, Share, Alert, Platform, Linking, I18nManager } from 'react-native'
+import { View, Text, TextInput, StyleSheet, ScrollView, Share, Alert, Platform, Linking, I18nManager } from 'react-native'
+import { Pressable } from '../components/Pressable'
 import Constants from 'expo-constants'
 import { useNavigation } from '@react-navigation/native'
 import { User, Palette, Database, LogOut, ChevronDown, ChevronUp, Sparkles, Download, X, Plus, Check, Wallet, Info, LayoutGrid, Trash2, Eye, Users, Leaf, Briefcase, Settings2, CalendarClock, Plug, BookOpen } from 'lucide-react-native'

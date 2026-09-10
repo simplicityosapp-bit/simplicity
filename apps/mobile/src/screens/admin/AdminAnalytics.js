@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { View, Text, Pressable, ScrollView } from 'react-native'
+import { View, Text, ScrollView } from 'react-native'
+import { Pressable } from '../../components/Pressable'
 import i18n from '../../lib/i18n'
 import Card from '../../components/Card'
 import { useAdminQuery } from '../../hooks/useAdmin'

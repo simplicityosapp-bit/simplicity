@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
-import { View, Text, TextInput, Pressable, StyleSheet, I18nManager } from 'react-native'
+import { View, Text, TextInput, StyleSheet, I18nManager } from 'react-native'
+import { Pressable } from '../components/Pressable'
 import { ChevronDown, Pencil } from 'lucide-react-native'
 import { getClientMemberships, financeQuery, isConfirmedTx, isr, fmtShortDate, fmtTime } from '@simplicity/core'
 import Card from '../components/Card'

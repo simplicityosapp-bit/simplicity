@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
-import { View, Text, Pressable, StyleSheet, ScrollView, Linking } from 'react-native'
+import { View, Text, StyleSheet, ScrollView, Linking } from 'react-native'
+import { Pressable } from '../components/Pressable'
 import { useNavigation } from '@react-navigation/native'
 import { ArrowLeft, Check, MessageCircle } from 'lucide-react-native'
 import { isr, fmtTime, todayItems } from '@simplicity/core'

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
-import { View, Text, Pressable, StyleSheet, I18nManager } from 'react-native'
+import { View, Text, StyleSheet, I18nManager } from 'react-native'
+import { Pressable } from './Pressable'
 import { BlurView } from './SafeBlur'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Users, ClipboardList, Home, Wallet, Menu } from 'lucide-react-native'

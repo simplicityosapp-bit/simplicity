@@ -1,5 +1,6 @@
 import { useMemo, useState, useRef, useEffect } from 'react'
-import { Modal, View, Text, Pressable, StyleSheet, ScrollView, Linking, Alert } from 'react-native'
+import { Modal, View, Text, StyleSheet, ScrollView, Linking, Alert } from 'react-native'
+import { Pressable } from '../components/Pressable'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { X, Trash2, Pencil, Banknote, MessageCircle, ChevronDown, Check, RotateCcw, Phone, Mail, PackagePlus } from 'lucide-react-native'
 import { clientBalance, effectiveClientMeta, isGroupDriven, isStatusOverridden, planBalance, planInstallments, isr } from '@simplicity/core'

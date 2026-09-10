@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
-import { View, Text, Pressable, StyleSheet, ScrollView, ActivityIndicator, RefreshControl } from 'react-native'
+import { View, Text, StyleSheet, ScrollView, ActivityIndicator, RefreshControl } from 'react-native'
+import { Pressable } from '../components/Pressable'
 import { useNavigation } from '@react-navigation/native'
 import { FolderOpen, Users } from 'lucide-react-native'
 import { financeQuery, isr, currentMonthRange, projectClientIdSet, scopeToProject, belongsToProject } from '@simplicity/core'

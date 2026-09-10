@@ -1,4 +1,5 @@
-import { View, Text, Pressable, StyleSheet, ScrollView, ActivityIndicator, RefreshControl } from 'react-native'
+import { View, Text, StyleSheet, ScrollView, ActivityIndicator, RefreshControl } from 'react-native'
+import { Pressable } from '../components/Pressable'
 import { Trash2, RotateCcw, User, FolderOpen, Users, CheckSquare, UserPlus, Tag, Banknote, Repeat, CalendarDays, Bell, Target, LayoutGrid, BarChart3, HelpCircle, MessageCircle } from 'lucide-react-native'
 import Screen from '../components/Screen'
 import ScreenHead from '../components/ScreenHead'

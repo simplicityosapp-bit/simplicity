@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { View, Text, TextInput, Pressable, ActivityIndicator, ScrollView, Linking, I18nManager } from 'react-native'
+import { View, Text, TextInput, ActivityIndicator, ScrollView, Linking, I18nManager } from 'react-native'
+import { Pressable } from '../components/Pressable'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Check } from 'lucide-react-native'
 import i18n from '../lib/i18n'

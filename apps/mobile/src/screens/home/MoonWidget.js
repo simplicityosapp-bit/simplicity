@@ -1,4 +1,5 @@
-import { View, Text, Pressable, StyleSheet } from 'react-native'
+import { View, Text, StyleSheet } from 'react-native'
+import { Pressable } from '../../components/Pressable'
 import { useNavigation } from '@react-navigation/native'
 import { BlurView } from '../../components/SafeBlur'
 import Svg, { Circle } from 'react-native-svg'

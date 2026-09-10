@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { View, Text, Pressable } from 'react-native'
+import { View, Text } from 'react-native'
+import { Pressable } from '../../components/Pressable'
 import { Plus } from 'lucide-react-native'
 import QuickActionsModal from '../../modals/QuickActionsModal'
 import AddTaskModal from '../../modals/AddTaskModal'

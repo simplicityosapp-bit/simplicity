@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect, useRef } from 'react'
-import { View, Text, Pressable, TextInput } from 'react-native'
+import { View, Text, TextInput } from 'react-native'
+import { Pressable } from '../components/Pressable'
 import { ChevronDown, Plus, Check, RotateCcw, Trash2, CreditCard } from 'lucide-react-native'
 import { planInstallments, planBalance, generateInstallments, firstOfNextMonth, fmtShortDate, isr, PAY_METHODS, payMethodLabel } from '@simplicity/core'
 import { usePaymentPlans } from '../hooks/usePaymentPlans'

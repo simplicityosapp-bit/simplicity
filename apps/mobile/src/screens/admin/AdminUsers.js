@@ -1,5 +1,6 @@
 import { useState, useMemo, useCallback, memo } from 'react'
-import { View, Text, Pressable, TextInput } from 'react-native'
+import { View, Text, TextInput } from 'react-native'
+import { Pressable } from '../../components/Pressable'
 import { Search, ChevronDown, Shield, ShieldCheck, Check, Trash2 } from 'lucide-react-native'
 import { ADMIN_EMAIL, adminPerms } from '@simplicity/core'
 import i18n from '../../lib/i18n'

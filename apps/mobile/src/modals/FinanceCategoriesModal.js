@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { View, Text, TextInput, Pressable, Alert } from 'react-native'
+import { View, Text, TextInput, Alert } from 'react-native'
+import { Pressable } from '../components/Pressable'
 import { Plus, X, Check } from 'lucide-react-native'
 import Sheet from '../components/Sheet'
 import { CATEGORY_COLORS } from '../hooks/useFinanceData'

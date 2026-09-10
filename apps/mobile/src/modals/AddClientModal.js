@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
-import { View, Text, TextInput, Pressable } from 'react-native'
+import { View, Text, TextInput } from 'react-native'
+import { Pressable } from '../components/Pressable'
 import { MapPin, ChevronDown } from 'lucide-react-native'
 import Sheet from '../components/Sheet'
 import Select from '../components/Select'

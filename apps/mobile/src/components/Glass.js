@@ -1,4 +1,5 @@
-import { View, Pressable, StyleSheet } from 'react-native'
+import { View, StyleSheet } from 'react-native'
+import { Pressable } from './Pressable'
 import { BlurView } from './SafeBlur'
 import { colors } from '../theme/theme'
 import { themed } from '../theme/themed'

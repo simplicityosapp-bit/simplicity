@@ -2,9 +2,10 @@ import { useEffect, useRef } from 'react'
 import { View, Text, Image, Pressable, ScrollView, StyleSheet, Animated } from 'react-native'
 import { BlurView } from './SafeBlur'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { Home, Users, Heart, Wallet, ClipboardList, Target, CalendarDays, Settings, FolderOpen, Activity, BarChart3, Trash2, LayoutTemplate, Plug, Sun, Moon, X, LogOut, Pencil, BookOpen } from 'lucide-react-native'
+import { Home, Users, Heart, Wallet, ClipboardList, Target, CalendarDays, Settings, FolderOpen, Activity, BarChart3, Trash2, LayoutTemplate, Plug, Sun, Moon, X, LogOut, Pencil, BookOpen, Shield } from 'lucide-react-native'
 
 const LOGO = require('../../assets/logo.png')
+import { isAdminUser } from '@simplicity/core'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../lib/auth'
 import { usePreferences, roleLabel } from '../lib/preferences'
@@ -92,6 +93,7 @@ export default function Drawer({ open, onClose, onNavigate, activeScreen }) {
   const insets = useSafeAreaInsets()
   const { session } = useAuth()
   const { prefs, update } = usePreferences()
+  const isAdmin = isAdminUser(session?.user)
   // Reflect the mode actually applied this session (not prefs, which lags the
   // AsyncStorage boot cache and is empty in the mock) so the toggle flips both ways.
   const dark = getThemeMode() === 'dark'
@@ -185,6 +187,15 @@ export default function Drawer({ open, onClose, onNavigate, activeScreen }) {
                 sub={it.sub ? i18n.t(it.sub, { defaultValue: '' }) : null}
                 onPress={() => go(it.screen)} />
             ))}
+            {/* Admin console — hidden for everyone who is not one. The gate
+                is UX only; the edge function behind every figure on that
+                screen re-checks the caller server-side. */}
+            {isAdmin ? (
+              <LinkRow Icon={Shield} tint="moon"
+                title={i18n.t('nav:admin.console', { defaultValue: 'קונסולת ניהול' })}
+                sub={i18n.t('nav:admin.consoleSub', { defaultValue: '' })}
+                onPress={() => go('Admin')} />
+            ) : null}
             <ThemeToggle dark={dark} onToggle={toggleTheme} />
             <LinkRow Icon={LogOut} tint="amber" danger
               title={i18n.t('nav:signOut', { defaultValue: 'התנתקות' })}

@@ -91,8 +91,9 @@ export const ROUTES = {
 
 /* The owner email allowed into /admin. Mirror of the server-side check in
    supabase/functions/admin — the client gate is only UX; the edge function
-   is the real authority. */
-export const ADMIN_EMAIL = 'simplicity.os.app@gmail.com'
+   is the real authority. Defined in core now that the phone console gates
+   on the same rule; re-exported here because this is where the app imports it. */
+export { ADMIN_EMAIL } from '@simplicity/core'
 
 export const DEFAULT_ROUTE = ROUTES.HOME
 

@@ -8,6 +8,7 @@ import { useTrash, TRASH_TYPES } from '../hooks/useTrash'
 import i18n from '../lib/i18n'
 import { colors } from '../theme/theme'
 import { themed } from '../theme/themed'
+import { useBottomPad } from '../lib/bottomBar'
 
 // Recycle bin (mirrors web TrashScreen) — soft-deleted rows grouped by entity,
 // each restorable within 30 days.
@@ -47,6 +48,7 @@ function primaryLabel(key, row) {
 }
 
 export default function TrashScreen() {
+  const bottomPad = useBottomPad()
   const { trash, totalCount, loading, error, restore, refetch } = useTrash()
 
   return (
@@ -55,7 +57,7 @@ export default function TrashScreen() {
         <View style={styles.center}><ActivityIndicator color={colors.brand} /></View>
       ) : (
         <ScrollView
-          contentContainerStyle={styles.content}
+          contentContainerStyle={[styles.content, bottomPad]}
           refreshControl={<RefreshControl refreshing={loading} onRefresh={refetch} tintColor={colors.brand} />}
         >
           <ScreenHead
@@ -106,7 +108,7 @@ export default function TrashScreen() {
 
 const styles = themed((c, t) => ({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  content: { paddingHorizontal: 20, paddingBottom: 96, gap: 16 },
+  content: { paddingHorizontal: 20, gap: 16 },
   error: { color: c.danger, fontSize: 13 },
   empty: { alignItems: 'center', gap: 12, paddingVertical: 60 },
   emptyText: { fontSize: 14, color: c.textFaint, textAlign: 'center', lineHeight: 20 },

@@ -11,10 +11,12 @@ import AddProjectModal from '../modals/AddProjectModal'
 import { colors } from '../theme/theme'
 import { themed } from '../theme/themed'
 import { useProjectsData } from '../hooks/useProjectsData'
+import { useBottomPad } from '../lib/bottomBar'
 
 // Projects screen (mirrors web): monthly/cumulative hero (projects · assigned
 // clients · income) + a card per project (clients / income / open tasks).
 export default function ProjectsScreen() {
+  const bottomPad = useBottomPad()
   const { projects, clients, transactions, tasks, groups, loading, error, refetch, addProject } = useProjectsData()
   const nav = useNavigation()
   const [view, setView] = useState('monthly')
@@ -47,7 +49,7 @@ export default function ProjectsScreen() {
       {loading && !projects.length ? (
         <View style={styles.center}><ActivityIndicator color={colors.brand} /></View>
       ) : (
-        <ScrollView contentContainerStyle={styles.content} refreshControl={<RefreshControl refreshing={loading} onRefresh={refetch} tintColor={colors.brand} />}>
+        <ScrollView contentContainerStyle={[styles.content, bottomPad]} refreshControl={<RefreshControl refreshing={loading} onRefresh={refetch} tintColor={colors.brand} />}>
           {/* Screen name + its icon, nothing else — the owner's header rule
               (2026-07-29), which web adopted and mobile had not. The project
               count it used to carry is stated by the summary card a few pixels
@@ -140,7 +142,7 @@ CardStat.displayName = 'CardStat'
 
 const styles = themed((c, t) => ({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  content: { paddingHorizontal: 20, paddingBottom: 96, gap: 14 },
+  content: { paddingHorizontal: 20, gap: 14 },
   error: { color: c.danger, fontSize: 13 },
 
   hero: { paddingVertical: 16, paddingHorizontal: 16, gap: 14 },

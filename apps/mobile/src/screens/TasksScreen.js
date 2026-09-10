@@ -18,6 +18,7 @@ import { useFormOptions } from '../lib/formOptions'
 import { useTasksList } from '../hooks/useTasksList'
 import { useRemindersList } from '../hooks/useRemindersList'
 import { useTaskTaxonomy } from '../hooks/useTaskTaxonomy'
+import { useBottomPad } from '../lib/bottomBar'
 
 const PRIORITY_COLOR = themedMap((c) => ({ high: c.danger, medium: c.amberWarn, low: c.positive }))
 const PRIORITY_GROUPS = ['high', 'medium', 'low']
@@ -47,6 +48,7 @@ function dateToBucket(due, now) {
 // Tasks + Reminders screen (mirrors web screens/tasks): entity toggle, glass
 // hero, filter (+ group-by for tasks), and collapsible glass-card groups.
 export default function TasksScreen() {
+  const bottomPad = useBottomPad()
   const { tasks, loading: tLoading, error: tError, addTask, toggleDone, updateTask, deleteTask, clearCompleted: clearTasks, refetch: refetchTasks } = useTasksList()
   const { reminders, loading: rLoading, error: rError, addReminder, editReminder, completeReminder, deleteReminder, clearCompleted: clearRems, refetch: refetchRems } = useRemindersList()
   const { clients, projects, taskStatuses } = useFormOptions()
@@ -164,7 +166,7 @@ export default function TasksScreen() {
         <View style={styles.center}><ActivityIndicator color={colors.brand} /></View>
       ) : (
         <ScrollView
-          contentContainerStyle={styles.content}
+          contentContainerStyle={[styles.content, bottomPad]}
           showsVerticalScrollIndicator={false}
           refreshControl={<RefreshControl refreshing={loading} onRefresh={isTasks ? refetchTasks : refetchRems} tintColor={colors.brand} />}
         >
@@ -389,7 +391,7 @@ function ReminderRow({ reminder, first, clientName, count, onComplete, onEdit })
 
 const styles = themed((c, t) => ({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  content: { paddingHorizontal: 20, paddingBottom: 96, gap: 12 },
+  content: { paddingHorizontal: 20, gap: 12 },
   error: { color: c.danger, fontSize: 13 },
   empty: { color: c.textFaint, fontSize: 14, textAlign: 'center', marginTop: 24 },
 

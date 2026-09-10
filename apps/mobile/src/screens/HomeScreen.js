@@ -8,6 +8,7 @@ import { CalendarClock, Wallet, Users } from 'lucide-react-native'
 import { useHomeData } from '../hooks/useHomeData'
 import { useFormOptions } from '../lib/formOptions'
 import { usePreferences } from '../lib/preferences'
+import { useBottomPad } from '../lib/bottomBar'
 import Screen from '../components/Screen'
 import Card from '../components/Card'
 import InfoPopover from '../components/InfoPopover'
@@ -30,6 +31,7 @@ import QuickRow from './home/QuickRow'
 const DEFAULT_WIDGET_ORDER = ['quote', 'moon', 'insights', 'quick-row', 'attention', 'next-tasks', 'chips']
 
 export default function HomeScreen() {
+  const bottomPad = useBottomPad()
   const nav = useNavigation()
   const insets = useSafeAreaInsets()
   const {
@@ -109,7 +111,7 @@ export default function HomeScreen() {
   return (
     <Screen name="home">
       <ScrollView
-        contentContainerStyle={[styles.content, { paddingTop: insets.top + 12 }]}
+        contentContainerStyle={[styles.content, bottomPad, { paddingTop: insets.top + 12 }]}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refetch} tintColor={colors.brand} />}
       >
         {error ? (
@@ -171,7 +173,7 @@ function Chip({ value, label, long, Icon, info, onPress }) {
 }
 
 const styles = themed((c, t) => ({
-  content: { paddingHorizontal: space.screenPadH, paddingBottom: 96, gap: 8 },
+  content: { paddingHorizontal: space.screenPadH, gap: 8 },
   errorBox: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: 'rgba(181,99,78,0.12)', borderRadius: 12, padding: 12, marginBottom: 8 },
   errorText: { color: c.danger, fontSize: 13, flex: 1 },
   retry: { color: c.danger, fontSize: 18 },

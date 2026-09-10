@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Users, ClipboardList, Home, Wallet, Menu } from 'lucide-react-native'
 import i18n from '../lib/i18n'
 import { useDrawer } from '../lib/drawer'
+import { useReportBottomBar } from '../lib/bottomBar'
 import { navigationRef } from '../navigation/AppNavigator'
 import { themed } from '../theme/themed'
 
@@ -26,6 +27,10 @@ const ITEMS = [
 
 export default function BottomBar() {
   const insets = useSafeAreaInsets()
+  /* The bar covers every screen's scroll content, so the screens have to
+     reserve room for it — and its height depends on the device's bottom
+     inset. Report what was actually laid out; see lib/bottomBar. */
+  const reportHeight = useReportBottomBar()
   const { setOpen } = useDrawer()
   const [route, setRoute] = useState(null)
 
@@ -48,7 +53,10 @@ export default function BottomBar() {
   // sits on the right; no-op on a real RTL device where the engine mirrors it.
   const flip = (i18n.language || '').startsWith('he') && !I18nManager.isRTL
   return (
-    <View style={[styles.bar, flip && styles.barFlip, { paddingBottom: 10 + insets.bottom }]}>
+    <View
+      style={[styles.bar, flip && styles.barFlip, { paddingBottom: 10 + insets.bottom }]}
+      onLayout={(e) => reportHeight(e.nativeEvent.layout.height)}
+    >
       <BlurView intensity={40} tint="dark" style={StyleSheet.absoluteFill} pointerEvents="none" />
       <View style={[StyleSheet.absoluteFill, styles.tint]} pointerEvents="none" />
       {ITEMS.map((item) => {

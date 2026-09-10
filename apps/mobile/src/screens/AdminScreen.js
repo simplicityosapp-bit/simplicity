@@ -12,6 +12,7 @@ import AdminDashboard from './admin/AdminDashboard'
 import AdminUsers from './admin/AdminUsers'
 import AdminFeedback from './admin/AdminFeedback'
 import AdminAnalytics from './admin/AdminAnalytics'
+import { useBottomPad } from '../lib/bottomBar'
 
 const T = (k, o) => i18n.t(`admin:${k}`, o)
 
@@ -38,6 +39,7 @@ const TABS = [
 ]
 
 export default function AdminScreen() {
+  const bottomPad = useBottomPad()
   const { session } = useAuth()
   const [tab, setTab] = useState('dashboard')
   /* Remounting the active tab IS the refresh: each one owns its own
@@ -52,7 +54,7 @@ export default function AdminScreen() {
   return (
     <Screen name="moon">
       <ScrollView
-        contentContainerStyle={styles.content}
+        contentContainerStyle={[styles.content, bottomPad]}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
         refreshControl={<RefreshControl refreshing={false} onRefresh={() => setNonce((n) => n + 1)} tintColor={colors.brand} />}
@@ -91,7 +93,11 @@ export default function AdminScreen() {
 }
 
 const styles = themed((c, t) => ({
-  content: { paddingBottom: 24 },
+  /* Bottom clearance comes from `bottomPad`, like every other screen — this
+     one used to reserve 24, which left most of the last panel under the bar.
+     Horizontal padding is deliberately absent: the admin panels are full-bleed
+     cards that pad their own contents. */
+  content: {},
   tabs: { flexDirection: 'row', gap: 6, paddingBottom: 12 },
   tab: {
     flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 5,

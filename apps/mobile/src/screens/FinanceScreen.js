@@ -20,6 +20,7 @@ import { confirmRemoveTransaction } from '../lib/recurringTx'
 import { useRecurring } from '../hooks/useRecurring'
 import { useFormOptions } from '../lib/formOptions'
 import { usePreferences } from '../hooks/usePreferences'
+import { useBottomPad } from '../lib/bottomBar'
 
 const sameMonth = (d, m) => { const x = new Date(d); return x.getFullYear() === m.getFullYear() && x.getMonth() === m.getMonth() }
 const isConfirmed = (t) => t.status === 'confirmed' && !t.invoice_credited_at
@@ -30,6 +31,7 @@ const isConfirmed = (t) => t.status === 'confirmed' && !t.invoice_credited_at
 // expense categories from the breakdown header. (Recurring templates, chart and
 // invoice imports are a later increment.)
 export default function FinanceScreen() {
+  const bottomPad = useBottomPad()
   const { transactions, clients, categories, loading, error, refetch, addTransaction, updateTransaction, deleteTransaction, restoreTransaction, setStatus, addCategory, removeCategory } = useFinanceData()
   const { projects, refetch: refetchFormOptions } = useFormOptions()
   // Inline category creation from the add-transaction modal: create + refresh the
@@ -192,7 +194,7 @@ export default function FinanceScreen() {
         <View style={styles.center}><ActivityIndicator color={colors.brand} /></View>
       ) : (
         <ScrollView
-          contentContainerStyle={styles.content}
+          contentContainerStyle={[styles.content, bottomPad]}
           showsVerticalScrollIndicator={false}
           refreshControl={<RefreshControl refreshing={loading} onRefresh={refetch} tintColor={colors.brand} />}
         >
@@ -397,7 +399,7 @@ function DeltaPill({ delta }) {
 
 const styles = themed((c, t) => ({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  content: { paddingHorizontal: 20, paddingBottom: 96, gap: 16 },
+  content: { paddingHorizontal: 20, gap: 16 },
   error: { color: c.danger, fontSize: 13 },
   empty: { color: c.textFaint, fontSize: 14, textAlign: 'center', marginTop: 24 },
   section: { gap: 8 },

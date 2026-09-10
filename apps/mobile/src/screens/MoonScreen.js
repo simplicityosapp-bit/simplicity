@@ -11,6 +11,7 @@ import Select from '../components/Select'
 import { colors } from '../theme/theme'
 import { themed } from '../theme/themed'
 import { useGoalsData } from '../hooks/useGoalsData'
+import { useBottomPad } from '../lib/bottomBar'
 
 // Moon screen ("מבט על", mirrors web moon-glance core): a confidence ring +
 // reflection, per-category pace/goal dual bars, and a 30-day trend line with
@@ -31,6 +32,7 @@ const dayKeyOf = (d) => {
 }
 
 export default function MoonScreen() {
+  const bottomPad = useBottomPad()
   const nav = useNavigation()
   const { goals, categories, entries, transactions, clients, leads, answers, members, groups, sessions, questions, loading, error, refetch } = useGoalsData()
   const data = useMemo(
@@ -91,7 +93,7 @@ export default function MoonScreen() {
         </View>
       ) : (
         <ScrollView
-          contentContainerStyle={styles.content}
+          contentContainerStyle={[styles.content, bottomPad]}
           showsVerticalScrollIndicator={false}
           refreshControl={<RefreshControl refreshing={loading} onRefresh={refetch} tintColor={colors.brand} />}
         >
@@ -303,7 +305,7 @@ function MultiTrendChart({ days, series }) {
 
 const styles = themed((c, t) => ({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 14, paddingHorizontal: 40 },
-  content: { paddingHorizontal: 20, paddingBottom: 96, gap: 16 },
+  content: { paddingHorizontal: 20, gap: 16 },
   error: { color: c.danger, fontSize: 13 },
   empty: { color: c.textFaint, fontSize: 14, textAlign: 'center', lineHeight: 20 },
   emptyBtn: { paddingVertical: 10, paddingHorizontal: 20, borderRadius: 999, backgroundColor: c.brand },

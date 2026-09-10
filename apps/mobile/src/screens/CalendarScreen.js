@@ -13,6 +13,7 @@ import EventDetailsModal from '../modals/EventDetailsModal'
 import { colors } from '../theme/theme'
 import { themed, themedMap } from '../theme/themed'
 import { useCalendarData } from '../hooks/useCalendarData'
+import { useBottomPad } from '../lib/bottomBar'
 
 // Calendar screen (mirrors web): a month grid of the merged feed (meetings +
 // synced events + reminders + lead follow-ups) with per-day dots, plus the
@@ -24,6 +25,7 @@ const pad = (n) => String(n).padStart(2, '0')
 const keyOf = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
 
 export default function CalendarScreen() {
+  const bottomPad = useBottomPad()
   const { meetings, calendarEvents, clients, groups, reminders, leads, sessions, loading, error, refetch, addMeeting, confirmMeeting, skipMeeting, setMeetingStatus, addSession, updateEvent, deleteEvent } = useCalendarData()
   const { prefs } = usePreferences()
   // Persistent tab: silently re-pull on RE-focus so a meeting/session/reminder
@@ -111,7 +113,7 @@ export default function CalendarScreen() {
         <View style={styles.center}><ActivityIndicator color={colors.brand} /></View>
       ) : (
         <ScrollView
-          contentContainerStyle={styles.content}
+          contentContainerStyle={[styles.content, bottomPad]}
           showsVerticalScrollIndicator={false}
           refreshControl={<RefreshControl refreshing={loading} onRefresh={refetch} tintColor={colors.brand} />}
         >
@@ -203,7 +205,7 @@ export default function CalendarScreen() {
 
 const styles = themed((c, t) => ({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  content: { paddingHorizontal: 20, paddingBottom: 96, gap: 14 },
+  content: { paddingHorizontal: 20, gap: 14 },
   error: { color: c.danger, fontSize: 13 },
   empty: { color: c.textFaint, fontSize: 14, textAlign: 'center', marginTop: 12 },
 

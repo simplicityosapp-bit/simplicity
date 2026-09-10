@@ -21,6 +21,7 @@ import { useFinanceData } from '../hooks/useFinanceData'
 import { useConfigTaxonomy } from '../hooks/useConfigTaxonomy'
 import DeleteAccountModal from '../modals/DeleteAccountModal'
 import { resetAllUserData, buildAccountDeletionRequest } from '../lib/account'
+import { useBottomPad } from '../lib/bottomBar'
 
 const GENDERS = ['female', 'male', 'neutral']
 // Matches web's ROLE_LABELS / common:roles.* keys (consultant/trainer had no
@@ -152,6 +153,7 @@ function Pills({ options, value, onPick, accent }) {
 // (an RTL he↔ltr flip needs an app restart). Theme/format changes reload the app so
 // RN's frozen StyleSheet colors + core format setters pick up the new values.
 export default function SettingsScreen() {
+  const bottomPad = useBottomPad()
   const nav = useNavigation()
   const { prefs, update } = usePreferences()
   const { transactions, clients, categories } = useFinanceData()
@@ -456,7 +458,7 @@ export default function SettingsScreen() {
 
   return (
     <Screen name="tasks">
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerStyle={[styles.content, bottomPad]} showsVerticalScrollIndicator={false}>
         <ScreenHead title={i18n.t('settings:header.title', { defaultValue: 'הגדרות' })} />
 
         {SETTINGS_TREE.map((g) => {
@@ -575,7 +577,7 @@ function TaxonomyManager({ title, items, placeholder, secondPlaceholder, onAdd, 
 }
 
 const styles = themed((c, t) => ({
-  content: { paddingHorizontal: 20, paddingBottom: 96, gap: 14 },
+  content: { paddingHorizontal: 20, gap: 14 },
 
   // Group (top level) — a glass card wrapping head + nested sections
   groupCard: {},

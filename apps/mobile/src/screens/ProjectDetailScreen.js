@@ -15,6 +15,7 @@ import AddSessionModal from '../modals/AddSessionModal'
 import { colors } from '../theme/theme'
 import { themed, themedMap } from '../theme/themed'
 import { useProjectDetailData } from '../hooks/useProjectDetailData'
+import { useBottomPad } from '../lib/bottomBar'
 
 const D = (k, o) => i18n.t(`projects:detail.${k}`, o)
 const STATUS_DOT = themedMap((c) => ({ active: c.positive, wandering: c.amberWarn, past: '#b3a99c', no_status: '#cbb9a8' }))
@@ -24,6 +25,7 @@ const GSTATUS_KEYS = ['active', 'in_development', 'ended']
 // list + groups (read-only) + recent sessions + project edit. The heavy web
 // group-management (billing/members/add-session/drag) stays on desktop for now.
 export default function ProjectDetailScreen() {
+  const bottomPad = useBottomPad()
   const route = useRoute()
   const nav = useNavigation()
   const insets = useSafeAreaInsets()
@@ -155,7 +157,7 @@ export default function ProjectDetailScreen() {
       {loading && !project ? (
         <View style={styles.center}><ActivityIndicator color={colors.brand} /></View>
       ) : (
-        <ScrollView contentContainerStyle={styles.content} refreshControl={<RefreshControl refreshing={loading} onRefresh={refetch} tintColor={colors.brand} />}>
+        <ScrollView contentContainerStyle={[styles.content, bottomPad]} refreshControl={<RefreshControl refreshing={loading} onRefresh={refetch} tintColor={colors.brand} />}>
           {error ? <Text style={styles.error}>{error}</Text> : null}
 
           {/* Stats */}
@@ -327,7 +329,7 @@ Section.displayName = 'Section'
 
 const styles = themed((c, t) => ({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  content: { paddingHorizontal: 20, paddingBottom: 96, gap: 16 },
+  content: { paddingHorizontal: 20, gap: 16 },
   error: { color: c.danger, fontSize: 13 },
 
   headWrap: { paddingHorizontal: 16, paddingBottom: 12 },

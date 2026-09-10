@@ -17,6 +17,7 @@ import { colors } from '../theme/theme'
 import { themed } from '../theme/themed'
 import { usePreferences } from '../lib/preferences'
 import { useInsightsData } from '../hooks/useInsightsData'
+import { useBottomPad } from '../lib/bottomBar'
 
 // Insights ("מה איתך היום") — mirrors web InsightsScreen: mirror reflections +
 // a card per active question with a daily-answer control, 7/30-day averages, a
@@ -137,6 +138,7 @@ TrendLine.displayName = 'TrendLine'
 Heatmap.displayName = 'Heatmap'
 
 export default function InsightsScreen() {
+  const bottomPad = useBottomPad()
   const { questions, answers, loading, error, refetch, addAnswer, addQuestion, toggleActive, removeQuestion, updateQuestion } = useInsightsData()
   const { prefs } = usePreferences()
   const gender = prefs.design?.gender
@@ -164,7 +166,7 @@ export default function InsightsScreen() {
       {loading && !questions.length ? (
         <View style={styles.center}><ActivityIndicator color={colors.brand} /></View>
       ) : (
-        <ScrollView contentContainerStyle={styles.content} refreshControl={<RefreshControl refreshing={loading} onRefresh={refetch} tintColor={colors.brand} />}>
+        <ScrollView contentContainerStyle={[styles.content, bottomPad]} refreshControl={<RefreshControl refreshing={loading} onRefresh={refetch} tintColor={colors.brand} />}>
           <ScreenHead
             title={T('title', { defaultValue: 'מה איתך היום' })}
             onAdd={() => setShowAdd(true)}
@@ -197,7 +199,7 @@ export default function InsightsScreen() {
 
 const styles = themed((c, t) => ({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  content: { paddingHorizontal: 20, paddingBottom: 96, gap: 14 },
+  content: { paddingHorizontal: 20, gap: 14 },
   error: { color: c.danger, fontSize: 13 },
   empty: { color: c.textFaint, fontSize: 14, textAlign: 'center', marginTop: 24 },
 

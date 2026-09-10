@@ -8,6 +8,7 @@ import Card from '../components/Card'
 import { colors } from '../theme/theme'
 import { themed } from '../theme/themed'
 import { useSitePages } from '../hooks/useSitePages'
+import { useBottomPad } from '../lib/bottomBar'
 
 // Public pages — READ-ONLY on mobile (the drag-drop builder is desktop): the
 // user's landing / lead / booking pages grouped by kind, each with its publish
@@ -19,6 +20,7 @@ const KINDS = [
 ]
 
 export default function PagesScreen() {
+  const bottomPad = useBottomPad()
   const { pages, loading, error, refetch } = useSitePages()
   const byKind = useMemo(() => {
     const m = { landing: [], lead: [], booking: [] }
@@ -34,7 +36,7 @@ export default function PagesScreen() {
       {loading && !pages.length ? (
         <View style={styles.center}><ActivityIndicator color={colors.brand} /></View>
       ) : (
-        <ScrollView contentContainerStyle={styles.content} refreshControl={<RefreshControl refreshing={loading} onRefresh={refetch} tintColor={colors.brand} />}>
+        <ScrollView contentContainerStyle={[styles.content, bottomPad]} refreshControl={<RefreshControl refreshing={loading} onRefresh={refetch} tintColor={colors.brand} />}>
           <ScreenHead
             title={i18n.t('nav:extras.sitePages', { defaultValue: 'דפים ציבוריים' })}
           />
@@ -81,7 +83,7 @@ export default function PagesScreen() {
 
 const styles = themed((c, t) => ({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  content: { paddingHorizontal: 20, paddingBottom: 96, gap: 16 },
+  content: { paddingHorizontal: 20, gap: 16 },
   error: { color: c.danger, fontSize: 13 },
   empty: { color: c.textFaint, fontSize: 14, textAlign: 'center', marginTop: 24, paddingHorizontal: 20, lineHeight: 20 },
   group: { gap: 8 },

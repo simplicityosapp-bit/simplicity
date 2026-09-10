@@ -21,6 +21,7 @@ import { themed, themedMap } from '../theme/themed'
 import { useFormOptions } from '../lib/formOptions'
 import { usePreferences } from '../lib/preferences'
 import { useLeadsList } from '../hooks/useLeadsList'
+import { useBottomPad } from '../lib/bottomBar'
 
 const DEFAULT_FILTER = { period: 'all', project: '', group: '', status: '', source: '', sort: '' }
 
@@ -39,6 +40,7 @@ const todayYmd = () => {
 // sub-status picker); every sub-status change is logged (lead_status_log via
 // updateLead's source). Pending public-page leads sit in a review strip above.
 export default function LeadsScreen() {
+  const bottomPad = useBottomPad()
   const { leads, loading, error, refetch, addLead, updateLead, deleteLead, addClient, addGroupMember } = useLeadsList()
   const confirmDeleteLead = (id, name) => {
     Alert.alert(
@@ -213,7 +215,7 @@ export default function LeadsScreen() {
         <View style={styles.center}><ActivityIndicator color={colors.brand} /></View>
       ) : (
         <ScrollView
-          contentContainerStyle={styles.content}
+          contentContainerStyle={[styles.content, bottomPad]}
           refreshControl={<RefreshControl refreshing={loading} onRefresh={refetch} tintColor={colors.brand} />}
         >
           <ScreenHead
@@ -615,7 +617,7 @@ const styles = themed((c, t) => ({
   addRow: { flexDirection: 'row', gap: 8, alignItems: 'center' },
   addInput: { flex: 1, borderWidth: 1, borderColor: c.border, borderRadius: 12, paddingVertical: 10, paddingHorizontal: 14, fontSize: 14, color: c.text, backgroundColor: c.card },
   addBtn: { width: 44, height: 44, borderRadius: 12, backgroundColor: c.brand, alignItems: 'center', justifyContent: 'center' },
-  content: { paddingHorizontal: 20, paddingBottom: 96, gap: 18 },
+  content: { paddingHorizontal: 20, gap: 18 },
   error: { color: c.danger, fontSize: 13 },
   group: { gap: 8 },
   groupHead: { flexDirection: 'row', alignItems: 'center', gap: 8 },

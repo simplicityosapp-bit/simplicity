@@ -18,6 +18,7 @@ import { themed, themedMap } from '../theme/themed'
 import { useClientsList } from '../hooks/useClientsList'
 import { usePreferences } from '../hooks/usePreferences'
 import { useConfigTaxonomy } from '../hooks/useConfigTaxonomy'
+import { useBottomPad } from '../lib/bottomBar'
 
 const TABS = [
   { key: 'active', icon: CheckCircle2 },
@@ -60,6 +61,7 @@ function sortClients(arr, sort, paidByClient) {
 const bucketMeta = (m) => (m === 'active' || m === 'wandering' || m === 'past' ? m : 'no_status')
 
 export default function ClientsScreen() {
+  const bottomPad = useBottomPad()
   const {
     clients, transactions, sessions, members, groups, tasks, reminders, loading, error, refetch,
     addClient, addTransaction, addSession, updateClient, deleteClient,
@@ -254,7 +256,7 @@ export default function ClientsScreen() {
         <View style={styles.center}><ActivityIndicator color={colors.brand} /></View>
       ) : (
         <ScrollView
-          contentContainerStyle={styles.content}
+          contentContainerStyle={[styles.content, bottomPad]}
           showsVerticalScrollIndicator={false}
           refreshControl={<RefreshControl refreshing={loading} onRefresh={refetch} tintColor={colors.brand} />}
         >
@@ -555,7 +557,7 @@ ClientStatusesPanel.displayName = 'ClientStatusesPanel'
 
 const styles = themed((c, t) => ({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  content: { paddingHorizontal: 20, paddingBottom: 96, gap: 12 },
+  content: { paddingHorizontal: 20, gap: 12 },
   error: { color: c.danger, fontSize: 13 },
   empty: { color: c.textFaint, fontSize: 14, textAlign: 'center', marginTop: 24, lineHeight: 20 },
 

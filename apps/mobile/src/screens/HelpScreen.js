@@ -10,6 +10,7 @@ import { themed } from '../theme/themed'
 import Screen from '../components/Screen'
 import ScreenHead from '../components/ScreenHead'
 import Card from '../components/Card'
+import { useBottomPad } from '../lib/bottomBar'
 
 /* ════════════════════════════════════════════════════════════════
    HELP — the guide and the FAQ, on the phone.
@@ -46,6 +47,7 @@ const T = (k, o) => i18n.t(`settings:${k}`, o)
 const R = (s) => mgToReadable(String(s || ''))
 
 export default function HelpScreen({ route }) {
+  const bottomPad = useBottomPad()
   const wanted = route?.params?.screen || null
   const [tab, setTab] = useState('guide')
   const [query, setQuery] = useState('')
@@ -84,7 +86,7 @@ export default function HelpScreen({ route }) {
     <Screen name="home">
       <ScreenHead title={T('help.title', { defaultValue: 'עזרה' })} />
 
-      <ScrollView style={styles.body} contentContainerStyle={styles.bodyContent} keyboardShouldPersistTaps="handled">
+      <ScrollView style={styles.body} contentContainerStyle={[styles.bodyContent, bottomPad]} keyboardShouldPersistTaps="handled">
         <View style={[styles.search, rtl && styles.rowRtl]}>
           <Search size={16} strokeWidth={1.7} color={colors.textFaint} />
           <TextInput
@@ -332,7 +334,7 @@ function Faq({ categories, open, onToggle, align, rtl }) {
 
 const styles = themed((c, t) => ({
   body: { flex: 1 },
-  bodyContent: { paddingHorizontal: space.screenPadH, paddingBottom: 96, gap: 12 },
+  bodyContent: { paddingHorizontal: space.screenPadH, gap: 12 },
   rowRtl: { flexDirection: 'row-reverse' },
   grow: { flex: 1 },
   pressed: { opacity: 0.75 },

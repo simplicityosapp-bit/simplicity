@@ -10,6 +10,7 @@ import { getThemeMode, subscribeTheme } from './src/theme/theme'
 import { AuthProvider, useAuth } from './src/lib/auth'
 import { DrawerProvider, useDrawer } from './src/lib/drawer'
 import { FormOptionsProvider } from './src/lib/formOptions'
+import { BottomBarProvider } from './src/lib/bottomBar'
 import { PreferencesProvider, usePreferences } from './src/lib/preferences'
 import { isDeletionPending } from './src/lib/account'
 import { useOnboarding, shouldOnboard } from './src/lib/onboarding'
@@ -128,15 +129,19 @@ function AuthedApp({ lang, themeMode }) { // eslint-disable-line no-unused-vars
 
   return (
     <FormOptionsProvider>
-      <View style={styles.fill} key={lang}>
-        <AppNavigator />
-        <BottomBar />
-        <DrawerHost />
-        {/* Mounted once for the whole session, like web's. It renders nothing
-            until an action registers itself, and sits above the tab bar so it
-            never covers the nav. */}
-        <UndoToast />
-      </View>
+      {/* Outside the language key so the bar's measured height survives a
+          remount instead of falling back to the guess for a frame. */}
+      <BottomBarProvider>
+        <View style={styles.fill} key={lang}>
+          <AppNavigator />
+          <BottomBar />
+          <DrawerHost />
+          {/* Mounted once for the whole session, like web's. It renders nothing
+              until an action registers itself, and sits above the tab bar so it
+              never covers the nav. */}
+          <UndoToast />
+        </View>
+      </BottomBarProvider>
     </FormOptionsProvider>
   )
 }

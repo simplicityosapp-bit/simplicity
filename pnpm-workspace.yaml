@@ -7,7 +7,15 @@ packages:
   - "packages/*"
 allowBuilds:
   '@parcel/watcher': false
-  sharp: true
+  # sharp's install script compiles from source when it cannot verify a
+  # prebuilt binary, and it needs node-gyp to do it. On the EAS macOS
+  # builder that check fails, the compile fails, and it takes the whole
+  # workspace install down with it - so an iOS build died before it ever
+  # reached a compiler. Nothing needs the script: sharp loads its prebuilt
+  # @img/sharp-<platform> package at require time, and the only things here
+  # that import sharp are three manual asset-compression scripts in
+  # apps/web/scripts, which no build or deploy runs.
+  sharp: false
   unrs-resolver: false
 minimumReleaseAgeExclude:
   - '@expo/cli@57.0.2 || 57.0.23'

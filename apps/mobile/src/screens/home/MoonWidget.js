@@ -38,7 +38,11 @@ export default function MoonWidget({ overall, expanded, onToggle }) {
   const dash = (pct / 100) * CIRC
 
   return (
-    <Pressable style={styles.wrap} onPress={onToggle} accessibilityLabel={i18n.t('home:widgets.moon.glanceAria', { percent: conf })}>
+    /* The ring is the control; the label row under it is not. The "?" used to
+       sit inside the same Pressable as the ring — a button inside a button,
+       which a screen reader cannot navigate — so it is a sibling now. */
+    <View style={styles.wrap}>
+      <Pressable onPress={onToggle} accessibilityLabel={i18n.t('home:widgets.moon.glanceAria', { percent: conf })}>
       <Chip>
         <Svg width={SIZE} height={SIZE} viewBox="0 0 100 100" style={styles.ring}>
           <Circle cx="50" cy="50" r={RADIUS} fill="none" stroke={colors.divider} strokeWidth={5} />
@@ -48,11 +52,12 @@ export default function MoonWidget({ overall, expanded, onToggle }) {
         <Text style={styles.kicker}>{i18n.t('home:widgets.moon.ofPace')}</Text>
         {pure != null ? <Text style={styles.goalInside}>{i18n.t('home:widgets.moon.percentOfGoal', { percent: pure })}</Text> : null}
       </Chip>
+      </Pressable>
       <View style={styles.labelRow}>
         <Text style={styles.chipLabel}>{i18n.t('home:widgets.moon.glance', { defaultValue: 'מבט על' })}</Text>
         <InfoPopover label={i18n.t('home:widgets.moon.infoLabel')} text={i18n.t('home:widgets.moon.infoText')} />
       </View>
-    </Pressable>
+    </View>
   )
 }
 

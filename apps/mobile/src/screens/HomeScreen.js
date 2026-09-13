@@ -159,18 +159,27 @@ export default function HomeScreen() {
   )
 }
 
+/* The "?" is a SIBLING of the chip's pressable, laid over its corner — not a
+   button inside a button. Nested, a screen reader announced the whole chip as
+   one control and the explainer inside it was unreachable or read twice; on
+   web it was invalid HTML (a <button> in a <button>). Overlapping siblings are
+   fine: the one drawn later — the "?" — takes the touch where they overlap,
+   and the rest of the chip still opens its breakdown. It sits at the start
+   corner, opposite the icon. */
 function Chip({ value, label, long, Icon, info, onPress }) {
   return (
-    <Pressable style={styles.chipWrap} onPress={onPress}>
-      <Card padded={false} contentStyle={styles.chipInner}>
-        {Icon ? <Icon size={18} strokeWidth={1.6} color={colors.textSub} style={styles.chipIcon} /> : null}
-        <Text style={[styles.chipNum, long && styles.chipNumLong]} numberOfLines={1} adjustsFontSizeToFit>{value}</Text>
-        <View style={styles.chipLblRow}>
-          <Text style={styles.chipLbl}>{label}</Text>
-          {info}
-        </View>
-      </Card>
-    </Pressable>
+    <View style={styles.chipWrap}>
+      <Pressable onPress={onPress}>
+        <Card padded={false} contentStyle={styles.chipInner}>
+          {Icon ? <Icon size={18} strokeWidth={1.6} color={colors.textSub} style={styles.chipIcon} /> : null}
+          <Text style={[styles.chipNum, long && styles.chipNumLong]} numberOfLines={1} adjustsFontSizeToFit>{value}</Text>
+          <View style={styles.chipLblRow}>
+            <Text style={styles.chipLbl}>{label}</Text>
+          </View>
+        </Card>
+      </Pressable>
+      {info ? <View style={styles.chipInfo}>{info}</View> : null}
+    </View>
   )
 }
 
@@ -182,6 +191,7 @@ const styles = themed((c, t) => ({
   topRow: { flexDirection: 'row', gap: 12, alignItems: 'center', marginBottom: 4 },
   chips: { flexDirection: 'row', gap: 12, marginTop: 12 },
   chipWrap: { flex: 1 },
+  chipInfo: { position: 'absolute', top: 10, start: 10, zIndex: 2 },
   chipInner: { paddingTop: 26, paddingBottom: 14, paddingHorizontal: 12, alignItems: 'center', gap: 4 },
   chipIcon: { position: 'absolute', top: 12, end: 12 },
   chipNum: { fontSize: 22, fontWeight: '500', color: c.text, fontVariant: ['tabular-nums'] },

@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
-import { View, Text, StyleSheet, ScrollView, ActivityIndicator, RefreshControl } from 'react-native'
+import { View, StyleSheet, ScrollView, ActivityIndicator, RefreshControl } from 'react-native'
+import { Text } from '../components/Text'
 import { Pressable } from '../components/Pressable'
 import { useNavigation } from '@react-navigation/native'
 import Svg, { Circle, Path, Polygon } from 'react-native-svg'

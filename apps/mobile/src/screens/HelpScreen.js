@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
-import { View, Text, TextInput, ScrollView, Linking } from 'react-native'
+import { View, ScrollView, Linking } from 'react-native'
+import { Text, TextInput } from '../components/Text'
 import { Pressable } from '../components/Pressable'
 import { BookOpen, HelpCircle, ChevronDown, Lightbulb, Search, X, MessageSquarePlus } from 'lucide-react-native'
 import {

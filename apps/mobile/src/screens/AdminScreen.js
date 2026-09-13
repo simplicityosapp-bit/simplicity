@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { View, Text, ScrollView, RefreshControl } from 'react-native'
+import { View, ScrollView, RefreshControl } from 'react-native'
+import { Text } from '../components/Text'
 import { Pressable } from '../components/Pressable'
 import { LayoutDashboard, Users, MessageSquare, BarChart3 } from 'lucide-react-native'
 import { isAdminUser } from '@simplicity/core'

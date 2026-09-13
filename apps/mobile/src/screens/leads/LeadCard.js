@@ -1,4 +1,5 @@
-import { View, Text, Linking, I18nManager } from 'react-native'
+import { View, Linking, I18nManager } from 'react-native'
+import { Text } from '../../components/Text'
 import { Pressable } from '../../components/Pressable'
 import { Clock, Check, CalendarDays, ArrowLeftRight, MessageCircle, X } from 'lucide-react-native'
 import { statusMetaOfLead, fmtShortDate } from '@simplicity/core'

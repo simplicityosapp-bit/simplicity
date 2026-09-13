@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
-import { View, Text, StyleSheet, ScrollView, Linking } from 'react-native'
+import { View, StyleSheet, ScrollView, Linking } from 'react-native'
+import { Text } from '../components/Text'
 import { Pressable } from '../components/Pressable'
 import { useNavigation } from '@react-navigation/native'
 import { ArrowLeft, Check, MessageCircle } from 'lucide-react-native'

@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
-import { View, Text, StyleSheet, ScrollView, ActivityIndicator, RefreshControl, Alert, I18nManager } from 'react-native'
+import { View, StyleSheet, ScrollView, ActivityIndicator, RefreshControl, Alert, I18nManager } from 'react-native'
+import { Text } from '../components/Text'
 import { Pressable } from '../components/Pressable'
 import { useRoute, useNavigation } from '@react-navigation/native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'

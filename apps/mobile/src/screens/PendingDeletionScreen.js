@@ -1,4 +1,5 @@
-import { View, Text } from 'react-native'
+import { View } from 'react-native'
+import { Text } from '../components/Text'
 import { Pressable } from '../components/Pressable'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { AlertTriangle } from 'lucide-react-native'

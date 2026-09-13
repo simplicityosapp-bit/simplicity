@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { View, Text, StyleSheet, I18nManager } from 'react-native'
+import { View, StyleSheet, I18nManager } from 'react-native'
+import { Text } from './Text'
 import { Pressable } from './Pressable'
 import { ChevronDown } from 'lucide-react-native'
 import i18n from '../lib/i18n'

@@ -1,5 +1,6 @@
 import { useMemo, useState, useRef, useCallback } from 'react'
-import { View, Text, StyleSheet, ScrollView, ActivityIndicator, RefreshControl, I18nManager } from 'react-native'
+import { View, StyleSheet, ScrollView, ActivityIndicator, RefreshControl, I18nManager } from 'react-native'
+import { Text } from '../components/Text'
 import { Pressable } from '../components/Pressable'
 import { useFocusEffect } from '@react-navigation/native'
 import { goalsByCategory, formatGoalValue, timeFrameLabel } from '@simplicity/core'

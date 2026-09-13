@@ -1,4 +1,5 @@
-import { Modal, View, Text, ScrollView, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native'
+import { Modal, View, ScrollView, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native'
+import { Text } from './Text'
 import { Pressable } from './Pressable'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { X } from 'lucide-react-native'

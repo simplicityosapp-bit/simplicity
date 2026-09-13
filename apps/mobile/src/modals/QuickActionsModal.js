@@ -1,4 +1,5 @@
-import { View, Text } from 'react-native'
+import { View } from 'react-native'
+import { Text } from '../components/Text'
 import { Pressable } from '../components/Pressable'
 import { Wallet, CheckSquare, Users, UserPlus, FolderOpen, Bell, Calendar } from 'lucide-react-native'
 import Sheet from '../components/Sheet'

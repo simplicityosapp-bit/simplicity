@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { View, Text, TextInput, StyleSheet, ScrollView, FlatList, ActivityIndicator, RefreshControl } from 'react-native'
+import { View, StyleSheet, ScrollView, FlatList, ActivityIndicator, RefreshControl } from 'react-native'
+import { Text, TextInput } from '../components/Text'
 import { Pressable } from '../components/Pressable'
 import { useRoute, useNavigation, useFocusEffect } from '@react-navigation/native'
 import { Search, Wallet, ArrowUpDown, Check, X, Trash2, CheckCircle2, Clock, CircleSlash, CircleDashed, Tags, Plus } from 'lucide-react-native'

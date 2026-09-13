@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
-import { View, Text, ScrollView, ActivityIndicator, RefreshControl, Share, Linking } from 'react-native'
+import { View, ScrollView, ActivityIndicator, RefreshControl, Share, Linking } from 'react-native'
+import { Text } from '../components/Text'
 import { Pressable } from '../components/Pressable'
 import { LayoutTemplate, ClipboardList, CalendarClock, Share2, ExternalLink } from 'lucide-react-native'
 import i18n from '../lib/i18n'

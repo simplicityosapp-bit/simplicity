@@ -1,5 +1,6 @@
 import { Component } from 'react'
-import { View, Text, ScrollView } from 'react-native'
+import { View, ScrollView } from 'react-native'
+import { Text } from './Text'
 import { Pressable } from './Pressable'
 import { reloadApp } from '../lib/appReload'
 import { themed } from '../theme/themed'

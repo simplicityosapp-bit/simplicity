@@ -1,4 +1,5 @@
-import { View, Text, StyleSheet } from 'react-native'
+import { View, StyleSheet } from 'react-native'
+import { Text } from '../../components/Text'
 import { Pressable } from '../../components/Pressable'
 import { useNavigation } from '@react-navigation/native'
 import { BlurView } from '../../components/SafeBlur'

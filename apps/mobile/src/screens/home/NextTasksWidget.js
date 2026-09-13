@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
-import { View, Text, StyleSheet, I18nManager } from 'react-native'
+import { View, StyleSheet, I18nManager } from 'react-native'
+import { Text } from '../../components/Text'
 import { Pressable } from '../../components/Pressable'
 import { useNavigation } from '@react-navigation/native'
 import { ClipboardList, Check, Bell } from 'lucide-react-native'

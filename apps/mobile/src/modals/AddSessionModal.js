@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
-import { View, Text, TextInput, Alert } from 'react-native'
+import { View, Alert } from 'react-native'
+import { Text, TextInput } from '../components/Text'
 import { Pressable } from '../components/Pressable'
 import { Trash2 } from 'lucide-react-native'
 import Sheet from '../components/Sheet'

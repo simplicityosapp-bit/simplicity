@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
-import { View, Text, TextInput, Alert } from 'react-native'
+import { View, Alert } from 'react-native'
+import { Text, TextInput } from '../components/Text'
 import { Pressable } from '../components/Pressable'
 import { Check, X, Pencil, Trash2, CalendarDays, Clock } from 'lucide-react-native'
 import { formatWhen, fmtTime, isr } from '@simplicity/core'

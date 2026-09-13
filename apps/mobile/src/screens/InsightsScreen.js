@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
-import { View, Text, StyleSheet, ScrollView, ActivityIndicator, RefreshControl } from 'react-native'
+import { View, StyleSheet, ScrollView, ActivityIndicator, RefreshControl } from 'react-native'
+import { Text } from '../components/Text'
 import { Pressable } from '../components/Pressable'
 import Svg, { Polyline, Circle, Rect } from 'react-native-svg'
 import Slider from '@react-native-community/slider'

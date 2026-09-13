@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
-import { View, Text, StyleSheet, I18nManager } from 'react-native'
+import { View, StyleSheet, I18nManager } from 'react-native'
+import { Text } from './Text'
 import { Pressable } from './Pressable'
 import { BlurView } from './SafeBlur'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'

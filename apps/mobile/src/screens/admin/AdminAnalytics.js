@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { View, Text, ScrollView } from 'react-native'
+import { View, ScrollView } from 'react-native'
+import { Text } from '../../components/Text'
 import { Pressable } from '../../components/Pressable'
 import i18n from '../../lib/i18n'
 import Card from '../../components/Card'

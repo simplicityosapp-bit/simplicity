@@ -1,5 +1,6 @@
 import { useState, useMemo, useCallback, memo } from 'react'
-import { View, Text, TextInput, ScrollView } from 'react-native'
+import { View, ScrollView } from 'react-native'
+import { Text, TextInput } from '../../components/Text'
 import { Pressable } from '../../components/Pressable'
 import { Bug, Lightbulb, Heart, MessageCircle, Search, Trash2, Check } from 'lucide-react-native'
 import i18n from '../../lib/i18n'

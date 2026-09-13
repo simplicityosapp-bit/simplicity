@@ -1,4 +1,5 @@
-import { View, Text, ActivityIndicator } from 'react-native'
+import { View, ActivityIndicator } from 'react-native'
+import { Text } from '../../components/Text'
 import i18n from '../../lib/i18n'
 import { colors } from '../../theme/theme'
 import { themed } from '../../theme/themed'

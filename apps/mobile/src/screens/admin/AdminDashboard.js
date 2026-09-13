@@ -1,4 +1,5 @@
-import { View, Text, TextInput } from 'react-native'
+import { View } from 'react-native'
+import { Text, TextInput } from '../../components/Text'
 import { Users, BadgeCheck, Activity, MessageSquare, CalendarCheck, Target } from 'lucide-react-native'
 import i18n from '../../lib/i18n'
 import Card from '../../components/Card'

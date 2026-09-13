@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { Text } from 'react-native'
+import { Text } from '../../components/Text'
 import { Pressable } from '../../components/Pressable'
 import { useQuote } from '../../hooks/useQuote'
 import { useUserQuotes } from '../../hooks/useUserQuotes'

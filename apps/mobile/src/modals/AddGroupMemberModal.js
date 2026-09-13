@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
-import { View, Text } from 'react-native'
+import { View } from 'react-native'
+import { Text } from '../components/Text'
 import { Pressable } from '../components/Pressable'
 import Sheet from '../components/Sheet'
 import Select from '../components/Select'

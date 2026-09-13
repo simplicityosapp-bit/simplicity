@@ -1,5 +1,6 @@
 import { useMemo, useState, useRef, useEffect } from 'react'
-import { Modal, View, Text, StyleSheet, ScrollView, Linking, Alert, KeyboardAvoidingView, Platform } from 'react-native'
+import { Modal, View, StyleSheet, ScrollView, Linking, Alert, KeyboardAvoidingView, Platform } from 'react-native'
+import { Text } from '../components/Text'
 import { Pressable } from '../components/Pressable'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { X, Trash2, Pencil, Banknote, MessageCircle, ChevronDown, Check, RotateCcw, Phone, Mail, PackagePlus } from 'lucide-react-native'

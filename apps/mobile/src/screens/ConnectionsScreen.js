@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { View, Text, TextInput, ScrollView } from 'react-native'
+import { View, ScrollView } from 'react-native'
+import { Text, TextInput } from '../components/Text'
 import { Pressable } from '../components/Pressable'
 import { MessageCircle, CalendarClock, FileText, CreditCard, Check } from 'lucide-react-native'
 import i18n from '../lib/i18n'

@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { View, Text, ScrollView, StyleSheet } from 'react-native'
+import { View, ScrollView, StyleSheet } from 'react-native'
+import { Text } from './Text'
 import { Pressable } from './Pressable'
 import { ChevronDown, Check } from 'lucide-react-native'
 import { colors } from '../theme/theme'

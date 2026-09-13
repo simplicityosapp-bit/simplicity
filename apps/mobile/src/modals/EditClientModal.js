@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, Children, cloneElement } from 'react'
-import { View, Text, TextInput, StyleSheet, Alert } from 'react-native'
+import { View, StyleSheet, Alert } from 'react-native'
+import { Text, TextInput } from '../components/Text'
 import { Pressable } from '../components/Pressable'
 import { User, CalendarDays, Wallet, Users, ChevronDown } from 'lucide-react-native'
 import { isr } from '@simplicity/core'

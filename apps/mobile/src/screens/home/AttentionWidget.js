@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
-import { View, Text, StyleSheet, Linking, I18nManager } from 'react-native'
+import { View, StyleSheet, Linking, I18nManager } from 'react-native'
+import { Text } from '../../components/Text'
 import { Pressable } from '../../components/Pressable'
 import { useNavigation } from '@react-navigation/native'
 import { Bell, Wallet, Calendar, Target, AlertCircle, Clock, ChevronLeft, MessageCircle, Check, SkipForward, Trash2 } from 'lucide-react-native'

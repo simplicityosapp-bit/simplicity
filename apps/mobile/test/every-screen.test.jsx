@@ -47,6 +47,8 @@ jest.mock('../src/components/Screen', () => {
 })
 
 // eslint-disable-next-line import/first
+import { hasMG } from '@simplicity/core'
+// eslint-disable-next-line import/first
 import i18n from '../src/lib/i18n'
 // eslint-disable-next-line import/first
 import { AuthProvider } from '../src/lib/auth'
@@ -164,6 +166,10 @@ describe('every screen', () => {
     const text = allText(view.toJSON())
     expect(text.length).toBeGreaterThan(0)
     expect(text.filter(looksLikeKey)).toEqual([])
+    /* A merge glyph that reaches the screen is a box on a phone: this app
+       does not load the font that draws it. components/Text converts them —
+       and because every screen imports it, this checks that none escaped. */
+    expect(text.filter(hasMG)).toEqual([])
     const allowed = KNOWN_MOCK_ARTIFACT[name] || (() => false)
     expect(text.filter((s) => looksBroken(s) && !allowed(s))).toEqual([])
     view.unmount()

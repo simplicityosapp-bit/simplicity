@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { View, Text, TextInput, StyleSheet, ScrollView, Share, Alert, Platform, Linking, I18nManager } from 'react-native'
+import { View, StyleSheet, ScrollView, Share, Alert, Platform, Linking, I18nManager } from 'react-native'
+import { Text, TextInput } from '../components/Text'
 import { Pressable } from '../components/Pressable'
 import Constants from 'expo-constants'
 import { useNavigation } from '@react-navigation/native'

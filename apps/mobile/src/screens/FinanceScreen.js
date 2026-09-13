@@ -178,9 +178,9 @@ export default function FinanceScreen() {
         </Pressable>
         {opts.pending ? (
           <View style={styles.actions}>
-            <Pressable style={styles.approve} onPress={() => setStatus(t.id, 'confirmed')} hitSlop={6}><Check size={16} strokeWidth={2.2} color={colors.positive} /></Pressable>
-            <Pressable style={styles.skip} onPress={() => setStatus(t.id, 'skipped')} hitSlop={6}><SkipForward size={15} strokeWidth={1.8} color={colors.textFaint} /></Pressable>
-            <Pressable style={styles.skip} onPress={() => confirmDeleteTx(t)} hitSlop={6}><Trash2 size={15} strokeWidth={1.8} color={colors.danger} /></Pressable>
+            <Pressable accessibilityLabel={i18n.t('finance:pending.approve')} style={styles.approve} onPress={() => setStatus(t.id, 'confirmed')} hitSlop={6}><Check size={16} strokeWidth={2.2} color={colors.positive} /></Pressable>
+            <Pressable accessibilityLabel={i18n.t('finance:pending.skip')} style={styles.skip} onPress={() => setStatus(t.id, 'skipped')} hitSlop={6}><SkipForward size={15} strokeWidth={1.8} color={colors.textFaint} /></Pressable>
+            <Pressable accessibilityLabel={i18n.t('modalsData:editTx.delete')} style={styles.skip} onPress={() => confirmDeleteTx(t)} hitSlop={6}><Trash2 size={15} strokeWidth={1.8} color={colors.danger} /></Pressable>
           </View>
         ) : (
           <Text style={[styles.amount, { color: income ? colors.positive : colors.textSub }, t.invoice_credited_at && styles.creditedAmount]}>{income ? '+' : '−'}{isr(t.amount)}</Text>
@@ -233,9 +233,9 @@ export default function FinanceScreen() {
           {/* Month summary */}
           <Card contentStyle={styles.summary}>
             <View style={styles.monthNav}>
-              <Pressable onPress={() => setMonthOffset((o) => o - 1)} hitSlop={10}><ChevronRight size={22} strokeWidth={1.8} color={colors.brand} /></Pressable>
+              <Pressable accessibilityLabel={i18n.t('finance:summary.prevMonth')} onPress={() => setMonthOffset((o) => o - 1)} hitSlop={10}><ChevronRight size={22} strokeWidth={1.8} color={colors.brand} /></Pressable>
               <Text style={styles.monthLabel}>{fmtMonthYear(monthDate)}</Text>
-              <Pressable onPress={() => setMonthOffset((o) => o + 1)} hitSlop={10}>
+              <Pressable accessibilityLabel={i18n.t('finance:summary.nextMonth')} onPress={() => setMonthOffset((o) => o + 1)} hitSlop={10}>
                 <ChevronLeft size={22} strokeWidth={1.8} color={colors.brand} />
               </Pressable>
             </View>
@@ -295,8 +295,8 @@ export default function FinanceScreen() {
                   <Text style={[styles.recAmt, { color: income ? colors.positive : colors.textSub }]}>{income ? '+' : '−'}{isr(Math.abs(tpl.amount || 0))}</Text>
                   <View style={styles.recActions}>
                     <Pressable onPress={() => updateRecurring(tpl.id, { active: !tpl.active })} hitSlop={6}>{paused ? <Play size={15} strokeWidth={1.7} color={colors.textSub} /> : <Pause size={15} strokeWidth={1.7} color={colors.textSub} />}</Pressable>
-                    <Pressable onPress={() => setEditRec(tpl)} hitSlop={6}><Pencil size={14} strokeWidth={1.7} color={colors.textSub} /></Pressable>
-                    <Pressable onPress={() => Alert.alert(i18n.t('finance:deleteRecurring.title', { defaultValue: 'מחיקת תבנית חוזרת' }), i18n.t('finance:deleteRecurring.message', { name: tpl.desc || '', defaultValue: 'למחוק את התבנית?' }), [{ text: i18n.t('modalsData:common.cancel', { defaultValue: 'ביטול' }), style: 'cancel' }, { text: i18n.t('finance:deleteRecurring.confirm', { defaultValue: 'מחק' }), style: 'destructive', onPress: () => removeRecurring(tpl.id) }])} hitSlop={6}><Trash2 size={14} strokeWidth={1.7} color={colors.danger} /></Pressable>
+                    <Pressable accessibilityLabel={i18n.t('modalsData:recurring.titleEdit')} onPress={() => setEditRec(tpl)} hitSlop={6}><Pencil size={14} strokeWidth={1.7} color={colors.textSub} /></Pressable>
+                    <Pressable accessibilityLabel={i18n.t('modalsData:editTx.delete')} onPress={() => Alert.alert(i18n.t('finance:deleteRecurring.title', { defaultValue: 'מחיקת תבנית חוזרת' }), i18n.t('finance:deleteRecurring.message', { name: tpl.desc || '', defaultValue: 'למחוק את התבנית?' }), [{ text: i18n.t('modalsData:common.cancel', { defaultValue: 'ביטול' }), style: 'cancel' }, { text: i18n.t('finance:deleteRecurring.confirm', { defaultValue: 'מחק' }), style: 'destructive', onPress: () => removeRecurring(tpl.id) }])} hitSlop={6}><Trash2 size={14} strokeWidth={1.7} color={colors.danger} /></Pressable>
                   </View>
                 </View>
               )

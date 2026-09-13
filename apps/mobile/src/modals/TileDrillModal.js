@@ -181,7 +181,7 @@ function MeetingsPanel({ filters, setFilter, items, onConfirm }) {
               <Text style={[styles.todayKind, { color: it.kind === 'meeting' ? colors.positive : it.kind === 'calendar' ? colors.moonDeep : colors.brand }]}>{T(`todayKinds.${it.kind}`)}</Text>
             </View>
             <View style={styles.todayActs}>
-              {it.phone ? <Pressable style={styles.todayAct} onPress={() => whatsapp(it)} hitSlop={6}><MessageCircle size={15} strokeWidth={1.7} color={colors.positive} /></Pressable> : null}
+              {it.phone ? <Pressable accessibilityLabel={'WhatsApp'} style={styles.todayAct} onPress={() => whatsapp(it)} hitSlop={6}><MessageCircle size={15} strokeWidth={1.7} color={colors.positive} /></Pressable> : null}
               {it.kind === 'meeting' ? (
                 it.status === 'confirmed' ? (
                   <View style={styles.todayDone}><Check size={14} strokeWidth={2.4} color={colors.positive} /></View>

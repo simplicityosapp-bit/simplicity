@@ -32,7 +32,7 @@ export default function LeadCard({ lead, onEdit, onConvert, onDelete, onMove, so
   return (
     <GlassPressable radius={20} style={[styles.card, dragging && styles.dragging]} onPress={() => onEdit?.(lead)} {...(dragHandlers || {})}>
       {onDelete ? (
-        <Pressable style={styles.del} onPress={() => onDelete(lead)} hitSlop={8}>
+        <Pressable accessibilityLabel={i18n.t('modalsData:editTx.delete')} style={styles.del} onPress={() => onDelete(lead)} hitSlop={8}>
           <X size={12} strokeWidth={2} color={colors.textFaint} />
         </Pressable>
       ) : null}
@@ -74,11 +74,11 @@ export default function LeadCard({ lead, onEdit, onConvert, onDelete, onMove, so
         ) : null}
         <View style={{ flex: 1 }} />
         {onMove ? (
-          <Pressable style={styles.iconBtn} onPress={() => onMove(lead)} hitSlop={6}>
+          <Pressable accessibilityLabel={i18n.t('leads:move.title')} style={styles.iconBtn} onPress={() => onMove(lead)} hitSlop={6}>
             <ArrowLeftRight size={14} strokeWidth={1.7} color={colors.textSub} />
           </Pressable>
         ) : null}
-        <Pressable style={styles.iconBtn} onPress={whatsapp} hitSlop={6}>
+        <Pressable accessibilityLabel={'WhatsApp'} style={styles.iconBtn} onPress={whatsapp} hitSlop={6}>
           <MessageCircle size={14} strokeWidth={1.7} color={colors.positive} />
         </Pressable>
       </View>

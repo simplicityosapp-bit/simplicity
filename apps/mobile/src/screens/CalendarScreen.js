@@ -128,9 +128,9 @@ export default function CalendarScreen() {
           {/* Month grid */}
           <Card contentStyle={styles.grid}>
             <View style={styles.monthNav}>
-              <Pressable onPress={() => stepMonth(-1)} hitSlop={10}><ChevronRight size={22} strokeWidth={1.8} color={colors.brand} /></Pressable>
+              <Pressable accessibilityLabel={i18n.t('calendar:nav.prevMonth')} onPress={() => stepMonth(-1)} hitSlop={10}><ChevronRight size={22} strokeWidth={1.8} color={colors.brand} /></Pressable>
               <Text style={styles.monthLabel}>{fmtMonthYear(month)}</Text>
-              <Pressable onPress={() => stepMonth(1)} hitSlop={10}><ChevronLeft size={22} strokeWidth={1.8} color={colors.brand} /></Pressable>
+              <Pressable accessibilityLabel={i18n.t('calendar:nav.nextMonth')} onPress={() => stepMonth(1)} hitSlop={10}><ChevronLeft size={22} strokeWidth={1.8} color={colors.brand} /></Pressable>
             </View>
             <View style={[styles.weekHead, flipRow]}>
               {weekdays.map((w) => <Text key={w} style={styles.weekday}>{w}</Text>)}
@@ -170,7 +170,7 @@ export default function CalendarScreen() {
                     <View style={[styles.dot, { backgroundColor: KIND_COLOR[e.kind] || colors.textFaint }]} />
                     <Text style={[styles.eventTitle, flip && styles.eventTitleRtl]} numberOfLines={1}>{e.title || '—'}</Text>
                     {e.pending ? (
-                      <Pressable style={styles.confirm} onPress={() => handleConfirm(e.raw)} hitSlop={6}>
+                      <Pressable accessibilityLabel={i18n.t('modalsSystem:confirm.confirm')} style={styles.confirm} onPress={() => handleConfirm(e.raw)} hitSlop={6}>
                         <Check size={14} strokeWidth={2.2} color={colors.positive} />
                       </Pressable>
                     ) : KIND_TAG[e.kind] ? <Text style={styles.kindTag}>{KIND_TAG[e.kind]}</Text> : null}

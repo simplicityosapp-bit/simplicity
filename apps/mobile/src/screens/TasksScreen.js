@@ -355,7 +355,7 @@ function TaskRow({ task, first, clientById, projectById, status, category, onTog
     <View style={[styles.row, !first && styles.rowBorder, flip && styles.rowFlip]}>
       {/* The most-tapped control on the screen, and a 22pt circle: 11 of slop
           makes it 44 without changing how it looks. */}
-      <Pressable onPress={onToggle} hitSlop={11} accessibilityRole="checkbox" accessibilityState={{ checked: isDone }}>
+      <Pressable accessibilityLabel={task.title || ''} onPress={onToggle} hitSlop={11} accessibilityRole="checkbox" accessibilityState={{ checked: isDone }}>
         <View style={[styles.check, isDone && styles.checkOn]}>{isDone ? <Check size={13} strokeWidth={3} color={colors.onBrand} /> : null}</View>
       </Pressable>
       <Pressable style={styles.textWrap} onPress={onEdit}>
@@ -382,7 +382,7 @@ function ReminderRow({ reminder, first, clientName, count, onComplete, onEdit })
   const align = rtl ? 'right' : 'left'
   return (
     <View style={[styles.row, !first && styles.rowBorder, flip && styles.rowFlip]}>
-      <Pressable onPress={() => !isDone && onComplete()} hitSlop={8} accessibilityRole="checkbox" accessibilityState={{ checked: isDone }}>
+      <Pressable accessibilityLabel={reminder.title || ''} onPress={() => !isDone && onComplete()} hitSlop={8} accessibilityRole="checkbox" accessibilityState={{ checked: isDone }}>
         <View style={[styles.check, isDone && styles.checkOn]}>{isDone ? <Check size={13} strokeWidth={3} color={colors.onBrand} /> : null}</View>
       </Pressable>
       <Pressable style={styles.textWrap} onPress={onEdit}>
@@ -392,7 +392,7 @@ function ReminderRow({ reminder, first, clientName, count, onComplete, onEdit })
         </View>
         {meta ? <Text style={[styles.meta, { textAlign: align }]} numberOfLines={1}>{meta}</Text> : null}
       </Pressable>
-      <Pressable onPress={onEdit} hitSlop={8}><Pencil size={13} strokeWidth={1.6} color={colors.textFaint} /></Pressable>
+      <Pressable accessibilityLabel={i18n.t('tasks:item.editTask')} onPress={onEdit} hitSlop={8}><Pencil size={13} strokeWidth={1.6} color={colors.textFaint} /></Pressable>
     </View>
   )
 }

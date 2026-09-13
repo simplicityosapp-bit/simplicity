@@ -441,8 +441,8 @@ export default function LeadsScreen() {
               <Text style={styles.fuName} numberOfLines={1}>{l.name}</Text>
               <Text style={styles.fuDate}>{fmtShortDate(l.follow_up_date)}</Text>
             </Pressable>
-            <Pressable style={styles.fuIcon} onPress={() => waLead(l)} hitSlop={6}><MessageCircle size={16} strokeWidth={1.7} color={colors.positive} /></Pressable>
-            <Pressable style={styles.fuDone} onPress={() => updateLead(l.id, { follow_up_date: null })} hitSlop={6}><Check size={16} strokeWidth={2} color={colors.onBrand} /></Pressable>
+            <Pressable accessibilityLabel={'WhatsApp'} style={styles.fuIcon} onPress={() => waLead(l)} hitSlop={6}><MessageCircle size={16} strokeWidth={1.7} color={colors.positive} /></Pressable>
+            <Pressable accessibilityLabel={i18n.t('home:widgets.attention.followupDone')} style={styles.fuDone} onPress={() => updateLead(l.id, { follow_up_date: null })} hitSlop={6}><Check size={16} strokeWidth={2} color={colors.onBrand} /></Pressable>
           </View>
         ))}
       </Sheet>
@@ -544,14 +544,14 @@ function StatusGroup({ meta, title, statuses, onAdd, onRemove, onUpdate }) {
           <View key={s.id} style={styles.chip}>
             {canReorder ? (
               <View style={styles.reorder}>
-                <Pressable onPress={() => move(i, -1)} disabled={i === 0} hitSlop={4}><ChevronUp size={11} strokeWidth={2} color={i === 0 ? colors.border : colors.textSub} /></Pressable>
-                <Pressable onPress={() => move(i, 1)} disabled={i === sorted.length - 1} hitSlop={4}><ChevronDown size={11} strokeWidth={2} color={i === sorted.length - 1 ? colors.border : colors.textSub} /></Pressable>
+                <Pressable accessibilityLabel={i18n.t('reports:customize.moveUp', { label: s.display_name })} onPress={() => move(i, -1)} disabled={i === 0} hitSlop={4}><ChevronUp size={11} strokeWidth={2} color={i === 0 ? colors.border : colors.textSub} /></Pressable>
+                <Pressable accessibilityLabel={i18n.t('reports:customize.moveDown', { label: s.display_name })} onPress={() => move(i, 1)} disabled={i === sorted.length - 1} hitSlop={4}><ChevronDown size={11} strokeWidth={2} color={i === sorted.length - 1 ? colors.border : colors.textSub} /></Pressable>
               </View>
             ) : null}
             {s.icon ? <Text style={styles.chipIcon}>{s.icon}</Text> : null}
             {s.color ? <View style={[styles.chipDot, { backgroundColor: s.color }]} /> : null}
             <Text style={styles.chipText}>{s.display_name}</Text>
-            {s.is_default ? null : <Pressable onPress={() => onRemove(s.id)} hitSlop={6}><X size={12} strokeWidth={2} color={colors.textFaint} /></Pressable>}
+            {s.is_default ? null : <Pressable accessibilityLabel={i18n.t('modalsData:editTx.delete')} onPress={() => onRemove(s.id)} hitSlop={6}><X size={12} strokeWidth={2} color={colors.textFaint} /></Pressable>}
           </View>
         )) : <Text style={styles.chipEmpty}>—</Text>}
       </View>
@@ -563,7 +563,7 @@ function StatusGroup({ meta, title, statuses, onAdd, onRemove, onUpdate }) {
       ) : (
         <View style={styles.addRow}>
           <TextInput style={styles.addInput} value={draft} onChangeText={setDraft} placeholder={i18n.t('leads:statusesPanel.addPlaceholder', { meta: title, context: meta })} placeholderTextColor={colors.textFaint} onSubmitEditing={add} />
-          <Pressable style={styles.addBtn} onPress={add} disabled={busy || !draft.trim()}><Plus size={18} strokeWidth={2} color={colors.onBrand} /></Pressable>
+          <Pressable accessibilityLabel={i18n.t('modalsData:common.add')} style={styles.addBtn} onPress={add} disabled={busy || !draft.trim()}><Plus size={18} strokeWidth={2} color={colors.onBrand} /></Pressable>
         </View>
       )}
     </View>
@@ -589,7 +589,7 @@ function LeadSourcesPanel({ sources, onAdd, onRemove }) {
           <View key={s.id} style={styles.chip}>
             {s.color ? <View style={[styles.chipDot, { backgroundColor: s.color }]} /> : null}
             <Text style={styles.chipText}>{s.name}</Text>
-            <Pressable onPress={() => onRemove(s.id)} hitSlop={6}><X size={12} strokeWidth={2} color={colors.textFaint} /></Pressable>
+            <Pressable accessibilityLabel={i18n.t('modalsData:editTx.delete')} onPress={() => onRemove(s.id)} hitSlop={6}><X size={12} strokeWidth={2} color={colors.textFaint} /></Pressable>
           </View>
         )) : <Text style={styles.chipEmpty}>—</Text>}
       </View>
@@ -602,7 +602,7 @@ function LeadSourcesPanel({ sources, onAdd, onRemove }) {
           placeholderTextColor={colors.textFaint}
           onSubmitEditing={add}
         />
-        <Pressable style={styles.addBtn} onPress={add} disabled={busy || !draft.trim()}><Plus size={18} strokeWidth={2} color={colors.onBrand} /></Pressable>
+        <Pressable accessibilityLabel={i18n.t('modalsData:common.add')} style={styles.addBtn} onPress={add} disabled={busy || !draft.trim()}><Plus size={18} strokeWidth={2} color={colors.onBrand} /></Pressable>
       </View>
     </View>
   )

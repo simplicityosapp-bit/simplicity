@@ -124,7 +124,7 @@ export default function AddGroupModal({ open, onClose, onSave, onDelete, group =
       {err ? <Text style={styles.error}>{err}</Text> : null}
 
       <View style={styles.actions}>
-        {isEdit && onDelete ? <Pressable style={styles.delete} onPress={remove} disabled={busy} hitSlop={6}><Trash2 size={18} strokeWidth={1.8} color={colors.danger} /></Pressable> : null}
+        {isEdit && onDelete ? <Pressable accessibilityLabel={i18n.t('modalsData:editTx.delete')} style={styles.delete} onPress={remove} disabled={busy} hitSlop={6}><Trash2 size={18} strokeWidth={1.8} color={colors.danger} /></Pressable> : null}
         <Pressable style={styles.cancel} onPress={close}><Text style={styles.cancelText}>{C('cancel')}</Text></Pressable>
         <Pressable style={[styles.save, busy && styles.saveOff]} onPress={submit} disabled={busy}><Text style={styles.saveText}>{busy ? C('saving') : C('save')}</Text></Pressable>
       </View>

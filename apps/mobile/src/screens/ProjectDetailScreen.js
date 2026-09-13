@@ -151,7 +151,7 @@ export default function ProjectDetailScreen() {
               </Text>
             ) : null}
           </View>
-          {project ? <Pressable style={styles.hedit} onPress={() => setEditing(true)} hitSlop={6}><Pencil size={15} strokeWidth={1.7} color={colors.textSub} /></Pressable> : null}
+          {project ? <Pressable accessibilityLabel={i18n.t('projects:detail.editAria')} style={styles.hedit} onPress={() => setEditing(true)} hitSlop={6}><Pencil size={15} strokeWidth={1.7} color={colors.textSub} /></Pressable> : null}
         </Card>
       </View>
 
@@ -190,7 +190,7 @@ export default function ProjectDetailScreen() {
             <View style={[styles.secHead, flip && styles.rowFlip]}>
               <Text style={[styles.secTitle, flip && styles.txtRtl]}>{D('groups.title', { defaultValue: 'קבוצות' })}</Text>
               <Text style={styles.secCount}>{groups.length}</Text>
-              <Pressable style={styles.addChip} onPress={() => setAddingGroup(true)} hitSlop={6}><Plus size={16} strokeWidth={2} color={colors.brand} /></Pressable>
+              <Pressable accessibilityLabel={i18n.t('modalsData:common.add')} style={styles.addChip} onPress={() => setAddingGroup(true)} hitSlop={6}><Plus size={16} strokeWidth={2} color={colors.brand} /></Pressable>
             </View>
             {groups.length ? groups.map((g) => {
               const gm = membersOf(g.id)
@@ -204,7 +204,7 @@ export default function ProjectDetailScreen() {
                       <Text style={styles.gname} numberOfLines={1}>{g.name}</Text>
                       <Text style={styles.gsub} numberOfLines={1}>{D('groups.members', { count: gm.length, defaultValue: `${gm.length} חברים` })}{gb ? ` · ${gb}` : ''}{groupRecurring(g) ? ` · ${groupRecurring(g)}` : ''}</Text>
                     </View>
-                    <Pressable onPress={() => setEditGroup(g)} hitSlop={8}><Pencil size={13} strokeWidth={1.7} color={colors.textSub} /></Pressable>
+                    <Pressable accessibilityLabel={i18n.t('projects:detail.groups.editAria')} onPress={() => setEditGroup(g)} hitSlop={8}><Pencil size={13} strokeWidth={1.7} color={colors.textSub} /></Pressable>
                     <ChevronDown size={16} strokeWidth={1.6} color={colors.textSub} style={{ transform: [{ rotate: open ? '180deg' : '0deg' }] }} />
                   </Pressable>
                   <View style={styles.gstatusRow}>
@@ -222,7 +222,7 @@ export default function ProjectDetailScreen() {
                       {gm.length ? gm.map((m) => (
                         <View key={m.id} style={styles.mrow}>
                           <Text style={styles.mname} numberOfLines={1}>{clientName(m.client_id) || '—'}</Text>
-                          <Pressable onPress={() => removeMember(m.id)} hitSlop={8}><X size={13} strokeWidth={2} color={colors.textFaint} /></Pressable>
+                          <Pressable accessibilityLabel={i18n.t('projects:detail.groups.removeMemberAria', { name: clientName(m.client_id) || i18n.t('projects:detail.groups.removeMemberFallback') })} onPress={() => removeMember(m.id)} hitSlop={8}><X size={13} strokeWidth={2} color={colors.textFaint} /></Pressable>
                         </View>
                       )) : <Text style={styles.mEmpty}>{i18n.t('modalsClient:addGroup.noMembers', { defaultValue: 'עדיין אין חברים' })}</Text>}
                       <View style={styles.gactions}>
@@ -250,7 +250,7 @@ export default function ProjectDetailScreen() {
                   <CalendarDays size={14} strokeWidth={1.6} color={colors.textFaint} />
                   <Text style={[styles.rowName, flip && styles.txtRtl]} numberOfLines={1}>{clientName(s.client_id) || (s.group_id ? groups.find((g) => g.id === s.group_id)?.name : '') || s.summary || '—'}</Text>
                   <Text style={[styles.rowSub, flip && styles.txtRtl]}>{fmtShortDate(s.date)}</Text>
-                  <Pressable onPress={() => confirmDeleteSession(s)} hitSlop={8}><X size={13} strokeWidth={2} color={colors.textFaint} /></Pressable>
+                  <Pressable accessibilityLabel={i18n.t('modalsData:editTx.delete')} onPress={() => confirmDeleteSession(s)} hitSlop={8}><X size={13} strokeWidth={2} color={colors.textFaint} /></Pressable>
                 </Pressable>
               ))}
             </Section>

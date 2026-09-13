@@ -123,9 +123,9 @@ export default function AttentionWidget({ data, projects = [], financeCategories
                   </View>
                   <Text style={[styles.txAmt, { color: income ? colors.positive : colors.textSub }]}>{income ? '+' : '−'}{isr(t.amount)}</Text>
                   <View style={styles.txActions}>
-                    <Pressable style={styles.txBtn} onPress={() => onApproveTx?.(t.id)} hitSlop={6}><Check size={16} strokeWidth={2.2} color={colors.positive} /></Pressable>
-                    <Pressable style={styles.txBtn} onPress={() => onSkipTx?.(t.id)} hitSlop={6}><SkipForward size={15} strokeWidth={1.8} color={colors.textFaint} /></Pressable>
-                    <Pressable style={styles.txBtn} onPress={() => onDeleteTx?.(t.id)} hitSlop={6}><Trash2 size={15} strokeWidth={1.8} color={colors.danger} /></Pressable>
+                    <Pressable accessibilityLabel={i18n.t('finance:pending.approve')} style={styles.txBtn} onPress={() => onApproveTx?.(t.id)} hitSlop={6}><Check size={16} strokeWidth={2.2} color={colors.positive} /></Pressable>
+                    <Pressable accessibilityLabel={i18n.t('finance:pending.skip')} style={styles.txBtn} onPress={() => onSkipTx?.(t.id)} hitSlop={6}><SkipForward size={15} strokeWidth={1.8} color={colors.textFaint} /></Pressable>
+                    <Pressable accessibilityLabel={i18n.t('modalsData:editTx.delete')} style={styles.txBtn} onPress={() => onDeleteTx?.(t.id)} hitSlop={6}><Trash2 size={15} strokeWidth={1.8} color={colors.danger} /></Pressable>
                   </View>
                 </View>
               )

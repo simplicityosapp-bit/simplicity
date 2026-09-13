@@ -130,7 +130,7 @@ export default function AddLeadModal({ open, onClose, onSave, onDelete, onConver
       />
       <View style={styles.srcAddRow}>
         <TextInput style={[styles.input, styles.srcAddInput]} value={newSource} onChangeText={setNewSource} placeholder={i18n.t('leads:newSourcePlaceholder', { defaultValue: 'מקור חדש…' })} placeholderTextColor={colors.textFaint} onSubmitEditing={createSource} />
-        <Pressable style={[styles.srcAddBtn, (!newSource.trim() || addingSource) && styles.srcAddBtnOff]} onPress={createSource} disabled={!newSource.trim() || addingSource}><Plus size={18} strokeWidth={2} color={colors.onBrand} /></Pressable>
+        <Pressable accessibilityLabel={i18n.t('modalsData:common.add')} style={[styles.srcAddBtn, (!newSource.trim() || addingSource) && styles.srcAddBtnOff]} onPress={createSource} disabled={!newSource.trim() || addingSource}><Plus size={18} strokeWidth={2} color={colors.onBrand} /></Pressable>
       </View>
       {projects.length ? (
         <Select
@@ -208,7 +208,7 @@ export default function AddLeadModal({ open, onClose, onSave, onDelete, onConver
 
       <View style={styles.actions}>
         {isEdit && onDelete ? (
-          <Pressable style={styles.delete} onPress={remove} disabled={busy} hitSlop={6}>
+          <Pressable accessibilityLabel={i18n.t('modalsData:editTx.delete')} style={styles.delete} onPress={remove} disabled={busy} hitSlop={6}>
             <Trash2 size={18} strokeWidth={1.8} color={colors.danger} />
           </Pressable>
         ) : null}

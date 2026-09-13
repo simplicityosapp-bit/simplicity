@@ -411,10 +411,10 @@ export default function ClientsScreen() {
             <Pressable style={[styles.bulkBtn, !selectedIds.size && styles.bulkBtnOff]} disabled={!selectedIds.size} onPress={() => setBulkStatusOpen(true)}>
               <Text style={styles.bulkBtnText}>{i18n.t('clients:bulk.changeStatus', { defaultValue: 'שינוי סטטוס' })}</Text>
             </Pressable>
-            <Pressable style={[styles.bulkBtn, styles.bulkDanger, !selectedIds.size && styles.bulkBtnOff]} disabled={!selectedIds.size} onPress={() => setPendingBulkDelete(true)}>
+            <Pressable accessibilityLabel={i18n.t('modalsData:editTx.delete')} style={[styles.bulkBtn, styles.bulkDanger, !selectedIds.size && styles.bulkBtnOff]} disabled={!selectedIds.size} onPress={() => setPendingBulkDelete(true)}>
               <Trash2 size={14} strokeWidth={1.8} color={colors.danger} />
             </Pressable>
-            <Pressable style={styles.bulkClose} onPress={exitSelect}>
+            <Pressable accessibilityLabel={i18n.t('clients:bulk.closeAria')} style={styles.bulkClose} onPress={exitSelect}>
               <X size={16} strokeWidth={1.7} color={colors.textSub} />
             </Pressable>
           </View>
@@ -546,7 +546,7 @@ function ClientStatusesPanel({ tax }) {
             {s.icon ? <Text style={styles.statusChipIcon}>{s.icon}</Text> : null}
             <Text style={styles.statusChipText}>{s.display_name}</Text>
             {s.is_default ? null : (
-              <Pressable onPress={() => tax.removeClientStatus(s.id)} hitSlop={6}>
+              <Pressable accessibilityLabel={i18n.t('modalsData:editTx.delete')} onPress={() => tax.removeClientStatus(s.id)} hitSlop={6}>
                 <X size={12} strokeWidth={2} color={colors.textFaint} />
               </Pressable>
             )}
@@ -572,7 +572,7 @@ function ClientStatusesPanel({ tax }) {
           placeholderTextColor={colors.textFaint}
           onSubmitEditing={add}
         />
-        <Pressable style={styles.statusAddBtn} onPress={add} disabled={busy || !name.trim()}>
+        <Pressable accessibilityLabel={i18n.t('modalsData:common.add')} style={styles.statusAddBtn} onPress={add} disabled={busy || !name.trim()}>
           <Plus size={18} strokeWidth={2} color={colors.onBrand} />
         </Pressable>
       </View>

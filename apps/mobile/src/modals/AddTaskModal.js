@@ -163,7 +163,7 @@ export default function AddTaskModal({ open, onClose, onSave, onDelete, task = n
 
       <View style={styles.actions}>
         {isEdit && onDelete ? (
-          <Pressable style={styles.delete} onPress={remove} disabled={busy} hitSlop={6}>
+          <Pressable accessibilityLabel={i18n.t('modalsData:editTx.delete')} style={styles.delete} onPress={remove} disabled={busy} hitSlop={6}>
             <Trash2 size={18} strokeWidth={1.8} color={colors.danger} />
           </Pressable>
         ) : null}

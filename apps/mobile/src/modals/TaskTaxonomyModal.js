@@ -69,7 +69,7 @@ export default function TaskTaxonomyModal({ open, onClose, statuses = [], catego
         <Swatches value={sColor} onPick={setSColor} />
         <View style={styles.addRow}>
           <TextInput style={styles.input} value={sName} onChangeText={setSName} placeholder={T('statusPlaceholder')} placeholderTextColor={colors.textFaint} onSubmitEditing={addStatus} />
-          <Pressable style={[styles.addBtn, (busy || !sName.trim()) && styles.addBtnOff]} onPress={addStatus} disabled={busy || !sName.trim()}><Plus size={18} strokeWidth={2} color={colors.onBrand} /></Pressable>
+          <Pressable accessibilityLabel={i18n.t('modalsData:common.add')} style={[styles.addBtn, (busy || !sName.trim()) && styles.addBtnOff]} onPress={addStatus} disabled={busy || !sName.trim()}><Plus size={18} strokeWidth={2} color={colors.onBrand} /></Pressable>
         </View>
         {META.map((m) => {
           const list = statuses.filter((s) => s.meta_category === m.key)
@@ -82,7 +82,7 @@ export default function TaskTaxonomyModal({ open, onClose, statuses = [], catego
                     <View key={s.id} style={styles.chip}>
                       <View style={[styles.chipDot, { backgroundColor: s.color || colors.textSub }]} />
                       <Text style={styles.chipText}>{s.display_name}</Text>
-                      <Pressable onPress={() => confirmRemove('status', s.id, s.display_name)} hitSlop={6}><X size={13} strokeWidth={2} color={colors.textFaint} /></Pressable>
+                      <Pressable accessibilityLabel={i18n.t('modalsData:editTx.delete')} onPress={() => confirmRemove('status', s.id, s.display_name)} hitSlop={6}><X size={13} strokeWidth={2} color={colors.textFaint} /></Pressable>
                     </View>
                   ))}
                 </View>
@@ -98,7 +98,7 @@ export default function TaskTaxonomyModal({ open, onClose, statuses = [], catego
         <Swatches value={cColor} onPick={setCColor} />
         <View style={styles.addRow}>
           <TextInput style={styles.input} value={cName} onChangeText={setCName} placeholder={T('categoryPlaceholder')} placeholderTextColor={colors.textFaint} onSubmitEditing={addCategory} />
-          <Pressable style={[styles.addBtn, (busy || !cName.trim()) && styles.addBtnOff]} onPress={addCategory} disabled={busy || !cName.trim()}><Plus size={18} strokeWidth={2} color={colors.onBrand} /></Pressable>
+          <Pressable accessibilityLabel={i18n.t('modalsData:common.add')} style={[styles.addBtn, (busy || !cName.trim()) && styles.addBtnOff]} onPress={addCategory} disabled={busy || !cName.trim()}><Plus size={18} strokeWidth={2} color={colors.onBrand} /></Pressable>
         </View>
         {categories.length ? (
           <View style={styles.chips}>
@@ -106,7 +106,7 @@ export default function TaskTaxonomyModal({ open, onClose, statuses = [], catego
               <View key={c.id} style={styles.chip}>
                 <View style={[styles.chipDot, { backgroundColor: c.color || colors.textSub }]} />
                 <Text style={styles.chipText}>{c.name}</Text>
-                <Pressable onPress={() => confirmRemove('category', c.id, c.name)} hitSlop={6}><X size={13} strokeWidth={2} color={colors.textFaint} /></Pressable>
+                <Pressable accessibilityLabel={i18n.t('modalsData:editTx.delete')} onPress={() => confirmRemove('category', c.id, c.name)} hitSlop={6}><X size={13} strokeWidth={2} color={colors.textFaint} /></Pressable>
               </View>
             ))}
           </View>

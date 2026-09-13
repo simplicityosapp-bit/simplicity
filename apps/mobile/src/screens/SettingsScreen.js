@@ -342,8 +342,8 @@ export default function SettingsScreen() {
       return widgetList.map((w, i) => (
         <View key={w.id} style={styles.widgetRow}>
           <View style={styles.widgetReorder}>
-            <Pressable onPress={() => moveWidget(w.id, -1)} disabled={i === 0} hitSlop={6}><ChevronUp size={16} strokeWidth={1.8} color={i === 0 ? colors.textFaint : colors.textSub} /></Pressable>
-            <Pressable onPress={() => moveWidget(w.id, 1)} disabled={i === widgetList.length - 1} hitSlop={6}><ChevronDown size={16} strokeWidth={1.8} color={i === widgetList.length - 1 ? colors.textFaint : colors.textSub} /></Pressable>
+            <Pressable accessibilityLabel={T('widgets.moveUp', { label: T(`widgets.names.${w.id}`, { defaultValue: w.id }) })} onPress={() => moveWidget(w.id, -1)} disabled={i === 0} hitSlop={6}><ChevronUp size={16} strokeWidth={1.8} color={i === 0 ? colors.textFaint : colors.textSub} /></Pressable>
+            <Pressable accessibilityLabel={T('widgets.moveDown', { label: T(`widgets.names.${w.id}`, { defaultValue: w.id }) })} onPress={() => moveWidget(w.id, 1)} disabled={i === widgetList.length - 1} hitSlop={6}><ChevronDown size={16} strokeWidth={1.8} color={i === widgetList.length - 1 ? colors.textFaint : colors.textSub} /></Pressable>
           </View>
           <Text style={styles.widgetName} numberOfLines={1}>{T(`widgets.names.${w.id}`, { defaultValue: w.id })}</Text>
           <Switch checked={w.enabled !== false} onChange={() => toggleWidget(w.id)} />
@@ -576,15 +576,15 @@ function TaxonomyManager({ title, items, placeholder, secondPlaceholder, onAdd, 
             {/* No handler rather than a disabled one when the list is read-only:
                 the chip is a label to read, and greying it out greys out the word. */}
             <Pressable onPress={onUpdate ? () => startEdit(it) : undefined}><Text style={styles.chipText}>{it.label}</Text></Pressable>
-            <Pressable onPress={() => onRemove(it.id)} hitSlop={6}><X size={12} strokeWidth={2} color={colors.textFaint} /></Pressable>
+            <Pressable accessibilityLabel={i18n.t('modalsData:editTx.delete')} onPress={() => onRemove(it.id)} hitSlop={6}><X size={12} strokeWidth={2} color={colors.textFaint} /></Pressable>
           </View>
         )) : <Text style={styles.hint}>{i18n.t('settings:common.none', { defaultValue: '—' })}</Text>}
       </View>
       <View style={styles.addRow}>
         <TextInput style={[styles.input, styles.addInput]} value={name} onChangeText={setName} placeholder={placeholder} placeholderTextColor={colors.textFaint} onSubmitEditing={submit} />
         {secondPlaceholder ? <TextInput style={[styles.input, styles.addSecond]} value={second} onChangeText={setSecond} placeholder={secondPlaceholder} placeholderTextColor={colors.textFaint} keyboardType="numeric" /> : null}
-        {editId ? <Pressable style={styles.addCancel} onPress={reset} hitSlop={6}><X size={16} strokeWidth={2} color={colors.textSub} /></Pressable> : null}
-        <Pressable style={styles.addBtn} onPress={submit} disabled={busy || !name.trim()}>{editId ? <Check size={18} strokeWidth={2.2} color={colors.onBrand} /> : <Plus size={18} strokeWidth={2} color={colors.onBrand} />}</Pressable>
+        {editId ? <Pressable accessibilityLabel={i18n.t('common:cancel')} style={styles.addCancel} onPress={reset} hitSlop={6}><X size={16} strokeWidth={2} color={colors.textSub} /></Pressable> : null}
+        <Pressable accessibilityLabel={i18n.t('common:save')} style={styles.addBtn} onPress={submit} disabled={busy || !name.trim()}>{editId ? <Check size={18} strokeWidth={2.2} color={colors.onBrand} /> : <Plus size={18} strokeWidth={2} color={colors.onBrand} />}</Pressable>
       </View>
     </View>
   )

@@ -89,7 +89,7 @@ function QuestionInsightCard({ question, idx, today, gender, onSubmit, onToggle,
         <Text style={styles.qicon}>{question.icon || '🫧'}</Text>
         <Text style={styles.qtext}>{questionText(question, gender)}</Text>
         {answeredVal != null ? <Text style={styles.todayPill}>{answeredVal}</Text> : null}
-        {onEdit ? <Pressable onPress={() => onEdit(question)} hitSlop={6}><Pencil size={14} strokeWidth={1.7} color={colors.textFaint} /></Pressable> : null}
+        {onEdit ? <Pressable accessibilityLabel={i18n.t('insights:card.editTitle')} onPress={() => onEdit(question)} hitSlop={6}><Pencil size={14} strokeWidth={1.7} color={colors.textFaint} /></Pressable> : null}
         <Pressable onPress={() => onToggle(question)} hitSlop={6}>
           <View style={[styles.toggle, question.active && styles.toggleOn]}><View style={[styles.knob, question.active && styles.knobOn]} /></View>
         </Pressable>
@@ -105,7 +105,7 @@ function QuestionInsightCard({ question, idx, today, gender, onSubmit, onToggle,
           <View style={styles.sliderRow}>
             <Slider style={{ flex: 1 }} minimumValue={1} maximumValue={10} step={1} value={draft} onValueChange={setDraft} minimumTrackTintColor={colors.moonDeep} maximumTrackTintColor={colors.border} thumbTintColor={colors.moonDeep} />
             <Text style={styles.sliderVal}>{draft}</Text>
-            <Pressable style={styles.save} disabled={busy} onPress={() => submit(draft)}><Check size={15} strokeWidth={2} color={colors.positive} /></Pressable>
+            <Pressable accessibilityLabel={i18n.t('common:save')} style={styles.save} disabled={busy} onPress={() => submit(draft)}><Check size={15} strokeWidth={2} color={colors.positive} /></Pressable>
           </View>
         )
       ) : null}

@@ -35,20 +35,20 @@ export default function FinanceCategoriesModal({ open, onClose, categories, onAd
           <View key={c.id} style={styles.chip}>
             <View style={[styles.dot, { backgroundColor: c.color || colors.textSub }]} />
             <Text style={styles.chipText}>{c.name}</Text>
-            <Pressable onPress={() => confirmRemove(c)} hitSlop={6}><X size={13} strokeWidth={2} color={colors.textFaint} /></Pressable>
+            <Pressable accessibilityLabel={i18n.t('modalsData:editTx.delete')} onPress={() => confirmRemove(c)} hitSlop={6}><X size={13} strokeWidth={2} color={colors.textFaint} /></Pressable>
           </View>
         )) : <Text style={styles.empty}>{i18n.t('finance:categories.empty', { defaultValue: 'אין קטגוריות עדיין.' })}</Text>}
       </View>
       <View style={styles.swatches}>
         {CATEGORY_COLORS.map((c) => (
-          <Pressable key={c} style={[styles.swatch, { backgroundColor: c }, color === c && styles.swatchOn]} onPress={() => setColor(c)}>
+          <Pressable accessibilityLabel={i18n.t('settings:common.colorNamed', { index: CATEGORY_COLORS.indexOf(c) + 1, total: CATEGORY_COLORS.length })} key={c} style={[styles.swatch, { backgroundColor: c }, color === c && styles.swatchOn]} onPress={() => setColor(c)}>
             {color === c ? <Check size={13} strokeWidth={2.5} color={colors.onBrand} /> : null}
           </Pressable>
         ))}
       </View>
       <View style={styles.addRow}>
         <TextInput style={styles.input} value={input} onChangeText={setInput} placeholder={i18n.t('finance:categories.namePlaceholder', { defaultValue: 'שם קטגוריה' })} placeholderTextColor={colors.textFaint} onSubmitEditing={add} />
-        <Pressable style={styles.addBtn} onPress={add} disabled={busy || !input.trim()}><Plus size={18} strokeWidth={2} color={colors.onBrand} /></Pressable>
+        <Pressable accessibilityLabel={i18n.t('modalsData:common.add')} style={styles.addBtn} onPress={add} disabled={busy || !input.trim()}><Plus size={18} strokeWidth={2} color={colors.onBrand} /></Pressable>
       </View>
     </Sheet>
   )

@@ -99,7 +99,7 @@ export default function PaymentPlanSection({ client }) {
                       </Text>
                     </View>
                     {inst.received ? (
-                      <Pressable style={styles.ghostBtn} disabled={busy} onPress={() => unmarkReceived(inst)} hitSlop={6}>
+                      <Pressable accessibilityLabel={i18n.t('components:undo.undo')} style={styles.ghostBtn} disabled={busy} onPress={() => unmarkReceived(inst)} hitSlop={6}>
                         <RotateCcw size={13} strokeWidth={1.9} color={colors.textSub} />
                       </Pressable>
                     ) : receiving?.id === inst.id ? null : (

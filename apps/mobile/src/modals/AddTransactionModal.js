@@ -199,7 +199,7 @@ export default function AddTransactionModal({ open, onClose, onSave, onDelete, t
 
       <View style={styles.actions}>
         {isEdit && onDelete ? (
-          <Pressable style={styles.delete} onPress={remove} disabled={busy} hitSlop={6}>
+          <Pressable accessibilityLabel={i18n.t('modalsData:editTx.delete')} style={styles.delete} onPress={remove} disabled={busy} hitSlop={6}>
             <Trash2 size={18} strokeWidth={1.8} color={colors.danger} />
           </Pressable>
         ) : null}

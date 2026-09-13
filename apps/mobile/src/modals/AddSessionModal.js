@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { View, Alert } from 'react-native'
 import { Text, TextInput } from '../components/Text'
+import DateField from '../components/DateField'
 import { Pressable } from '../components/Pressable'
 import { Trash2 } from 'lucide-react-native'
 import Sheet from '../components/Sheet'
@@ -78,7 +79,7 @@ export default function AddSessionModal({ open, onClose, onSave, onDelete, clien
 
       <View style={styles.field}>
         <Text style={styles.label}>{i18n.t('modalsTask:session.date')}</Text>
-        <TextInput style={styles.input} value={form.date} onChangeText={(v) => set('date', v)} placeholder="YYYY-MM-DD" placeholderTextColor={colors.textFaint} />
+        <DateField clearable={false} style={styles.input} value={form.date} onChange={(v) => set('date', v)} />
       </View>
       <View style={styles.field}>
         <Text style={styles.label}>{i18n.t('modalsTask:session.summary')}</Text>

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { View } from 'react-native'
 import { Text, TextInput } from '../components/Text'
+import DateField from '../components/DateField'
 import { Pressable } from '../components/Pressable'
 import { Trash2 } from 'lucide-react-native'
 import Sheet from '../components/Sheet'
@@ -128,7 +129,7 @@ export default function AddReminderModal({ open, onClose, onSave, onDelete, remi
       <View style={styles.row2}>
         <View style={styles.fieldFlex}>
           <Text style={styles.label}>{i18n.t('modalsTask:reminder.date')}</Text>
-          <TextInput style={styles.input} value={form.date} onChangeText={(v) => set('date', v)} placeholder="YYYY-MM-DD" placeholderTextColor={colors.textFaint} />
+          <DateField clearable={false} style={styles.input} value={form.date} onChange={(v) => set('date', v)} />
         </View>
         <View style={styles.fieldFlex}>
           <Text style={styles.label}>{i18n.t('modalsTask:reminder.time')}</Text>
@@ -157,7 +158,7 @@ export default function AddReminderModal({ open, onClose, onSave, onDelete, remi
       {form.recurrence !== 'none' ? (
         <View style={styles.field}>
           <Text style={styles.label}>{i18n.t('modalsTask:reminder.endDate', { defaultValue: 'תאריך סיום (אופציונלי)' })}</Text>
-          <TextInput style={styles.input} value={form.end_date} onChangeText={(v) => set('end_date', v)} placeholder="YYYY-MM-DD" placeholderTextColor={colors.textFaint} />
+          <DateField style={styles.input} value={form.end_date} onChange={(v) => set('end_date', v)} />
         </View>
       ) : null}
 

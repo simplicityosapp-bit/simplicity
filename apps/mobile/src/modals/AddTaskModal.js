@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { View } from 'react-native'
 import { Text, TextInput } from '../components/Text'
+import DateField from '../components/DateField'
 import { Pressable } from '../components/Pressable'
 import { Trash2 } from 'lucide-react-native'
 import Sheet from '../components/Sheet'
@@ -119,7 +120,7 @@ export default function AddTaskModal({ open, onClose, onSave, onDelete, task = n
       <View style={styles.row2}>
         <View style={styles.flex}>
           <Text style={styles.label}>{i18n.t('modalsTask:task.dueDate')}</Text>
-          <TextInput style={styles.input} value={form.due_date} onChangeText={(v) => set('due_date', v)} placeholder="YYYY-MM-DD" placeholderTextColor={colors.textFaint} />
+          <DateField style={styles.input} value={form.due_date} onChange={(v) => set('due_date', v)} />
         </View>
         <View style={styles.flex}>
           <Text style={styles.label}>{i18n.t('modalsTask:task.dueTime')}</Text>

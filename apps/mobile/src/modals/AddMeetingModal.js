@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { View } from 'react-native'
 import { Text, TextInput } from '../components/Text'
+import DateField from '../components/DateField'
 import { Pressable } from '../components/Pressable'
 import Sheet from '../components/Sheet'
 import Select from '../components/Select'
@@ -86,7 +87,7 @@ export default function AddMeetingModal({ open, onClose, onSave, clients: propCl
       <View style={styles.row2}>
         <View style={styles.fieldFlex}>
           <Text style={styles.label}>{i18n.t('modalsTask:meeting.date')}</Text>
-          <TextInput style={styles.input} value={form.date} onChangeText={(v) => set('date', v)} placeholder="YYYY-MM-DD" placeholderTextColor={colors.textFaint} />
+          <DateField clearable={false} style={styles.input} value={form.date} onChange={(v) => set('date', v)} />
         </View>
         <View style={styles.fieldFlex}>
           <Text style={styles.label}>{i18n.t('modalsTask:meeting.time')}</Text>

@@ -13,7 +13,8 @@
     "nextMonth": "חודש הבא",
     "prevYear": "שנה קודמת",
     "nextYear": "שנה הבאה",
-    "today": "היום"
+    "today": "היום",
+    "clear": "ניקוי התאריך"
   },
   "schedule": {
     "everyDay": "כל יום",

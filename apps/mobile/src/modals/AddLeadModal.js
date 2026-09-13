@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { View } from 'react-native'
 import { Text, TextInput } from '../components/Text'
+import DateField from '../components/DateField'
 import { Pressable } from '../components/Pressable'
 import { Trash2, Plus } from 'lucide-react-native'
 import Sheet from '../components/Sheet'
@@ -186,11 +187,11 @@ export default function AddLeadModal({ open, onClose, onSave, onDelete, onConver
       <View style={styles.row2}>
         <View style={styles.fieldFlex}>
           <Text style={styles.label}>{i18n.t('modalsClient:common.inquiryDate')}</Text>
-          <TextInput style={styles.input} value={form.inquiry_date} onChangeText={(v) => set('inquiry_date', v)} placeholder="YYYY-MM-DD" placeholderTextColor={colors.textFaint} />
+          <DateField style={styles.input} value={form.inquiry_date} onChange={(v) => set('inquiry_date', v)} />
         </View>
         <View style={styles.fieldFlex}>
           <Text style={styles.label}>{i18n.t('modalsClient:common.followUp')}</Text>
-          <TextInput style={styles.input} value={form.follow_up_date} onChangeText={(v) => set('follow_up_date', v)} placeholder="YYYY-MM-DD" placeholderTextColor={colors.textFaint} />
+          <DateField style={styles.input} value={form.follow_up_date} onChange={(v) => set('follow_up_date', v)} />
         </View>
       </View>
 

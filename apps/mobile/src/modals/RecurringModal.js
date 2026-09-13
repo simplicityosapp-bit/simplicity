@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { View } from 'react-native'
 import { Text, TextInput } from '../components/Text'
+import DateField from '../components/DateField'
 import { Pressable } from '../components/Pressable'
 import Sheet from '../components/Sheet'
 import Select from '../components/Select'
@@ -117,7 +118,7 @@ export default function RecurringModal({ open, onClose, onSave, template = null 
             )}
             <View style={styles.fieldFlex}>
               <Text style={styles.label}>{T('untilDate')}</Text>
-              <TextInput style={styles.input} value={form.until_date} onChangeText={(v) => set('until_date', v)} placeholder="YYYY-MM-DD" placeholderTextColor={colors.textFaint} />
+              <DateField style={styles.input} value={form.until_date} onChange={(v) => set('until_date', v)} />
             </View>
           </View>
         </>

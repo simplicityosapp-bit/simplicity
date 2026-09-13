@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect, useRef } from 'react'
 import { View } from 'react-native'
 import { Text, TextInput } from '../components/Text'
+import DateField from '../components/DateField'
 import { Pressable } from '../components/Pressable'
 import { ChevronDown, Plus, Check, RotateCcw, Trash2, CreditCard } from 'lucide-react-native'
 import { planInstallments, planBalance, generateInstallments, firstOfNextMonth, fmtShortDate, isr, PAY_METHODS, payMethodLabel } from '@simplicity/core'
@@ -159,7 +160,7 @@ export default function PaymentPlanSection({ client }) {
               </View>
               <View style={styles.field}>
                 <Text style={styles.fieldL}>{T('startLabel', { defaultValue: 'תשלום ראשון' })}</Text>
-                <TextInput style={styles.input} value={form.startDate} placeholder="YYYY-MM-DD" placeholderTextColor={colors.textFaint} onChangeText={(v) => setForm((f) => ({ ...f, startDate: v }))} />
+                <DateField clearable={false} style={styles.input} value={form.startDate} onChange={(v) => setForm((f) => ({ ...f, startDate: v }))} />
               </View>
               {preview ? (
                 <Text style={styles.preview}>

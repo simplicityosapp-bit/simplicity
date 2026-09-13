@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { View } from 'react-native'
 import { Text, TextInput } from '../components/Text'
+import DateField from '../components/DateField'
 import { Pressable } from '../components/Pressable'
 import { Trash2 } from 'lucide-react-native'
 import { PAY_METHODS, payMethodLabel } from '@simplicity/core'
@@ -125,7 +126,7 @@ export default function AddTransactionModal({ open, onClose, onSave, onDelete, t
         </View>
         <View style={styles.fieldFlex}>
           <Text style={styles.label}>{i18n.t('modalsData:common.date')}</Text>
-          <TextInput style={styles.input} value={form.date} onChangeText={(v) => set('date', v)} placeholder="YYYY-MM-DD" placeholderTextColor={colors.textFaint} />
+          <DateField clearable={false} style={styles.input} value={form.date} onChange={(v) => set('date', v)} />
         </View>
       </View>
       {form.date > todayStr() ? <Text style={styles.hint}>{i18n.t('modalsData:tx.futureHint')}</Text> : null}

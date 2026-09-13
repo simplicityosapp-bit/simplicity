@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { View, StyleSheet, I18nManager } from 'react-native'
 import { Text, TextInput } from '../components/Text'
+import DateField from '../components/DateField'
 import { Pressable } from '../components/Pressable'
 import { ChevronDown, Pencil } from 'lucide-react-native'
 import { getClientMemberships, financeQuery, isConfirmedTx, isr, fmtShortDate, fmtTime } from '@simplicity/core'
@@ -250,12 +251,10 @@ export default function ClientDrawerSections({ client: c, txns, tasks = [], remi
                 placeholderTextColor={colors.textFaint}
               />
               <Text style={[styles.inlineLabel, flip && styles.txtRtl]}>{T('birthDate')}</Text>
-              <TextInput
+              <DateField
                 style={[styles.inlineInput, flip && styles.txtRtl]}
                 value={draft.birth_date || ''}
-                onChangeText={(v) => setField('birth_date', v)}
-                placeholder="YYYY-MM-DD"
-                placeholderTextColor={colors.textFaint}
+                onChange={(v) => setField('birth_date', v)}
               />
             </InlineForm>
           ) : (c.address || c.birth_date) ? (

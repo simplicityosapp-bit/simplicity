@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { View, Alert } from 'react-native'
 import { Text, TextInput } from '../components/Text'
+import DateField from '../components/DateField'
 import { Pressable } from '../components/Pressable'
 import { Check, X, Pencil, Trash2, CalendarDays, Clock } from 'lucide-react-native'
 import { formatWhen, fmtTime, isr } from '@simplicity/core'
@@ -162,7 +163,7 @@ export default function EventDetailsModal({ open, onClose, event, onConfirmMeeti
           </View>
           <View style={styles.field}>
             <Text style={styles.label}>{i18n.t('modalsData:common.date', { defaultValue: 'תאריך' })}</Text>
-            <TextInput style={styles.input} value={form.date} onChangeText={(v) => { setForm((f) => ({ ...f, date: v })); if (err) setErr('') }} placeholder="YYYY-MM-DD" placeholderTextColor={colors.textFaint} />
+            <DateField clearable={false} style={styles.input} value={form.date} onChange={(v) => { setForm((f) => ({ ...f, date: v })); if (err) setErr('') }} />
           </View>
           <View style={styles.row2}>
             <View style={styles.flex}>

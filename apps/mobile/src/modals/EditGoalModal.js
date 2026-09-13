@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { View, Alert } from 'react-native'
 import { Text, TextInput } from '../components/Text'
+import DateField from '../components/DateField'
 import { Pressable } from '../components/Pressable'
 import { Trash2 } from 'lucide-react-native'
 import { questionText, scheduledOccurrences, buildSchedulePattern } from '@simplicity/core'
@@ -183,7 +184,7 @@ export default function EditGoalModal({ open, onClose, onSave, onDelete, goal, c
         {form.time_frame === 'deadline' ? (
           <View style={styles.flex}>
             <Text style={styles.label}>{i18n.t('modalsData:editGoal.targetDate')}</Text>
-            <TextInput style={styles.input} value={form.target_date} onChangeText={(v) => set('target_date', v)} placeholder="YYYY-MM-DD" placeholderTextColor={colors.textFaint} />
+            <DateField style={styles.input} value={form.target_date} onChange={(v) => set('target_date', v)} />
           </View>
         ) : null}
       </View>

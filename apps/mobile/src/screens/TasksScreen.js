@@ -392,7 +392,7 @@ function ReminderRow({ reminder, first, clientName, count, onComplete, onEdit })
         </View>
         {meta ? <Text style={[styles.meta, { textAlign: align }]} numberOfLines={1}>{meta}</Text> : null}
       </Pressable>
-      <Pressable accessibilityLabel={i18n.t('tasks:item.editTask')} onPress={onEdit} hitSlop={8}><Pencil size={13} strokeWidth={1.6} color={colors.textFaint} /></Pressable>
+      <Pressable accessibilityLabel={i18n.t('modalsTask:reminder.titleEdit')} onPress={onEdit} hitSlop={8}><Pencil size={13} strokeWidth={1.6} color={colors.textFaint} /></Pressable>
     </View>
   )
 }

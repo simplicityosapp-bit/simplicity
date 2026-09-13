@@ -633,7 +633,7 @@ const styles = themed((c, t) => ({
   widgetName: { flex: 1, fontSize: 14, color: c.text },
 
   pills: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  pill: { paddingVertical: 8, paddingHorizontal: 14, borderRadius: 999, borderWidth: 1, borderColor: c.border, backgroundColor: c.cardFlat },
+  pill: { minHeight: 44, justifyContent: 'center', paddingVertical: 8, paddingHorizontal: 14, borderRadius: 999, borderWidth: 1, borderColor: c.border, backgroundColor: c.cardFlat },
   pillOn: { backgroundColor: c.text, borderColor: c.text },
   pillOnBrand: { backgroundColor: c.brand, borderColor: c.brand },
   pillText: { fontSize: 13, color: c.textSub },

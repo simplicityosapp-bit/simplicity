@@ -149,7 +149,7 @@ const styles = themed((c, t) => ({
   personMain: { flex: 1 },
   personName: { fontSize: 15, color: c.text },
   waBtn: { width: 38, height: 38, borderRadius: 19, alignItems: 'center', justifyContent: 'center', backgroundColor: c.cardFlat },
-  bulkBtn: { flexDirection: 'row', alignItems: 'center', gap: 5, alignSelf: 'flex-end', paddingVertical: 5, paddingHorizontal: 12, borderRadius: 999, borderWidth: 1, borderColor: 'rgba(139,168,136,0.4)', backgroundColor: 'rgba(139,168,136,0.10)', marginBottom: 6 },
+  bulkBtn: { minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: 5, alignSelf: 'flex-end', paddingVertical: 5, paddingHorizontal: 12, borderRadius: 999, borderWidth: 1, borderColor: 'rgba(139,168,136,0.4)', backgroundColor: 'rgba(139,168,136,0.10)', marginBottom: 6 },
   bulkText: { fontSize: 13, fontWeight: '500', color: c.positive },
   txRow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 11 },
   txMain: { flex: 1, minWidth: 0 },

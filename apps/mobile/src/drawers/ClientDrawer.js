@@ -527,7 +527,7 @@ const styles = themed((c, t) => ({
   statusDot: { width: 9, height: 9, borderRadius: 5 },
   statusOptText: { flex: 1, fontSize: 13, color: c.text },
   statusOptOn: { color: c.brand, fontWeight: '600' },
-  editBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingVertical: 6, paddingHorizontal: 11, borderRadius: 999, borderWidth: 1, borderColor: c.border, backgroundColor: c.card },
+  editBtn: { minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: 4, paddingVertical: 6, paddingHorizontal: 11, borderRadius: 999, borderWidth: 1, borderColor: c.border, backgroundColor: c.card },
   editText: { fontSize: 12, color: c.textSub },
 
   contact: { flexDirection: 'row', flexWrap: 'wrap', gap: 16, marginBottom: 12 },

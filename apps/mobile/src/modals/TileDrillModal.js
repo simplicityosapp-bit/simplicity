@@ -256,7 +256,7 @@ const styles = themed((c, t) => ({
   fieldLbl: { fontSize: 12, fontWeight: '500', color: c.textSub, marginTop: 12, marginBottom: 6 },
   sectionLbl: { fontSize: 12, fontWeight: '600', color: c.textSub, marginTop: 14, marginBottom: 6, letterSpacing: 0.3 },
   pills: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  pill: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 7, paddingHorizontal: 12, borderRadius: 999, borderWidth: 1, borderColor: c.border, backgroundColor: c.cardFlat },
+  pill: { minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 7, paddingHorizontal: 12, borderRadius: 999, borderWidth: 1, borderColor: c.border, backgroundColor: c.cardFlat },
   pillOn: { backgroundColor: c.brand, borderColor: c.brand },
   pillText: { fontSize: 13, color: c.textSub },
   pillTextOn: { color: c.onBrand, fontWeight: '600' },

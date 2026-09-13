@@ -302,7 +302,7 @@ const styles = themed((c, t) => ({
   chipRow: { gap: 4 },
   chipRowLabel: { ...t.micro, color: c.textFaint },
   chips: { flexDirection: 'row', gap: 6, flexWrap: 'wrap' },
-  chip: { paddingHorizontal: 10, paddingVertical: 5, borderRadius: 999, backgroundColor: c.fill },
+  chip: { minHeight: 44, justifyContent: 'center', paddingHorizontal: 10, paddingVertical: 5, borderRadius: 999, backgroundColor: c.fill },
   chipOn: { backgroundColor: c.brand },
   chipText: { fontSize: 12, color: c.textSub, fontWeight: '500' },
   chipTextOn: { color: c.onBrand },
@@ -329,7 +329,7 @@ const styles = themed((c, t) => ({
   fbMsg: { ...t.body, fontSize: 14, lineHeight: 20 },
 
   statusRow: { flexDirection: 'row', gap: 4, flexWrap: 'wrap' },
-  statusBtn: { paddingHorizontal: 8, paddingVertical: 4, borderRadius: 999, backgroundColor: c.fill },
+  statusBtn: { minHeight: 44, justifyContent: 'center', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 999, backgroundColor: c.fill },
   statusText: { fontSize: 11, color: c.textSub, fontWeight: '500' },
   statusTextOn: { color: c.onBrand, fontWeight: '700' },
 

@@ -342,7 +342,7 @@ const styles = themed((c, t) => ({
   trendStatV: { fontSize: 18, fontWeight: '600', color: c.text, fontVariant: ['tabular-nums'] },
   trendStatL: { fontSize: 10, color: c.textSub, textTransform: 'uppercase', letterSpacing: 0.3 },
 
-  footerLink: { alignSelf: 'center', paddingVertical: 8 },
+  footerLink: { minHeight: 44, justifyContent: 'center', alignSelf: 'center', paddingVertical: 8 },
   footerLinkText: { fontSize: 13, color: c.brand, fontWeight: '500' },
 
   corrEmptyCard: { paddingVertical: 16, paddingHorizontal: 18 },
@@ -355,7 +355,7 @@ const styles = themed((c, t) => ({
   corrNote: { fontSize: 11, color: c.textFaint, lineHeight: 16, paddingHorizontal: 4 },
 
   ovPills: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  ovPill: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 6, paddingHorizontal: 12, borderRadius: 999, borderWidth: 1, borderColor: c.border, backgroundColor: c.cardFlat },
+  ovPill: { minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 6, paddingHorizontal: 12, borderRadius: 999, borderWidth: 1, borderColor: c.border, backgroundColor: c.cardFlat },
   ovPillOn: { borderColor: c.brand, backgroundColor: c.brandSoft },
   ovPillOff: { opacity: 0.4 },
   ovDot: { width: 8, height: 8, borderRadius: 4 },

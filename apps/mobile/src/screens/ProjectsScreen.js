@@ -149,7 +149,7 @@ const styles = themed((c, t) => ({
 
   hero: { paddingVertical: 16, paddingHorizontal: 16, gap: 14 },
   toggle: { flexDirection: 'row', gap: 6, backgroundColor: c.cardFlat, borderRadius: 999, padding: 4, alignSelf: 'center' },
-  toggleBtn: { paddingVertical: 7, paddingHorizontal: 20, borderRadius: 999 },
+  toggleBtn: { minHeight: 44, justifyContent: 'center', paddingVertical: 7, paddingHorizontal: 20, borderRadius: 999 },
   toggleOn: { backgroundColor: c.brand },
   toggleText: { fontSize: 13, color: c.textSub },
   toggleTextOn: { color: c.onBrand, fontWeight: '600' },

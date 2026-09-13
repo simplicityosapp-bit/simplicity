@@ -370,7 +370,7 @@ const styles = themed((c, t) => ({
   mname: { flex: 1, fontSize: 14, color: c.text },
   mEmpty: { fontSize: 12, color: c.textFaint },
   gactions: { flexDirection: 'row', alignItems: 'center', gap: 16, flexWrap: 'wrap' },
-  addMember: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 6 },
+  addMember: { minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 6 },
   addMemberText: { fontSize: 13, fontWeight: '500', color: c.brand },
   row: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 12, paddingHorizontal: 16 },
   rowBorder: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: c.divider },

@@ -119,7 +119,7 @@ const styles = themed((c, t) => ({
   content: { paddingHorizontal: 20, gap: 16 },
   error: { color: c.danger, fontSize: 13 },
   pills: { gap: 8, paddingVertical: 2 },
-  pill: { paddingVertical: 8, paddingHorizontal: 14, borderRadius: 999, borderWidth: 1, borderColor: c.border, backgroundColor: c.cardFlat },
+  pill: { minHeight: 44, justifyContent: 'center', paddingVertical: 8, paddingHorizontal: 14, borderRadius: 999, borderWidth: 1, borderColor: c.border, backgroundColor: c.cardFlat },
   pillOn: { backgroundColor: c.text, borderColor: c.text },
   pillText: { fontSize: 13, color: c.textSub },
   // Inverse of the c.text fill so it reads in both themes (white would vanish
@@ -134,6 +134,6 @@ const styles = themed((c, t) => ({
   rowEmpty: { opacity: 0.6 }, // web .rep-row.empty — a 0/null metric reads dimmed
   emptyBox: { alignItems: 'center', gap: 12, paddingVertical: 48 },
   emptyText: { fontSize: 14, color: c.textFaint, textAlign: 'center' },
-  emptyCta: { paddingVertical: 8, paddingHorizontal: 16, borderRadius: 999, borderWidth: 1, borderColor: c.border },
+  emptyCta: { minHeight: 44, justifyContent: 'center', paddingVertical: 8, paddingHorizontal: 16, borderRadius: 999, borderWidth: 1, borderColor: c.border },
   emptyCtaText: { fontSize: 13, fontWeight: '500', color: c.brand },
 }))

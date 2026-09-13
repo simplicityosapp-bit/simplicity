@@ -88,7 +88,7 @@ export default function AdminAnalytics() {
 
 const styles = themed((c, t) => ({
   ranges: { gap: 6, paddingBottom: 4 },
-  range: { paddingHorizontal: 12, paddingVertical: 7, borderRadius: 999, backgroundColor: c.fill },
+  range: { minHeight: 44, justifyContent: 'center', paddingHorizontal: 12, paddingVertical: 7, borderRadius: 999, backgroundColor: c.fill },
   rangeOn: { backgroundColor: c.brand },
   rangeText: { fontSize: 12, color: c.textSub, fontWeight: '500' },
   rangeTextOn: { color: c.onBrand, fontWeight: '600' },

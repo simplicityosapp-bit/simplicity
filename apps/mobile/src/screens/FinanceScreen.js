@@ -407,7 +407,7 @@ const styles = themed((c, t) => ({
   section: { gap: 8 },
   sectionTitle: { fontSize: 14, fontWeight: '600', color: c.textSub },
   pendingHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 },
-  bulkBtn: { flexDirection: 'row', alignItems: 'center', gap: 5, paddingVertical: 5, paddingHorizontal: 12, borderRadius: 999, borderWidth: 1, borderColor: 'rgba(139,168,136,0.4)', backgroundColor: 'rgba(139,168,136,0.10)' },
+  bulkBtn: { minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: 5, paddingVertical: 5, paddingHorizontal: 12, borderRadius: 999, borderWidth: 1, borderColor: 'rgba(139,168,136,0.4)', backgroundColor: 'rgba(139,168,136,0.10)' },
   bulkText: { fontSize: 12, fontWeight: '600', color: c.positive },
   summary: { paddingVertical: 18, paddingHorizontal: 20 },
   monthNav: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', alignSelf: 'stretch', marginBottom: 12 },
@@ -460,11 +460,11 @@ const styles = themed((c, t) => ({
   recActions: { flexDirection: 'row', alignItems: 'center', gap: 12 },
 
   // Export
-  exportBtn: { flexDirection: 'row', alignItems: 'center', gap: 5, alignSelf: 'flex-end', paddingVertical: 6, paddingHorizontal: 14 },
+  exportBtn: { minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: 5, alignSelf: 'flex-end', paddingVertical: 6, paddingHorizontal: 14 },
   exportText: { fontSize: 12, fontWeight: '500', color: c.textSub },
 
   // Skipped toggle
-  skipToggle: { alignSelf: 'center', paddingVertical: 7, paddingHorizontal: 16 },
+  skipToggle: { minHeight: 44, justifyContent: 'center', alignSelf: 'center', paddingVertical: 7, paddingHorizontal: 16 },
   skipToggleText: { fontSize: 12, color: c.textSub },
   skipToggleTextOn: { color: c.text, fontWeight: '600' },
 

@@ -240,6 +240,6 @@ const styles = themed((c, t) => ({
   viz: { paddingVertical: 2 },
   vizEmpty: { fontSize: 12, color: c.textFaint, paddingVertical: 14, textAlign: 'center' },
 
-  del: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingTop: 4 },
+  del: { minHeight: 44, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingTop: 4 },
   delText: { fontSize: 12, color: c.textFaint },
 }))

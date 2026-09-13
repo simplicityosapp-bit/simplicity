@@ -108,7 +108,7 @@ const styles = themed((c, t) => ({
   foot: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 2 },
   converted: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   convertedText: { fontSize: 11, fontWeight: '600', color: c.positive },
-  convertBtn: { flexDirection: 'row', alignItems: 'center', gap: 3, paddingVertical: 4, paddingHorizontal: 8, borderRadius: 999, borderWidth: 1, borderColor: 'rgba(139,168,136,0.4)', backgroundColor: 'rgba(139,168,136,0.10)' },
+  convertBtn: { minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: 3, paddingVertical: 4, paddingHorizontal: 8, borderRadius: 999, borderWidth: 1, borderColor: 'rgba(139,168,136,0.4)', backgroundColor: 'rgba(139,168,136,0.10)' },
   convertText: { fontSize: 11, fontWeight: '500', color: c.text },
   iconBtn: { width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center', backgroundColor: c.cardFlat },
 }))

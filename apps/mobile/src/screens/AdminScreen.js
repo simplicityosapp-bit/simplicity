@@ -101,7 +101,7 @@ const styles = themed((c, t) => ({
      cards that pad their own contents. */
   content: {},
   tabs: { flexDirection: 'row', gap: 6, paddingBottom: 12 },
-  tab: {
+  tab: { minHeight: 44,
     flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 5,
     paddingVertical: 8, borderRadius: 10, backgroundColor: c.fill,
   },

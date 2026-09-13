@@ -123,6 +123,6 @@ const styles = themed((c, t) => ({
   rowMain: { flex: 1, gap: 2 },
   rowLabel: { fontSize: 15, fontWeight: '500', color: c.text },
   rowMeta: { fontSize: 12, color: c.textFaint },
-  restore: { flexDirection: 'row', alignItems: 'center', gap: 5, paddingVertical: 6, paddingHorizontal: 12, borderRadius: 999, borderWidth: 1, borderColor: c.divider, backgroundColor: 'transparent' },
+  restore: { minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: 5, paddingVertical: 6, paddingHorizontal: 12, borderRadius: 999, borderWidth: 1, borderColor: c.divider, backgroundColor: 'transparent' },
   restoreText: { fontSize: 13, fontWeight: '500', color: c.text },
 }))

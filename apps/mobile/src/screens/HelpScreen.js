@@ -376,7 +376,7 @@ const styles = themed((c, t) => ({
   where: { ...t.caption, color: c.textSub, marginTop: 4 },
 
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  chip: {
+  chip: { minHeight: 44, justifyContent: 'center',
     paddingVertical: 7,
     paddingHorizontal: 12,
     borderRadius: 999,
@@ -388,7 +388,7 @@ const styles = themed((c, t) => ({
   chipLabel: { fontSize: 13, color: c.text },
   chipLabelOn: { color: c.brand, fontWeight: '600' },
 
-  disclosure: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 6 },
+  disclosure: { minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 6 },
   chapterTitle: { ...t.heading, color: c.text },
 
   feature: { gap: 3, marginTop: 10 },

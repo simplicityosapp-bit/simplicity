@@ -612,7 +612,7 @@ StatusGroup.displayName = 'StatusGroup'
 const styles = themed((c, t) => ({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   viewToggle: { flexDirection: 'row', gap: 8, backgroundColor: c.cardFlat, borderRadius: 999, padding: 4 },
-  viewBtn: { flex: 1, paddingVertical: 8, borderRadius: 999, alignItems: 'center' },
+  viewBtn: { minHeight: 44, justifyContent: 'center', flex: 1, paddingVertical: 8, borderRadius: 999, alignItems: 'center' },
   viewBtnOn: { backgroundColor: c.text },
   viewBtnText: { fontSize: 14, color: c.textSub },
   // Inverse of the c.text fill so the active tab label reads in both themes.
@@ -651,9 +651,9 @@ const styles = themed((c, t) => ({
   info: { flex: 1, gap: 2 },
   name: { fontSize: 15, color: c.text },
   phone: { fontSize: 12, color: c.textFaint },
-  approve: { paddingVertical: 7, paddingHorizontal: 12, borderRadius: 999, backgroundColor: c.positive },
+  approve: { minHeight: 44, justifyContent: 'center', paddingVertical: 7, paddingHorizontal: 12, borderRadius: 999, backgroundColor: c.positive },
   approveText: { fontSize: 13, fontWeight: '600', color: c.onBrand },
-  reject: { paddingVertical: 7, paddingHorizontal: 12, borderRadius: 999, borderWidth: 1, borderColor: c.border },
+  reject: { minHeight: 44, justifyContent: 'center', paddingVertical: 7, paddingHorizontal: 12, borderRadius: 999, borderWidth: 1, borderColor: c.border },
   rejectText: { fontSize: 13, color: c.textSub },
 
   board: { gap: 12, paddingBottom: 4 },
@@ -694,7 +694,7 @@ const styles = themed((c, t) => ({
   filterCount: { fontSize: 11, fontWeight: '700', color: c.brand, backgroundColor: c.onBrand, minWidth: 18, textAlign: 'center', borderRadius: 999, paddingHorizontal: 5, overflow: 'hidden' },
   filterLabel: { fontSize: 13, color: c.textSub, marginTop: 4 },
   seg: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  segBtn: { paddingVertical: 8, paddingHorizontal: 14, borderRadius: 999, borderWidth: 1, borderColor: c.border, backgroundColor: c.cardFlat },
+  segBtn: { minHeight: 44, justifyContent: 'center', paddingVertical: 8, paddingHorizontal: 14, borderRadius: 999, borderWidth: 1, borderColor: c.border, backgroundColor: c.cardFlat },
   segOn: { backgroundColor: c.brand, borderColor: c.brand },
   segText: { fontSize: 13, color: c.textSub },
   segTextOn: { color: c.onBrand, fontWeight: '600' },

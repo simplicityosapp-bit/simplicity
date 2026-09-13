@@ -34,7 +34,8 @@ export default function InfoPopover({ text, label }) {
         statusBarTranslucent
         navigationBarTranslucent
       >
-        <Pressable style={styles.backdrop} onPress={() => setOpen(false)}>
+        {/* No ripple: on a full-screen backdrop it would flash the whole screen. */}
+        <Pressable style={styles.backdrop} onPress={() => setOpen(false)} android_ripple={null}>
           <View style={styles.body}>
             <Text style={styles.text}>{text}</Text>
           </View>

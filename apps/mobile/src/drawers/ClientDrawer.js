@@ -203,7 +203,8 @@ export default function ClientDrawer({ clientId, clients, transactions, sessions
       navigationBarTranslucent
     >
       <View style={styles.overlay}>
-        <Pressable style={styles.backdrop} onPress={onClose} />
+        {/* No ripple: on a full-screen backdrop it would flash the whole screen. */}
+        <Pressable style={styles.backdrop} onPress={onClose} android_ripple={null} />
         {/* The client file holds editable fields — notes, «פרטים נוספים», the
             inline session and payment rows — inside a panel pinned to the
             bottom at a fixed 92% height, and had no keyboard handling at all,

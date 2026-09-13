@@ -143,7 +143,8 @@ export default function Drawer({ open, onClose, onNavigate, activeScreen }) {
   return (
     <View style={styles.overlay}>
       <Animated.View style={[styles.backdrop, { opacity: backdropOpacity }]}>
-        <Pressable style={StyleSheet.absoluteFill} onPress={onClose} />
+        {/* No ripple: on a full-screen backdrop it would flash the whole screen. */}
+        <Pressable style={StyleSheet.absoluteFill} onPress={onClose} android_ripple={null} />
       </Animated.View>
       <Animated.View style={[styles.panel, { paddingTop: insets.top + 12, transform: [{ translateX }] }]}>
         <BlurView intensity={60} tint={colors.blurTint} style={StyleSheet.absoluteFill} pointerEvents="none" />

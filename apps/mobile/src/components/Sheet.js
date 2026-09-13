@@ -29,7 +29,8 @@ export default function Sheet({ open, onClose, title, children }) {
       navigationBarTranslucent
     >
       <View style={styles.overlay}>
-        <Pressable style={styles.backdrop} onPress={onClose} />
+        {/* No ripple: on a full-screen backdrop it would flash the whole screen. */}
+        <Pressable style={styles.backdrop} onPress={onClose} android_ripple={null} />
         {/* Fill the overlay + anchor to the bottom so the sheet's maxHeight '86%'
             resolves against the full screen height (an auto-height wrapper left a
             tall form — e.g. Add Client — unconstrained, overflowing off the top).

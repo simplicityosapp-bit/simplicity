@@ -72,6 +72,18 @@ describe('DateField', () => {
     expect(screen.getByText(`${monthNamesLong()[9]} 2026`)).toBeTruthy()
   })
 
+  /* The calendar floats in a dialog. A tap outside it closes it without
+     choosing anything; a tap on the calendar itself does not. */
+  it('closes from the backdrop without picking a date', () => {
+    const onChange = jest.fn()
+    render(<DateField value="2026-09-10" onChange={onChange} />)
+    open()
+    expect(screen.getByText(T('today'))).toBeTruthy()
+    fireEvent.press(screen.getByLabelText(i18n.t('common:close')))
+    expect(screen.queryByText(T('today'))).toBeNull()
+    expect(onChange).not.toHaveBeenCalled()
+  })
+
   it('picks today from the today button', () => {
     const onChange = jest.fn()
     render(<DateField value="" onChange={onChange} />)

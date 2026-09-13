@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { View } from 'react-native'
+import { View, Modal } from 'react-native'
 import { ChevronRight, ChevronLeft, ChevronsRight, ChevronsLeft, X } from 'lucide-react-native'
 import {
   monthGrid, monthNamesLong, weekdayNamesShort, isSameDay, weekStartIndex,
@@ -10,8 +10,7 @@ import { Pressable } from './Pressable'
 import { Text } from './Text'
 import i18n from '../lib/i18n'
 import { usePreferences } from '../lib/preferences'
-import { useBackHandler } from '../lib/useBackHandler'
-import { colors } from '../theme/theme'
+import { colors, shadow } from '../theme/theme'
 import { themed } from '../theme/themed'
 
 /* A date, picked rather than typed.
@@ -29,14 +28,18 @@ import { themed } from '../theme/themed'
    Hebrew calendar" on, the grid is a Hebrew month with gematria day numbers
    while the value stays Gregorian.
 
-   Two differences from web, both about being on a phone inside a sheet:
-     · the calendar expands INLINE under the field instead of floating as a
-       popover — the same choice Select makes, because a Modal inside the
-       Sheet that already holds the form is fragile on Android;
-     · a date that is optional can be cleared. A text field could be emptied
-       with the keyboard; a picker needs a way to say "no date", or a birthday
-       entered by mistake could never be removed. The clear button is a
-       SIBLING of the field, not a button inside it. */
+   The calendar floats, as it does on web, in a small dialog over the form.
+   It first opened inline under the field, the way Select does — and in the
+   half of the forms that set a date beside another field (date and time,
+   amount and date) that put a seven-column month inside a 160-point column:
+   day cells twenty points wide, a calendar nobody could hit. A dialog is the
+   one place the month always gets the width of the screen. It is a Modal
+   over the Sheet's Modal; Android back closes only the calendar.
+
+   A date that is optional can be cleared. A text field could be emptied with
+   the keyboard; a picker needs a way to say "no date", or a birthday entered
+   by mistake could never be removed. The clear button is a SIBLING of the
+   field, not a button inside it. */
 
 const pad = (n) => String(n).padStart(2, '0')
 const isoOf = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
@@ -46,6 +49,9 @@ const parse = (v) => {
   return Number.isNaN(d.getTime()) ? null : d
 }
 const T = (k, o) => i18n.t(`components:dateField.${k}`, o)
+// A View that claims the touch, so a tap on the calendar's own padding does
+// not fall through to the backdrop and close it.
+const absorb = () => true
 
 export default function DateField({ value, onChange, placeholder, clearable = true, style }) {
   const { prefs } = usePreferences()
@@ -58,14 +64,12 @@ export default function DateField({ value, onChange, placeholder, clearable = tr
   const [open, setOpen] = useState(false)
   const [view, setView] = useState(() => selected || new Date())
 
-  /* Android back folds the calendar first. Inside a Sheet the Modal takes the
-     press instead, and closes the sheet — the same as Select. */
-  useBackHandler(open, () => setOpen(false))
-
-  const toggle = () => {
-    if (!open) { const s = parse(value); if (s) setView(s) }
-    setOpen((o) => !o)
+  const show = () => {
+    const s = parse(value)
+    setView(s || new Date())
+    setOpen(true)
   }
+  const close = () => setOpen(false)
 
   const cells = useMemo(() => {
     if (hebrew) {
@@ -97,81 +101,82 @@ export default function DateField({ value, onChange, placeholder, clearable = tr
   const shownText = shown()
   const ph = placeholder ?? T('placeholder')
 
-  const pick = (d) => { onChange?.(isoOf(d)); setOpen(false) }
-  const clear = () => { onChange?.(''); setOpen(false) }
+  const pick = (d) => { onChange?.(isoOf(d)); close() }
+  const clear = () => onChange?.('')
   const shiftMonth = (n) => setView((v) => (hebrew ? stepHebrewMonth(v, n) : new Date(v.getFullYear(), v.getMonth() + n, 1)))
   const shiftYear = (n) => setView((v) => (hebrew ? stepHebrewYear(v, n) : new Date(v.getFullYear() + n, v.getMonth(), 1)))
   const today = new Date()
 
   return (
-    <View style={styles.field}>
-      <View style={styles.row}>
-        <Pressable
-          style={[styles.control, style, styles.controlFill]}
-          onPress={toggle}
-          accessibilityLabel={shownText ? `${T('dialogLabel')}: ${shownText}` : ph}
-          accessibilityState={{ expanded: open }}
-        >
-          <Text style={[styles.value, !shownText && styles.placeholder]} numberOfLines={1}>{shownText || ph}</Text>
+    <View style={styles.row}>
+      <Pressable
+        style={[styles.control, style, styles.controlFill]}
+        onPress={show}
+        accessibilityLabel={shownText ? `${T('dialogLabel')}: ${shownText}` : ph}
+        accessibilityState={{ expanded: open }}
+      >
+        <Text style={[styles.value, !shownText && styles.placeholder]} numberOfLines={1}>{shownText || ph}</Text>
+      </Pressable>
+      {clearable && selected ? (
+        <Pressable style={styles.clear} onPress={clear} hitSlop={8} accessibilityLabel={T('clear')}>
+          <X size={16} strokeWidth={1.8} color={colors.textSub} />
         </Pressable>
-        {clearable && selected ? (
-          <Pressable style={styles.clear} onPress={clear} hitSlop={8} accessibilityLabel={T('clear')}>
-            <X size={16} strokeWidth={1.8} color={colors.textSub} />
-          </Pressable>
-        ) : null}
-      </View>
-
-      {open ? (
-        <View style={styles.pop} accessibilityLabel={T('dialogLabel')}>
-          <View style={styles.nav}>
-            <Pressable style={styles.navBtn} onPress={() => shiftYear(-1)} accessibilityLabel={T('prevYear')}>
-              <ChevronsRight size={16} strokeWidth={1.8} color={colors.textSub} />
-            </Pressable>
-            <Pressable style={styles.navBtn} onPress={() => shiftMonth(-1)} accessibilityLabel={T('prevMonth')}>
-              <ChevronRight size={16} strokeWidth={1.8} color={colors.textSub} />
-            </Pressable>
-            <Text style={styles.month} numberOfLines={1}>{headerLabel}</Text>
-            <Pressable style={styles.navBtn} onPress={() => shiftMonth(1)} accessibilityLabel={T('nextMonth')}>
-              <ChevronLeft size={16} strokeWidth={1.8} color={colors.textSub} />
-            </Pressable>
-            <Pressable style={styles.navBtn} onPress={() => shiftYear(1)} accessibilityLabel={T('nextYear')}>
-              <ChevronsLeft size={16} strokeWidth={1.8} color={colors.textSub} />
-            </Pressable>
-          </View>
-
-          <View style={styles.dow}>
-            {headDays.map((d, i) => <Text key={i} style={styles.dowText}>{d}</Text>)}
-          </View>
-
-          <View style={styles.grid}>
-            {cells.map(({ d: cell, inMonth, label }) => {
-              const isSel = !!selected && isSameDay(cell, selected)
-              const isToday = isSameDay(cell, today)
-              return (
-                <Pressable
-                  key={isoOf(cell)}
-                  style={[styles.day, isToday && styles.today, isSel && styles.sel]}
-                  onPress={() => pick(cell)}
-                  accessibilityLabel={fmtDateInput(cell)}
-                  accessibilityState={{ selected: isSel }}
-                >
-                  <Text style={[styles.dayText, !inMonth && styles.out, isSel && styles.selText]}>{label}</Text>
-                </Pressable>
-              )
-            })}
-          </View>
-
-          <Pressable style={styles.todayBtn} onPress={() => pick(new Date())}>
-            <Text style={styles.todayText}>{T('today')}</Text>
-          </Pressable>
-        </View>
       ) : null}
+
+      {/* Same flags as the sheets: without them the dim stops short of the
+          status bar and leaves a bright strip across the top. */}
+      <Modal visible={open} transparent animationType="fade" onRequestClose={close} statusBarTranslucent navigationBarTranslucent>
+        <Pressable style={styles.backdrop} onPress={close} android_ripple={null} accessibilityLabel={i18n.t('common:close')}>
+          <View style={styles.pop} onStartShouldSetResponder={absorb} accessibilityLabel={T('dialogLabel')}>
+            <View style={styles.nav}>
+              <Pressable style={styles.navBtn} onPress={() => shiftYear(-1)} accessibilityLabel={T('prevYear')}>
+                <ChevronsRight size={18} strokeWidth={1.8} color={colors.textSub} />
+              </Pressable>
+              <Pressable style={styles.navBtn} onPress={() => shiftMonth(-1)} accessibilityLabel={T('prevMonth')}>
+                <ChevronRight size={18} strokeWidth={1.8} color={colors.textSub} />
+              </Pressable>
+              <Text style={styles.month} numberOfLines={1}>{headerLabel}</Text>
+              <Pressable style={styles.navBtn} onPress={() => shiftMonth(1)} accessibilityLabel={T('nextMonth')}>
+                <ChevronLeft size={18} strokeWidth={1.8} color={colors.textSub} />
+              </Pressable>
+              <Pressable style={styles.navBtn} onPress={() => shiftYear(1)} accessibilityLabel={T('nextYear')}>
+                <ChevronsLeft size={18} strokeWidth={1.8} color={colors.textSub} />
+              </Pressable>
+            </View>
+
+            <View style={styles.dow}>
+              {headDays.map((d, i) => <Text key={i} style={styles.dowText}>{d}</Text>)}
+            </View>
+
+            <View style={styles.grid}>
+              {cells.map(({ d: cell, inMonth, label }) => {
+                const isSel = !!selected && isSameDay(cell, selected)
+                const isToday = isSameDay(cell, today)
+                return (
+                  <Pressable
+                    key={isoOf(cell)}
+                    style={[styles.day, isToday && styles.today, isSel && styles.sel]}
+                    onPress={() => pick(cell)}
+                    accessibilityLabel={fmtDateInput(cell)}
+                    accessibilityState={{ selected: isSel }}
+                  >
+                    <Text style={[styles.dayText, !inMonth && styles.out, isSel && styles.selText]}>{label}</Text>
+                  </Pressable>
+                )
+              })}
+            </View>
+
+            <Pressable style={styles.todayBtn} onPress={() => pick(new Date())}>
+              <Text style={styles.todayText}>{T('today')}</Text>
+            </Pressable>
+          </View>
+        </Pressable>
+      </Modal>
     </View>
   )
 }
 
 const styles = themed((c, t) => ({
-  field: { gap: 6 },
   row: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   control: {
     minHeight: 44, justifyContent: 'center',
@@ -183,19 +188,20 @@ const styles = themed((c, t) => ({
   value: { fontSize: 15, color: c.text },
   placeholder: { color: c.textFaint },
   clear: { width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center', backgroundColor: c.fill },
-  pop: { borderWidth: 1, borderColor: c.border, borderRadius: 14, backgroundColor: c.card, padding: 10, gap: 6 },
+  backdrop: { flex: 1, backgroundColor: c.overlay, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 20 },
+  pop: { width: '100%', maxWidth: 360, borderWidth: 0.5, borderColor: c.border, borderRadius: 18, backgroundColor: c.card, padding: 12, gap: 6, ...shadow.card },
   nav: { flexDirection: 'row', alignItems: 'center', gap: 2 },
-  navBtn: { width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
-  month: { flex: 1, textAlign: 'center', fontSize: 15, fontWeight: '600', color: c.text },
+  navBtn: { width: 44, height: 44, borderRadius: 22, alignItems: 'center', justifyContent: 'center' },
+  month: { flex: 1, textAlign: 'center', fontSize: 16, fontWeight: '600', color: c.text },
   dow: { flexDirection: 'row' },
-  dowText: { width: '14.2857%', textAlign: 'center', fontSize: 11, color: c.textSub },
+  dowText: { width: '14.2857%', textAlign: 'center', fontSize: 12, color: c.textSub },
   grid: { flexDirection: 'row', flexWrap: 'wrap' },
-  day: { width: '14.2857%', height: 40, alignItems: 'center', justifyContent: 'center', borderRadius: 20 },
-  dayText: { fontSize: 14, color: c.text },
+  day: { width: '14.2857%', height: 44, alignItems: 'center', justifyContent: 'center', borderRadius: 22 },
+  dayText: { fontSize: 15, color: c.text },
   out: { color: c.textFaint, opacity: 0.6 },
   today: { borderWidth: 1, borderColor: c.divider },
   sel: { backgroundColor: c.btnBg },
   selText: { color: c.onBtn, fontWeight: '600' },
   todayBtn: { minHeight: 44, alignSelf: 'center', justifyContent: 'center', paddingHorizontal: 16 },
-  todayText: { fontSize: 14, fontWeight: '600', color: c.brand },
+  todayText: { fontSize: 15, fontWeight: '600', color: c.brand },
 }))

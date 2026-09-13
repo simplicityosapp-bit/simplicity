@@ -4,7 +4,7 @@ import { Text, TextInput } from '../components/Text'
 import { Pressable } from '../components/Pressable'
 import { BookOpen, HelpCircle, ChevronDown, Lightbulb, Search, X, MessageSquarePlus } from 'lucide-react-native'
 import {
-  getHelpScreen, getGlobalFaq, guideOrder, searchHelp, chapterHits, mgToReadable,
+  getHelpScreen, getGlobalFaq, guideOrder, searchHelp, chapterHits,
 } from '@simplicity/core'
 import i18n from '../lib/i18n'
 import { colors, space, type } from '../theme/theme'
@@ -30,13 +30,12 @@ import { useBottomPad } from '../lib/bottomBar'
      · a `screen` param — opens that chapter expanded, so arriving from
        somewhere lands on its chapter rather than on seventeen shut rows.
 
-   One difference from web, and it is not cosmetic: every string goes
-   through mgToReadable(). The manual is written with dual-gender merge
-   glyphs, which web draws using the Alef MultiGndr font. This app
-   deliberately does not load that font — the converted TTF was a suspect
-   while a device build was closing instantly on launch — so a glyph here
-   has nothing to draw it and renders as a box. The readable slash form is
-   what a reader on a phone should get.
+   The manual is written with dual-gender merge glyphs. This screen used to
+   run every string through mgToReadable(), because the app did not load
+   the font that draws them and a glyph came out as a box. It does load it
+   now (lib/fonts), and components/Text gives each glyph a readable label
+   for screen readers — or, if that font is ever switched off again, shows
+   the readable form itself. So nothing here needs converting.
    ════════════════════════════════════════════════════════════════ */
 
 const TABS = [
@@ -46,7 +45,7 @@ const TABS = [
 
 const T = (k, o) => i18n.t(`settings:${k}`, o)
 /* Everything the manual renders passes through here. */
-const R = (s) => mgToReadable(String(s || ''))
+const R = (s) => String(s || '')
 
 export default function HelpScreen({ route }) {
   const bottomPad = useBottomPad()

@@ -4,21 +4,31 @@
 //
 // Applying it used to be a monkey-patch here that wrapped Text.render. React
 // Native 0.86's Text and TextInput are plain function components with no
-// .render, so on a phone that patch never ran; see components/Text for the
-// whole story.
+// .render, so on a phone that patch never ran; see components/Text.
 //
-// The dual-gender face (AlefMultiGndr-Regular.ttf, still in assets/fonts) is
-// NOT loaded, by decision — see the note in @simplicity/core
-// domain/multiGender.ts. It was pulled on 2026-07-11 as the prime suspect for
-// a release build that closed instantly on launch; the two real causes of
-// that crash were found and fixed separately afterwards (Hermes partial Intl,
-// and the root registering after native asked for it). Checked on 2026-09-13
-// without any font tooling: every table checksum and head.checkSumAdjustment
-// is correct and its cmap maps all twelve merge glyphs. Loading it again would
-// show the merged letter the way web does instead of the readable slash form —
-// a product decision that needs one device boot to confirm, not something to
-// flip in passing.
+// The regular face is AlefMultiGndr: Alef plus the twelve dual-gender merge
+// glyphs on unassigned Hebrew-block codepoints ("פעיל׌" = פעיל and פעילה in
+// one word). It was loaded once before, on 2026-07-08, and pulled on
+// 2026-07-11 as the prime suspect for a release build that closed instantly
+// on launch. The two real causes of that crash were found and fixed later
+// (Hermes partial Intl, and the root registering after native asked for it).
+// Checked on 2026-09-13 without any font tooling: every table checksum and
+// head.checkSumAdjustment is correct, and its cmap maps all twelve merge
+// glyphs plus Hebrew letters, digits and ₪ — a superset of Alef-Regular. The
+// owner chose to load it again the same day.
+//
+// Bold stays the real Alef-Bold, which has no merge glyphs; components/Text
+// keeps a bold string that carries one on this regular face and lets the
+// platform synthesise the bold, the way a browser does for web's AlefMG.
+//
+// IF A DEVICE BUILD CLOSES ON LAUNCH: set MERGE_FONT_LOADED to false and point
+// Alef back at Alef-Regular.ttf. components/Text then shows the readable slash
+// form ("פעיל/ה") instead of the glyph, and nothing else needs to change.
+export const MERGE_FONT_LOADED = true
+
 export const fontAssets = {
-  Alef: require('../../assets/fonts/Alef-Regular.ttf'),
+  Alef: MERGE_FONT_LOADED
+    ? require('../../assets/fonts/AlefMultiGndr-Regular.ttf')
+    : require('../../assets/fonts/Alef-Regular.ttf'),
   'Alef-Bold': require('../../assets/fonts/Alef-Bold.ttf'),
 }

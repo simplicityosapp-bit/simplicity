@@ -94,6 +94,21 @@ function allText(node, out = []) {
   return out
 }
 
+/* Text nodes that carry a dual-gender merge glyph but no readable label.
+   The merge font draws the glyph; a screen reader cannot pronounce it, so
+   components/Text gives every such Text the slash form as its label. */
+function unlabeledGlyphs(node, out = []) {
+  if (node == null || typeof node === 'string') return out
+  if (Array.isArray(node)) { node.forEach((n) => unlabeledGlyphs(n, out)); return out }
+  const own = (node.children || []).filter((c) => typeof c === 'string').join('')
+  if (node.type === 'Text' && hasMG(own)) {
+    const label = node.props && node.props.accessibilityLabel
+    if (!label || hasMG(label)) out.push(own)
+  }
+  if (node.children) node.children.forEach((c) => unlabeledGlyphs(c, out))
+  return out
+}
+
 /* A missing key comes back from i18next as the key itself: either
    "namespace:path.to.key" or the bare dotted path. Real copy has spaces,
    Hebrew, digits-first numbers or an @ — none of which a key has. */
@@ -166,10 +181,10 @@ describe('every screen', () => {
     const text = allText(view.toJSON())
     expect(text.length).toBeGreaterThan(0)
     expect(text.filter(looksLikeKey)).toEqual([])
-    /* A merge glyph that reaches the screen is a box on a phone: this app
-       does not load the font that draws it. components/Text converts them —
-       and because every screen imports it, this checks that none escaped. */
-    expect(text.filter(hasMG)).toEqual([])
+    /* Every merge glyph on screen must be pronounceable: components/Text
+       labels it, and because every screen imports that, this checks that
+       none escaped. */
+    expect(unlabeledGlyphs(view.toJSON())).toEqual([])
     const allowed = KNOWN_MOCK_ARTIFACT[name] || (() => false)
     expect(text.filter((s) => looksBroken(s) && !allowed(s))).toEqual([])
     view.unmount()

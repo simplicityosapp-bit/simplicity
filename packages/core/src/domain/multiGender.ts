@@ -11,14 +11,15 @@
    unambiguous in source, rather than relying on every editor along the way
    to preserve it.
 
-   Shared because both apps carry these strings and neither can render them
-   the same way. Web loads the merge font and shows the glyph, pairing it
-   with a hidden readable form for screen readers. apps/mobile deliberately
-   does NOT load that font — the converted TTF was a prime suspect while a
-   device build was closing instantly on launch, and it has stayed out
-   since — so on a phone the glyph has nothing to draw it and comes out as
-   a box. Mobile therefore renders mgToReadable() instead, which is why
-   this could not stay in apps/web.
+   Shared because both apps carry these strings. Web loads the merge font
+   and shows the glyph, pairing it with a hidden readable form for screen
+   readers. apps/mobile loads the same glyphs (AlefMultiGndr as its regular
+   face, since 2026-09-13) and puts the readable form in accessibilityLabel
+   — see apps/mobile/src/components/Text. It had kept that font out from
+   July, when the converted TTF was a suspect for a device build closing
+   on launch; if it ever has to come out again, one flag in
+   apps/mobile/src/lib/fonts makes mobile render mgToReadable() as the text
+   itself.
    ════════════════════════════════════════════════════════════════ */
 
 /* The merge glyphs we use (unassigned Hebrew-block codepoints). */

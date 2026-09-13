@@ -294,7 +294,7 @@ export default function FinanceScreen() {
                   </View>
                   <Text style={[styles.recAmt, { color: income ? colors.positive : colors.textSub }]}>{income ? '+' : '−'}{isr(Math.abs(tpl.amount || 0))}</Text>
                   <View style={styles.recActions}>
-                    <Pressable onPress={() => updateRecurring(tpl.id, { active: !tpl.active })} hitSlop={6}>{paused ? <Play size={15} strokeWidth={1.7} color={colors.textSub} /> : <Pause size={15} strokeWidth={1.7} color={colors.textSub} />}</Pressable>
+                    <Pressable accessibilityLabel={paused ? i18n.t('finance:recurring.resume') : i18n.t('finance:recurring.pause')} onPress={() => updateRecurring(tpl.id, { active: !tpl.active })} hitSlop={6}>{paused ? <Play size={15} strokeWidth={1.7} color={colors.textSub} /> : <Pause size={15} strokeWidth={1.7} color={colors.textSub} />}</Pressable>
                     <Pressable accessibilityLabel={i18n.t('modalsData:recurring.titleEdit')} onPress={() => setEditRec(tpl)} hitSlop={6}><Pencil size={14} strokeWidth={1.7} color={colors.textSub} /></Pressable>
                     <Pressable accessibilityLabel={i18n.t('modalsData:editTx.delete')} onPress={() => Alert.alert(i18n.t('finance:deleteRecurring.title', { defaultValue: 'מחיקת תבנית חוזרת' }), i18n.t('finance:deleteRecurring.message', { name: tpl.desc || '', defaultValue: 'למחוק את התבנית?' }), [{ text: i18n.t('modalsData:common.cancel', { defaultValue: 'ביטול' }), style: 'cancel' }, { text: i18n.t('finance:deleteRecurring.confirm', { defaultValue: 'מחק' }), style: 'destructive', onPress: () => removeRecurring(tpl.id) }])} hitSlop={6}><Trash2 size={14} strokeWidth={1.7} color={colors.danger} /></Pressable>
                   </View>
@@ -310,7 +310,7 @@ export default function FinanceScreen() {
             title={i18n.t('finance:expensesByCategory.title', { defaultValue: 'הוצאות לפי קטגוריה' })}
             rows={expenseRows}
             empty={i18n.t('finance:expensesByCategory.empty', { defaultValue: '—' })}
-            action={<Pressable onPress={() => setManageCat(true)} hitSlop={8}><Settings2 size={15} strokeWidth={1.7} color={colors.textSub} /></Pressable>}
+            action={<Pressable accessibilityLabel={i18n.t('finance:categories.title')} onPress={() => setManageCat(true)} hitSlop={8}><Settings2 size={15} strokeWidth={1.7} color={colors.textSub} /></Pressable>}
           />
 
           {/* Skipped toggle */}

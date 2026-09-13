@@ -50,7 +50,10 @@ function Section({ title, count, defaultOpen = false, onEdit, editing = false, i
             <Pencil size={13} strokeWidth={1.6} color={colors.textSub} />
           </Pressable>
         ) : null}
-        <Pressable onPress={toggle} hitSlop={8} style={styles.secChevron}>
+        {/* Named by the section it opens, with its state, rather than by a new
+            word: a screen reader already says "expanded" / "collapsed" from
+            accessibilityState, so the title is all the label needs to carry. */}
+        <Pressable onPress={toggle} hitSlop={8} style={styles.secChevron} accessibilityLabel={title} accessibilityState={{ expanded: !!isOpen }}>
           <ChevronDown size={16} strokeWidth={1.6} color={colors.textSub} style={{ transform: [{ rotate: isOpen ? '180deg' : '0deg' }] }} />
         </Pressable>
       </View>

@@ -23,6 +23,7 @@ import { useFormOptions } from '../lib/formOptions'
 import { usePreferences } from '../lib/preferences'
 import { useLeadsList } from '../hooks/useLeadsList'
 import { useBottomPad } from '../lib/bottomBar'
+import { resolveDropColumn } from '../lib/leadDrop'
 
 const DEFAULT_FILTER = { period: 'all', project: '', group: '', status: '', source: '', sort: '' }
 
@@ -190,17 +191,12 @@ export default function LeadsScreen() {
       boardRef.current?.scrollTo({ x: next, animated: false })
     }, 16)
   }
-  /* A drop is only a drop over the board. This used to resolve by X alone,
-     so dragging a card UP to abort — over the header, off the board entirely —
-     still landed it in whichever column happened to share that x, and moved
-     the lead. Wrong data, from a gesture that meant "never mind". */
-  const hitMeta = (absX, absY) => {
-    const { y, height } = boardBox.current
-    if (height > 0 && (absY < y || absY > y + height)) return null
-    const relX = absX - boardBox.current.x + scrollX.current
-    for (const m of LEAD_META) { const c = colX.current[m.key]; if (c && relX >= c.x && relX <= c.x + c.width) return m.key }
-    return null
-  }
+  /* Resolved by a pure helper so the decision that writes a lead's new status
+     can be called with a coordinate and checked — see lib/leadDrop. */
+  const hitMeta = (absX, absY) => resolveDropColumn({
+    x: absX, y: absY, board: boardBox.current, scrollX: scrollX.current,
+    columns: colX.current, order: LEAD_META.map((m) => m.key),
+  })
   const onDragMove = (absX, absY) => {
     ghost.setValue({ x: absX - colWRef.current / 2, y: absY - 28 })
     overMeta.current = hitMeta(absX, absY)

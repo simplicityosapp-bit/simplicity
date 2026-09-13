@@ -62,7 +62,7 @@ export default function PagesScreen() {
                           </Text>
                         </View>
                       </View>
-                      <Pressable style={styles.action} onPress={() => share(p)} hitSlop={6}>
+                      <Pressable accessibilityLabel={i18n.t('pages:share')} style={styles.action} onPress={() => share(p)} hitSlop={6}>
                         <Share2 size={17} strokeWidth={1.7} color={colors.textSub} />
                       </Pressable>
                       <Pressable accessibilityLabel={i18n.t('leads:pages.openPage')} style={styles.action} onPress={() => open(p)} hitSlop={6} disabled={!p.published}>

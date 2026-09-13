@@ -1,4 +1,5 @@
-import { Pressable as RNPressable, StyleSheet } from 'react-native'
+import { Pressable as RNPressable, Platform, StyleSheet } from 'react-native'
+import { getThemeMode } from '../theme/theme'
 
 /* Pressable, but it answers you.
    ────────────────────────────────────────────────────────────────
@@ -16,20 +17,31 @@ import { Pressable as RNPressable, StyleSheet } from 'react-native'
    each, and every call site inside gets the behaviour without being
    touched. Props pass straight through, and a caller that wants to
    decide for itself can still hand `style` a function — its result is
-   composed with the dim rather than replaced by it.
+   composed with the feedback rather than replaced by it.
 
-   Opacity, and deliberately not android_ripple. A ripple is the more
-   native Android answer, but it needs a per-call-site decision — a
-   radius to clip to, or `borderless` — and an unclipped ripple paints a
-   square through a rounded card. Ripples do not exist on
-   react-native-web, so none of those 364 decisions could be checked
-   without a device, and a dim that is right everywhere beats a ripple
-   that is wrong in places nobody can see. Worth revisiting on hardware.
+   iOS and web dim. Android ripples — the answer an Android user's hands
+   expect — and does not also dim, since two kinds of feedback on one
+   touch read as a flicker.
+
+   The ripple has one trap, and it is why this was first left out: Android
+   clips a ripple to the view's BOUNDS, not to its borderRadius, so on a
+   rounded card it paints a square through the corners. Rounded styles
+   therefore get `overflow: 'hidden'` on Android, which makes the ripple
+   follow the curve. That is safe to add in bulk because nothing in the app
+   draws outside its own pressable — no child sits at a negative offset,
+   and no pressable sets `overflow` itself (a caller that does keeps its
+   own value). A caller that passes its own `android_ripple` — borderless
+   for an icon, a brand colour, or null for none — keeps it too.
+
+   Ripples do not exist on react-native-web, so the preview cannot show
+   this; the composition is pinned by test/pressable-feedback instead, and
+   the look belongs on the device checklist.
 
    RN skips `pressed` entirely while `disabled` is set, so a disabled
    control stays still on touch — which is what it should do. */
 
 const PRESSED_OPACITY = 0.62
+const IS_ANDROID = Platform.OS === 'android'
 
 /* And the other half of the same silence: `disabled`.
    ────────────────────────────────────────────────────────────────
@@ -45,8 +57,28 @@ const PRESSED_OPACITY = 0.62
    than multiplying, so those keep the look they have instead of dimming
    twice — their own rules become redundant, not compounding. Sites whose
    disabled state is a colour rather than an opacity compose with this
-   cleanly, since they set a different property. */
+   cleanly, since they set a different property. Android dims a disabled
+   control too: a ripple says "that landed", not "this is unavailable". */
 const DISABLED_OPACITY = 0.45
+
+/* A ripple has to be visible on the surface it spreads over: a faint ink on
+   the light cream theme, a faint light on the dark one. Read at render, so a
+   theme switch takes effect on the next press. */
+export function rippleColor(mode = getThemeMode()) {
+  return mode === 'dark' ? 'rgba(255,255,255,0.16)' : 'rgba(42,37,32,0.10)'
+}
+
+const RADIUS_KEYS = [
+  'borderRadius', 'borderTopLeftRadius', 'borderTopRightRadius', 'borderBottomLeftRadius',
+  'borderBottomRightRadius', 'borderTopStartRadius', 'borderTopEndRadius',
+  'borderBottomStartRadius', 'borderBottomEndRadius',
+]
+
+function needsClip(style) {
+  const flat = StyleSheet.flatten(style)
+  if (!flat || flat.overflow != null) return false
+  return RADIUS_KEYS.some((k) => typeof flat[k] === 'number' && flat[k] > 0)
+}
 
 /* Exported for its own test. RN resolves the style function inside
    Pressable, so the composition — the part that can silently swallow a
@@ -58,11 +90,21 @@ const DISABLED_OPACITY = 0.45
    marks a chip in a list that is read-only here. Those rows are CONTENT
    — dimming them to 45% is dimming the thing the user came to read, and
    it is the shape a blanket rule gets wrong. A control with no handler
-   was never a button, so there is nothing to grey out. */
-export function composePressedStyle(style, state, disabled, pressable = true) {
+   was never a button, so there is nothing to grey out.
+
+   `android` is a parameter so the test can take both paths on one runtime. */
+export function composePressedStyle(style, state, disabled, pressable = true, android = IS_ANDROID) {
   const base = typeof style === 'function' ? style(state) : style
-  if (disabled) return pressable ? [base, styles.disabled] : base
-  return state.pressed ? [base, styles.pressed] : base
+  const clipped = android && pressable && needsClip(base) ? [base, styles.clip] : base
+  if (disabled) return pressable ? [clipped, styles.disabled] : clipped
+  if (android) return clipped
+  return state.pressed ? [clipped, styles.pressed] : clipped
+}
+
+/* The ripple a control gets when its caller did not choose one: none off
+   Android, none on something that cannot be pressed, none while disabled. */
+export function defaultRipple(onPress, disabled, android = IS_ANDROID) {
+  return android && onPress && !disabled ? { color: rippleColor(), foreground: true } : undefined
 }
 
 /* What a screen reader is told this thing is.
@@ -80,15 +122,14 @@ export function composePressedStyle(style, state, disabled, pressable = true) {
 
    Labels are the other half and cannot be defaulted — RN already reads
    a control's own <Text> when there is one, so what is left unnamed is
-   the icon-only controls, and each of those needs a word chosen for it.
-   Fixed here where the shared chrome could be reached; the per-screen
-   ones are still open. */
-export function Pressable({ style, disabled, accessibilityRole, onPress, ...rest }) {
+   the icon-only controls, and each of those needs a word chosen for it. */
+export function Pressable({ style, disabled, accessibilityRole, onPress, android_ripple, ...rest }) {
   return (
     <RNPressable
       {...rest}
       onPress={onPress}
       disabled={disabled}
+      android_ripple={android_ripple !== undefined ? android_ripple : defaultRipple(onPress, disabled)}
       accessibilityRole={accessibilityRole || (onPress ? 'button' : undefined)}
       style={(state) => composePressedStyle(style, state, disabled, !!onPress)}
     />
@@ -98,6 +139,7 @@ export function Pressable({ style, disabled, accessibilityRole, onPress, ...rest
 const styles = StyleSheet.create({
   pressed: { opacity: PRESSED_OPACITY },
   disabled: { opacity: DISABLED_OPACITY },
+  clip: { overflow: 'hidden' },
 })
 
 export default Pressable

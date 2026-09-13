@@ -21,7 +21,7 @@
 import React from 'react'
 import { Text } from 'react-native'
 import { render, screen, fireEvent } from '@testing-library/react-native'
-import { Pressable, composePressedStyle } from '../src/components/Pressable'
+import { Pressable, composePressedStyle, defaultRipple, rippleColor } from '../src/components/Pressable'
 
 const flatten = (style) => {
   if (Array.isArray(style)) return Object.assign({}, ...style.flat(Infinity).filter(Boolean))
@@ -106,6 +106,53 @@ describe('Pressable feedback', () => {
     const s = flatten(composePressedStyle(CARD, REST, true, true))
     expect(s.opacity).toBeLessThan(1)
   })
+  /* Android ripples instead of dimming. The ripple is clipped to a view's
+     bounds, not its corners, so a rounded control must gain overflow:hidden
+     there — or the ripple paints a square through a rounded card. The preview
+     runs react-native-web, which has no ripple at all, so this is the only
+     place that composition is checked before a device. */
+  describe('on Android', () => {
+    const CARD_SQUARE = { backgroundColor: 'papayawhip' }
+    const android = (style, state, disabled, pressable = true) =>
+      flatten(composePressedStyle(style, state, disabled, pressable, true))
+
+    it('clips a rounded control so the ripple follows its corners', () => {
+      expect(android(CARD, REST).overflow).toBe('hidden')
+      expect(android([{ borderTopStartRadius: 8 }], REST).overflow).toBe('hidden')
+    })
+
+    it('leaves a square control, and one that set its own overflow, alone', () => {
+      expect(android(CARD_SQUARE, REST).overflow).toBeUndefined()
+      expect(android([CARD, { overflow: 'visible' }], REST).overflow).toBe('visible')
+    })
+
+    it('does not clip a wrapper that is not pressable', () => {
+      expect(android(CARD, REST, false, false).overflow).toBeUndefined()
+    })
+
+    it('does not also dim on press — the ripple is the feedback', () => {
+      const s = android(CARD, DOWN)
+      expect(s.opacity).toBeUndefined()
+      expect(s.backgroundColor).toBe('papayawhip')
+    })
+
+    it('still dims a disabled button', () => {
+      expect(android(CARD, REST, true).opacity).toBeLessThan(1)
+    })
+
+    it('gives a pressable control a ripple, and nothing else one', () => {
+      const fn = () => {}
+      expect(defaultRipple(fn, false, true)).toEqual({ color: rippleColor(), foreground: true })
+      expect(defaultRipple(undefined, false, true)).toBeUndefined()
+      expect(defaultRipple(fn, true, true)).toBeUndefined()
+      expect(defaultRipple(fn, false, false)).toBeUndefined()
+    })
+
+    it('uses a ripple colour that shows on each theme', () => {
+      expect(rippleColor('dark')).not.toBe(rippleColor('light'))
+    })
+  })
+
   it('passes presses and props straight through', () => {
     const onPress = jest.fn()
     render(

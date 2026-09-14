@@ -1,4 +1,4 @@
-import { useMemo, useState, useCallback, useRef } from 'react'
+import { useMemo, useState, useCallback, useRef, useEffect } from 'react'
 import { View, StyleSheet, ScrollView, ActivityIndicator, RefreshControl, Share, Alert, I18nManager } from 'react-native'
 import { Text } from '../components/Text'
 import { Pressable } from '../components/Pressable'
@@ -18,7 +18,9 @@ import FinanceChart from './finance/FinanceChart'
 import { colors } from '../theme/theme'
 import { themed, useThemeMode } from '../theme/themed'
 import { useFinanceData } from '../hooks/useFinanceData'
-import { confirmRemoveTransaction } from '../lib/recurringTx'
+import { confirmRemoveTransaction, confirmResumeRecurring } from '../lib/recurringTx'
+import { generateNow } from '../components/Generators'
+import { onGenerated } from '../lib/generators'
 import { useRecurring } from '../hooks/useRecurring'
 import { useFormOptions } from '../lib/formOptions'
 import { usePreferences } from '../hooks/usePreferences'
@@ -30,11 +32,11 @@ const isConfirmed = (t) => t.status === 'confirmed' && !t.invoice_credited_at
 // Finance screen (mirrors web screens/finance): month summary (nav + net + MoM),
 // income-by-project + expenses-by-category breakdowns, a pending-approval section
 // (approve/skip), and the month's transactions with a skipped toggle. Manage
-// expense categories from the breakdown header. (Recurring templates, chart and
-// invoice imports are a later increment.)
+// expense categories from the breakdown header. (Invoice imports are a later
+// increment.)
 export default function FinanceScreen() {
   const bottomPad = useBottomPad()
-  const { transactions, clients, categories, loading, error, refetch, addTransaction, updateTransaction, deleteTransaction, restoreTransaction, setStatus, addCategory, removeCategory } = useFinanceData()
+  const { transactions, clients, categories, loading, error, refetch, addTransaction, updateTransaction, deleteTransaction, restoreTransaction, setStatus, addCategory, removeCategory, loadMeetings } = useFinanceData()
   const { projects, refetch: refetchFormOptions } = useFormOptions()
   // Inline category creation from the add-transaction modal: create + refresh the
   // shared lookup so the new category shows in the picker (mirrors web onCreateCategory).
@@ -52,6 +54,15 @@ export default function FinanceScreen() {
     if (firstFocus.current) { firstFocus.current = false; return }
     refetch(true)
   }, [refetch]))
+  // Rows a generation pass just wrote (see components/Generators) belong here now.
+  useEffect(() => onGenerated(() => refetch(true)), [refetch])
+  // Pausing needs no question. Resuming asks about the dates the rule missed
+  // while paused, then runs a pass so whatever it now owes appears at once.
+  const toggleRecurring = (tpl) => {
+    if (tpl.active) { updateRecurring(tpl.id, { active: false }).catch(() => {}); return }
+    if (loading) return // computed from a list still loading, every period would look missed
+    confirmResumeRecurring({ tpl, transactions, loadMeetings, addTransaction, updateRecurring, afterResume: generateNow })
+  }
   const [editing, setEditing] = useState(null)
   const [adding, setAdding] = useState(false)
   const [manageCat, setManageCat] = useState(false)
@@ -295,7 +306,7 @@ export default function FinanceScreen() {
                   </View>
                   <Text style={[styles.recAmt, { color: income ? colors.positive : colors.textSub }]}>{income ? '+' : '−'}{isr(Math.abs(tpl.amount || 0))}</Text>
                   <View style={styles.recActions}>
-                    <Pressable accessibilityLabel={paused ? i18n.t('finance:recurring.resume') : i18n.t('finance:recurring.pause')} onPress={() => updateRecurring(tpl.id, { active: !tpl.active })} hitSlop={6}>{paused ? <Play size={15} strokeWidth={1.7} color={colors.textSub} /> : <Pause size={15} strokeWidth={1.7} color={colors.textSub} />}</Pressable>
+                    <Pressable accessibilityLabel={paused ? i18n.t('finance:recurring.resume') : i18n.t('finance:recurring.pause')} onPress={() => toggleRecurring(tpl)} hitSlop={6}>{paused ? <Play size={15} strokeWidth={1.7} color={colors.textSub} /> : <Pause size={15} strokeWidth={1.7} color={colors.textSub} />}</Pressable>
                     <Pressable accessibilityLabel={i18n.t('modalsData:recurring.titleEdit')} onPress={() => setEditRec(tpl)} hitSlop={6}><Pencil size={14} strokeWidth={1.7} color={colors.textSub} /></Pressable>
                     <Pressable accessibilityLabel={i18n.t('modalsData:editTx.delete')} onPress={() => Alert.alert(i18n.t('finance:deleteRecurring.title', { defaultValue: 'מחיקת תבנית חוזרת' }), i18n.t('finance:deleteRecurring.message', { name: tpl.desc || '', defaultValue: 'למחוק את התבנית?' }), [{ text: i18n.t('modalsData:common.cancel', { defaultValue: 'ביטול' }), style: 'cancel' }, { text: i18n.t('finance:deleteRecurring.confirm', { defaultValue: 'מחק' }), style: 'destructive', onPress: () => removeRecurring(tpl.id) }])} hitSlop={6}><Trash2 size={14} strokeWidth={1.7} color={colors.danger} /></Pressable>
                   </View>

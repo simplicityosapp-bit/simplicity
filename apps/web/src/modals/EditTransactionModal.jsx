@@ -32,6 +32,10 @@ export default function EditTransactionModal({ open, onClose, onSave, onIssued, 
   const { members } = useGroupMembers()
   const { t } = useT('modalsData')
   const { t: ts } = useT('modalsSystem') // shared modal chrome (discard prompt)
+  /* The recurring-delete warning is the finance screen's own copy (TransactionList
+     and PendingSection read it from there). Asked for through `t`, it was looked up
+     in modalsData, where it does not exist, and the dialog showed its key paths. */
+  const { t: tf } = useT('finance')
   const STATUSES = [
     { k: 'confirmed', l: t('editTx.statusConfirmed') },
     { k: 'pending', l: t('editTx.statusPending') },
@@ -284,12 +288,11 @@ export default function EditTransactionModal({ open, onClose, onSave, onIssued, 
       <ConfirmModal
         open={confirmDelete}
         onClose={() => setConfirmDelete(false)}
-        title={t(ruleBacked ? 'deleteTx.recurringTitle' : 'editTx.deleteConfirm.title')}
-        message={t(ruleBacked ? 'deleteTx.recurringMessage' : 'editTx.deleteConfirm.message', {
-          desc: tx.desc || t('editTx.deleteConfirm.noDesc'),
-          amount: isr(tx.amount),
-        })}
-        confirmLabel={t(ruleBacked ? 'deleteTx.recurringConfirm' : 'editTx.deleteConfirm.confirm')}
+        title={ruleBacked ? tf('deleteTx.recurringTitle') : t('editTx.deleteConfirm.title')}
+        message={ruleBacked
+          ? tf('deleteTx.recurringMessage', { desc: tx.desc || t('editTx.deleteConfirm.noDesc'), amount: isr(tx.amount) })
+          : t('editTx.deleteConfirm.message', { desc: tx.desc || t('editTx.deleteConfirm.noDesc'), amount: isr(tx.amount) })}
+        confirmLabel={ruleBacked ? tf('deleteTx.recurringConfirm') : t('editTx.deleteConfirm.confirm')}
         danger
         onConfirm={async () => { await onDelete(tx.id); onClose() }}
       />

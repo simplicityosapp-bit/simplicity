@@ -67,7 +67,16 @@
     "resume": "Resume",
     "pause": "Pause",
     "edit": "Edit",
-    "delete": "Delete"
+    "delete": "Delete",
+    "resumeMissed": {
+      "title": "Resume this template",
+      "message_one": "One date passed while it was paused ({{from}}). What should happen to it?",
+      "message_other": "{{count}} dates passed while it was paused ({{from}} to {{to}}). What should happen to them?",
+      "createPending": "Create as pending",
+      "markSkipped": "Mark as didn't happen",
+      "cancel": "Cancel",
+      "failed": "It wasn't resumed, and the template is still paused. You can try again."
+    }
   },
   "categories": {
     "title": "Expense categories",

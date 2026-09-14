@@ -67,7 +67,16 @@
     "resume": "Reanudar",
     "pause": "Pausar",
     "edit": "Editar",
-    "delete": "Eliminar"
+    "delete": "Eliminar",
+    "resumeMissed": {
+      "title": "Reanudar esta plantilla",
+      "message_one": "Pasó una fecha mientras estaba en pausa ({{from}}). ¿Qué hacemos con ella?",
+      "message_other": "Pasaron {{count}} fechas mientras estaba en pausa ({{from}} a {{to}}). ¿Qué hacemos con ellas?",
+      "createPending": "Crear como pendientes",
+      "markSkipped": "Marcar que no ocurrieron",
+      "cancel": "Cancelar",
+      "failed": "No se reanudó y la plantilla sigue en pausa. Puedes intentarlo de nuevo."
+    }
   },
   "categories": {
     "title": "Categorías de gastos",

@@ -11,7 +11,7 @@ import { removeTransactionAndRule } from '../../lib/recurringTx'
 import { useUserPreferences } from '../../hooks/useUserPreferences'
 import { exportTransactionsCSV } from '../../lib/export'
 import { CATEGORY_COLORS } from '../../lib/api/categories'
-import { toLocalDate, fmtMonthYear } from '@simplicity/core'
+import { toLocalDate, fmtMonthYear, missedOnResume, resumeRecurringTemplate } from '@simplicity/core'
 import MonthSummary from './MonthSummary'
 import FinanceChart from './FinanceChart'
 import InvestmentRow from './InvestmentRow'
@@ -28,6 +28,7 @@ import AddTransactionModal from '../../modals/AddTransactionModal'
 import EditTransactionModal from '../../modals/EditTransactionModal'
 import RecurringModal from '../../modals/RecurringModal'
 import ConfirmModal from '../../modals/ConfirmModal'
+import ResumeRecurringModal from '../../modals/ResumeRecurringModal'
 import Coachmark from '../../components/Coachmark'
 import CollapsibleSection from '../../components/CollapsibleSection'
 import { Repeat, Tag, Wallet } from 'lucide-react'
@@ -54,6 +55,19 @@ export default function FinanceScreen() {
   const { templates, addRecurring, updateRecurring, removeRecurring } = useRecurring()
   const { categories, addCategory, removeCategory } = useCategories()
   const { meetings: scheduledMeetings, loading: scheduledMeetingsLoading } = useScheduledMeetings()
+  /* Resuming a paused rule asks what to do with the dates it missed, when there
+     are any (core missedOnResume) — otherwise the engine filled them all with
+     pending rows, silently. Pausing needs no question. Waits for both reads:
+     computed from a list still loading, every period would look missed. */
+  const [resumeRec, setResumeRec] = useState(null) // { template, missed }
+  const toggleRecurring = (tpl) => {
+    if (tpl.active) return updateRecurring(tpl.id, { active: false })
+    if (loading || scheduledMeetingsLoading) return undefined
+    const missed = missedOnResume(tpl, transactions, new Date(), scheduledMeetings)
+    if (!missed.length) return updateRecurring(tpl.id, { active: true })
+    setResumeRec({ template: tpl, missed })
+    return undefined
+  }
   const { prefs, update: updatePrefs } = useUserPreferences()
   /* Deleting the EXPENSE that an investment created has to take the
      investment record with it. The pair is what «השקעתי» wrote; leaving the
@@ -269,7 +283,7 @@ export default function FinanceScreen() {
               onAdd={() => setShowAddRec(true)}
               onEdit={setEditRec}
               onDelete={setPendingDeleteRec}
-              onToggleActive={(t) => updateRecurring(t.id, { active: !t.active })}
+              onToggleActive={toggleRecurring}
             />
           </CollapsibleSection>
 
@@ -418,6 +432,14 @@ export default function FinanceScreen() {
         clients={clients}
         projects={projects}
         categories={categories}
+      />
+      <ResumeRecurringModal
+        open={!!resumeRec}
+        onClose={() => setResumeRec(null)}
+        missed={resumeRec?.missed ?? []}
+        onChoose={(markSkipped) => resumeRecurringTemplate({
+          template: resumeRec.template, missed: resumeRec.missed, markSkipped, addTransaction, updateRecurring,
+        })}
       />
       <ConfirmModal
         open={!!pendingDeleteRec}

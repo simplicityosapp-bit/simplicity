@@ -25,7 +25,7 @@
    ════════════════════════════════════════════════════════════════ */
 
 import { Alert } from 'react-native'
-import { isr } from '@simplicity/core'
+import { isr, fmtShortDate, missedOnResume, resumeRecurringTemplate } from '@simplicity/core'
 import i18n from './i18n'
 import { pushUndo } from './undo'
 
@@ -102,6 +102,41 @@ export function confirmRemoveTransaction({
           afterDelete?.()
         },
       },
+    ],
+  )
+}
+
+/* Resume a paused rule (owner decision 2026-09-14, same as web). If dates were
+   missed while it was paused, ask whether to create them as pending or mark
+   them skipped — core resumeRecurringTemplate owns the order of the writes.
+   `loadMeetings` is only called for an on_meeting rule, whose missed rows are
+   one per meeting and whose meetings this screen does not otherwise load.
+   `afterResume` lets the caller run a generation pass straight away. */
+export async function confirmResumeRecurring({ tpl, transactions, loadMeetings, addTransaction, updateRecurring, afterResume }) {
+  const title = i18n.t('finance:recurring.resumeMissed.title')
+  const failed = () => Alert.alert(title, i18n.t('finance:recurring.resumeMissed.failed'))
+  let meetings = []
+  if (tpl.trigger_type === 'on_meeting') {
+    try { meetings = await loadMeetings() } catch { failed(); return }
+  }
+  const missed = missedOnResume(tpl, transactions, new Date(), meetings)
+  const resume = async (markSkipped) => {
+    try {
+      await resumeRecurringTemplate({ template: tpl, missed, markSkipped, addTransaction, updateRecurring })
+      afterResume?.()
+    } catch {
+      failed()
+    }
+  }
+  if (!missed.length) { await resume(false); return }
+  const count = missed.length
+  Alert.alert(
+    title,
+    i18n.t('finance:recurring.resumeMissed.message', { count, from: fmtShortDate(missed[0].date), to: fmtShortDate(missed[count - 1].date) }),
+    [
+      { text: i18n.t('finance:recurring.resumeMissed.cancel'), style: 'cancel' },
+      { text: i18n.t('finance:recurring.resumeMissed.markSkipped'), onPress: () => resume(true) },
+      { text: i18n.t('finance:recurring.resumeMissed.createPending'), onPress: () => resume(false) },
     ],
   )
 }

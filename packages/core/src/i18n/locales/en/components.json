@@ -1,4 +1,7 @@
 {
+  "prefsLoad": {
+    "message": "We couldn't load your settings. It may be a temporary network problem."
+  },
   "generateFailed": {
     "transactions": "Some recurring transactions weren't created just now. We'll try again next time.",
     "meetings": "Some scheduled meetings weren't created just now. We'll try again next time."

@@ -45,9 +45,10 @@ describe('while preferences are still loading', () => {
 })
 
 describe('when the preferences read failed', () => {
-  /* We know nothing. Trapping someone who finished long ago behind a flow
-     they cannot escape is a worse failure than the cap going unapplied for
-     one session, so the unknown case lets them through. */
+  /* We know nothing. App.js shows a retry screen before it ever asks this,
+     but the answer for an unknown user stays "don't hold them": trapping
+     someone who finished long ago is a worse failure than the cap going
+     unapplied for one session. */
   it('lets the user through rather than trapping them', () => {
     expect(shouldOnboard({ status: 'error', state: state() })).toBe(false)
     expect(shouldOnboard({ status: 'error', state: state({ completed_at: AT }) })).toBe(false)

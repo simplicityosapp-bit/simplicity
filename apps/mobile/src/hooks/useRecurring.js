@@ -3,9 +3,9 @@ import { supabase } from '../lib/supabase'
 import { selectAll } from '../lib/paginate'
 
 // Recurring transaction templates for the finance screen (add / update / soft-
-// delete / toggle-active). RLS scopes rows to the user. NOTE: the background
-// generation engine (creating pending txs for due dates) is a later increment —
-// this manages the templates; the web app generates rows when it's open.
+// delete / toggle-active). RLS scopes rows to the user. The pending transactions
+// these templates owe are written by lib/generators on the phone and by
+// useRecurringGeneration on web.
 export function useRecurring() {
   const [templates, setTemplates] = useState([])
   const [loading, setLoading] = useState(true)

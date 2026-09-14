@@ -21,6 +21,8 @@ import { useOnboarding, shouldOnboard } from './src/lib/onboarding'
 import OnboardingScreen from './src/screens/onboarding'
 import LoginScreen from './src/screens/LoginScreen'
 import PendingDeletionScreen from './src/screens/PendingDeletionScreen'
+import PrefsErrorScreen from './src/screens/PrefsErrorScreen'
+import Generators from './src/components/Generators'
 import AppNavigator, { navigationRef } from './src/navigation/AppNavigator'
 import BottomBar from './src/components/BottomBar'
 import UndoToast from './src/components/UndoToast'
@@ -125,21 +127,12 @@ function Root() {
 // theme switches from reaching the app. Deleting it would look like a tidy-up
 // and would be a trap.
 function AuthedApp({ lang, themeMode }) { // eslint-disable-line no-unused-vars
-  const { prefs, status } = usePreferences()
+  const { prefs, status, reload } = usePreferences()
   const ob = useOnboarding()
-  if (isDeletionPending(prefs)) return <PendingDeletionScreen />
 
-  // Onboarding guard. Sits BELOW the deletion gate — an account on its way
-  // out has no business being introduced to the app — and above everything
-  // else, because the flow creates the project, client and goal the rest of
-  // the app then shows.
-  //
   // While preferences are still loading we show the startup spinner rather
   // than guess: prefs arrive as {}, and reading that as "never onboarded"
   // would march an existing user back through the flow on every cold start.
-  // shouldOnboard() also lets the user through when the read FAILED — we
-  // know nothing then, and trapping someone who finished months ago is a
-  // worse failure than the free-tier cap going unapplied for one session.
   if (status === 'loading') {
     return (
       <View style={styles.center}>
@@ -147,10 +140,27 @@ function AuthedApp({ lang, themeMode }) { // eslint-disable-line no-unused-vars
       </View>
     )
   }
+  // The read FAILED. This used to let the user into the app, on the grounds
+  // that trapping them was worse. But with nothing known every gate below
+  // reads an existing account as a new one, and the preferences row is one
+  // blob: the first setting touched was saved over everything the user had.
+  // Web shows a retry here for the same reason.
+  if (status === 'error') return <PrefsErrorScreen onRetry={reload} />
+
+  if (isDeletionPending(prefs)) return <PendingDeletionScreen />
+
+  // Onboarding guard. Sits BELOW the deletion gate — an account on its way
+  // out has no business being introduced to the app — and above everything
+  // else, because the flow creates the project, client and goal the rest of
+  // the app then shows.
   if (shouldOnboard(ob)) return <OnboardingScreen key={lang} />
 
   return (
     <FormOptionsProvider>
+      {/* The rows the app owes — recurring income, weekly meetings, leads from
+          auto-confirmed bookings — generated at start and on every return to
+          the foreground. Renders nothing. See components/Generators. */}
+      <Generators />
       {/* Outside the language key so the bar's measured height survives a
           remount instead of falling back to the guess for a frame. */}
       <BottomBarProvider>

@@ -11,21 +11,19 @@ import AddLeadModal from '../../modals/AddLeadModal'
 import AddProjectModal from '../../modals/AddProjectModal'
 import AddReminderModal from '../../modals/AddReminderModal'
 import AddMeetingModal from '../../modals/AddMeetingModal'
-import QuickGoalUpdatePicker from '../../modals/QuickGoalUpdatePicker'
-import AddGoalEntryModal from '../../modals/AddGoalEntryModal'
 import i18n from '../../lib/i18n'
 import { colors } from '../../theme/theme'
 import { themed } from '../../theme/themed'
 
-// Two quick-add CTAs on home (mirrors web QuickRow):
-//  • הוספה מהירה → QuickActionsModal launcher → the picked Add* modal
-//    (task/transaction implemented; more add-flows land incrementally).
-//  • עדכון יעד   → goal-category picker → AddGoalEntryModal.
-export default function QuickRow({ clients, goals, categories, addTask, addEntry, addTransaction, addClient, addLead, addProject, addReminder, addMeeting }) {
+// ONE quick-add CTA on home (mirrors web QuickRow): הוספה מהירה →
+// QuickActionsModal launcher → the picked Add* modal.
+//
+// "עדכון יעד" used to share this row. It picked a goal CATEGORY and saved the
+// entry with no goal_id, which core counts toward every goal in the category —
+// see MoonExpansion, where logging progress now lives, per goal, as on web.
+export default function QuickRow({ clients, categories, addTask, addTransaction, addClient, addLead, addProject, addReminder, addMeeting }) {
   const [showLauncher, setShowLauncher] = useState(false)
-  const [active, setActive] = useState(null) // 'task' | 'transaction'
-  const [showPicker, setShowPicker] = useState(false)
-  const [entryCategory, setEntryCategory] = useState(null)
+  const [active, setActive] = useState(null) // 'task' | 'transaction' | …
   const close = () => setActive(null)
 
   return (
@@ -33,10 +31,6 @@ export default function QuickRow({ clients, goals, categories, addTask, addEntry
       <Pressable style={[styles.btn, styles.primary]} onPress={() => setShowLauncher(true)}>
         <Plus size={18} strokeWidth={2} color={colors.onBtn} />
         <Text style={styles.primaryText}>{i18n.t('home:widgets.quick.quickAdd')}</Text>
-      </Pressable>
-      <Pressable style={[styles.btn, styles.secondary]} onPress={() => setShowPicker(true)}>
-        <Plus size={18} strokeWidth={2} color={colors.text} />
-        <Text style={styles.secondaryText}>{i18n.t('home:widgets.quick.goalUpdate')}</Text>
       </Pressable>
 
       <QuickActionsModal open={showLauncher} onClose={() => setShowLauncher(false)} onPick={setActive} />
@@ -47,20 +41,6 @@ export default function QuickRow({ clients, goals, categories, addTask, addEntry
       <AddProjectModal open={active === 'project'} onClose={close} onSave={addProject} />
       <AddReminderModal open={active === 'reminder'} onClose={close} onSave={addReminder} />
       <AddMeetingModal open={active === 'meeting'} onClose={close} onSave={addMeeting} clients={clients} />
-
-      <QuickGoalUpdatePicker
-        open={showPicker}
-        onClose={() => setShowPicker(false)}
-        categories={categories}
-        goals={goals}
-        onPick={setEntryCategory}
-      />
-      <AddGoalEntryModal
-        open={!!entryCategory}
-        onClose={() => setEntryCategory(null)}
-        category={entryCategory}
-        onSave={addEntry}
-      />
     </View>
   )
 }
@@ -70,6 +50,4 @@ const styles = themed((c, t) => ({
   btn: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 8, paddingVertical: 13, borderRadius: 14 },
   primary: { backgroundColor: c.btnBg },
   primaryText: { fontSize: 15, fontWeight: '600', color: c.onBtn },
-  secondary: { backgroundColor: c.card, borderWidth: 1, borderColor: c.border },
-  secondaryText: { fontSize: 15, fontWeight: '600', color: c.text },
 }))

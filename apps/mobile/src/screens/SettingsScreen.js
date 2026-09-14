@@ -6,7 +6,7 @@ import Constants from 'expo-constants'
 import { useNavigation } from '@react-navigation/native'
 import { User, Palette, Database, LogOut, ChevronDown, ChevronUp, Sparkles, Download, X, Plus, Check, Wallet, Info, LayoutGrid, Trash2, Eye, Users, Leaf, Briefcase, Settings2, CalendarClock, Plug, BookOpen } from 'lucide-react-native'
 import { LANGUAGE_OPTIONS } from '@simplicity/core/i18n'
-import { fmtShortDate, payMethodLabel, formatDateAs, formatTimeAs, SETTINGS_TREE, soleSectionKeyOf } from '@simplicity/core'
+import { fmtShortDate, payMethodLabel, formatDateAs, formatTimeAs, SETTINGS_TREE, soleSectionKeyOf, defaultOnboarding } from '@simplicity/core'
 import i18n, { setGenderContext } from '../lib/i18n'
 import { csvCell } from '../lib/csv'
 import { supabase } from '../lib/supabase'
@@ -241,7 +241,16 @@ export default function SettingsScreen() {
                 onPress: async () => {
                   let failure = null
                   try { await resetAllUserData() } catch (e) { failure = e?.message || null }
-                  if (failure) Alert.alert(T('danger.resetTitle', { defaultValue: 'איפוס חשבון' }), failure)
+                  if (failure) {
+                    Alert.alert(T('danger.resetTitle', { defaultValue: 'איפוס חשבון' }), failure)
+                  } else {
+                    /* A clean wipe starts over, as it does on web: the account
+                       is empty now, and an onboarding still marked done would
+                       drop the user on a blank home. Only on success — a partial
+                       wipe keeps its state, and the alert says what survived.
+                       Awaited so the reset is saved before the reload reads it. */
+                    await update({ onboarding: defaultOnboarding() })
+                  }
                   await reloadApp()
                 },
               },

@@ -90,11 +90,13 @@ export function useOnboarding() {
 
 /* Whether the app should hold this user in the onboarding flow.
 
-   'loading' holds nothing back yet — the caller shows its own spinner
-   rather than guessing. 'error' lets the user straight through: when the
-   preferences read failed we know nothing about them, and trapping
-   someone who finished onboarding months ago behind it again is a far
-   worse failure than the free-tier cap going unapplied for one session. */
+   Only a successful read can hold anyone. 'loading' holds nothing back
+   yet — the caller shows its own spinner rather than guessing. 'error'
+   never reaches this in the app: App.js shows a retry screen first,
+   because with nothing known every account reads as new. Should anything
+   else ask during an error, the answer is still "don't hold them":
+   trapping someone who finished onboarding months ago is the worse of
+   the two mistakes. */
 export function shouldOnboard({ status, state }) {
   if (status !== 'ready') return false
   return !isOnboardingComplete(state)

@@ -1,5 +1,7 @@
 import { useMemo, useState } from 'react'
-import { View, Text, Pressable, StyleSheet, ScrollView, ActivityIndicator, RefreshControl } from 'react-native'
+import { View, StyleSheet, ScrollView, ActivityIndicator, RefreshControl } from 'react-native'
+import { Text } from '../components/Text'
+import { Pressable } from '../components/Pressable'
 import { useNavigation } from '@react-navigation/native'
 import Svg, { Circle, Path, Polygon } from 'react-native-svg'
 import { moonGetData, moonGetCategories, moonTrend, moonReflection, buildOverviewCorrelations, buildOverviewTrend, OVERVIEW_METRICS, questionText } from '@simplicity/core'
@@ -11,6 +13,7 @@ import Select from '../components/Select'
 import { colors } from '../theme/theme'
 import { themed } from '../theme/themed'
 import { useGoalsData } from '../hooks/useGoalsData'
+import { useBottomPad } from '../lib/bottomBar'
 
 // Moon screen ("מבט על", mirrors web moon-glance core): a confidence ring +
 // reflection, per-category pace/goal dual bars, and a 30-day trend line with
@@ -31,6 +34,7 @@ const dayKeyOf = (d) => {
 }
 
 export default function MoonScreen() {
+  const bottomPad = useBottomPad()
   const nav = useNavigation()
   const { goals, categories, entries, transactions, clients, leads, answers, members, groups, sessions, questions, loading, error, refetch } = useGoalsData()
   const data = useMemo(
@@ -91,7 +95,7 @@ export default function MoonScreen() {
         </View>
       ) : (
         <ScrollView
-          contentContainerStyle={styles.content}
+          contentContainerStyle={[styles.content, bottomPad]}
           showsVerticalScrollIndicator={false}
           refreshControl={<RefreshControl refreshing={loading} onRefresh={refetch} tintColor={colors.brand} />}
         >
@@ -303,7 +307,7 @@ function MultiTrendChart({ days, series }) {
 
 const styles = themed((c, t) => ({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 14, paddingHorizontal: 40 },
-  content: { paddingHorizontal: 20, paddingBottom: 96, gap: 16 },
+  content: { paddingHorizontal: 20, gap: 16 },
   error: { color: c.danger, fontSize: 13 },
   empty: { color: c.textFaint, fontSize: 14, textAlign: 'center', lineHeight: 20 },
   emptyBtn: { paddingVertical: 10, paddingHorizontal: 20, borderRadius: 999, backgroundColor: c.brand },
@@ -338,7 +342,7 @@ const styles = themed((c, t) => ({
   trendStatV: { fontSize: 18, fontWeight: '600', color: c.text, fontVariant: ['tabular-nums'] },
   trendStatL: { fontSize: 10, color: c.textSub, textTransform: 'uppercase', letterSpacing: 0.3 },
 
-  footerLink: { alignSelf: 'center', paddingVertical: 8 },
+  footerLink: { minHeight: 44, justifyContent: 'center', alignSelf: 'center', paddingVertical: 8 },
   footerLinkText: { fontSize: 13, color: c.brand, fontWeight: '500' },
 
   corrEmptyCard: { paddingVertical: 16, paddingHorizontal: 18 },
@@ -351,7 +355,7 @@ const styles = themed((c, t) => ({
   corrNote: { fontSize: 11, color: c.textFaint, lineHeight: 16, paddingHorizontal: 4 },
 
   ovPills: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  ovPill: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 6, paddingHorizontal: 12, borderRadius: 999, borderWidth: 1, borderColor: c.border, backgroundColor: c.cardFlat },
+  ovPill: { minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 6, paddingHorizontal: 12, borderRadius: 999, borderWidth: 1, borderColor: c.border, backgroundColor: c.cardFlat },
   ovPillOn: { borderColor: c.brand, backgroundColor: c.brandSoft },
   ovPillOff: { opacity: 0.4 },
   ovDot: { width: 8, height: 8, borderRadius: 4 },

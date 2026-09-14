@@ -122,8 +122,7 @@
     "previewCardBody": "Una tarjeta de ejemplo: cambia con cada elección para que no tengas que adivinar.",
     "previewMeta": "Pendiente de pago",
     "language": "Idioma",
-    "rtlHint": "El cambio completo de dirección del texto se aplica tras reiniciar.",
-    "themeHint": "Cambiar de modo actualiza la app."
+    "rtlHint": "El cambio completo de dirección del texto se aplica tras reiniciar."
   },
   "about": {
     "version": "Versión {{version}}",

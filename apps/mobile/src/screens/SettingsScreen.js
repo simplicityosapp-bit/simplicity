@@ -1,5 +1,7 @@
 import { useState } from 'react'
-import { View, Text, TextInput, Pressable, StyleSheet, ScrollView, Share, Alert, Platform, Linking } from 'react-native'
+import { View, StyleSheet, ScrollView, Share, Alert, Platform, Linking, I18nManager } from 'react-native'
+import { Text, TextInput } from '../components/Text'
+import { Pressable } from '../components/Pressable'
 import Constants from 'expo-constants'
 import { useNavigation } from '@react-navigation/native'
 import { User, Palette, Database, LogOut, ChevronDown, ChevronUp, Sparkles, Download, X, Plus, Check, Wallet, Info, LayoutGrid, Trash2, Eye, Users, Leaf, Briefcase, Settings2, CalendarClock, Plug, BookOpen } from 'lucide-react-native'
@@ -21,6 +23,7 @@ import { useFinanceData } from '../hooks/useFinanceData'
 import { useConfigTaxonomy } from '../hooks/useConfigTaxonomy'
 import DeleteAccountModal from '../modals/DeleteAccountModal'
 import { resetAllUserData, buildAccountDeletionRequest } from '../lib/account'
+import { useBottomPad } from '../lib/bottomBar'
 
 const GENDERS = ['female', 'male', 'neutral']
 // Matches web's ROLE_LABELS / common:roles.* keys (consultant/trainer had no
@@ -152,6 +155,7 @@ function Pills({ options, value, onPick, accent }) {
 // (an RTL he↔ltr flip needs an app restart). Theme/format changes reload the app so
 // RN's frozen StyleSheet colors + core format setters pick up the new values.
 export default function SettingsScreen() {
+  const bottomPad = useBottomPad()
   const nav = useNavigation()
   const { prefs, update } = usePreferences()
   const { transactions, clients, categories } = useFinanceData()
@@ -305,11 +309,20 @@ export default function SettingsScreen() {
         <>
           <Field label={T('design.language', { defaultValue: 'שפה' })}>
             <Pills options={LANGUAGE_OPTIONS.map((l) => ({ k: l.v, label: l.l }))} value={lang} onPick={setLanguage} />
-            {lang === 'he' ? null : <Text style={styles.hint}>{T('design.rtlHint', { defaultValue: 'שינוי כיווניות מלא מתעדכן לאחר הפעלה מחדש.' })}</Text>}
+            {/* Show the hint when the layout ON SCREEN disagrees with the
+                language just picked — which is the only thing a restart
+                fixes. This used to read `lang === 'he' ? null : hint`, so it
+                appeared when leaving Hebrew and stayed hidden when entering
+                it: the direction that needs the restart most, in an app whose
+                users mostly arrive in Hebrew, was the one nobody was told
+                about. It also kept showing on an English device already
+                running LTR, where there was nothing to restart for. */}
+            {I18nManager.isRTL !== (lang === 'he')
+              ? <Text style={styles.hint}>{T('design.rtlHint', { defaultValue: 'שינוי כיווניות מלא מתעדכן לאחר הפעלה מחדש.' })}</Text>
+              : null}
           </Field>
           <Field label={T('design.theme', { defaultValue: 'מצב יום/לילה' })}>
             <Pills options={THEMES.map((m) => ({ k: m, label: T(`options.theme.${m}`, { defaultValue: m }) }))} value={prefs.design?.theme || getThemeMode()} onPick={setTheme} />
-            <Text style={styles.hint}>{T('design.themeHint', { defaultValue: 'החלפת המצב מרעננת את האפליקציה.' })}</Text>
           </Field>
           {/* Text-size control is hidden until app-wide font scaling is built — RN has
               no global font-scale (no central Text primitive), so the pref currently
@@ -330,8 +343,8 @@ export default function SettingsScreen() {
       return widgetList.map((w, i) => (
         <View key={w.id} style={styles.widgetRow}>
           <View style={styles.widgetReorder}>
-            <Pressable onPress={() => moveWidget(w.id, -1)} disabled={i === 0} hitSlop={6}><ChevronUp size={16} strokeWidth={1.8} color={i === 0 ? colors.textFaint : colors.textSub} /></Pressable>
-            <Pressable onPress={() => moveWidget(w.id, 1)} disabled={i === widgetList.length - 1} hitSlop={6}><ChevronDown size={16} strokeWidth={1.8} color={i === widgetList.length - 1 ? colors.textFaint : colors.textSub} /></Pressable>
+            <Pressable accessibilityLabel={T('widgets.moveUp', { label: T(`widgets.names.${w.id}`, { defaultValue: w.id }) })} onPress={() => moveWidget(w.id, -1)} disabled={i === 0} hitSlop={6}><ChevronUp size={16} strokeWidth={1.8} color={i === 0 ? colors.textFaint : colors.textSub} /></Pressable>
+            <Pressable accessibilityLabel={T('widgets.moveDown', { label: T(`widgets.names.${w.id}`, { defaultValue: w.id }) })} onPress={() => moveWidget(w.id, 1)} disabled={i === widgetList.length - 1} hitSlop={6}><ChevronDown size={16} strokeWidth={1.8} color={i === widgetList.length - 1 ? colors.textFaint : colors.textSub} /></Pressable>
           </View>
           <Text style={styles.widgetName} numberOfLines={1}>{T(`widgets.names.${w.id}`, { defaultValue: w.id })}</Text>
           <Switch checked={w.enabled !== false} onChange={() => toggleWidget(w.id)} />
@@ -456,7 +469,9 @@ export default function SettingsScreen() {
 
   return (
     <Screen name="tasks">
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+      {/* Settings edits in place — a tap on the next control after typing has
+          to land on the control, not be eaten closing the keyboard. */}
+      <ScrollView contentContainerStyle={[styles.content, bottomPad]} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
         <ScreenHead title={i18n.t('settings:header.title', { defaultValue: 'הגדרות' })} />
 
         {SETTINGS_TREE.map((g) => {
@@ -559,23 +574,25 @@ function TaxonomyManager({ title, items, placeholder, secondPlaceholder, onAdd, 
         {items.length ? items.map((it) => (
           <View key={it.id} style={[styles.chip, editId === it.id && styles.chipEditing]}>
             {it.color ? <View style={[styles.chipDot, { backgroundColor: it.color }]} /> : null}
-            <Pressable onPress={() => startEdit(it)} disabled={!onUpdate}><Text style={styles.chipText}>{it.label}</Text></Pressable>
-            <Pressable onPress={() => onRemove(it.id)} hitSlop={6}><X size={12} strokeWidth={2} color={colors.textFaint} /></Pressable>
+            {/* No handler rather than a disabled one when the list is read-only:
+                the chip is a label to read, and greying it out greys out the word. */}
+            <Pressable onPress={onUpdate ? () => startEdit(it) : undefined}><Text style={styles.chipText}>{it.label}</Text></Pressable>
+            <Pressable accessibilityLabel={i18n.t('modalsData:editTx.delete')} onPress={() => onRemove(it.id)} hitSlop={6}><X size={12} strokeWidth={2} color={colors.textFaint} /></Pressable>
           </View>
         )) : <Text style={styles.hint}>{i18n.t('settings:common.none', { defaultValue: '—' })}</Text>}
       </View>
       <View style={styles.addRow}>
         <TextInput style={[styles.input, styles.addInput]} value={name} onChangeText={setName} placeholder={placeholder} placeholderTextColor={colors.textFaint} onSubmitEditing={submit} />
         {secondPlaceholder ? <TextInput style={[styles.input, styles.addSecond]} value={second} onChangeText={setSecond} placeholder={secondPlaceholder} placeholderTextColor={colors.textFaint} keyboardType="numeric" /> : null}
-        {editId ? <Pressable style={styles.addCancel} onPress={reset} hitSlop={6}><X size={16} strokeWidth={2} color={colors.textSub} /></Pressable> : null}
-        <Pressable style={styles.addBtn} onPress={submit} disabled={busy || !name.trim()}>{editId ? <Check size={18} strokeWidth={2.2} color={colors.onBrand} /> : <Plus size={18} strokeWidth={2} color={colors.onBrand} />}</Pressable>
+        {editId ? <Pressable accessibilityLabel={i18n.t('common:cancel')} style={styles.addCancel} onPress={reset} hitSlop={6}><X size={16} strokeWidth={2} color={colors.textSub} /></Pressable> : null}
+        <Pressable accessibilityLabel={i18n.t('common:save')} style={styles.addBtn} onPress={submit} disabled={busy || !name.trim()}>{editId ? <Check size={18} strokeWidth={2.2} color={colors.onBrand} /> : <Plus size={18} strokeWidth={2} color={colors.onBrand} />}</Pressable>
       </View>
     </View>
   )
 }
 
 const styles = themed((c, t) => ({
-  content: { paddingHorizontal: 20, paddingBottom: 96, gap: 14 },
+  content: { paddingHorizontal: 20, gap: 14 },
 
   // Group (top level) — a glass card wrapping head + nested sections
   groupCard: {},
@@ -616,7 +633,7 @@ const styles = themed((c, t) => ({
   widgetName: { flex: 1, fontSize: 14, color: c.text },
 
   pills: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  pill: { paddingVertical: 8, paddingHorizontal: 14, borderRadius: 999, borderWidth: 1, borderColor: c.border, backgroundColor: c.cardFlat },
+  pill: { minHeight: 44, justifyContent: 'center', paddingVertical: 8, paddingHorizontal: 14, borderRadius: 999, borderWidth: 1, borderColor: c.border, backgroundColor: c.cardFlat },
   pillOn: { backgroundColor: c.text, borderColor: c.text },
   pillOnBrand: { backgroundColor: c.brand, borderColor: c.brand },
   pillText: { fontSize: 13, color: c.textSub },

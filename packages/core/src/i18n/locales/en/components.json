@@ -11,7 +11,8 @@
     "nextMonth": "Next month",
     "prevYear": "Previous year",
     "nextYear": "Next year",
-    "today": "Today"
+    "today": "Today",
+    "clear": "Clear date"
   },
   "schedule": {
     "everyDay": "Every day",

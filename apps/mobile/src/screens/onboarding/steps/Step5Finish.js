@@ -1,4 +1,5 @@
-import { View, Text } from 'react-native'
+import { View } from 'react-native'
+import { Text } from '../../../components/Text'
 import { Sparkles, Folder, Users, Target } from 'lucide-react-native'
 import { colors, type } from '../../../theme/theme'
 import { themed } from '../../../theme/themed'

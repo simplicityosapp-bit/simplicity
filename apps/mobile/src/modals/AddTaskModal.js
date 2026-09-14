@@ -1,5 +1,8 @@
 import { useState, useEffect } from 'react'
-import { View, Text, TextInput, Pressable } from 'react-native'
+import { View } from 'react-native'
+import { Text, TextInput } from '../components/Text'
+import DateField from '../components/DateField'
+import { Pressable } from '../components/Pressable'
 import { Trash2 } from 'lucide-react-native'
 import Sheet from '../components/Sheet'
 import Select from '../components/Select'
@@ -117,7 +120,7 @@ export default function AddTaskModal({ open, onClose, onSave, onDelete, task = n
       <View style={styles.row2}>
         <View style={styles.flex}>
           <Text style={styles.label}>{i18n.t('modalsTask:task.dueDate')}</Text>
-          <TextInput style={styles.input} value={form.due_date} onChangeText={(v) => set('due_date', v)} placeholder="YYYY-MM-DD" placeholderTextColor={colors.textFaint} />
+          <DateField style={styles.input} value={form.due_date} onChange={(v) => set('due_date', v)} />
         </View>
         <View style={styles.flex}>
           <Text style={styles.label}>{i18n.t('modalsTask:task.dueTime')}</Text>
@@ -162,7 +165,7 @@ export default function AddTaskModal({ open, onClose, onSave, onDelete, task = n
 
       <View style={styles.actions}>
         {isEdit && onDelete ? (
-          <Pressable style={styles.delete} onPress={remove} disabled={busy} hitSlop={6}>
+          <Pressable accessibilityLabel={i18n.t('modalsData:editTx.delete')} style={styles.delete} onPress={remove} disabled={busy} hitSlop={6}>
             <Trash2 size={18} strokeWidth={1.8} color={colors.danger} />
           </Pressable>
         ) : null}

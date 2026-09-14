@@ -1,5 +1,7 @@
 import { useMemo, useState } from 'react'
-import { View, Text, Pressable, StyleSheet, Linking, I18nManager } from 'react-native'
+import { View, StyleSheet, Linking, I18nManager } from 'react-native'
+import { Text } from '../../components/Text'
+import { Pressable } from '../../components/Pressable'
 import { useNavigation } from '@react-navigation/native'
 import { Bell, Wallet, Calendar, Target, AlertCircle, Clock, ChevronLeft, MessageCircle, Check, SkipForward, Trash2 } from 'lucide-react-native'
 import { attentionItems, isr, fmtShortDate } from '@simplicity/core'
@@ -122,9 +124,9 @@ export default function AttentionWidget({ data, projects = [], financeCategories
                   </View>
                   <Text style={[styles.txAmt, { color: income ? colors.positive : colors.textSub }]}>{income ? '+' : '−'}{isr(t.amount)}</Text>
                   <View style={styles.txActions}>
-                    <Pressable style={styles.txBtn} onPress={() => onApproveTx?.(t.id)} hitSlop={6}><Check size={16} strokeWidth={2.2} color={colors.positive} /></Pressable>
-                    <Pressable style={styles.txBtn} onPress={() => onSkipTx?.(t.id)} hitSlop={6}><SkipForward size={15} strokeWidth={1.8} color={colors.textFaint} /></Pressable>
-                    <Pressable style={styles.txBtn} onPress={() => onDeleteTx?.(t.id)} hitSlop={6}><Trash2 size={15} strokeWidth={1.8} color={colors.danger} /></Pressable>
+                    <Pressable accessibilityLabel={i18n.t('finance:pending.approve')} style={styles.txBtn} onPress={() => onApproveTx?.(t.id)} hitSlop={6}><Check size={16} strokeWidth={2.2} color={colors.positive} /></Pressable>
+                    <Pressable accessibilityLabel={i18n.t('finance:pending.skip')} style={styles.txBtn} onPress={() => onSkipTx?.(t.id)} hitSlop={6}><SkipForward size={15} strokeWidth={1.8} color={colors.textFaint} /></Pressable>
+                    <Pressable accessibilityLabel={i18n.t('modalsData:editTx.delete')} style={styles.txBtn} onPress={() => onDeleteTx?.(t.id)} hitSlop={6}><Trash2 size={15} strokeWidth={1.8} color={colors.danger} /></Pressable>
                   </View>
                 </View>
               )
@@ -147,7 +149,7 @@ const styles = themed((c, t) => ({
   personMain: { flex: 1 },
   personName: { fontSize: 15, color: c.text },
   waBtn: { width: 38, height: 38, borderRadius: 19, alignItems: 'center', justifyContent: 'center', backgroundColor: c.cardFlat },
-  bulkBtn: { flexDirection: 'row', alignItems: 'center', gap: 5, alignSelf: 'flex-end', paddingVertical: 5, paddingHorizontal: 12, borderRadius: 999, borderWidth: 1, borderColor: 'rgba(139,168,136,0.4)', backgroundColor: 'rgba(139,168,136,0.10)', marginBottom: 6 },
+  bulkBtn: { minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: 5, alignSelf: 'flex-end', paddingVertical: 5, paddingHorizontal: 12, borderRadius: 999, borderWidth: 1, borderColor: 'rgba(139,168,136,0.4)', backgroundColor: 'rgba(139,168,136,0.10)', marginBottom: 6 },
   bulkText: { fontSize: 13, fontWeight: '500', color: c.positive },
   txRow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 11 },
   txMain: { flex: 1, minWidth: 0 },

@@ -1,4 +1,6 @@
-import { View, Text, TextInput, Pressable } from 'react-native'
+import { View } from 'react-native'
+import { Text, TextInput } from './Text'
+import { Pressable } from './Pressable'
 import i18n from '../lib/i18n'
 import { colors } from '../theme/theme'
 import { themed } from '../theme/themed'

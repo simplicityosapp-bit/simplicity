@@ -1,8 +1,10 @@
 import { useMemo, useState } from 'react'
-import { View, Text, TextInput, Pressable, ScrollView, Linking } from 'react-native'
+import { View, ScrollView, Linking } from 'react-native'
+import { Text, TextInput } from '../components/Text'
+import { Pressable } from '../components/Pressable'
 import { BookOpen, HelpCircle, ChevronDown, Lightbulb, Search, X, MessageSquarePlus } from 'lucide-react-native'
 import {
-  getHelpScreen, getGlobalFaq, guideOrder, searchHelp, chapterHits, mgToReadable,
+  getHelpScreen, getGlobalFaq, guideOrder, searchHelp, chapterHits,
 } from '@simplicity/core'
 import i18n from '../lib/i18n'
 import { colors, space, type } from '../theme/theme'
@@ -10,6 +12,7 @@ import { themed } from '../theme/themed'
 import Screen from '../components/Screen'
 import ScreenHead from '../components/ScreenHead'
 import Card from '../components/Card'
+import { useBottomPad } from '../lib/bottomBar'
 
 /* ════════════════════════════════════════════════════════════════
    HELP — the guide and the FAQ, on the phone.
@@ -27,13 +30,12 @@ import Card from '../components/Card'
      · a `screen` param — opens that chapter expanded, so arriving from
        somewhere lands on its chapter rather than on seventeen shut rows.
 
-   One difference from web, and it is not cosmetic: every string goes
-   through mgToReadable(). The manual is written with dual-gender merge
-   glyphs, which web draws using the Alef MultiGndr font. This app
-   deliberately does not load that font — the converted TTF was a suspect
-   while a device build was closing instantly on launch — so a glyph here
-   has nothing to draw it and renders as a box. The readable slash form is
-   what a reader on a phone should get.
+   The manual is written with dual-gender merge glyphs. This screen used to
+   run every string through mgToReadable(), because the app did not load
+   the font that draws them and a glyph came out as a box. It does load it
+   now (lib/fonts), and components/Text gives each glyph a readable label
+   for screen readers — or, if that font is ever switched off again, shows
+   the readable form itself. So nothing here needs converting.
    ════════════════════════════════════════════════════════════════ */
 
 const TABS = [
@@ -43,9 +45,10 @@ const TABS = [
 
 const T = (k, o) => i18n.t(`settings:${k}`, o)
 /* Everything the manual renders passes through here. */
-const R = (s) => mgToReadable(String(s || ''))
+const R = (s) => String(s || '')
 
 export default function HelpScreen({ route }) {
+  const bottomPad = useBottomPad()
   const wanted = route?.params?.screen || null
   const [tab, setTab] = useState('guide')
   const [query, setQuery] = useState('')
@@ -84,7 +87,7 @@ export default function HelpScreen({ route }) {
     <Screen name="home">
       <ScreenHead title={T('help.title', { defaultValue: 'עזרה' })} />
 
-      <ScrollView style={styles.body} contentContainerStyle={styles.bodyContent} keyboardShouldPersistTaps="handled">
+      <ScrollView style={styles.body} contentContainerStyle={[styles.bodyContent, bottomPad]} keyboardShouldPersistTaps="handled">
         <View style={[styles.search, rtl && styles.rowRtl]}>
           <Search size={16} strokeWidth={1.7} color={colors.textFaint} />
           <TextInput
@@ -332,7 +335,7 @@ function Faq({ categories, open, onToggle, align, rtl }) {
 
 const styles = themed((c, t) => ({
   body: { flex: 1 },
-  bodyContent: { paddingHorizontal: space.screenPadH, paddingBottom: 96, gap: 12 },
+  bodyContent: { paddingHorizontal: space.screenPadH, gap: 12 },
   rowRtl: { flexDirection: 'row-reverse' },
   grow: { flex: 1 },
   pressed: { opacity: 0.75 },
@@ -372,7 +375,7 @@ const styles = themed((c, t) => ({
   where: { ...t.caption, color: c.textSub, marginTop: 4 },
 
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  chip: {
+  chip: { minHeight: 44, justifyContent: 'center',
     paddingVertical: 7,
     paddingHorizontal: 12,
     borderRadius: 999,
@@ -384,7 +387,7 @@ const styles = themed((c, t) => ({
   chipLabel: { fontSize: 13, color: c.text },
   chipLabelOn: { color: c.brand, fontWeight: '600' },
 
-  disclosure: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 6 },
+  disclosure: { minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 6 },
   chapterTitle: { ...t.heading, color: c.text },
 
   feature: { gap: 3, marginTop: 10 },

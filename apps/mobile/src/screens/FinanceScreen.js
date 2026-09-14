@@ -1,5 +1,7 @@
 import { useMemo, useState, useCallback, useRef } from 'react'
-import { View, Text, Pressable, StyleSheet, ScrollView, ActivityIndicator, RefreshControl, Share, Alert, I18nManager } from 'react-native'
+import { View, StyleSheet, ScrollView, ActivityIndicator, RefreshControl, Share, Alert, I18nManager } from 'react-native'
+import { Text } from '../components/Text'
+import { Pressable } from '../components/Pressable'
 import { useFocusEffect } from '@react-navigation/native'
 import { ChevronLeft, ChevronRight, FolderOpen, Tag, Check, SkipForward, Settings2, Repeat, Pause, Play, Pencil, Trash2, Download, ArrowUp, ArrowDown, TrendingUp, TrendingDown } from 'lucide-react-native'
 import { monthNet, describeCadence, isr, fmtShortDate, fmtMonthYear, payMethodLabel } from '@simplicity/core'
@@ -20,6 +22,7 @@ import { confirmRemoveTransaction } from '../lib/recurringTx'
 import { useRecurring } from '../hooks/useRecurring'
 import { useFormOptions } from '../lib/formOptions'
 import { usePreferences } from '../hooks/usePreferences'
+import { useBottomPad } from '../lib/bottomBar'
 
 const sameMonth = (d, m) => { const x = new Date(d); return x.getFullYear() === m.getFullYear() && x.getMonth() === m.getMonth() }
 const isConfirmed = (t) => t.status === 'confirmed' && !t.invoice_credited_at
@@ -30,6 +33,7 @@ const isConfirmed = (t) => t.status === 'confirmed' && !t.invoice_credited_at
 // expense categories from the breakdown header. (Recurring templates, chart and
 // invoice imports are a later increment.)
 export default function FinanceScreen() {
+  const bottomPad = useBottomPad()
   const { transactions, clients, categories, loading, error, refetch, addTransaction, updateTransaction, deleteTransaction, restoreTransaction, setStatus, addCategory, removeCategory } = useFinanceData()
   const { projects, refetch: refetchFormOptions } = useFormOptions()
   // Inline category creation from the add-transaction modal: create + refresh the
@@ -175,9 +179,9 @@ export default function FinanceScreen() {
         </Pressable>
         {opts.pending ? (
           <View style={styles.actions}>
-            <Pressable style={styles.approve} onPress={() => setStatus(t.id, 'confirmed')} hitSlop={6}><Check size={16} strokeWidth={2.2} color={colors.positive} /></Pressable>
-            <Pressable style={styles.skip} onPress={() => setStatus(t.id, 'skipped')} hitSlop={6}><SkipForward size={15} strokeWidth={1.8} color={colors.textFaint} /></Pressable>
-            <Pressable style={styles.skip} onPress={() => confirmDeleteTx(t)} hitSlop={6}><Trash2 size={15} strokeWidth={1.8} color={colors.danger} /></Pressable>
+            <Pressable accessibilityLabel={i18n.t('finance:pending.approve')} style={styles.approve} onPress={() => setStatus(t.id, 'confirmed')} hitSlop={6}><Check size={16} strokeWidth={2.2} color={colors.positive} /></Pressable>
+            <Pressable accessibilityLabel={i18n.t('finance:pending.skip')} style={styles.skip} onPress={() => setStatus(t.id, 'skipped')} hitSlop={6}><SkipForward size={15} strokeWidth={1.8} color={colors.textFaint} /></Pressable>
+            <Pressable accessibilityLabel={i18n.t('modalsData:editTx.delete')} style={styles.skip} onPress={() => confirmDeleteTx(t)} hitSlop={6}><Trash2 size={15} strokeWidth={1.8} color={colors.danger} /></Pressable>
           </View>
         ) : (
           <Text style={[styles.amount, { color: income ? colors.positive : colors.textSub }, t.invoice_credited_at && styles.creditedAmount]}>{income ? '+' : '−'}{isr(t.amount)}</Text>
@@ -192,7 +196,7 @@ export default function FinanceScreen() {
         <View style={styles.center}><ActivityIndicator color={colors.brand} /></View>
       ) : (
         <ScrollView
-          contentContainerStyle={styles.content}
+          contentContainerStyle={[styles.content, bottomPad]}
           showsVerticalScrollIndicator={false}
           refreshControl={<RefreshControl refreshing={loading} onRefresh={refetch} tintColor={colors.brand} />}
         >
@@ -230,9 +234,9 @@ export default function FinanceScreen() {
           {/* Month summary */}
           <Card contentStyle={styles.summary}>
             <View style={styles.monthNav}>
-              <Pressable onPress={() => setMonthOffset((o) => o - 1)} hitSlop={10}><ChevronRight size={22} strokeWidth={1.8} color={colors.brand} /></Pressable>
+              <Pressable accessibilityLabel={i18n.t('finance:summary.prevMonth')} onPress={() => setMonthOffset((o) => o - 1)} hitSlop={10}><ChevronRight size={22} strokeWidth={1.8} color={colors.brand} /></Pressable>
               <Text style={styles.monthLabel}>{fmtMonthYear(monthDate)}</Text>
-              <Pressable onPress={() => setMonthOffset((o) => o + 1)} hitSlop={10}>
+              <Pressable accessibilityLabel={i18n.t('finance:summary.nextMonth')} onPress={() => setMonthOffset((o) => o + 1)} hitSlop={10}>
                 <ChevronLeft size={22} strokeWidth={1.8} color={colors.brand} />
               </Pressable>
             </View>
@@ -291,9 +295,9 @@ export default function FinanceScreen() {
                   </View>
                   <Text style={[styles.recAmt, { color: income ? colors.positive : colors.textSub }]}>{income ? '+' : '−'}{isr(Math.abs(tpl.amount || 0))}</Text>
                   <View style={styles.recActions}>
-                    <Pressable onPress={() => updateRecurring(tpl.id, { active: !tpl.active })} hitSlop={6}>{paused ? <Play size={15} strokeWidth={1.7} color={colors.textSub} /> : <Pause size={15} strokeWidth={1.7} color={colors.textSub} />}</Pressable>
-                    <Pressable onPress={() => setEditRec(tpl)} hitSlop={6}><Pencil size={14} strokeWidth={1.7} color={colors.textSub} /></Pressable>
-                    <Pressable onPress={() => Alert.alert(i18n.t('finance:deleteRecurring.title', { defaultValue: 'מחיקת תבנית חוזרת' }), i18n.t('finance:deleteRecurring.message', { name: tpl.desc || '', defaultValue: 'למחוק את התבנית?' }), [{ text: i18n.t('modalsData:common.cancel', { defaultValue: 'ביטול' }), style: 'cancel' }, { text: i18n.t('finance:deleteRecurring.confirm', { defaultValue: 'מחק' }), style: 'destructive', onPress: () => removeRecurring(tpl.id) }])} hitSlop={6}><Trash2 size={14} strokeWidth={1.7} color={colors.danger} /></Pressable>
+                    <Pressable accessibilityLabel={paused ? i18n.t('finance:recurring.resume') : i18n.t('finance:recurring.pause')} onPress={() => updateRecurring(tpl.id, { active: !tpl.active })} hitSlop={6}>{paused ? <Play size={15} strokeWidth={1.7} color={colors.textSub} /> : <Pause size={15} strokeWidth={1.7} color={colors.textSub} />}</Pressable>
+                    <Pressable accessibilityLabel={i18n.t('modalsData:recurring.titleEdit')} onPress={() => setEditRec(tpl)} hitSlop={6}><Pencil size={14} strokeWidth={1.7} color={colors.textSub} /></Pressable>
+                    <Pressable accessibilityLabel={i18n.t('modalsData:editTx.delete')} onPress={() => Alert.alert(i18n.t('finance:deleteRecurring.title', { defaultValue: 'מחיקת תבנית חוזרת' }), i18n.t('finance:deleteRecurring.message', { name: tpl.desc || '', defaultValue: 'למחוק את התבנית?' }), [{ text: i18n.t('modalsData:common.cancel', { defaultValue: 'ביטול' }), style: 'cancel' }, { text: i18n.t('finance:deleteRecurring.confirm', { defaultValue: 'מחק' }), style: 'destructive', onPress: () => removeRecurring(tpl.id) }])} hitSlop={6}><Trash2 size={14} strokeWidth={1.7} color={colors.danger} /></Pressable>
                   </View>
                 </View>
               )
@@ -307,7 +311,7 @@ export default function FinanceScreen() {
             title={i18n.t('finance:expensesByCategory.title', { defaultValue: 'הוצאות לפי קטגוריה' })}
             rows={expenseRows}
             empty={i18n.t('finance:expensesByCategory.empty', { defaultValue: '—' })}
-            action={<Pressable onPress={() => setManageCat(true)} hitSlop={8}><Settings2 size={15} strokeWidth={1.7} color={colors.textSub} /></Pressable>}
+            action={<Pressable accessibilityLabel={i18n.t('finance:categories.title')} onPress={() => setManageCat(true)} hitSlop={8}><Settings2 size={15} strokeWidth={1.7} color={colors.textSub} /></Pressable>}
           />
 
           {/* Skipped toggle */}
@@ -397,13 +401,13 @@ function DeltaPill({ delta }) {
 
 const styles = themed((c, t) => ({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  content: { paddingHorizontal: 20, paddingBottom: 96, gap: 16 },
+  content: { paddingHorizontal: 20, gap: 16 },
   error: { color: c.danger, fontSize: 13 },
   empty: { color: c.textFaint, fontSize: 14, textAlign: 'center', marginTop: 24 },
   section: { gap: 8 },
   sectionTitle: { fontSize: 14, fontWeight: '600', color: c.textSub },
   pendingHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 },
-  bulkBtn: { flexDirection: 'row', alignItems: 'center', gap: 5, paddingVertical: 5, paddingHorizontal: 12, borderRadius: 999, borderWidth: 1, borderColor: 'rgba(139,168,136,0.4)', backgroundColor: 'rgba(139,168,136,0.10)' },
+  bulkBtn: { minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: 5, paddingVertical: 5, paddingHorizontal: 12, borderRadius: 999, borderWidth: 1, borderColor: 'rgba(139,168,136,0.4)', backgroundColor: 'rgba(139,168,136,0.10)' },
   bulkText: { fontSize: 12, fontWeight: '600', color: c.positive },
   summary: { paddingVertical: 18, paddingHorizontal: 20 },
   monthNav: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', alignSelf: 'stretch', marginBottom: 12 },
@@ -456,11 +460,11 @@ const styles = themed((c, t) => ({
   recActions: { flexDirection: 'row', alignItems: 'center', gap: 12 },
 
   // Export
-  exportBtn: { flexDirection: 'row', alignItems: 'center', gap: 5, alignSelf: 'flex-end', paddingVertical: 6, paddingHorizontal: 14 },
+  exportBtn: { minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: 5, alignSelf: 'flex-end', paddingVertical: 6, paddingHorizontal: 14 },
   exportText: { fontSize: 12, fontWeight: '500', color: c.textSub },
 
   // Skipped toggle
-  skipToggle: { alignSelf: 'center', paddingVertical: 7, paddingHorizontal: 16 },
+  skipToggle: { minHeight: 44, justifyContent: 'center', alignSelf: 'center', paddingVertical: 7, paddingHorizontal: 16 },
   skipToggleText: { fontSize: 12, color: c.textSub },
   skipToggleTextOn: { color: c.text, fontWeight: '600' },
 

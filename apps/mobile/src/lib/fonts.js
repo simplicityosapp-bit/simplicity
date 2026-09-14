@@ -1,67 +1,34 @@
-import { Text, TextInput, StyleSheet } from 'react-native'
-
 // Bundled Alef TTFs (Google Alef, OFL) — the app-wide typeface, matching web
-// (the whole web app runs on Alef). Passed to useFonts() in App.js.
-// The regular face is AlefMultiGndr (Alef + the dual-gender glyphs, incl. the
-// U+05CC mark) so those codepoints render correctly instead of falling back to
-// the device font. Web scopes AlefMG to them via CSS `unicode-range` (which RN
-// can't do per-glyph), but AlefMG is a superset of Alef — verified: digits, ₪,
-// U+05CC all present — so it works as the base face. Bold stays standard
-// Alef-Bold (no dual-gender bold cut exists; bold + U+05CC is rare). The .ttf was
-// converted from the web .woff via scratchpad/woff2ttf.js (WOFF1 = zlib SFNT).
-// NOTE: base face is Google's official Alef-Regular (native-safe). The
-// hand-converted AlefMultiGndr (dual-gender U+05CC glyph) is temporarily NOT
-// loaded — a device build closed instantly on launch and the converted TTF was a
-// prime suspect for a native font-loader crash, so we rule it out. U+05CC falls
-// back to the system font meanwhile (cosmetic). Restore AlefMultiGndr once the
-// app is confirmed booting on-device (rebuild it with a real tool, not the
-// hand-rolled WOFF decoder).
+// (the whole web app runs on Alef). Passed to useFonts() in App.js, and applied
+// to every piece of text by components/Text.
+//
+// Applying it used to be a monkey-patch here that wrapped Text.render. React
+// Native 0.86's Text and TextInput are plain function components with no
+// .render, so on a phone that patch never ran; see components/Text.
+//
+// The regular face is AlefMultiGndr: Alef plus the twelve dual-gender merge
+// glyphs on unassigned Hebrew-block codepoints ("פעיל׌" = פעיל and פעילה in
+// one word). It was loaded once before, on 2026-07-08, and pulled on
+// 2026-07-11 as the prime suspect for a release build that closed instantly
+// on launch. The two real causes of that crash were found and fixed later
+// (Hermes partial Intl, and the root registering after native asked for it).
+// Checked on 2026-09-13 without any font tooling: every table checksum and
+// head.checkSumAdjustment is correct, and its cmap maps all twelve merge
+// glyphs plus Hebrew letters, digits and ₪ — a superset of Alef-Regular. The
+// owner chose to load it again the same day.
+//
+// Bold stays the real Alef-Bold, which has no merge glyphs; components/Text
+// keeps a bold string that carries one on this regular face and lets the
+// platform synthesise the bold, the way a browser does for web's AlefMG.
+//
+// IF A DEVICE BUILD CLOSES ON LAUNCH: set MERGE_FONT_LOADED to false and point
+// Alef back at Alef-Regular.ttf. components/Text then shows the readable slash
+// form ("פעיל/ה") instead of the glyph, and nothing else needs to change.
+export const MERGE_FONT_LOADED = true
+
 export const fontAssets = {
-  Alef: require('../../assets/fonts/Alef-Regular.ttf'),
+  Alef: MERGE_FONT_LOADED
+    ? require('../../assets/fonts/AlefMultiGndr-Regular.ttf')
+    : require('../../assets/fonts/Alef-Regular.ttf'),
   'Alef-Bold': require('../../assets/fonts/Alef-Bold.ttf'),
 }
-
-const isBold = (w) => w === 'bold' || w === '600' || w === '700' || w === 600 || w === 700
-
-// The dual-gender combining mark. It only exists in AlefMultiGndr ('Alef'), NOT in
-// Alef-Bold — so a BOLD label that contains it (e.g. the neutral status "פעיל׌")
-// would render a tofu box. When present, fall back to the dual-gender face and
-// let the platform faux-bold it (same as web, where AlefMG has no bold cut and the
-// browser synthesises bold for that glyph). Rare, so the crisp real Alef-Bold
-// still serves every other bold string.
-const DG_MARK = '׌'
-function hasDualGender(c) {
-  if (typeof c === 'string') return c.indexOf(DG_MARK) >= 0
-  if (Array.isArray(c)) return c.some(hasDualGender)
-  return false
-}
-
-// Make Alef the app-wide base font. We rewrite `props.style` BEFORE the original
-// forwardRef render runs (Text/TextInput are `forwardRef((props, ref) => …)` on
-// both native and react-native-web) — patching the OUTPUT fails on RNW because a
-// top-level Text render returns a Context.Provider, not the styled node. Alef is
-// prepended (FIRST) so any explicit fontFamily in a component's own style still
-// wins; weights >=600 use the Alef Bold face (fontWeight reset to avoid faux
-// double-bold) — EXCEPT bold strings carrying the dual-gender mark, which keep the
-// dual-gender face + faux bold so the glyph renders. Runs once at import.
-function patch(Comp) {
-  if (!Comp || Comp.__alefPatched) return
-  const orig = Comp.render
-  if (typeof orig !== 'function') return
-  Comp.__alefPatched = true
-  Comp.render = function render(props, ref) {
-    const flat = StyleSheet.flatten(props.style) || {}
-    const bold = isBold(flat.fontWeight)
-    // Text carries content in `children`; TextInput in `value`/`defaultValue`.
-    const dg = hasDualGender(props.children)
-      || (typeof props.value === 'string' && props.value.indexOf(DG_MARK) >= 0)
-      || (typeof props.defaultValue === 'string' && props.defaultValue.indexOf(DG_MARK) >= 0)
-    const style = (bold && !dg)
-      ? [{ fontFamily: 'Alef-Bold' }, props.style, { fontWeight: 'normal' }]
-      : [{ fontFamily: 'Alef' }, props.style]
-    return orig.call(this, { ...props, style }, ref)
-  }
-}
-
-patch(Text)
-patch(TextInput)

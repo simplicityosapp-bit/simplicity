@@ -1,5 +1,7 @@
 import { useMemo, useState } from 'react'
-import { View, Text, Pressable, StyleSheet, ScrollView, ActivityIndicator, RefreshControl } from 'react-native'
+import { View, StyleSheet, ScrollView, ActivityIndicator, RefreshControl } from 'react-native'
+import { Text } from '../components/Text'
+import { Pressable } from '../components/Pressable'
 import Svg, { Polyline, Circle, Rect } from 'react-native-svg'
 import Slider from '@react-native-community/slider'
 import { Sparkles, Check, Trash2, Pencil } from 'lucide-react-native'
@@ -17,6 +19,7 @@ import { colors } from '../theme/theme'
 import { themed } from '../theme/themed'
 import { usePreferences } from '../lib/preferences'
 import { useInsightsData } from '../hooks/useInsightsData'
+import { useBottomPad } from '../lib/bottomBar'
 
 // Insights ("מה איתך היום") — mirrors web InsightsScreen: mirror reflections +
 // a card per active question with a daily-answer control, 7/30-day averages, a
@@ -87,7 +90,7 @@ function QuestionInsightCard({ question, idx, today, gender, onSubmit, onToggle,
         <Text style={styles.qicon}>{question.icon || '🫧'}</Text>
         <Text style={styles.qtext}>{questionText(question, gender)}</Text>
         {answeredVal != null ? <Text style={styles.todayPill}>{answeredVal}</Text> : null}
-        {onEdit ? <Pressable onPress={() => onEdit(question)} hitSlop={6}><Pencil size={14} strokeWidth={1.7} color={colors.textFaint} /></Pressable> : null}
+        {onEdit ? <Pressable accessibilityLabel={i18n.t('insights:card.editTitle')} onPress={() => onEdit(question)} hitSlop={6}><Pencil size={14} strokeWidth={1.7} color={colors.textFaint} /></Pressable> : null}
         <Pressable onPress={() => onToggle(question)} hitSlop={6}>
           <View style={[styles.toggle, question.active && styles.toggleOn]}><View style={[styles.knob, question.active && styles.knobOn]} /></View>
         </Pressable>
@@ -103,7 +106,7 @@ function QuestionInsightCard({ question, idx, today, gender, onSubmit, onToggle,
           <View style={styles.sliderRow}>
             <Slider style={{ flex: 1 }} minimumValue={1} maximumValue={10} step={1} value={draft} onValueChange={setDraft} minimumTrackTintColor={colors.moonDeep} maximumTrackTintColor={colors.border} thumbTintColor={colors.moonDeep} />
             <Text style={styles.sliderVal}>{draft}</Text>
-            <Pressable style={styles.save} disabled={busy} onPress={() => submit(draft)}><Check size={15} strokeWidth={2} color={colors.positive} /></Pressable>
+            <Pressable accessibilityLabel={i18n.t('common:save')} style={styles.save} disabled={busy} onPress={() => submit(draft)}><Check size={15} strokeWidth={2} color={colors.positive} /></Pressable>
           </View>
         )
       ) : null}
@@ -137,6 +140,7 @@ TrendLine.displayName = 'TrendLine'
 Heatmap.displayName = 'Heatmap'
 
 export default function InsightsScreen() {
+  const bottomPad = useBottomPad()
   const { questions, answers, loading, error, refetch, addAnswer, addQuestion, toggleActive, removeQuestion, updateQuestion } = useInsightsData()
   const { prefs } = usePreferences()
   const gender = prefs.design?.gender
@@ -164,7 +168,7 @@ export default function InsightsScreen() {
       {loading && !questions.length ? (
         <View style={styles.center}><ActivityIndicator color={colors.brand} /></View>
       ) : (
-        <ScrollView contentContainerStyle={styles.content} refreshControl={<RefreshControl refreshing={loading} onRefresh={refetch} tintColor={colors.brand} />}>
+        <ScrollView contentContainerStyle={[styles.content, bottomPad]} refreshControl={<RefreshControl refreshing={loading} onRefresh={refetch} tintColor={colors.brand} />}>
           <ScreenHead
             title={T('title', { defaultValue: 'מה איתך היום' })}
             onAdd={() => setShowAdd(true)}
@@ -197,7 +201,7 @@ export default function InsightsScreen() {
 
 const styles = themed((c, t) => ({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  content: { paddingHorizontal: 20, paddingBottom: 96, gap: 14 },
+  content: { paddingHorizontal: 20, gap: 14 },
   error: { color: c.danger, fontSize: 13 },
   empty: { color: c.textFaint, fontSize: 14, textAlign: 'center', marginTop: 24 },
 
@@ -236,6 +240,6 @@ const styles = themed((c, t) => ({
   viz: { paddingVertical: 2 },
   vizEmpty: { fontSize: 12, color: c.textFaint, paddingVertical: 14, textAlign: 'center' },
 
-  del: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingTop: 4 },
+  del: { minHeight: 44, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingTop: 4 },
   delText: { fontSize: 12, color: c.textFaint },
 }))

@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
-import { View, Text } from 'react-native'
+import { View } from 'react-native'
+import { Text } from '../../components/Text'
 import Svg, { Path, Circle, Text as SvgText } from 'react-native-svg'
 import { Sparkles } from 'lucide-react-native'
 import { financeDailyBuckets, isr } from '@simplicity/core'

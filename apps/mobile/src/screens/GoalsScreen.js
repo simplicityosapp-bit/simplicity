@@ -1,5 +1,7 @@
 import { useMemo, useState, useRef, useCallback } from 'react'
-import { View, Text, Pressable, StyleSheet, ScrollView, ActivityIndicator, RefreshControl, I18nManager } from 'react-native'
+import { View, StyleSheet, ScrollView, ActivityIndicator, RefreshControl, I18nManager } from 'react-native'
+import { Text } from '../components/Text'
+import { Pressable } from '../components/Pressable'
 import { useFocusEffect } from '@react-navigation/native'
 import { goalsByCategory, formatGoalValue, timeFrameLabel } from '@simplicity/core'
 import { Star } from 'lucide-react-native'
@@ -14,11 +16,13 @@ import { colors } from '../theme/theme'
 import { themed } from '../theme/themed'
 import { useGoalsData } from '../hooks/useGoalsData'
 import { useQuestions } from '../hooks/useQuestions'
+import { useBottomPad } from '../lib/bottomBar'
 
 // Goals screen — goals grouped by category, each scored by the shared core
 // engine (goalsByCategory → moonGetData): a pace bar + actual/target value,
 // over the per-screen photo (Warm Precision theme). "+" adds a goal.
 export default function GoalsScreen() {
+  const bottomPad = useBottomPad()
   const { goals, categories, entries, transactions, clients, leads, answers, members, groups, loading, error, refetch, addGoal, updateGoal, deleteGoal } = useGoalsData()
   const { questions, addQuestion, updateQuestion } = useQuestions()
   // Persistent tab: silently re-pull on RE-focus (skip mount).
@@ -44,7 +48,7 @@ export default function GoalsScreen() {
         <View style={styles.center}><ActivityIndicator color={colors.brand} /></View>
       ) : (
         <ScrollView
-          contentContainerStyle={styles.content}
+          contentContainerStyle={[styles.content, bottomPad]}
           refreshControl={<RefreshControl refreshing={loading} onRefresh={refetch} tintColor={colors.brand} />}
         >
           <ScreenHead
@@ -132,7 +136,7 @@ function GoalCard({ scored: s, onEdit }) {
 
 const styles = themed((c, t) => ({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  content: { paddingHorizontal: 20, paddingBottom: 96, gap: 18 },
+  content: { paddingHorizontal: 20, gap: 18 },
   error: { color: c.danger, fontSize: 13 },
   empty: { color: c.textFaint, fontSize: 14, textAlign: 'center', marginTop: 24 },
   group: { gap: 10 },

@@ -1,6 +1,9 @@
-import { Modal, View, Text, Pressable, ScrollView, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native'
+import { Modal, View, ScrollView, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native'
+import { Text } from './Text'
+import { Pressable } from './Pressable'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { X } from 'lucide-react-native'
+import i18n from '../lib/i18n'
 import { colors } from '../theme/theme'
 import { themed } from '../theme/themed'
 
@@ -10,19 +13,47 @@ import { themed } from '../theme/themed'
 // clipped by the home ScrollView.
 export default function Sheet({ open, onClose, title, children }) {
   const insets = useSafeAreaInsets()
+  /* Android gives a Modal its own window, and by default that window
+     stops below the status bar while the app behind it draws edge-to-edge.
+     The backdrop therefore dimmed everything except a bright strip along
+     the top, with a hard edge across it. Both flags let the window cover
+     what the app covers; the panel already pads itself by insets.bottom,
+     so nothing lands under the gesture bar. */
   return (
-    <Modal visible={open} transparent animationType="slide" onRequestClose={onClose}>
+    <Modal
+      visible={open}
+      transparent
+      animationType="slide"
+      onRequestClose={onClose}
+      statusBarTranslucent
+      navigationBarTranslucent
+    >
       <View style={styles.overlay}>
-        <Pressable style={styles.backdrop} onPress={onClose} />
+        {/* No ripple: on a full-screen backdrop it would flash the whole screen. */}
+        <Pressable style={styles.backdrop} onPress={onClose} android_ripple={null} />
         {/* Fill the overlay + anchor to the bottom so the sheet's maxHeight '86%'
             resolves against the full screen height (an auto-height wrapper left a
             tall form — e.g. Add Client — unconstrained, overflowing off the top).
-            box-none lets taps in the empty area above the sheet reach the backdrop. */}
+            box-none lets taps in the empty area above the sheet reach the backdrop.
+
+            `behavior={undefined}` on Android is deliberate and is what Expo's
+            own keyboard guide prescribes — "just having the KeyboardAvoidingView
+            prevents covering the input". Do not 'fix' it to 'height' on the
+            reasoning below without a device in hand:
+
+            edge-to-edge has been on by default since SDK 53, and from Android 15
+            adjustResize no longer resizes the window, which is the mechanism the
+            undefined behavior relies on. If a report says the keyboard covers an
+            add/edit form on Android, this line is the first suspect — but the
+            preview cannot reach it (Platform.OS is 'web' there and there is no
+            soft keyboard), so it needs a real check rather than a guess. Expo's
+            escape hatches, in order: softwareKeyboardLayoutMode 'pan' in
+            app.json, then react-native-keyboard-controller. */}
         <KeyboardAvoidingView style={styles.kav} pointerEvents="box-none" behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
           <View style={[styles.sheet, { paddingBottom: insets.bottom + 20 }]}>
             <View style={styles.head}>
               <Text style={styles.title} numberOfLines={1}>{title}</Text>
-              <Pressable style={styles.close} onPress={onClose} hitSlop={8}>
+              <Pressable style={styles.close} onPress={onClose} hitSlop={8} accessibilityLabel={i18n.t('common:close', { defaultValue: 'סגירה' })}>
                 <X size={16} strokeWidth={1.8} color={colors.textSub} />
               </Pressable>
             </View>

@@ -1,5 +1,7 @@
 import { useEffect, useRef } from 'react'
-import { View, Text, Image, Pressable, ScrollView, StyleSheet, Animated } from 'react-native'
+import { View, Image, ScrollView, StyleSheet, Animated } from 'react-native'
+import { Text } from './Text'
+import { Pressable } from './Pressable'
 import { BlurView } from './SafeBlur'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Home, Users, Heart, Wallet, ClipboardList, Target, CalendarDays, Settings, FolderOpen, Activity, BarChart3, Trash2, LayoutTemplate, Plug, Sun, Moon, X, LogOut, Pencil, BookOpen, Shield } from 'lucide-react-native'
@@ -9,6 +11,7 @@ import { isAdminUser } from '@simplicity/core'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../lib/auth'
 import { usePreferences, roleLabel } from '../lib/preferences'
+import { useBackHandler } from '../lib/useBackHandler'
 import i18n from '../lib/i18n'
 import { colors, space, setThemeMode, getThemeMode } from '../theme/theme'
 import { themed, themedMap } from '../theme/themed'
@@ -130,12 +133,18 @@ export default function Drawer({ open, onClose, onNavigate, activeScreen }) {
   const translateX = anim.interpolate({ inputRange: [0, 1], outputRange: [0, 400] })
   const backdropOpacity = anim.interpolate({ inputRange: [0, 1], outputRange: [1, 0] })
 
+  /* Android back closes the drawer instead of falling through to the
+     navigator underneath it — see lib/useBackHandler. Called above the early
+     return so the hook order is stable across open/closed. */
+  useBackHandler(open, onClose)
+
   const go = (screen) => { onClose(); onNavigate(screen) }
   if (!open) return null
   return (
     <View style={styles.overlay}>
       <Animated.View style={[styles.backdrop, { opacity: backdropOpacity }]}>
-        <Pressable style={StyleSheet.absoluteFill} onPress={onClose} />
+        {/* No ripple: on a full-screen backdrop it would flash the whole screen. */}
+        <Pressable style={StyleSheet.absoluteFill} onPress={onClose} android_ripple={null} />
       </Animated.View>
       <Animated.View style={[styles.panel, { paddingTop: insets.top + 12, transform: [{ translateX }] }]}>
         <BlurView intensity={60} tint={colors.blurTint} style={StyleSheet.absoluteFill} pointerEvents="none" />
@@ -144,13 +153,16 @@ export default function Drawer({ open, onClose, onNavigate, activeScreen }) {
         <View style={styles.body}>
           <View style={styles.titleRow}>
             <Text style={styles.title}>{i18n.t('nav:more', { defaultValue: 'עוד' })}</Text>
-            <Pressable style={styles.close} onPress={onClose} hitSlop={8}>
+            <Pressable style={styles.close} onPress={onClose} hitSlop={8} accessibilityLabel={i18n.t('common:close', { defaultValue: 'סגירה' })}>
               <X size={16} strokeWidth={1.6} color={colors.textSub} />
             </Pressable>
           </View>
           <Text style={styles.sub}>{i18n.t('nav:drawerSubtitle', { defaultValue: 'תפריט · העדפות וכלים אישיים' })}</Text>
 
-          <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
+          {/* insets.bottom, not just a fixed 40: the panel takes insets.top at
+              the head and took nothing at the foot, so on a phone with a gesture
+              bar the last row — which is «התנתקות» — sat underneath it. */}
+          <ScrollView contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom + 24 }]} showsVerticalScrollIndicator={false}>
             <Pressable style={styles.profile} onPress={() => go('Settings')}>
               <View style={styles.avatar}><Text style={styles.avatarText}>{initial}</Text></View>
               <View style={styles.profileText}>
@@ -224,7 +236,7 @@ const styles = themed((c, t) => ({
   title: { fontSize: 22, fontWeight: '700', color: c.text, letterSpacing: -0.4 },
   close: { width: 30, height: 30, borderRadius: 15, backgroundColor: c.fillStrong, borderWidth: 0.5, borderColor: c.border, alignItems: 'center', justifyContent: 'center' },
   sub: { fontSize: 10, fontWeight: '500', color: c.textSub, letterSpacing: 1, marginTop: 4, marginBottom: 14, textTransform: 'uppercase' },
-  scroll: { paddingBottom: 40, gap: 4 },
+  scroll: { gap: 4 },
   // profile chip
   profile: { flexDirection: 'row', alignItems: 'center', gap: 11, backgroundColor: c.glassTint, borderRadius: 20, borderWidth: 0.5, borderColor: c.divider, paddingVertical: 11, paddingHorizontal: 12, marginBottom: 4 },
   avatar: { width: 34, height: 34, borderRadius: 17, backgroundColor: c.brand, alignItems: 'center', justifyContent: 'center' },

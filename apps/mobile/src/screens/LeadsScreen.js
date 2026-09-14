@@ -1,6 +1,8 @@
 import { useMemo, useRef, useState, useEffect, useCallback } from 'react'
 import { useFocusEffect } from '@react-navigation/native'
-import { View, Text, TextInput, Pressable, StyleSheet, ScrollView, ActivityIndicator, RefreshControl, Dimensions, Animated, Linking, Alert, I18nManager } from 'react-native'
+import { View, StyleSheet, ScrollView, ActivityIndicator, RefreshControl, useWindowDimensions, Animated, Linking, Alert, I18nManager } from 'react-native'
+import { Text, TextInput } from '../components/Text'
+import { Pressable } from '../components/Pressable'
 import { GestureDetector, Gesture } from 'react-native-gesture-handler'
 import { Bell, Check, MessageCircle, ChevronLeft, ChevronUp, ChevronDown, Search, SlidersHorizontal, Plus, X } from 'lucide-react-native'
 import { LEAD_META, statusMetaOfLead, metaTitle, metaColor, isPendingReview, isConvertedLead, fmtShortDate } from '@simplicity/core'
@@ -21,13 +23,15 @@ import { themed, themedMap } from '../theme/themed'
 import { useFormOptions } from '../lib/formOptions'
 import { usePreferences } from '../lib/preferences'
 import { useLeadsList } from '../hooks/useLeadsList'
+import { useBottomPad } from '../lib/bottomBar'
+import { resolveDropColumn } from '../lib/leadDrop'
 
 const DEFAULT_FILTER = { period: 'all', project: '', group: '', status: '', source: '', sort: '' }
 
 // Fallback column-dot colors when a meta has no default sub-status (metaColor
 // then returns a CSS var, which RN can't use).
 const META_COLOR = themedMap((c) => ({ in_process: '#D9A566', converted: c.positive, not_relevant: '#b3a99c' }))
-const COL_W = Math.min(300, Math.round(Dimensions.get('window').width * 0.82))
+const colWidthFor = (w) => Math.min(300, Math.round(w * 0.82))
 const todayYmd = () => {
   const d = new Date()
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
@@ -39,6 +43,15 @@ const todayYmd = () => {
 // sub-status picker); every sub-status change is logged (lead_status_log via
 // updateLead's source). Pending public-page leads sit in a review strip above.
 export default function LeadsScreen() {
+  const bottomPad = useBottomPad()
+  /* Column width followed a Dimensions read taken once, at module load, so a
+     split screen or an unfolded device kept the width from whenever the bundle
+     happened to evaluate. The ref is for the gesture handlers, which run
+     outside render and would otherwise close over a stale value. */
+  const { width: winWidth } = useWindowDimensions()
+  const colW = colWidthFor(winWidth)
+  const colWRef = useRef(colW)
+  colWRef.current = colW
   const { leads, loading, error, refetch, addLead, updateLead, deleteLead, addClient, addGroupMember } = useLeadsList()
   const confirmDeleteLead = (id, name) => {
     Alert.alert(
@@ -157,7 +170,7 @@ export default function LeadsScreen() {
 
   // ── Drag-and-drop (long-press to pick up) with horizontal edge auto-scroll ──
   const boardRef = useRef(null)
-  const boardBox = useRef({ x: 0, width: Dimensions.get('window').width }) // screen coords
+  const boardBox = useRef({ x: 0, y: 0, width: winWidth, height: 0 }) // screen coords
   const scrollX = useRef(0)
   const colX = useRef({}) // { metaKey: { x, width } } in board-content coords
   const overMeta = useRef(null)
@@ -179,14 +192,15 @@ export default function LeadsScreen() {
       boardRef.current?.scrollTo({ x: next, animated: false })
     }, 16)
   }
-  const hitMeta = (absX) => {
-    const relX = absX - boardBox.current.x + scrollX.current
-    for (const m of LEAD_META) { const c = colX.current[m.key]; if (c && relX >= c.x && relX <= c.x + c.width) return m.key }
-    return null
-  }
+  /* Resolved by a pure helper so the decision that writes a lead's new status
+     can be called with a coordinate and checked — see lib/leadDrop. */
+  const hitMeta = (absX, absY) => resolveDropColumn({
+    x: absX, y: absY, board: boardBox.current, scrollX: scrollX.current,
+    columns: colX.current, order: LEAD_META.map((m) => m.key),
+  })
   const onDragMove = (absX, absY) => {
-    ghost.setValue({ x: absX - COL_W / 2, y: absY - 28 })
-    overMeta.current = hitMeta(absX)
+    ghost.setValue({ x: absX - colWRef.current / 2, y: absY - 28 })
+    overMeta.current = hitMeta(absX, absY)
     const local = absX - boardBox.current.x
     if (local < 52) startEdgeScroll(-1)
     else if (local > boardBox.current.width - 52) startEdgeScroll(1)
@@ -202,7 +216,7 @@ export default function LeadsScreen() {
   const makePan = (lead) => Gesture.Pan()
     .activateAfterLongPress(220)
     .runOnJS(true)
-    .onStart((e) => { setDragLead(lead); ghost.setValue({ x: e.absoluteX - COL_W / 2, y: e.absoluteY - 28 }) })
+    .onStart((e) => { setDragLead(lead); ghost.setValue({ x: e.absoluteX - colWRef.current / 2, y: e.absoluteY - 28 }) })
     .onUpdate((e) => onDragMove(e.absoluteX, e.absoluteY))
     .onEnd(() => onDrop(lead))
     .onFinalize(() => { stopEdgeScroll(); setDragLead(null) })
@@ -213,7 +227,11 @@ export default function LeadsScreen() {
         <View style={styles.center}><ActivityIndicator color={colors.brand} /></View>
       ) : (
         <ScrollView
-          contentContainerStyle={styles.content}
+          contentContainerStyle={[styles.content, bottomPad]}
+          /* Without this the first tap after typing is spent closing the
+             keyboard and never reaches what was tapped — the "why do I have to
+             press twice" report. */
+          keyboardShouldPersistTaps="handled"
           refreshControl={<RefreshControl refreshing={loading} onRefresh={refetch} tintColor={colors.brand} />}
         >
           <ScreenHead
@@ -300,7 +318,7 @@ export default function LeadsScreen() {
              card to pick it up and drag between columns (edge = auto-scroll);
              the ⇄ control is the tap-to-move fallback. */}
           <View
-            onLayout={() => boardRef.current?.measureInWindow?.((x, y, w) => { boardBox.current = { x, width: w } })}
+            onLayout={() => boardRef.current?.measureInWindow?.((x, y, w, h) => { boardBox.current = { x, y, width: w, height: h } })}
           >
             <ScrollView
               ref={boardRef}
@@ -318,7 +336,7 @@ export default function LeadsScreen() {
                 return (
                   <View
                     key={m.key}
-                    style={{ width: COL_W }}
+                    style={{ width: colW }}
                     onLayout={(e) => { colX.current[m.key] = { x: e.nativeEvent.layout.x, width: e.nativeEvent.layout.width } }}
                   >
                     <Card padded={false} style={over ? styles.colOver : undefined} contentStyle={styles.colFrame}>
@@ -351,7 +369,7 @@ export default function LeadsScreen() {
           </View>
           {/* Floating ghost of the lifted card */}
           {dragLead ? (
-            <Animated.View pointerEvents="none" style={[styles.ghost, { width: COL_W, transform: ghost.getTranslateTransform() }]}>
+            <Animated.View pointerEvents="none" style={[styles.ghost, { width: colW, transform: ghost.getTranslateTransform() }]}>
               <LeadCard lead={dragLead} sources={leadSources} statuses={leadStatuses} />
             </Animated.View>
           ) : null}
@@ -420,8 +438,8 @@ export default function LeadsScreen() {
               <Text style={styles.fuName} numberOfLines={1}>{l.name}</Text>
               <Text style={styles.fuDate}>{fmtShortDate(l.follow_up_date)}</Text>
             </Pressable>
-            <Pressable style={styles.fuIcon} onPress={() => waLead(l)} hitSlop={6}><MessageCircle size={16} strokeWidth={1.7} color={colors.positive} /></Pressable>
-            <Pressable style={styles.fuDone} onPress={() => updateLead(l.id, { follow_up_date: null })} hitSlop={6}><Check size={16} strokeWidth={2} color={colors.onBrand} /></Pressable>
+            <Pressable accessibilityLabel={'WhatsApp'} style={styles.fuIcon} onPress={() => waLead(l)} hitSlop={6}><MessageCircle size={16} strokeWidth={1.7} color={colors.positive} /></Pressable>
+            <Pressable accessibilityLabel={i18n.t('home:widgets.attention.followupDone')} style={styles.fuDone} onPress={() => updateLead(l.id, { follow_up_date: null })} hitSlop={6}><Check size={16} strokeWidth={2} color={colors.onBrand} /></Pressable>
           </View>
         ))}
       </Sheet>
@@ -523,14 +541,14 @@ function StatusGroup({ meta, title, statuses, onAdd, onRemove, onUpdate }) {
           <View key={s.id} style={styles.chip}>
             {canReorder ? (
               <View style={styles.reorder}>
-                <Pressable onPress={() => move(i, -1)} disabled={i === 0} hitSlop={4}><ChevronUp size={11} strokeWidth={2} color={i === 0 ? colors.border : colors.textSub} /></Pressable>
-                <Pressable onPress={() => move(i, 1)} disabled={i === sorted.length - 1} hitSlop={4}><ChevronDown size={11} strokeWidth={2} color={i === sorted.length - 1 ? colors.border : colors.textSub} /></Pressable>
+                <Pressable accessibilityLabel={i18n.t('reports:customize.moveUp', { label: s.display_name })} onPress={() => move(i, -1)} disabled={i === 0} hitSlop={4}><ChevronUp size={11} strokeWidth={2} color={i === 0 ? colors.border : colors.textSub} /></Pressable>
+                <Pressable accessibilityLabel={i18n.t('reports:customize.moveDown', { label: s.display_name })} onPress={() => move(i, 1)} disabled={i === sorted.length - 1} hitSlop={4}><ChevronDown size={11} strokeWidth={2} color={i === sorted.length - 1 ? colors.border : colors.textSub} /></Pressable>
               </View>
             ) : null}
             {s.icon ? <Text style={styles.chipIcon}>{s.icon}</Text> : null}
             {s.color ? <View style={[styles.chipDot, { backgroundColor: s.color }]} /> : null}
             <Text style={styles.chipText}>{s.display_name}</Text>
-            {s.is_default ? null : <Pressable onPress={() => onRemove(s.id)} hitSlop={6}><X size={12} strokeWidth={2} color={colors.textFaint} /></Pressable>}
+            {s.is_default ? null : <Pressable accessibilityLabel={i18n.t('modalsData:editTx.delete')} onPress={() => onRemove(s.id)} hitSlop={6}><X size={12} strokeWidth={2} color={colors.textFaint} /></Pressable>}
           </View>
         )) : <Text style={styles.chipEmpty}>—</Text>}
       </View>
@@ -542,7 +560,7 @@ function StatusGroup({ meta, title, statuses, onAdd, onRemove, onUpdate }) {
       ) : (
         <View style={styles.addRow}>
           <TextInput style={styles.addInput} value={draft} onChangeText={setDraft} placeholder={i18n.t('leads:statusesPanel.addPlaceholder', { meta: title, context: meta })} placeholderTextColor={colors.textFaint} onSubmitEditing={add} />
-          <Pressable style={styles.addBtn} onPress={add} disabled={busy || !draft.trim()}><Plus size={18} strokeWidth={2} color={colors.onBrand} /></Pressable>
+          <Pressable accessibilityLabel={i18n.t('modalsData:common.add')} style={styles.addBtn} onPress={add} disabled={busy || !draft.trim()}><Plus size={18} strokeWidth={2} color={colors.onBrand} /></Pressable>
         </View>
       )}
     </View>
@@ -568,7 +586,7 @@ function LeadSourcesPanel({ sources, onAdd, onRemove }) {
           <View key={s.id} style={styles.chip}>
             {s.color ? <View style={[styles.chipDot, { backgroundColor: s.color }]} /> : null}
             <Text style={styles.chipText}>{s.name}</Text>
-            <Pressable onPress={() => onRemove(s.id)} hitSlop={6}><X size={12} strokeWidth={2} color={colors.textFaint} /></Pressable>
+            <Pressable accessibilityLabel={i18n.t('modalsData:editTx.delete')} onPress={() => onRemove(s.id)} hitSlop={6}><X size={12} strokeWidth={2} color={colors.textFaint} /></Pressable>
           </View>
         )) : <Text style={styles.chipEmpty}>—</Text>}
       </View>
@@ -581,7 +599,7 @@ function LeadSourcesPanel({ sources, onAdd, onRemove }) {
           placeholderTextColor={colors.textFaint}
           onSubmitEditing={add}
         />
-        <Pressable style={styles.addBtn} onPress={add} disabled={busy || !draft.trim()}><Plus size={18} strokeWidth={2} color={colors.onBrand} /></Pressable>
+        <Pressable accessibilityLabel={i18n.t('modalsData:common.add')} style={styles.addBtn} onPress={add} disabled={busy || !draft.trim()}><Plus size={18} strokeWidth={2} color={colors.onBrand} /></Pressable>
       </View>
     </View>
   )
@@ -594,7 +612,7 @@ StatusGroup.displayName = 'StatusGroup'
 const styles = themed((c, t) => ({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   viewToggle: { flexDirection: 'row', gap: 8, backgroundColor: c.cardFlat, borderRadius: 999, padding: 4 },
-  viewBtn: { flex: 1, paddingVertical: 8, borderRadius: 999, alignItems: 'center' },
+  viewBtn: { minHeight: 44, justifyContent: 'center', flex: 1, paddingVertical: 8, borderRadius: 999, alignItems: 'center' },
   viewBtnOn: { backgroundColor: c.text },
   viewBtnText: { fontSize: 14, color: c.textSub },
   // Inverse of the c.text fill so the active tab label reads in both themes.
@@ -615,7 +633,7 @@ const styles = themed((c, t) => ({
   addRow: { flexDirection: 'row', gap: 8, alignItems: 'center' },
   addInput: { flex: 1, borderWidth: 1, borderColor: c.border, borderRadius: 12, paddingVertical: 10, paddingHorizontal: 14, fontSize: 14, color: c.text, backgroundColor: c.card },
   addBtn: { width: 44, height: 44, borderRadius: 12, backgroundColor: c.brand, alignItems: 'center', justifyContent: 'center' },
-  content: { paddingHorizontal: 20, paddingBottom: 96, gap: 18 },
+  content: { paddingHorizontal: 20, gap: 18 },
   error: { color: c.danger, fontSize: 13 },
   group: { gap: 8 },
   groupHead: { flexDirection: 'row', alignItems: 'center', gap: 8 },
@@ -633,9 +651,9 @@ const styles = themed((c, t) => ({
   info: { flex: 1, gap: 2 },
   name: { fontSize: 15, color: c.text },
   phone: { fontSize: 12, color: c.textFaint },
-  approve: { paddingVertical: 7, paddingHorizontal: 12, borderRadius: 999, backgroundColor: c.positive },
+  approve: { minHeight: 44, justifyContent: 'center', paddingVertical: 7, paddingHorizontal: 12, borderRadius: 999, backgroundColor: c.positive },
   approveText: { fontSize: 13, fontWeight: '600', color: c.onBrand },
-  reject: { paddingVertical: 7, paddingHorizontal: 12, borderRadius: 999, borderWidth: 1, borderColor: c.border },
+  reject: { minHeight: 44, justifyContent: 'center', paddingVertical: 7, paddingHorizontal: 12, borderRadius: 999, borderWidth: 1, borderColor: c.border },
   rejectText: { fontSize: 13, color: c.textSub },
 
   board: { gap: 12, paddingBottom: 4 },
@@ -676,7 +694,7 @@ const styles = themed((c, t) => ({
   filterCount: { fontSize: 11, fontWeight: '700', color: c.brand, backgroundColor: c.onBrand, minWidth: 18, textAlign: 'center', borderRadius: 999, paddingHorizontal: 5, overflow: 'hidden' },
   filterLabel: { fontSize: 13, color: c.textSub, marginTop: 4 },
   seg: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  segBtn: { paddingVertical: 8, paddingHorizontal: 14, borderRadius: 999, borderWidth: 1, borderColor: c.border, backgroundColor: c.cardFlat },
+  segBtn: { minHeight: 44, justifyContent: 'center', paddingVertical: 8, paddingHorizontal: 14, borderRadius: 999, borderWidth: 1, borderColor: c.border, backgroundColor: c.cardFlat },
   segOn: { backgroundColor: c.brand, borderColor: c.brand },
   segText: { fontSize: 13, color: c.textSub },
   segTextOn: { color: c.onBrand, fontWeight: '600' },

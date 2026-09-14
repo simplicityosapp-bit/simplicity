@@ -1,4 +1,6 @@
-import { Pressable, Text, ActivityIndicator, View, I18nManager } from 'react-native'
+import { ActivityIndicator, View, I18nManager } from 'react-native'
+import { Text } from './Text'
+import { Pressable } from './Pressable'
 import Svg, { Path } from 'react-native-svg'
 import i18n from '../lib/i18n'
 import { colors } from '../theme/theme'

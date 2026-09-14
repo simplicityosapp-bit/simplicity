@@ -1,5 +1,8 @@
 import { useState, useMemo, useEffect, useRef } from 'react'
-import { View, Text, Pressable, TextInput } from 'react-native'
+import { View } from 'react-native'
+import { Text, TextInput } from '../components/Text'
+import DateField from '../components/DateField'
+import { Pressable } from '../components/Pressable'
 import { ChevronDown, Plus, Check, RotateCcw, Trash2, CreditCard } from 'lucide-react-native'
 import { planInstallments, planBalance, generateInstallments, firstOfNextMonth, fmtShortDate, isr, PAY_METHODS, payMethodLabel } from '@simplicity/core'
 import { usePaymentPlans } from '../hooks/usePaymentPlans'
@@ -98,7 +101,7 @@ export default function PaymentPlanSection({ client }) {
                       </Text>
                     </View>
                     {inst.received ? (
-                      <Pressable style={styles.ghostBtn} disabled={busy} onPress={() => unmarkReceived(inst)} hitSlop={6}>
+                      <Pressable accessibilityLabel={i18n.t('components:undo.undo')} style={styles.ghostBtn} disabled={busy} onPress={() => unmarkReceived(inst)} hitSlop={6}>
                         <RotateCcw size={13} strokeWidth={1.9} color={colors.textSub} />
                       </Pressable>
                     ) : receiving?.id === inst.id ? null : (
@@ -157,7 +160,7 @@ export default function PaymentPlanSection({ client }) {
               </View>
               <View style={styles.field}>
                 <Text style={styles.fieldL}>{T('startLabel', { defaultValue: 'תשלום ראשון' })}</Text>
-                <TextInput style={styles.input} value={form.startDate} placeholder="YYYY-MM-DD" placeholderTextColor={colors.textFaint} onChangeText={(v) => setForm((f) => ({ ...f, startDate: v }))} />
+                <DateField clearable={false} style={styles.input} value={form.startDate} onChange={(v) => setForm((f) => ({ ...f, startDate: v }))} />
               </View>
               {preview ? (
                 <Text style={styles.preview}>
@@ -214,9 +217,9 @@ const styles = themed((c, t) => ({
   instMid: { flex: 1, minWidth: 90, gap: 2 },
   instAmt: { fontSize: 14, fontWeight: '600', color: c.text },
   instDate: { fontSize: 11, color: c.textFaint },
-  markBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingVertical: 6, paddingHorizontal: 10, borderRadius: 999, borderWidth: 1, borderColor: 'rgba(139,168,136,0.4)', backgroundColor: 'rgba(139,168,136,0.10)' },
+  markBtn: { minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: 4, paddingVertical: 6, paddingHorizontal: 10, borderRadius: 999, borderWidth: 1, borderColor: 'rgba(139,168,136,0.4)', backgroundColor: 'rgba(139,168,136,0.10)' },
   markText: { fontSize: 12, color: c.positive, fontWeight: '500' },
-  ghostBtn: { paddingVertical: 6, paddingHorizontal: 10, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
+  ghostBtn: { minHeight: 44, paddingVertical: 6, paddingHorizontal: 10, borderRadius: 999, alignItems: 'center', justifyContent: 'center' },
   receiveRow: { flexDirection: 'row', alignItems: 'center', gap: 8, width: '100%', marginTop: 4 },
   primaryBtn: { paddingVertical: 9, paddingHorizontal: 14, borderRadius: 10, backgroundColor: c.btnBg },
   primaryText: { fontSize: 13, fontWeight: '600', color: c.onBtn },
@@ -226,7 +229,7 @@ const styles = themed((c, t) => ({
   delText: { fontSize: 13, color: c.text, flex: 1 },
   dangerBtn: { paddingVertical: 9, paddingHorizontal: 14, borderRadius: 10, backgroundColor: c.dangerFill },
   dangerText: { fontSize: 13, fontWeight: '600', color: c.onBrand },
-  delBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: 8 },
+  delBtn: { minHeight: 44, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: 8 },
   delBtnText: { fontSize: 12, color: c.textFaint },
 
   create: { gap: 12 },

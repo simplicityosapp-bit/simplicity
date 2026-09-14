@@ -1,5 +1,8 @@
 import { useState, useEffect } from 'react'
-import { View, Text, TextInput, Pressable, Alert } from 'react-native'
+import { View, Alert } from 'react-native'
+import { Text, TextInput } from '../components/Text'
+import DateField from '../components/DateField'
+import { Pressable } from '../components/Pressable'
 import { Trash2 } from 'lucide-react-native'
 import { questionText, scheduledOccurrences, buildSchedulePattern } from '@simplicity/core'
 import Sheet from '../components/Sheet'
@@ -181,7 +184,7 @@ export default function EditGoalModal({ open, onClose, onSave, onDelete, goal, c
         {form.time_frame === 'deadline' ? (
           <View style={styles.flex}>
             <Text style={styles.label}>{i18n.t('modalsData:editGoal.targetDate')}</Text>
-            <TextInput style={styles.input} value={form.target_date} onChangeText={(v) => set('target_date', v)} placeholder="YYYY-MM-DD" placeholderTextColor={colors.textFaint} />
+            <DateField style={styles.input} value={form.target_date} onChange={(v) => set('target_date', v)} />
           </View>
         ) : null}
       </View>
@@ -267,7 +270,7 @@ export default function EditGoalModal({ open, onClose, onSave, onDelete, goal, c
 
       <View style={styles.actions}>
         {onDelete ? (
-          <Pressable style={styles.delete} onPress={remove} disabled={busy} hitSlop={6}><Trash2 size={18} strokeWidth={1.8} color={colors.danger} /></Pressable>
+          <Pressable accessibilityLabel={i18n.t('modalsData:editTx.delete')} style={styles.delete} onPress={remove} disabled={busy} hitSlop={6}><Trash2 size={18} strokeWidth={1.8} color={colors.danger} /></Pressable>
         ) : null}
         <Pressable style={styles.cancel} onPress={close}><Text style={styles.cancelText}>{i18n.t('modalsData:common.cancel')}</Text></Pressable>
         <Pressable style={[styles.save, busy && styles.saveOff]} onPress={submit} disabled={busy}><Text style={styles.saveText}>{busy ? i18n.t('modalsData:common.saving') : i18n.t('modalsData:common.save')}</Text></Pressable>

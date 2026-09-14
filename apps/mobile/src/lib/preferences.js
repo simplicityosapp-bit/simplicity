@@ -5,6 +5,7 @@ import { setCurrentCurrency, setDateTimeFormat, setHebrewCalendar } from '@simpl
 import { setLanguage } from '@simplicity/core/i18n'
 import { supabase } from './supabase'
 import { THEME_KEY } from '../theme/theme'
+import { LANG_KEY } from './bootPrefs'
 import i18n, { setGenderContext } from './i18n'
 
 const SUPPORTED_LANGS = ['he', 'en', 'es', 'fr']
@@ -29,6 +30,10 @@ export function applySavedLanguage(lang) {
   // setLanguage, not changeLanguage — only `he` is bundled into the engine, so
   // the chosen language's bundle has to be pulled in before the swap.
   setLanguage(lang)
+  /* Cached for the next boot, like the palette: setupI18n has to know the
+     chosen language before the app graph evaluates, because layout direction
+     is decided there and can only be applied to the next process. */
+  AsyncStorage.setItem(LANG_KEY, lang).catch(() => { /* applies now, forgotten next launch */ })
   const rtl = lang === 'he'
   if (I18nManager.isRTL !== rtl) {
     try { I18nManager.allowRTL(rtl); I18nManager.forceRTL(rtl) } catch { /* web ignores forceRTL */ }

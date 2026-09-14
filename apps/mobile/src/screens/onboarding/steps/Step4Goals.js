@@ -1,5 +1,7 @@
 import { useState } from 'react'
-import { View, Text, TextInput, Pressable } from 'react-native'
+import { View } from 'react-native'
+import { Text, TextInput } from '../../../components/Text'
+import { Pressable } from '../../../components/Pressable'
 import { Star, Plus, Check } from 'lucide-react-native'
 import { formatGoalValue, timeFrameLabel } from '@simplicity/core'
 import { colors, type } from '../../../theme/theme'

@@ -1,5 +1,8 @@
 import { useState } from 'react'
-import { View, Text, TextInput, Pressable } from 'react-native'
+import { View } from 'react-native'
+import { Text, TextInput } from '../components/Text'
+import DateField from '../components/DateField'
+import { Pressable } from '../components/Pressable'
 import Sheet from '../components/Sheet'
 import i18n from '../lib/i18n'
 import { colors } from '../theme/theme'
@@ -59,12 +62,10 @@ export default function AddGoalEntryModal({ open, onClose, onSave, category }) {
 
       <View style={styles.field}>
         <Text style={styles.label}>{i18n.t('modalsData:common.date')}</Text>
-        <TextInput
+        <DateField clearable={false}
           style={styles.input}
           value={form.date}
-          onChangeText={(v) => set('date', v)}
-          placeholder="YYYY-MM-DD"
-          placeholderTextColor={colors.textFaint}
+          onChange={(v) => set('date', v)}
         />
       </View>
 

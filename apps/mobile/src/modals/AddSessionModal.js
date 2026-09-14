@@ -1,5 +1,8 @@
 import { useState, useEffect } from 'react'
-import { View, Text, TextInput, Pressable, Alert } from 'react-native'
+import { View, Alert } from 'react-native'
+import { Text, TextInput } from '../components/Text'
+import DateField from '../components/DateField'
+import { Pressable } from '../components/Pressable'
 import { Trash2 } from 'lucide-react-native'
 import Sheet from '../components/Sheet'
 import i18n from '../lib/i18n'
@@ -76,7 +79,7 @@ export default function AddSessionModal({ open, onClose, onSave, onDelete, clien
 
       <View style={styles.field}>
         <Text style={styles.label}>{i18n.t('modalsTask:session.date')}</Text>
-        <TextInput style={styles.input} value={form.date} onChangeText={(v) => set('date', v)} placeholder="YYYY-MM-DD" placeholderTextColor={colors.textFaint} />
+        <DateField clearable={false} style={styles.input} value={form.date} onChange={(v) => set('date', v)} />
       </View>
       <View style={styles.field}>
         <Text style={styles.label}>{i18n.t('modalsTask:session.summary')}</Text>
@@ -98,7 +101,7 @@ export default function AddSessionModal({ open, onClose, onSave, onDelete, clien
 
       <View style={styles.actions}>
         {isEdit && onDelete ? (
-          <Pressable style={styles.delete} onPress={remove} disabled={busy} hitSlop={6}>
+          <Pressable accessibilityLabel={i18n.t('modalsData:editTx.delete')} style={styles.delete} onPress={remove} disabled={busy} hitSlop={6}>
             <Trash2 size={18} strokeWidth={1.8} color={colors.danger} />
           </Pressable>
         ) : null}

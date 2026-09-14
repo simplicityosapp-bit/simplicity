@@ -1,4 +1,5 @@
-import { Text, I18nManager } from 'react-native'
+import { I18nManager } from 'react-native'
+import { Text } from './Text'
 import i18n from '../lib/i18n'
 import { colors } from '../theme/theme'
 import { themed } from '../theme/themed'

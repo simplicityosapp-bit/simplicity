@@ -1,5 +1,7 @@
 import { useState, useMemo, useCallback, memo } from 'react'
-import { View, Text, Pressable, TextInput } from 'react-native'
+import { View } from 'react-native'
+import { Text, TextInput } from '../../components/Text'
+import { Pressable } from '../../components/Pressable'
 import { Search, ChevronDown, Shield, ShieldCheck, Check, Trash2 } from 'lucide-react-native'
 import { ADMIN_EMAIL, adminPerms } from '@simplicity/core'
 import i18n from '../../lib/i18n'
@@ -356,7 +358,7 @@ const styles = themed((c, t) => ({
   search: { flex: 1, paddingVertical: 10, fontSize: 14, color: c.text, writingDirection: 'ltr' },
 
   tabs: { flexDirection: 'row', gap: 6, marginTop: 8, flexWrap: 'wrap' },
-  tab: { paddingHorizontal: 11, paddingVertical: 6, borderRadius: 999, backgroundColor: c.fill },
+  tab: { minHeight: 44, justifyContent: 'center', paddingHorizontal: 11, paddingVertical: 6, borderRadius: 999, backgroundColor: c.fill },
   tabOn: { backgroundColor: c.brand },
   tabText: { fontSize: 12, color: c.textSub, fontWeight: '500' },
   tabTextOn: { color: c.onBrand, fontWeight: '600' },

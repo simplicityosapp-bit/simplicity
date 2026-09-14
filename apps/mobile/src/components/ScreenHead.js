@@ -1,5 +1,7 @@
 import { Fragment } from 'react'
-import { View, Text, Pressable, I18nManager } from 'react-native'
+import { View, I18nManager } from 'react-native'
+import { Text } from './Text'
+import { Pressable } from './Pressable'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Plus } from 'lucide-react-native'
 import Card from './Card'

@@ -1,5 +1,8 @@
 import { useState, useEffect } from 'react'
-import { View, Text, TextInput, Pressable } from 'react-native'
+import { View } from 'react-native'
+import { Text, TextInput } from '../components/Text'
+import DateField from '../components/DateField'
+import { Pressable } from '../components/Pressable'
 import { MapPin, ChevronDown } from 'lucide-react-native'
 import Sheet from '../components/Sheet'
 import Select from '../components/Select'
@@ -181,7 +184,7 @@ export default function AddClientModal({ open, onClose, onSave }) {
             </View>
             <View style={styles.field}>
               <Text style={styles.label}>{F('birthDate')}</Text>
-              <TextInput style={styles.input} value={form.birth_date} onChangeText={(v) => set('birth_date', v)} placeholder="YYYY-MM-DD" placeholderTextColor={colors.textFaint} />
+              <DateField style={styles.input} value={form.birth_date} onChange={(v) => set('birth_date', v)} />
             </View>
           </View>
         ) : null}

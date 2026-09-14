@@ -1,5 +1,7 @@
 import { useMemo, useState, useRef, useCallback } from 'react'
-import { View, Text, Pressable, StyleSheet, ScrollView, ActivityIndicator, RefreshControl, I18nManager } from 'react-native'
+import { View, StyleSheet, ScrollView, ActivityIndicator, RefreshControl, I18nManager } from 'react-native'
+import { Text } from '../components/Text'
+import { Pressable } from '../components/Pressable'
 import { useFocusEffect } from '@react-navigation/native'
 import { ChevronLeft, ChevronRight, Check } from 'lucide-react-native'
 import { fmtTime, fmtMonthYear, fmtDayLabel, remindersUpcoming, weekStartIndex } from '@simplicity/core'
@@ -13,6 +15,7 @@ import EventDetailsModal from '../modals/EventDetailsModal'
 import { colors } from '../theme/theme'
 import { themed, themedMap } from '../theme/themed'
 import { useCalendarData } from '../hooks/useCalendarData'
+import { useBottomPad } from '../lib/bottomBar'
 
 // Calendar screen (mirrors web): a month grid of the merged feed (meetings +
 // synced events + reminders + lead follow-ups) with per-day dots, plus the
@@ -24,6 +27,7 @@ const pad = (n) => String(n).padStart(2, '0')
 const keyOf = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
 
 export default function CalendarScreen() {
+  const bottomPad = useBottomPad()
   const { meetings, calendarEvents, clients, groups, reminders, leads, sessions, loading, error, refetch, addMeeting, confirmMeeting, skipMeeting, setMeetingStatus, addSession, updateEvent, deleteEvent } = useCalendarData()
   const { prefs } = usePreferences()
   // Persistent tab: silently re-pull on RE-focus so a meeting/session/reminder
@@ -111,7 +115,7 @@ export default function CalendarScreen() {
         <View style={styles.center}><ActivityIndicator color={colors.brand} /></View>
       ) : (
         <ScrollView
-          contentContainerStyle={styles.content}
+          contentContainerStyle={[styles.content, bottomPad]}
           showsVerticalScrollIndicator={false}
           refreshControl={<RefreshControl refreshing={loading} onRefresh={refetch} tintColor={colors.brand} />}
         >
@@ -125,9 +129,9 @@ export default function CalendarScreen() {
           {/* Month grid */}
           <Card contentStyle={styles.grid}>
             <View style={styles.monthNav}>
-              <Pressable onPress={() => stepMonth(-1)} hitSlop={10}><ChevronRight size={22} strokeWidth={1.8} color={colors.brand} /></Pressable>
+              <Pressable accessibilityLabel={i18n.t('calendar:nav.prevMonth')} onPress={() => stepMonth(-1)} hitSlop={10}><ChevronRight size={22} strokeWidth={1.8} color={colors.brand} /></Pressable>
               <Text style={styles.monthLabel}>{fmtMonthYear(month)}</Text>
-              <Pressable onPress={() => stepMonth(1)} hitSlop={10}><ChevronLeft size={22} strokeWidth={1.8} color={colors.brand} /></Pressable>
+              <Pressable accessibilityLabel={i18n.t('calendar:nav.nextMonth')} onPress={() => stepMonth(1)} hitSlop={10}><ChevronLeft size={22} strokeWidth={1.8} color={colors.brand} /></Pressable>
             </View>
             <View style={[styles.weekHead, flipRow]}>
               {weekdays.map((w) => <Text key={w} style={styles.weekday}>{w}</Text>)}
@@ -167,7 +171,7 @@ export default function CalendarScreen() {
                     <View style={[styles.dot, { backgroundColor: KIND_COLOR[e.kind] || colors.textFaint }]} />
                     <Text style={[styles.eventTitle, flip && styles.eventTitleRtl]} numberOfLines={1}>{e.title || '—'}</Text>
                     {e.pending ? (
-                      <Pressable style={styles.confirm} onPress={() => handleConfirm(e.raw)} hitSlop={6}>
+                      <Pressable accessibilityLabel={i18n.t('modalsSystem:confirm.confirm')} style={styles.confirm} onPress={() => handleConfirm(e.raw)} hitSlop={6}>
                         <Check size={14} strokeWidth={2.2} color={colors.positive} />
                       </Pressable>
                     ) : KIND_TAG[e.kind] ? <Text style={styles.kindTag}>{KIND_TAG[e.kind]}</Text> : null}
@@ -203,7 +207,7 @@ export default function CalendarScreen() {
 
 const styles = themed((c, t) => ({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  content: { paddingHorizontal: 20, paddingBottom: 96, gap: 14 },
+  content: { paddingHorizontal: 20, gap: 14 },
   error: { color: c.danger, fontSize: 13 },
   empty: { color: c.textFaint, fontSize: 14, textAlign: 'center', marginTop: 12 },
 

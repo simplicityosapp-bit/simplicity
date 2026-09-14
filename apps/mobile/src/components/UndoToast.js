@@ -1,5 +1,7 @@
 import { useSyncExternalStore, useEffect, useRef } from 'react'
-import { View, Text, Pressable, Animated, Easing } from 'react-native'
+import { View, Animated, Easing } from 'react-native'
+import { Text } from './Text'
+import { Pressable } from './Pressable'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { RotateCcw, X, Check } from 'lucide-react-native'
 import { subscribe, getSnapshot, performUndo, dismiss } from '../lib/undo'
@@ -82,7 +84,7 @@ const styles = themed((c, t) => ({
     backgroundColor: c.text,
   },
   label: { flex: 1, fontSize: 13, color: c.card },
-  action: { flexDirection: 'row', alignItems: 'center', gap: 5, paddingVertical: 5, paddingHorizontal: 10, borderRadius: 999, backgroundColor: c.btnBg },
+  action: { minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: 5, paddingVertical: 5, paddingHorizontal: 10, borderRadius: 999, backgroundColor: c.btnBg },
   actionText: { fontSize: 13, fontWeight: '600', color: c.onBtn },
   x: { padding: 4 },
   doneRow: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 8 },

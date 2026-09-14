@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef, Children, cloneElement } from 'react'
-import { View, Text, TextInput, Pressable, StyleSheet, Alert } from 'react-native'
+import { View, StyleSheet, Alert } from 'react-native'
+import { Text, TextInput } from '../components/Text'
+import { Pressable } from '../components/Pressable'
 import { User, CalendarDays, Wallet, Users, ChevronDown } from 'lucide-react-native'
 import { isr } from '@simplicity/core'
 import Sheet from '../components/Sheet'
@@ -417,7 +419,7 @@ const styles = themed((c, t) => ({
   clearLink: { fontSize: 13, color: c.brand, fontWeight: '500' },
 
   pills: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  pill: { paddingVertical: 8, paddingHorizontal: 14, borderRadius: 999, borderWidth: 1, borderColor: c.border, backgroundColor: c.cardFlat },
+  pill: { minHeight: 44, justifyContent: 'center', paddingVertical: 8, paddingHorizontal: 14, borderRadius: 999, borderWidth: 1, borderColor: c.border, backgroundColor: c.cardFlat },
   pillOn: { backgroundColor: c.brand, borderColor: c.brand },
   pillText: { fontSize: 13, color: c.textSub },
   pillTextOn: { color: c.onBrand, fontWeight: '600' },

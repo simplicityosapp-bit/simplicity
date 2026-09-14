@@ -1,5 +1,8 @@
 import { useState, useEffect } from 'react'
-import { View, Text, TextInput, Pressable } from 'react-native'
+import { View } from 'react-native'
+import { Text, TextInput } from '../components/Text'
+import DateField from '../components/DateField'
+import { Pressable } from '../components/Pressable'
 import { Trash2, Plus } from 'lucide-react-native'
 import Sheet from '../components/Sheet'
 import Select from '../components/Select'
@@ -129,7 +132,7 @@ export default function AddLeadModal({ open, onClose, onSave, onDelete, onConver
       />
       <View style={styles.srcAddRow}>
         <TextInput style={[styles.input, styles.srcAddInput]} value={newSource} onChangeText={setNewSource} placeholder={i18n.t('leads:newSourcePlaceholder', { defaultValue: 'מקור חדש…' })} placeholderTextColor={colors.textFaint} onSubmitEditing={createSource} />
-        <Pressable style={[styles.srcAddBtn, (!newSource.trim() || addingSource) && styles.srcAddBtnOff]} onPress={createSource} disabled={!newSource.trim() || addingSource}><Plus size={18} strokeWidth={2} color={colors.onBrand} /></Pressable>
+        <Pressable accessibilityLabel={i18n.t('modalsData:common.add')} style={[styles.srcAddBtn, (!newSource.trim() || addingSource) && styles.srcAddBtnOff]} onPress={createSource} disabled={!newSource.trim() || addingSource}><Plus size={18} strokeWidth={2} color={colors.onBrand} /></Pressable>
       </View>
       {projects.length ? (
         <Select
@@ -184,11 +187,11 @@ export default function AddLeadModal({ open, onClose, onSave, onDelete, onConver
       <View style={styles.row2}>
         <View style={styles.fieldFlex}>
           <Text style={styles.label}>{i18n.t('modalsClient:common.inquiryDate')}</Text>
-          <TextInput style={styles.input} value={form.inquiry_date} onChangeText={(v) => set('inquiry_date', v)} placeholder="YYYY-MM-DD" placeholderTextColor={colors.textFaint} />
+          <DateField style={styles.input} value={form.inquiry_date} onChange={(v) => set('inquiry_date', v)} />
         </View>
         <View style={styles.fieldFlex}>
           <Text style={styles.label}>{i18n.t('modalsClient:common.followUp')}</Text>
-          <TextInput style={styles.input} value={form.follow_up_date} onChangeText={(v) => set('follow_up_date', v)} placeholder="YYYY-MM-DD" placeholderTextColor={colors.textFaint} />
+          <DateField style={styles.input} value={form.follow_up_date} onChange={(v) => set('follow_up_date', v)} />
         </View>
       </View>
 
@@ -207,7 +210,7 @@ export default function AddLeadModal({ open, onClose, onSave, onDelete, onConver
 
       <View style={styles.actions}>
         {isEdit && onDelete ? (
-          <Pressable style={styles.delete} onPress={remove} disabled={busy} hitSlop={6}>
+          <Pressable accessibilityLabel={i18n.t('modalsData:editTx.delete')} style={styles.delete} onPress={remove} disabled={busy} hitSlop={6}>
             <Trash2 size={18} strokeWidth={1.8} color={colors.danger} />
           </Pressable>
         ) : null}
@@ -233,7 +236,7 @@ const styles = themed((c, t) => ({
   textarea: { minHeight: 72, textAlignVertical: 'top' },
   inputErr: { borderColor: c.danger },
   pills: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  pill: { paddingVertical: 8, paddingHorizontal: 14, borderRadius: 999, borderWidth: 1, borderColor: c.border, backgroundColor: c.cardFlat },
+  pill: { minHeight: 44, justifyContent: 'center', paddingVertical: 8, paddingHorizontal: 14, borderRadius: 999, borderWidth: 1, borderColor: c.border, backgroundColor: c.cardFlat },
   pillOn: { backgroundColor: c.brand, borderColor: c.brand },
   pillText: { fontSize: 13, color: c.textSub },
   pillTextOn: { color: c.onBrand, fontWeight: '600' },

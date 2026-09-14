@@ -1,5 +1,8 @@
 import { useState } from 'react'
-import { View, Text, TextInput, Pressable } from 'react-native'
+import { View } from 'react-native'
+import { Text, TextInput } from '../components/Text'
+import DateField from '../components/DateField'
+import { Pressable } from '../components/Pressable'
 import Sheet from '../components/Sheet'
 import Select from '../components/Select'
 import ScheduleDayPicker from '../components/ScheduleDayPicker'
@@ -151,7 +154,7 @@ export default function AddGoalModal({ open, onClose, onSave, onAddQuestion }) {
         {form.time_frame === 'deadline' ? (
           <View style={styles.flex}>
             <Text style={styles.label}>{i18n.t('modalsData:addGoal.targetDate')}</Text>
-            <TextInput style={styles.input} value={form.target_date} onChangeText={(v) => set('target_date', v)} placeholder="YYYY-MM-DD" placeholderTextColor={colors.textFaint} />
+            <DateField style={styles.input} value={form.target_date} onChange={(v) => set('target_date', v)} />
           </View>
         ) : null}
       </View>

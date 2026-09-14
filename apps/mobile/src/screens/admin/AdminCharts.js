@@ -1,4 +1,5 @@
-import { View, Text, useWindowDimensions } from 'react-native'
+import { View, useWindowDimensions } from 'react-native'
+import { Text } from '../../components/Text'
 import Svg, { Path, Rect, Line, Circle, Defs, LinearGradient, Stop, Text as SvgText } from 'react-native-svg'
 import { colors } from '../../theme/theme'
 import { themed, useThemeMode } from '../../theme/themed'

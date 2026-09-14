@@ -1,5 +1,7 @@
 import { useMemo, useState, useRef, useCallback } from 'react'
-import { View, Text, Pressable, StyleSheet, ScrollView, ActivityIndicator, RefreshControl, I18nManager } from 'react-native'
+import { View, StyleSheet, ScrollView, ActivityIndicator, RefreshControl, I18nManager } from 'react-native'
+import { Text } from '../components/Text'
+import { Pressable } from '../components/Pressable'
 import { useFocusEffect } from '@react-navigation/native'
 import { Check, ChevronDown, Pencil, Tags, Trash2 } from 'lucide-react-native'
 import { fmtShortDate, formatWhen, startOfDay, isRecurring, isActiveReminder, dueOccurrenceCount } from '@simplicity/core'
@@ -18,6 +20,7 @@ import { useFormOptions } from '../lib/formOptions'
 import { useTasksList } from '../hooks/useTasksList'
 import { useRemindersList } from '../hooks/useRemindersList'
 import { useTaskTaxonomy } from '../hooks/useTaskTaxonomy'
+import { useBottomPad } from '../lib/bottomBar'
 
 const PRIORITY_COLOR = themedMap((c) => ({ high: c.danger, medium: c.amberWarn, low: c.positive }))
 const PRIORITY_GROUPS = ['high', 'medium', 'low']
@@ -47,6 +50,7 @@ function dateToBucket(due, now) {
 // Tasks + Reminders screen (mirrors web screens/tasks): entity toggle, glass
 // hero, filter (+ group-by for tasks), and collapsible glass-card groups.
 export default function TasksScreen() {
+  const bottomPad = useBottomPad()
   const { tasks, loading: tLoading, error: tError, addTask, toggleDone, updateTask, deleteTask, clearCompleted: clearTasks, refetch: refetchTasks } = useTasksList()
   const { reminders, loading: rLoading, error: rError, addReminder, editReminder, completeReminder, deleteReminder, clearCompleted: clearRems, refetch: refetchRems } = useRemindersList()
   const { clients, projects, taskStatuses } = useFormOptions()
@@ -164,7 +168,7 @@ export default function TasksScreen() {
         <View style={styles.center}><ActivityIndicator color={colors.brand} /></View>
       ) : (
         <ScrollView
-          contentContainerStyle={styles.content}
+          contentContainerStyle={[styles.content, bottomPad]}
           showsVerticalScrollIndicator={false}
           refreshControl={<RefreshControl refreshing={loading} onRefresh={isTasks ? refetchTasks : refetchRems} tintColor={colors.brand} />}
         >
@@ -194,7 +198,7 @@ export default function TasksScreen() {
 
           {/* Category filter + manage — shared across tasks + reminders */}
           <View style={styles.catBar}>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.catPills}>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.catScroll} contentContainerStyle={styles.catPills}>
               {taskCategories.length ? (
                 <>
                   <GlassPressable radius={999} on={categoryFilters.size === 0} style={styles.catPill} onPress={() => setCategoryFilters(new Set())}>
@@ -310,11 +314,16 @@ function emptyMsg(isTasks, filter) {
   return i18n.t(filter === 'done' ? 'tasks:empty.remindersDone' : 'tasks:empty.remindersTodo', { defaultValue: '—' })
 }
 
-function HeroStat({ label, value, accent, divided }) {
+/* No accent on any of the three. "Urgent" used to be painted in the brand
+   colour, which is a mobile-only divergence — web gives all three hero stats
+   the same --espresso — and in night mode that colour is Misted Sage on a dark
+   card: 3.83:1, under AA, and the FAINTEST of the three. The number meant to
+   catch the eye was the one that receded. */
+function HeroStat({ label, value, accent, divided }) { // eslint-disable-line no-unused-vars
   return (
     <View style={[styles.heroStat, divided && styles.heroStatDivided]}>
       <Text style={styles.heroStatL}>{label}</Text>
-      <Text style={[styles.heroStatV, accent && styles.heroStatAccent]}>{value}</Text>
+      <Text style={styles.heroStatV}>{value}</Text>
     </View>
   )
 }
@@ -325,7 +334,7 @@ function Segmented({ options, value, onPick }) {
       {options.map((o) => {
         const on = value === o.k
         return (
-          <Pressable key={o.k} style={[styles.segBtn, on && styles.segOn]} onPress={() => onPick(o.k)}>
+          <Pressable key={o.k} style={[styles.segBtn, on && styles.segOn]} onPress={() => onPick(o.k)} hitSlop={8}>
             <Text style={[styles.segText, on && styles.segTextOn]}>{o.label}</Text>
           </Pressable>
         )
@@ -345,7 +354,9 @@ function TaskRow({ task, first, clientById, projectById, status, category, onTog
   const align = rtl ? 'right' : 'left'
   return (
     <View style={[styles.row, !first && styles.rowBorder, flip && styles.rowFlip]}>
-      <Pressable onPress={onToggle} hitSlop={8} accessibilityRole="checkbox" accessibilityState={{ checked: isDone }}>
+      {/* The most-tapped control on the screen, and a 22pt circle: 11 of slop
+          makes it 44 without changing how it looks. */}
+      <Pressable accessibilityLabel={task.title || ''} onPress={onToggle} hitSlop={11} accessibilityRole="checkbox" accessibilityState={{ checked: isDone }}>
         <View style={[styles.check, isDone && styles.checkOn]}>{isDone ? <Check size={13} strokeWidth={3} color={colors.onBrand} /> : null}</View>
       </Pressable>
       <Pressable style={styles.textWrap} onPress={onEdit}>
@@ -372,7 +383,7 @@ function ReminderRow({ reminder, first, clientName, count, onComplete, onEdit })
   const align = rtl ? 'right' : 'left'
   return (
     <View style={[styles.row, !first && styles.rowBorder, flip && styles.rowFlip]}>
-      <Pressable onPress={() => !isDone && onComplete()} hitSlop={8} accessibilityRole="checkbox" accessibilityState={{ checked: isDone }}>
+      <Pressable accessibilityLabel={reminder.title || ''} onPress={() => !isDone && onComplete()} hitSlop={8} accessibilityRole="checkbox" accessibilityState={{ checked: isDone }}>
         <View style={[styles.check, isDone && styles.checkOn]}>{isDone ? <Check size={13} strokeWidth={3} color={colors.onBrand} /> : null}</View>
       </Pressable>
       <Pressable style={styles.textWrap} onPress={onEdit}>
@@ -382,14 +393,14 @@ function ReminderRow({ reminder, first, clientName, count, onComplete, onEdit })
         </View>
         {meta ? <Text style={[styles.meta, { textAlign: align }]} numberOfLines={1}>{meta}</Text> : null}
       </Pressable>
-      <Pressable onPress={onEdit} hitSlop={8}><Pencil size={13} strokeWidth={1.6} color={colors.textFaint} /></Pressable>
+      <Pressable accessibilityLabel={i18n.t('modalsTask:reminder.titleEdit')} onPress={onEdit} hitSlop={8}><Pencil size={13} strokeWidth={1.6} color={colors.textFaint} /></Pressable>
     </View>
   )
 }
 
 const styles = themed((c, t) => ({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  content: { paddingHorizontal: 20, paddingBottom: 96, gap: 12 },
+  content: { paddingHorizontal: 20, gap: 12 },
   error: { color: c.danger, fontSize: 13 },
   empty: { color: c.textFaint, fontSize: 14, textAlign: 'center', marginTop: 24 },
 
@@ -400,23 +411,27 @@ const styles = themed((c, t) => ({
   heroStatDivided: { borderLeftWidth: StyleSheet.hairlineWidth, borderRightWidth: StyleSheet.hairlineWidth, borderColor: c.divider },
   heroStatL: { fontSize: 9, fontWeight: '500', color: c.textSub, letterSpacing: 0.4, textTransform: 'uppercase' },
   heroStatV: { fontSize: 22, fontWeight: '500', color: c.text },
-  heroStatAccent: { color: c.brand },
 
   seg: { flexDirection: 'row', padding: 2, alignSelf: 'center' },
-  segBtn: { paddingVertical: 6, paddingHorizontal: 16, borderRadius: 999 },
+  segBtn: { minHeight: 44, justifyContent: 'center', paddingVertical: 6, paddingHorizontal: 16, borderRadius: 999 },
   segOn: { backgroundColor: c.brand },
   segText: { fontSize: 12, color: c.textSub },
   segTextOn: { color: c.onBrand, fontWeight: '600' },
 
   // Category filter bar
-  catBar: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  /* Wraps, and the pill strip claims the whole first line. "סטטוסים
+     וקטגוריות" is a fixed 164pt that does not shrink, and it sat in the same
+     row as the filter: on a 375pt screen that left the filter 163 — a pill and
+     a half — for a secondary link to the taxonomy editor. */
+  catBar: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 8 },
+  catScroll: { flexBasis: '100%' },
   catPills: { flexDirection: 'row', gap: 6, paddingVertical: 2 },
-  catPill: { flexDirection: 'row', alignItems: 'center', gap: 5, paddingVertical: 6, paddingHorizontal: 12 },
+  catPill: { minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: 5, paddingVertical: 6, paddingHorizontal: 12 },
   catDot: { width: 8, height: 8, borderRadius: 4 },
   catText: { fontSize: 12, color: c.textSub },
   catTextOn: { color: c.onBrand, fontWeight: '600' },
-  manageBtn: { flexDirection: 'row', alignItems: 'center', gap: 5, paddingVertical: 6, paddingHorizontal: 12 },
-  clearBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: 8, paddingHorizontal: 14, alignSelf: 'center', borderColor: 'rgba(181,99,78,0.35)' },
+  manageBtn: { minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: 5, paddingVertical: 6, paddingHorizontal: 12 },
+  clearBtn: { minHeight: 44, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: 8, paddingHorizontal: 14, alignSelf: 'center', borderColor: 'rgba(181,99,78,0.35)' },
   clearText: { fontSize: 12, fontWeight: '500', color: c.danger },
   confirmMsg: { fontSize: 14, color: c.text, lineHeight: 20 },
   confirmActions: { flexDirection: 'row', gap: 12, marginTop: 4 },

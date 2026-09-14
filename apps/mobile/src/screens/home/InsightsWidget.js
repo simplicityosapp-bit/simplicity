@@ -1,5 +1,7 @@
 import { useMemo, useState } from 'react'
-import { View, Text, Pressable } from 'react-native'
+import { View } from 'react-native'
+import { Text } from '../../components/Text'
+import { Pressable } from '../../components/Pressable'
 import { useNavigation } from '@react-navigation/native'
 import Slider from '@react-native-community/slider'
 import { Sparkles, Check } from 'lucide-react-native'

@@ -1,5 +1,7 @@
 import { useState } from 'react'
-import { View, Text, Pressable, Modal } from 'react-native'
+import { View, Modal } from 'react-native'
+import { Text } from './Text'
+import { Pressable } from './Pressable'
 import { HelpCircle } from 'lucide-react-native'
 import i18n from '../lib/i18n'
 import { colors, shadow } from '../theme/theme'
@@ -12,16 +14,28 @@ export default function InfoPopover({ text, label }) {
   const [open, setOpen] = useState(false)
   return (
     <>
+      {/* 13pt icon: 10 of slop still left it at 33, under both platforms'
+          minimum. 16 takes it to 45 without moving anything. */}
       <Pressable
-        hitSlop={10}
+        hitSlop={16}
         onPress={() => setOpen(true)}
         accessibilityRole="button"
         accessibilityLabel={label || i18n.t('components:infoPopover.label', { defaultValue: 'הסבר' })}
       >
         <HelpCircle size={13} strokeWidth={1.7} color={colors.textFaint} />
       </Pressable>
-      <Modal visible={open} transparent animationType="fade" onRequestClose={() => setOpen(false)}>
-        <Pressable style={styles.backdrop} onPress={() => setOpen(false)}>
+      {/* Same reason as the sheets: without these the dimmed backdrop stops
+          below the status bar, leaving an undimmed strip across the top. */}
+      <Modal
+        visible={open}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setOpen(false)}
+        statusBarTranslucent
+        navigationBarTranslucent
+      >
+        {/* No ripple: on a full-screen backdrop it would flash the whole screen. */}
+        <Pressable style={styles.backdrop} onPress={() => setOpen(false)} android_ripple={null}>
           <View style={styles.body}>
             <Text style={styles.text}>{text}</Text>
           </View>

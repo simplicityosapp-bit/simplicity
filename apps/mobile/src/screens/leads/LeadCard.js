@@ -1,4 +1,6 @@
-import { View, Text, Pressable, Linking, I18nManager } from 'react-native'
+import { View, Linking, I18nManager } from 'react-native'
+import { Text } from '../../components/Text'
+import { Pressable } from '../../components/Pressable'
 import { Clock, Check, CalendarDays, ArrowLeftRight, MessageCircle, X } from 'lucide-react-native'
 import { statusMetaOfLead, fmtShortDate } from '@simplicity/core'
 import { GlassPressable } from '../../components/Glass'
@@ -31,7 +33,7 @@ export default function LeadCard({ lead, onEdit, onConvert, onDelete, onMove, so
   return (
     <GlassPressable radius={20} style={[styles.card, dragging && styles.dragging]} onPress={() => onEdit?.(lead)} {...(dragHandlers || {})}>
       {onDelete ? (
-        <Pressable style={styles.del} onPress={() => onDelete(lead)} hitSlop={8}>
+        <Pressable accessibilityLabel={i18n.t('modalsData:editTx.delete')} style={styles.del} onPress={() => onDelete(lead)} hitSlop={8}>
           <X size={12} strokeWidth={2} color={colors.textFaint} />
         </Pressable>
       ) : null}
@@ -73,11 +75,11 @@ export default function LeadCard({ lead, onEdit, onConvert, onDelete, onMove, so
         ) : null}
         <View style={{ flex: 1 }} />
         {onMove ? (
-          <Pressable style={styles.iconBtn} onPress={() => onMove(lead)} hitSlop={6}>
+          <Pressable accessibilityLabel={i18n.t('leads:move.title')} style={styles.iconBtn} onPress={() => onMove(lead)} hitSlop={6}>
             <ArrowLeftRight size={14} strokeWidth={1.7} color={colors.textSub} />
           </Pressable>
         ) : null}
-        <Pressable style={styles.iconBtn} onPress={whatsapp} hitSlop={6}>
+        <Pressable accessibilityLabel={'WhatsApp'} style={styles.iconBtn} onPress={whatsapp} hitSlop={6}>
           <MessageCircle size={14} strokeWidth={1.7} color={colors.positive} />
         </Pressable>
       </View>
@@ -106,7 +108,7 @@ const styles = themed((c, t) => ({
   foot: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 2 },
   converted: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   convertedText: { fontSize: 11, fontWeight: '600', color: c.positive },
-  convertBtn: { flexDirection: 'row', alignItems: 'center', gap: 3, paddingVertical: 4, paddingHorizontal: 8, borderRadius: 999, borderWidth: 1, borderColor: 'rgba(139,168,136,0.4)', backgroundColor: 'rgba(139,168,136,0.10)' },
+  convertBtn: { minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: 3, paddingVertical: 4, paddingHorizontal: 8, borderRadius: 999, borderWidth: 1, borderColor: 'rgba(139,168,136,0.4)', backgroundColor: 'rgba(139,168,136,0.10)' },
   convertText: { fontSize: 11, fontWeight: '500', color: c.text },
   iconBtn: { width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center', backgroundColor: c.cardFlat },
 }))

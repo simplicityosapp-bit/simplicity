@@ -122,8 +122,7 @@
     "previewCardBody": "Une carte d'exemple — elle change à chaque choix, pour que vous n'ayez rien à deviner.",
     "previewMeta": "Reste à payer",
     "language": "Langue",
-    "rtlHint": "Le changement complet du sens de lecture s'applique après un redémarrage.",
-    "themeHint": "Changer de mode rafraîchit l'app."
+    "rtlHint": "Le changement complet du sens de lecture s'applique après un redémarrage."
   },
   "about": {
     "version": "Version {{version}}",

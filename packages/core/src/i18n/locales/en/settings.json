@@ -122,8 +122,7 @@
     "previewCardBody": "A sample card — it changes with every choice here, so you never have to guess.",
     "previewMeta": "Still owed",
     "language": "Language",
-    "rtlHint": "A full change of text direction takes effect after a restart.",
-    "themeHint": "Switching mode refreshes the app."
+    "rtlHint": "A full change of text direction takes effect after a restart."
   },
   "about": {
     "version": "Version {{version}}",

@@ -1,5 +1,7 @@
 import { useMemo, useState, useRef, useCallback } from 'react'
-import { View, Text, Pressable, ScrollView, RefreshControl } from 'react-native'
+import { View, ScrollView, RefreshControl } from 'react-native'
+import { Text } from '../components/Text'
+import { Pressable } from '../components/Pressable'
 import { useNavigation, useFocusEffect } from '@react-navigation/native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { homeChips, todayItems, getTileFilters, moonGetData, isr } from '@simplicity/core'
@@ -8,6 +10,7 @@ import { CalendarClock, Wallet, Users } from 'lucide-react-native'
 import { useHomeData } from '../hooks/useHomeData'
 import { useFormOptions } from '../lib/formOptions'
 import { usePreferences } from '../lib/preferences'
+import { useBottomPad } from '../lib/bottomBar'
 import Screen from '../components/Screen'
 import Card from '../components/Card'
 import InfoPopover from '../components/InfoPopover'
@@ -30,6 +33,7 @@ import QuickRow from './home/QuickRow'
 const DEFAULT_WIDGET_ORDER = ['quote', 'moon', 'insights', 'quick-row', 'attention', 'next-tasks', 'chips']
 
 export default function HomeScreen() {
+  const bottomPad = useBottomPad()
   const nav = useNavigation()
   const insets = useSafeAreaInsets()
   const {
@@ -109,7 +113,7 @@ export default function HomeScreen() {
   return (
     <Screen name="home">
       <ScrollView
-        contentContainerStyle={[styles.content, { paddingTop: insets.top + 12 }]}
+        contentContainerStyle={[styles.content, bottomPad, { paddingTop: insets.top + 12 }]}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refetch} tintColor={colors.brand} />}
       >
         {error ? (
@@ -155,29 +159,39 @@ export default function HomeScreen() {
   )
 }
 
+/* The "?" is a SIBLING of the chip's pressable, laid over its corner — not a
+   button inside a button. Nested, a screen reader announced the whole chip as
+   one control and the explainer inside it was unreachable or read twice; on
+   web it was invalid HTML (a <button> in a <button>). Overlapping siblings are
+   fine: the one drawn later — the "?" — takes the touch where they overlap,
+   and the rest of the chip still opens its breakdown. It sits at the start
+   corner, opposite the icon. */
 function Chip({ value, label, long, Icon, info, onPress }) {
   return (
-    <Pressable style={styles.chipWrap} onPress={onPress}>
-      <Card padded={false} contentStyle={styles.chipInner}>
-        {Icon ? <Icon size={18} strokeWidth={1.6} color={colors.textSub} style={styles.chipIcon} /> : null}
-        <Text style={[styles.chipNum, long && styles.chipNumLong]} numberOfLines={1} adjustsFontSizeToFit>{value}</Text>
-        <View style={styles.chipLblRow}>
-          <Text style={styles.chipLbl}>{label}</Text>
-          {info}
-        </View>
-      </Card>
-    </Pressable>
+    <View style={styles.chipWrap}>
+      <Pressable onPress={onPress}>
+        <Card padded={false} contentStyle={styles.chipInner}>
+          {Icon ? <Icon size={18} strokeWidth={1.6} color={colors.textSub} style={styles.chipIcon} /> : null}
+          <Text style={[styles.chipNum, long && styles.chipNumLong]} numberOfLines={1} adjustsFontSizeToFit>{value}</Text>
+          <View style={styles.chipLblRow}>
+            <Text style={styles.chipLbl}>{label}</Text>
+          </View>
+        </Card>
+      </Pressable>
+      {info ? <View style={styles.chipInfo}>{info}</View> : null}
+    </View>
   )
 }
 
 const styles = themed((c, t) => ({
-  content: { paddingHorizontal: space.screenPadH, paddingBottom: 96, gap: 8 },
+  content: { paddingHorizontal: space.screenPadH, gap: 8 },
   errorBox: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: 'rgba(181,99,78,0.12)', borderRadius: 12, padding: 12, marginBottom: 8 },
   errorText: { color: c.danger, fontSize: 13, flex: 1 },
   retry: { color: c.danger, fontSize: 18 },
   topRow: { flexDirection: 'row', gap: 12, alignItems: 'center', marginBottom: 4 },
   chips: { flexDirection: 'row', gap: 12, marginTop: 12 },
   chipWrap: { flex: 1 },
+  chipInfo: { position: 'absolute', top: 10, start: 10, zIndex: 2 },
   chipInner: { paddingTop: 26, paddingBottom: 14, paddingHorizontal: 12, alignItems: 'center', gap: 4 },
   chipIcon: { position: 'absolute', top: 12, end: 12 },
   chipNum: { fontSize: 22, fontWeight: '500', color: c.text, fontVariant: ['tabular-nums'] },

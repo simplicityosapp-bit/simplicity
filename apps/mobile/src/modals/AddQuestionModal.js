@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react'
-import { View, Text, TextInput, Pressable } from 'react-native'
+import { View } from 'react-native'
+import { Text, TextInput } from '../components/Text'
+import { Pressable } from '../components/Pressable'
 import { QUESTION_TEMPLATES, qtext } from '@simplicity/core'
 import Sheet from '../components/Sheet'
 import i18n from '../lib/i18n'

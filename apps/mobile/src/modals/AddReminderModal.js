@@ -1,5 +1,8 @@
 import { useState, useEffect } from 'react'
-import { View, Text, TextInput, Pressable } from 'react-native'
+import { View } from 'react-native'
+import { Text, TextInput } from '../components/Text'
+import DateField from '../components/DateField'
+import { Pressable } from '../components/Pressable'
 import { Trash2 } from 'lucide-react-native'
 import Sheet from '../components/Sheet'
 import Select from '../components/Select'
@@ -126,7 +129,7 @@ export default function AddReminderModal({ open, onClose, onSave, onDelete, remi
       <View style={styles.row2}>
         <View style={styles.fieldFlex}>
           <Text style={styles.label}>{i18n.t('modalsTask:reminder.date')}</Text>
-          <TextInput style={styles.input} value={form.date} onChangeText={(v) => set('date', v)} placeholder="YYYY-MM-DD" placeholderTextColor={colors.textFaint} />
+          <DateField clearable={false} style={styles.input} value={form.date} onChange={(v) => set('date', v)} />
         </View>
         <View style={styles.fieldFlex}>
           <Text style={styles.label}>{i18n.t('modalsTask:reminder.time')}</Text>
@@ -155,7 +158,7 @@ export default function AddReminderModal({ open, onClose, onSave, onDelete, remi
       {form.recurrence !== 'none' ? (
         <View style={styles.field}>
           <Text style={styles.label}>{i18n.t('modalsTask:reminder.endDate', { defaultValue: 'תאריך סיום (אופציונלי)' })}</Text>
-          <TextInput style={styles.input} value={form.end_date} onChangeText={(v) => set('end_date', v)} placeholder="YYYY-MM-DD" placeholderTextColor={colors.textFaint} />
+          <DateField style={styles.input} value={form.end_date} onChange={(v) => set('end_date', v)} />
         </View>
       ) : null}
 
@@ -185,7 +188,7 @@ export default function AddReminderModal({ open, onClose, onSave, onDelete, remi
 
       <View style={styles.actions}>
         {isEdit && onDelete ? (
-          <Pressable style={styles.delete} onPress={remove} disabled={busy} hitSlop={6}><Trash2 size={18} strokeWidth={1.8} color={colors.danger} /></Pressable>
+          <Pressable accessibilityLabel={i18n.t('modalsData:editTx.delete')} style={styles.delete} onPress={remove} disabled={busy} hitSlop={6}><Trash2 size={18} strokeWidth={1.8} color={colors.danger} /></Pressable>
         ) : null}
         <Pressable style={styles.cancel} onPress={close}><Text style={styles.cancelText}>{i18n.t('modalsTask:common.cancel')}</Text></Pressable>
         <Pressable style={[styles.save, busy && styles.saveOff]} onPress={submit} disabled={busy}>
@@ -204,7 +207,7 @@ const styles = themed((c, t) => ({
   input: { borderWidth: 1, borderColor: c.border, borderRadius: 12, paddingVertical: 11, paddingHorizontal: 14, fontSize: 15, color: c.text, backgroundColor: c.card },
   inputErr: { borderColor: c.danger },
   pills: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  pill: { paddingVertical: 8, paddingHorizontal: 14, borderRadius: 999, borderWidth: 1, borderColor: c.border, backgroundColor: c.cardFlat },
+  pill: { minHeight: 44, justifyContent: 'center', paddingVertical: 8, paddingHorizontal: 14, borderRadius: 999, borderWidth: 1, borderColor: c.border, backgroundColor: c.cardFlat },
   pillOn: { backgroundColor: c.brand, borderColor: c.brand },
   pillText: { fontSize: 13, color: c.textSub },
   pillTextOn: { color: c.onBrand, fontWeight: '600' },

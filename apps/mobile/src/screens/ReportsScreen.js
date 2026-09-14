@@ -1,5 +1,7 @@
 import { useMemo, useState } from 'react'
-import { View, Text, Pressable, StyleSheet, ScrollView, ActivityIndicator, RefreshControl } from 'react-native'
+import { View, StyleSheet, ScrollView, ActivityIndicator, RefreshControl } from 'react-native'
+import { Text } from '../components/Text'
+import { Pressable } from '../components/Pressable'
 import {
   BarChart3, Leaf, XCircle, ArrowRight, TrendingUp, Users, CircleCheck, CircleAlert,
   Calendar, ArrowDownCircle, ArrowUpCircle, Coins, Check,
@@ -13,6 +15,7 @@ import InfoPopover from '../components/InfoPopover'
 import { colors } from '../theme/theme'
 import { themed } from '../theme/themed'
 import { useReportsData } from '../hooks/useReportsData'
+import { useBottomPad } from '../lib/bottomBar'
 
 const METRIC_ICONS = {
   newInquiries: Leaf, leadsClosed: XCircle, leadsConverted: ArrowRight, conversionRate: TrendingUp,
@@ -25,6 +28,7 @@ const METRIC_ICONS = {
 // report engine computes every metric for that range, grouped by domain. The
 // customize / drill-down / table-view are deferred; this shows all metrics.
 export default function ReportsScreen() {
+  const bottomPad = useBottomPad()
   const { leads, clients, sessions, transactions, tasks, groupMembers, groups, tallies, loading, error, refetch } = useReportsData()
   const periods = useMemo(() => getLast12Months(new Date(), i18n.language), [])
   const [idx, setIdx] = useState(periods.length - 1) // current month
@@ -53,7 +57,7 @@ export default function ReportsScreen() {
       {loading && !clients.length ? (
         <View style={styles.center}><ActivityIndicator color={colors.brand} /></View>
       ) : (
-        <ScrollView contentContainerStyle={styles.content} refreshControl={<RefreshControl refreshing={loading} onRefresh={refetch} tintColor={colors.brand} />}>
+        <ScrollView contentContainerStyle={[styles.content, bottomPad]} refreshControl={<RefreshControl refreshing={loading} onRefresh={refetch} tintColor={colors.brand} />}>
           <ScreenHead
             title={i18n.t('reports:title', { defaultValue: 'דוחות' })}
           />
@@ -112,10 +116,10 @@ export default function ReportsScreen() {
 
 const styles = themed((c, t) => ({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  content: { paddingHorizontal: 20, paddingBottom: 96, gap: 16 },
+  content: { paddingHorizontal: 20, gap: 16 },
   error: { color: c.danger, fontSize: 13 },
   pills: { gap: 8, paddingVertical: 2 },
-  pill: { paddingVertical: 8, paddingHorizontal: 14, borderRadius: 999, borderWidth: 1, borderColor: c.border, backgroundColor: c.cardFlat },
+  pill: { minHeight: 44, justifyContent: 'center', paddingVertical: 8, paddingHorizontal: 14, borderRadius: 999, borderWidth: 1, borderColor: c.border, backgroundColor: c.cardFlat },
   pillOn: { backgroundColor: c.text, borderColor: c.text },
   pillText: { fontSize: 13, color: c.textSub },
   // Inverse of the c.text fill so it reads in both themes (white would vanish
@@ -130,6 +134,6 @@ const styles = themed((c, t) => ({
   rowEmpty: { opacity: 0.6 }, // web .rep-row.empty — a 0/null metric reads dimmed
   emptyBox: { alignItems: 'center', gap: 12, paddingVertical: 48 },
   emptyText: { fontSize: 14, color: c.textFaint, textAlign: 'center' },
-  emptyCta: { paddingVertical: 8, paddingHorizontal: 16, borderRadius: 999, borderWidth: 1, borderColor: c.border },
+  emptyCta: { minHeight: 44, justifyContent: 'center', paddingVertical: 8, paddingHorizontal: 16, borderRadius: 999, borderWidth: 1, borderColor: c.border },
   emptyCtaText: { fontSize: 13, fontWeight: '500', color: c.brand },
 }))

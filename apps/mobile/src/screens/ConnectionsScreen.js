@@ -1,5 +1,7 @@
 import { useState } from 'react'
-import { View, Text, TextInput, Pressable, ScrollView } from 'react-native'
+import { View, ScrollView } from 'react-native'
+import { Text, TextInput } from '../components/Text'
+import { Pressable } from '../components/Pressable'
 import { MessageCircle, CalendarClock, FileText, CreditCard, Check } from 'lucide-react-native'
 import i18n from '../lib/i18n'
 import Screen from '../components/Screen'
@@ -8,6 +10,7 @@ import Card from '../components/Card'
 import { colors } from '../theme/theme'
 import { themed } from '../theme/themed'
 import { usePreferences } from '../lib/preferences'
+import { useBottomPad } from '../lib/bottomBar'
 
 // Connections — the mobile-feasible slice: WhatsApp click-to-chat message
 // templates (editable, stored in prefs.whatsapp.templates, mirrors web), plus
@@ -29,6 +32,7 @@ const STATUS = [
 ]
 
 export default function ConnectionsScreen() {
+  const bottomPad = useBottomPad()
   const { prefs, update } = usePreferences()
   const [draft, setDraft] = useState(() => ({ ...(prefs.whatsapp?.templates || {}) }))
   const [saved, setSaved] = useState(false)
@@ -40,7 +44,7 @@ export default function ConnectionsScreen() {
 
   return (
     <Screen name="clients">
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+      <ScrollView contentContainerStyle={[styles.content, bottomPad]} showsVerticalScrollIndicator={false}>
         <ScreenHead
           title={T('title', 'חיבורים')}
         />
@@ -90,7 +94,7 @@ export default function ConnectionsScreen() {
 }
 
 const styles = themed((c, t) => ({
-  content: { paddingHorizontal: 20, paddingBottom: 96, gap: 12 },
+  content: { paddingHorizontal: 20, gap: 12 },
   card: { gap: 12 },
   cardHead: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   statusCard: { flexDirection: 'row', alignItems: 'center', gap: 12 },

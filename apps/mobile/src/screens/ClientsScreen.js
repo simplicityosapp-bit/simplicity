@@ -20,6 +20,8 @@ import { themed, themedMap } from '../theme/themed'
 import { useClientsList } from '../hooks/useClientsList'
 import { usePreferences } from '../hooks/usePreferences'
 import { useConfigTaxonomy } from '../hooks/useConfigTaxonomy'
+import { pushUndo } from '../lib/undo'
+import { deleteSubStatusMovingClients } from '../lib/subStatuses'
 import { useBottomPad } from '../lib/bottomBar'
 
 const TABS = [
@@ -446,7 +448,7 @@ export default function ClientsScreen() {
 
       {/* Sub-status editor */}
       <Sheet open={statusesOpen} onClose={() => setStatusesOpen(false)} title={i18n.t('clients:statuses.title', { defaultValue: 'ניהול תתי-סטטוסים' })}>
-        <ClientStatusesPanel tax={tax} />
+        <ClientStatusesPanel tax={tax} onChanged={() => refetch(true)} />
       </Sheet>
 
       {/* Sort sheet */}
@@ -529,15 +531,57 @@ function CardStat({ label, value, divided }) {
    contradiction. */
 const STATUS_METAS = ['active', 'wandering', 'past']
 
-function ClientStatusesPanel({ tax }) {
+function ClientStatusesPanel({ tax, onChanged }) {
   const [name, setName] = useState('')
   const [meta, setMeta] = useState('active')
   const [busy, setBusy] = useState(false)
+  /* The sub-status being deleted: { status, ids, peers, toId }. Deleting used to
+     be one tap that left every client on it pointing at a status that no longer
+     existed. Now, as on web (DeleteSubStatusModal), the coach sees how many
+     clients it holds and picks where they go — a peer in the same group, or no
+     sub-status — and one undo puts both back. */
+  const [pending, setPending] = useState(null)
+  const [err, setErr] = useState('')
+  const S = (k, o) => i18n.t(`modalsClient:deleteSubStatus.${k}`, o)
   const add = async () => {
     const v = name.trim(); if (!v || busy) return
     setBusy(true); try { await tax.addClientStatus(v, meta); setName('') } finally { setBusy(false) }
   }
   const live = (tax.clientStatuses || []).filter((s) => !s.deleted_at)
+  const startDelete = async (s) => {
+    if (busy) return
+    setErr('')
+    try {
+      const ids = await tax.clientIdsWithStatus(s.id)
+      const peers = live.filter((p) => p.id !== s.id && p.meta_category === s.meta_category)
+      setPending({ status: s, ids, peers, toId: null })
+    } catch {
+      setErr(S('countError'))
+    }
+  }
+  const confirmDelete = async () => {
+    if (!pending || busy) return
+    setBusy(true)
+    setErr('')
+    try {
+      await deleteSubStatusMovingClients({
+        status: pending.status,
+        ids: pending.ids,
+        toId: pending.toId,
+        reassign: tax.reassignClientsStatusByIds,
+        remove: tax.removeClientStatus,
+        restore: tax.restoreClientStatus,
+        pushUndo,
+        label: i18n.t('clients:statuses.deleted'),
+        onChanged,
+      })
+      setPending(null)
+    } catch (e) {
+      setErr(S('deleteFailed', { error: e?.message || i18n.t('modalsClient:common.tryAgain') }))
+    } finally {
+      setBusy(false)
+    }
+  }
   return (
     <View style={{ gap: 10 }}>
       <Text style={styles.statusHint}>{i18n.t('clients:statuses.hint', { defaultValue: '' })}</Text>
@@ -547,13 +591,43 @@ function ClientStatusesPanel({ tax }) {
             {s.icon ? <Text style={styles.statusChipIcon}>{s.icon}</Text> : null}
             <Text style={styles.statusChipText}>{s.display_name}</Text>
             {s.is_default ? null : (
-              <Pressable accessibilityLabel={i18n.t('modalsData:editTx.delete')} onPress={() => tax.removeClientStatus(s.id)} hitSlop={6}>
+              <Pressable accessibilityLabel={i18n.t('modalsData:editTx.delete')} onPress={() => startDelete(s)} hitSlop={6}>
                 <X size={12} strokeWidth={2} color={colors.textFaint} />
               </Pressable>
             )}
           </View>
         )) : <Text style={styles.statusHint}>{i18n.t('clients:statuses.empty', { defaultValue: '—' })}</Text>}
       </View>
+      {pending ? (
+        <View style={styles.subDel}>
+          <Text style={styles.subDelTitle}>{S('title', { name: pending.status.display_name })}</Text>
+          <Text style={styles.statusHint}>
+            {pending.ids.length ? `${S('affected', { count: pending.ids.length })} ${S('reassignTo')}` : S('noneActive')}
+          </Text>
+          {pending.ids.length ? (
+            <View style={styles.statusMetas}>
+              {[...pending.peers, null].map((p) => {
+                const id = p ? p.id : null
+                const on = pending.toId === id
+                return (
+                  <Pressable key={id || 'none'} style={[styles.statusMeta, on && styles.statusMetaOn]} onPress={() => setPending((x) => ({ ...x, toId: id }))} accessibilityState={{ selected: on }}>
+                    <Text style={[styles.statusMetaText, on && styles.statusMetaTextOn]}>{p ? `${p.icon ? `${p.icon} ` : ''}${p.display_name}` : S('unassigned')}</Text>
+                  </Pressable>
+                )
+              })}
+            </View>
+          ) : null}
+          <View style={styles.sortDir}>
+            <Pressable style={styles.sortDirBtn} onPress={() => { setPending(null); setErr('') }} disabled={busy}>
+              <Text style={styles.sortDirText}>{i18n.t('modalsData:common.cancel', { defaultValue: 'ביטול' })}</Text>
+            </Pressable>
+            <Pressable style={[styles.sortDirBtn, styles.confirmDelete]} onPress={confirmDelete} disabled={busy}>
+              <Text style={styles.confirmDeleteText}>{busy ? S('deleting') : (pending.ids.length ? S('deleteAndMove') : S('delete'))}</Text>
+            </Pressable>
+          </View>
+        </View>
+      ) : null}
+      {err ? <Text style={styles.error}>{err}</Text> : null}
       <View style={styles.statusMetas}>
         {STATUS_METAS.map((m) => {
           const on = meta === m
@@ -667,6 +741,8 @@ const styles = themed((c, t) => ({
   // Sort sheet
   /* Sub-status editor (ClientStatusesPanel) */
   statusHint: { fontSize: 12.5, lineHeight: 18, color: c.textSub },
+  subDel: { gap: 8, padding: 12, borderRadius: 12, borderWidth: StyleSheet.hairlineWidth, borderColor: c.danger },
+  subDelTitle: { fontSize: 14, fontWeight: '600', color: c.text },
   statusChips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   statusChip: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 6, paddingHorizontal: 11, borderRadius: 999, borderWidth: StyleSheet.hairlineWidth, borderColor: c.divider },
   statusChipIcon: { fontSize: 13 },

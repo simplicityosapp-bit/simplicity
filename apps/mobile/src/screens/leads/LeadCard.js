@@ -2,7 +2,7 @@ import { View, Linking, I18nManager } from 'react-native'
 import { Text } from '../../components/Text'
 import { Pressable } from '../../components/Pressable'
 import { Clock, Check, CalendarDays, ArrowLeftRight, MessageCircle, X } from 'lucide-react-native'
-import { statusMetaOfLead, fmtShortDate } from '@simplicity/core'
+import { statusMetaOfLead, fmtShortDate, waLink } from '@simplicity/core'
 import { GlassPressable } from '../../components/Glass'
 import i18n from '../../lib/i18n'
 import { colors } from '../../theme/theme'
@@ -25,10 +25,7 @@ export default function LeadCard({ lead, onEdit, onConvert, onDelete, onMove, so
   const overdue = lead.follow_up_date && String(lead.follow_up_date).slice(0, 10) <= todayYmd() && meta === 'in_process'
   const isConverted = meta === 'converted' && lead.converted_to_client_id
   const flip = (i18n.language || '').startsWith('he') && !I18nManager.isRTL
-  const whatsapp = () => {
-    const p = (lead.phone || '').replace(/\D/g, '')
-    Linking.openURL(`https://wa.me/${p}`)
-  }
+  const whatsapp = () => { Linking.openURL(waLink(lead.phone)) }
 
   return (
     <GlassPressable radius={20} style={[styles.card, dragging && styles.dragging]} onPress={() => onEdit?.(lead)} {...(dragHandlers || {})}>

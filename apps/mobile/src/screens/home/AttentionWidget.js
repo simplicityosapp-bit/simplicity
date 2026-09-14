@@ -4,7 +4,7 @@ import { Text } from '../../components/Text'
 import { Pressable } from '../../components/Pressable'
 import { useNavigation } from '@react-navigation/native'
 import { Bell, Wallet, Calendar, Target, AlertCircle, Clock, ChevronLeft, MessageCircle, Check, SkipForward, Trash2 } from 'lucide-react-native'
-import { attentionItems, isr, fmtShortDate } from '@simplicity/core'
+import { attentionItems, isr, fmtShortDate, waLink } from '@simplicity/core'
 import i18n from '../../lib/i18n'
 import WidgetCard from '../../components/WidgetCard'
 import Sheet from '../../components/Sheet'
@@ -24,10 +24,7 @@ const TARGET_SCREEN = {
   finance: 'Finance', calendar: 'Calendar', clients: 'Clients',
   goals: 'Goals', tasks: 'Tasks', leads: 'Leads',
 }
-const waOpen = (phone) => {
-  const p = (phone || '').replace(/\D/g, '')
-  Linking.openURL(`https://wa.me/${p}`)
-}
+const waOpen = (phone) => { Linking.openURL(waLink(phone)) }
 
 export default function AttentionWidget({ data, projects = [], financeCategories = [], onApproveTx, onSkipTx, onDeleteTx }) {
   const nav = useNavigation()
@@ -126,7 +123,7 @@ export default function AttentionWidget({ data, projects = [], financeCategories
                   <View style={styles.txActions}>
                     <Pressable accessibilityLabel={i18n.t('finance:pending.approve')} style={styles.txBtn} onPress={() => onApproveTx?.(t.id)} hitSlop={6}><Check size={16} strokeWidth={2.2} color={colors.positive} /></Pressable>
                     <Pressable accessibilityLabel={i18n.t('finance:pending.skip')} style={styles.txBtn} onPress={() => onSkipTx?.(t.id)} hitSlop={6}><SkipForward size={15} strokeWidth={1.8} color={colors.textFaint} /></Pressable>
-                    <Pressable accessibilityLabel={i18n.t('modalsData:editTx.delete')} style={styles.txBtn} onPress={() => onDeleteTx?.(t.id)} hitSlop={6}><Trash2 size={15} strokeWidth={1.8} color={colors.danger} /></Pressable>
+                    <Pressable accessibilityLabel={i18n.t('modalsData:editTx.delete')} style={styles.txBtn} onPress={() => onDeleteTx?.(t)} hitSlop={6}><Trash2 size={15} strokeWidth={1.8} color={colors.danger} /></Pressable>
                   </View>
                 </View>
               )

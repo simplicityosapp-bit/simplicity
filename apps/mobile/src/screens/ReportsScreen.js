@@ -61,7 +61,19 @@ export default function ReportsScreen() {
           <ScreenHead
             title={i18n.t('reports:title', { defaultValue: 'דוחות' })}
           />
-          {error ? <Text style={styles.error}>{error}</Text> : null}
+          {/* A failed read falls back to empty tables, so every metric computes
+              as 0 and the screen used to say the month had no activity — a false
+              statement about the coach's business. Say what happened instead and
+              draw no report (web ReportsScreen). */}
+          {error ? (
+            <View style={styles.emptyBox}>
+              <BarChart3 size={28} strokeWidth={1.3} color={colors.textFaint} />
+              <Text style={styles.emptyText}>{i18n.t('reports:loadError')}</Text>
+              <Pressable style={styles.emptyCta} onPress={() => refetch()}>
+                <Text style={styles.emptyCtaText}>{i18n.t('reports:retry')}</Text>
+              </Pressable>
+            </View>
+          ) : null}
 
           {/* Month selector */}
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.pills}>
@@ -75,7 +87,7 @@ export default function ReportsScreen() {
             })}
           </ScrollView>
 
-          {isEmpty ? (
+          {error ? null : isEmpty ? (
             <View style={styles.emptyBox}>
               <BarChart3 size={28} strokeWidth={1.3} color={colors.textFaint} />
               <Text style={styles.emptyText}>{i18n.t('reports:list.empty', { defaultValue: 'אין נתונים לחודש הזה' })}</Text>

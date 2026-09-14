@@ -5,8 +5,9 @@ import { useFormOptions } from '../lib/formOptions'
 // Manage the app config taxonomies from Settings: client statuses (sub-statuses
 // under a meta), lead sources, and meeting types. Reads the lists from
 // FormOptions and adds/soft-deletes rows, refreshing FormOptions after each.
-// Deleting a status/source/type leaves any linked row falling back to its meta /
-// "none" (no cascade reassignment in this v1). RLS scopes rows to the user.
+// Deleting a source/type leaves any linked row falling back to "none". Deleting
+// a client sub-status moves its clients first (see lib/subStatuses — a client
+// left pointing at a deleted status is orphaned). RLS scopes rows to the user.
 export function useConfigTaxonomy() {
   const { clientStatuses, leadSources, leadStatuses, meetingTypes, refetch } = useFormOptions()
 
@@ -38,6 +39,23 @@ export function useConfigTaxonomy() {
     meetingTypes: meetingTypes || [],
     addClientStatus: useCallback((display_name, meta_category) => insertRow('client_statuses', { display_name, meta_category }), [insertRow]),
     removeClientStatus: useCallback((id) => softDelete('client_statuses', id), [softDelete]),
+    // The live clients on a sub-status — what a delete has to move first.
+    clientIdsWithStatus: useCallback(async (id) => {
+      const { data, error } = await supabase.from('clients').select('id').eq('status_id', id).is('deleted_at', null)
+      if (error) throw error
+      return (data || []).map((r) => r.id)
+    }, []),
+    // Move exactly these clients (by id, so an undo moves back only them).
+    reassignClientsStatusByIds: useCallback(async (ids, toId) => {
+      if (!ids?.length) return
+      const { error } = await supabase.from('clients').update({ status_id: toId }).in('id', ids)
+      if (error) throw error
+    }, []),
+    restoreClientStatus: useCallback(async (id) => {
+      const { error } = await supabase.from('client_statuses').update({ deleted_at: null }).eq('id', id)
+      if (error) throw error
+      await refetch()
+    }, [refetch]),
     addLeadStatus: useCallback((display_name, meta_category) => insertRow('lead_statuses', { display_name, meta_category, is_default: false }), [insertRow]),
     removeLeadStatus: useCallback((id) => softDelete('lead_statuses', id), [softDelete]),
     updateLeadStatus: useCallback((id, patch) => updateRow('lead_statuses', id, patch), [updateRow]),

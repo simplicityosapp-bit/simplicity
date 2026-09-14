@@ -5,7 +5,7 @@ import { Text, TextInput } from '../components/Text'
 import { Pressable } from '../components/Pressable'
 import { GestureDetector, Gesture } from 'react-native-gesture-handler'
 import { Bell, Check, MessageCircle, ChevronLeft, ChevronUp, ChevronDown, Search, SlidersHorizontal, Plus, X } from 'lucide-react-native'
-import { LEAD_META, statusMetaOfLead, metaTitle, metaColor, isPendingReview, isConvertedLead, fmtShortDate } from '@simplicity/core'
+import { LEAD_META, statusMetaOfLead, metaTitle, metaColor, isPendingReview, isConvertedLead, fmtShortDate, waLink } from '@simplicity/core'
 import Select from '../components/Select'
 import { useConfigTaxonomy } from '../hooks/useConfigTaxonomy'
 import i18n from '../lib/i18n'
@@ -141,17 +141,23 @@ export default function LeadsScreen() {
     const ymd = todayYmd()
     return official.filter((l) => l.status_meta === 'in_process' && l.follow_up_date && String(l.follow_up_date).slice(0, 10) <= ymd)
   }, [official])
-  const waLead = (l) => Linking.openURL(`https://wa.me/${(l.phone || '').replace(/\D/g, '')}`)
+  const waLead = (l) => Linking.openURL(waLink(l.phone))
 
   // Commit a column move (+ optional sub-status). status_id is set to a
   // sub-status that BELONGS to the target column (or null); moving OUT of
-  // 'converted' clears the conversion stamp. source='manual_drag' logs it.
+  // 'converted' clears the conversion stamp, and moving IN stamps it unless it
+  // already has one (web leads/index.jsx). Without the stamp core's
+  // isConvertedLead reads false, so a lead dragged to "converted" here was
+  // missing from the conversions count and the rate. source='manual_drag' logs it.
   const applyLeadMove = (leadId, newMeta, statusId) => {
+    const lead = leads.find((l) => l.id === leadId)
+    const now = new Date().toISOString()
     const next = {
       status_meta: newMeta,
       status_id: statusId ?? null,
-      last_status_changed_at: new Date().toISOString(),
+      last_status_changed_at: now,
       ...(newMeta !== 'converted' ? { converted_at: null, converted_to_client_id: null } : {}),
+      ...(newMeta === 'converted' && !lead?.converted_at ? { converted_at: now } : {}),
     }
     updateLead(leadId, next, { source: 'manual_drag' }).catch(() => {})
   }

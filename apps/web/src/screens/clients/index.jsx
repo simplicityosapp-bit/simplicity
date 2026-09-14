@@ -730,7 +730,15 @@ export default function ClientsScreen() {
         onClose={() => setShowAdd(false)}
         projects={projects}
         statuses={clientStatuses}
-        onSave={async (c) => { await addClient(c); setTab(c.status_meta || 'no_status') }}
+        onSave={async (c) => {
+          const row = await addClient(c)
+          /* The form's group picker writes only the client's group TAG. The
+             roster, the group-driven status and the dues read group_members, so
+             a client added straight into a group needs that row too — the same
+             write handleUpdateClient makes when the tag changes later. */
+          if (row?.group_id) await addMember(newMembership(row.group_id, row.id)).catch(() => {})
+          setTab(c.status_meta || 'no_status')
+        }}
       />
 
       <ClientStatusesModal open={showStatuses} onClose={() => setShowStatuses(false)} />

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { isRecurring, nextScheduledAt } from '@simplicity/core'
+import { isRecurring, nextScheduledAt, newMembership } from '@simplicity/core'
 import { supabase } from '../lib/supabase'
 import { confirmScheduledMeeting } from '../lib/scheduledMeetings'
 import { reconcileCompletion } from '../lib/tasks'
@@ -42,6 +42,8 @@ export function useHomeData() {
   // across rapid successive confirms). Tracks the latest committed state.
   const sessionsRef = useRef(data.sessions)
   sessionsRef.current = data.sessions
+  const clientsRef = useRef(data.clients)
+  clientsRef.current = data.clients
 
   const load = useCallback(async ({ mode } = {}) => {
     if (mode === 'refresh') setRefreshing(true)
@@ -134,7 +136,15 @@ export function useHomeData() {
   const addTask = useCallback((payload) => insertInto('tasks', reconcileCompletion({ status: 'todo', completed_at: null, ...payload }), 'tasks'), [insertInto])
   const addEntry = useCallback((payload) => insertInto('goal_entries', payload, 'entries'), [insertInto])
   const addTransaction = useCallback((payload) => insertInto('transactions', payload, 'transactions'), [insertInto])
-  const addClient = useCallback((payload) => insertInto('clients', payload, 'clients'), [insertInto])
+  /* Home's quick-add opens the same client form, group picker included — so it
+     owes the membership row too (see useClientsList.addClient). Non-fatal. */
+  const addClient = useCallback(async (payload) => {
+    const row = await insertInto('clients', payload, 'clients')
+    if (row?.group_id) {
+      try { await insertInto('group_members', newMembership(row.group_id, row.id), 'members') } catch { /* the client exists either way */ }
+    }
+    return row
+  }, [insertInto])
   const addLead = useCallback((payload) => insertInto('leads', payload, 'leads'), [insertInto])
   const addProject = useCallback((payload) => insertInto('projects', payload, 'projects'), [insertInto])
   const addReminder = useCallback((payload) => insertInto('reminders', payload, 'reminders'), [insertInto])
@@ -157,8 +167,10 @@ export function useHomeData() {
   }, [load])
   // Confirm a meeting from home (tile-drill "מה קרה") — materialise a linked
   // session so it counts on the client card, matching web + the calendar flow.
+  // `clients` lets the helper leave a per-session client's meeting without a
+  // session — the screen asks about the charge instead (see the helper).
   const confirmMeeting = useCallback(async (meeting) => {
-    await confirmScheduledMeeting({ meeting, sessions: sessionsRef.current, addSession, updateMeeting: updateMeetingRow })
+    await confirmScheduledMeeting({ meeting, sessions: sessionsRef.current, addSession, updateMeeting: updateMeetingRow, clients: clientsRef.current })
   }, [addSession, updateMeetingRow])
 
   // Inline complete-from-home (NextTasks ✓ / Reminders ✓), mirrors web.
@@ -202,12 +214,21 @@ export function useHomeData() {
     const { error: e } = await supabase.from('transactions').update({ status }).eq('id', id)
     if (e) load()
   }, [load])
-  // Soft-delete a transaction (deleted_at), matching useFinanceData.deleteTransaction.
+  // Soft-delete a transaction (deleted_at), matching useFinanceData.deleteTransaction
+  // — including the throw, so the delete-and-pause helper does not go on to pause
+  // a rule whose occurrence was never deleted.
   const deleteTransaction = useCallback(async (id) => {
     if (!id) return
     setData((prev) => ({ ...prev, transactions: prev.transactions.filter((t) => t.id !== id) }))
     const { error: e } = await supabase.from('transactions').update({ deleted_at: new Date().toISOString() }).eq('id', id)
-    if (e) load()
+    if (e) { load(); throw e }
+  }, [load])
+  // Put a soft-deleted transaction back — the undo half of the delete-and-pause
+  // helper (lib/recurringTx), as on the finance screen.
+  const restoreTransaction = useCallback(async (id) => {
+    const { error: e } = await supabase.from('transactions').update({ deleted_at: null }).eq('id', id)
+    load()
+    if (e) throw e
   }, [load])
 
   // refetch → pull-to-refresh (shows the RefreshControl spinner, keeps content);
@@ -215,5 +236,5 @@ export function useHomeData() {
   const refetch = useCallback(() => load({ mode: 'refresh' }), [load])
   const reload = useCallback(() => load(), [load])
 
-  return { ...data, loading, refreshing, error, refetch, reload, addAnswer, addTask, addEntry, addTransaction, addClient, addLead, addProject, addReminder, addMeeting, addSession, setMeetingStatus, confirmMeeting, toggleTask, completeReminder, setTransactionStatus, deleteTransaction }
+  return { ...data, loading, refreshing, error, refetch, reload, addAnswer, addTask, addEntry, addTransaction, addClient, addLead, addProject, addReminder, addMeeting, addSession, setMeetingStatus, confirmMeeting, toggleTask, completeReminder, setTransactionStatus, deleteTransaction, restoreTransaction }
 }

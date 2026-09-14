@@ -4,7 +4,7 @@ import { Text } from '../components/Text'
 import { Pressable } from '../components/Pressable'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { X, Trash2, Pencil, Banknote, MessageCircle, ChevronDown, Check, RotateCcw, Phone, Mail, PackagePlus } from 'lucide-react-native'
-import { clientBalance, effectiveClientMeta, isGroupDriven, isStatusOverridden, planBalance, planInstallments, isr } from '@simplicity/core'
+import { clientBalance, effectiveClientMeta, isGroupDriven, isStatusOverridden, planBalance, planInstallments, isr, waLink, normalizeIsraeliPhone } from '@simplicity/core'
 import Card from '../components/Card'
 import EditClientModal from '../modals/EditClientModal'
 import AddTransactionModal from '../modals/AddTransactionModal'
@@ -171,9 +171,10 @@ export default function ClientDrawer({ clientId, clients, transactions, sessions
       ],
     )
   }
+  // core waLink turns 050-1234567 into 972501234567; wa.me cannot resolve the
+  // local form, which is what stripping non-digits used to send.
   const whatsapp = (msg) => {
-    const p = (client?.phone || '').replace(/\D/g, '')
-    if (p) Linking.openURL(`https://wa.me/${p}${msg ? `?text=${encodeURIComponent(msg)}` : ''}`)
+    if (normalizeIsraeliPhone(client?.phone)) Linking.openURL(waLink(client.phone, msg))
   }
 
   const sessLabel = bal
@@ -339,7 +340,11 @@ export default function ClientDrawer({ clientId, clients, transactions, sessions
                 <View style={styles.actions}>
                   <Action Icon={Check} label={i18n.t('clients:drawer.logSession', { defaultValue: 'תיעוד פגישה' })} onPress={() => setLogging(true)} />
                   <Action Icon={Banknote} label={i18n.t('clients:drawer.receivedPayment', { defaultValue: 'קיבלתי תשלום' })} onPress={() => setPaying(true)} />
-                  <Action Icon={PackagePlus} label={i18n.t('clients:addSessions.title')} onPress={() => setAddingSessions(true)} />
+                  {/* Adds to the PERSONAL quota, so only for a client who has a
+                      personal track (web ClientDrawer). On a pure group member
+                      it created a private series beside the group's, which the
+                      balance then billed on top of the group dues. */}
+                  {bal?.hasPersonal ? <Action Icon={PackagePlus} label={i18n.t('clients:addSessions.title')} onPress={() => setAddingSessions(true)} /> : null}
                   {client.phone ? <Action Icon={MessageCircle} label="WhatsApp" onPress={() => whatsapp()} /> : null}
                 </View>
 

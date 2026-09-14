@@ -17,6 +17,7 @@ import {
   nextSessionNum,
   confirmScheduledMeeting,
   skipScheduledMeeting,
+  billPerSessionMeeting,
 } from '../src/lib/scheduledMeetings'
 
 const clientMeeting = { id: 'm1', subject_type: 'client', subject_id: 'c1', scheduled_at: '2026-09-08T09:00:00.000Z' }
@@ -99,6 +100,39 @@ describe('confirming a meeting', () => {
     await confirmScheduledMeeting({ meeting: {}, sessions: [], addSession, updateMeeting })
     expect(addSession).not.toHaveBeenCalled()
     expect(updateMeeting).not.toHaveBeenCalled()
+  })
+})
+
+describe('a per-session client', () => {
+  /* Every session such a client has is billed. The home tile used to create
+     one on confirm, so confirming from home charged the client without the
+     question the calendar asks. The charge is now always a separate, asked-for
+     step, wherever the meeting is confirmed. */
+  it('is confirmed without a session — the charge is asked for separately', async () => {
+    const addSession = vi.fn()
+    const updateMeeting = vi.fn(async () => {})
+    await confirmScheduledMeeting({
+      meeting: clientMeeting, sessions: [], addSession, updateMeeting,
+      clients: [{ id: 'c1', billing_mode: 'per_session' }],
+    })
+    expect(addSession).not.toHaveBeenCalled()
+    expect(updateMeeting).toHaveBeenCalledWith('m1', { status: 'confirmed' })
+  })
+
+  it('a package client still gets the session', async () => {
+    const addSession = vi.fn(async () => ({ id: 's9' }))
+    await confirmScheduledMeeting({
+      meeting: clientMeeting, sessions: [], addSession, updateMeeting: vi.fn(async () => {}),
+      clients: [{ id: 'c1', billing_mode: 'package' }],
+    })
+    expect(addSession).toHaveBeenCalledTimes(1)
+  })
+
+  it('the charge is one held session, unlinked, numbered after the live ones', async () => {
+    const addSession = vi.fn(async (row) => ({ id: 'bill', ...row }))
+    const sessions = [{ client_id: 'c1' }, { client_id: 'c1', deleted_at: '2026-09-01' }, { client_id: 'c2' }]
+    await billPerSessionMeeting({ meeting: clientMeeting, sessions, addSession })
+    expect(addSession).toHaveBeenCalledWith(expect.objectContaining({ client_id: 'c1', group_id: null, num: 2, date: clientMeeting.scheduled_at }))
   })
 })
 

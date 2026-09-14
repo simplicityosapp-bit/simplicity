@@ -88,6 +88,15 @@ export default function MoonScreen() {
     <Screen name="moon">
       {loading && !overall ? (
         <View style={styles.center}><ActivityIndicator color={colors.brand} /></View>
+      ) : error && !overall ? (
+        /* A failed read leaves every list empty, and "you have no goals yet" is
+           then a false statement about the coach's practice — the message they
+           used to get. Say what happened and offer the way out (web
+           moon-glance); only a settled read earns the empty state below. */
+        <View style={styles.center}>
+          <Text style={styles.empty}>{i18n.t('moon:loadError')}</Text>
+          <Pressable style={styles.emptyBtn} onPress={() => refetch()}><Text style={styles.emptyBtnText}>{i18n.t('moon:retry')}</Text></Pressable>
+        </View>
       ) : !overall ? (
         <View style={styles.center}>
           <Text style={styles.empty}>{i18n.t('moon:empty.noGoals', { action: i18n.t('moon:empty.action', { defaultValue: 'הגדר/י' }), defaultValue: 'עדיין אין יעדים.' })}</Text>

@@ -86,5 +86,13 @@ export function useFinanceData() {
     if (e) { load(); throw e }
   }, [load])
 
-  return { transactions, clients, categories, loading, error, refetch: load, addTransaction, updateTransaction, deleteTransaction, restoreTransaction, setStatus, addCategory, removeCategory }
+  /* Scheduled meetings, on demand. This screen does not show them; resuming a
+     per-meeting recurring rule needs them to know which meetings it missed. */
+  const loadMeetings = useCallback(async () => {
+    const { data, error: e } = await selectAll(() => supabase.from('scheduled_meetings').select('*').order('id', { ascending: true }))
+    if (e) throw e
+    return data ?? []
+  }, [])
+
+  return { transactions, clients, categories, loading, error, refetch: load, addTransaction, updateTransaction, deleteTransaction, restoreTransaction, setStatus, addCategory, removeCategory, loadMeetings }
 }

@@ -67,7 +67,16 @@
     "resume": "Reprendre",
     "pause": "Mettre en pause",
     "edit": "Modifier",
-    "delete": "Supprimer"
+    "delete": "Supprimer",
+    "resumeMissed": {
+      "title": "Reprendre ce modèle",
+      "message_one": "Une date est passée pendant la pause ({{from}}). Que faire ?",
+      "message_other": "{{count}} dates sont passées pendant la pause (du {{from}} au {{to}}). Que faire ?",
+      "createPending": "Créer en attente",
+      "markSkipped": "Marquer comme n'ayant pas eu lieu",
+      "cancel": "Annuler",
+      "failed": "La reprise n'a pas abouti et le modèle est toujours en pause. Vous pouvez réessayer."
+    }
   },
   "categories": {
     "title": "Catégories de dépenses",

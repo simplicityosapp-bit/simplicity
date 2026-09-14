@@ -258,6 +258,62 @@ export function generateRecurringTransactions(
   return out
 }
 
+/* RESUMING A PAUSED RULE
+   ────────────────────────────────────────────────────────────────
+   A paused rule owes nothing. The moment it is active again, though, the walk
+   above finds every period since its newest row empty and fills each one with
+   a pending row — income that never came in, rent for months already sorted
+   out. Only the user knows whether those dates happened, so both apps ask on
+   resume (owner decision, 2026-09-14): create them as pending, or mark them
+   skipped. A 'skipped' row already means "this period was dealt with", so
+   marking needs no new state — the rows themselves stop the engine. */
+
+/* The rows resuming this template would create for dates up to today, oldest
+   first. A future on_meeting row is not missed — it is the rule doing its
+   job — so it is left out and generated as usual. */
+export function missedOnResume(
+  template: RecurringTemplate | null | undefined,
+  transactions: TransactionRow[] | null | undefined,
+  now: Date = new Date(),
+  scheduledMeetings: ScheduledMeeting[] = [],
+): RecurringPayload[] {
+  if (!template || template.active || template.deleted_at) return []
+  const today = toDateKey(now)
+  return generateRecurringTransactions([{ ...template, active: true }], transactions, now, scheduledMeetings)
+    .filter((p) => p.date <= today)
+    .sort((a, b) => (a.date < b.date ? -1 : a.date > b.date ? 1 : 0))
+}
+
+interface ResumeRecurringArgs {
+  template: RecurringTemplate
+  missed: RecurringPayload[]
+  markSkipped: boolean
+  addTransaction: (row: Record<string, unknown>) => Promise<unknown>
+  updateRecurring: (id: string, patch: { active: boolean }) => Promise<unknown>
+}
+
+/* Resume a paused template, first writing the missed rows as skipped when the
+   user chose that. The rows go in BEFORE the rule is active again — the other
+   way round, a generation pass in between would fill the same periods with
+   pending rows. A duplicate (23505) means the period already has its row,
+   which is what marking wanted. Any other failure throws and leaves the rule
+   paused, so the user can try again instead of finding half a backlog
+   pending. */
+export async function resumeRecurringTemplate({
+  template, missed, markSkipped, addTransaction, updateRecurring,
+}: ResumeRecurringArgs): Promise<void> {
+  if (markSkipped) {
+    for (const payload of missed) {
+      try {
+        await addTransaction({ ...payload, status: 'skipped' })
+      } catch (e) {
+        if ((e as { code?: string } | null)?.code !== '23505') throw e
+      }
+    }
+  }
+  await updateRecurring(template.id as string, { active: true })
+}
+
 /* Human-readable cadence summary for cards/lists.
    "כל חודש ב-15" / "כל יום ראשון" / "כל חודש ב-15 · עד 31/12/26". */
 const DAY_NAMES_HE = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי', 'שבת']

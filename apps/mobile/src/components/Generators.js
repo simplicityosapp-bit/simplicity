@@ -42,6 +42,13 @@ async function run() {
   }
 }
 
+/* A pass now, whatever the interval says — for an action that has just made
+   rows owed (resuming a recurring rule) and wants them on screen. */
+export function generateNow() {
+  lastRunAt = null
+  return run()
+}
+
 export default function Generators() {
   useEffect(() => {
     run()

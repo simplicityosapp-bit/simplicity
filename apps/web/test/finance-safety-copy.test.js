@@ -50,6 +50,15 @@ const FINANCE_KEYS = [
   ['chart.title'],
   ['chart.incomeGoalLabel'],
   ['chart.infoText'],
+  /* Resuming a paused recurring rule that missed dates. */
+  ['recurring.resumeMissed.title'],
+  ['recurring.resumeMissed.message', { count: 1, from: '01/06/26', to: '01/06/26' }],
+  ['recurring.resumeMissed.message', { count: 2, from: '01/06/26', to: '01/07/26' }],
+  ['recurring.resumeMissed.message', { count: 3, from: '01/06/26', to: '01/08/26' }],
+  ['recurring.resumeMissed.createPending'],
+  ['recurring.resumeMissed.markSkipped'],
+  ['recurring.resumeMissed.cancel'],
+  ['recurring.resumeMissed.failed'],
 ]
 
 const MODALS_KEYS = [

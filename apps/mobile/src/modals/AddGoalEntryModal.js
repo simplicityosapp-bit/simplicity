@@ -8,15 +8,17 @@ import i18n from '../lib/i18n'
 import { colors } from '../theme/theme'
 import { themed } from '../theme/themed'
 
-// Log a manual progress entry for a goal category (mirrors web AddGoalEntryModal).
-// onSave receives a goal_entries-ready row (category_id from the picked category).
+// Log a manual progress entry for a goal (mirrors web AddGoalEntryModal).
+// `goal` is what the entry is FOR (migration 0110); `category` still supplies
+// the colour and icon. Both are needed because every manual goal shares one
+// category, and core scores an entry without a goal_id toward ALL of them.
 const todayStr = () => {
   const d = new Date()
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
 }
 const blank = () => ({ value: '', date: todayStr(), note: '' })
 
-export default function AddGoalEntryModal({ open, onClose, onSave, category }) {
+export default function AddGoalEntryModal({ open, onClose, onSave, category, goal }) {
   const [form, setForm] = useState(blank)
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
@@ -31,7 +33,7 @@ export default function AddGoalEntryModal({ open, onClose, onSave, category }) {
     setBusy(true)
     setErr('')
     try {
-      await onSave({ category_id: category.id, project_id: null, group_id: null, date: form.date, value, note: form.note.trim() || null })
+      await onSave({ category_id: category.id, goal_id: goal?.id ?? null, project_id: null, group_id: null, date: form.date, value, note: form.note.trim() || null })
       close()
     } catch (e) {
       setBusy(false)
@@ -44,7 +46,7 @@ export default function AddGoalEntryModal({ open, onClose, onSave, category }) {
       {category ? (
         <View style={styles.subRow}>
           <View style={[styles.dot, { backgroundColor: category.color || colors.textSub }]} />
-          <Text style={styles.sub}>{category.icon ? `${category.icon} ` : ''}{category.name}</Text>
+          <Text style={styles.sub}>{category.icon ? `${category.icon} ` : ''}{goal?.label || category.name}</Text>
         </View>
       ) : null}
 

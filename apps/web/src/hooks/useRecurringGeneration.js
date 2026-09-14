@@ -13,18 +13,25 @@ import { showToast } from '../lib/toast'
    an occurrence older than that could never be recovered, so a coach who
    stopped opening the app lost meetings permanently.
 
-   This engine has no lookback at all. Its anchor is the earliest transaction
-   for the template — or the template's created_at when there are none — and it
-   walks from there to today on every run. A coach away for two months opens the
-   app and gets every missed occurrence. Nothing expires.
+   This engine has no lookback limit. It walks from the template's NEWEST
+   transaction — or its created_at when there are none — to today on every run
+   (core recurring.ts says why the newest and not the earliest). A coach away for
+   two months opens the app and gets every missed occurrence. Nothing expires.
 
-   The same property makes a failed INSERT self-correcting: the dedup set is
-   built from rows that EXIST, so anything that failed to write is simply
-   missing a key and gets regenerated on the next pass.
+   A failed INSERT is still self-correcting, on one condition this hook keeps:
+   rows are written oldest-first and a pass STOPS at the first failure. The walk
+   starts after the newest row that exists, so a failed row with a successful
+   one written after it would never be looked at again.
 
    A cron here would therefore add a second writer of financial rows — and the
    duplicate-income risk that comes with one — to fix a problem that fixes
-   itself. Owner decision, 2026-09-02. */
+   itself. Owner decision, 2026-09-02.
+
+   The phone does run this same engine (apps/mobile/src/lib/generators.js) —
+   before it did, a coach who worked only from the phone never got the rows at
+   all. Two writers are safe for the reason two tabs always were: the slot's
+   partial unique index turns a true duplicate away as 23505, and a pass reads
+   that as "already there", not as a failure. */
 
 /* MODULE-LEVEL latch shared across EVERY mount. This engine mounts on BOTH
    home (AttentionWidget) and finance; a per-mount ref only guarded one, so a
@@ -64,7 +71,16 @@ export function useRecurringGeneration({
       let failed = 0
       try {
         for (const payload of due) {
-          try { await addTransaction(payload) } catch { failed += 1 }
+          try {
+            await addTransaction(payload)
+          } catch (e) {
+            /* 23505: the slot's unique index turned the row away because it is
+               already there — another tab or the phone got to it first. That
+               is what this pass wanted, so it is neither a failure nor a toast. */
+            if (e?.code === '23505') continue
+            failed += 1
+            break // never write past a gap — see the note at the top
+          }
         }
         /* One message for the pass, not one per row: a blip that drops five
            inserts is one problem, not five. And the wording says "not yet"

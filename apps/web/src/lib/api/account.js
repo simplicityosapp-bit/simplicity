@@ -15,26 +15,18 @@
    onboarding flow separately); we never touch auth or the account row.
    ════════════════════════════════════════════════════════════════ */
 
+import {
+  ACCOUNT_RESET_SOFT_DELETE_TABLES as SOFT_DELETE_TABLES,
+  ACCOUNT_RESET_HARD_DELETE_TABLES as HARD_DELETE_TABLES,
+  ACCOUNT_RESET_UNPUBLISH_TABLES as UNPUBLISH_TABLES,
+  ACCOUNT_RESET_DISCONNECTS,
+} from '@simplicity/core'
 import { supabase } from '../supabase'
 import { callGoogleCalendar, callInvoices } from './integrations'
 
-/* Tables with a deleted_at column — soft-deleted. Order doesn't matter
-   (rows stay, so FKs remain valid). */
-const SOFT_DELETE_TABLES = [
-  'transactions', 'recurring_templates', 'clients', 'projects', 'groups',
-  'group_members', 'leads', 'tasks', 'goals', 'goal_entries', 'goal_categories',
-  'reminders', 'categories', 'lead_sources', 'client_statuses', 'lead_statuses',
-  'task_statuses', 'task_categories', 'user_questions', 'daily_answers', 'sessions',
-  'user_quotes', 'calendar_events', 'meeting_types', 'payment_plans',
-  'payment_installments', 'lead_pages', 'booking_pages', 'site_pages',
-  'client_adjustments',
-]
-
-/* Tables without deleted_at — physically deleted. These are child/log
-   tables, so removing them first avoids any FK surprises. */
-const HARD_DELETE_TABLES = [
-  'scheduled_meetings', 'client_status_log', 'lead_status_log', 'moon_snapshots',
-]
+/* The table lists and the integrations to disconnect live in core
+   (domain/account.ts), because the phone runs this same reset — and while it
+   kept its own copy, that copy fell seven tables and two steps behind. */
 
 /* Intentionally NOT wiped here:
    - user_preferences — the caller resets the onboarding flow separately.
@@ -70,10 +62,11 @@ const ALL_ROWS = (q) => q.not('id', 'is', null)
    session is not authorised to touch, and there are zero Grow rows in the
    database today, so nothing is left behind in practice. It must be added here
    when the Grow work is picked up — the shape is one more entry in this list. */
-const INTEGRATION_DISCONNECTS = [
-  ['Google Calendar', () => callGoogleCalendar('disconnect')],
-  ['שירות החשבוניות', () => callInvoices('disconnect')],
-]
+const CALLERS = { 'google-calendar': callGoogleCalendar, invoices: callInvoices }
+const INTEGRATION_DISCONNECTS = ACCOUNT_RESET_DISCONNECTS.map(({ fn, label }) => [
+  label,
+  () => CALLERS[fn]('disconnect'),
+])
 
 async function disconnectIntegrations(failed) {
   for (const [label, run] of INTEGRATION_DISCONNECTS) {
@@ -104,7 +97,7 @@ export async function resetAllUserData() {
      the soft-delete below. Every public edge 404s an unpublished page, so this
      guarantees the reset takes /p, /lead and /book pages down.
      (bookings rows have no deleted_at and are visitor records — left as-is.) */
-  for (const table of ['lead_pages', 'booking_pages', 'site_pages']) {
+  for (const table of UNPUBLISH_TABLES) {
     const { error } = await ALL_ROWS(supabase.from(table).update({ published: false }))
     if (error) failed.push(`${table} (unpublish): ${error.message}`)
   }

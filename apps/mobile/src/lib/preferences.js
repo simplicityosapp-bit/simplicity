@@ -69,12 +69,13 @@ export function roleLabel(key, gender) {
    onboarding gate cannot tell those apart without this. Reading it as "not
    set" would send an existing, long-onboarded user back through the flow on
    every cold start. 'error' is kept distinct from 'ready' for the same
-   reason: when the read fails we know nothing, so a gate must let the user
-   through rather than trap them behind a flow they already finished. */
+   reason: when the read fails we know nothing. App.js shows a retry screen
+   for it, and update() writes nothing until a read has succeeded. */
 const PreferencesContext = createContext({
   prefs: {},
   update: async () => {},
   status: 'loading',
+  reload: async () => {},
 })
 
 // One-level deep merge (mirrors web deepMerge): nested objects (design/format/
@@ -98,55 +99,86 @@ export function PreferencesProvider({ children }) {
   const [prefs, setPrefs] = useState({})
   const [status, setStatus] = useState('loading')
   const ref = useRef({})
-  // True once the user has interacted, so the initial server load doesn't revert
-  // a change made during cold-start (mirrors web's prefsRef==null guard).
-  const touched = useRef(false)
+  /* Whether the server's copy has been read. Until it has, ref.current is not
+     the user's preferences — it is {} plus whatever changed since — and a
+     write sends the WHOLE blob, so writing it replaces everything the user
+     has (profile, widgets, WhatsApp templates, onboarding.completed_at) with
+     that fragment. A failed read used to do exactly this: supabase-js reports
+     a dropped connection as { data: null, error } instead of throwing, the
+     error went unchecked, {} was reported as 'ready', and the first thing the
+     user changed wiped the row. */
+  const loaded = useRef(false)
+  /* Changes made before a read succeeded. Re-applied on top of the server's
+     copy when it arrives, so the load neither reverts them nor gets
+     overwritten by them. */
+  const early = useRef(null)
+  const alive = useRef(true)
   // Serializes DB writes so an earlier write finishing last can't overwrite a
   // later merge (lost-update race when two update()s land near-simultaneously).
   const writeChain = useRef(Promise.resolve())
 
-  useEffect(() => {
-    let alive = true
-    ;(async () => {
+  // Chain the DB write after any in-flight one, and always send the LATEST
+  // merged state (ref.current) so concurrent updates can't lose each other.
+  const persist = useCallback(() => {
+    const task = writeChain.current.then(async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession()
-        /* No session: nothing to load and nothing to gate — this provider only
-           mounts inside the authed tree, so treat it as a finished read rather
-           than leaving every consumer waiting on 'loading' forever. */
-        if (!session) { if (alive) setStatus('ready'); return }
-        const { data } = await supabase.from('user_preferences').select('preferences').eq('user_id', session.user.id).maybeSingle()
-        /* A user with no row yet reads as {} — genuinely "nothing set", which
-           is exactly what a first-run gate should see. Distinct from the catch
-           below, where we simply do not know. */
-        const p = (data && data.preferences) || {}
-        if (alive) setStatus('ready')
-        // RACE FIX: if the user already toggled something before this load
-        // resolved, adopting the server value would silently revert their change
-        // (the read started BEFORE they clicked). Only adopt when untouched.
-        if (!touched.current) {
-          ref.current = p
-          if (alive) setPrefs(p)
-        }
-        const eff = ref.current // authoritative value (server p if untouched, else the user's)
-        // Language lives at prefs.design.language (the durable store web reads/writes);
-        // fall back to a legacy top-level prefs.language so an early mobile-only choice
-        // isn't lost on upgrade.
-        applySavedLanguage(eff.design?.language || eff.language)
-        setGenderContext(eff.design?.gender)
-        applyFormatPrefs(eff)
-        // Sync the saved theme to the boot cache so a theme chosen on web (or a
-        // prior session) applies on the NEXT launch (RN freezes StyleSheet colors
-        // at boot — theme.js reads THEME_KEY there). No reload here (avoids a flash).
-        if (eff.design?.theme === 'dark' || eff.design?.theme === 'light') {
-          AsyncStorage.setItem(THEME_KEY, eff.design.theme).catch(() => {})
-        }
-      } catch { if (alive) setStatus('error') /* keep defaults */ }
-    })()
-    return () => { alive = false }
+        if (!session) return
+        const { data, error } = await supabase.from('user_preferences').update({ preferences: ref.current }).eq('user_id', session.user.id).select('preferences').maybeSingle()
+        if (error) throw error
+        // No row matched: a first-ever write. (A FAILED update also comes back
+        // without data; that is the throw above, not a reason to insert.)
+        if (!data) await supabase.from('user_preferences').insert({ user_id: session.user.id, preferences: ref.current })
+      } catch { /* keep optimistic */ }
+    })
+    writeChain.current = task.catch(() => {})
+    return task
   }, [])
 
+  const load = useCallback(async () => {
+    setStatus('loading')
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      /* No session: nothing to load and nothing to gate — this provider only
+         mounts inside the authed tree, so treat it as a finished read rather
+         than leaving every consumer waiting on 'loading' forever. */
+      if (!session) { loaded.current = true; if (alive.current) setStatus('ready'); return }
+      const { data, error } = await supabase.from('user_preferences').select('preferences').eq('user_id', session.user.id).maybeSingle()
+      if (error) throw error
+      /* A user with no row yet reads as {} — genuinely "nothing set", which
+         is exactly what a first-run gate should see. Distinct from the catch
+         below, where we simply do not know. */
+      const server = (data && data.preferences) || {}
+      const pending = early.current
+      early.current = null
+      const eff = pending ? deepMerge(server, pending) : server
+      ref.current = eff
+      loaded.current = true
+      if (alive.current) { setPrefs(eff); setStatus('ready') }
+      // Language lives at prefs.design.language (the durable store web reads/writes);
+      // fall back to a legacy top-level prefs.language so an early mobile-only choice
+      // isn't lost on upgrade.
+      applySavedLanguage(eff.design?.language || eff.language)
+      setGenderContext(eff.design?.gender)
+      applyFormatPrefs(eff)
+      // Sync the saved theme to the boot cache so a theme chosen on web (or a
+      // prior session) applies on the NEXT launch (RN freezes StyleSheet colors
+      // at boot — theme.js reads THEME_KEY there). No reload here (avoids a flash).
+      if (eff.design?.theme === 'dark' || eff.design?.theme === 'light') {
+        AsyncStorage.setItem(THEME_KEY, eff.design.theme).catch(() => {})
+      }
+      // What changed while we could not write is saved now, over the real copy.
+      if (pending) persist()
+    } catch { if (alive.current) setStatus('error') /* keep defaults */ }
+  }, [persist])
+
+  useEffect(() => {
+    alive.current = true
+    load()
+    return () => { alive.current = false }
+  }, [load])
+
   const update = useCallback(async (patch) => {
-    touched.current = true
     const next = deepMerge(ref.current, patch)
     ref.current = next
     setPrefs(next)
@@ -156,21 +188,14 @@ export function PreferencesProvider({ children }) {
     // `next` is the full merged prefs, so this preserves the current gender on
     // unrelated updates rather than resetting it.
     setGenderContext(next.design?.gender)
-    // Chain the DB write after any in-flight one, and always send the LATEST
-    // merged state (ref.current) so concurrent updates can't lose each other.
-    const task = writeChain.current.then(async () => {
-      try {
-        const { data: { session } } = await supabase.auth.getSession()
-        if (!session) return
-        const { data } = await supabase.from('user_preferences').update({ preferences: ref.current }).eq('user_id', session.user.id).select('preferences').maybeSingle()
-        if (!data) await supabase.from('user_preferences').insert({ user_id: session.user.id, preferences: ref.current })
-      } catch { /* keep optimistic */ }
-    })
-    writeChain.current = task.catch(() => {})
-    return task
-  }, [])
+    if (!loaded.current) {
+      early.current = deepMerge(early.current, patch)
+      return undefined
+    }
+    return persist()
+  }, [persist])
 
-  const value = useMemo(() => ({ prefs, update, status }), [prefs, update, status])
+  const value = useMemo(() => ({ prefs, update, status, reload: load }), [prefs, update, status, load])
   return <PreferencesContext.Provider value={value}>{children}</PreferencesContext.Provider>
 }
 

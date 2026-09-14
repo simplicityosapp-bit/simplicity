@@ -12,9 +12,9 @@
    unique guards are partial (`WHERE deleted_at IS NULL`) so the re-insert is
    not rejected either.
 
-   This app never runs the generator, so nothing resurrects while you stay on
-   the phone. It resurrects on the next web load instead, which is worse — the
-   delete looks like it worked and undoes itself somewhere else.
+   Both apps run the generator (this one from lib/generators), so a deleted
+   occurrence of a live rule comes back on the next pass, on the phone or on
+   the web — the delete looks like it worked and then undoes itself.
 
    Owner decision (25/08): deleting an occurrence of a LIVE template pauses
    that template, behind a warning that also explains what the skip action

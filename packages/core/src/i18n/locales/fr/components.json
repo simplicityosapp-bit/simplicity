@@ -1,4 +1,7 @@
 {
+  "prefsLoad": {
+    "message": "Impossible de charger vos réglages. C'est peut-être un problème réseau temporaire."
+  },
   "generateFailed": {
     "transactions": "Certaines transactions récurrentes n'ont pas été créées. Nous réessaierons.",
     "meetings": "Certaines réunions planifiées n'ont pas été créées. Nous réessaierons."

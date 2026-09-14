@@ -4,7 +4,7 @@ import { Pressable } from '../../components/Pressable'
 import { useNavigation } from '@react-navigation/native'
 import { BlurView } from '../../components/SafeBlur'
 import Svg, { Circle } from 'react-native-svg'
-import { ArrowLeft } from 'lucide-react-native'
+import { ArrowLeft, Plus } from 'lucide-react-native'
 import { moonReflection } from '@simplicity/core'
 import InfoPopover from '../../components/InfoPopover'
 import Card from '../../components/Card'
@@ -63,7 +63,14 @@ export default function MoonWidget({ overall, expanded, onToggle }) {
 
 // Inline expansion — rendered full-width below the top row when the moon chip is
 // expanded (Home lifts the state so this can break out of the moon column).
-export function MoonExpansion({ scored = [], conf, gender, onFull }) {
+//
+// A manual goal carries a "+" that logs progress FOR THAT GOAL (web MoonWidget).
+// It replaces the home "עדכון יעד" button, which had no goal to anchor to: it
+// picked a CATEGORY, and every manual goal shares one category, so the entry was
+// saved without a goal_id — and core scores a goal-less entry toward every goal
+// in its category. One number typed there raised all of a coach's personal goals.
+// Auto goals get no "+": they are computed from transactions and sessions.
+export function MoonExpansion({ scored = [], conf, gender, onFull, onLogEntry }) {
   return (
     <Card contentStyle={styles.exp}>
       <Text style={styles.reflection}>{moonReflection(conf, gender)}</Text>
@@ -75,6 +82,17 @@ export function MoonExpansion({ scored = [], conf, gender, onFull }) {
             <View style={styles.catHead}>
               <View style={[styles.catDot, { backgroundColor: s.cat.color || colors.positive }]} />
               <Text style={styles.catName} numberOfLines={1}>{s.goal.label || s.cat.name}</Text>
+              {s.cat.measurement_type === 'manual' && onLogEntry ? (
+                <Pressable
+                  style={styles.catAdd}
+                  onPress={() => onLogEntry({ goal: s.goal, cat: s.cat })}
+                  hitSlop={8}
+                  accessibilityRole="button"
+                  accessibilityLabel={i18n.t('home:widgets.moon.logEntryAria', { name: s.goal.label || s.cat.name })}
+                >
+                  <Plus size={14} strokeWidth={2} color={colors.brand} />
+                </Pressable>
+              ) : null}
             </View>
             <View style={styles.bars}>
               <DualBar label={i18n.t('moon:dualBars.pace', { defaultValue: 'מהקצב' })} pct={Math.min(100, s.paced)} color={colors.positive} />
@@ -136,6 +154,7 @@ const styles = themed((c, t) => ({
   catHead: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   catDot: { width: 8, height: 8, borderRadius: 4 },
   catName: { flex: 1, fontSize: 13, fontWeight: '500', color: c.text },
+  catAdd: { width: 28, height: 28, borderRadius: 14, borderWidth: 1, borderColor: c.border, alignItems: 'center', justifyContent: 'center' },
   bars: { flexDirection: 'row', gap: 14 },
   barCol: { flex: 1, gap: 4 },
   barHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },

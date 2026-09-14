@@ -1,4 +1,7 @@
 {
+  "prefsLoad": {
+    "message": "No pudimos cargar tu configuración. Puede ser un problema temporal de red."
+  },
   "generateFailed": {
     "transactions": "Algunas transacciones recurrentes no se crearon ahora. Lo intentaremos de nuevo.",
     "meetings": "Algunas reuniones programadas no se crearon ahora. Lo intentaremos de nuevo."

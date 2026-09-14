@@ -1,4 +1,4 @@
-import { useMemo, useState, useRef, useCallback } from 'react'
+import { useMemo, useState, useRef, useCallback, useEffect } from 'react'
 import { View, ScrollView, RefreshControl } from 'react-native'
 import { Text } from '../components/Text'
 import { Pressable } from '../components/Pressable'
@@ -23,6 +23,8 @@ import MoonWidget, { MoonExpansion } from './home/MoonWidget'
 import QuoteWidget from './home/QuoteWidget'
 import InsightsWidget from './home/InsightsWidget'
 import QuickRow from './home/QuickRow'
+import AddGoalEntryModal from '../modals/AddGoalEntryModal'
+import { onGenerated } from '../lib/generators'
 
 // Home — greeting + net/clients/today chips (shared core homeChips) + the
 // widget stack, over the per-screen background photo (Warm Precision theme).
@@ -52,8 +54,15 @@ export default function HomeScreen() {
     if (firstFocus.current) { firstFocus.current = false; return }
     reload()
   }, [reload]))
+  /* A generation pass (components/Generators) usually lands after this
+     screen's first load. The pending income, meetings and booking leads it
+     wrote belong on Home now, not on the next focus. */
+  useEffect(() => onGenerated(() => reload()), [reload])
   const [openTile, setOpenTile] = useState(null)
   const [moonExpanded, setMoonExpanded] = useState(false)
+  /* { goal, cat } a progress entry is being logged for — opened by the "+"
+     on a manual goal in the moon expansion, as on web. */
+  const [entryTarget, setEntryTarget] = useState(null)
   const filters = useMemo(() => getTileFilters(prefs), [prefs])
   const gender = prefs.design?.gender
 
@@ -90,7 +99,7 @@ export default function HomeScreen() {
   const renderWidget = (id) => {
     switch (id) {
       case 'insights': return <InsightsWidget key="insights" questions={questions} answers={answers} addAnswer={addAnswer} />
-      case 'quick-row': return <QuickRow key="quick-row" clients={clients} goals={goals} categories={categories} addTask={addTask} addEntry={addEntry} addTransaction={addTransaction} addClient={addClient} addLead={addLead} addProject={addProject} addReminder={addReminder} addMeeting={addMeeting} />
+      case 'quick-row': return <QuickRow key="quick-row" clients={clients} categories={categories} addTask={addTask} addTransaction={addTransaction} addClient={addClient} addLead={addLead} addProject={addProject} addReminder={addReminder} addMeeting={addMeeting} />
       case 'attention': return (
         <AttentionWidget key="attention" data={attentionData} projects={projects} financeCategories={financeCategories}
           onApproveTx={(id2) => setTransactionStatus(id2, 'confirmed')} onSkipTx={(id2) => setTransactionStatus(id2, 'skipped')} onDeleteTx={deleteTransaction} />
@@ -130,12 +139,20 @@ export default function HomeScreen() {
           </View>
         ) : null}
         {!loading && moonOn && moonExpanded && moon.overall ? (
-          <MoonExpansion scored={moon.scored} conf={moon.overall.confidence} gender={gender} onFull={() => nav.navigate('Moon')} />
+          <MoonExpansion scored={moon.scored} conf={moon.overall.confidence} gender={gender} onFull={() => nav.navigate('Moon')} onLogEntry={setEntryTarget} />
         ) : null}
 
         {/* Widget order + enable/disable follow the user's prefs.widgets (web parity). */}
         {!loading ? restOrder.map((id) => renderWidget(id)) : null}
       </ScrollView>
+
+      <AddGoalEntryModal
+        open={!!entryTarget}
+        onClose={() => setEntryTarget(null)}
+        category={entryTarget?.cat}
+        goal={entryTarget?.goal}
+        onSave={addEntry}
+      />
 
       <TileDrillModal
         open={!!openTile}

@@ -31,9 +31,18 @@ export function nextSessionNum(sessions, m) {
 // Confirm "it happened": materialise a session + link session_id. Dedup: if a
 // session is already linked, just flip the status. Best-effort — if the session
 // insert fails, still mark confirmed so the row isn't stuck (matches web).
-export async function confirmScheduledMeeting({ meeting, sessions, addSession, updateMeeting }) {
+//
+// A per-session client is the exception, as on web: every session they have is
+// billed, so the confirmation itself creates none, and the caller asks whether
+// to charge (billPerSessionMeeting). The calendar guarded this inline while the
+// home tile did not, so a coach who confirmed from home was charged without
+// being asked. Pass `clients` so the guard can see the billing mode.
+export async function confirmScheduledMeeting({ meeting, sessions, addSession, updateMeeting, clients = [] }) {
   if (!meeting?.id) return
-  if (meeting.session_id) {
+  const subjectClient = meeting.subject_type === 'client'
+    ? (clients || []).find((c) => c.id === meeting.subject_id)
+    : null
+  if (meeting.session_id || subjectClient?.billing_mode === 'per_session') {
     await updateMeeting(meeting.id, { status: 'confirmed' })
     return
   }
@@ -52,6 +61,24 @@ export async function confirmScheduledMeeting({ meeting, sessions, addSession, u
     })
   } catch { /* session insert failed — fall through to mark confirmed */ }
   await updateMeeting(meeting.id, session ? { status: 'confirmed', session_id: session.id } : { status: 'confirmed' })
+}
+
+// The one-off held session that BILLS a per-session client for a confirmed
+// meeting (mirrors web billPerSessionMeeting and the calendar's billSession).
+// Deliberately unlinked from the meeting: it is a charge, not the meeting's
+// record. Numbered after the client's live sessions.
+export async function billPerSessionMeeting({ meeting, sessions, addSession }) {
+  const num = (sessions || []).filter((s) => !s.deleted_at && s.client_id === meeting.subject_id).length + 1
+  return addSession({
+    date: meeting.scheduled_at,
+    summary: null,
+    notes: null,
+    client_id: meeting.subject_id,
+    group_id: null,
+    subject_type: 'client',
+    subject_id: meeting.subject_id,
+    num,
+  })
 }
 
 // Didn't happen: mark skipped and drop any session we materialised for it

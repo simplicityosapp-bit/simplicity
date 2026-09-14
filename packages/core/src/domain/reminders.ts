@@ -78,6 +78,42 @@ export function dueOccurrenceCount(r: Reminder, now: Date = new Date()): number 
   return 1
 }
 
+/* ── The first occurrence of a new recurring reminder ─────────────
+   A weekly or monthly reminder is authored as "every Tuesday at 09:00",
+   not as a date, so its first scheduled_at is the NEXT future occurrence
+   of that slot. Moved here from web AddReminderModal because the phone
+   took the weekday or day-of-month from its date field (default: today)
+   and saved that date as-is — so a reminder made after its hour had
+   passed was overdue the moment it was saved, and one given a past date
+   came back already counting ×N. */
+const hhmm = (time: string | null | undefined): [number, number] => {
+  const [h, m] = String(time || '09:00').split(':').map(Number)
+  return [Number.isFinite(h) ? h : 9, Number.isFinite(m) ? m : 0]
+}
+
+/* Next occurrence of weekday `dow` (0–6) at HH:MM. Today counts only while
+   its time is still ahead — otherwise the same weekday next week. */
+export function nextWeeklyOccurrence(dow: number, time: string | null | undefined, now: Date = new Date()): Date {
+  const [h, m] = hhmm(time)
+  const d = new Date(now.getFullYear(), now.getMonth(), now.getDate(), h, m, 0, 0)
+  let add = (dow - d.getDay() + 7) % 7
+  if (add === 0 && d <= now) add = 7
+  d.setDate(d.getDate() + add)
+  return d
+}
+
+/* Next occurrence of day-of-month `dom` at HH:MM, clamped to the month's
+   length (31 in a 30-day month → the 30th). This month while it is still
+   ahead, else next month. */
+export function nextMonthlyOccurrence(dom: number, time: string | null | undefined, now: Date = new Date()): Date {
+  const [h, m] = hhmm(time)
+  const at = (year: number, month: number) =>
+    new Date(year, month, Math.min(dom, new Date(year, month + 1, 0).getDate()), h, m, 0, 0)
+  let d = at(now.getFullYear(), now.getMonth())
+  if (d <= now) d = at(now.getFullYear(), now.getMonth() + 1)
+  return d
+}
+
 /* A recurring reminder is "active" while not stopped (completed/dismissed). */
 export const isActiveReminder = (r: Reminder | null | undefined): boolean =>
   !!r && r.status !== 'completed' && r.status !== 'dismissed'

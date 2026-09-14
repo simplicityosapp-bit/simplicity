@@ -33,6 +33,7 @@ export default function EventDetailsModal({ open, onClose, event, onConfirmMeeti
 
   const isMeeting = event.kind === 'meeting'
   const isCalendar = event.kind === 'calendar'
+  const isPast = event.isPast ?? (new Date(event.when).getTime() <= Date.now())
   const Icon = (isMeeting || isCalendar) ? CalendarDays : Clock
 
   const run = (fn) => async () => { if (busy) return; setBusy(true); try { await fn?.(event.raw) } finally { onClose() } }
@@ -99,8 +100,17 @@ export default function EventDetailsModal({ open, onClose, event, onConfirmMeeti
         </View>
       </View>
 
-      {/* Meeting — confirm it happened / skip */}
-      {isMeeting && event.status === 'pending' && !billStep ? (
+      {/* Meeting — confirm it happened / skip. Only once its time has passed:
+          "yes" creates a session and can bill a per-session client, so a
+          meeting still ahead gets the neutral "upcoming" line instead (web
+          EventDetailsModal). The caller stamps isPast when the event is
+          opened; reading the clock here is only the fallback. */}
+      {isMeeting && event.status === 'pending' && !isPast && !billStep ? (
+        <View style={styles.block}>
+          <Text style={styles.confirmed}>{T('meetingUpcoming')}</Text>
+        </View>
+      ) : null}
+      {isMeeting && event.status === 'pending' && isPast && !billStep ? (
         <View style={styles.block}>
           <Text style={styles.question}>{T('meetingHappened')}</Text>
           <View style={styles.actions}>

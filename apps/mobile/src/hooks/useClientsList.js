@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
 import { selectAll } from '../lib/paginate'
 import { staleScheduledMeetingIds } from '../lib/scheduledMeetings'
+import { groupMembershipPlan, newMembership } from '@simplicity/core'
 
 /* YYYY-MM-DD in LOCAL time (matches the DATE column semantics). Mirrors the
    web's helper in lib/api/clientAdjustments.js. */
@@ -76,7 +77,19 @@ export function useClientsList() {
   }, [load])
 
   // Add a client / payment / session (mirrors the launcher + drawer mutations).
-  const addClient = useCallback((payload) => insertInto('clients', payload, 'clients'), [insertInto])
+  /* A client added straight into a group gets the membership row too. The
+     roster, the group-driven status and the group dues all read group_members;
+     a client row carrying only the group_id tag was "in" the group on the
+     project screen and nowhere else — the drift core groupMembership exists
+     to end. Non-fatal: the client exists either way, and the membership can
+     still be added from the project screen. */
+  const addClient = useCallback(async (payload) => {
+    const row = await insertInto('clients', payload, 'clients')
+    if (row?.group_id) {
+      try { await insertInto('group_members', newMembership(row.group_id, row.id), 'members') } catch { /* see above */ }
+    }
+    return row
+  }, [insertInto])
   const addTransaction = useCallback((payload) => insertInto('transactions', payload, 'transactions'), [insertInto])
   const addSession = useCallback((payload) => insertInto('sessions', payload, 'sessions'), [insertInto])
   // Schedule a meeting (scheduled_meetings isn't in this hook's state → insert only;
@@ -109,6 +122,18 @@ export function useClientsList() {
         )
         for (const mid of stale) { await supabase.from('scheduled_meetings').delete().eq('id', mid) }
       } catch { /* non-fatal — the slot change itself already succeeded */ }
+    }
+    /* The edit form's group picker writes clients.group_id — the single-group
+       TAG. Membership rows follow it the way web's handleUpdateClient does:
+       the old group's row closes, the new group gets one unless it has it. */
+    if (prev && 'group_id' in patch && (patch.group_id || null) !== (prev.group_id || null)) {
+      const plan = groupMembershipPlan({
+        prevGroupId: prev.group_id,
+        nextGroupId: patch.group_id,
+        memberships: state.members.filter((m) => m.client_id === id),
+      })
+      for (const mid of plan.remove) await softDelete('group_members', 'members', mid).catch(() => {})
+      for (const gid of plan.add) await insertInto('group_members', newMembership(gid, id), 'members').catch(() => {})
     }
     /* An adjustment column moved → also write the row that explains it
        (client_adjustments, migration 0095). Without this, an adjustment made
@@ -149,7 +174,7 @@ export function useClientsList() {
       }
     }
     return result
-  }, [patchRow, state.clients])
+  }, [patchRow, softDelete, insertInto, state.clients, state.members])
   const deleteClient = useCallback((id) => softDelete('clients', 'clients', id), [softDelete])
   const updateSession = useCallback((id, patch) => patchRow('sessions', 'sessions', id, patch), [patchRow])
   /* Deleting a documented session also CLEARS the link on any scheduled

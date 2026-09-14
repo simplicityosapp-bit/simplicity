@@ -166,11 +166,16 @@ export default function CalendarScreen() {
               {selectedEvents.map((e, i) => {
                 const tappable = e.kind === 'meeting' || e.kind === 'calendar'
                 return (
-                  <Pressable key={e.id} style={[styles.row, flipRow, i > 0 && styles.rowBorder]} onPress={tappable ? () => setDetail(e) : undefined} disabled={!tappable}>
+                  /* Opening an event stamps whether its time has passed (as web
+                     does). "Did it happen?" is a past-tense question: answering
+                     it for next week's meeting creates a real session, and bills
+                     a per-session client for a meeting that has not happened.
+                     The inline ✓ follows the same cut. */
+                  <Pressable key={e.id} style={[styles.row, flipRow, i > 0 && styles.rowBorder]} onPress={tappable ? () => setDetail({ ...e, isPast: new Date(e.when).getTime() <= Date.now() }) : undefined} disabled={!tappable}>
                     <Text style={styles.time}>{fmtTime(e.when)}</Text>
                     <View style={[styles.dot, { backgroundColor: KIND_COLOR[e.kind] || colors.textFaint }]} />
                     <Text style={[styles.eventTitle, flip && styles.eventTitleRtl]} numberOfLines={1}>{e.title || '—'}</Text>
-                    {e.pending ? (
+                    {e.pending && new Date(e.when) <= now ? (
                       <Pressable accessibilityLabel={i18n.t('modalsSystem:confirm.confirm')} style={styles.confirm} onPress={() => handleConfirm(e.raw)} hitSlop={6}>
                         <Check size={14} strokeWidth={2.2} color={colors.positive} />
                       </Pressable>

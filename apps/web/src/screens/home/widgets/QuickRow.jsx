@@ -14,6 +14,8 @@ import { useGoalCategories } from '../../../hooks/useGoalCategories'
 import { useReminders } from '../../../hooks/useReminders'
 import { useScheduledMeetings } from '../../../hooks/useScheduledMeetings'
 import { useUserQuestions } from '../../../hooks/useUserQuestions'
+import { useGroupMembers } from '../../../hooks/useGroupMembers'
+import { newMembership } from '../../../lib/groupMembership'
 
 import QuickActionsModal from '../../../modals/QuickActionsModal'
 import AddTransactionModal from '../../../modals/AddTransactionModal'
@@ -39,6 +41,7 @@ export default function QuickRow() {
   const { t } = useT('home')
   const { addTransaction } = useTransactions()
   const { clients, addClient } = useClients()
+  const { addMember } = useGroupMembers()
   const { statuses: clientStatuses } = useClientStatuses()
   const { projects, addProject } = useProjects()
   const { addLead } = useLeads()
@@ -87,7 +90,13 @@ export default function QuickRow() {
         onClose={close}
         projects={projects}
         statuses={clientStatuses}
-        onSave={addClient}
+        onSave={async (c) => {
+          const row = await addClient(c)
+          /* The form's group picker writes only the client's group tag; the
+             roster, status and dues read group_members (see the clients screen). */
+          if (row?.group_id) await addMember(newMembership(row.group_id, row.id)).catch(() => {})
+          return row
+        }}
       />
       <AddLeadModal
         open={active === 'lead'}

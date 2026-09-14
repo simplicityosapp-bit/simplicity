@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
+import { selectAll } from '../lib/paginate'
 
 const SERVER_OWNED = ['id', 'user_id', 'created_at', 'updated_at', 'deleted_at']
 
@@ -18,7 +19,12 @@ export function useInsightsData() {
     try {
       const [{ data: q, error: qe }, { data: a, error: ae }] = await Promise.all([
         supabase.from('user_questions').select('*').is('deleted_at', null).limit(500),
-        supabase.from('daily_answers').select('*').is('deleted_at', null).limit(5000),
+        /* Every answer, paged past the server's 1000-row cap (web
+           listDailyAnswers). The old .limit(5000) was never honoured above
+           1000, and with no order the 1000 that came back were arbitrary — so
+           a coach past about a year of answers had averages, the heatmap and
+           the reflections computed from a random subset. */
+        selectAll(() => supabase.from('daily_answers').select('*').is('deleted_at', null).order('date', { ascending: false })),
       ])
       if (qe) throw qe
       if (ae) throw ae

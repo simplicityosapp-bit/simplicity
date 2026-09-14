@@ -11,12 +11,18 @@ export function AuthProvider({ children }) {
   const [ready, setReady] = useState(false)
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      setSession(data.session ?? null)
-      setReady(true)
-    })
+    /* `ready` has to arrive on every path. A getSession that rejected (a storage
+       read failing at boot, say) used to leave the app on its startup spinner
+       for good, with nothing to press. Treat it as signed out — the login screen
+       is a way forward; the auth listener below still delivers a session that
+       turns up later. */
+    supabase.auth.getSession()
+      .then(({ data }) => { setSession(data.session ?? null) })
+      .catch(() => { setSession(null) })
+      .finally(() => { setReady(true) })
     const { data: sub } = supabase.auth.onAuthStateChange((event, s) => {
       setSession(s ?? null)
+      setReady(true)
       // Clear the previous user's global format/gender singletons on sign-out.
       if (event === 'SIGNED_OUT') resetPreferenceEffects()
     })

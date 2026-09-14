@@ -1,5 +1,5 @@
 import { useMemo, useState, useRef, useCallback, useEffect } from 'react'
-import { View, ScrollView, RefreshControl } from 'react-native'
+import { View, ScrollView, RefreshControl, Alert } from 'react-native'
 import { Text } from '../components/Text'
 import { Pressable } from '../components/Pressable'
 import { useNavigation, useFocusEffect } from '@react-navigation/native'
@@ -25,6 +25,9 @@ import InsightsWidget from './home/InsightsWidget'
 import QuickRow from './home/QuickRow'
 import AddGoalEntryModal from '../modals/AddGoalEntryModal'
 import { onGenerated } from '../lib/generators'
+import { useRecurring } from '../hooks/useRecurring'
+import { confirmRemoveTransaction } from '../lib/recurringTx'
+import { billPerSessionMeeting } from '../lib/scheduledMeetings'
 
 // Home — greeting + net/clients/today chips (shared core homeChips) + the
 // widget stack, over the per-screen background photo (Warm Precision theme).
@@ -40,10 +43,36 @@ export default function HomeScreen() {
   const insets = useSafeAreaInsets()
   const {
     clients, transactions, meetings, calendarEvents, leads, groups,
-    tasks, goals, categories, sessions, members, reminders, entries, answers, questions, loading, refreshing, error, refetch, reload, addAnswer, addTask, addEntry, addTransaction, addClient, addLead, addProject, addReminder, addMeeting, setMeetingStatus, confirmMeeting, toggleTask, completeReminder, setTransactionStatus, deleteTransaction,
+    tasks, goals, categories, sessions, members, reminders, entries, answers, questions, loading, refreshing, error, refetch, reload, addAnswer, addTask, addEntry, addTransaction, addClient, addLead, addProject, addReminder, addMeeting, addSession, confirmMeeting, toggleTask, completeReminder, setTransactionStatus, deleteTransaction, restoreTransaction,
   } = useHomeData()
   const { prefs, update: updatePrefs } = usePreferences()
   const { projects, categories: financeCategories } = useFormOptions()
+  const { templates, updateRecurring, refetch: refetchTemplates } = useRecurring()
+
+  /* Deleting a pending transaction asks first and, for a row a live recurring
+     rule still owns, pauses the rule — the same helper the finance screen uses.
+     It was a bare soft delete here, and now that this app runs the generator
+     the row came back on the very next pass. */
+  const onDeleteTx = (tx) => confirmRemoveTransaction({ tx, templates, deleteTransaction, restoreTransaction, updateRecurring })
+
+  /* "Happened" from the today tile. A per-session client's confirmation creates
+     no session (see confirmScheduledMeeting); whether to charge is asked, as in
+     the calendar and on web. */
+  const confirmFromDrill = async (it) => {
+    if (!it.meeting) return
+    await confirmMeeting(it.meeting)
+    const c = it.meeting.subject_type === 'client' ? clients.find((x) => x.id === it.meeting.subject_id) : null
+    if (c?.billing_mode !== 'per_session') return
+    const T = (k, o) => i18n.t(`modalsTask:event.${k}`, o)
+    Alert.alert(
+      T('title'),
+      Number(c.price_per_session) > 0 ? T('billOneOff', { name: c.name, amount: isr(c.price_per_session) }) : T('billOneOffNoPrice', { name: c.name }),
+      [
+        { text: T('billNo'), style: 'cancel' },
+        { text: T('billYes'), onPress: () => { billPerSessionMeeting({ meeting: it.meeting, sessions, addSession }).catch(() => {}) } },
+      ],
+    )
+  }
 
   // Home is a persistent bottom-tab screen (mounts once), so silently re-pull on
   // every RE-focus to pick up mutations made on other tabs (add a client, complete
@@ -53,7 +82,8 @@ export default function HomeScreen() {
   useFocusEffect(useCallback(() => {
     if (firstFocus.current) { firstFocus.current = false; return }
     reload()
-  }, [reload]))
+    refetchTemplates()
+  }, [reload, refetchTemplates]))
   /* A generation pass (components/Generators) usually lands after this
      screen's first load. The pending income, meetings and booking leads it
      wrote belong on Home now, not on the next focus. */
@@ -102,7 +132,7 @@ export default function HomeScreen() {
       case 'quick-row': return <QuickRow key="quick-row" clients={clients} categories={categories} addTask={addTask} addTransaction={addTransaction} addClient={addClient} addLead={addLead} addProject={addProject} addReminder={addReminder} addMeeting={addMeeting} />
       case 'attention': return (
         <AttentionWidget key="attention" data={attentionData} projects={projects} financeCategories={financeCategories}
-          onApproveTx={(id2) => setTransactionStatus(id2, 'confirmed')} onSkipTx={(id2) => setTransactionStatus(id2, 'skipped')} onDeleteTx={deleteTransaction} />
+          onApproveTx={(id2) => setTransactionStatus(id2, 'confirmed')} onSkipTx={(id2) => setTransactionStatus(id2, 'skipped')} onDeleteTx={onDeleteTx} />
       )
       case 'next-tasks': return <NextTasksWidget key="next-tasks" tasks={tasks} reminders={reminders} onToggle={toggleTask} onCompleteReminder={completeReminder} />
       case 'chips': return (
@@ -170,7 +200,7 @@ export default function HomeScreen() {
         meetings={meetings}
         calendarEvents={calendarEvents}
         leads={leads}
-        onConfirm={(it) => (it.meeting ? confirmMeeting(it.meeting) : setMeetingStatus(it.meeting?.id, 'confirmed'))}
+        onConfirm={confirmFromDrill}
       />
     </Screen>
   )

@@ -47,8 +47,16 @@ export default function AddQuestionModal({ open, onClose, onSave, nextOrder = 0,
   const submit = async () => {
     let row
     if (isEdit) {
-      if (!form.text.trim()) { setErr(i18n.t('modalsTask:question.textRequired')); return }
-      row = { template_key: null, custom_text: form.text.trim(), scale_type: form.scale_type, icon: form.icon }
+      /* Text and icon only (web EditQuestionModal). The scale is not editable:
+         answers are stored against it, so flipping 1-10 ↔ yes/no corrupts the
+         history, the averages and any goal summing them. And a template
+         question saved with its wording unchanged keeps tracking the template
+         — its text is localised, and nulling template_key froze it in one
+         language. */
+      const v = form.text.trim()
+      if (!v) { setErr(i18n.t('modalsTask:question.textRequired')); return }
+      const sameAsTemplate = editQuestion.template_key && !editQuestion.custom_text && v === (qtext(editQuestion.template_key) || '')
+      row = sameAsTemplate ? { icon: form.icon } : { template_key: null, custom_text: v, icon: form.icon }
     } else if (effMode === 'template') {
       const tmpl = QUESTION_TEMPLATES.find((x) => x.key === tmplKey)
       if (!tmpl) { setErr(i18n.t('modalsTask:question.questionRequired')); return }
@@ -108,19 +116,21 @@ export default function AddQuestionModal({ open, onClose, onSave, nextOrder = 0,
               placeholderTextColor={colors.textFaint}
             />
           </View>
-          <View style={styles.field}>
-            <Text style={styles.label}>{i18n.t('modalsTask:question.answerType')}</Text>
-            <View style={styles.pills}>
-              {SCALES.map((s) => {
-                const on = form.scale_type === s.k
-                return (
-                  <Pressable key={s.k} style={[styles.pill, on && styles.pillOn]} onPress={() => set('scale_type', s.k)}>
-                    <Text style={[styles.pillText, on && styles.pillTextOn]}>{i18n.t(`modalsTask:question.${s.l}`)}</Text>
-                  </Pressable>
-                )
-              })}
+          {isEdit ? null : (
+            <View style={styles.field}>
+              <Text style={styles.label}>{i18n.t('modalsTask:question.answerType')}</Text>
+              <View style={styles.pills}>
+                {SCALES.map((s) => {
+                  const on = form.scale_type === s.k
+                  return (
+                    <Pressable key={s.k} style={[styles.pill, on && styles.pillOn]} onPress={() => set('scale_type', s.k)}>
+                      <Text style={[styles.pillText, on && styles.pillTextOn]}>{i18n.t(`modalsTask:question.${s.l}`)}</Text>
+                    </Pressable>
+                  )
+                })}
+              </View>
             </View>
-          </View>
+          )}
           <View style={styles.field}>
             <Text style={styles.label}>{i18n.t('modalsTask:question.icon')}</Text>
             <View style={styles.iconRow}>

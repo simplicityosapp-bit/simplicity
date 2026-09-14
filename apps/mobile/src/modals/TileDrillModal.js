@@ -4,7 +4,7 @@ import { Text } from '../components/Text'
 import { Pressable } from '../components/Pressable'
 import { useNavigation } from '@react-navigation/native'
 import { ArrowLeft, Check, MessageCircle } from 'lucide-react-native'
-import { isr, fmtTime, todayItems } from '@simplicity/core'
+import { isr, fmtTime, todayItems, waLink, normalizeIsraeliPhone } from '@simplicity/core'
 import Sheet from '../components/Sheet'
 import { ClientsTrend, NetBars } from '../screens/home/TileDrillCharts'
 import i18n from '../lib/i18n'
@@ -165,7 +165,7 @@ function NetPanel({ filters, setFilter, transactions, projects, categories, summ
 
 function MeetingsPanel({ filters, setFilter, items, onConfirm }) {
   const kinds = filters.kinds && filters.kinds.length ? filters.kinds : TODAY_KINDS
-  const whatsapp = (it) => { const p = (it.phone || '').replace(/\D/g, ''); if (p) Linking.openURL(`https://wa.me/${p}`) }
+  const whatsapp = (it) => { if (normalizeIsraeliPhone(it.phone)) Linking.openURL(waLink(it.phone)) }
   return (
     <>
       <Text style={styles.num}>{items.length}</Text>

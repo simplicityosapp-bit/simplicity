@@ -61,7 +61,7 @@ function Section({ Icon, title, summary, open, onToggle, children }) {
   )
 }
 
-export default function EditClientModal({ open, onClose, onSave, client, rawPaid = 0, memberTotal = 0, personalHeld = 0, groupSessions = [], onPaidEntry, memberships = [], onUpdateMember }) {
+export default function EditClientModal({ open, onClose, onSave, client, rawPaid = 0, memberTotal = 0, personalHeld = 0, groupSessions = [], onPaidEntry, onBalanceEntry, memberships = [], onUpdateMember }) {
   const { projects, groups, clientStatuses, meetingTypes } = useFormOptions()
   const snap = { rawPaid, memberTotal, personalHeld }
   const [form, setForm] = useState(() => blank(client, snap))
@@ -169,13 +169,13 @@ export default function EditClientModal({ open, onClose, onSave, client, rawPaid
       // "נעשה" manual edit → store the delta as sessions_done_adjustment.
       const nextDoneAdj = (Number(form.done) || 0) - personalHeld
       if (nextDoneAdj !== (Number(client?.sessions_done_adjustment) || 0)) patch.sessions_done_adjustment = nextDoneAdj
-      // "יתרה" edit → balance_adjustment (a card-only forgiveness).
+      /* «שולם» and «יתרה» are not written here when the parent takes them: each
+         delta goes to the adjustment sheet, which asks why and records it in the
+         ledger (web onPaidEntry / onBalanceEntry). A standalone use with no
+         handler still writes the column, so a change is never silently dropped. */
       const nextAdj = Number(form.adjustment) || 0
-      if (nextAdj !== (Number(client?.balance_adjustment) || 0)) patch.balance_adjustment = nextAdj
-      // "שולם" edit → hand the delta to the parent, which prompts to record a
-      // real income transaction OR fold it into paid_adjustment as a card-only
-      // credit (mirrors web onPaidEntry). Fall back to folding if no handler is
-      // wired, so a standalone use never silently drops the change.
+      const balanceDelta = nextAdj - (Number(client?.balance_adjustment) || 0)
+      if (!onBalanceEntry && balanceDelta !== 0) patch.balance_adjustment = nextAdj
       const paymentDelta = (Number(form.paid) || 0) - (rawPaid + (Number(client?.paid_adjustment) || 0))
       if (!onPaidEntry && paymentDelta !== 0) patch.paid_adjustment = (Number(client?.paid_adjustment) || 0) + paymentDelta
       await onSave(client.id, patch)
@@ -187,8 +187,9 @@ export default function EditClientModal({ open, onClose, onSave, client, rawPaid
           await onUpdateMember?.(m.id, { total_override: next, has_custom_price: next != null })
         }
       }
-      // A manual "שולם" change → hand the delta to the parent to prompt record-or-fold.
+      // Both can move in one save; they queue, and the sheets come in order.
       if (onPaidEntry && paymentDelta !== 0) onPaidEntry(paymentDelta)
+      if (onBalanceEntry && balanceDelta !== 0) onBalanceEntry(balanceDelta)
       onClose()
     } catch (e) {
       setBusy(false)

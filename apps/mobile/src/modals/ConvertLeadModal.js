@@ -5,6 +5,7 @@ import { Pressable } from '../components/Pressable'
 import Sheet from '../components/Sheet'
 import Select from '../components/Select'
 import { useFormOptions } from '../lib/formOptions'
+import { useDiscardGuard, isDirty } from '../lib/discardGuard'
 import i18n from '../lib/i18n'
 import { colors } from '../theme/theme'
 import { themed } from '../theme/themed'
@@ -16,14 +17,17 @@ import { themed } from '../theme/themed'
 // onUpdateLead / onAddGroupMember.
 const C = (k, o) => i18n.t(`modalsClient:common.${k}`, o)
 const T = (k, o) => i18n.t(`modalsClient:convertLead.${k}`, o)
+const seedOf = (lead) => ({ name: lead?.name || '', phone: lead?.phone || '', project_id: lead?.project_id || '', group_id: lead?.group_id || '' })
 
 export default function ConvertLeadModal({ open, onClose, lead, onCreateClient, onUpdateLead, onAddGroupMember }) {
   const { projects = [], groups = [] } = useFormOptions()
-  const [form, setForm] = useState(() => ({ name: lead?.name || '', phone: lead?.phone || '', project_id: lead?.project_id || '', group_id: lead?.group_id || '' }))
+  const [form, setForm] = useState(() => seedOf(lead))
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }))
-  useEffect(() => { if (open) { setForm({ name: lead?.name || '', phone: lead?.phone || '', project_id: lead?.project_id || '', group_id: lead?.group_id || '' }); setErr(''); setBusy(false) } }, [open, lead])
+  useEffect(() => { if (open) { setForm(seedOf(lead)); setErr(''); setBusy(false) } }, [open, lead])
+  /* Seeded from the lead, so only edits made here count — as on web. */
+  const requestClose = useDiscardGuard(!busy && isDirty(form, seedOf(lead)), onClose)
 
   const projectGroups = form.project_id ? groups.filter((g) => g.project_id === form.project_id && !g.deleted_at) : []
 
@@ -65,7 +69,7 @@ export default function ConvertLeadModal({ open, onClose, lead, onCreateClient, 
   }
 
   return (
-    <Sheet open={open} onClose={onClose} title={T('title')}>
+    <Sheet open={open} onClose={requestClose} title={T('title')}>
       {lead ? (
         <>
           <View style={styles.subRow}>
@@ -103,7 +107,7 @@ export default function ConvertLeadModal({ open, onClose, lead, onCreateClient, 
           {err ? <Text style={styles.error}>{err}</Text> : null}
 
           <View style={styles.actions}>
-            <Pressable style={styles.cancel} onPress={onClose} disabled={busy}><Text style={styles.cancelText}>{C('cancel')}</Text></Pressable>
+            <Pressable style={styles.cancel} onPress={requestClose} disabled={busy}><Text style={styles.cancelText}>{C('cancel')}</Text></Pressable>
             <Pressable style={[styles.save, busy && styles.saveOff]} onPress={submit} disabled={busy}>
               <Text style={styles.saveText}>{busy ? T('converting') : T('convert')}</Text>
             </Pressable>

@@ -4,6 +4,7 @@ import { Text } from '../components/Text'
 import { Pressable } from '../components/Pressable'
 import Sheet from '../components/Sheet'
 import Select from '../components/Select'
+import { useDiscardGuard } from '../lib/discardGuard'
 import i18n from '../lib/i18n'
 import { colors } from '../theme/theme'
 import { themed } from '../theme/themed'
@@ -19,6 +20,7 @@ export default function AddGroupMemberModal({ open, onClose, onSave, group, avai
   const [busy, setBusy] = useState(false)
   useEffect(() => { if (open) { setClientId(''); setErr(''); setBusy(false) } }, [open, group])
   const close = () => { setErr(''); setBusy(false); onClose() }
+  const requestClose = useDiscardGuard(!busy && !!clientId, close)
 
   const submit = async () => {
     if (!clientId) { setErr(M('clientRequired', { defaultValue: 'יש לבחור לקוח/ה.' })); return }
@@ -38,7 +40,7 @@ export default function AddGroupMemberModal({ open, onClose, onSave, group, avai
   }
 
   return (
-    <Sheet open={open} onClose={close} title={M('title', { defaultValue: 'הוספת חבר/ה לקבוצה' })}>
+    <Sheet open={open} onClose={requestClose}title={M('title', { defaultValue: 'הוספת חבר/ה לקבוצה' })}>
       <Select
         label={M('client', { defaultValue: 'לקוח/ה' })}
         value={clientId}
@@ -49,7 +51,7 @@ export default function AddGroupMemberModal({ open, onClose, onSave, group, avai
       {availableClients.length === 0 ? <Text style={styles.hint}>{M('allMembers', { defaultValue: 'כל הלקוחות שלך כבר חברים בקבוצה.' })}</Text> : null}
       {err ? <Text style={styles.error}>{err}</Text> : null}
       <View style={styles.actions}>
-        <Pressable style={styles.cancel} onPress={close}><Text style={styles.cancelText}>{C('cancel')}</Text></Pressable>
+        <Pressable style={styles.cancel} onPress={requestClose}><Text style={styles.cancelText}>{C('cancel')}</Text></Pressable>
         <Pressable style={[styles.save, (busy || !clientId) && styles.saveOff]} onPress={submit} disabled={busy || !clientId}><Text style={styles.saveText}>{busy ? C('saving') : M('addAction', { defaultValue: 'הוספה' })}</Text></Pressable>
       </View>
     </Sheet>

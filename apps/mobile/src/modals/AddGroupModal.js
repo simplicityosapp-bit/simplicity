@@ -4,6 +4,7 @@ import { Text, TextInput } from '../components/Text'
 import { Pressable } from '../components/Pressable'
 import { Trash2 } from 'lucide-react-native'
 import Sheet from '../components/Sheet'
+import { useDiscardGuard, isDirty } from '../lib/discardGuard'
 import i18n from '../lib/i18n'
 import { colors } from '../theme/theme'
 import { themed } from '../theme/themed'
@@ -30,6 +31,7 @@ export default function AddGroupModal({ open, onClose, onSave, onDelete, group =
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }))
   useEffect(() => { if (open) { setForm(blank(group)); setErr(''); setBusy(false) } }, [open, group])
   const close = () => { setErr(''); setBusy(false); onClose() }
+  const requestClose = useDiscardGuard(!busy && isDirty(form, blank(group)), close)
   const isPer = form.billing_mode === 'per_session'
 
   const doRemove = async () => {
@@ -75,7 +77,7 @@ export default function AddGroupModal({ open, onClose, onSave, onDelete, group =
   }
 
   return (
-    <Sheet open={open} onClose={close} title={isEdit ? i18n.t('projects:detail.groups.editAria', { defaultValue: 'עריכת קבוצה' }) : G('title', { defaultValue: 'קבוצה חדשה' })}>
+    <Sheet open={open} onClose={requestClose}title={isEdit ? i18n.t('projects:detail.groups.editAria', { defaultValue: 'עריכת קבוצה' }) : G('title', { defaultValue: 'קבוצה חדשה' })}>
       <View style={styles.field}>
         <Text style={styles.label}>{G('groupName', { defaultValue: 'שם הקבוצה' })}</Text>
         <TextInput style={[styles.input, err && !form.name.trim() && styles.inputErr]} value={form.name} onChangeText={(v) => { set('name', v); if (err) setErr('') }} placeholder={G('groupNamePlaceholder')} placeholderTextColor={colors.textFaint} />
@@ -126,7 +128,7 @@ export default function AddGroupModal({ open, onClose, onSave, onDelete, group =
 
       <View style={styles.actions}>
         {isEdit && onDelete ? <Pressable accessibilityLabel={i18n.t('modalsData:editTx.delete')} style={styles.delete} onPress={remove} disabled={busy} hitSlop={6}><Trash2 size={18} strokeWidth={1.8} color={colors.danger} /></Pressable> : null}
-        <Pressable style={styles.cancel} onPress={close}><Text style={styles.cancelText}>{C('cancel')}</Text></Pressable>
+        <Pressable style={styles.cancel} onPress={requestClose}><Text style={styles.cancelText}>{C('cancel')}</Text></Pressable>
         <Pressable style={[styles.save, busy && styles.saveOff]} onPress={submit} disabled={busy}><Text style={styles.saveText}>{busy ? C('saving') : C('save')}</Text></Pressable>
       </View>
     </Sheet>

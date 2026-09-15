@@ -7,6 +7,7 @@ import { Trash2 } from 'lucide-react-native'
 import Sheet from '../components/Sheet'
 import Select from '../components/Select'
 import { useFormOptions } from '../lib/formOptions'
+import { useDiscardGuard, isDirty } from '../lib/discardGuard'
 import i18n from '../lib/i18n'
 import { colors } from '../theme/theme'
 import { themed } from '../theme/themed'
@@ -44,6 +45,7 @@ export default function AddTaskModal({ open, onClose, onSave, onDelete, task = n
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }))
   useEffect(() => { if (open) { setForm(blank(task)); setErr(''); setBusy(false) } }, [open, task])
   const close = () => { setErr(''); setBusy(false); onClose() }
+  const requestClose = useDiscardGuard(!busy && isDirty(form, blank(task)), close)
 
   const remove = async () => {
     if (busy || !onDelete) return
@@ -91,7 +93,7 @@ export default function AddTaskModal({ open, onClose, onSave, onDelete, task = n
   const noneClient = i18n.t('modalsTask:common.none')
 
   return (
-    <Sheet open={open} onClose={close} title={i18n.t(isEdit ? 'modalsTask:task.titleEdit' : 'modalsTask:task.titleNew')}>
+    <Sheet open={open} onClose={requestClose}title={i18n.t(isEdit ? 'modalsTask:task.titleEdit' : 'modalsTask:task.titleNew')}>
       <View style={styles.field}>
         <Text style={styles.label}>{i18n.t('modalsTask:task.whatToDo')}</Text>
         <TextInput
@@ -169,7 +171,7 @@ export default function AddTaskModal({ open, onClose, onSave, onDelete, task = n
             <Trash2 size={18} strokeWidth={1.8} color={colors.danger} />
           </Pressable>
         ) : null}
-        <Pressable style={styles.cancel} onPress={close}><Text style={styles.cancelText}>{i18n.t('modalsTask:common.cancel')}</Text></Pressable>
+        <Pressable style={styles.cancel} onPress={requestClose}><Text style={styles.cancelText}>{i18n.t('modalsTask:common.cancel')}</Text></Pressable>
         <Pressable style={[styles.save, busy && styles.saveOff]} onPress={submit} disabled={busy}>
           <Text style={styles.saveText}>{busy ? i18n.t('modalsTask:common.saving') : i18n.t('modalsTask:common.save')}</Text>
         </Pressable>

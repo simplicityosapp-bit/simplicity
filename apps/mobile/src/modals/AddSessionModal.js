@@ -5,6 +5,7 @@ import DateField from '../components/DateField'
 import { Pressable } from '../components/Pressable'
 import { Trash2 } from 'lucide-react-native'
 import Sheet from '../components/Sheet'
+import { useDiscardGuard, isDirty } from '../lib/discardGuard'
 import i18n from '../lib/i18n'
 import { colors } from '../theme/theme'
 import { themed } from '../theme/themed'
@@ -31,6 +32,8 @@ export default function AddSessionModal({ open, onClose, onSave, onDelete, clien
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }))
   useEffect(() => { if (open) { setForm(fromSession(session)); setErr(''); setBusy(false) } }, [open, session])
   const close = () => { setErr(''); setBusy(false); onClose() }
+  // A session summary is often long free text written right after the meeting.
+  const requestClose = useDiscardGuard(!busy && isDirty(form, fromSession(session)), close)
 
   const remove = () => {
     if (busy || !onDelete || !session?.id) return
@@ -69,7 +72,7 @@ export default function AddSessionModal({ open, onClose, onSave, onDelete, clien
   }
 
   return (
-    <Sheet open={open} onClose={close} title={isEdit ? i18n.t('modalsTask:session.titleEdit') : i18n.t('modalsTask:session.titleNew')}>
+    <Sheet open={open} onClose={requestClose}title={isEdit ? i18n.t('modalsTask:session.titleEdit') : i18n.t('modalsTask:session.titleNew')}>
       {client ? (
         <View style={styles.sub}>
           <View style={styles.subDot} />
@@ -105,7 +108,7 @@ export default function AddSessionModal({ open, onClose, onSave, onDelete, clien
             <Trash2 size={18} strokeWidth={1.8} color={colors.danger} />
           </Pressable>
         ) : null}
-        <Pressable style={styles.cancel} onPress={close}><Text style={styles.cancelText}>{i18n.t('modalsTask:common.cancel')}</Text></Pressable>
+        <Pressable style={styles.cancel} onPress={requestClose}><Text style={styles.cancelText}>{i18n.t('modalsTask:common.cancel')}</Text></Pressable>
         <Pressable style={[styles.save, busy && styles.saveOff]} onPress={submit} disabled={busy}>
           <Text style={styles.saveText}>{busy ? i18n.t('modalsTask:common.saving') : i18n.t('modalsTask:common.save')}</Text>
         </Pressable>

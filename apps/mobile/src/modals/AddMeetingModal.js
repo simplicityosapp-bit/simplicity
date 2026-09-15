@@ -6,6 +6,7 @@ import { Pressable } from '../components/Pressable'
 import Sheet from '../components/Sheet'
 import Select from '../components/Select'
 import { useFormOptions } from '../lib/formOptions'
+import { useDiscardGuard, isDirty } from '../lib/discardGuard'
 import i18n from '../lib/i18n'
 import { colors } from '../theme/theme'
 import { themed } from '../theme/themed'
@@ -30,6 +31,7 @@ export default function AddMeetingModal({ open, onClose, onSave, clients: propCl
   const [busy, setBusy] = useState(false)
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }))
   const close = () => { setForm(blank()); setRecurring(false); setConfirmReplace(false); setErr(''); setBusy(false); onClose() }
+  const requestClose = useDiscardGuard(!busy && (recurring || isDirty(form, blank())), close)
 
   const canRecur = !!(client && onSetRecurringSlot)
   const slotDow = new Date(`${form.date || todayStr()}T${form.time || '09:00'}`).getDay()
@@ -68,7 +70,7 @@ export default function AddMeetingModal({ open, onClose, onSave, clients: propCl
   }
 
   return (
-    <Sheet open={open} onClose={close} title={i18n.t('modalsTask:meeting.title')}>
+    <Sheet open={open} onClose={requestClose}title={i18n.t('modalsTask:meeting.title')}>
       {client ? (
         <View style={styles.field}>
           <Text style={styles.label}>{i18n.t('modalsTask:meeting.client')}</Text>
@@ -117,7 +119,7 @@ export default function AddMeetingModal({ open, onClose, onSave, clients: propCl
       {err ? <Text style={styles.error}>{err}</Text> : null}
 
       <View style={styles.actions}>
-        <Pressable style={styles.cancel} onPress={close}><Text style={styles.cancelText}>{i18n.t('modalsTask:common.cancel')}</Text></Pressable>
+        <Pressable style={styles.cancel} onPress={requestClose}><Text style={styles.cancelText}>{i18n.t('modalsTask:common.cancel')}</Text></Pressable>
         <Pressable style={[styles.save, busy && styles.saveOff]} onPress={submit} disabled={busy}>
           <Text style={styles.saveText}>{busy ? i18n.t('modalsTask:common.saving') : (showReplaceWarning ? i18n.t('modalsTask:meeting.replaceConfirm') : i18n.t('modalsTask:common.save'))}</Text>
         </Pressable>

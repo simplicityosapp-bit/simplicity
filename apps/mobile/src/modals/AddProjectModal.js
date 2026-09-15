@@ -4,6 +4,7 @@ import { Text, TextInput } from '../components/Text'
 import { Pressable } from '../components/Pressable'
 import { Trash2 } from 'lucide-react-native'
 import Sheet from '../components/Sheet'
+import { useDiscardGuard, isDirty } from '../lib/discardGuard'
 import i18n from '../lib/i18n'
 import { colors } from '../theme/theme'
 import { themed } from '../theme/themed'
@@ -21,6 +22,7 @@ export default function AddProjectModal({ open, onClose, onSave, onDelete, proje
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }))
   useEffect(() => { if (open) { setForm(blank(project)); setErr(''); setBusy(false) } }, [open, project])
   const close = () => { setErr(''); setBusy(false); onClose() }
+  const requestClose = useDiscardGuard(!busy && isDirty(form, blank(project)), close)
 
   const doRemove = async () => {
     setBusy(true)
@@ -52,7 +54,7 @@ export default function AddProjectModal({ open, onClose, onSave, onDelete, proje
   }
 
   return (
-    <Sheet open={open} onClose={close} title={i18n.t(isEdit ? 'projects:card.editTitle' : 'modalsData:addProject.title', { defaultValue: isEdit ? 'ערוך פרויקט' : 'פרויקט חדש' })}>
+    <Sheet open={open} onClose={requestClose}title={i18n.t(isEdit ? 'projects:card.editTitle' : 'modalsData:addProject.title', { defaultValue: isEdit ? 'ערוך פרויקט' : 'פרויקט חדש' })}>
       <View style={styles.field}>
         <Text style={styles.label}>{i18n.t('modalsData:addProject.projectName')}</Text>
         <TextInput
@@ -82,7 +84,7 @@ export default function AddProjectModal({ open, onClose, onSave, onDelete, proje
         {isEdit && onDelete ? (
           <Pressable accessibilityLabel={i18n.t('modalsData:editTx.delete')} style={styles.delete} onPress={remove} disabled={busy} hitSlop={6}><Trash2 size={18} strokeWidth={1.8} color={colors.danger} /></Pressable>
         ) : null}
-        <Pressable style={styles.cancel} onPress={close}><Text style={styles.cancelText}>{i18n.t('modalsData:common.cancel')}</Text></Pressable>
+        <Pressable style={styles.cancel} onPress={requestClose}><Text style={styles.cancelText}>{i18n.t('modalsData:common.cancel')}</Text></Pressable>
         <Pressable style={[styles.save, busy && styles.saveOff]} onPress={submit} disabled={busy}>
           <Text style={styles.saveText}>{busy ? i18n.t('modalsData:common.saving') : i18n.t('modalsData:common.save')}</Text>
         </Pressable>

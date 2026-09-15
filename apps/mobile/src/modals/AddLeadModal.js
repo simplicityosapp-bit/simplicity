@@ -8,6 +8,7 @@ import Sheet from '../components/Sheet'
 import Select from '../components/Select'
 import { useFormOptions } from '../lib/formOptions'
 import { useConfigTaxonomy } from '../hooks/useConfigTaxonomy'
+import { useDiscardGuard, isDirty } from '../lib/discardGuard'
 import i18n from '../lib/i18n'
 import { colors } from '../theme/theme'
 import { themed } from '../theme/themed'
@@ -59,6 +60,8 @@ export default function AddLeadModal({ open, onClose, onSave, onDelete, onConver
   const subStatuses = leadStatuses.filter((s) => s.meta_category === form.status_meta)
   useEffect(() => { if (open) { setForm(blank(lead)); setErr(''); setBusy(false); setNewSource(''); setAddingSource(false) } }, [open, lead])
   const close = () => { setErr(''); setBusy(false); onClose() }
+  // A lead typed in from a phone call is the whole record; don't drop it on a stray tap.
+  const requestClose = useDiscardGuard(!busy && isDirty(form, blank(lead)), close)
 
   const remove = async () => {
     if (busy || !onDelete) return
@@ -112,7 +115,7 @@ export default function AddLeadModal({ open, onClose, onSave, onDelete, onConver
   const none = i18n.t('modalsClient:common.none')
 
   return (
-    <Sheet open={open} onClose={close} title={i18n.t(isEdit ? 'modalsClient:editLead.title' : 'modalsClient:addLead.title')}>
+    <Sheet open={open} onClose={requestClose} title={i18n.t(isEdit ? 'modalsClient:editLead.title' : 'modalsClient:addLead.title')}>
       <View style={styles.field}>
         <Text style={styles.label}>{i18n.t('modalsClient:common.name')}</Text>
         <TextInput
@@ -219,7 +222,7 @@ export default function AddLeadModal({ open, onClose, onSave, onDelete, onConver
             <Trash2 size={18} strokeWidth={1.8} color={colors.danger} />
           </Pressable>
         ) : null}
-        <Pressable style={styles.cancel} onPress={close}><Text style={styles.cancelText}>{i18n.t('modalsClient:common.cancel')}</Text></Pressable>
+        <Pressable style={styles.cancel} onPress={requestClose}><Text style={styles.cancelText}>{i18n.t('modalsClient:common.cancel')}</Text></Pressable>
         <Pressable style={[styles.save, busy && styles.saveOff]} onPress={submit} disabled={busy}>
           <Text style={styles.saveText}>{busy ? i18n.t('modalsClient:common.saving') : i18n.t('modalsClient:common.save')}</Text>
         </Pressable>

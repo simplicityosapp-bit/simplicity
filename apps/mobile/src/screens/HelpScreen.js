@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { View, ScrollView, Linking } from 'react-native'
+import { View, ScrollView } from 'react-native'
 import { Text, TextInput } from '../components/Text'
 import { Pressable } from '../components/Pressable'
 import { BookOpen, HelpCircle, ChevronDown, Lightbulb, Search, X, MessageSquarePlus } from 'lucide-react-native'
@@ -7,6 +7,7 @@ import {
   getHelpScreen, getGlobalFaq, guideOrder, searchHelp, chapterHits,
 } from '@simplicity/core'
 import i18n from '../lib/i18n'
+import { openFeedback } from '../lib/feedback'
 import { colors, space, type } from '../theme/theme'
 import { themed } from '../theme/themed'
 import Screen from '../components/Screen'
@@ -148,11 +149,9 @@ export default function HelpScreen({ route }) {
           <Pressable
             accessibilityRole="button"
             style={({ pressed }) => [styles.contactCta, rtl && styles.rowRtl, pressed && styles.pressed]}
-            /* There is no feedback surface in this app yet, so the way to
-               reach a person is the web app — the same treatment the legal
-               pages already get in Settings, rather than a button that
-               apologises. */
-            onPress={() => Linking.openURL('https://simplicity-os.com/help').catch(() => {})}
+            /* The in-app feedback sheet, as on web. This used to open the web
+               app, because the phone had nowhere to write to a person. */
+            onPress={openFeedback}
           >
             <MessageSquarePlus size={16} strokeWidth={1.7} color={colors.onBtn} />
             <Text style={styles.contactCtaLabel}>{T('help.contact.cta')}</Text>

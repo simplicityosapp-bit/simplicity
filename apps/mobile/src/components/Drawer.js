@@ -4,7 +4,8 @@ import { Text } from './Text'
 import { Pressable } from './Pressable'
 import { BlurView } from './SafeBlur'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { Home, Users, Heart, Wallet, ClipboardList, Target, CalendarDays, Settings, FolderOpen, Activity, BarChart3, Trash2, LayoutTemplate, Plug, Sun, Moon, X, LogOut, Pencil, BookOpen, Shield } from 'lucide-react-native'
+import { Home, Users, Heart, Wallet, ClipboardList, Target, CalendarDays, Settings, FolderOpen, Activity, BarChart3, Trash2, LayoutTemplate, Plug, Sun, Moon, X, LogOut, Pencil, BookOpen, Shield, MessageSquarePlus } from 'lucide-react-native'
+import { openFeedback } from '../lib/feedback'
 
 const LOGO = require('../../assets/logo.png')
 import { isAdminUser } from '@simplicity/core'
@@ -199,6 +200,12 @@ export default function Drawer({ open, onClose, onNavigate, activeScreen }) {
                 sub={it.sub ? i18n.t(it.sub, { defaultValue: '' }) : null}
                 onPress={() => go(it.screen)} />
             ))}
+            {/* Same slot as web's drawer: after the manual and the bin. It opens
+                a sheet, not a screen, so it closes the drawer and hands over. */}
+            <LinkRow Icon={MessageSquarePlus} tint="moon"
+              title={i18n.t('nav:feedback', { defaultValue: 'דברו אלינו' })}
+              sub={i18n.t('nav:items.feedbackSub', { defaultValue: '' })}
+              onPress={() => { onClose(); openFeedback() }} />
             {/* Admin console — hidden for everyone who is not one. The gate
                 is UX only; the edge function behind every figure on that
                 screen re-checks the caller server-side. */}

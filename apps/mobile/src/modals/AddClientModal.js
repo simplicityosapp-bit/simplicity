@@ -7,6 +7,7 @@ import { MapPin, ChevronDown } from 'lucide-react-native'
 import Sheet from '../components/Sheet'
 import Select from '../components/Select'
 import { useFormOptions } from '../lib/formOptions'
+import { useDiscardGuard, isDirty } from '../lib/discardGuard'
 import i18n from '../lib/i18n'
 import { colors } from '../theme/theme'
 import { themed } from '../theme/themed'
@@ -37,6 +38,7 @@ export default function AddClientModal({ open, onClose, onSave }) {
   const set = (k, v) => { setForm((f) => ({ ...f, [k]: v })); if (err) setErr('') }
   useEffect(() => { if (open) { setForm(blank()); setMoreOpen(false); setErr(''); setBusy(false) } }, [open])
   const close = () => { setErr(''); setBusy(false); onClose() }
+  const requestClose = useDiscardGuard(!busy && isDirty(form, blank()), close)
 
   // Picking a meeting type fills its default price (unless the price was overridden).
   const pickMeetingType = (id) => {
@@ -82,7 +84,7 @@ export default function AddClientModal({ open, onClose, onSave }) {
   const none = F('none')
 
   return (
-    <Sheet open={open} onClose={close} title={i18n.t('modalsClient:addClient.titleLabel')}>
+    <Sheet open={open} onClose={requestClose}title={i18n.t('modalsClient:addClient.titleLabel')}>
       {/* Name */}
       <View style={styles.field}>
         <Text style={styles.label}>{F('name')}</Text>
@@ -217,7 +219,7 @@ export default function AddClientModal({ open, onClose, onSave }) {
       {err ? <Text style={styles.error}>{err}</Text> : null}
 
       <View style={styles.actions}>
-        <Pressable style={styles.cancel} onPress={close}><Text style={styles.cancelText}>{C('cancel')}</Text></Pressable>
+        <Pressable style={styles.cancel} onPress={requestClose}><Text style={styles.cancelText}>{C('cancel')}</Text></Pressable>
         <Pressable style={[styles.save, busy && styles.saveOff]} onPress={submit} disabled={busy}>
           <Text style={styles.saveText}>{busy ? C('saving') : C('save')}</Text>
         </Pressable>

@@ -8,6 +8,7 @@ import Select from '../components/Select'
 import ScheduleDayPicker from '../components/ScheduleDayPicker'
 import { questionText, scheduledOccurrences, buildSchedulePattern } from '@simplicity/core'
 import { useFormOptions } from '../lib/formOptions'
+import { useDiscardGuard, isDirty } from '../lib/discardGuard'
 import { ALL_METRICS, metricName, OTHER_METRIC_KEY } from '../lib/goalPresets'
 import i18n from '../lib/i18n'
 import { colors } from '../theme/theme'
@@ -30,6 +31,7 @@ export default function AddGoalModal({ open, onClose, onSave, onAddQuestion }) {
   const [busy, setBusy] = useState(false)
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }))
   const close = () => { setForm(blank()); setErr(''); setBusy(false); onClose() }
+  const requestClose = useDiscardGuard(!busy && isDirty(form, blank()), close)
 
   const isManual = form.metric_key === OTHER_METRIC_KEY
   const byQuestion = isManual && form.tracking_method === 'daily_question'
@@ -111,7 +113,7 @@ export default function AddGoalModal({ open, onClose, onSave, onAddQuestion }) {
   const none = i18n.t('modalsData:common.none')
 
   return (
-    <Sheet open={open} onClose={close} title={i18n.t('modalsData:addGoal.title')}>
+    <Sheet open={open} onClose={requestClose}title={i18n.t('modalsData:addGoal.title')}>
       <Select
         label={i18n.t('modalsData:addGoal.metric')}
         value={form.metric_key}
@@ -282,7 +284,7 @@ export default function AddGoalModal({ open, onClose, onSave, onAddQuestion }) {
       {err ? <Text style={styles.error}>{err}</Text> : null}
 
       <View style={styles.actions}>
-        <Pressable style={styles.cancel} onPress={close}><Text style={styles.cancelText}>{i18n.t('modalsData:common.cancel')}</Text></Pressable>
+        <Pressable style={styles.cancel} onPress={requestClose}><Text style={styles.cancelText}>{i18n.t('modalsData:common.cancel')}</Text></Pressable>
         <Pressable style={[styles.save, busy && styles.saveOff]} onPress={submit} disabled={busy}>
           <Text style={styles.saveText}>{busy ? i18n.t('modalsData:common.saving') : i18n.t('modalsData:common.save')}</Text>
         </Pressable>

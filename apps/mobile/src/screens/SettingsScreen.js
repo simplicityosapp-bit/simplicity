@@ -4,7 +4,7 @@ import { Text, TextInput } from '../components/Text'
 import { Pressable } from '../components/Pressable'
 import Constants from 'expo-constants'
 import { useNavigation } from '@react-navigation/native'
-import { User, Palette, Database, LogOut, ChevronDown, ChevronUp, Sparkles, Download, X, Plus, Check, Wallet, Info, LayoutGrid, Trash2, Eye, Users, Leaf, Briefcase, Settings2, CalendarClock, Plug, BookOpen } from 'lucide-react-native'
+import { User, Palette, Database, LogOut, ChevronDown, ChevronUp, Sparkles, Download, X, Plus, Check, Wallet, Info, LayoutGrid, Trash2, Eye, Users, Leaf, Briefcase, Settings2, CalendarClock, Plug, BookOpen, RotateCcw } from 'lucide-react-native'
 import { LANGUAGE_OPTIONS } from '@simplicity/core/i18n'
 import { fmtShortDate, payMethodLabel, formatDateAs, formatTimeAs, SETTINGS_TREE, soleSectionKeyOf, defaultOnboarding } from '@simplicity/core'
 import i18n, { setGenderContext } from '../lib/i18n'
@@ -262,6 +262,20 @@ export default function SettingsScreen() {
       ],
     )
   }
+  /* Start the intro over, as web's data section offers. Only the flow's own
+     state goes back to zero — clients, projects and the rest stay, which is
+     what the confirmation says. The onboarding gate in App.js takes it from
+     there. */
+  const restartOnboarding = () => {
+    Alert.alert(
+      T('danger.restartTitle'),
+      T('danger.restartMessage'),
+      [
+        { text: i18n.t('modalsData:common.cancel', { defaultValue: 'ביטול' }), style: 'cancel' },
+        { text: T('danger.restartConfirm'), onPress: () => { update({ onboarding: defaultOnboarding() }).catch(() => {}) } },
+      ],
+    )
+  }
   // Record the account-deletion request → AuthedApp gates to the pending screen.
   // strict: a request that never reached the server must say so — see update().
   const requestDeletion = async () => { await update({ accountDeletion: buildAccountDeletionRequest() }, { strict: true }) }
@@ -425,6 +439,10 @@ export default function SettingsScreen() {
           <Pressable style={styles.rowBtn} onPress={() => exportCsv('transactions')}>
             <Download size={16} strokeWidth={1.7} color={colors.textSub} />
             <Text style={styles.rowBtnText}>{T('data.exportTransactions', { defaultValue: 'ייצוא תנועות (CSV)' })}</Text>
+          </Pressable>
+          <Pressable style={styles.rowBtn} onPress={restartOnboarding}>
+            <RotateCcw size={16} strokeWidth={1.7} color={colors.textSub} />
+            <Text style={styles.rowBtnText}>{T('data.restartOnboarding')}</Text>
           </Pressable>
         </>
       )

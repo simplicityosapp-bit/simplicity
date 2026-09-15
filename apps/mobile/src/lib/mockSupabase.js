@@ -15,6 +15,7 @@
    ════════════════════════════════════════════════════════════════ */
 import { MOCK_DB } from '../data/mock'
 import { adminInvoke } from '../data/mockAdmin'
+import { buildConsent } from '@simplicity/core'
 
 const uuid = () => (globalThis.crypto && globalThis.crypto.randomUUID ? globalThis.crypto.randomUUID() : 'mock-' + Math.random().toString(16).slice(2))
 
@@ -29,7 +30,9 @@ const FAKE_SESSION = {
      rather than the hardcoded owner email: the owner shortcut skips the
      permission checks entirely, so previewing as one would never exercise
      the per-permission gating the console actually ships. */
-  user: { id: 'mock-user-001', aud: 'authenticated', role: 'authenticated', email: 'demo@simplicity.local', user_metadata: { full_name: 'מאמן/ת לדוגמה' },
+  /* Current policy consent stamped in, or the preview would stop at the
+     re-acceptance gate (components/ConsentGate) on every load. */
+  user: { id: 'mock-user-001', aud: 'authenticated', role: 'authenticated', email: 'demo@simplicity.local', user_metadata: { full_name: 'מאמן/ת לדוגמה', ...buildConsent() },
     app_metadata: { provider: 'mock', role: 'admin', admin_perms: { delete_users: true, set_subscriber: true, manage_admins: true } } },
 }
 
@@ -99,6 +102,10 @@ export function makeMockClient() {
       onAuthStateChange: (cb) => { setTimeout(() => cb?.('SIGNED_IN', FAKE_SESSION), 0); return { data: { subscription: { unsubscribe() {} } } } },
       signInWithPassword: async () => ({ data: { session: FAKE_SESSION, user: FAKE_SESSION.user }, error: null }),
       signOut: async () => ({ error: null }),
+      updateUser: async ({ data } = {}) => {
+        FAKE_SESSION.user.user_metadata = { ...FAKE_SESSION.user.user_metadata, ...(data || {}) }
+        return { data: { user: FAKE_SESSION.user }, error: null }
+      },
     },
   }
 }

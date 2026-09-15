@@ -2,9 +2,10 @@ import { useState } from 'react'
 import { View, ScrollView } from 'react-native'
 import { Text, TextInput } from '../components/Text'
 import { Pressable } from '../components/Pressable'
-import { MessageCircle, CalendarClock, FileText, CreditCard, Check } from 'lucide-react-native'
+import { MessageCircle, FileText, CreditCard, Check } from 'lucide-react-native'
 import i18n from '../lib/i18n'
 import Screen from '../components/Screen'
+import GoogleCalendarCard from '../components/GoogleCalendarCard'
 import ScreenHead from '../components/ScreenHead'
 import Card from '../components/Card'
 import { colors } from '../theme/theme'
@@ -34,7 +35,6 @@ const WA_FIELDS = [
    desktop" sent coaches looking for a screen that is not there. It says what
    web says: soon. */
 const STATUS = [
-  { key: 'calendar', Icon: CalendarClock, label: () => 'Google Calendar', note: () => T('list.desktopSetup', 'מוגדר באפליקציית המחשב') },
   { key: 'invoicing', Icon: FileText, label: () => T('list.invoices', 'חשבוניות'), note: () => T('list.desktopSetup', 'מוגדר באפליקציית המחשב') },
   { key: 'grow', Icon: CreditCard, label: () => T('list.grow', 'סליקה · Grow'), note: () => T('list.soon', 'בקרוב') },
 ]
@@ -87,6 +87,9 @@ export default function ConnectionsScreen() {
             <Text style={styles.saveText}>{saved ? T('whatsappScreen.saved', 'נשמר') : T('whatsappScreen.save', 'שמירה')}</Text>
           </Pressable>
         </Card>
+
+        {/* Live: status, sync now, disconnect. Connecting opens the web app. */}
+        <GoogleCalendarCard />
 
         {/* Integrations configured on desktop */}
         {STATUS.map((s) => (

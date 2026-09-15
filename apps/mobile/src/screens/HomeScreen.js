@@ -4,7 +4,7 @@ import { Text } from '../components/Text'
 import { Pressable } from '../components/Pressable'
 import { useNavigation, useFocusEffect } from '@react-navigation/native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { homeChips, todayItems, getTileFilters, moonGetData, isr } from '@simplicity/core'
+import { homeChips, todayItems, getTileFilters, moonGetData, isr, showSetupCard } from '@simplicity/core'
 import i18n from '../lib/i18n'
 import { CalendarClock, Wallet, Users } from 'lucide-react-native'
 import { useHomeData } from '../hooks/useHomeData'
@@ -23,6 +23,7 @@ import MoonWidget, { MoonExpansion } from './home/MoonWidget'
 import QuoteWidget from './home/QuoteWidget'
 import InsightsWidget from './home/InsightsWidget'
 import QuickRow from './home/QuickRow'
+import HomeWelcome, { phoneSetupTasks } from './home/HomeWelcome'
 import AddGoalEntryModal from '../modals/AddGoalEntryModal'
 import { onGenerated } from '../lib/generators'
 import { useRecurring } from '../hooks/useRecurring'
@@ -96,6 +97,17 @@ export default function HomeScreen() {
   const filters = useMemo(() => getTileFilters(prefs), [prefs])
   const gender = prefs.design?.gender
 
+  /* The setup card (see home/HomeWelcome). "Continue the intro" clears the
+     skip, which is all that released the onboarding gate — App.js then shows
+     the flow again, at the step it was left on. */
+  const setup = useMemo(() => phoneSetupTasks({ prefs, questions, recurring: templates }), [prefs, questions, templates])
+  const showWelcome = !loading && showSetupCard(setup, prefs)
+  const openSetupTask = (key) => {
+    if (key === 'setup') { updatePrefs({ onboarding: { skipped_at: null } }).catch(() => {}); return }
+    if (key === 'questions') nav.navigate('Insights')
+    else if (key === 'recurring') nav.navigate('Finance')
+  }
+
   const moonData = useMemo(
     () => ({ goals, categories, entries, transactions, sessions, clients, leads, answers, members, groups }),
     [goals, categories, entries, transactions, sessions, clients, leads, answers, members, groups],
@@ -160,6 +172,10 @@ export default function HomeScreen() {
             <Text style={styles.errorText}>{error}</Text>
             <Pressable onPress={refetch}><Text style={styles.retry}>↻</Text></Pressable>
           </View>
+        ) : null}
+
+        {showWelcome ? (
+          <HomeWelcome tasks={setup} onOpen={openSetupTask} onDismiss={() => { updatePrefs({ homeWelcomeDismissed: true }).catch(() => {}) }} />
         ) : null}
 
         {!loading && (quoteOn || moonOn) ? (

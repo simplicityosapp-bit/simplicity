@@ -8,6 +8,7 @@ import { PAY_METHODS, payMethodLabel } from '@simplicity/core'
 import Sheet from '../components/Sheet'
 import Select from '../components/Select'
 import { useFormOptions } from '../lib/formOptions'
+import { useDiscardGuard, isDirty } from '../lib/discardGuard'
 import i18n from '../lib/i18n'
 import { colors } from '../theme/theme'
 import { themed } from '../theme/themed'
@@ -61,6 +62,8 @@ export default function AddTransactionModal({ open, onClose, onSave, onDelete, t
     } catch { /* leave the field open so the user can retry */ } finally { setCatBusy(false) }
   }
   const close = () => { setErr(''); setBusy(false); onClose() }
+  // Compared against the seed, so a client or amount the caller pre-filled is not "the user's work".
+  const requestClose = useDiscardGuard(!busy && isDirty(form, blank(tx, defaults)), close)
 
   const remove = async () => {
     if (busy || !onDelete) return
@@ -107,7 +110,7 @@ export default function AddTransactionModal({ open, onClose, onSave, onDelete, t
   const amountInvalid = !!err && !(parseFloat(form.amount) > 0)
 
   return (
-    <Sheet open={open} onClose={close} title={isEdit ? (tx.desc?.trim() || i18n.t('modalsData:tx.titleNew')) : i18n.t('modalsData:tx.titleNew')}>
+    <Sheet open={open} onClose={requestClose} title={isEdit ? (tx.desc?.trim() || i18n.t('modalsData:tx.titleNew')) : i18n.t('modalsData:tx.titleNew')}>
       <View style={styles.pills}>
         <Pressable style={[styles.pill, form.type === 'income' && styles.pillIncome]} onPress={() => set('type', 'income')}>
           <Text style={[styles.pillText, form.type === 'income' && styles.pillTextOn]}>{i18n.t('modalsData:common.income')}</Text>
@@ -210,7 +213,7 @@ export default function AddTransactionModal({ open, onClose, onSave, onDelete, t
             <Trash2 size={18} strokeWidth={1.8} color={colors.danger} />
           </Pressable>
         ) : null}
-        <Pressable style={styles.cancel} onPress={close}><Text style={styles.cancelText}>{i18n.t('modalsData:common.cancel')}</Text></Pressable>
+        <Pressable style={styles.cancel} onPress={requestClose}><Text style={styles.cancelText}>{i18n.t('modalsData:common.cancel')}</Text></Pressable>
         <Pressable style={[styles.save, busy && styles.saveOff]} onPress={submit} disabled={busy}>
           <Text style={styles.saveText}>{busy ? i18n.t('modalsData:common.saving') : i18n.t('modalsData:common.save')}</Text>
         </Pressable>

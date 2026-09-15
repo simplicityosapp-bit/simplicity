@@ -22,6 +22,7 @@ import OnboardingScreen from './src/screens/onboarding'
 import LoginScreen from './src/screens/LoginScreen'
 import PendingDeletionScreen from './src/screens/PendingDeletionScreen'
 import PrefsErrorScreen from './src/screens/PrefsErrorScreen'
+import ConsentGate from './src/components/ConsentGate'
 import Generators from './src/components/Generators'
 import AppNavigator, { navigationRef } from './src/navigation/AppNavigator'
 import BottomBar from './src/components/BottomBar'
@@ -113,10 +114,14 @@ function Root() {
     )
   }
   if (!session) return <LoginScreen key={lang} />
+  // Consent comes before everything a signed-in user can reach, as on web:
+  // stale or missing policy acceptance holds the app at PolicyUpdateScreen.
   return (
-    <PreferencesProvider>
-      <AuthedApp lang={lang} themeMode={themeMode} />
-    </PreferencesProvider>
+    <ConsentGate session={session}>
+      <PreferencesProvider>
+        <AuthedApp lang={lang} themeMode={themeMode} />
+      </PreferencesProvider>
+    </ConsentGate>
   )
 }
 

@@ -8,6 +8,7 @@ import i18n from '../lib/i18n'
 import { supabase } from '../lib/supabase'
 import { checkPasswordStrength } from '@simplicity/core'
 import { buildConsent } from '../lib/legal'
+import { setPendingConsent, clearPendingConsent } from '../lib/pendingConsent'
 import { signInWithGoogle } from '../lib/googleSignIn'
 import GoogleButton from '../components/GoogleButton'
 import Screen from '../components/Screen'
@@ -43,11 +44,25 @@ export default function LoginScreen() {
   const goMode = (m) => { setMode(m); setError(''); setSent(false) }
 
   const onGoogle = async () => {
-    setError(''); setGbusy(true)
+    setError('')
+    /* On the signup form Google is a way to CREATE an account, so it asks for
+       the same agreement the email path does, and carries it — marketing choice
+       included — through the sign-in for ConsentGate to record. It used to go
+       straight through, and the new account had no consent at all. The login
+       form's button stashes nothing, as on web. */
+    if (mode === 'signup') {
+      if (!agree) { setError(t('auth:signupScreen.mustAccept', { defaultValue: 'יש לאשר את המדיניות ותנאי השימוש.' })); return }
+      setPendingConsent(buildConsent({ marketing }))
+    }
+    setGbusy(true)
     try {
       const res = await signInWithGoogle()
+      if (!res?.ok) clearPendingConsent()
       if (res?.error) setError(res.error)
-    } catch { setError(t('auth:errors.generic')) } finally { setGbusy(false) }
+    } catch {
+      clearPendingConsent()
+      setError(t('auth:errors.generic'))
+    } finally { setGbusy(false) }
   }
 
   const login = async () => {

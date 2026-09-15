@@ -1,142 +1,24 @@
 /* ════════════════════════════════════════════════════════════════
-   LEGAL CONSENT — versions + helpers.
+   LEGAL CONSENT — web glue.
    ════════════════════════════════════════════════════════════════
-   Consent is stored in auth.users user_metadata: written at signup via
-   supabase.auth.signUp({ options: { data } }), and updated on re-acceptance
-   via supabase.auth.updateUser({ data }). No DB table / migration — there is
-   no app-owned users table, and user_metadata is the only store writable at
-   the signup moment (before the email is confirmed / a session exists).
+   The versions, their changelog and the consent helpers live in
+   @simplicity/core/domain/legal, which the phone reads too — so a version
+   bump re-prompts in both apps from one edit. Any policy text change must
+   still bump its version there.
 
-   Shape stored in user_metadata:
-     privacy_accepted_at, privacy_version, dpa_accepted_at, dpa_version,
-     terms_accepted_at, terms_version,
-     marketing_consent (bool), marketing_consent_at (iso | null)
+   What stays here is web's own: the pending-consent stash, which exists
+   because Google OAuth leaves the page.
    ════════════════════════════════════════════════════════════════ */
-
-/* 2026-06-13: privacy + DPA text updated (field-encryption removed → wording now
-   says access-control + infra at-rest encryption, not field-level AES / "not
-   readable by team"). Bumped to 1.1 to force re-acceptance.
-   2026-06-16: footer version display fixed; landing-page AES-256 claims removed.
-   Bumped to 1.2 — rule: any policy text change must bump version.
-   2026-06-17: privacy + terms text overhauled from new legal-SaaS source docs
-   (Amendment-13 / תיקון 13 notices, DPO, breach-notification, international
-   transfer, anti-spam; terms: anti-scraping/anti-AI-training, arbitration +
-   class-action waiver, force majeure, severability, assignment, upgraded
-   liability cap). 3 corrections applied vs source: Anthropic/Claude vendor
-   removed, analytics marked future, AI-training reframed to "we do NOT train
-   on personal data". Privacy 1.2→2.0, Terms 1.0→2.0.
-   DPA 1.2→1.3: aligned §3 AI-training wording to the firm no-training stance.
-   DPA 1.3→2.0: full upgrade to match privacy/terms — תיקון 13 + level-3/DPO
-   security, sub-processor binding + change-notice, breach reporting to the
-   Authority + assist, assist-controller with data-subject requests, intl
-   transfer, staff confidentiality.
-   2026-06-21: privacy §11 (cookies) reworded — the absolute "no advertising /
-   third-party tracking cookies" claim replaced with consent-gated language:
-   essential cookies are exempt, and analytics + advertising cookies (incl.
-   retargeting landing-page visitors) are used only with consent given via the
-   site cookie banner, are not loaded until consent, and are revocable. Matches
-   the new public cookie banner. Privacy 2.0→2.1 (forces re-acceptance).
-   2026-06-25: end-client data list (§4.2) extended — client address + date of
-   birth added as optional fields (both plaintext, like name/phone/email; stored
-   behind a "more details" toggle in the client card). Privacy 2.1→2.2 (forces
-   re-acceptance) — rule: any policy text change must bump version.
-   2026-08-27: terms §5 no longer describes a closed beta. "בתקופת הבטא השירות
-   מסופק ללא תשלום למשתמשים מוזמנים" was true of an invite-only beta and false of
-   a free public launch — someone signing up from the open site was agreeing to a
-   description of a different product. Now "בשלב זה השירות מסופק ללא תשלום לכלל
-   המשתמשים", which drops both the beta framing and the invitation, while "בשלב
-   זה" keeps the right to change it; the rest of §5 (pricing published in
-   advance, 30 days' notice before any charge) already covered that transition
-   and is unchanged. Same edit in en/es/fr. Terms 2.0→2.1 (forces re-acceptance)
-   — done BEFORE the public launch on purpose, so the prompt lands on the ~39
-   existing users rather than on the public a week after they sign up.
-   Same date: the "תקופת בטא" stamp came off both documents' header and closing
-   line (16 places across the four languages). Fixing §5 alone would have left
-   the terms contradicting themselves — a header declaring a beta two lines
-   above a §5 that says "לכלל המשתמשים" — and the same stamp sat on the privacy
-   policy, which is not a beta document either. The "updated" date moved to
-   August 2026 on both, because both were in fact edited today. The DPA carries
-   no beta stamp and is untouched, so DPA stays 2.0.
-   NOT touched: terms §7's 'AS IS "בתקופת הבטא"'. Dropping those two words would
-   widen a liability disclaimer from a finished period to all time — a change to
-   what the clause covers, not to how it reads, and one for a lawyer to make.
-   Privacy 2.2→2.3 by the rule above: its text changed, so its version moves.
-   Both bumps ride the same re-acceptance prompt, so this costs the user one
-   dialog, not two. */
-export const PRIVACY_VERSION = '2.3'
-export const DPA_VERSION = '2.0'
-export const TERMS_VERSION = '2.1'
-
-/* The consent block written at signup / first acceptance. */
-export function buildConsent({ marketing = false } = {}) {
-  const now = new Date().toISOString()
-  return {
-    privacy_accepted_at: now,
-    privacy_version: PRIVACY_VERSION,
-    dpa_accepted_at: now,
-    dpa_version: DPA_VERSION,
-    terms_accepted_at: now,
-    terms_version: TERMS_VERSION,
-    marketing_consent: !!marketing,
-    marketing_consent_at: marketing ? now : null,
-  }
-}
-
-/* Re-acceptance block (privacy/DPA/terms — leaves marketing_consent untouched). */
-export function buildReacceptance() {
-  const now = new Date().toISOString()
-  return {
-    privacy_accepted_at: now,
-    privacy_version: PRIVACY_VERSION,
-    dpa_accepted_at: now,
-    dpa_version: DPA_VERSION,
-    terms_accepted_at: now,
-    terms_version: TERMS_VERSION,
-  }
-}
-
-/* True when the user must (re)accept: never accepted (existing beta users
-   have no recorded consent), OR any of the three binding documents is stale —
-   privacy, DPA (data-processing agreement), or terms. All three are checked so
-   a version bump to ANY single document forces re-acceptance; checking only
-   privacy+terms let a DPA-only bump slip through silently. (buildConsent /
-   buildReacceptance always write all three together, so this never falsely
-   re-prompts an up-to-date user.) */
-export function needsReacceptance(user) {
-  const md = user?.user_metadata
-  return md?.privacy_version !== PRIVACY_VERSION
-    || md?.dpa_version !== DPA_VERSION
-    || md?.terms_version !== TERMS_VERSION
-}
-
-export function marketingConsent(user) {
-  return !!user?.user_metadata?.marketing_consent
-}
-
-/* Derive the durable user_consent rows from a consent block (user_metadata OR
-   the pending-stash object — same shape). Records the privacy + DPA acceptances
-   and the marketing choice (opt-in OR opt-out) at the moment it was made.
-   `accepted_at` is the dedup key, so re-deriving + re-recording is idempotent. */
-export function consentRowsFromMetadata(md, source = 'backfill') {
-  if (!md) return []
-  const rows = []
-  if (md.privacy_version && md.privacy_accepted_at) {
-    rows.push({ kind: 'privacy', version: md.privacy_version, accepted: true, source, accepted_at: md.privacy_accepted_at })
-  }
-  if (md.dpa_version && md.dpa_accepted_at) {
-    rows.push({ kind: 'dpa', version: md.dpa_version, accepted: true, source, accepted_at: md.dpa_accepted_at })
-  }
-  if (md.terms_version && md.terms_accepted_at) {
-    rows.push({ kind: 'terms', version: md.terms_version, accepted: true, source, accepted_at: md.terms_accepted_at })
-  }
-  /* Record the marketing choice (in or out) at the moment it was made — an
-     opt-out is timestamped at the privacy-acceptance moment (signup). */
-  const mAt = md.marketing_consent_at || md.privacy_accepted_at
-  if (md.marketing_consent !== undefined && mAt) {
-    rows.push({ kind: 'marketing', version: null, accepted: !!md.marketing_consent, source, accepted_at: mAt })
-  }
-  return rows
-}
+export {
+  PRIVACY_VERSION,
+  DPA_VERSION,
+  TERMS_VERSION,
+  buildConsent,
+  buildReacceptance,
+  needsReacceptance,
+  marketingConsent,
+  consentRowsFromMetadata,
+} from '@simplicity/core'
 
 /* ── Pending-consent stash (Google signup) ──────────────────────────
    OAuth redirects away from the signup form, so we stash the consent the

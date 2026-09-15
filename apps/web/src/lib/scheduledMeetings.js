@@ -209,12 +209,17 @@ export async function skipScheduledMeeting({ meeting, updateMeeting, removeSessi
    rather than as a silently dropped save. */
 export async function rescheduleScheduledMeeting({ meeting, at, updateMeeting, addMeeting, removeMeeting }) {
   const prevStatus = meeting.status
-  const created = await addMeeting({
+  /* The new row keeps the meeting's length. It used to be dropped, so a
+     90-minute workshop moved to Thursday came back as the day view's default
+     block — the one thing the coach had typed into the booking. */
+  const row = () => ({
     subject_type: meeting.subject_type,
     subject_id: meeting.subject_id,
     scheduled_at: at,
     status: 'pending',
+    ...(meeting.duration_minutes != null ? { duration_minutes: meeting.duration_minutes } : {}),
   })
+  const created = await addMeeting(row())
   /* Only once the new row exists — if the insert is rejected the original is
      left exactly as it was, rather than cancelled with nothing to replace it. */
   await updateMeeting(meeting.id, { status: 'skipped', session_id: null })
@@ -230,12 +235,7 @@ export async function rescheduleScheduledMeeting({ meeting, at, updateMeeting, a
       await updateMeeting(meeting.id, { status: prevStatus })
     },
     redo: async () => {
-      const again = await addMeeting({
-        subject_type: meeting.subject_type,
-        subject_id: meeting.subject_id,
-        scheduled_at: at,
-        status: 'pending',
-      })
+      const again = await addMeeting(row())
       liveId = again?.id
       await updateMeeting(meeting.id, { status: 'skipped', session_id: null })
     },

@@ -8,6 +8,7 @@ import { isr, fmtTime, todayItems, waLink, normalizeIsraeliPhone } from '@simpli
 import Sheet from '../components/Sheet'
 import { ClientsTrend, NetBars } from '../screens/home/TileDrillCharts'
 import i18n from '../lib/i18n'
+import { useWhatsAppMessage } from '../hooks/useWhatsAppMessage'
 import { colors } from '../theme/theme'
 import { themed } from '../theme/themed'
 
@@ -165,7 +166,10 @@ function NetPanel({ filters, setFilter, transactions, projects, categories, summ
 
 function MeetingsPanel({ filters, setFilter, items, onConfirm }) {
   const kinds = filters.kinds && filters.kinds.length ? filters.kinds : TODAY_KINDS
-  const whatsapp = (it) => { if (normalizeIsraeliPhone(it.phone)) Linking.openURL(waLink(it.phone)) }
+  const waMsg = useWhatsAppMessage()
+  const whatsapp = (it) => {
+    if (normalizeIsraeliPhone(it.phone)) Linking.openURL(waLink(it.phone, waMsg(it.kind === 'followup' ? 'lead' : 'client', { name: it.title })))
+  }
   return (
     <>
       <Text style={styles.num}>{items.length}</Text>

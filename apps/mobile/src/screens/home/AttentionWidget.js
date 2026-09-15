@@ -6,6 +6,7 @@ import { useNavigation } from '@react-navigation/native'
 import { Bell, Wallet, Calendar, Target, AlertCircle, Clock, ChevronLeft, MessageCircle, Check, SkipForward, Trash2 } from 'lucide-react-native'
 import { attentionItems, isr, fmtShortDate, waLink } from '@simplicity/core'
 import i18n from '../../lib/i18n'
+import { useWhatsAppMessage } from '../../hooks/useWhatsAppMessage'
 import WidgetCard from '../../components/WidgetCard'
 import Sheet from '../../components/Sheet'
 import { colors } from '../../theme/theme'
@@ -24,7 +25,7 @@ const TARGET_SCREEN = {
   finance: 'Finance', calendar: 'Calendar', clients: 'Clients',
   goals: 'Goals', tasks: 'Tasks', leads: 'Leads',
 }
-const waOpen = (phone) => { Linking.openURL(waLink(phone)) }
+const waOpen = (phone, text) => { Linking.openURL(waLink(phone, text)) }
 
 export default function AttentionWidget({ data, projects = [], financeCategories = [], onApproveTx, onSkipTx, onDeleteTx }) {
   const nav = useNavigation()
@@ -36,6 +37,8 @@ export default function AttentionWidget({ data, projects = [], financeCategories
     [data?.transactions],
   )
   const clients = data?.clients || []
+  // core attentionItems names the template for each row (waKey: client / lead).
+  const waMsg = useWhatsAppMessage()
   if (!items.length) return null
 
   const summary = items[0].text + (items.length > 1 ? ` · ${i18n.t('home:widgets.attention.more', { count: items.length - 1 })}` : '')
@@ -89,7 +92,7 @@ export default function AttentionWidget({ data, projects = [], financeCategories
             <Pressable style={styles.personMain} onPress={() => openPerson(p)}>
               <Text style={styles.personName} numberOfLines={1}>{p.name || '—'}</Text>
             </Pressable>
-            <Pressable style={styles.waBtn} onPress={() => waOpen(p.phone)} hitSlop={6} accessibilityLabel="WhatsApp">
+            <Pressable style={styles.waBtn} onPress={() => waOpen(p.phone, waMsg(peopleRow?.waKey || 'client', { name: p.name }))} hitSlop={6} accessibilityLabel="WhatsApp">
               <MessageCircle size={17} strokeWidth={1.8} color={colors.positive} />
             </Pressable>
           </View>

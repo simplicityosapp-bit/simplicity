@@ -4,7 +4,7 @@ import { Text, TextInput } from '../components/Text'
 import { Pressable } from '../components/Pressable'
 import Constants from 'expo-constants'
 import { useNavigation } from '@react-navigation/native'
-import { User, Palette, Database, LogOut, ChevronDown, ChevronUp, Sparkles, Download, X, Plus, Check, Wallet, Info, LayoutGrid, Trash2, Eye, Users, Leaf, Briefcase, Settings2, CalendarClock, Plug, BookOpen, RotateCcw } from 'lucide-react-native'
+import { User, Palette, Database, LogOut, ChevronDown, ChevronUp, Sparkles, Download, X, Plus, Check, Wallet, Info, LayoutGrid, Trash2, Eye, Users, Leaf, Briefcase, Settings2, CalendarClock, Plug, BookOpen, RotateCcw, KeyRound } from 'lucide-react-native'
 import { LANGUAGE_OPTIONS } from '@simplicity/core/i18n'
 import { fmtShortDate, payMethodLabel, formatDateAs, formatTimeAs, SETTINGS_TREE, soleSectionKeyOf, defaultOnboarding } from '@simplicity/core'
 import i18n, { setGenderContext } from '../lib/i18n'
@@ -22,6 +22,7 @@ import { applySavedLanguage, roleLabel } from '../lib/preferences'
 import { useFinanceData } from '../hooks/useFinanceData'
 import { useConfigTaxonomy } from '../hooks/useConfigTaxonomy'
 import DeleteAccountModal from '../modals/DeleteAccountModal'
+import ChangePasswordModal from '../modals/ChangePasswordModal'
 import { resetAllUserData, buildAccountDeletionRequest } from '../lib/account'
 import { useBottomPad } from '../lib/bottomBar'
 
@@ -166,6 +167,7 @@ export default function SettingsScreen() {
   const [open, setOpen] = useState({})
   const [lang, setLang] = useState(i18n.language)
   const [showDeleteAccount, setShowDeleteAccount] = useState(false)
+  const [showChangePassword, setShowChangePassword] = useState(false)
   const toggleGroup = (k) => setOpenGroups((g) => ({ ...g, [k]: !g[k] }))
   const toggle = (k) => setOpen((o) => ({ ...o, [k]: !o[k] }))
 
@@ -327,6 +329,13 @@ export default function SettingsScreen() {
               <TextInput style={styles.input} value={prefs.profile?.role_other || ''} onChangeText={(v) => update({ profile: { role_other: v } })} placeholder={T('profile.roleOtherPlaceholder', { defaultValue: '' })} placeholderTextColor={colors.textFaint} />
             </Field>
           ) : null}
+          {/* The phone had no way to change a password — its reset link opens
+              the web page. Web's update-password screen, as a sheet. */}
+          <Pressable style={styles.rowBtn} onPress={() => setShowChangePassword(true)}>
+            <KeyRound size={16} strokeWidth={1.7} color={colors.textSub} />
+            <Text style={styles.rowBtnText}>{i18n.t('auth:update.title')}</Text>
+          </Pressable>
+          <ChangePasswordModal open={showChangePassword} onClose={() => setShowChangePassword(false)} />
         </>
       )
     }

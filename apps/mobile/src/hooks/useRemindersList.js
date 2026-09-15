@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from 'react'
 import { isRecurring, nextScheduledAt } from '@simplicity/core'
 import { supabase } from '../lib/supabase'
+import { pushUndo } from '../lib/undo'
+import i18n from '../lib/i18n'
 
 // Reminders list + mutations for the Tasks screen's reminders view (mirrors the
 // web useReminders core: add / complete / edit / soft-delete / clear-completed).
@@ -57,9 +59,15 @@ export function useRemindersList() {
       patch = { status: 'completed' }
     }
     const prev = { status: reminder.status, scheduled_at: reminder.scheduled_at }
-    setReminders((rs) => rs.map((r) => (r.id === reminder.id ? { ...r, ...patch } : r)))
-    const { error: e } = await supabase.from('reminders').update(patch).eq('id', reminder.id)
-    if (e) setReminders((rs) => rs.map((r) => (r.id === reminder.id ? { ...r, ...prev } : r)))
+    const apply = async (values) => {
+      setReminders((rs) => rs.map((r) => (r.id === reminder.id ? { ...r, ...values } : r)))
+      const { error: e } = await supabase.from('reminders').update(values).eq('id', reminder.id)
+      return e
+    }
+    const e = await apply(patch)
+    if (e) { setReminders((rs) => rs.map((r) => (r.id === reminder.id ? { ...r, ...prev } : r))); return }
+    // Undoable, as on web — a recurring one moved to its next date comes back too.
+    pushUndo({ label: i18n.t('tasks:item.reminderDone'), undo: () => apply(prev), redo: () => apply(patch) })
   }, [])
 
   const deleteReminder = useCallback(async (id) => {

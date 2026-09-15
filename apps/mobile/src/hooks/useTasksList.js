@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
 import { reconcileCompletion } from '../lib/tasks'
+import { pushUndo } from '../lib/undo'
+import i18n from '../lib/i18n'
 
 // First mobile mutation layer — tasks list + optimistic mark-done. RLS scopes
 // rows to the user. toggleDone flips locally first, then persists; on error it
@@ -48,11 +50,24 @@ export function useTasksList() {
       ...(done ? {} : { status_id: null }),
     }
     const prev = { status: task.status, completed_at: task.completed_at ?? null, status_id: task.status_id ?? null }
-    setTasks((ts) => ts.map((t) => (t.id === task.id ? { ...t, ...patch } : t))) // optimistic
-    const { error: e } = await supabase.from('tasks').update(patch).eq('id', task.id)
+    const apply = async (values) => {
+      setTasks((ts) => ts.map((t) => (t.id === task.id ? { ...t, ...values } : t))) // optimistic
+      const { error: e } = await supabase.from('tasks').update(values).eq('id', task.id)
+      return e
+    }
+    const e = await apply(patch)
     if (e) {
       setTasks((ts) => ts.map((t) => (t.id === task.id ? { ...t, ...prev } : t))) // rollback
+      return
     }
+    /* A tick is the most-tapped control on the screen, and a mis-tap used to
+       move a task out of sight with no way back but finding it under "done".
+       Same undo web's toggleTask offers. */
+    pushUndo({
+      label: done ? i18n.t('components:undo.taskReopened') : i18n.t('components:undo.taskCompleted'),
+      undo: () => apply(prev),
+      redo: () => apply(patch),
+    })
   }, [])
 
   // Edit a task (title/priority): optimistic patch, refetch to restore truth on

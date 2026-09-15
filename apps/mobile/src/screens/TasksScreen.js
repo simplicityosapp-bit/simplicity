@@ -1,11 +1,16 @@
 import { useMemo, useState, useRef, useCallback, useEffect } from 'react'
 import { View, StyleSheet, ScrollView, ActivityIndicator, RefreshControl, I18nManager, AppState } from 'react-native'
-import { Text } from '../components/Text'
+import { Text, TextInput } from '../components/Text'
 import { Pressable } from '../components/Pressable'
 import { useFocusEffect } from '@react-navigation/native'
-import { Check, ChevronDown, Pencil, Tags, Trash2 } from 'lucide-react-native'
-import { fmtShortDate, formatWhen, startOfDay, isRecurring, isActiveReminder, dueOccurrenceCount } from '@simplicity/core'
+import { Check, ChevronDown, Pencil, Tags, Trash2, Search, X, CalendarClock, ListTodo, Bell } from 'lucide-react-native'
+import {
+  fmtShortDate, formatWhen, startOfDay, isRecurring, isActiveReminder, dueOccurrenceCount,
+  PRESSURE_KEYS, CHRONO_PRESSURE, dateToBucket, pressureBucket, byPressure, byUrgency,
+  tomorrowAt, canPostpone, byDueDate, byRecency,
+} from '@simplicity/core'
 import i18n from '../lib/i18n'
+import { pushUndo } from '../lib/undo'
 import Screen from '../components/Screen'
 import ScreenHead from '../components/ScreenHead'
 import Card from '../components/Card'
@@ -24,36 +29,36 @@ import { useBottomPad } from '../lib/bottomBar'
 
 const PRIORITY_COLOR = themedMap((c) => ({ high: c.danger, medium: c.amberWarn, low: c.positive }))
 const PRIORITY_GROUPS = ['high', 'medium', 'low']
-const TASK_FILTERS = ['todo', 'done', 'all']
-const REM_FILTERS = ['todo', 'recurring', 'done']
+/* Three modes, as on web. "הכל" leads: the screen's job on arrival is to answer
+   "what do I owe", and only the mixed list answers it without first choosing
+   which half to look at. */
+const VIEWS = ['all', 'tasks', 'reminders']
+// Open / done only — "הכל" is the name of a MODE now, so no status tab reuses it.
+const TASK_FILTERS = ['todo', 'done']
+const ALL_FILTERS = ['todo', 'done']
+// "הושלמו" holds the same second slot for both kinds, so flipping the mode
+// doesn't move the tab under your finger.
+const REM_FILTERS = ['todo', 'done', 'recurring']
 const GROUP_BY = ['priority', 'project', 'category']
+/* The mixed list's groupings. Pressure leads — the ranking that puts an
+   undated דחוף task above next week and an overdue reminder above a task
+   marked נמוך (core domain/taskPressure). */
+const ALL_GROUP_BY = ['pressure', 'date', 'priority']
 // The dot colour for a project/category that has none of its own.
 const fallbackColor = () => colors.textFaint
-const REM_BUCKETS = themedMap((c) => ([
-  { key: 'overdue', color: c.danger },
-  { key: 'today', color: c.amberWarn },
-  { key: 'week', color: c.positive },
-  { key: 'later', color: c.textFaint },
-]))
+const BAND_COLOR = themedMap((c) => ({
+  overdue: c.danger, today: c.amberWarn, urgent: c.danger, week: c.positive, later: c.textFaint, undated: c.textSub,
+}))
+const REM_BUCKETS = ['overdue', 'today', 'week', 'later']
+const DATE_BUCKETS = [...REM_BUCKETS, 'undated']
 
-function dateToBucket(due, now) {
-  if (Number.isNaN(+due)) return null
-  if (due < now) return 'overdue'
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
-  const tomorrow = new Date(today); tomorrow.setDate(today.getDate() + 1)
-  const weekEnd = new Date(today); weekEnd.setDate(today.getDate() + 7)
-  if (due < tomorrow) return 'today'
-  if (due < weekEnd) return 'week'
-  return 'later'
-}
-
-// Tasks + Reminders screen (mirrors web screens/tasks): entity toggle, glass
-// hero, filter (+ group-by for tasks), and collapsible glass-card groups.
+// Tasks + Reminders screen (mirrors web screens/tasks): mode toggle, glass hero,
+// filter, grouping, search and collapsible glass-card groups.
 export default function TasksScreen() {
   const bottomPad = useBottomPad()
   const { tasks, loading: tLoading, error: tError, addTask, toggleDone, updateTask, deleteTask, clearCompleted: clearTasks, refetch: refetchTasks } = useTasksList()
   const { reminders, loading: rLoading, error: rError, addReminder, editReminder, completeReminder, deleteReminder, clearCompleted: clearRems, refetch: refetchRems } = useRemindersList()
-  const { clients, projects, taskStatuses } = useFormOptions()
+  const { clients, projects, groups: allGroupsList = [], taskStatuses } = useFormOptions()
   const taxonomy = useTaskTaxonomy()
   const taskCategories = taxonomy.taskCategories
   // Persistent tab: silently re-pull tasks + reminders on RE-focus (skip mount).
@@ -62,12 +67,14 @@ export default function TasksScreen() {
     if (firstFocus.current) { firstFocus.current = false; return }
     refetchTasks(true); refetchRems(true)
   }, [refetchTasks, refetchRems]))
-  const [view, setView] = useState('tasks')
-  const [adding, setAdding] = useState(false)
+  const [view, setView] = useState('all')
+  const [adding, setAdding] = useState(null) // null | 'choose' | 'task' | 'reminder'
   const [editTask, setEditTask] = useState(null)
   const [editRem, setEditRem] = useState(null)
   const [filter, setFilter] = useState('todo')
   const [groupBy, setGroupBy] = useState('priority')
+  const [allGroupBy, setAllGroupBy] = useState('pressure')
+  const [query, setQuery] = useState('')
   const [collapsed, setCollapsed] = useState(() => new Set())
   const [categoryFilters, setCategoryFilters] = useState(() => new Set())
   const [showTaxonomy, setShowTaxonomy] = useState(false)
@@ -76,17 +83,17 @@ export default function TasksScreen() {
   const toggleCategory = (id) => setCategoryFilters((prev) => { const n = new Set(prev); if (n.has(id)) n.delete(id); else n.add(id); return n })
 
   const isTasks = view === 'tasks'
+  const isAll = view === 'all'
   const switchView = (v) => { setView(v); setFilter('todo') }
-  // Both group memos below put palette colours in their result — see their deps.
+  // Group memos below put palette colours in their result — see their deps.
   const themeMode = useThemeMode()
   const clientById = useMemo(() => Object.fromEntries(clients.map((c) => [c.id, c.name])), [clients])
   const projectById = useMemo(() => Object.fromEntries(projects.map((p) => [p.id, p.name])), [projects])
+  const groupById = useMemo(() => Object.fromEntries(allGroupsList.map((g) => [g.id, g.name])), [allGroupsList])
   const statusById = useMemo(() => Object.fromEntries((taskStatuses || []).map((s) => [s.id, s])), [taskStatuses])
   const categoryById = useMemo(() => Object.fromEntries(taskCategories.map((c) => [c.id, c])), [taskCategories])
-  /* The screen's clock. It was read only when the data or the filter changed, so
-     a screen left open never turned an item overdue or rolled "today" over at
-     midnight. It ticks once a minute and on every return to the foreground, as
-     web's does on focus. */
+  /* The screen's clock. It ticks once a minute and on every return to the
+     foreground, so an item turns overdue and "today" rolls over while open. */
   const [clock, setClock] = useState(() => Date.now())
   useEffect(() => {
     const id = setInterval(() => setClock(Date.now()), 60 * 1000)
@@ -94,55 +101,106 @@ export default function TasksScreen() {
     return () => { clearInterval(id); sub.remove() }
   }, [])
   const now = useMemo(() => new Date(clock), [clock])
-  const remClient = (r) => (r.linked_to_type === 'client' ? clientById[r.linked_to_id] : null)
+
+  /* A reminder has no client_id — it carries linked_to_type / linked_to_id —
+     and every kind of link resolves, so a reminder set on a project or a
+     group is not anonymous here (web's remSubjectOf). */
+  const remSubjectOf = (r) => {
+    switch (r?.linked_to_type) {
+      case 'client': return clientById[r.linked_to_id]
+      case 'project': return projectById[r.linked_to_id]
+      case 'group': return groupById[r.linked_to_id]
+      case 'investment': return i18n.t('tasks:item.linkedInvestment')
+      default: return null
+    }
+  }
+  /* Free-text find across whatever the mode lists — title, details, and the
+     client or project already printed on the row. The phone had no search on
+     this screen at all. Deliberately not applied to the hero counts: a query
+     you are typing would make every number jump per keystroke. */
+  const q = query.trim().toLowerCase()
+  const hit = (...parts) => !q || parts.some((p) => String(p || '').toLowerCase().includes(q))
+  const taskHit = (t) => hit(t.title, t.description, clientById[t.client_id], projectById[t.project_id])
+  const remHit = (r) => hit(r.title, r.description, remSubjectOf(r))
+
+  /* The category pills are a SCOPE: everything the hero reports is counted
+     inside them, so picking a category no longer shrinks the list while the
+     numbers above it describe the whole practice. */
   const catMatch = (row) => !categoryFilters.size || categoryFilters.has(row.category_id)
+  const scopedTasks = useMemo(() => tasks.filter(catMatch), [tasks, categoryFilters]) // eslint-disable-line react-hooks/exhaustive-deps
+  const scopedRems = useMemo(() => reminders.filter(catMatch), [reminders, categoryFilters]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  const loading = isTasks ? tLoading : rLoading
-  const error = isTasks ? tError : rError
-  const openCount = isTasks ? tasks.filter((t) => t.status !== 'done').length : reminders.filter((r) => r.status !== 'completed').length
-  const doneCount = isTasks ? tasks.filter((t) => t.status === 'done').length : reminders.filter((r) => r.status === 'completed').length
-  /* What "clear completed" removes: the done rows the category pills leave on
-     screen. The count and the delete used to cover every completed row, so with
-     one category picked the other categories' finished items went too (web
-     passes the scoped ids the same way). */
-  const clearable = (isTasks ? tasks.filter((t) => t.status === 'done') : reminders.filter((r) => r.status === 'completed')).filter(catMatch)
-  const urgentCount = isTasks
-    ? tasks.filter((t) => t.status !== 'done' && t.priority === 'high').length
-    : reminders.filter((r) => r.status !== 'completed' && new Date(r.scheduled_at) < now).length
+  const loading = isAll ? (tLoading || rLoading) : (isTasks ? tLoading : rLoading)
+  const error = isAll ? (tError || rError) : (isTasks ? tError : rError)
+  const openTasks = scopedTasks.filter((t) => t.status !== 'done').length
+  const openRems = scopedRems.filter((r) => r.status !== 'completed').length
+  const doneTaskRows = scopedTasks.filter((t) => t.status === 'done')
+  const doneRemRows = scopedRems.filter((r) => r.status === 'completed')
+  const openCount = isAll ? openTasks + openRems : (isTasks ? openTasks : openRems)
+  const doneCount = isAll ? doneTaskRows.length + doneRemRows.length : (isTasks ? doneTaskRows.length : doneRemRows.length)
+  const overdueRems = scopedRems.filter((r) => r.status !== 'completed' && new Date(r.scheduled_at) < now).length
+  /* Middle tile: דחופות for tasks, באיחור for reminders, and for the mixed list
+     the overdue reading over both — the one fact it can state about everything. */
+  const urgentCount = isAll
+    ? scopedTasks.filter((t) => t.status !== 'done' && t.due_at && new Date(t.due_at) < now).length + overdueRems
+    : (isTasks ? scopedTasks.filter((t) => t.status !== 'done' && t.priority === 'high').length : overdueRems)
+  /* What "clear completed" removes: exactly the done rows counted above. */
+  const clearableTasks = isAll || isTasks ? doneTaskRows : []
+  const clearableRems = isAll || !isTasks ? doneRemRows : []
+  const clearableCount = clearableTasks.length + clearableRems.length
 
-  // ── task groups ──
-  const filteredTasks = useMemo(() => {
-    let list = tasks
-    if (filter === 'todo') list = list.filter((t) => t.status !== 'done')
-    else if (filter === 'done') list = list.filter((t) => t.status === 'done')
-    if (categoryFilters.size) list = list.filter((t) => categoryFilters.has(t.category_id))
-    return list
-  }, [tasks, filter, categoryFilters])
+  /* Postpone by one tap, undoable — offered only while the date is today or
+     behind you (canPostpone); "tomorrow" on next month's item would drag it
+     forward. Measured from today, keeping the item's own time. */
+  const postponeTask = (task) => {
+    const next = tomorrowAt(task.due_at)
+    if (!next) return
+    const prev = task.due_at
+    const apply = (due_at) => updateTask(task.id, { due_at }).catch(() => {})
+    apply(next)
+    pushUndo({ label: i18n.t('tasks:item.snoozed'), undo: () => apply(prev), redo: () => apply(next) })
+  }
+  const postponeReminder = (r) => {
+    const next = tomorrowAt(r.scheduled_at)
+    if (!next) return
+    const prev = r.scheduled_at
+    const apply = (scheduled_at) => editReminder(r.id, { scheduled_at }).catch(() => {})
+    apply(next)
+    pushUndo({ label: i18n.t('tasks:item.snoozed'), undo: () => apply(prev), redo: () => apply(next) })
+  }
+
+  // ── tasks mode ──
+  const filteredTasks = useMemo(() => (
+    scopedTasks.filter((t) => (filter === 'done' ? t.status === 'done' : t.status !== 'done') && taskHit(t))
+  ), [scopedTasks, filter, q, clients, projects]) // eslint-disable-line react-hooks/exhaustive-deps
   const taskGroups = useMemo(() => {
+    if (!isTasks) return []
+    /* A deadline orders work still owed; finished work reads newest-first. */
+    const inGroup = (pred) => filteredTasks.filter(pred).sort(filter === 'done' ? byRecency : byDueDate)
     if (groupBy === 'project') {
-      const gs = projects.map((p) => ({ key: `p-${p.id}`, label: p.name, color: p.color || fallbackColor(), items: filteredTasks.filter((t) => t.project_id === p.id) }))
-      const none = filteredTasks.filter((t) => !t.project_id || !projects.some((p) => p.id === t.project_id))
+      const gs = projects.map((p) => ({ key: `p-${p.id}`, label: p.name, color: p.color || fallbackColor(), items: inGroup((t) => t.project_id === p.id) }))
+      const none = inGroup((t) => !t.project_id || !projects.some((p) => p.id === t.project_id))
       if (none.length) gs.push({ key: 'p-none', label: i18n.t('tasks:groupBy.noProject', { defaultValue: 'ללא פרויקט' }), color: fallbackColor(), items: none })
       return gs.filter((g) => g.items.length)
     }
     if (groupBy === 'category') {
-      const gs = taskCategories.map((c) => ({ key: `c-${c.id}`, label: c.name, color: c.color || fallbackColor(), items: filteredTasks.filter((t) => t.category_id === c.id) }))
-      const none = filteredTasks.filter((t) => !t.category_id || !taskCategories.some((c) => c.id === t.category_id))
+      const gs = taskCategories.map((c) => ({ key: `c-${c.id}`, label: c.name, color: c.color || fallbackColor(), items: inGroup((t) => t.category_id === c.id) }))
+      const none = inGroup((t) => !t.category_id || !taskCategories.some((c) => c.id === t.category_id))
       if (none.length) gs.push({ key: 'c-none', label: i18n.t('tasks:groupBy.noCategory', { defaultValue: 'ללא קטגוריה' }), color: fallbackColor(), items: none })
       return gs.filter((g) => g.items.length)
     }
     return PRIORITY_GROUPS
-      .map((g) => ({ key: `pri-${g}`, label: i18n.t(`tasks:priority.${g}`), color: PRIORITY_COLOR[g], items: filteredTasks.filter((t) => (t.priority || 'medium') === g) }))
+      .map((g) => ({ key: `pri-${g}`, label: i18n.t(`tasks:priority.${g}`), color: PRIORITY_COLOR[g], items: inGroup((t) => (t.priority || 'medium') === g) }))
       .filter((g) => g.items.length)
     /* themeMode: the group dots are colours, and a memo would otherwise
        hand back the palette that was live when it last ran. */
-  }, [groupBy, filteredTasks, projects, taskCategories, themeMode])
+  }, [isTasks, groupBy, filter, filteredTasks, projects, taskCategories, themeMode])
 
-  // ── reminder groups ──
+  // ── reminders mode ── (reminders only; dated tasks live in "הכל" now)
   const reminderGroups = useMemo(() => {
-    if (isTasks) return []
+    if (view !== 'reminders') return []
     if (filter === 'recurring') {
-      const rec = reminders.filter((r) => isRecurring(r) && isActiveReminder(r))
+      const rec = scopedRems.filter((r) => isRecurring(r) && isActiveReminder(r) && remHit(r))
       const gs = []
       for (let d = 0; d < 7; d++) {
         const items = rec.filter((r) => r.recurrence_type === 'weekly' && r.recurrence_pattern?.dayOfWeek === d)
@@ -155,63 +213,140 @@ export default function TasksScreen() {
       return gs
     }
     if (filter === 'done') {
-      const items = reminders.filter((r) => r.status === 'completed' && catMatch(r))
+      const items = scopedRems.filter((r) => r.status === 'completed' && remHit(r)).sort(byRecency)
       return items.length ? [{ key: 'done', label: i18n.t('tasks:doneGroup', { defaultValue: 'הושלמו' }), color: colors.textSub, items }] : []
     }
-    // todo → active reminders + dated open tasks, both bucketed by due date
-    const active = reminders.filter((r) => isActiveReminder(r) && catMatch(r) && (isRecurring(r) ? dueOccurrenceCount(r, now) >= 1 : true))
-    const dated = tasks.filter((t) => t.due_at && t.status !== 'done' && catMatch(t))
+    /* Everything still owed, one-off and recurring alike, bucketed by its next
+       occurrence — a weekly reminder set for next week is no longer hidden
+       while an identical one-off for the same day shows. */
+    const active = scopedRems.filter((r) => isActiveReminder(r) && remHit(r))
     return REM_BUCKETS
-      .map((b) => ({
-        key: b.key,
-        label: i18n.t(`tasks:buckets.${b.key}`),
-        color: b.color,
-        items: active.filter((r) => dateToBucket(new Date(r.scheduled_at), now) === b.key),
-        datedTasks: dated.filter((t) => dateToBucket(new Date(t.due_at), now) === b.key),
-      }))
-      .filter((g) => g.items.length || g.datedTasks.length)
-    /* themeMode: as above — the bucket and recurrence colours are baked
-       into this result, so it has to be rebuilt when the palette moves. */
-  }, [isTasks, filter, reminders, tasks, now, categoryFilters, themeMode]) // eslint-disable-line react-hooks/exhaustive-deps
+      .map((key) => ({ key, label: i18n.t(`tasks:buckets.${key}`), color: BAND_COLOR[key], items: active.filter((r) => dateToBucket(new Date(r.scheduled_at), now) === key) }))
+      .filter((g) => g.items.length)
+  }, [view, filter, scopedRems, now, q, themeMode]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  const groups = isTasks ? taskGroups : reminderGroups
-  const filters = isTasks ? TASK_FILTERS : REM_FILTERS
+  // ── the mixed list ──
+  const allItems = useMemo(() => {
+    if (!isAll) return []
+    const wantDone = filter === 'done'
+    const items = []
+    scopedTasks.forEach((task) => {
+      if ((task.status === 'done') !== wantDone || !taskHit(task)) return
+      items.push({ key: `task-${task.id}`, kind: 'task', task, when: task.due_at || null })
+    })
+    scopedRems.forEach((r) => {
+      if ((r.status === 'completed') !== wantDone || !remHit(r)) return
+      if (!wantDone && !isActiveReminder(r)) return
+      items.push({ key: `rem-${r.id}`, kind: 'reminder', reminder: r, when: r.scheduled_at || null })
+    })
+    return items
+  }, [isAll, filter, scopedTasks, scopedRems, q, clients, projects, allGroupsList]) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const mixedGroups = useMemo(() => {
+    if (!isAll) return []
+    if (filter === 'done') {
+      const sorted = [...allItems].sort((a, b) => byRecency(a.task || a.reminder, b.task || b.reminder))
+      return sorted.length ? [{ key: 'all-done', label: i18n.t('tasks:doneGroup'), color: colors.textSub, items: sorted }] : []
+    }
+    if (allGroupBy === 'pressure') {
+      return PRESSURE_KEYS
+        .map((key) => ({
+          key: `all-${key}`,
+          // "דחוף" borrows the priority label: it IS that priority.
+          label: key === 'urgent' ? i18n.t('tasks:priority.high') : i18n.t(`tasks:buckets.${key}`),
+          color: BAND_COLOR[key],
+          items: allItems.filter((it) => pressureBucket(it, now) === key).sort(CHRONO_PRESSURE.has(key) ? byPressure : byUrgency),
+        }))
+        .filter((g) => g.items.length)
+    }
+    if (allGroupBy === 'priority') {
+      const gs = PRIORITY_GROUPS.map((g) => ({
+        key: `all-pri-${g}`,
+        label: i18n.t(`tasks:priority.${g}`),
+        color: PRIORITY_COLOR[g],
+        items: allItems.filter((it) => it.kind === 'task' && (it.task.priority || 'medium') === g).sort(byPressure),
+      }))
+      gs.push({ key: 'all-pri-reminders', label: i18n.t('tasks:reminders'), color: fallbackColor(), items: allItems.filter((it) => it.kind === 'reminder').sort(byPressure) })
+      return gs.filter((g) => g.items.length)
+    }
+    return DATE_BUCKETS
+      .map((key) => ({
+        key: `all-${key}`,
+        label: i18n.t(`tasks:buckets.${key}`),
+        color: BAND_COLOR[key],
+        items: allItems.filter((it) => (key === 'undated' ? !it.when : !!it.when && dateToBucket(new Date(it.when), now) === key)).sort(byPressure),
+      }))
+      .filter((g) => g.items.length)
+  }, [isAll, filter, allItems, now, allGroupBy, themeMode])
+
+  const groups = isAll ? mixedGroups : (isTasks ? taskGroups : reminderGroups)
+  const filters = isAll ? ALL_FILTERS : (isTasks ? TASK_FILTERS : REM_FILTERS)
+
+  const renderTask = (t, first) => (
+    <TaskRow key={`t-${t.id}`} task={t} first={first} clientById={clientById} projectById={projectById} status={statusById[t.status_id]} category={categoryById[t.category_id]}
+      onToggle={() => toggleDone(t)} onEdit={() => setEditTask(t)}
+      onPostpone={t.status !== 'done' && canPostpone(t.due_at, now) ? () => postponeTask(t) : null} />
+  )
+  const renderReminder = (r, first) => (
+    <ReminderRow key={`r-${r.id}`} reminder={r} first={first} clientName={remSubjectOf(r)}
+      count={filter === 'todo' && isRecurring(r) ? dueOccurrenceCount(r, now) : 1}
+      onComplete={() => completeReminder(r)} onEdit={() => setEditRem(r)}
+      onPostpone={r.status !== 'completed' && canPostpone(r.scheduled_at, now) ? () => postponeReminder(r) : null} />
+  )
+
+  const onAdd = () => setAdding(isAll ? 'choose' : isTasks ? 'task' : 'reminder')
+  const heroTitle = isAll ? i18n.t('tasks:all') : isTasks ? i18n.t('tasks:hero.tasksTitle') : i18n.t('tasks:hero.remindersTitle')
+  const middleLabel = isAll ? i18n.t('tasks:buckets.overdue') : isTasks ? i18n.t('tasks:hero.urgentTasks') : i18n.t('tasks:hero.overdueReminders')
+  const hasAnyRows = isAll ? (tasks.length || reminders.length) : (isTasks ? tasks.length : reminders.length)
 
   return (
     <Screen name="tasks">
-      {loading && !(isTasks ? tasks.length : reminders.length) ? (
+      {loading && !hasAnyRows ? (
         <View style={styles.center}><ActivityIndicator color={colors.brand} /></View>
       ) : (
         <ScrollView
           contentContainerStyle={[styles.content, bottomPad]}
           showsVerticalScrollIndicator={false}
-          refreshControl={<RefreshControl refreshing={loading} onRefresh={isTasks ? refetchTasks : refetchRems} tintColor={colors.brand} />}
+          keyboardShouldPersistTaps="handled"
+          refreshControl={<RefreshControl refreshing={loading} onRefresh={() => { refetchTasks(); refetchRems() }} tintColor={colors.brand} />}
         >
           <ScreenHead
-            title={isTasks ? i18n.t('tasks:tasks') : i18n.t('tasks:reminders')}
-            onAdd={() => setAdding(true)}
+            title={isAll ? i18n.t('tasks:all') : isTasks ? i18n.t('tasks:tasks') : i18n.t('tasks:reminders')}
+            onAdd={onAdd}
             addLabel={isTasks ? i18n.t('tasks:add.taskAria') : i18n.t('tasks:add.reminderAria')}
           />
           {error ? <Text style={styles.error}>{error}</Text> : null}
 
-          {/* Entity toggle */}
-          <Segmented options={[{ k: 'tasks', label: i18n.t('tasks:tasks') }, { k: 'reminders', label: i18n.t('tasks:reminders') }]} value={view} onPick={switchView} />
+          <Segmented options={VIEWS.map((v) => ({ k: v, label: v === 'all' ? i18n.t('tasks:all') : i18n.t(`tasks:${v}`) }))} value={view} onPick={switchView} />
 
           <Card padded={false} contentStyle={styles.hero}>
-            <Text style={styles.heroTitle}>{isTasks ? i18n.t('tasks:hero.tasksTitle') : i18n.t('tasks:hero.remindersTitle')}</Text>
+            <Text style={styles.heroTitle}>{heroTitle}</Text>
             <View style={styles.heroGrid}>
               <HeroStat label={i18n.t('tasks:hero.open')} value={openCount} />
-              <HeroStat label={isTasks ? i18n.t('tasks:hero.urgentTasks') : i18n.t('tasks:hero.overdueReminders')} value={urgentCount} accent divided />
+              <HeroStat label={middleLabel} value={urgentCount} divided />
               <HeroStat label={i18n.t('tasks:hero.done')} value={doneCount} />
             </View>
           </Card>
+
+          <Glass radius={18} style={styles.searchBox}>
+            <Search size={16} strokeWidth={1.6} color={colors.textFaint} />
+            <TextInput style={styles.searchInput} value={query} onChangeText={setQuery} placeholder={i18n.t('tasks:search')} placeholderTextColor={colors.textFaint} returnKeyType="search" />
+            {query ? (
+              <Pressable onPress={() => setQuery('')} hitSlop={8} accessibilityLabel={i18n.t('tasks:searchClose')}>
+                <X size={15} strokeWidth={1.8} color={colors.textSub} />
+              </Pressable>
+            ) : null}
+          </Glass>
 
           <Segmented options={filters.map((f) => ({ k: f, label: i18n.t(`tasks:filter.${f}`) }))} value={filter} onPick={setFilter} />
           {isTasks ? (
             <Segmented options={GROUP_BY.map((g) => ({ k: g, label: i18n.t(`tasks:groupBy.${g}`) }))} value={groupBy} onPick={setGroupBy} />
           ) : null}
+          {isAll && filter !== 'done' ? (
+            <Segmented options={ALL_GROUP_BY.map((g) => ({ k: g, label: i18n.t(`tasks:groupBy.${g}`) }))} value={allGroupBy} onPick={setAllGroupBy} />
+          ) : null}
 
-          {/* Category filter + manage — shared across tasks + reminders */}
+          {/* Category filter + manage — shared across every mode */}
           <View style={styles.catBar}>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.catScroll} contentContainerStyle={styles.catPills}>
               {taskCategories.length ? (
@@ -238,7 +373,7 @@ export default function TasksScreen() {
           </View>
 
           {/* Clear all completed (only on the done filter) */}
-          {filter === 'done' && clearable.length > 0 ? (
+          {filter === 'done' && clearableCount > 0 ? (
             <GlassPressable radius={999} style={styles.clearBtn} onPress={() => setConfirmClear(true)}>
               <Trash2 size={14} strokeWidth={1.6} color={colors.danger} />
               <Text style={styles.clearText}>{i18n.t('tasks:clearAll', { defaultValue: 'נקה הכל' })}</Text>
@@ -253,42 +388,41 @@ export default function TasksScreen() {
                   <Pressable style={styles.groupHead} onPress={() => toggleGroup(g.key)}>
                     <View style={[styles.groupDot, { backgroundColor: g.color }]} />
                     <Text style={styles.groupLabel}>{g.label}</Text>
-                    <Text style={styles.groupCount}>{g.items.length + (g.datedTasks ? g.datedTasks.length : 0)}</Text>
+                    <Text style={styles.groupCount}>{g.items.length}</Text>
                     <ChevronDown size={16} strokeWidth={1.6} color={colors.textSub} style={{ transform: [{ rotate: isOpen ? '180deg' : '0deg' }] }} />
                   </Pressable>
                   {isOpen ? (
                     <View style={styles.groupBody}>
-                      {isTasks
-                        ? g.items.map((t, i) => (
-                          <TaskRow key={t.id} task={t} first={i === 0} clientById={clientById} projectById={projectById} status={statusById[t.status_id]} category={categoryById[t.category_id]} onToggle={() => toggleDone(t)} onEdit={() => setEditTask(t)} />
-                        ))
-                        : (
-                          <>
-                            {g.items.map((r, i) => (
-                              <ReminderRow key={r.id} reminder={r} first={i === 0} clientName={remClient(r)} count={filter === 'todo' && isRecurring(r) ? dueOccurrenceCount(r, now) : 1} onComplete={() => completeReminder(r)} onEdit={() => setEditRem(r)} />
-                            ))}
-                            {(g.datedTasks || []).map((t, i) => (
-                              <TaskRow key={t.id} task={t} first={g.items.length === 0 && i === 0} clientById={clientById} projectById={projectById} status={statusById[t.status_id]} category={categoryById[t.category_id]} onToggle={() => toggleDone(t)} onEdit={() => setEditTask(t)} />
-                            ))}
-                          </>
-                        )}
+                      {g.items.map((it, i) => {
+                        if (isAll) return it.kind === 'task' ? renderTask(it.task, i === 0) : renderReminder(it.reminder, i === 0)
+                        return isTasks ? renderTask(it, i === 0) : renderReminder(it, i === 0)
+                      })}
                     </View>
                   ) : null}
                 </Card>
               )
             })
           ) : (
-            <Text style={styles.empty}>{emptyMsg(isTasks, filter)}</Text>
+            <Text style={styles.empty}>{emptyMsg(view, filter, !!q)}</Text>
           )}
         </ScrollView>
       )}
 
-      {/* Add — task or reminder per view */}
-      {isTasks ? (
-        <AddTaskModal open={adding} onClose={() => setAdding(false)} onSave={addTask} />
-      ) : (
-        <AddReminderModal open={adding} onClose={() => setAdding(false)} onSave={addReminder} />
-      )}
+      {/* "הכל" holds both kinds, so adding asks which. */}
+      <Sheet open={adding === 'choose'} onClose={() => setAdding(null)} title={i18n.t('tasks:all')}>
+        <View style={styles.chooser}>
+          <Pressable style={styles.chooseBtn} onPress={() => setAdding('task')} accessibilityRole="button">
+            <ListTodo size={20} strokeWidth={1.6} color={colors.brand} />
+            <Text style={styles.chooseText}>{i18n.t('tasks:add.taskAria')}</Text>
+          </Pressable>
+          <Pressable style={styles.chooseBtn} onPress={() => setAdding('reminder')} accessibilityRole="button">
+            <Bell size={20} strokeWidth={1.6} color={colors.brand} />
+            <Text style={styles.chooseText}>{i18n.t('tasks:add.reminderAria')}</Text>
+          </Pressable>
+        </View>
+      </Sheet>
+      <AddTaskModal open={adding === 'task'} onClose={() => setAdding(null)} onSave={addTask} />
+      <AddReminderModal open={adding === 'reminder'} onClose={() => setAdding(null)} onSave={addReminder} />
       <AddTaskModal open={!!editTask} task={editTask} onClose={() => setEditTask(null)} onSave={(patch) => updateTask(editTask.id, patch)} onDelete={() => { deleteTask(editTask.id); setEditTask(null) }} />
       <AddReminderModal open={!!editRem} reminder={editRem} onClose={() => setEditRem(null)} onSave={(patch) => editReminder(editRem.id, patch)} onDelete={() => { deleteReminder(editRem.id); setEditRem(null) }} />
       <TaskTaxonomyModal
@@ -303,18 +437,25 @@ export default function TasksScreen() {
       />
 
       {/* Confirm clear-all completed */}
-      <Sheet open={confirmClear} onClose={() => setConfirmClear(false)} title={i18n.t(isTasks ? 'tasks:clearConfirm.tasksTitle' : 'tasks:clearConfirm.remindersTitle', { defaultValue: i18n.t('tasks:clearAll', { defaultValue: 'נקה הכל' }) })}>
+      <Sheet open={confirmClear} onClose={() => setConfirmClear(false)} title={i18n.t(!isTasks && !isAll ? 'tasks:clearConfirm.remindersTitle' : 'tasks:clearConfirm.tasksTitle', { defaultValue: i18n.t('tasks:clearAll', { defaultValue: 'נקה הכל' }) })}>
         <Text style={styles.confirmMsg}>
           {i18n.t(
-            clearable.length === 1
-              ? (isTasks ? 'tasks:clearConfirm.tasksMessageOne' : 'tasks:clearConfirm.remindersMessageOne')
-              : (isTasks ? 'tasks:clearConfirm.tasksMessageMany' : 'tasks:clearConfirm.remindersMessageMany'),
-            { count: clearable.length, defaultValue: '' },
+            clearableCount === 1
+              ? (!isTasks && !isAll ? 'tasks:clearConfirm.remindersMessageOne' : 'tasks:clearConfirm.tasksMessageOne')
+              : (!isTasks && !isAll ? 'tasks:clearConfirm.remindersMessageMany' : 'tasks:clearConfirm.tasksMessageMany'),
+            { count: clearableCount, defaultValue: '' },
           )}
         </Text>
         <View style={styles.confirmActions}>
           <Pressable style={styles.confirmCancel} onPress={() => setConfirmClear(false)}><Text style={styles.confirmCancelText}>{i18n.t('modalsTask:common.cancel', { defaultValue: 'ביטול' })}</Text></Pressable>
-          <Pressable style={styles.confirmDelete} onPress={() => { (isTasks ? clearTasks : clearRems)(clearable.map((x) => x.id)); setConfirmClear(false) }}>
+          <Pressable
+            style={styles.confirmDelete}
+            onPress={() => {
+              if (clearableTasks.length) clearTasks(clearableTasks.map((x) => x.id))
+              if (clearableRems.length) clearRems(clearableRems.map((x) => x.id))
+              setConfirmClear(false)
+            }}
+          >
             <Text style={styles.confirmDeleteText}>{i18n.t('tasks:clearConfirm.confirm', { defaultValue: i18n.t('tasks:clearAll', { defaultValue: 'נקה הכל' }) })}</Text>
           </Pressable>
         </View>
@@ -323,18 +464,19 @@ export default function TasksScreen() {
   )
 }
 
-function emptyMsg(isTasks, filter) {
-  if (isTasks) return i18n.t(filter === 'done' ? 'tasks:empty.tasksDone' : 'tasks:empty.tasksTodo', { defaultValue: '—' })
-  if (filter === 'recurring') return i18n.t('tasks:empty.noRecurring', { defaultValue: '—' })
-  return i18n.t(filter === 'done' ? 'tasks:empty.remindersDone' : 'tasks:empty.remindersTodo', { defaultValue: '—' })
+function emptyMsg(view, filter, searching) {
+  if (searching) return i18n.t('tasks:empty.tasksTodo', { defaultValue: '—' })
+  if (view === 'reminders') {
+    if (filter === 'recurring') return i18n.t('tasks:empty.noRecurring', { defaultValue: '—' })
+    return i18n.t(filter === 'done' ? 'tasks:empty.remindersDone' : 'tasks:empty.remindersTodo', { defaultValue: '—' })
+  }
+  return i18n.t(filter === 'done' ? 'tasks:empty.tasksDone' : 'tasks:empty.tasksTodo', { defaultValue: '—' })
 }
 
-/* No accent on any of the three. "Urgent" used to be painted in the brand
-   colour, which is a mobile-only divergence — web gives all three hero stats
-   the same --espresso — and in night mode that colour is Misted Sage on a dark
-   card: 3.83:1, under AA, and the FAINTEST of the three. The number meant to
-   catch the eye was the one that receded. */
-function HeroStat({ label, value, accent, divided }) { // eslint-disable-line no-unused-vars
+/* No accent on any of the three. Web gives all three hero stats the same
+   --espresso, and in night mode the old brand-coloured "urgent" was the
+   faintest of the three. */
+function HeroStat({ label, value, divided }) {
   return (
     <View style={[styles.heroStat, divided && styles.heroStatDivided]}>
       <Text style={styles.heroStatL}>{label}</Text>
@@ -358,7 +500,15 @@ function Segmented({ options, value, onPick }) {
   )
 }
 
-function TaskRow({ task, first, clientById, projectById, status, category, onToggle, onEdit }) {
+function PostponeButton({ onPress }) {
+  return (
+    <Pressable accessibilityLabel={i18n.t('tasks:item.snooze')} onPress={onPress} hitSlop={8} style={styles.postpone}>
+      <CalendarClock size={14} strokeWidth={1.6} color={colors.textSub} />
+    </Pressable>
+  )
+}
+
+function TaskRow({ task, first, clientById, projectById, status, category, onToggle, onEdit, onPostpone }) {
   const isDone = task.status === 'done'
   const overdue = !isDone && task.due_at && new Date(task.due_at) < startOfDay(new Date())
   const meta = [task.due_at ? fmtShortDate(task.due_at) : null, clientById[task.client_id], projectById[task.project_id]].filter(Boolean).join(' · ')
@@ -386,11 +536,12 @@ function TaskRow({ task, first, clientById, projectById, status, category, onTog
           {meta ? <Text style={[styles.meta, overdue && styles.metaOverdue, { textAlign: align }]} numberOfLines={1}>{meta}</Text> : null}
         </View>
       </Pressable>
+      {onPostpone ? <PostponeButton onPress={onPostpone} /> : null}
     </View>
   )
 }
 
-function ReminderRow({ reminder, first, clientName, count, onComplete, onEdit }) {
+function ReminderRow({ reminder, first, clientName, count, onComplete, onEdit, onPostpone }) {
   const isDone = reminder.status === 'completed'
   const meta = [clientName, formatWhen(reminder.scheduled_at)].filter(Boolean).join(' · ')
   const rtl = (i18n.language || '').startsWith('he')
@@ -399,7 +550,7 @@ function ReminderRow({ reminder, first, clientName, count, onComplete, onEdit })
   return (
     <View style={[styles.row, !first && styles.rowBorder, flip && styles.rowFlip]}>
       <Pressable accessibilityLabel={reminder.title || ''} onPress={() => !isDone && onComplete()} hitSlop={8} accessibilityRole="checkbox" accessibilityState={{ checked: isDone }}>
-        <View style={[styles.check, isDone && styles.checkOn]}>{isDone ? <Check size={13} strokeWidth={3} color={colors.onBrand} /> : null}</View>
+        <View style={[styles.check, styles.checkRem, isDone && styles.checkOn]}>{isDone ? <Check size={13} strokeWidth={3} color={colors.onBrand} /> : null}</View>
       </Pressable>
       <Pressable style={styles.textWrap} onPress={onEdit}>
         <View style={[styles.titleRow, flip && styles.rowFlip]}>
@@ -408,6 +559,7 @@ function ReminderRow({ reminder, first, clientName, count, onComplete, onEdit })
         </View>
         {meta ? <Text style={[styles.meta, { textAlign: align }]} numberOfLines={1}>{meta}</Text> : null}
       </Pressable>
+      {onPostpone ? <PostponeButton onPress={onPostpone} /> : null}
       <Pressable accessibilityLabel={i18n.t('modalsTask:reminder.titleEdit')} onPress={onEdit} hitSlop={8}><Pencil size={13} strokeWidth={1.6} color={colors.textFaint} /></Pressable>
     </View>
   )
@@ -427,6 +579,9 @@ const styles = themed((c, t) => ({
   heroStatL: { fontSize: 9, fontWeight: '500', color: c.textSub, letterSpacing: 0.4, textTransform: 'uppercase' },
   heroStatV: { fontSize: 22, fontWeight: '500', color: c.text },
 
+  searchBox: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 12 },
+  searchInput: { flex: 1, paddingVertical: 10, fontSize: 14, color: c.text },
+
   seg: { flexDirection: 'row', padding: 2, alignSelf: 'center' },
   segBtn: { minHeight: 44, justifyContent: 'center', paddingVertical: 6, paddingHorizontal: 16, borderRadius: 999 },
   segOn: { backgroundColor: c.brand },
@@ -434,10 +589,8 @@ const styles = themed((c, t) => ({
   segTextOn: { color: c.onBrand, fontWeight: '600' },
 
   // Category filter bar
-  /* Wraps, and the pill strip claims the whole first line. "סטטוסים
-     וקטגוריות" is a fixed 164pt that does not shrink, and it sat in the same
-     row as the filter: on a 375pt screen that left the filter 163 — a pill and
-     a half — for a secondary link to the taxonomy editor. */
+  /* Wraps, and the pill strip claims the whole first line — see git history
+     for why the manage link no longer shares the row with the filter. */
   catBar: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 8 },
   catScroll: { flexBasis: '100%' },
   catPills: { flexDirection: 'row', gap: 6, paddingVertical: 2 },
@@ -454,6 +607,9 @@ const styles = themed((c, t) => ({
   confirmCancelText: { fontSize: 15, color: c.textSub },
   confirmDelete: { flex: 1, paddingVertical: 13, borderRadius: 12, backgroundColor: c.dangerFill, alignItems: 'center' },
   confirmDeleteText: { fontSize: 15, fontWeight: '600', color: c.onBrand },
+  chooser: { flexDirection: 'row', gap: 10 },
+  chooseBtn: { flex: 1, minHeight: 88, alignItems: 'center', justifyContent: 'center', gap: 8, borderRadius: 16, borderWidth: 1, borderColor: c.border, backgroundColor: c.card },
+  chooseText: { fontSize: 14, fontWeight: '600', color: c.text, textAlign: 'center' },
 
   groupOuter: { marginTop: 0 },
   group: {},
@@ -467,6 +623,8 @@ const styles = themed((c, t) => ({
   rowFlip: { flexDirection: 'row-reverse' },
   rowBorder: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: c.divider },
   check: { width: 22, height: 22, borderRadius: 11, borderWidth: 1.5, borderColor: c.divider, alignItems: 'center', justifyContent: 'center', marginTop: 1 },
+  // A reminder's check is square-cornered so the two kinds read apart in "הכל".
+  checkRem: { borderRadius: 6 },
   checkOn: { backgroundColor: c.positive, borderColor: c.positive },
   textWrap: { flex: 1, gap: 3 },
   titleRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
@@ -479,9 +637,11 @@ const styles = themed((c, t) => ({
   catTagText: { fontSize: 10, color: c.textSub },
   meta: { fontSize: 12, color: c.textFaint },
   metaOverdue: { color: c.amberWarn },
+  postpone: { width: 28, height: 28, borderRadius: 14, alignItems: 'center', justifyContent: 'center', backgroundColor: c.fill },
 }))
 
 HeroStat.displayName = 'HeroStat'
 Segmented.displayName = 'Segmented'
+PostponeButton.displayName = 'PostponeButton'
 TaskRow.displayName = 'TaskRow'
 ReminderRow.displayName = 'ReminderRow'

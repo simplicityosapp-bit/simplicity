@@ -2,8 +2,8 @@ import { useMemo, useState, useRef, useCallback } from 'react'
 import { View, StyleSheet, ScrollView, ActivityIndicator, RefreshControl, I18nManager } from 'react-native'
 import { Text } from '../components/Text'
 import { Pressable } from '../components/Pressable'
-import { useFocusEffect } from '@react-navigation/native'
-import { ChevronLeft, ChevronRight, Check } from 'lucide-react-native'
+import { useFocusEffect, useNavigation } from '@react-navigation/native'
+import { ChevronLeft, ChevronRight, Check, CloudOff } from 'lucide-react-native'
 import { fmtTime, fmtMonthYear, fmtDayLabel, remindersUpcoming, weekStartIndex, eventsByDate } from '@simplicity/core'
 import i18n from '../lib/i18n'
 import { usePreferences } from '../lib/preferences'
@@ -16,6 +16,7 @@ import { colors } from '../theme/theme'
 import { themed, themedMap } from '../theme/themed'
 import { useCalendarData } from '../hooks/useCalendarData'
 import { useBottomPad } from '../lib/bottomBar'
+import { useGoogleCalendarAutoSync } from '../hooks/useGoogleCalendar'
 
 // Calendar screen (mirrors web): a month grid of the merged feed (meetings +
 // synced events + reminders + lead follow-ups) with per-day dots, plus the
@@ -30,6 +31,12 @@ export default function CalendarScreen() {
   const bottomPad = useBottomPad()
   const { meetings, calendarEvents, clients, groups, reminders, leads, sessions, loading, error, refetch, addMeeting, confirmMeeting, skipMeeting, setMeetingStatus, addSession, updateEvent, deleteEvent } = useCalendarData()
   const { prefs } = usePreferences()
+  const navigation = useNavigation()
+  /* Pull new Google Calendar events while this screen is open, as web's
+     calendar does, and reload the feed after each pull. Nothing on the phone
+     ever ran a sync before, so a phone-only coach saw the calendar freeze at
+     whatever the web app had last fetched. */
+  const { failing: syncFailing } = useGoogleCalendarAutoSync({ onSynced: () => refetch(true) })
   // Persistent tab: silently re-pull on RE-focus so a meeting/session/reminder
   // added elsewhere reflects on return (skip mount).
   const firstFocus = useRef(true)
@@ -132,6 +139,16 @@ export default function CalendarScreen() {
             addLabel={i18n.t('calendar:newEventAria', { defaultValue: 'פגישה חדשה' })}
           />
           {error ? <Text style={styles.error}>{error}</Text> : null}
+          {/* The background sync is silent; this is the one place it speaks — a
+              connected calendar that has stopped updating. Clears itself on the
+              next good sync. */}
+          {syncFailing ? (
+            <Pressable style={styles.syncBanner} onPress={() => navigation.navigate('Connections')} accessibilityRole="button">
+              <CloudOff size={15} strokeWidth={1.8} color={colors.amberWarn} />
+              <Text style={styles.syncText}>{i18n.t('calendar:syncFailed.text')}</Text>
+              <Text style={styles.syncCta}>{i18n.t('calendar:syncFailed.cta')}</Text>
+            </Pressable>
+          ) : null}
 
           {/* Month grid */}
           <Card contentStyle={styles.grid}>
@@ -221,6 +238,9 @@ const styles = themed((c, t) => ({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   content: { paddingHorizontal: 20, gap: 14 },
   error: { color: c.danger, fontSize: 13 },
+  syncBanner: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 10, paddingHorizontal: 12, borderRadius: 14, borderWidth: 1, borderColor: 'rgba(212,165,116,0.4)', backgroundColor: 'rgba(212,165,116,0.12)' },
+  syncText: { flex: 1, fontSize: 13, color: c.text },
+  syncCta: { fontSize: 13, fontWeight: '600', color: c.brand },
   empty: { color: c.textFaint, fontSize: 14, textAlign: 'center', marginTop: 12 },
 
   // Grid

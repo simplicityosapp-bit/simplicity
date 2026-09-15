@@ -103,11 +103,15 @@ export default function InsightsWidget({ questions, answers, addAnswer }) {
               onValueChange={(v) => setVal(Math.round(v))}
             />
             <View style={styles.saveCol}>
-              <Text style={styles.val}>{val ?? '—'}</Text>
+              {/* The slider rests on 5 before it is touched, so 5 is the answer
+                  on offer: show it and let it be saved. The save used to stay
+                  disabled until the slider moved, and "5" could only be
+                  answered by dragging away and back (web InsightsWidget). */}
+              <Text style={styles.val}>{val ?? 5}</Text>
               <Pressable
-                style={[styles.saveBtn, (busy || val == null) && styles.saveBtnOff]}
-                onPress={() => save(val)}
-                disabled={busy || val == null}
+                style={[styles.saveBtn, busy && styles.saveBtnOff]}
+                onPress={() => save(val ?? 5)}
+                disabled={busy}
                 accessibilityLabel={i18n.t('home:widgets.insights.saveAria')}
               >
                 <Check size={15} strokeWidth={2} color={colors.onBrand} />

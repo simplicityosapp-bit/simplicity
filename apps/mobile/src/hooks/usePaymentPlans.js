@@ -115,5 +115,5 @@ export function usePaymentPlans() {
     } catch { /* optimistic already applied */ }
   }, [])
 
-  return { plans, installments, loading, createPlan, markReceived, unmarkReceived, removePlan }
+  return { plans, installments, loading, refetch, createPlan, markReceived, unmarkReceived, removePlan }
 }

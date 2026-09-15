@@ -39,7 +39,7 @@ const DEFAULT_IMPORTANCE = 3
 
 export default function Step4Goals({ ob, setCTA }) {
   const t = (k, vars) => i18n.t('onboardingSteps:' + k, vars)
-  const { goals, categories, addGoal, updateGoal } = useGoalsData()
+  const { goals, categories, addGoal, updateGoal, resolveCategoryId } = useGoalsData()
 
   /* Number grouping follows the active UI language, so a Spanish user
      does not see Hebrew-locale formatting. */
@@ -140,8 +140,15 @@ export default function Step4Goals({ ob, setCTA }) {
       const prevId = initial.created_ids?.[0] || null
       let goal = null
       if (prevId) {
-        const { metric_key, ...patch } = payload // eslint-disable-line no-unused-vars
-        goal = await updateGoal(prevId, patch).catch(() => null)
+        /* The metric can change on a second pass (Back, then another type), and
+           the category is what the goal measures. Resolve it again instead of
+           keeping the first pass's: dropping metric_key from the patch dropped
+           the category with it, so "income 5000" re-picked as "active clients:
+           10" stayed an income goal with a target of 10 (web sends category_id
+           with the update). */
+        const { metric_key, ...patch } = payload
+        const category_id = await resolveCategoryId(metric_key, categories || []).catch(() => null)
+        goal = category_id ? await updateGoal(prevId, { ...patch, category_id }).catch(() => null) : null
       }
       if (!goal) goal = await addGoal(payload)
 

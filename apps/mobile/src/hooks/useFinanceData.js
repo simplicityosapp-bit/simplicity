@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
 import { selectAll } from '../lib/paginate'
+import { softDeleteLinkedInvestments, restoreLinkedInvestments } from '../lib/linkedInvestments'
 
 // Expense-category palette (mirrors the web CATEGORY_COLORS spirit).
 export const CATEGORY_COLORS = ['#C97B5E', '#8BA888', '#D4A574', '#5a6a8c', '#b8845e', '#7a9b8e', '#b56e8a', '#6a8caf']
@@ -56,6 +57,7 @@ export function useFinanceData() {
     setTransactions((prev) => prev.filter((t) => t.id !== id)) // optimistic remove
     const { error: e } = await supabase.from('transactions').update({ deleted_at: new Date().toISOString() }).eq('id', id)
     if (e) { load(); throw e }
+    await softDeleteLinkedInvestments(supabase, id)
   }, [load])
 
   /* Put a soft-deleted transaction back. Needed by the recurring-rule delete,
@@ -63,6 +65,7 @@ export function useFinanceData() {
      paused (see lib/recurringTx.js). */
   const restoreTransaction = useCallback(async (id) => {
     const { error: e } = await supabase.from('transactions').update({ deleted_at: null }).eq('id', id)
+    if (!e) await restoreLinkedInvestments(supabase, id)
     load()
     if (e) throw e
   }, [load])

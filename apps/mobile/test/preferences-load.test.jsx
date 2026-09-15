@@ -31,6 +31,7 @@ jest.mock('../src/lib/supabase', () => {
       insert: (payload) => { mockServer.writes.push({ op: 'insert', payload }); return Promise.resolve({ error: null }) },
       maybeSingle: async () => {
         if (s.op === 'update') {
+          if (mockServer.failWrite) return { data: null, error: { message: 'Network request failed' } }
           mockServer.writes.push({ op: 'update', payload: s.payload })
           return { data: s.payload, error: null }
         }
@@ -80,6 +81,29 @@ describe('PreferencesProvider', () => {
       onboarding: { completed_at: '2026-01-01T00:00:00.000Z' },
       design: { theme: 'dark' },
     })
+  })
+
+  /* Cancelling an account deletion offline used to lift the lock on the phone
+     while the deletion stayed scheduled on the server. A strict change is only
+     believed once the server has it. */
+  it('rolls back a strict change the server never got, and says so', async () => {
+    mockServer.failRead = false
+    mockServer.failWrite = true
+    mockServer.writes = []
+    mockServer.row = { preferences: { accountDeletion: { scheduled_for: '2099-01-01T00:00:00.000Z' } } }
+    render(<PreferencesProvider><Probe /></PreferencesProvider>)
+    await waitFor(() => expect(ctx.status).toBe('ready'))
+
+    let caught = null
+    await act(async () => {
+      try { await ctx.update({ accountDeletion: null }, { strict: true }) } catch (e) { caught = e }
+    })
+    expect(caught?.code).toBe('PREFS_WRITE_FAILED')
+    expect(ctx.prefs.accountDeletion).toEqual({ scheduled_for: '2099-01-01T00:00:00.000Z' })
+
+    /* An ordinary change keeps the old, optimistic behaviour. */
+    await act(async () => { await ctx.update({ design: { theme: 'dark' } }) })
+    expect(ctx.prefs.design.theme).toBe('dark')
   })
 })
 

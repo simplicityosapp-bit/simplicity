@@ -35,7 +35,7 @@ const STATUS_PILL = themedMap((c) => ({
 const STATUS_ORDER = ['active', 'wandering', 'past', 'no_status']
 const initials = (name) => (name || '').split(' ').map((w) => w[0] || '').join('').slice(0, 2).toUpperCase()
 
-export default function ClientDrawer({ clientId, clients, transactions, sessions, members, groups, tasks = [], reminders = [], onClose, updateClient, deleteClient, addTransaction, addSession, updateSession, deleteSession, updateTask, deleteTask, updateTransaction, deleteTransaction, restoreTransaction, updateReminder, deleteReminder, updateMember }) {
+export default function ClientDrawer({ clientId, clients, transactions, sessions, members, groups, tasks = [], reminders = [], onClose, updateClient, deleteClient, addTransaction, addSession, updateSession, deleteSession, updateTask, deleteTask, updateTransaction, deleteTransaction, restoreTransaction, updateReminder, deleteReminder, updateMember, onDataChanged }) {
   const insets = useSafeAreaInsets()
   const { projects } = useFormOptions()
   const [editing, setEditing] = useState(false)
@@ -64,7 +64,11 @@ export default function ClientDrawer({ clientId, clients, transactions, sessions
   const nextNum = client ? sessions.filter((s) => s.client_id === client.id).length + 1 : 1
   // Payment-plan glance for the hint under the hero (the full plan lives in the
   // sections' PaymentPlanSection; this mirrors web's small summary line).
-  const { plans, installments } = usePaymentPlans()
+  const { plans, installments, refetch: refetchPlans } = usePaymentPlans()
+  /* A plan write changes money this drawer shows (the income ledger, the
+     client's total), and neither the hero nor this hint's own plan copy heard
+     about it. Refresh both. */
+  const onPlanChanged = () => { refetchPlans(); onDataChanged?.() }
   /* The rules that are still generating — a payment one of them owns needs the
      warning, not the plain delete (see lib/recurringTx.js). */
   const { templates, updateRecurring } = useRecurring()
@@ -365,6 +369,7 @@ export default function ClientDrawer({ clientId, clients, transactions, sessions
                   onEditSession={setEditSession}
                   onEditTask={setEditTask}
                   onEditReminder={updateReminder ? setEditReminder : undefined}
+                  onPlanChanged={onPlanChanged}
                 />
               </ScrollView>
             ) : null}

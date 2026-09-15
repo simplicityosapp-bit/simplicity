@@ -69,7 +69,12 @@ export default function MoonScreen() {
     [overviewKeys, transactions, leads, sessions, answers, scoreByDay, questionId, selectedQuestion],
   )
 
-  const scores = trend.map((t) => t.score)
+  /* Days with no live goal have no score at all (core moonTrend returns null
+     for them). They were drawn and averaged as 0%, so a goal set last week
+     dragged the month's average and line down with weeks that were never
+     measured. Web drops those days; so does this. */
+  const scoredTrend = useMemo(() => trend.filter((t) => t.score != null), [trend])
+  const scores = scoredTrend.map((t) => t.score)
   const avg = scores.length ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : 0
   const peak = scores.length ? Math.max(...scores) : 0
   const conf = overall?.confidence ?? 0
@@ -78,8 +83,8 @@ export default function MoonScreen() {
   // 30-day trend line (0-100 scored).
   const chart = useMemo(() => {
     const W = 300, H = 84, pad = 5
-    if (trend.length < 2) return null
-    const pts = trend.map((d, i) => [pad + (i / (trend.length - 1)) * (W - 2 * pad), H - pad - (d.score / 100) * (H - 2 * pad)])
+    if (scoredTrend.length < 2) return null
+    const pts = scoredTrend.map((d, i) => [pad + (i / (scoredTrend.length - 1)) * (W - 2 * pad), H - pad - (d.score / 100) * (H - 2 * pad)])
     const line = pts.map((p) => p.map((n) => Math.round(n * 10) / 10).join(',')).join(' ')
     return { W, H, line, area: `${pad},${H - pad} ${line} ${W - pad},${H - pad}`, d: 'M' + pts.map((p) => p.join(',')).join(' L') }
   }, [trend])
@@ -255,13 +260,15 @@ function Scatter({ points }) {
 // One "pattern to explore" — symmetric co-movement phrasing (never "X drives Y").
 function CorrCard({ c }) {
   const driver = questionText(c.driverLabel)
-  const outcome = c.outcomeLabel || (c.outcomeQ ? questionText(c.outcomeQ) : '')
+  // The metric and the strength are ids; the card showed them raw ("קשר medium",
+  // "…ו-income"). Translated as web does.
+  const outcome = c.outcomeLabel ? i18n.t(`moon:pills.${c.outcomeLabel}`) : (c.outcomeQ ? questionText(c.outcomeQ) : '')
   const raw = i18n.t(c.direction === 'pos' ? 'moon:corr.moveTogether' : 'moon:corr.moveOpposite', { driver, outcome })
   return (
     <Card contentStyle={styles.corrCard}>
       <View style={styles.corrText}>
         <Text style={styles.corrLine}>{taggedLine(raw)}</Text>
-        <Text style={styles.corrSub}>{i18n.t('moon:corr.sub', { strength: c.strength, n: c.n })}</Text>
+        <Text style={styles.corrSub}>{i18n.t('moon:corr.sub', { strength: i18n.t(`moon:corr.strength.${c.strength}`), n: c.n })}</Text>
       </View>
       <Scatter points={c.points} />
     </Card>

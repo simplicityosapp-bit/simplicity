@@ -25,7 +25,8 @@
     "grow": "Payments · Grow",
     "whatsappStatus": "Manual send · edit messages",
     "soon": "Coming soon",
-    "soonAria": "{{title}} — coming soon"
+    "soonAria": "{{title}} — coming soon",
+    "desktopSetup": "Set up from a computer"
   },
   "calendar": {
     "back": "Back",

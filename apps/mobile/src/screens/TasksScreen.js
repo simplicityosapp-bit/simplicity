@@ -1,5 +1,5 @@
-import { useMemo, useState, useRef, useCallback } from 'react'
-import { View, StyleSheet, ScrollView, ActivityIndicator, RefreshControl, I18nManager } from 'react-native'
+import { useMemo, useState, useRef, useCallback, useEffect } from 'react'
+import { View, StyleSheet, ScrollView, ActivityIndicator, RefreshControl, I18nManager, AppState } from 'react-native'
 import { Text } from '../components/Text'
 import { Pressable } from '../components/Pressable'
 import { useFocusEffect } from '@react-navigation/native'
@@ -83,7 +83,17 @@ export default function TasksScreen() {
   const projectById = useMemo(() => Object.fromEntries(projects.map((p) => [p.id, p.name])), [projects])
   const statusById = useMemo(() => Object.fromEntries((taskStatuses || []).map((s) => [s.id, s])), [taskStatuses])
   const categoryById = useMemo(() => Object.fromEntries(taskCategories.map((c) => [c.id, c])), [taskCategories])
-  const now = useMemo(() => new Date(), [tasks, reminders, view, filter])
+  /* The screen's clock. It was read only when the data or the filter changed, so
+     a screen left open never turned an item overdue or rolled "today" over at
+     midnight. It ticks once a minute and on every return to the foreground, as
+     web's does on focus. */
+  const [clock, setClock] = useState(() => Date.now())
+  useEffect(() => {
+    const id = setInterval(() => setClock(Date.now()), 60 * 1000)
+    const sub = AppState.addEventListener('change', (s) => { if (s === 'active') setClock(Date.now()) })
+    return () => { clearInterval(id); sub.remove() }
+  }, [])
+  const now = useMemo(() => new Date(clock), [clock])
   const remClient = (r) => (r.linked_to_type === 'client' ? clientById[r.linked_to_id] : null)
   const catMatch = (row) => !categoryFilters.size || categoryFilters.has(row.category_id)
 
@@ -91,6 +101,11 @@ export default function TasksScreen() {
   const error = isTasks ? tError : rError
   const openCount = isTasks ? tasks.filter((t) => t.status !== 'done').length : reminders.filter((r) => r.status !== 'completed').length
   const doneCount = isTasks ? tasks.filter((t) => t.status === 'done').length : reminders.filter((r) => r.status === 'completed').length
+  /* What "clear completed" removes: the done rows the category pills leave on
+     screen. The count and the delete used to cover every completed row, so with
+     one category picked the other categories' finished items went too (web
+     passes the scoped ids the same way). */
+  const clearable = (isTasks ? tasks.filter((t) => t.status === 'done') : reminders.filter((r) => r.status === 'completed')).filter(catMatch)
   const urgentCount = isTasks
     ? tasks.filter((t) => t.status !== 'done' && t.priority === 'high').length
     : reminders.filter((r) => r.status !== 'completed' && new Date(r.scheduled_at) < now).length
@@ -223,7 +238,7 @@ export default function TasksScreen() {
           </View>
 
           {/* Clear all completed (only on the done filter) */}
-          {filter === 'done' && doneCount > 0 ? (
+          {filter === 'done' && clearable.length > 0 ? (
             <GlassPressable radius={999} style={styles.clearBtn} onPress={() => setConfirmClear(true)}>
               <Trash2 size={14} strokeWidth={1.6} color={colors.danger} />
               <Text style={styles.clearText}>{i18n.t('tasks:clearAll', { defaultValue: 'נקה הכל' })}</Text>
@@ -291,15 +306,15 @@ export default function TasksScreen() {
       <Sheet open={confirmClear} onClose={() => setConfirmClear(false)} title={i18n.t(isTasks ? 'tasks:clearConfirm.tasksTitle' : 'tasks:clearConfirm.remindersTitle', { defaultValue: i18n.t('tasks:clearAll', { defaultValue: 'נקה הכל' }) })}>
         <Text style={styles.confirmMsg}>
           {i18n.t(
-            doneCount === 1
+            clearable.length === 1
               ? (isTasks ? 'tasks:clearConfirm.tasksMessageOne' : 'tasks:clearConfirm.remindersMessageOne')
               : (isTasks ? 'tasks:clearConfirm.tasksMessageMany' : 'tasks:clearConfirm.remindersMessageMany'),
-            { count: doneCount, defaultValue: '' },
+            { count: clearable.length, defaultValue: '' },
           )}
         </Text>
         <View style={styles.confirmActions}>
           <Pressable style={styles.confirmCancel} onPress={() => setConfirmClear(false)}><Text style={styles.confirmCancelText}>{i18n.t('modalsTask:common.cancel', { defaultValue: 'ביטול' })}</Text></Pressable>
-          <Pressable style={styles.confirmDelete} onPress={() => { (isTasks ? clearTasks : clearRems)(); setConfirmClear(false) }}>
+          <Pressable style={styles.confirmDelete} onPress={() => { (isTasks ? clearTasks : clearRems)(clearable.map((x) => x.id)); setConfirmClear(false) }}>
             <Text style={styles.confirmDeleteText}>{i18n.t('tasks:clearConfirm.confirm', { defaultValue: i18n.t('tasks:clearAll', { defaultValue: 'נקה הכל' }) })}</Text>
           </Pressable>
         </View>

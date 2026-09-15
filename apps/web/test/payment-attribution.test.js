@@ -171,11 +171,15 @@ describe('the forms ask, and the screens read', () => {
     }
   })
 
-  it('the add form clears the group when the client or the type changes', () => {
+  it('both forms clear the group when the client or the type changes', () => {
     /* A group belongs to one client, so a group left over from the previous
-       pick would answer for somebody else's workshop. */
-    expect(read('src/modals/AddTransactionModal.jsx'))
-      .toMatch(/if \(k === 'client_id' \|\| \(k === 'type' && v !== 'income'\)\) next\.group_id = ''/)
+       pick would answer for somebody else's workshop. The edit form did not,
+       and with a single-track client the field is hidden — so the stale group
+       was saved without anyone seeing it. */
+    for (const rel of ['src/modals/AddTransactionModal.jsx', 'src/modals/EditTransactionModal.jsx']) {
+      expect(read(rel), rel)
+        .toMatch(/if \(k === 'client_id' \|\| \(k === 'type' && v !== 'income'\)\) next\.group_id = ''/)
+    }
   })
 
   it('the forms read the memberships themselves', () => {

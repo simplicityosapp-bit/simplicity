@@ -85,7 +85,7 @@ function InlineForm({ onSave, onCancel, saving, error, children }) {
   )
 }
 
-export default function ClientDrawerSections({ client: c, txns, tasks = [], reminders = [], sessions = [], members = [], groups = [], onEditClient, onEditTx, onEditSession, onEditTask, onEditReminder, onUpdateClient }) {
+export default function ClientDrawerSections({ client: c, txns, tasks = [], reminders = [], sessions = [], members = [], groups = [], onEditClient, onEditTx, onEditSession, onEditTask, onEditReminder, onUpdateClient, onPlanChanged }) {
   /* ── inline single-value editing ──
      «פרטים נוספים» and «הערות» handed their pencil straight to the full edit
      modal — the same thing the header's «ערוך» button does — so one pencil
@@ -195,7 +195,7 @@ export default function ClientDrawerSections({ client: c, txns, tasks = [], remi
           }) : <Text style={styles.empty}>{T('noPayments')}</Text>}
         </Section>
 
-        <PaymentPlanSection client={c} />
+        <PaymentPlanSection client={c} onChanged={onPlanChanged} />
 
         <Section title={T('openTasks')} count={openTasks.length}>
           {openTasks.length ? openTasks.map((t) => {

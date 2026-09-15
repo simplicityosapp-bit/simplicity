@@ -153,13 +153,14 @@ export default function ClientsScreen() {
   // Source list: project group-by and the balance filter are cross-status; the
   // status tabs apply only inside the status grouping.
   const shown = useMemo(() => {
-    const q = query.trim()
+    // Folded on both sides, as on web: "dana" has to find "Dana Cohen".
+    const q = query.trim().toLowerCase()
     let filtered = enriched.filter((e) => {
       if (groupBy === 'project' || balanceOnly) return true
       return bucketMeta(e.meta) === tab
     })
     if (balanceOnly) filtered = filtered.filter((e) => e.bal.balance > 0)
-    if (q) filtered = filtered.filter((e) => (e.c.name || '').includes(q))
+    if (q) filtered = filtered.filter((e) => (e.c.name || '').toLowerCase().includes(q))
     return sortClients(filtered, sort, paidByClient)
   }, [enriched, groupBy, tab, query, balanceOnly, sort, paidByClient])
 
@@ -497,6 +498,7 @@ export default function ClientsScreen() {
         updateReminder={updateReminder}
         deleteReminder={deleteReminder}
         updateMember={updateMember}
+        onDataChanged={() => refetch(true)}
       />
     </Screen>
   )

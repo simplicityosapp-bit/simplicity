@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
 import { selectAll } from '../lib/paginate'
+import { softDeleteLinkedInvestments, restoreLinkedInvestments } from '../lib/linkedInvestments'
 import { staleScheduledMeetingIds } from '../lib/scheduledMeetings'
 import { groupMembershipPlan, newMembership } from '@simplicity/core'
 
@@ -189,11 +190,16 @@ export function useClientsList() {
   const updateTask = useCallback((id, patch) => patchRow('tasks', 'tasks', id, patch), [patchRow])
   const deleteTask = useCallback((id) => softDelete('tasks', 'tasks', id), [softDelete])
   const updateTransaction = useCallback((id, patch) => patchRow('transactions', 'transactions', id, patch), [patchRow])
-  const deleteTransaction = useCallback((id) => softDelete('transactions', 'transactions', id), [softDelete])
+  // An investment's expense takes its investment record with it (lib/linkedInvestments).
+  const deleteTransaction = useCallback(async (id) => {
+    await softDelete('transactions', 'transactions', id)
+    await softDeleteLinkedInvestments(supabase, id)
+  }, [softDelete])
   /* Put a soft-deleted transaction back — the recurring-rule delete owns a
      composite undo covering the row AND the rule it paused. */
   const restoreTransaction = useCallback(async (id) => {
     const { error: e } = await supabase.from('transactions').update({ deleted_at: null }).eq('id', id)
+    if (!e) await restoreLinkedInvestments(supabase, id)
     load()
     if (e) throw e
   }, [load])

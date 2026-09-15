@@ -19,11 +19,37 @@ import PagesScreen from '../screens/PagesScreen'
 import ConnectionsScreen from '../screens/ConnectionsScreen'
 import HelpScreen from '../screens/HelpScreen'
 import AdminScreen from '../screens/AdminScreen'
+import { withScreenBoundary } from '../components/ScreenBoundary'
+import { linking } from './linking'
 
 export const navigationRef = createNavigationContainerRef()
 
 const Stack = createNativeStackNavigator()
 const Tab = createBottomTabNavigator()
+
+/* Every screen behind its own boundary (components/ScreenBoundary), so one
+   screen's render bug leaves the rest of the app usable. Wrapped once, here,
+   so the components keep a stable identity. */
+const S = {
+  Home: withScreenBoundary(HomeScreen),
+  Clients: withScreenBoundary(ClientsScreen),
+  Tasks: withScreenBoundary(TasksScreen),
+  Finance: withScreenBoundary(FinanceScreen),
+  Goals: withScreenBoundary(GoalsScreen),
+  Leads: withScreenBoundary(LeadsScreen),
+  Calendar: withScreenBoundary(CalendarScreen),
+  Moon: withScreenBoundary(MoonScreen),
+  Settings: withScreenBoundary(SettingsScreen),
+  Trash: withScreenBoundary(TrashScreen),
+  Projects: withScreenBoundary(ProjectsScreen),
+  ProjectDetail: withScreenBoundary(ProjectDetailScreen),
+  Reports: withScreenBoundary(ReportsScreen),
+  Insights: withScreenBoundary(InsightsScreen),
+  Pages: withScreenBoundary(PagesScreen),
+  Connections: withScreenBoundary(ConnectionsScreen),
+  Help: withScreenBoundary(HelpScreen),
+  Admin: withScreenBoundary(AdminScreen),
+}
 
 // The 4 primary tab routes. The bottom bar itself is rendered ONCE at the App
 // level (see components/BottomBar) as a persistent overlay over every screen, so
@@ -41,36 +67,36 @@ function Tabs() {
         screenOptions={{ headerShown: false, freezeOnBlur: true }}
         tabBar={() => null}
       >
-        <Tab.Screen name="Clients" component={ClientsScreen} />
-        <Tab.Screen name="Tasks" component={TasksScreen} />
-        <Tab.Screen name="Home" component={HomeScreen} />
-        <Tab.Screen name="Finance" component={FinanceScreen} />
+        <Tab.Screen name="Clients" component={S.Clients} />
+        <Tab.Screen name="Tasks" component={S.Tasks} />
+        <Tab.Screen name="Home" component={S.Home} />
+        <Tab.Screen name="Finance" component={S.Finance} />
     </Tab.Navigator>
   )
 }
 
 export default function AppNavigator() {
   return (
-    <NavigationContainer ref={navigationRef}>
+    <NavigationContainer ref={navigationRef} linking={linking}>
       {/* Same reasoning as the tabs: a native stack keeps the screens below the
           top one mounted, and a dozen of them re-rendering behind the one on
           screen is paid for on every transition. */}
       <Stack.Navigator screenOptions={{ headerShown: false, freezeOnBlur: true }}>
         <Stack.Screen name="Main" component={Tabs} />
-        <Stack.Screen name="Goals" component={GoalsScreen} />
-        <Stack.Screen name="Leads" component={LeadsScreen} />
-        <Stack.Screen name="Calendar" component={CalendarScreen} />
-        <Stack.Screen name="Moon" component={MoonScreen} />
-        <Stack.Screen name="Settings" component={SettingsScreen} />
-        <Stack.Screen name="Trash" component={TrashScreen} />
-        <Stack.Screen name="Projects" component={ProjectsScreen} />
-        <Stack.Screen name="ProjectDetail" component={ProjectDetailScreen} />
-        <Stack.Screen name="Reports" component={ReportsScreen} />
-        <Stack.Screen name="Insights" component={InsightsScreen} />
-        <Stack.Screen name="Pages" component={PagesScreen} />
-        <Stack.Screen name="Connections" component={ConnectionsScreen} />
-        <Stack.Screen name="Help" component={HelpScreen} />
-        <Stack.Screen name="Admin" component={AdminScreen} />
+        <Stack.Screen name="Goals" component={S.Goals} />
+        <Stack.Screen name="Leads" component={S.Leads} />
+        <Stack.Screen name="Calendar" component={S.Calendar} />
+        <Stack.Screen name="Moon" component={S.Moon} />
+        <Stack.Screen name="Settings" component={S.Settings} />
+        <Stack.Screen name="Trash" component={S.Trash} />
+        <Stack.Screen name="Projects" component={S.Projects} />
+        <Stack.Screen name="ProjectDetail" component={S.ProjectDetail} />
+        <Stack.Screen name="Reports" component={S.Reports} />
+        <Stack.Screen name="Insights" component={S.Insights} />
+        <Stack.Screen name="Pages" component={S.Pages} />
+        <Stack.Screen name="Connections" component={S.Connections} />
+        <Stack.Screen name="Help" component={S.Help} />
+        <Stack.Screen name="Admin" component={S.Admin} />
       </Stack.Navigator>
     </NavigationContainer>
   )

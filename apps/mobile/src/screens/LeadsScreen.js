@@ -5,7 +5,11 @@ import { Text, TextInput } from '../components/Text'
 import { Pressable } from '../components/Pressable'
 import { GestureDetector, Gesture } from 'react-native-gesture-handler'
 import { Bell, Check, MessageCircle, ChevronLeft, ChevronUp, ChevronDown, Search, SlidersHorizontal, Plus, X } from 'lucide-react-native'
-import { LEAD_META, statusMetaOfLead, metaTitle, metaColor, isPendingReview, isConvertedLead, fmtShortDate, waLink } from '@simplicity/core'
+import { LEAD_META, statusMetaOfLead, metaTitle, metaColor, isPendingReview, isConvertedLead, fmtShortDate, waLink, matchLead, leadLookups } from '@simplicity/core'
+import { pushUndo } from '../lib/undo'
+import { useLeadPageLabels } from '../hooks/useLeadPageLabels'
+import PendingLeadsSection from './leads/PendingLeadsSection'
+import LeadFollowupSheet from './leads/LeadFollowupSheet'
 import Select from '../components/Select'
 import { useConfigTaxonomy } from '../hooks/useConfigTaxonomy'
 import i18n from '../lib/i18n'
@@ -52,14 +56,21 @@ export default function LeadsScreen() {
   const colW = colWidthFor(winWidth)
   const colWRef = useRef(colW)
   colWRef.current = colW
-  const { leads, loading, error, refetch, addLead, updateLead, deleteLead, addClient, addGroupMember } = useLeadsList()
+  const { leads, loading, error, refetch, addLead, updateLead, deleteLead, restoreLead, addClient, addGroupMember } = useLeadsList()
+  /* Soft delete with web's undo toast. Used by the card's delete and by
+     rejecting a pending submission — both are a real person's enquiry. */
+  const removeWithUndo = (id) => {
+    deleteLead(id)
+      .then(() => pushUndo({ label: i18n.t('components:undo.deleted.lead'), undo: () => restoreLead(id), redo: () => deleteLead(id) }))
+      .catch(() => {})
+  }
   const confirmDeleteLead = (id, name) => {
     Alert.alert(
       i18n.t('leads:delete.title', { defaultValue: 'מחיקת ליד' }),
       i18n.t('leads:delete.message', { name: name || '', defaultValue: 'למחוק את הליד?' }),
       [
         { text: i18n.t('modalsData:common.cancel', { defaultValue: 'ביטול' }), style: 'cancel' },
-        { text: i18n.t('leads:delete.confirm', { defaultValue: 'מחק' }), style: 'destructive', onPress: () => deleteLead(id) },
+        { text: i18n.t('leads:delete.confirm', { defaultValue: 'מחק' }), style: 'destructive', onPress: () => removeWithUndo(id) },
       ],
     )
   }
@@ -83,6 +94,7 @@ export default function LeadsScreen() {
   // then (if it has 2+ sub-statuses) a sub-status.
   const [movePicker, setMovePicker] = useState(null)
   const [showFollowups, setShowFollowups] = useState(false)
+  const [followupLead, setFollowupLead] = useState(null)
   const [query, setQuery] = useState('')
   const [showFilter, setShowFilter] = useState(false)
   const filter = useMemo(() => ({ ...DEFAULT_FILTER, ...(prefs.leadsFilter || {}) }), [prefs.leadsFilter])
@@ -92,6 +104,10 @@ export default function LeadsScreen() {
 
   const pending = useMemo(() => leads.filter((l) => !l.deleted_at && isPendingReview(l)), [leads])
   const official = useMemo(() => leads.filter((l) => !l.deleted_at && !isPendingReview(l)), [leads])
+  const leadPages = useLeadPageLabels(pending.length > 0)
+  // Web's search (core matchLead): case-insensitive, every term, and it reaches
+  // the phone, email, notes, source and project — not the name alone.
+  const lookups = useMemo(() => leadLookups({ sources: leadSources, projects }), [leadSources, projects])
   // Header stats (mirrors web computeStats): new this month, converted this month,
   // and the cohort conversion rate for this month's new leads.
   const stats = useMemo(() => {
@@ -115,12 +131,11 @@ export default function LeadsScreen() {
       return true
     }
     const matchRef = (val, sel) => (!sel ? true : sel === '__none__' ? !val : val === sel)
-    const q = query.trim()
     const g = {}
     LEAD_META.forEach((m) => { g[m.key] = [] })
     official
       .filter((l) => inPeriod(l)
-        && (!q || (l.name || '').includes(q))
+        && matchLead(l, query, lookups)
         && matchRef(l.project_id, filter.project)
         && matchRef(l.group_id, filter.group)
         && matchRef(l.source_id, filter.source)
@@ -132,7 +147,7 @@ export default function LeadsScreen() {
       LEAD_META.forEach((m) => { g[m.key].sort((a, b) => keyOf(a).localeCompare(keyOf(b)) * dir) })
     }
     return g
-  }, [official, filter, query])
+  }, [official, filter, query, lookups])
   /* The figure the header chip used to carry — see components/ScreenCount.
      Sums the visible buckets, so it follows the filters and the search. */
   const totalLeads = LEAD_META.reduce((n, m) => n + (buckets[m.key]?.length || 0), 0)
@@ -272,31 +287,12 @@ export default function LeadsScreen() {
             <View style={styles.stat}><Text style={styles.statNum}>{stats.convertedThisMonth}</Text><Text style={styles.statLbl}>{i18n.t('leads:stats.converted', { defaultValue: 'הומרו החודש' })}</Text></View>
             <View style={styles.stat}><Text style={styles.statNum}>{stats.convRate == null ? '—' : `${stats.convRate}%`}</Text><Text style={styles.statLbl}>{i18n.t('leads:stats.convRate', { defaultValue: 'שיעור המרה' })}</Text></View>
           </View>
-          {pending.length ? (
-            <View style={styles.group}>
-              <View style={[styles.groupHead, flip && styles.rowFlip]}>
-                <View style={[styles.dot, { backgroundColor: colors.brand }]} />
-                <Text style={[styles.groupTitle, flip && styles.txtRtl]}>{i18n.t('leads:pending.title', { defaultValue: 'ממתינים לאישור' })}</Text>
-                <Text style={styles.count}>{pending.length}</Text>
-              </View>
-              <Card padded={false}>
-                {pending.map((l, i) => (
-                  <View key={l.id || i} style={[styles.pendRow, i > 0 && styles.rowBorder]}>
-                    <View style={styles.info}>
-                      <Text style={styles.name} numberOfLines={1}>{l.name || '—'}</Text>
-                      {l.phone ? <Text style={styles.phone}>{l.phone}</Text> : null}
-                    </View>
-                    <Pressable style={styles.approve} onPress={() => updateLead(l.id, { pending_review: false })} hitSlop={6}>
-                      <Text style={styles.approveText}>{i18n.t('leads:pending.approve', { defaultValue: 'אישור' })}</Text>
-                    </Pressable>
-                    <Pressable style={styles.reject} onPress={() => deleteLead(l.id)} hitSlop={6}>
-                      <Text style={styles.rejectText}>{i18n.t('leads:pending.reject', { defaultValue: 'דחייה' })}</Text>
-                    </Pressable>
-                  </View>
-                ))}
-              </Card>
-            </View>
-          ) : null}
+          <PendingLeadsSection
+            pending={pending}
+            pages={leadPages}
+            onApprove={(l) => { updateLead(l.id, { pending_review: false }).catch(() => {}) }}
+            onReject={(l) => removeWithUndo(l.id)}
+          />
 
           {/* Open follow-ups banner */}
           <GlassPressable radius={20} style={[styles.banner, dueFollowups.length === 0 && styles.bannerMuted]} onPress={() => setShowFollowups(true)}>
@@ -360,6 +356,7 @@ export default function LeadsScreen() {
                               onConvert={setConverting}
                               onDelete={(lead) => confirmDeleteLead(lead.id, lead.name)}
                               onMove={(lead) => setMovePicker({ lead })}
+                              onFollowup={setFollowupLead}
                               sources={leadSources}
                               statuses={leadStatuses}
                               dragging={dragLead?.id === l.id}
@@ -433,6 +430,13 @@ export default function LeadsScreen() {
           </>
         ) : null}
       </Sheet>
+
+      <LeadFollowupSheet
+        open={!!followupLead}
+        lead={followupLead}
+        onClose={() => setFollowupLead(null)}
+        onSave={(date) => updateLead(followupLead.id, { follow_up_date: date || null })}
+      />
 
       {/* Open follow-ups list */}
       <Sheet open={showFollowups} onClose={() => setShowFollowups(false)} title={i18n.t('modalsTask:followups.title', { defaultValue: 'פולואו-אפים פתוחים' })}>

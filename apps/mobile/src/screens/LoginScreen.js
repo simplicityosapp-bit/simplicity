@@ -11,6 +11,8 @@ import { buildConsent } from '../lib/legal'
 import { setPendingConsent, clearPendingConsent } from '../lib/pendingConsent'
 import { signInWithGoogle } from '../lib/googleSignIn'
 import GoogleButton from '../components/GoogleButton'
+import ResendConfirmation from '../components/ResendConfirmation'
+import { authErrorKey, translateAuthError } from '../lib/authErrors'
 import Screen from '../components/Screen'
 import Card from '../components/Card'
 import { colors } from '../theme/theme'
@@ -39,9 +41,14 @@ export default function LoginScreen() {
   const [busy, setBusy] = useState(false)
   const [gbusy, setGbusy] = useState(false)
   const [error, setError] = useState('')
+  /* The classified reason (core authErrorKey), kept beside the sentence so the
+     screen can offer the way forward it implies — a resend for an unconfirmed
+     address — instead of only saying what went wrong. */
+  const [errorKind, setErrorKind] = useState(null)
+  const [confirm, setConfirm] = useState('')      // signup: the password, a second time
   const [sent, setSent] = useState(false)         // reset email sent
 
-  const goMode = (m) => { setMode(m); setError(''); setSent(false) }
+  const goMode = (m) => { setMode(m); setError(''); setErrorKind(null); setConfirm(''); setSent(false) }
 
   const onGoogle = async () => {
     setError('')
@@ -68,18 +75,14 @@ export default function LoginScreen() {
   const login = async () => {
     const { error: err } = await supabase.auth.signInWithPassword({ email: email.trim(), password })
     if (err) {
-      const m = String(err.message || '').toLowerCase()
-      setError(
-        m.includes('invalid') ? t('auth:errors.invalidLogin')
-          : m.includes('confirm') ? t('auth:errors.emailNotConfirmed')
-            : m.includes('rate') ? t('auth:errors.rateLimit')
-              : t('auth:errors.generic'),
-      )
+      // Web's reading of Supabase's messages (core authErrorKey), not a
+      // shorter local copy that sent every unmatched wording to "generic".
+      setErrorKind(authErrorKey(err.message))
+      setError(translateAuthError(err.message))
     }
   }
 
   const signup = async () => {
-    if (!agree) { setError(t('auth:signupScreen.mustAccept', { defaultValue: 'יש לאשר את המדיניות ותנאי השימוש.' })); return }
     /* The same gate the browser applies, from the same module - this screen
        used to check length alone, so the phone accepted `password` while the
        browser refused it. The weaker answer is the one that matters, because
@@ -91,19 +94,17 @@ export default function LoginScreen() {
         : t('auth:signupScreen.passwordMin8'))
       return
     }
+    /* Typed once, behind dots, on a phone keyboard: a slip here became the
+       account's password with nothing to catch it. Web asks twice. */
+    if (password !== confirm) { setError(t('auth:signupScreen.passwordsDoNotMatch')); return }
+    if (!agree) { setError(t('auth:signupScreen.mustAccept', { defaultValue: 'יש לאשר את המדיניות ותנאי השימוש.' })); return }
     const { data, error: err } = await supabase.auth.signUp({
       email: email.trim(),
       password,
       options: { data: buildConsent({ marketing }) },
     })
     if (err) {
-      const m = String(err.message || '').toLowerCase()
-      setError(
-        m.includes('registered') || m.includes('already') ? t('auth:errors.alreadyRegistered')
-          : m.includes('rate') ? t('auth:errors.rateLimit')
-            : m.includes('weak') || m.includes('password') ? t('auth:signupScreen.passwordMin8')
-              : t('auth:errors.generic'),
-      )
+      setError(authErrorKey(err.message) === 'passwordTooShort' ? t('auth:signupScreen.passwordMin8') : translateAuthError(err.message))
       return
     }
     /* Signing up with an address that already has an account does NOT come back
@@ -125,12 +126,13 @@ export default function LoginScreen() {
 
   const reset = async () => {
     const { error: err } = await supabase.auth.resetPasswordForEmail(email.trim(), { redirectTo: RESET_REDIRECT })
-    if (err) { setError(err.message || t('auth:errors.generic')); return }
+    if (err) { setError(translateAuthError(err.message)); return }
     setSent(true)
   }
 
   const onSubmit = async () => {
     setError('')
+    setErrorKind(null)
     if (mode !== 'reset' && (!email.trim() || !password)) { setError(t('auth:fillEmailPassword')); return }
     if (mode === 'reset' && !email.trim()) { setError(t('auth:fillEmailPassword')); return }
     setBusy(true)
@@ -161,6 +163,8 @@ export default function LoginScreen() {
             <Text style={styles.brand}>Simplicity</Text>
             <Text style={styles.title}>{sentTitle}</Text>
             <Text style={styles.foot}>{sentBody}</Text>
+            {/* The mail that never arrived had no second chance on the phone. */}
+            {!isReset ? <ResendConfirmation email={email.trim()} /> : null}
             <Pressable style={styles.btn} onPress={() => goMode('login')}><Text style={styles.btnText}>{t('auth:backToLogin')}</Text></Pressable>
           </Card>
         </ScrollView>
@@ -207,6 +211,14 @@ export default function LoginScreen() {
             </View>
           ) : null}
 
+          {mode === 'signup' ? (
+            <TextInput
+              style={styles.input} placeholder={t('auth:signupScreen.confirmPasswordLabel')} placeholderTextColor={colors.textFaint}
+              secureTextEntry={!show} autoCapitalize="none" value={confirm} onChangeText={setConfirm} editable={!busy}
+              autoComplete="new-password" textContentType="newPassword"
+            />
+          ) : null}
+
           {mode === 'login' ? (
             <Pressable onPress={() => goMode('reset')} hitSlop={6} style={styles.forgotWrap}>
               <Text style={styles.link}>{t('auth:forgotPassword', { defaultValue: 'שכחת סיסמה?' })}</Text>
@@ -224,6 +236,8 @@ export default function LoginScreen() {
           ) : null}
 
           {error ? <Text style={styles.error}>{error}</Text> : null}
+          {/* "Confirm your email first" used to be a wall with no door in it. */}
+          {mode === 'login' && errorKind === 'emailNotConfirmed' ? <ResendConfirmation email={email.trim()} /> : null}
 
           <Pressable style={[styles.btn, (busy || gbusy) && styles.btnBusy]} onPress={onSubmit} disabled={busy || gbusy}>
             {busy ? <ActivityIndicator color={colors.onBrand} /> : <Text style={styles.btnText}>{cta}</Text>}

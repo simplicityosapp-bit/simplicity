@@ -1,4 +1,10 @@
 {
+  "screenError": {
+    "title": "Something went wrong on this screen",
+    "body": "The rest of the app still works. You can try again or go home.",
+    "retry": "Try again",
+    "home": "Home"
+  },
   "appName": "Simplicity",
   "save": "Save",
   "cancel": "Cancel",

@@ -15,20 +15,28 @@ import { useBottomPad } from '../lib/bottomBar'
 // Connections — the mobile-feasible slice: WhatsApp click-to-chat message
 // templates (editable, stored in prefs.whatsapp.templates, mirrors web), plus
 // read-only status cards for the integrations whose setup (Google OAuth / invoice
-// API keys / Grow) has to happen on the desktop app.
+// API keys) has to happen on the desktop app.
+//
+// Every string comes from the keys web's connections screens use. This screen
+// asked for keys that exist nowhere (connections:title, whatsapp.*, save), so it
+// was Hebrew in every language, and its field labels and placeholders were its
+// own inventions rather than the messages the app actually sends.
 const T = (k, d) => i18n.t(`connections:${k}`, { defaultValue: d })
 const WA_FIELDS = [
-  { key: 'client', label: 'הודעה ללקוח', tokens: ['name'], ph: 'היי {{name}}, מה שלומך?' },
-  { key: 'reminder', label: 'תזכורת', tokens: ['name', 'title'], ph: 'היי {{name}}, תזכורת: {{title}}' },
-  { key: 'meeting', label: 'זימון פגישה', tokens: ['name', 'date', 'time'], ph: 'היי {{name}}, נפגשים ב-{{date}} בשעה {{time}}' },
-  { key: 'receipt', label: 'קבלה', tokens: ['name', 'number', 'url'], ph: 'היי {{name}}, הקבלה מס׳ {{number}}: {{url}}' },
-  { key: 'lead', label: 'פנייה לליד', tokens: ['name'], ph: 'היי {{name}}, תודה על פנייתך!' },
-  { key: 'payment', label: 'בקשת תשלום', tokens: ['name', 'balance'], ph: 'היי {{name}}, נותרה יתרה של {{balance}}' },
+  { key: 'client', tokens: ['name'] },
+  { key: 'reminder', tokens: ['name', 'title'] },
+  { key: 'meeting', tokens: ['name', 'date', 'time'] },
+  { key: 'receipt', tokens: ['name', 'number', 'url'] },
+  { key: 'lead', tokens: ['name'] },
+  { key: 'payment', tokens: ['name', 'balance'] },
 ]
+/* Grow is not offered on web yet (GROW_ENABLED is off), so "set it up on the
+   desktop" sent coaches looking for a screen that is not there. It says what
+   web says: soon. */
 const STATUS = [
-  { key: 'calendar', Icon: CalendarClock, label: 'יומן Google' },
-  { key: 'invoicing', Icon: FileText, label: 'חשבוניות' },
-  { key: 'grow', Icon: CreditCard, label: 'סליקת אשראי (Grow)' },
+  { key: 'calendar', Icon: CalendarClock, label: () => 'Google Calendar', note: () => T('list.desktopSetup', 'מוגדר באפליקציית המחשב') },
+  { key: 'invoicing', Icon: FileText, label: () => T('list.invoices', 'חשבוניות'), note: () => T('list.desktopSetup', 'מוגדר באפליקציית המחשב') },
+  { key: 'grow', Icon: CreditCard, label: () => T('list.grow', 'סליקה · Grow'), note: () => T('list.soon', 'בקרוב') },
 ]
 
 export default function ConnectionsScreen() {
@@ -46,7 +54,7 @@ export default function ConnectionsScreen() {
     <Screen name="clients">
       <ScrollView contentContainerStyle={[styles.content, bottomPad]} showsVerticalScrollIndicator={false}>
         <ScreenHead
-          title={T('title', 'חיבורים')}
+          title={T('list.title', 'חיבורים')}
         />
 
         {/* WhatsApp — editable click-to-chat templates */}
@@ -55,17 +63,19 @@ export default function ConnectionsScreen() {
             <View style={[styles.chip, styles.chipSage]}><MessageCircle size={18} strokeWidth={1.7} color={colors.positive} /></View>
             <View style={{ flex: 1 }}>
               <Text style={styles.cardTitle}>WhatsApp</Text>
-              <Text style={styles.cardSub}>{T('whatsapp.sub', 'תבניות ההודעות שלך · שליחה בלחיצה')}</Text>
+              <Text style={styles.cardSub}>{T('list.whatsappStatus', 'שליחה ידנית · עריכת הודעות')}</Text>
             </View>
           </View>
           {WA_FIELDS.map((f) => (
             <View key={f.key} style={styles.field}>
-              <Text style={styles.fieldLabel}>{T(`whatsapp.${f.key}`, f.label)}</Text>
+              <Text style={styles.fieldLabel}>{T(`whatsappScreen.fields.${f.key}.label`, f.key)}</Text>
               <TextInput
                 style={styles.input}
                 value={draft[f.key] || ''}
                 onChangeText={(v) => setField(f.key, v)}
-                placeholder={f.ph}
+                /* The message sent when no template is set — so an empty field
+                   shows what will actually go out. */
+                placeholder={i18n.t(`components:whatsapp.defaults.${f.key}`, { defaultValue: '' })}
                 placeholderTextColor={colors.textFaint}
                 multiline
               />
@@ -74,7 +84,7 @@ export default function ConnectionsScreen() {
           ))}
           <Pressable style={styles.saveBtn} onPress={save}>
             <Check size={16} strokeWidth={2.2} color={colors.onBtn} />
-            <Text style={styles.saveText}>{saved ? T('saved', 'נשמר') : T('save', 'שמירה')}</Text>
+            <Text style={styles.saveText}>{saved ? T('whatsappScreen.saved', 'נשמר') : T('whatsappScreen.save', 'שמירה')}</Text>
           </Pressable>
         </Card>
 
@@ -83,8 +93,8 @@ export default function ConnectionsScreen() {
           <Card key={s.key} contentStyle={styles.statusCard}>
             <View style={[styles.chip, styles.chipNeutral]}><s.Icon size={18} strokeWidth={1.7} color={colors.textSub} /></View>
             <View style={{ flex: 1 }}>
-              <Text style={styles.cardTitle}>{s.label}</Text>
-              <Text style={styles.cardSub}>{T('desktopOnly', 'מוגדר באפליקציית המחשב')}</Text>
+              <Text style={styles.cardTitle}>{s.label()}</Text>
+              <Text style={styles.cardSub}>{s.note()}</Text>
             </View>
           </Card>
         ))}

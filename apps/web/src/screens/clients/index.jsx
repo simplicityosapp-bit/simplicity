@@ -371,17 +371,21 @@ export default function ClientsScreen() {
        status_overridden too: a bulk status is a manual choice that must win over
        a group-derived status (migration 0062) — otherwise it's silently ignored
        for group members, exactly the gap the single-client path avoids. */
-    const snapshots = selectedClients.map((c) => ({ id: c.id, status_meta: c.status_meta ?? null, status: c.status ?? null, status_overridden: !!c.status_overridden }))
+    /* status_id too: a sub-status belongs to ONE meta, and the card shows its
+       name whenever status_id matches — so a client bulk-moved to "past" kept
+       reading as, say, an "active" sub-status. The single-client change and the
+       phone's bulk action both clear it; undo puts the old one back. */
+    const snapshots = selectedClients.map((c) => ({ id: c.id, status_meta: c.status_meta ?? null, status: c.status ?? null, status_id: c.status_id ?? null, status_overridden: !!c.status_overridden }))
     for (const c of selectedClients) {
-      await updateClient(c.id, { status_meta: newMeta, status: newMeta, status_overridden: true }).catch(() => {})
+      await updateClient(c.id, { status_meta: newMeta, status: newMeta, status_id: null, status_overridden: true }).catch(() => {})
     }
     setSelectedIds(new Set())
     setSelectMode(false)
     if (snapshots.length) {
       pushUndo({
         label: snapshots.length === 1 ? t('bulk.statusChanged') : t('bulk.statusChangedMany', { count: snapshots.length }),
-        undo: async () => { for (const s of snapshots) await updateClient(s.id, { status_meta: s.status_meta, status: s.status, status_overridden: s.status_overridden }).catch(() => {}) },
-        redo: async () => { for (const s of snapshots) await updateClient(s.id, { status_meta: newMeta, status: newMeta, status_overridden: true }).catch(() => {}) },
+        undo: async () => { for (const s of snapshots) await updateClient(s.id, { status_meta: s.status_meta, status: s.status, status_id: s.status_id, status_overridden: s.status_overridden }).catch(() => {}) },
+        redo: async () => { for (const s of snapshots) await updateClient(s.id, { status_meta: newMeta, status: newMeta, status_id: null, status_overridden: true }).catch(() => {}) },
       })
     }
   }

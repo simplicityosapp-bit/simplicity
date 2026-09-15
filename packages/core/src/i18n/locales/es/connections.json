@@ -25,7 +25,8 @@
     "grow": "Pagos · Grow",
     "whatsappStatus": "Envío manual · editar mensajes",
     "soon": "Próximamente",
-    "soonAria": "{{title}} — próximamente"
+    "soonAria": "{{title}} — próximamente",
+    "desktopSetup": "Se configura desde un ordenador"
   },
   "calendar": {
     "back": "Atrás",

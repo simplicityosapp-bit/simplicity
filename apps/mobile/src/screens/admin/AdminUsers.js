@@ -147,18 +147,22 @@ const UserRow = memo(function UserRow({ r, isOpen, onToggle, viewerPerms, viewer
           {err ? <Text style={styles.err}>{T('users.manage.actionFailed')}</Text> : null}
 
           {/* ── subscriber flag ── */}
-          {viewerPerms?.set_subscriber ? (
+          {/* Only the MANUAL flag is an admin's to set (web SubCell). A paying
+              subscriber showed "cancel subscriber" here and sent value:false for
+              an account that pays; they now get no toggle — the pill above
+              already says what they are. */}
+          {viewerPerms?.set_subscriber && r.subscriber_kind !== 'regular' ? (
             confirm === 'sub' ? (
               <Confirm
-                q={r.is_subscriber ? T('users.sub.askCancel') : T('users.sub.askMark')}
+                q={r.subscriber_kind === 'manual' ? T('users.sub.askCancel') : T('users.sub.askMark')}
                 busy={busy}
                 onCancel={() => setConfirm(null)}
-                onYes={() => run(() => callAdmin('set_subscriber', { user_id: r.id, value: !r.is_subscriber }))}
+                onYes={() => run(() => callAdmin('set_subscriber', { user_id: r.id, value: r.subscriber_kind !== 'manual' }))}
               />
             ) : (
               <Pressable style={styles.action} onPress={() => setConfirm('sub')}>
                 <Check size={14} strokeWidth={2} color={colors.textSub} />
-                <Text style={styles.actionText}>{r.is_subscriber ? T('users.sub.askCancel') : T('users.sub.askMark')}</Text>
+                <Text style={styles.actionText}>{r.subscriber_kind === 'manual' ? T('users.sub.askCancel') : T('users.sub.askMark')}</Text>
               </Pressable>
             )
           ) : null}

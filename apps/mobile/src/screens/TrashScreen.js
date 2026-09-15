@@ -19,6 +19,7 @@ const ICONS = {
   leadSources: Tag, leadStatuses: Tag, transactions: Banknote, categories: Tag, recurring: Repeat,
   sessions: CalendarDays, reminders: Bell, goals: Target, goalCategories: LayoutGrid,
   goalEntries: BarChart3, userQuestions: HelpCircle, dailyAnswers: MessageCircle,
+  calendarEvents: CalendarDays,
 }
 const TT = (k, o) => i18n.t(`trash:${k}`, o)
 
@@ -44,6 +45,10 @@ function primaryLabel(key, row) {
     case 'sessions': {
       const num = row.num != null ? TT('item.sessionNum', { num: row.num }) : TT('item.session')
       return row.date ? `${num} · ${fmtShortDate(row.date)}` : num
+    }
+    case 'calendarEvents': {
+      const title = row.title || TT('item.calendarEventFallback')
+      return row.start_time ? `${title} · ${fmtShortDate(row.start_time)}` : title
     }
     default: return row.name || row.title || '—'
   }

@@ -19,7 +19,12 @@ const T = (k, o) => i18n.t(`clients:plan.${k}`, o)
 // were received (each received installment = a linked income transaction, via
 // usePaymentPlans). Self-contained: one active plan per client in v1. The web
 // per-installment Grow online-pay button is omitted (Grow is disabled).
-export default function PaymentPlanSection({ client }) {
+/* `onChanged` runs after every write that moves money or the client's total —
+   creating a plan (sets total_override), marking an installment received or
+   not (adds or removes an income transaction), removing a plan. This section
+   writes to Supabase itself, so without it the drawer's «שולם» and «יתרה» kept
+   the numbers from before the payment until the screen was refocused. */
+export default function PaymentPlanSection({ client, onChanged }) {
   const { plans, installments, loading, createPlan, markReceived, unmarkReceived, removePlan } = usePaymentPlans()
   const [open, setOpen] = useState(false)
   const [form, setForm] = useState({ total: '', count: '3', startDate: firstOfNextMonth() })
@@ -47,7 +52,7 @@ export default function PaymentPlanSection({ client }) {
     const total = parseFloat(form.total); const count = parseInt(form.count, 10)
     if (!(total > 0) || !(count >= 1) || busy) return
     setBusy(true)
-    try { await createPlan({ client_id: client.id, project_id: client.project_id || null, total, count, startDate: form.startDate || null }) } finally { setBusy(false) }
+    try { await createPlan({ client_id: client.id, project_id: client.project_id || null, total, count, startDate: form.startDate || null }); onChanged?.() } finally { setBusy(false) }
   }
 
   const confirmReceived = async (inst) => {
@@ -56,13 +61,20 @@ export default function PaymentPlanSection({ client }) {
     try {
       await markReceived(inst, { plan, clientName: client.name, date: new Date().toISOString().slice(0, 10), paymentMethod: receiving?.method || null })
       setReceiving(null)
+      onChanged?.()
     } finally { setBusy(false) }
+  }
+
+  const undoReceived = async (inst) => {
+    if (busy) return
+    setBusy(true)
+    try { await unmarkReceived(inst); onChanged?.() } finally { setBusy(false) }
   }
 
   const doDelete = async () => {
     if (busy) return
     setBusy(true)
-    try { await removePlan(plan.id); setConfirmDelete(false) } finally { setBusy(false) }
+    try { await removePlan(plan.id); setConfirmDelete(false); onChanged?.() } finally { setBusy(false) }
   }
 
   const headerCount = plan ? `${bal.receivedCount}/${rows.length}` : null
@@ -101,7 +113,7 @@ export default function PaymentPlanSection({ client }) {
                       </Text>
                     </View>
                     {inst.received ? (
-                      <Pressable accessibilityLabel={i18n.t('components:undo.undo')} style={styles.ghostBtn} disabled={busy} onPress={() => unmarkReceived(inst)} hitSlop={6}>
+                      <Pressable accessibilityLabel={i18n.t('components:undo.undo')} style={styles.ghostBtn} disabled={busy} onPress={() => undoReceived(inst)} hitSlop={6}>
                         <RotateCcw size={13} strokeWidth={1.9} color={colors.textSub} />
                       </Pressable>
                     ) : receiving?.id === inst.id ? null : (

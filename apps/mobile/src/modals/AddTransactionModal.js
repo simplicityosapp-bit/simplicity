@@ -83,8 +83,13 @@ export default function AddTransactionModal({ open, onClose, onSave, onDelete, t
       const categoryId = form.type === 'expense' ? (form.category_id || null) : null
       const paymentMethod = form.payment_method || null
       const projectId = form.project_id || null
+      /* This form has no "paid for" field, so it never sends group_id — and a
+         payment re-assigned to another client, or turned into an expense, kept
+         the old client's group and counted toward someone else's group dues.
+         Drop the attribution when what it attributed changed. */
+      const attributionStale = isEdit && (clientId !== (tx.client_id || null) || form.type !== 'income')
       const payload = isEdit
-        ? { amount, type: form.type, desc, date: form.date, status: form.status, client_id: clientId, project_id: projectId, category_id: categoryId, payment_method: paymentMethod }
+        ? { amount, type: form.type, desc, date: form.date, status: form.status, client_id: clientId, project_id: projectId, category_id: categoryId, payment_method: paymentMethod, ...(attributionStale ? { group_id: null } : {}) }
         : {
           amount, type: form.type, desc, date: form.date,
           status: isFuture ? 'pending' : 'confirmed',

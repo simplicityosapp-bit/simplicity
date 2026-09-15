@@ -33,7 +33,9 @@ const BACKGROUNDS = ['nature', 'simple', 'blank']
 const THEMES = ['light', 'dark']
 // Home widget registry order (mirrors web WIDGET_REGISTRY); the home honors
 // prefs.widgets.list (enabled + order), so this drives the config UI.
-const WIDGET_IDS = ['quote', 'moon', 'insights', 'quick-row', 'attention', 'reminders', 'next-tasks', 'chips']
+// No 'reminders': web merged it into next-tasks and Home dropped it, so the row
+// it produced here had no name and a switch that controlled nothing.
+const WIDGET_IDS = ['quote', 'moon', 'insights', 'quick-row', 'attention', 'next-tasks', 'chips']
 // Format options mirror web lib/preferences.js (values must match the core setters).
 const CURRENCIES = [{ k: 'ILS', l: '₪ שקל' }, { k: 'USD', l: '$ דולר' }, { k: 'EUR', l: '€ יורו' }]
 const DATE_FMTS = [{ k: 'DD/MM/YY', l: 'DD/MM/YY' }, { k: 'MM/DD/YY', l: 'MM/DD/YY' }, { k: 'YYYY-MM-DD', l: 'YYYY-MM-DD' }]
@@ -261,7 +263,8 @@ export default function SettingsScreen() {
     )
   }
   // Record the account-deletion request → AuthedApp gates to the pending screen.
-  const requestDeletion = async () => { await update({ accountDeletion: buildAccountDeletionRequest() }) }
+  // strict: a request that never reached the server must say so — see update().
+  const requestDeletion = async () => { await update({ accountDeletion: buildAccountDeletionRequest() }, { strict: true }) }
 
   const exportCsv = async (kind) => {
     let header, rows
@@ -338,7 +341,7 @@ export default function SettingsScreen() {
               does nothing. The prefs.design.text_size plumbing is kept for that future
               build; showing a control that silently no-ops is worse than omitting it. */}
           <Field label={T('design.background', { defaultValue: 'רקע' })}>
-            <Pills options={BACKGROUNDS.map((b) => ({ k: b, label: T(`design.backgrounds.${b}`, { defaultValue: b }) }))} value={prefs.design?.background || 'nature'} onPick={(b) => setDesign({ background: b })} />
+            <Pills options={BACKGROUNDS.map((b) => ({ k: b, label: T(`options.background.${b}`, { defaultValue: b }) }))} value={prefs.design?.background || 'nature'} onPick={(b) => setDesign({ background: b })} />
           </Field>
           <SwitchField label={T('design.hebrewCalendar', { defaultValue: 'לוח עברי' })} checked={!!prefs.design?.hebrew_calendar} onChange={(v) => setDesign({ hebrew_calendar: v })} />
           <SwitchField label={T('design.hebrewDateInput', { defaultValue: 'בחירת תאריך בלוח עברי' })} checked={!!prefs.design?.hebrew_date_input} onChange={(v) => setDesign({ hebrew_date_input: v })} />

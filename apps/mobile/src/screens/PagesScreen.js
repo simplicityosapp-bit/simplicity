@@ -63,8 +63,11 @@ export default function PagesScreen() {
                           </Text>
                         </View>
                       </View>
-                      <Pressable accessibilityLabel={i18n.t('pages:share')} style={styles.action} onPress={() => share(p)} hitSlop={6}>
-                        <Share2 size={17} strokeWidth={1.7} color={colors.textSub} />
+                      {/* A draft's link resolves to "page not found" — web hides
+                          copy and open for drafts, and a shared dead link is
+                          worse than no link. */}
+                      <Pressable accessibilityLabel={i18n.t('pages:share')} style={styles.action} onPress={() => share(p)} hitSlop={6} disabled={!p.published}>
+                        <Share2 size={17} strokeWidth={1.7} color={p.published ? colors.textSub : colors.textFaint} />
                       </Pressable>
                       <Pressable accessibilityLabel={i18n.t('leads:pages.openPage')} style={styles.action} onPress={() => open(p)} hitSlop={6} disabled={!p.published}>
                         <ExternalLink size={17} strokeWidth={1.7} color={p.published ? colors.brand : colors.textFaint} />

@@ -23,6 +23,12 @@ export const TRASH_TYPES = [
   { key: 'goalEntries', table: 'goal_entries', field: 'note' },
   { key: 'userQuestions', table: 'user_questions', field: 'custom_text' },
   { key: 'dailyAnswers', table: 'daily_answers', field: 'note' },
+  /* Synced events the coach hid. Only OWNED rows: an un-owned deleted_at is
+     the sync's own bookkeeping, not something the user threw away. Restoring
+     keeps owned=true so the event stays out of the sync's reach (web
+     restoreCalendarEvent). It was the one kind web could bring back and this
+     screen could not. */
+  { key: 'calendarEvents', table: 'calendar_events', field: 'title', owned: true },
 ]
 
 export function useTrash() {
@@ -34,10 +40,11 @@ export function useTrash() {
     setLoading(true)
     setError(null)
     const cutoff = new Date(Date.now() - 30 * 864e5).toISOString()
-    const results = await Promise.allSettled(TRASH_TYPES.map((t) => (
-      supabase.from(t.table).select('*').not('deleted_at', 'is', null).gte('deleted_at', cutoff).limit(500)
-        .then((r) => { if (r.error) throw r.error; return r.data || [] })
-    )))
+    const results = await Promise.allSettled(TRASH_TYPES.map((t) => {
+      let q = supabase.from(t.table).select('*').not('deleted_at', 'is', null).gte('deleted_at', cutoff)
+      if (t.owned) q = q.eq('owned', true)
+      return q.limit(500).then((r) => { if (r.error) throw r.error; return r.data || [] })
+    }))
     const next = {}
     let firstErr = null
     TRASH_TYPES.forEach((t, i) => {
@@ -56,7 +63,7 @@ export function useTrash() {
     const t = TRASH_TYPES.find((x) => x.key === key)
     if (!t) return
     setTrash((prev) => ({ ...prev, [key]: (prev[key] || []).filter((r) => r.id !== id) })) // optimistic
-    const { error: e } = await supabase.from(t.table).update({ deleted_at: null }).eq('id', id)
+    const { error: e } = await supabase.from(t.table).update({ deleted_at: null, ...(t.owned ? { owned: true } : {}) }).eq('id', id)
     if (e) { setError(e.message); load() }
   }, [load])
 

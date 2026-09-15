@@ -369,7 +369,10 @@ export default function CalendarScreen() {
     if (!ev?.booking?.id) return
     try {
       await cancelBookingFn(ev.booking)
-      await deleteEvent(ev.id)
+      /* The event itself, not its id: deleteEvent reads `.id` off what it is
+         given, so the bare id filtered on undefined, removed nothing, and the
+         cancelled booking stayed on the calendar with its cancel button. */
+      await deleteEvent(ev)
     } catch { /* surfaced via toast in the hook */ }
     setSelectedEvent(null)
   }

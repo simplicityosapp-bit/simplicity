@@ -92,6 +92,11 @@ export default function AddLeadModal({ open, onClose, onSave, onDelete, onConver
           ...common,
           last_status_changed_at: form.status_meta !== lead.status_meta ? now : (lead.last_status_changed_at || null),
           converted_at: nowConverted && !wasConverted ? now : (nowConverted ? (lead.converted_at || null) : null),
+          /* Taken out of "converted", the lead no longer points at a client —
+             as web's edit form and this app's own drag both clear it. Left
+             behind, the link kept a lead that is back in process looking like
+             it had already become a client. */
+          converted_to_client_id: nowConverted ? (lead.converted_to_client_id ?? null) : null,
         }
       } else {
         payload = { ...common, status: 'new', last_status_changed_at: now, converted_to_client_id: null, converted_at: null }

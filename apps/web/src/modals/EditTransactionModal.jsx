@@ -69,7 +69,15 @@ export default function EditTransactionModal({ open, onClose, onSave, onIssued, 
      closes immediately, so the guard only appears when there is something to
      lose. Saving and deleting call onClose directly and bypass it. */
   const [confirmDiscard, setConfirmDiscard] = useState(false)
-  const set = (k, v) => setForm((f) => ({ ...f, [k]: v }))
+  /* A group belongs to one client. Changing the client kept the previous
+     client's group in form state — hidden when the new one has a single track —
+     and save sent it, so the payment counted toward somebody else's group. The
+     add form has always cleared it on these two changes; so does this one. */
+  const set = (k, v) => setForm((f) => {
+    const next = { ...f, [k]: v }
+    if (k === 'client_id' || (k === 'type' && v !== 'income')) next.group_id = ''
+    return next
+  })
   /* Ad-hoc recipient = a receipt was (or will be) issued to a non-client whose
      details live on the tx. Offer to promote them to a real client. */
   const isAdHoc = !!tx?.recipient_name && !tx?.client_id

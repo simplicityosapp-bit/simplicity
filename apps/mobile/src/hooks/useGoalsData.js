@@ -100,5 +100,5 @@ export function useGoalsData() {
     if (e) { load(); throw e }
   }, [load])
 
-  return { ...state, loading, error, refetch: load, addGoal, updateGoal, deleteGoal }
+  return { ...state, loading, error, refetch: load, addGoal, updateGoal, deleteGoal, resolveCategoryId }
 }

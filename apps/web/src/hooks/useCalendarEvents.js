@@ -87,7 +87,10 @@ export function useCalendarEvents() {
       .from('calendar_events')
       .update(next)
       .eq('id', ev.id)
-    if (e) { showError(i18n.t('components:errors.eventUpdate')); qc.invalidateQueries({ queryKey: KEY }) }
+    /* Rethrown after the toast: EventDetailsModal keeps its form open and shows
+       the error when the save rejects — a path that could never run while this
+       swallowed the failure, so a failed edit closed as if it had saved. */
+    if (e) { showError(i18n.t('components:errors.eventUpdate')); qc.invalidateQueries({ queryKey: KEY }); throw e }
   }, [qc])
 
   /* OWN + delete a synced event for good. owned=true makes the soft-delete

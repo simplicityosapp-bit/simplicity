@@ -68,11 +68,13 @@ export function useRemindersList() {
     if (e) { load(); throw e }
   }, [load])
 
-  // Clear all completed reminders (soft-delete every completed row at once).
-  const clearCompleted = useCallback(async () => {
-    const ids = reminders.filter((r) => r.status === 'completed').map((r) => r.id)
+  // Clear completed reminders: the ones the screen passes (what its filters show),
+  // or every completed row when called without ids.
+  const clearCompleted = useCallback(async (onlyIds) => {
+    const done = reminders.filter((r) => r.status === 'completed')
+    const ids = (onlyIds ? done.filter((r) => onlyIds.includes(r.id)) : done).map((r) => r.id)
     if (!ids.length) return
-    setReminders((prev) => prev.filter((r) => r.status !== 'completed'))
+    setReminders((prev) => prev.filter((r) => !ids.includes(r.id)))
     const { error: e } = await supabase.from('reminders').update({ deleted_at: new Date().toISOString() }).in('id', ids)
     if (e) { load(); throw e }
   }, [reminders, load])

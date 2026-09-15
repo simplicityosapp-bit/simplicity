@@ -4,7 +4,7 @@ import { Text } from '../components/Text'
 import { Pressable } from '../components/Pressable'
 import { useFocusEffect } from '@react-navigation/native'
 import { ChevronLeft, ChevronRight, Check } from 'lucide-react-native'
-import { fmtTime, fmtMonthYear, fmtDayLabel, remindersUpcoming, weekStartIndex } from '@simplicity/core'
+import { fmtTime, fmtMonthYear, fmtDayLabel, remindersUpcoming, weekStartIndex, eventsByDate } from '@simplicity/core'
 import i18n from '../lib/i18n'
 import { usePreferences } from '../lib/preferences'
 import Screen from '../components/Screen'
@@ -67,10 +67,17 @@ export default function CalendarScreen() {
     return out
   }, [meetings, calendarEvents, clients, groups, reminders, leads]) // eslint-disable-line react-hooks/exhaustive-deps
 
+  /* Per-day buckets. A multi-day event — a synced conference, an all-day block —
+     is listed under EVERY day it covers (core eventsByDate, which web's month
+     view uses), not only the day it starts: bucketing by start date made a
+     three-day event vanish after day one. Core keys its map y-m(0-based)-d; the
+     grid here uses padded ISO days, so each key is translated once. */
   const byDay = useMemo(() => {
     const m = new Map()
-    events.forEach((e) => { const k = keyOf(new Date(e.when)); if (!m.has(k)) m.set(k, []); m.get(k).push(e) })
-    m.forEach((list) => list.sort((a, b) => new Date(a.when) - new Date(b.when)))
+    eventsByDate(events).forEach((list, k) => {
+      const [y, mo, d] = k.split('-').map(Number)
+      m.set(keyOf(new Date(y, mo, d)), [...list].sort((a, b) => new Date(a.when) - new Date(b.when)))
+    })
     return m
   }, [events])
 

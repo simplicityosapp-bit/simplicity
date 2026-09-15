@@ -119,17 +119,24 @@ export function PreferencesProvider({ children }) {
 
   // Chain the DB write after any in-flight one, and always send the LATEST
   // merged state (ref.current) so concurrent updates can't lose each other.
+  // Resolves true when the server has the blob, false when the write failed.
   const persist = useCallback(() => {
     const task = writeChain.current.then(async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession()
-        if (!session) return
+        if (!session) return false
         const { data, error } = await supabase.from('user_preferences').update({ preferences: ref.current }).eq('user_id', session.user.id).select('preferences').maybeSingle()
         if (error) throw error
         // No row matched: a first-ever write. (A FAILED update also comes back
         // without data; that is the throw above, not a reason to insert.)
-        if (!data) await supabase.from('user_preferences').insert({ user_id: session.user.id, preferences: ref.current })
-      } catch { /* keep optimistic */ }
+        if (!data) {
+          const { error: insErr } = await supabase.from('user_preferences').insert({ user_id: session.user.id, preferences: ref.current })
+          if (insErr) throw insErr
+        }
+        return true
+      } catch {
+        return false
+      }
     })
     writeChain.current = task.catch(() => {})
     return task
@@ -178,7 +185,14 @@ export function PreferencesProvider({ children }) {
     return () => { alive.current = false }
   }, [load])
 
-  const update = useCallback(async (patch) => {
+  /* Optimistic by default: the change shows at once and a failed write is kept
+     locally, which is right for a theme or a sort order. `strict` is for the
+     changes that must not be believed until the server has them — requesting or
+     cancelling account deletion. There a failed write rolls the change back and
+     throws, so the screen can say so; before, cancelling a deletion offline
+     lifted the lock on the phone while the deletion stayed scheduled. */
+  const update = useCallback(async (patch, { strict = false } = {}) => {
+    const before = ref.current
     const next = deepMerge(ref.current, patch)
     ref.current = next
     setPrefs(next)
@@ -188,11 +202,22 @@ export function PreferencesProvider({ children }) {
     // `next` is the full merged prefs, so this preserves the current gender on
     // unrelated updates rather than resetting it.
     setGenderContext(next.design?.gender)
+    const rollback = () => {
+      ref.current = before
+      setPrefs(before)
+      applyFormatPrefs(before)
+      setGenderContext(before.design?.gender)
+    }
     if (!loaded.current) {
+      if (strict) { rollback(); throw Object.assign(new Error(''), { code: 'PREFS_NOT_LOADED' }) }
       early.current = deepMerge(early.current, patch)
       return undefined
     }
-    return persist()
+    const ok = await persist()
+    /* No message on purpose: callers show their own translated line, and
+       DeleteAccountModal prints e.message when there is one. */
+    if (!ok && strict) { rollback(); throw Object.assign(new Error(''), { code: 'PREFS_WRITE_FAILED' }) }
+    return undefined
   }, [persist])
 
   const value = useMemo(() => ({ prefs, update, status, reload: load }), [prefs, update, status, load])

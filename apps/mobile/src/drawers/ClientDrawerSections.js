@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
-import { View, StyleSheet, I18nManager } from 'react-native'
+import { View, StyleSheet, I18nManager, Alert } from 'react-native'
 import { Text, TextInput } from '../components/Text'
 import DateField from '../components/DateField'
 import { Pressable } from '../components/Pressable'
-import { ChevronDown, Pencil } from 'lucide-react-native'
+import { ChevronDown, Pencil, X } from 'lucide-react-native'
 import { getClientMemberships, financeQuery, isConfirmedTx, isr, fmtShortDate, fmtTime } from '@simplicity/core'
+import { signedAmount, unexplainedGap } from '../lib/clientAdjustments'
 import Card from '../components/Card'
 import PaymentPlanSection from './PaymentPlanSection'
 import i18n from '../lib/i18n'
@@ -85,7 +86,7 @@ function InlineForm({ onSave, onCancel, saving, error, children }) {
   )
 }
 
-export default function ClientDrawerSections({ client: c, txns, tasks = [], reminders = [], sessions = [], members = [], groups = [], onEditClient, onEditTx, onEditSession, onEditTask, onEditReminder, onUpdateClient, onPlanChanged }) {
+export default function ClientDrawerSections({ client: c, txns, tasks = [], reminders = [], sessions = [], members = [], groups = [], onEditClient, onEditTx, onEditSession, onEditTask, onEditReminder, onUpdateClient, onPlanChanged, balance = null, adjustments = [], onRemoveAdjustment }) {
   /* ── inline single-value editing ──
      «פרטים נוספים» and «הערות» handed their pencil straight to the full edit
      modal — the same thing the header's «ערוך» button does — so one pencil
@@ -132,7 +133,55 @@ export default function ClientDrawerSections({ client: c, txns, tasks = [], remi
   // right-align labels.
   const flip = (i18n.language || '').startsWith('he') && !I18nManager.isRTL
   const payments = financeQuery({ clientId: c.id, includePending: true, source: txns }).slice().sort((a, b) => new Date(b.date) - new Date(a.date))
-  const payTotal = payments.filter((f) => f.type === 'income' && isConfirmedTx(f)).reduce((s, f) => s + f.amount, 0)
+  /* The header's «שולם», which includes paid adjustments — not only the income
+     rows listed below it. */
+  const payTotal = balance ? balance.paid : payments.filter((f) => f.type === 'income' && isConfirmedTx(f)).reduce((s, f) => s + f.amount, 0)
+  /* Adjustments, split by the figure they move: 'paid' ones sit under the
+     payments total (which includes them); 'balance' ones are debt written off
+     and get their own heading, outside a total they were never part of. Any
+     amount the rows do not explain shows as its own line, so it still adds up. */
+  const paidAdjustments = adjustments.filter((a) => a.kind === 'paid')
+  const balanceAdjustments = adjustments.filter((a) => a.kind === 'balance')
+  const unexplainedPaid = unexplainedGap(c, 'paid_adjustment', paidAdjustments)
+  const unexplainedBalance = unexplainedGap(c, 'balance_adjustment', balanceAdjustments)
+  /* Deleting an adjustment MOVES MONEY — the figure goes back to where it was
+     — so the confirmation names the amount. The undo toast is the way back. */
+  const confirmRemoveAdjustment = (a) => Alert.alert(
+    i18n.t('clients:adjust.deleteTitle'),
+    i18n.t('clients:adjust.deleteMessage', { amount: isr(Math.abs(Number(a.amount) || 0)) }),
+    [
+      { text: i18n.t('modalsData:common.cancel', { defaultValue: 'ביטול' }), style: 'cancel' },
+      { text: i18n.t('clients:adjust.deleteConfirm'), style: 'destructive', onPress: () => onRemoveAdjustment?.(a) },
+    ],
+  )
+  const adjustRow = (a, amountText) => (
+    <View key={a.id} style={[styles.row, flip && styles.rowFlip]}>
+      <View style={[styles.rowDot, styles.adjustDot]} />
+      <View style={styles.rowBody}>
+        <Text style={[styles.rowTitle, flip && styles.txtRtl]} numberOfLines={2}>
+          {a.reason === 'legacy' ? i18n.t('clients:adjust.legacyRow') : i18n.t(`clients:adjust.row.${a.reason}`)}
+          {a.note ? ` · ${a.note}` : ''}
+        </Text>
+        <Text style={[styles.rowSub, flip && styles.txtRtl]}>{a.occurred_on ? fmtShortDate(a.occurred_on) : i18n.t('clients:adjust.noDate')}</Text>
+      </View>
+      <Text style={styles.rowAmt}>{amountText}</Text>
+      {onRemoveAdjustment ? (
+        <Pressable onPress={() => confirmRemoveAdjustment(a)} hitSlop={8} accessibilityLabel={i18n.t('clients:adjust.deleteAria')} style={styles.rowDel}>
+          <X size={13} strokeWidth={1.8} color={colors.textFaint} />
+        </Pressable>
+      ) : null}
+    </View>
+  )
+  const unexplainedRow = (key, amountText) => (
+    <View key={key} style={[styles.row, flip && styles.rowFlip]}>
+      <View style={[styles.rowDot, styles.adjustDot]} />
+      <View style={styles.rowBody}>
+        <Text style={[styles.rowTitle, flip && styles.txtRtl]}>{i18n.t('clients:adjust.unexplained')}</Text>
+        <Text style={[styles.rowSub, flip && styles.txtRtl]}>{i18n.t('clients:adjust.unexplainedSub')}</Text>
+      </View>
+      <Text style={styles.rowAmt}>{amountText}</Text>
+    </View>
+  )
   const clientSessions = live(sessions).filter((s) => s.client_id === c.id || (c.group_id && s.group_id === c.group_id)).sort((a, b) => new Date(b.date) - new Date(a.date))
   const openTasks = live(tasks).filter((t) => t.client_id === c.id && t.status !== 'done')
   const linkedReminders = live(reminders).filter((r) => r.linked_to_type === 'client' && r.linked_to_id === c.id)
@@ -180,6 +229,8 @@ export default function ClientDrawerSections({ client: c, txns, tasks = [], remi
             <Text style={styles.paySummaryL}>{T('totalPaid')}</Text>
             <Text style={styles.paySummaryV}>{isr(payTotal)}</Text>
           </View>
+          {paidAdjustments.map((a) => adjustRow(a, signedAmount(a.amount)))}
+          {unexplainedPaid != null ? unexplainedRow('unexplained-paid', signedAmount(unexplainedPaid)) : null}
           {payments.length ? payments.map((f) => {
             const Row = onEditTx ? Pressable : View
             return (
@@ -193,6 +244,13 @@ export default function ClientDrawerSections({ client: c, txns, tasks = [], remi
               </Row>
             )
           }) : <Text style={styles.empty}>{T('noPayments')}</Text>}
+          {balanceAdjustments.length || unexplainedBalance != null ? (
+            <>
+              <Text style={[styles.adjustHead, flip && styles.txtRtl]}>{i18n.t('clients:adjust.writeOffs')}</Text>
+              {unexplainedBalance != null ? unexplainedRow('unexplained-balance', signedAmount(-unexplainedBalance)) : null}
+              {balanceAdjustments.map((a) => adjustRow(a, signedAmount(-a.amount)))}
+            </>
+          ) : null}
         </Section>
 
         <PaymentPlanSection client={c} onChanged={onPlanChanged} />
@@ -405,6 +463,9 @@ const styles = themed((c, t) => ({
   done: { textDecorationLine: 'line-through', color: c.textFaint },
   rowSub: { fontSize: 11, color: c.textFaint },
   rowAmt: { fontSize: 13, fontWeight: '600', color: c.text },
+  rowDel: { width: 28, height: 28, alignItems: 'center', justifyContent: 'center' },
+  adjustDot: { backgroundColor: c.amberWarn },
+  adjustHead: { fontSize: 12, fontWeight: '600', color: c.textSub, marginTop: 6 },
 
   tlRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10, paddingVertical: 6 },
   tlLabel: { flex: 1, fontSize: 13, color: c.text },

@@ -1,4 +1,4 @@
-import { useMemo, useState, useRef, useEffect } from 'react'
+import { useMemo, useState } from 'react'
 import { Modal, View, StyleSheet, ScrollView, Linking, Alert, KeyboardAvoidingView, Platform } from 'react-native'
 import { Text } from '../components/Text'
 import { Pressable } from '../components/Pressable'
@@ -19,6 +19,9 @@ import { usePaymentPlans } from '../hooks/usePaymentPlans'
 import { useRecurring } from '../hooks/useRecurring'
 import { confirmRemoveTransaction } from '../lib/recurringTx'
 import { useWhatsAppMessage } from '../hooks/useWhatsAppMessage'
+import { useClientAdjustments } from '../hooks/useClientAdjustments'
+import AdjustmentModal from '../modals/AdjustmentModal'
+import { showError } from '../lib/toast'
 import i18n from '../lib/i18n'
 import { colors } from '../theme/theme'
 import { themed, themedMap } from '../theme/themed'
@@ -42,8 +45,15 @@ export default function ClientDrawer({ clientId, clients, transactions, sessions
   const [editing, setEditing] = useState(false)
   const [paying, setPaying] = useState(false)
   const [payDefaults, setPayDefaults] = useState(null)   // prefill for the "record payment" modal
-  const [pendingPaid, setPendingPaid] = useState(null)   // paid-field delta awaiting the record-or-fold prompt
-  const pendingPaidRef = useRef(null)                    // delta to fold if the payment modal closes unsaved
+  /* Adjustments (web ClientDrawer): the «התאמה» link opens the sheet on the
+     card's own figures; a hand-edited «שולם»/«יתרה» in the edit form queues a
+     reason sheet per figure. A QUEUE, because one save can change both — a
+     discount given and cash received are two events with two reasons. */
+  const [adjustOpen, setAdjustOpen] = useState(false)
+  const [adjustQueue, setAdjustQueue] = useState([])
+  const headAdjust = adjustQueue[0] || null
+  const queueAdjust = (entry) => setAdjustQueue((q) => [...q, entry])
+  const shiftAdjust = () => setAdjustQueue((q) => (q.length ? q.slice(1) : q))
   const [logging, setLogging] = useState(false)
   const [addingSessions, setAddingSessions] = useState(false)
   const [statusMenu, setStatusMenu] = useState(false)
@@ -104,35 +114,16 @@ export default function ClientDrawer({ clientId, clients, transactions, sessions
     })
   }
 
-  // Manual "שולם" edit → fold the delta into paid_adjustment as an informal,
-  // card-only credit (mirrors web's "התעלם"/close-without-recording path).
-  const foldPaid = (delta) => {
-    if (!client) return
-    updateClient(client.id, { paid_adjustment: (Number(client.paid_adjustment) || 0) + delta })
-  }
-  // When EditClientModal reports a paid-field delta, ask whether to record a real
-  // income transaction or just fix the card (mirrors web ClientDrawer ConfirmModal).
-  // Run from an effect so the edit sheet has closed before the prompt appears.
-  useEffect(() => {
-    if (pendingPaid == null || !client) return
-    const delta = pendingPaid
-    setPendingPaid(null)
-    Alert.alert(
-      i18n.t('clients:drawer.manualPayTitle', { defaultValue: 'עדכון תשלום ידני' }),
-      i18n.t('clients:drawer.manualPayMessage', { amount: isr(Math.abs(delta)) }),
-      [
-        { text: i18n.t('clients:drawer.manualPayCancel', { defaultValue: 'רק בכרטיס' }), style: 'cancel', onPress: () => foldPaid(delta) },
-        {
-          text: i18n.t('clients:drawer.manualPayConfirm', { defaultValue: 'הוסף תנועה' }),
-          onPress: () => {
-            pendingPaidRef.current = delta   // fold on the card if the modal is closed unsaved
-            setPayDefaults({ client_id: clientId, type: 'income', amount: String(Math.abs(delta)), desc: i18n.t('clients:drawer.paymentDefaultDesc', { defaultValue: 'עדכון תשלום' }) })
-            setPaying(true)
-          },
-        },
-      ],
-    )
-  }, [pendingPaid]) // eslint-disable-line react-hooks/exhaustive-deps
+  /* The ledger. Every adjustment lands with a reason and a date, and can be
+     taken back — money included — from the payments panel. */
+  const { adjustments, addAdjustment, removeAdjustment } = useClientAdjustments({ onChanged: onDataChanged })
+  const clientAdjustments = client ? adjustments.filter((a) => a.client_id === client.id) : []
+  const recordAdjustment = ({ kind, reason, amount, note }) => addAdjustment(client, {
+    kind, reason, amount, note,
+    undoLabel: i18n.t('clients:adjust.undoLabel', { amount: isr(Math.abs(Number(amount) || 0)) }),
+  })
+  const dropAdjustment = (adjustment) => removeAdjustment(client, adjustment, { undoLabel: i18n.t('clients:adjust.undoDeleted') })
+    .catch(() => showError(i18n.t('clients:adjust.saveFailed')))
 
   const del = () => {
     if (!client) return
@@ -320,6 +311,13 @@ export default function ClientDrawer({ clientId, clients, transactions, sessions
                   <HeroStat label={i18n.t('clients:drawer.balance', { defaultValue: 'יתרה' })} value={isr(bal.balance)} accent={bal.balance > 0} />
                 </Card>
 
+                {/* One way in for a discount, an import fix or cash that was
+                    never booked — instead of knowing that each is entered by
+                    hand-editing a different number. */}
+                <Pressable style={styles.adjustLink} onPress={() => setAdjustOpen(true)} accessibilityRole="button" hitSlop={6}>
+                  <Text style={styles.adjustLinkText}>{i18n.t('clients:adjust.open')}</Text>
+                </Pressable>
+
                 {/* Per-session billing note — names the model so the growing balance is clear */}
                 {bal.perSession ? (
                   <Text style={styles.billNote}>{i18n.t('clients:drawer.perSessionNote', { price: isr(client.price_per_session || 0) })}</Text>
@@ -422,6 +420,9 @@ export default function ClientDrawer({ clientId, clients, transactions, sessions
                   onEditTask={setEditTask}
                   onEditReminder={updateReminder ? setEditReminder : undefined}
                   onPlanChanged={onPlanChanged}
+                  balance={bal}
+                  adjustments={clientAdjustments}
+                  onRemoveAdjustment={dropAdjustment}
                 />
               </ScrollView>
             ) : null}
@@ -457,24 +458,41 @@ export default function ClientDrawer({ clientId, clients, transactions, sessions
             redo: async () => { await updateClient(id, patch) },
           })
         }}
-        onPaidEntry={(delta) => setPendingPaid(delta)}
+        /* A hand-edited «שולם» is money the coach says arrived; a hand-edited
+           «יתרה» is debt written off. Each opens the reason sheet pre-picked. */
+        onPaidEntry={(delta) => queueAdjust({ amount: delta, reason: 'unrecorded_payment' })}
+        onBalanceEntry={(delta) => queueAdjust({ amount: delta, reason: 'discount' })}
         memberships={client ? members.filter((m) => m.client_id === client.id && !m.left_at) : []}
         onUpdateMember={updateMember}
       />
       <AddTransactionModal
         open={paying}
         defaults={payDefaults || { client_id: clientId, type: 'income' }}
-        onClose={() => {
-          // Closed without recording → keep the amount on the card (fold), so a
-          // manual "שולם" edit is never lost (same as choosing "רק בכרטיס").
-          if (pendingPaidRef.current != null) { foldPaid(pendingPaidRef.current); pendingPaidRef.current = null }
-          setPayDefaults(null); setPaying(false)
-        }}
-        onSave={async (data) => {
-          // A real transaction is being recorded → drop the fold fallback so the
-          // amount is never counted twice.
-          pendingPaidRef.current = null
-          return addTransaction(data)
+        onClose={() => { setPayDefaults(null); setPaying(false) }}
+        onSave={addTransaction}
+      />
+      {/* The adjustment sheet — from the «התאמה» link, or seeded by a hand-edited
+          «שולם»/«יתרה». It stands down while the income form is up: booking the
+          money as income shifts the queue and opens that form instead, and the
+          next queued entry comes back once it closes. */}
+      <AdjustmentModal
+        key={`adj-${client?.id}-${adjustQueue.length}-${headAdjust?.amount ?? 'x'}-${adjustOpen}`}
+        open={adjustOpen || (!!headAdjust && !paying)}
+        onClose={() => { setAdjustOpen(false); shiftAdjust() }}
+        client={client}
+        balance={bal}
+        onSaveClient={(patch) => updateClient(client.id, patch)}
+        presetAmount={adjustOpen ? null : (headAdjust?.amount ?? null)}
+        presetReason={adjustOpen ? null : (headAdjust?.reason ?? null)}
+        moreQueued={adjustQueue.length > 1}
+        onSave={recordAdjustment}
+        onAlsoRecordIncome={(amount, note) => {
+          /* INSTEAD of an adjustment, never as well: the income row and a
+             paid_adjustment would count the same shekel twice. */
+          shiftAdjust()
+          setAdjustOpen(false)
+          setPayDefaults({ client_id: clientId, type: 'income', amount: String(amount), desc: note || i18n.t('clients:drawer.paymentDefaultDesc', { defaultValue: 'עדכון תשלום' }) })
+          setPaying(true)
         }}
       />
       {/* "קביעת פגישה" is gone from the actions above, as it is on web:
@@ -603,6 +621,8 @@ const styles = themed((c, t) => ({
   statValue: { fontSize: 20, fontWeight: '500', color: c.text },
   statAccent: { color: c.brand },
 
+  adjustLink: { alignSelf: 'center', minHeight: 32, justifyContent: 'center', paddingHorizontal: 12, marginTop: -8 },
+  adjustLinkText: { fontSize: 13, fontWeight: '600', color: c.brand },
   billNote: { fontSize: 12, color: c.textSub, textAlign: 'center', marginTop: -6 },
   planHint: { fontSize: 12, color: c.textSub, textAlign: 'center' },
   tracks: { gap: 8, marginTop: -4, padding: 12, borderRadius: 14, borderWidth: StyleSheet.hairlineWidth, borderColor: c.divider, backgroundColor: c.cardFlat },

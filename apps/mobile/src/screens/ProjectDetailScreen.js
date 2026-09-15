@@ -4,9 +4,13 @@ import { Text } from '../components/Text'
 import { Pressable } from '../components/Pressable'
 import { useRoute, useNavigation } from '@react-navigation/native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { Pencil, Users, CalendarDays, Plus, ChevronDown, X, Check } from 'lucide-react-native'
-import { financeQuery, currentMonthRange, isr, fmtShortDate, statusMetaOf, scopeToProject } from '@simplicity/core'
+import { Pencil, Users, CalendarDays, Plus, ChevronDown, X, Check, PackagePlus } from 'lucide-react-native'
+import { financeQuery, currentMonthRange, isr, fmtShortDate, statusMetaOf, scopeToProject, packageUnitPrice, membershipQuota, membershipDues, nextGroupTag } from '@simplicity/core'
 import i18n from '../lib/i18n'
+import { pushUndo } from '../lib/undo'
+import { groupDeleteCounts, deleteGroupCascade } from '../lib/groupDelete'
+import DeleteGroupModal from '../modals/DeleteGroupModal'
+import AddMemberSessionsModal from '../modals/AddMemberSessionsModal'
 import Screen from '../components/Screen'
 import Card from '../components/Card'
 import FinanceChart from './finance/FinanceChart'
@@ -32,7 +36,10 @@ export default function ProjectDetailScreen() {
   const nav = useNavigation()
   const insets = useSafeAreaInsets()
   const projectId = route.params?.projectId
-  const { project, clients, transactions, sessions, groups, members, loading, error, refetch, updateProject, removeProject, addGroup, updateGroup, removeGroup, addMember, removeMember, addSession, updateClient, updateSession, removeSession } = useProjectDetailData(projectId)
+  const data = useProjectDetailData(projectId)
+  const { project, clients, transactions, sessions, groups, members, reminders, meetings, loading, error, refetch, updateProject, removeProject, addGroup, updateGroup, addMember, removeMember, restoreMember, updateMember, addSession, updateClient, updateSession, removeSession } = data
+  const [deleteGroupFor, setDeleteGroupFor] = useState(null)
+  const [renewFor, setRenewFor] = useState(null) // { membership, group, name }
   const [editing, setEditing] = useState(false)
   const [addingGroup, setAddingGroup] = useState(false)
   const [editGroup, setEditGroup] = useState(null)
@@ -67,7 +74,62 @@ export default function ProjectDetailScreen() {
       .slice(0, 6),
     [sessions, projClientIds, groupIds],
   )
-  const membersOf = (gid) => members.filter((m) => m.group_id === gid && !m.left_at)
+  const membersOf = (gid) => members.filter((m) => m.group_id === gid && !m.left_at && !m.deleted_at)
+
+  /* Remove one member, with undo. The client's own group tag goes with the
+     row — it used to stay behind, so the member vanished from the group while
+     the client list below still named it. A client also in another group
+     takes that group's name instead of falling to "פרטי" (web handleRemoveMember). */
+  const handleRemoveMember = (m) => {
+    const client = clients.find((c) => c.id === m.client_id)
+    const retag = !!client && client.group_id === m.group_id
+    const nextTag = retag ? nextGroupTag(m.client_id, m.id, members) : null
+    removeMember(m.id)
+    if (retag) updateClient(client.id, { group_id: nextTag })
+    pushUndo({
+      label: D('undo.memberRemoved'),
+      undo: async () => {
+        await restoreMember(m.id).catch(() => {})
+        if (retag) await updateClient(client.id, { group_id: m.group_id })
+      },
+      redo: async () => {
+        await removeMember(m.id)
+        if (retag) await updateClient(client.id, { group_id: nextTag })
+      },
+    })
+  }
+
+  /* Another card of meetings for one member (web renewMemberCard): the member's
+     quota and dues move together, with a one-step undo. */
+  const renewMemberCard = async ({ quota, total, count }) => {
+    const m = renewFor?.membership
+    if (!m) return
+    const prev = { package_sessions_override: m.package_sessions_override ?? null, total_override: m.total_override ?? null, has_custom_price: !!m.has_custom_price }
+    const next = { package_sessions_override: quota, total_override: total, has_custom_price: true }
+    await updateMember(m.id, next)
+    pushUndo({
+      label: i18n.t('modalsClient:memberSessions.undo', { n: count, name: renewFor.name }),
+      undo: async () => { await updateMember(m.id, prev) },
+      redo: async () => { await updateMember(m.id, next) },
+    })
+  }
+
+  const runDeleteGroup = (g, choices) => deleteGroupCascade({
+    group: g,
+    choices,
+    data: { members, clients, sessions, reminders, meetings },
+    ops: {
+      removeClient: data.removeClient, restoreClient: data.restoreClient, updateClient,
+      removeMember, restoreMember: data.restoreMember,
+      removeSession, restoreSession: data.restoreSession,
+      removeReminder: data.removeReminder, restoreReminder: data.restoreReminder,
+      removeMeeting: data.removeMeeting, insertMeeting: data.insertMeeting,
+      removeGroup: data.removeGroup, restoreGroup: data.restoreGroup,
+      refresh: () => refetch(true),
+    },
+    pushUndo,
+    label: D('undo.groupDeleted'),
+  }).catch(() => refetch(true))
   const availableFor = (gid) => { const ids = new Set(membersOf(gid).map((m) => m.client_id)); return clients.filter((c) => !ids.has(c.id)) }
   const groupBilling = (g) => {
     const mode = g.billing_mode || 'package'
@@ -220,12 +282,23 @@ export default function ProjectDetailScreen() {
                   </View>
                   {open ? (
                     <View style={styles.gbody}>
-                      {gm.length ? gm.map((m) => (
-                        <View key={m.id} style={styles.mrow}>
-                          <Text style={styles.mname} numberOfLines={1}>{clientName(m.client_id) || '—'}</Text>
-                          <Pressable accessibilityLabel={i18n.t('projects:detail.groups.removeMemberAria', { name: clientName(m.client_id) || i18n.t('projects:detail.groups.removeMemberFallback') })} onPress={() => removeMember(m.id)} hitSlop={8}><X size={13} strokeWidth={2} color={colors.textFaint} /></Pressable>
-                        </View>
-                      )) : <Text style={styles.mEmpty}>{i18n.t('modalsClient:addGroup.noMembers', { defaultValue: 'עדיין אין חברים' })}</Text>}
+                      {gm.length ? gm.map((m) => {
+                        const name = clientName(m.client_id) || i18n.t('projects:detail.groups.removeMemberFallback')
+                        /* A card of meetings only means something where they
+                           come in cards: a priced package with a count. */
+                        const canRenew = (g.billing_mode || 'package') === 'package' && (g.package_sessions || 0) > 0
+                        return (
+                          <View key={m.id} style={styles.mrow}>
+                            <Text style={styles.mname} numberOfLines={1}>{clientName(m.client_id) || '—'}</Text>
+                            {canRenew ? (
+                              <Pressable accessibilityLabel={D('groups.renewAria', { name })} onPress={() => setRenewFor({ membership: m, group: g, name })} hitSlop={8} style={styles.mbtn}>
+                                <PackagePlus size={14} strokeWidth={1.8} color={colors.brand} />
+                              </Pressable>
+                            ) : null}
+                            <Pressable accessibilityLabel={D('groups.removeMemberAria', { name })} onPress={() => handleRemoveMember(m)} hitSlop={8} style={styles.mbtn}><X size={13} strokeWidth={2} color={colors.textFaint} /></Pressable>
+                          </View>
+                        )
+                      }) : <Text style={styles.mEmpty}>{i18n.t('modalsClient:addGroup.noMembers', { defaultValue: 'עדיין אין חברים' })}</Text>}
                       <View style={styles.gactions}>
                         <Pressable style={styles.addMember} onPress={() => setAddMemberTo(g)}>
                           <Plus size={14} strokeWidth={2} color={colors.brand} />
@@ -273,7 +346,28 @@ export default function ProjectDetailScreen() {
         project={project}
         onClose={() => setEditGroup(null)}
         onSave={(patch) => updateGroup(editGroup.id, patch)}
-        onDelete={() => { removeGroup(editGroup.id); setEditGroup(null) }}
+        /* Deleting asks what happens to the members, meetings, sessions and
+           reminders — it used to soft-delete the group row and leave the rest
+           pointing at it. */
+        onDelete={() => { const g = editGroup; setEditGroup(null); setDeleteGroupFor(g) }}
+      />
+      <DeleteGroupModal
+        open={!!deleteGroupFor}
+        group={deleteGroupFor}
+        counts={deleteGroupFor ? groupDeleteCounts(deleteGroupFor, { members, clients, sessions, reminders, meetings }) : null}
+        onClose={() => setDeleteGroupFor(null)}
+        onConfirm={(choices) => runDeleteGroup(deleteGroupFor, choices)}
+      />
+      <AddMemberSessionsModal
+        open={!!renewFor}
+        onClose={() => setRenewFor(null)}
+        onSave={renewMemberCard}
+        memberName={renewFor?.name || ''}
+        groupName={renewFor?.group?.name || ''}
+        groupColor={renewFor?.group?.color || ''}
+        unitPrice={renewFor ? packageUnitPrice(renewFor.group) : 0}
+        currentQuota={renewFor ? membershipQuota(renewFor.membership, renewFor.group) : 0}
+        currentTotal={renewFor ? membershipDues(renewFor.membership, renewFor.group) : 0}
       />
       <AddGroupMemberModal
         open={!!addMemberTo}
@@ -368,6 +462,7 @@ const styles = themed((c, t) => ({
   gbody: { paddingHorizontal: 14, paddingBottom: 12, gap: 8, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: c.divider, paddingTop: 10 },
   mrow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 },
   mname: { flex: 1, fontSize: 14, color: c.text },
+  mbtn: { width: 32, height: 32, alignItems: 'center', justifyContent: 'center' },
   mEmpty: { fontSize: 12, color: c.textFaint },
   gactions: { flexDirection: 'row', alignItems: 'center', gap: 16, flexWrap: 'wrap' },
   addMember: { minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 6 },

@@ -1,19 +1,28 @@
 import { useState, useEffect } from 'react'
-import { View, Alert } from 'react-native'
+import { View } from 'react-native'
 import { Text, TextInput } from '../components/Text'
 import { Pressable } from '../components/Pressable'
 import { Trash2 } from 'lucide-react-native'
 import Sheet from '../components/Sheet'
+import Select from '../components/Select'
+import DateField from '../components/DateField'
 import { useDiscardGuard, isDirty } from '../lib/discardGuard'
 import i18n from '../lib/i18n'
 import { colors } from '../theme/theme'
 import { themed } from '../theme/themed'
 
-// Add/edit a group under a project (mirrors web AddGroupModal): name + color +
-// billing (package price/sessions or per-session). Pass a `group` to edit it.
+// Add/edit a group under a project (mirrors web AddGroupModal / EditGroupModal):
+// name + color + billing (package price/sessions, per-session, or none) + the
+// group's weekly slot (day, start/end time, optional start/end dates), which the
+// meetings engine builds the calendar series from. Pass a `group` to edit it.
+// Deleting hands off to the parent, which asks what to do with the members,
+// meetings, sessions and reminders (DeleteGroupModal).
 const SWATCHES = ['#0e9888', '#0099aa', '#7a5cb8', '#8BA888', '#C97B5E', '#D4A574', '#B5634E', '#4a9a6a']
+const DAYS = [0, 1, 2, 3, 4, 5, 6]
 const C = (k, o) => i18n.t(`modalsClient:common.${k}`, o)
 const G = (k, o) => i18n.t(`modalsClient:addGroup.${k}`, o)
+const E = (k, o) => i18n.t(`modalsClient:editGroup.${k}`, o)
+const TIME_RE = /^\d{1,2}:\d{2}$/
 const blank = (group) => ({
   name: group?.name || '',
   color: group?.color || SWATCHES[0],
@@ -21,6 +30,11 @@ const blank = (group) => ({
   package_price: group?.package_price != null ? String(group.package_price) : '',
   package_sessions: group?.package_sessions != null ? String(group.package_sessions) : '',
   price_per_session: group?.price_per_session != null ? String(group.price_per_session) : '',
+  recurring_day: group?.recurring_day != null ? String(group.recurring_day) : '',
+  recurring_time: group?.recurring_time ? String(group.recurring_time).slice(0, 5) : '',
+  recurring_end_time: group?.recurring_end_time ? String(group.recurring_end_time).slice(0, 5) : '',
+  recurring_start_date: group?.recurring_start_date || '',
+  recurring_end_date: group?.recurring_end_date || '',
 })
 
 export default function AddGroupModal({ open, onClose, onSave, onDelete, group = null, project }) {
@@ -33,22 +47,7 @@ export default function AddGroupModal({ open, onClose, onSave, onDelete, group =
   const close = () => { setErr(''); setBusy(false); onClose() }
   const requestClose = useDiscardGuard(!busy && isDirty(form, blank(group)), close)
   const isPer = form.billing_mode === 'per_session'
-
-  const doRemove = async () => {
-    setBusy(true)
-    try { await onDelete(); close() } catch (e) { setBusy(false); setErr(C('saveFailed', { error: e.message || C('tryAgain') })) }
-  }
-  const remove = () => {
-    if (busy || !onDelete) return
-    Alert.alert(
-      i18n.t('modalsClient:deleteGroup.title', { defaultValue: 'מחיקת קבוצה' }),
-      i18n.t('modalsClient:deleteGroup.titleNamed', { name: group?.name || '', defaultValue: 'למחוק את הקבוצה?' }),
-      [
-        { text: C('cancel', { defaultValue: 'ביטול' }), style: 'cancel' },
-        { text: i18n.t('modalsClient:deleteGroup.confirm', { defaultValue: 'מחק קבוצה' }), style: 'destructive', onPress: doRemove },
-      ],
-    )
-  }
+  const hasDay = form.recurring_day !== ''
 
   const submit = async () => {
     if (!form.name.trim()) { setErr(C('nameRequired')); return }
@@ -59,6 +58,10 @@ export default function AddGroupModal({ open, onClose, onSave, onDelete, group =
       if (!(price > 0)) { setErr(G('errPackagePrice', { defaultValue: 'יש למלא מחיר חבילה חיובי.' })); return }
       if (!(sess > 0)) { setErr(G('errSessions', { defaultValue: 'יש למלא מספר פגישות חיובי.' })); return }
     } else if (isPer && !(perSession > 0)) { setErr(G('errPerSession', { defaultValue: 'יש למלא מחיר לפגישה חיובי.' })); return }
+    /* A weekly slot needs a start time to generate anything; a time typed
+       without the H:MM shape would be stored and never match a meeting. */
+    if (hasDay && !TIME_RE.test(form.recurring_time.trim())) { setErr(i18n.t('modalsTask:meeting.dateTimeRequired')); return }
+    if (form.recurring_end_time && !TIME_RE.test(form.recurring_end_time.trim())) { setErr(i18n.t('modalsTask:meeting.dateTimeRequired')); return }
     setBusy(true)
     setErr('')
     try {
@@ -67,8 +70,14 @@ export default function AddGroupModal({ open, onClose, onSave, onDelete, group =
         package_price: form.billing_mode === 'package' ? price : null,
         package_sessions: form.billing_mode === 'package' ? sess : null,
         price_per_session: isPer ? perSession : null,
+        // No day → no slot: the times and dates clear with it (web EditGroupModal).
+        recurring_day: hasDay ? Number(form.recurring_day) : null,
+        recurring_time: hasDay ? form.recurring_time.trim().padStart(5, '0') : null,
+        recurring_end_time: hasDay && form.recurring_end_time ? form.recurring_end_time.trim().padStart(5, '0') : null,
+        recurring_start_date: hasDay ? (form.recurring_start_date || null) : null,
+        recurring_end_date: hasDay ? (form.recurring_end_date || null) : null,
       }
-      await onSave(isEdit ? payload : { ...payload, project_id: project?.id || null, status: 'active', recurring_day: null, recurring_time: null })
+      await onSave(isEdit ? payload : { ...payload, project_id: project?.id || null, status: 'active' })
       close()
     } catch (e) {
       setBusy(false)
@@ -77,7 +86,7 @@ export default function AddGroupModal({ open, onClose, onSave, onDelete, group =
   }
 
   return (
-    <Sheet open={open} onClose={requestClose}title={isEdit ? i18n.t('projects:detail.groups.editAria', { defaultValue: 'עריכת קבוצה' }) : G('title', { defaultValue: 'קבוצה חדשה' })}>
+    <Sheet open={open} onClose={requestClose} title={isEdit ? E('title', { defaultValue: 'עריכת קבוצה' }) : G('title', { defaultValue: 'קבוצה חדשה' })}>
       <View style={styles.field}>
         <Text style={styles.label}>{G('groupName', { defaultValue: 'שם הקבוצה' })}</Text>
         <TextInput style={[styles.input, err && !form.name.trim() && styles.inputErr]} value={form.name} onChangeText={(v) => { set('name', v); if (err) setErr('') }} placeholder={G('groupNamePlaceholder')} placeholderTextColor={colors.textFaint} />
@@ -124,10 +133,44 @@ export default function AddGroupModal({ open, onClose, onSave, onDelete, group =
         </View>
       )}
 
+      {/* The group's weekly slot. The phone could not set one, so a group made
+          here never reached the calendar until someone opened the web app. */}
+      <Select
+        label={E('fixedDay')}
+        value={form.recurring_day}
+        onChange={(v) => { set('recurring_day', v); if (err) setErr('') }}
+        placeholder={C('none')}
+        options={[{ value: '', label: C('none') }, ...DAYS.map((d) => ({ value: String(d), label: C(`day${d}`) }))]}
+      />
+      {hasDay ? (
+        <>
+          <View style={styles.row2}>
+            <View style={styles.flex}>
+              <Text style={styles.label}>{E('startTime')}</Text>
+              <TextInput style={styles.input} value={form.recurring_time} onChangeText={(v) => { set('recurring_time', v); if (err) setErr('') }} placeholder="18:00" placeholderTextColor={colors.textFaint} accessibilityLabel={E('startTime')} />
+            </View>
+            <View style={styles.flex}>
+              <Text style={styles.label}>{E('endTime')}</Text>
+              <TextInput style={styles.input} value={form.recurring_end_time} onChangeText={(v) => set('recurring_end_time', v)} placeholder="19:30" placeholderTextColor={colors.textFaint} accessibilityLabel={E('endTime')} />
+            </View>
+          </View>
+          <View style={styles.row2}>
+            <View style={styles.flex}>
+              <Text style={styles.label}>{E('startDateOptional')}</Text>
+              <DateField style={styles.input} value={form.recurring_start_date} onChange={(v) => set('recurring_start_date', v)} />
+            </View>
+            <View style={styles.flex}>
+              <Text style={styles.label}>{E('endDateOptional')}</Text>
+              <DateField style={styles.input} value={form.recurring_end_date} onChange={(v) => set('recurring_end_date', v)} />
+            </View>
+          </View>
+        </>
+      ) : null}
+
       {err ? <Text style={styles.error}>{err}</Text> : null}
 
       <View style={styles.actions}>
-        {isEdit && onDelete ? <Pressable accessibilityLabel={i18n.t('modalsData:editTx.delete')} style={styles.delete} onPress={remove} disabled={busy} hitSlop={6}><Trash2 size={18} strokeWidth={1.8} color={colors.danger} /></Pressable> : null}
+        {isEdit && onDelete ? <Pressable accessibilityLabel={E('deleteGroup')} style={styles.delete} onPress={() => { if (!busy) onDelete() }} disabled={busy} hitSlop={6}><Trash2 size={18} strokeWidth={1.8} color={colors.danger} /></Pressable> : null}
         <Pressable style={styles.cancel} onPress={requestClose}><Text style={styles.cancelText}>{C('cancel')}</Text></Pressable>
         <Pressable style={[styles.save, busy && styles.saveOff]} onPress={submit} disabled={busy}><Text style={styles.saveText}>{busy ? C('saving') : C('save')}</Text></Pressable>
       </View>

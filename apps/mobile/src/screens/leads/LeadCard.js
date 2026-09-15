@@ -2,7 +2,7 @@ import { View, Linking, I18nManager } from 'react-native'
 import { Text } from '../../components/Text'
 import { Pressable } from '../../components/Pressable'
 import { Clock, Check, CalendarDays, ArrowLeftRight, MessageCircle, X } from 'lucide-react-native'
-import { statusMetaOfLead, fmtShortDate, waLink } from '@simplicity/core'
+import { statusMetaOfLead, isConvertedLead, fmtShortDate, waLink } from '@simplicity/core'
 import { GlassPressable } from '../../components/Glass'
 import i18n from '../../lib/i18n'
 import { colors } from '../../theme/theme'
@@ -18,12 +18,17 @@ const todayYmd = () => {
 // inquiry/follow-up dates + a footer (converted badge / convert · move ·
 // WhatsApp). Tap opens edit; the × deletes. `dragHandlers` (Stage: drag) spread
 // the PanResponder onto the card; `dragging` dims the lifted card.
-export default function LeadCard({ lead, onEdit, onConvert, onDelete, onMove, sources = [], statuses = [], dragHandlers = null, dragging = false }) {
+export default function LeadCard({ lead, onEdit, onConvert, onDelete, onMove, onFollowup, sources = [], statuses = [], dragHandlers = null, dragging = false }) {
   const meta = statusMetaOfLead(lead)
   const source = lead.source_id ? sources.find((s) => s.id === lead.source_id) : null
   const sub = lead.status_id ? statuses.find((s) => s.id === lead.status_id) : null
   const overdue = lead.follow_up_date && String(lead.follow_up_date).slice(0, 10) <= todayYmd() && meta === 'in_process'
-  const isConverted = meta === 'converted' && lead.converted_to_client_id
+  /* The SAME test the stats use (core isConvertedLead), as on web. The card
+     used to require converted_to_client_id, so a lead dragged into "converted"
+     had no badge while the column counted it; and it can still take a client
+     record, which is a real remaining step. */
+  const isConverted = isConvertedLead(lead)
+  const needsClientRecord = isConverted && !lead.converted_to_client_id
   const flip = (i18n.language || '').startsWith('he') && !I18nManager.isRTL
   const whatsapp = () => { Linking.openURL(waLink(lead.phone)) }
 
@@ -65,12 +70,24 @@ export default function LeadCard({ lead, onEdit, onConvert, onDelete, onMove, so
       <View style={[styles.foot, flip && styles.rowFlip]}>
         {isConverted ? (
           <View style={styles.converted}><Check size={11} strokeWidth={2} color={colors.positive} /><Text style={styles.convertedText}>{T('converted')}</Text></View>
-        ) : onConvert ? (
+        ) : null}
+        {(!isConverted || needsClientRecord) && onConvert ? (
           <Pressable style={styles.convertBtn} onPress={() => onConvert(lead)} hitSlop={6}>
-            <Text style={styles.convertText}>{T('convert')}</Text>
+            <Text style={styles.convertText}>{needsClientRecord ? T('createClient') : T('convert')}</Text>
           </Pressable>
         ) : null}
         <View style={{ flex: 1 }} />
+        {/* When to chase them again, without opening the whole editor. */}
+        {onFollowup ? (
+          <Pressable
+            accessibilityLabel={T(lead.follow_up_date ? 'followupChangeAria' : 'followupAddAria', { name: lead.name || '' })}
+            style={[styles.iconBtn, lead.follow_up_date && styles.fuSet]}
+            onPress={() => onFollowup(lead)}
+            hitSlop={6}
+          >
+            <Clock size={14} strokeWidth={1.8} color={overdue ? colors.danger : lead.follow_up_date ? colors.amberWarn : colors.textSub} />
+          </Pressable>
+        ) : null}
         {onMove ? (
           <Pressable accessibilityLabel={i18n.t('leads:move.title')} style={styles.iconBtn} onPress={() => onMove(lead)} hitSlop={6}>
             <ArrowLeftRight size={14} strokeWidth={1.7} color={colors.textSub} />
@@ -108,4 +125,5 @@ const styles = themed((c, t) => ({
   convertBtn: { minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: 3, paddingVertical: 4, paddingHorizontal: 8, borderRadius: 999, borderWidth: 1, borderColor: 'rgba(139,168,136,0.4)', backgroundColor: 'rgba(139,168,136,0.10)' },
   convertText: { fontSize: 11, fontWeight: '500', color: c.text },
   iconBtn: { width: 30, height: 30, borderRadius: 15, alignItems: 'center', justifyContent: 'center', backgroundColor: c.cardFlat },
+  fuSet: { borderWidth: 1, borderColor: 'rgba(212,165,116,0.45)' },
 }))

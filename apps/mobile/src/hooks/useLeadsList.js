@@ -101,6 +101,14 @@ export function useLeadsList() {
     if (e) { load(); throw e }
   }, [load])
 
+  // Undo of a soft delete (the reject / delete undo toasts). Refetches so the
+  // row comes back exactly as the server holds it.
+  const restoreLead = useCallback(async (id) => {
+    const { error: e } = await supabase.from('leads').update({ deleted_at: null }).eq('id', id)
+    await load(true)
+    if (e) throw e
+  }, [load])
+
   // Lead → client conversion helpers (used by ConvertLeadModal).
   const addClient = useCallback(async (payload) => {
     const { data: { session } } = await supabase.auth.getSession()
@@ -118,5 +126,5 @@ export function useLeadsList() {
     return data
   }, [])
 
-  return { leads, loading, error, refetch: load, addLead, updateLead, deleteLead, addClient, addGroupMember }
+  return { leads, loading, error, refetch: load, addLead, updateLead, deleteLead, restoreLead, addClient, addGroupMember }
 }

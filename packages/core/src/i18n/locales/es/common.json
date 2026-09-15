@@ -1,4 +1,10 @@
 {
+  "screenError": {
+    "title": "Algo salió mal en esta pantalla",
+    "body": "El resto de la app sigue funcionando. Puedes intentarlo de nuevo o volver al inicio.",
+    "retry": "Intentar de nuevo",
+    "home": "Inicio"
+  },
   "appName": "Simplicity",
   "save": "Guardar",
   "cancel": "Cancelar",

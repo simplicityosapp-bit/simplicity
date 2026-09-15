@@ -1,4 +1,10 @@
 {
+  "screenError": {
+    "title": "Un problème est survenu sur cet écran",
+    "body": "Le reste de l'application fonctionne. Vous pouvez réessayer ou revenir à l'accueil.",
+    "retry": "Réessayer",
+    "home": "Accueil"
+  },
   "appName": "Simplicity",
   "save": "Enregistrer",
   "cancel": "Annuler",

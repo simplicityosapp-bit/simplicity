@@ -31,6 +31,7 @@ const TABS = [
   { key: 'no_status', icon: CircleDashed },
 ]
 const SORT_OPTIONS = ['name', 'balance', 'paid', 'sessions', 'created', 'oldest']
+const GROUP_BY_OPTIONS = ['status', 'project', 'group']
 const STATUS_PILL = themedMap((c) => ({
   active: 'rgba(139,168,136,0.14)',
   wandering: 'rgba(212,165,116,0.16)',
@@ -106,7 +107,9 @@ export default function ClientsScreen() {
   const setBalanceOnly = (v) => updatePrefs({ clientsBalanceOnly: v })
   const sort = prefs.clientsSort || { field: 'name', dir: 'asc' }
   const setSort = (patch) => updatePrefs({ clientsSort: { ...sort, ...patch } })
-  const groupBy = prefs.clientsGroupBy === 'project' ? 'project' : 'status'
+  /* 'group' too, as on web — a group grouping chosen in the browser used to
+     come back here as status. */
+  const groupBy = GROUP_BY_OPTIONS.includes(prefs.clientsGroupBy) ? prefs.clientsGroupBy : 'status'
   const setGroupBy = (g) => updatePrefs({ clientsGroupBy: g })
   const scope = prefs.clientsScope === 'cumulative' ? 'cumulative' : 'monthly'
   const setScope = (s) => updatePrefs({ clientsScope: s })
@@ -156,7 +159,7 @@ export default function ClientsScreen() {
     // Folded on both sides, as on web: "dana" has to find "Dana Cohen".
     const q = query.trim().toLowerCase()
     let filtered = enriched.filter((e) => {
-      if (groupBy === 'project' || balanceOnly) return true
+      if (groupBy !== 'status' || balanceOnly) return true
       return bucketMeta(e.meta) === tab
     })
     if (balanceOnly) filtered = filtered.filter((e) => e.bal.balance > 0)
@@ -164,17 +167,46 @@ export default function ClientsScreen() {
     return sortClients(filtered, sort, paidByClient)
   }, [enriched, groupBy, tab, query, balanceOnly, sort, paidByClient])
 
-  // Project-grouped view — one block per project (+ a "no project" bucket).
+  /* Project- or group-grouped view — one block per parent, in the order the
+     parents already have, then a "none" bucket (web clients/index grouped).
+     A client can be in SEVERAL groups and appears in each: the point of the
+     view is to see a cohort whole. Membership rows are the source of truth,
+     and the legacy single-group tag counts too, the same union the project
+     roster takes. A parent that no longer exists (a deleted group) files the
+     client under "none" instead of dropping them from the list. */
   const grouped = useMemo(() => {
-    if (groupBy !== 'project') return []
-    const map = new Map()
-    shown.forEach((e) => {
-      const pid = e.c.project_id || '__none'
-      if (!map.has(pid)) map.set(pid, { project: projects.find((p) => p.id === e.c.project_id) || null, items: [] })
-      map.get(pid).items.push(e)
-    })
-    return [...map.values()].sort((a, b) => (a.project ? 0 : 1) - (b.project ? 0 : 1))
-  }, [groupBy, shown, projects])
+    if (groupBy === 'status') return []
+    const parents = groupBy === 'project' ? projects : groups.filter((g) => !g.deleted_at)
+    const known = new Set(parents.map((p) => p.id))
+    const buckets = new Map()
+    const none = []
+    const put = (key, e) => { if (!buckets.has(key)) buckets.set(key, []); buckets.get(key).push(e) }
+    if (groupBy === 'project') {
+      shown.forEach((e) => (known.has(e.c.project_id) ? put(e.c.project_id, e) : none.push(e)))
+    } else {
+      const live = members.filter((m) => !m.left_at && !m.deleted_at)
+      shown.forEach((e) => {
+        const ids = new Set(live.filter((m) => m.client_id === e.c.id).map((m) => m.group_id))
+        if (e.c.group_id) ids.add(e.c.group_id)
+        const mine = [...ids].filter((id) => known.has(id))
+        if (mine.length) mine.forEach((gid) => put(gid, e)); else none.push(e)
+      })
+    }
+    const ordered = parents
+      .filter((p) => buckets.has(p.id))
+      .map((p) => ({ id: p.id, name: p.name, color: p.color, items: buckets.get(p.id) }))
+    if (none.length) {
+      ordered.push({
+        id: '__none__',
+        name: groupBy === 'project'
+          ? i18n.t('clients:project.none', { defaultValue: 'ללא פרויקט' })
+          : i18n.t('clients:groupBy.noGroup'),
+        color: null,
+        items: none,
+      })
+    }
+    return ordered
+  }, [groupBy, shown, projects, groups, members])
 
   /* One flat array for the list, so BOTH views virtualise.
      The screen used to render every client card at once inside a ScrollView —
@@ -188,11 +220,13 @@ export default function ClientsScreen() {
      flattening changes nothing on screen and lets the headings scroll out of
      the window with everything else. */
   const rows = useMemo(() => {
-    if (groupBy !== 'project') return shown.map((e) => ({ kind: 'client', key: e.c.id, e }))
+    if (groupBy === 'status') return shown.map((e) => ({ kind: 'client', key: e.c.id, e }))
     const out = []
-    grouped.forEach(({ project, items }) => {
-      out.push({ kind: 'projHead', key: 'head:' + (project?.id || '__none'), project, count: items.length })
-      items.forEach((e) => out.push({ kind: 'client', key: e.c.id, e }))
+    grouped.forEach((g) => {
+      out.push({ kind: 'head', key: `head:${g.id}`, name: g.name, color: g.color, count: g.items.length })
+      /* Keyed by bucket AND client: in the group view one client can sit in
+         two buckets, and a bare client id would give the list duplicate keys. */
+      g.items.forEach((e) => out.push({ kind: 'client', key: `${g.id}:${e.c.id}`, e }))
     })
     return out
   }, [groupBy, shown, grouped])
@@ -240,14 +274,25 @@ export default function ClientsScreen() {
        until the coach records how many meetings are booked ahead there is no
        denominator to print, and pairing the held count with a 0 read as "0 of
        0 done". Same rule the web card and the client file follow. */
-    const sessLabel = bal.hasPersonal
-      ? (bal.perSession && !bal.personalQuota
-        ? `${bal.personalDone}`
-        : `${bal.personalDone}/${bal.personalQuota || 0}`)
-      : `${bal.groupSessions.reduce((s, g) => s + g.held, 0)}/${bal.groupSessions.reduce((s, g) => s + (g.quota || 0), 0) || 0}`
+    /* One running track reads as its own progress, several as the count held
+       across them — web's card and client file share this rule. Ended groups
+       are left out of the figure, as the file leaves them out. */
+    const tracks = bal.tracks || []
+    const running = tracks.filter((tr) => !tr.ended)
+    const sessLabel = running.length === 1
+      ? (running[0].quota == null ? `${running[0].held}` : `${running[0].held}/${running[0].quota}`)
+      : `${running.reduce((s, tr) => s + tr.held, 0)}`
+    /* Which group they are in. The card named the project and never the group,
+       so three cohorts in one project looked identical. One group is named;
+       several are counted. A client whose cohorts all ended keeps those names. */
+    const groupTracks = tracks.filter((tr) => tr.kind === 'group')
+    const namedGroups = groupTracks.some((tr) => !tr.ended) ? groupTracks.filter((tr) => !tr.ended) : groupTracks
+    const groupLabel = namedGroups.length === 1
+      ? namedGroups[0].name
+      : (namedGroups.length > 1 ? i18n.t('clients:card.groupCount', { count: namedGroups.length }) : null)
     const selected = selectedIds.has(c.id)
     return (
-      <Pressable key={c.id} onPress={() => (selectMode ? toggleSelect(c.id) : setOpenId(c.id))}>
+      <Pressable onPress={() => (selectMode ? toggleSelect(c.id) : setOpenId(c.id))}>
         <Card padded={false} contentStyle={[styles.cc, meta === 'past' && styles.ccPast, selected && styles.ccSelected]}>
           {selectMode ? (
             <View style={[styles.ccCheck, selected && styles.ccCheckOn]}>
@@ -263,6 +308,7 @@ export default function ClientsScreen() {
                   <Text style={styles.ccStatusText}>{i18n.t(`clients:status.${statusKey(meta)}`, { defaultValue: '' })}</Text>
                 </View>
                 {project ? <Text style={styles.ccProj} numberOfLines={1}>{project.name}</Text> : null}
+                {groupLabel ? <Text style={styles.ccProj} numberOfLines={1}>{groupLabel}</Text> : null}
               </View>
             </View>
           </View>
@@ -296,13 +342,12 @@ export default function ClientsScreen() {
           <ArrowUpDown size={14} strokeWidth={1.7} color={colors.textSub} />
           <Text style={styles.sortBtnText}>{i18n.t('clients:sort.label', { defaultValue: 'מיון' })}</Text>
         </GlassPressable>
-        <Glass radius={999} style={styles.toggle}>
-          <Pressable style={[styles.toggleBtn, groupBy === 'status' && styles.toggleOn]} onPress={() => setGroupBy('status')}>
-            <Text style={[styles.toggleText, groupBy === 'status' && styles.toggleTextOn]}>{i18n.t('clients:groupBy.status', { defaultValue: 'סטטוס' })}</Text>
-          </Pressable>
-          <Pressable style={[styles.toggleBtn, groupBy === 'project' && styles.toggleOn]} onPress={() => setGroupBy('project')}>
-            <Text style={[styles.toggleText, groupBy === 'project' && styles.toggleTextOn]}>{i18n.t('clients:groupBy.project', { defaultValue: 'פרויקט' })}</Text>
-          </Pressable>
+        <Glass radius={999} style={styles.toggle} accessibilityLabel={i18n.t('clients:groupBy.aria')}>
+          {GROUP_BY_OPTIONS.map((g) => (
+            <Pressable key={g} style={[styles.toggleBtn, groupBy === g && styles.toggleOn]} onPress={() => setGroupBy(g)} accessibilityState={{ selected: groupBy === g }}>
+              <Text style={[styles.toggleText, groupBy === g && styles.toggleTextOn]}>{i18n.t(`clients:groupBy.${g}`)}</Text>
+            </Pressable>
+          ))}
         </Glass>
         <GlassPressable radius={999} on={selectMode} onColor={colors.text} style={styles.selectBtn} onPress={() => (selectMode ? exitSelect() : setSelectMode(true))}>
           <Text style={[styles.selectBtnText, selectMode && styles.toggleTextOn]}>{selectMode ? i18n.t('clients:select.cancel', { defaultValue: 'בטל בחירה' }) : i18n.t('clients:select.enter', { defaultValue: 'בחר/י' })}</Text>
@@ -382,10 +427,10 @@ export default function ClientsScreen() {
           data={rows}
           keyExtractor={(r) => r.key}
           renderItem={({ item }) => (
-            item.kind === 'projHead' ? (
+            item.kind === 'head' ? (
               <View style={styles.projHead}>
-                <View style={[styles.projDot, { backgroundColor: item.project?.color || colors.textSub }]} />
-                <Text style={styles.projName} numberOfLines={1}>{item.project?.name || i18n.t('clients:project.none', { defaultValue: 'ללא פרויקט' })}</Text>
+                <View style={[styles.projDot, { backgroundColor: item.color || colors.textSub }]} />
+                <Text style={styles.projName} numberOfLines={1}>{item.name}</Text>
                 <Text style={styles.projCount}>{item.count}</Text>
               </View>
             ) : renderCard(item.e)
@@ -521,21 +566,21 @@ function CardStat({ label, value, divided }) {
   )
 }
 
-/* The client sub-status editor, moved here from Settings — which was the only
-   place on this platform able to create or delete one, while this screen (the
-   one that names them on every card, tabs by them and filters by them) could
-   only read. Chips per meta group, a meta pill to choose where a new one
-   lands, and an add row: the same shape the leads screen uses for its stages,
-   so the two taxonomies are edited the same way.
+/* The client sub-status editor, moved here from Settings — this screen names
+   sub-statuses on every card, tabs by them and filters by them.
 
-   `no_status` is deliberately absent from the pills — it is the bucket for
-   clients with no sub-status at all, so creating one inside it would be a
-   contradiction. */
-const STATUS_METAS = ['active', 'wandering', 'past']
+   Web's shape (ClientStatusesModal): the four fixed status groups as headings
+   (the DB check constraint allows sub-statuses under all four, no_status
+   included — the phone used to offer only three), each with its own rows and
+   its own add field; tap a name to rename it; delete any row, defaults too,
+   through the move-its-clients step below. It used to be one flat chip list
+   with no rename, and a default could not be removed. */
+const STATUS_METAS = ['active', 'wandering', 'past', 'no_status']
 
 function ClientStatusesPanel({ tax, onChanged }) {
-  const [name, setName] = useState('')
-  const [meta, setMeta] = useState('active')
+  const [drafts, setDrafts] = useState({})   // new-name text, per status group
+  const [editId, setEditId] = useState(null) // the row being renamed
+  const [editName, setEditName] = useState('')
   const [busy, setBusy] = useState(false)
   /* The sub-status being deleted: { status, ids, peers, toId }. Deleting used to
      be one tap that left every client on it pointing at a status that no longer
@@ -545,9 +590,28 @@ function ClientStatusesPanel({ tax, onChanged }) {
   const [pending, setPending] = useState(null)
   const [err, setErr] = useState('')
   const S = (k, o) => i18n.t(`modalsClient:deleteSubStatus.${k}`, o)
-  const add = async () => {
-    const v = name.trim(); if (!v || busy) return
-    setBusy(true); try { await tax.addClientStatus(v, meta); setName('') } finally { setBusy(false) }
+  const add = async (meta) => {
+    const v = (drafts[meta] || '').trim(); if (!v || busy) return
+    setBusy(true); setErr('')
+    try {
+      await tax.addClientStatus(v, meta)
+      setDrafts((d) => ({ ...d, [meta]: '' }))
+    } catch {
+      setErr(i18n.t('clients:statuses.addFailed'))
+    } finally { setBusy(false) }
+  }
+  const startEdit = (s) => { setEditId(s.id); setEditName(s.display_name || '') }
+  const cancelEdit = () => { setEditId(null); setEditName('') }
+  const commitEdit = async (s) => {
+    const v = editName.trim()
+    cancelEdit()
+    if (!v || v === s.display_name) return
+    try {
+      await tax.updateClientStatus(s.id, { display_name: v })
+      onChanged?.()
+    } catch {
+      setErr(i18n.t('modalsClient:common.tryAgain'))
+    }
   }
   const live = (tax.clientStatuses || []).filter((s) => !s.deleted_at)
   const startDelete = async (s) => {
@@ -586,20 +650,7 @@ function ClientStatusesPanel({ tax, onChanged }) {
   }
   return (
     <View style={{ gap: 10 }}>
-      <Text style={styles.statusHint}>{i18n.t('clients:statuses.hint', { defaultValue: '' })}</Text>
-      <View style={styles.statusChips}>
-        {live.length ? live.map((s) => (
-          <View key={s.id} style={styles.statusChip}>
-            {s.icon ? <Text style={styles.statusChipIcon}>{s.icon}</Text> : null}
-            <Text style={styles.statusChipText}>{s.display_name}</Text>
-            {s.is_default ? null : (
-              <Pressable accessibilityLabel={i18n.t('modalsData:editTx.delete')} onPress={() => startDelete(s)} hitSlop={6}>
-                <X size={12} strokeWidth={2} color={colors.textFaint} />
-              </Pressable>
-            )}
-          </View>
-        )) : <Text style={styles.statusHint}>{i18n.t('clients:statuses.empty', { defaultValue: '—' })}</Text>}
-      </View>
+      <Text style={styles.statusHint}>{i18n.t('clients:statuses.hint')} {i18n.t('clients:statuses.hintRename')}</Text>
       {pending ? (
         <View style={styles.subDel}>
           <Text style={styles.subDelTitle}>{S('title', { name: pending.status.display_name })}</Text>
@@ -630,29 +681,62 @@ function ClientStatusesPanel({ tax, onChanged }) {
         </View>
       ) : null}
       {err ? <Text style={styles.error}>{err}</Text> : null}
-      <View style={styles.statusMetas}>
-        {STATUS_METAS.map((m) => {
-          const on = meta === m
-          return (
-            <Pressable key={m} style={[styles.statusMeta, on && styles.statusMetaOn]} onPress={() => setMeta(m)}>
-              <Text style={[styles.statusMetaText, on && styles.statusMetaTextOn]}>{i18n.t(`clients:status.${m}`, { defaultValue: m })}</Text>
-            </Pressable>
-          )
-        })}
-      </View>
-      <View style={styles.statusAddRow}>
-        <TextInput
-          style={styles.statusInput}
-          value={name}
-          onChangeText={setName}
-          placeholder={i18n.t('clients:statuses.placeholder', { meta: i18n.t(`clients:status.${meta}`), defaultValue: 'סטטוס חדש…' })}
-          placeholderTextColor={colors.textFaint}
-          onSubmitEditing={add}
-        />
-        <Pressable accessibilityLabel={i18n.t('modalsData:common.add')} style={styles.statusAddBtn} onPress={add} disabled={busy || !name.trim()}>
-          <Plus size={18} strokeWidth={2} color={colors.onBrand} />
-        </Pressable>
-      </View>
+      {STATUS_METAS.map((m) => {
+        const metaLabel = i18n.t(`clients:status.${statusKey(m)}`)
+        const list = live.filter((s) => s.meta_category === m)
+        const draft = drafts[m] || ''
+        return (
+          <View key={m} style={styles.stGroup}>
+            <Text style={styles.stMeta}>{metaLabel}</Text>
+            {list.length === 0 ? <Text style={styles.statusHint}>{i18n.t('clients:statuses.empty')}</Text> : null}
+            {list.map((s) => (
+              <View key={s.id} style={styles.stRow}>
+                {editId === s.id ? (
+                  <>
+                    <TextInput
+                      style={styles.statusInput}
+                      value={editName}
+                      onChangeText={setEditName}
+                      autoFocus
+                      onSubmitEditing={() => commitEdit(s)}
+                      accessibilityLabel={i18n.t('clients:statuses.renameAria', { name: s.display_name })}
+                    />
+                    <Pressable style={styles.stIcon} onPress={() => commitEdit(s)} accessibilityLabel={i18n.t('clients:statuses.saveName')} hitSlop={6}>
+                      <Check size={16} strokeWidth={2} color={colors.positive} />
+                    </Pressable>
+                    <Pressable style={styles.stIcon} onPress={cancelEdit} accessibilityLabel={i18n.t('clients:statuses.cancelRename')} hitSlop={6}>
+                      <X size={16} strokeWidth={2} color={colors.textSub} />
+                    </Pressable>
+                  </>
+                ) : (
+                  <>
+                    {/* The name is the rename control, as on web. */}
+                    <Pressable style={styles.stName} onPress={() => startEdit(s)} accessibilityRole="button" accessibilityLabel={i18n.t('clients:statuses.renameAria', { name: s.display_name })}>
+                      <Text style={styles.statusChipText} numberOfLines={1}>{s.icon ? `${s.icon} ` : ''}{s.display_name}</Text>
+                    </Pressable>
+                    <Pressable style={styles.stIcon} onPress={() => startDelete(s)} accessibilityLabel={i18n.t('clients:statuses.deleteAria', { name: s.display_name })} hitSlop={6}>
+                      <Trash2 size={15} strokeWidth={1.7} color={colors.textFaint} />
+                    </Pressable>
+                  </>
+                )}
+              </View>
+            ))}
+            <View style={styles.statusAddRow}>
+              <TextInput
+                style={styles.statusInput}
+                value={draft}
+                onChangeText={(v) => setDrafts((d) => ({ ...d, [m]: v }))}
+                placeholder={i18n.t('clients:statuses.placeholder', { meta: metaLabel })}
+                placeholderTextColor={colors.textFaint}
+                onSubmitEditing={() => add(m)}
+              />
+              <Pressable accessibilityLabel={`${i18n.t('clients:statuses.addAria')} · ${metaLabel}`} style={[styles.statusAddBtn, (busy || !draft.trim()) && styles.bulkBtnOff]} onPress={() => add(m)} disabled={busy || !draft.trim()}>
+                <Plus size={18} strokeWidth={2} color={colors.onBrand} />
+              </Pressable>
+            </View>
+          </View>
+        )
+      })}
     </View>
   )
 }
@@ -755,6 +839,11 @@ const styles = themed((c, t) => ({
   statusMetaText: { fontSize: 12.5, color: c.textSub },
   statusMetaTextOn: { color: c.onBrand },
   statusAddRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  stGroup: { gap: 6, paddingTop: 10, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: c.divider },
+  stMeta: { fontSize: 13, fontWeight: '600', color: c.text },
+  stRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  stName: { flex: 1, minHeight: 44, justifyContent: 'center', paddingHorizontal: 12, borderRadius: 12, borderWidth: StyleSheet.hairlineWidth, borderColor: c.divider },
+  stIcon: { width: 40, height: 44, alignItems: 'center', justifyContent: 'center' },
   /* No minWidth:0 — that's a CSS flexbox workaround; RN's flex has no such
      default and doesn't need it. */
   statusInput: { flex: 1, height: 44, paddingHorizontal: 12, borderRadius: 12, borderWidth: StyleSheet.hairlineWidth, borderColor: c.divider, color: c.text, fontSize: 14 },

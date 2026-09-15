@@ -37,7 +37,10 @@ export function useConfigTaxonomy() {
     leadSources: leadSources || [],
     leadStatuses: leadStatuses || [],
     meetingTypes: meetingTypes || [],
-    addClientStatus: useCallback((display_name, meta_category) => insertRow('client_statuses', { display_name, meta_category }), [insertRow]),
+    // is_default:false as on web — a coach's own sub-status is never a default.
+    addClientStatus: useCallback((display_name, meta_category) => insertRow('client_statuses', { display_name, meta_category, icon: null, is_default: false }), [insertRow]),
+    // Rename (web ClientStatusesModal's tap-the-name edit).
+    updateClientStatus: useCallback((id, patch) => updateRow('client_statuses', id, patch), [updateRow]),
     removeClientStatus: useCallback((id) => softDelete('client_statuses', id), [softDelete]),
     // The live clients on a sub-status — what a delete has to move first.
     clientIdsWithStatus: useCallback(async (id) => {

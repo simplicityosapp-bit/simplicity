@@ -18,6 +18,7 @@ import { pushUndo } from '../lib/undo'
 import { usePaymentPlans } from '../hooks/usePaymentPlans'
 import { useRecurring } from '../hooks/useRecurring'
 import { confirmRemoveTransaction } from '../lib/recurringTx'
+import { useWhatsAppMessage } from '../hooks/useWhatsAppMessage'
 import i18n from '../lib/i18n'
 import { colors } from '../theme/theme'
 import { themed, themedMap } from '../theme/themed'
@@ -180,12 +181,24 @@ export default function ClientDrawer({ clientId, clients, transactions, sessions
   const whatsapp = (msg) => {
     if (normalizeIsraeliPhone(client?.phone)) Linking.openURL(waLink(client.phone, msg))
   }
+  // The coach's own templates (Connections → WhatsApp), or the defaults.
+  const waMsg = useWhatsAppMessage()
 
-  const sessLabel = bal
-    ? (bal.hasPersonal
-      ? (bal.perSession ? `${bal.personalDone}` : `${bal.personalDone}/${bal.personalQuota || 0}`)
-      : `${bal.groupSessions.filter((g) => !g.ended).reduce((s, g) => s + g.held, 0)}/${bal.groupSessions.filter((g) => !g.ended).reduce((s, g) => s + (g.quota || 0), 0) || 0}`)
-    : '—'
+  /* The hero's meetings figure, by the rule web's file and card share: one
+     running track reads as its own progress, several as the count held
+     across them. The old reading summed group quotas into one denominator,
+     which described no track in particular. */
+  const tracks = bal?.tracks || []
+  const running = tracks.filter((tr) => !tr.ended)
+  const sessLabel = !bal
+    ? '—'
+    : running.length === 1
+      ? (running[0].quota == null ? `${running[0].held}` : `${running[0].held}/${running[0].quota}`)
+      : `${running.reduce((s, tr) => s + tr.held, 0)}`
+  /* A plain 1-on-1 client is their one track and the hero already says it; a
+     group member gets the row naming the group and its terms, and anyone
+     running two gets both. */
+  const showTracks = tracks.length > 1 || tracks.some((tr) => tr.kind === 'group')
 
   /* Android back peels one layer: an open status menu first, the whole drawer
      only once nothing is stacked on top of it. Everything else in here (edit,
@@ -317,23 +330,62 @@ export default function ClientDrawer({ clientId, clients, transactions, sessions
                   <Text style={styles.planHint}>{i18n.t('clients:drawer.planHint', { received: planBal.receivedCount, total: planBal.count, remaining: isr(planBal.remaining) })}</Text>
                 ) : null}
 
-                {/* Group sessions — read-only breakdown, one row per group */}
-                {bal.groupSessions.length > 0 ? (
-                  <View style={styles.grpSessions}>
-                    {bal.groupSessions.map((gs) => (
-                      <View key={gs.id} style={styles.grpRow}>
-                        <Text style={styles.grpName} numberOfLines={1}>{i18n.t('clients:drawer.groupSessions', { name: gs.name })}{gs.ended ? i18n.t('clients:drawer.groupEnded', { defaultValue: ' (הסתיימה)' }) : ''}</Text>
-                        <Text style={styles.grpVal}>{gs.held}/{gs.quota || 0}</Text>
-                      </View>
-                    ))}
+                {/* Tracks — each group the client is in and the personal
+                    series, with its terms, progress and money. The phone
+                    listed only group meetings as held/quota, so "did she pay
+                    for the workshop" had no answer here; a payment says which
+                    track it was for (transactions.group_id), and core
+                    clientBalance splits the money by it. */}
+                {showTracks ? (
+                  <View style={styles.tracks}>
+                    <Text style={styles.tracksTitle}>{i18n.t('clients:tracks.title')}</Text>
+                    {tracks.map((tr) => {
+                      const isGroup = tr.kind === 'group'
+                      const dot = isGroup ? (groups.find((g) => g.id === tr.id)?.color || colors.textSub) : colors.positive
+                      return (
+                        <View key={`${tr.kind}-${tr.id}`} style={[styles.track, tr.ended && styles.trackEnded]}>
+                          <View style={[styles.trackDot, { backgroundColor: dot }]} />
+                          <View style={styles.trackId}>
+                            <Text style={styles.trackName} numberOfLines={1}>
+                              {isGroup ? tr.name : i18n.t('clients:tracks.personal')}{tr.ended ? i18n.t('clients:drawer.groupEnded') : ''}
+                            </Text>
+                            <Text style={styles.trackSub} numberOfLines={1}>
+                              {i18n.t(`clients:tracks.mode.${tr.mode}`)}
+                              {' · '}
+                              {tr.quota == null
+                                ? i18n.t('clients:tracks.progressNoQuota', { count: tr.held })
+                                : i18n.t('clients:tracks.progress', { held: tr.held, quota: tr.quota })}
+                            </Text>
+                          </View>
+                          <View style={styles.trackMoney}>
+                            <Text style={styles.trackAmt} accessibilityLabel={`${i18n.t('clients:tracks.amountAria')} ${isr(tr.total)}`}>{isr(tr.total)}</Text>
+                            <Text style={styles.trackSub} numberOfLines={1}>
+                              {i18n.t('clients:tracks.paidOf', { paid: isr(tr.paid) })}
+                              {tr.balance > 0 ? ` · ${i18n.t('clients:tracks.left', { amount: isr(tr.balance) })}` : ''}
+                            </Text>
+                          </View>
+                        </View>
+                      )
+                    })}
+                    {/* Money that came in without saying which track it was
+                        for — reported, not shared out by guesswork. */}
+                    {bal.unallocatedPaid > 0 ? (
+                      <Text style={styles.tracksNote}>{i18n.t('clients:tracks.unallocated', { amount: isr(bal.unallocatedPaid) })}</Text>
+                    ) : null}
+                    {/* A written-off debt lowers the account without belonging
+                        to any one track, so the hero can differ from the rows. */}
+                    {bal.adjustment ? (
+                      <Text style={styles.tracksNote}>{i18n.t('clients:tracks.writeOffNote', { amount: isr(bal.adjustment) })}</Text>
+                    ) : null}
                   </View>
                 ) : null}
 
-                {/* Payment request — only when the client owes money */}
+                {/* Payment request — only when the client owes money. The
+                    coach's payment template, with the balance filled in. */}
                 {bal.balance > 0 && client.phone ? (
                   <Pressable
                     style={styles.payRequest}
-                    onPress={() => whatsapp(`${i18n.t('clients:drawer.requestPayment', { defaultValue: 'דרישת תשלום' })} · ${isr(bal.balance)}`)}
+                    onPress={() => whatsapp(waMsg('payment', { name: client.name, balance: isr(bal.balance) }))}
                   >
                     <MessageCircle size={15} strokeWidth={1.8} color={colors.positive} />
                     <Text style={styles.payRequestText}>{i18n.t('clients:drawer.requestPayment', { defaultValue: 'דרישת תשלום בוואטסאפ' })}</Text>
@@ -349,7 +401,7 @@ export default function ClientDrawer({ clientId, clients, transactions, sessions
                       it created a private series beside the group's, which the
                       balance then billed on top of the group dues. */}
                   {bal?.hasPersonal ? <Action Icon={PackagePlus} label={i18n.t('clients:addSessions.title')} onPress={() => setAddingSessions(true)} /> : null}
-                  {client.phone ? <Action Icon={MessageCircle} label="WhatsApp" onPress={() => whatsapp()} /> : null}
+                  {client.phone ? <Action Icon={MessageCircle} label="WhatsApp" onPress={() => whatsapp(waMsg('client', { name: client.name }))} /> : null}
                 </View>
 
                 <ClientDrawerSections
@@ -553,10 +605,17 @@ const styles = themed((c, t) => ({
 
   billNote: { fontSize: 12, color: c.textSub, textAlign: 'center', marginTop: -6 },
   planHint: { fontSize: 12, color: c.textSub, textAlign: 'center' },
-  grpSessions: { gap: 6, marginTop: -4 },
-  grpRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 },
-  grpName: { flex: 1, fontSize: 12, color: c.textSub },
-  grpVal: { fontSize: 12, fontWeight: '600', color: c.text },
+  tracks: { gap: 8, marginTop: -4, padding: 12, borderRadius: 14, borderWidth: StyleSheet.hairlineWidth, borderColor: c.divider, backgroundColor: c.cardFlat },
+  tracksTitle: { fontSize: 11, fontWeight: '600', color: c.textSub, letterSpacing: 0.3 },
+  track: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  trackEnded: { opacity: 0.55 },
+  trackDot: { width: 9, height: 9, borderRadius: 5 },
+  trackId: { flex: 1, minWidth: 0, gap: 2 },
+  trackName: { fontSize: 13, fontWeight: '600', color: c.text },
+  trackSub: { fontSize: 11, color: c.textSub },
+  trackMoney: { alignItems: 'flex-end', gap: 2, maxWidth: '48%' },
+  trackAmt: { fontSize: 13, fontWeight: '600', color: c.text },
+  tracksNote: { fontSize: 11, color: c.textSub, lineHeight: 16 },
 
   payRequest: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: 10, paddingHorizontal: 16, borderRadius: 14, borderWidth: 0.5, borderColor: 'rgba(139,168,136,0.4)', backgroundColor: 'rgba(139,168,136,0.10)' },
   payRequestText: { fontSize: 13, fontWeight: '500', color: c.positive },

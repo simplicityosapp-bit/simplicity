@@ -5,6 +5,7 @@ import { Clock, Check, CalendarDays, ArrowLeftRight, MessageCircle, X } from 'lu
 import { statusMetaOfLead, isConvertedLead, fmtShortDate, waLink } from '@simplicity/core'
 import { GlassPressable } from '../../components/Glass'
 import i18n from '../../lib/i18n'
+import { useWhatsAppMessage } from '../../hooks/useWhatsAppMessage'
 import { colors } from '../../theme/theme'
 import { themed } from '../../theme/themed'
 
@@ -30,7 +31,8 @@ export default function LeadCard({ lead, onEdit, onConvert, onDelete, onMove, on
   const isConverted = isConvertedLead(lead)
   const needsClientRecord = isConverted && !lead.converted_to_client_id
   const flip = (i18n.language || '').startsWith('he') && !I18nManager.isRTL
-  const whatsapp = () => { Linking.openURL(waLink(lead.phone)) }
+  const waMsg = useWhatsAppMessage()
+  const whatsapp = () => { Linking.openURL(waLink(lead.phone, waMsg('lead', { name: lead.name }))) }
 
   return (
     <GlassPressable radius={20} style={[styles.card, dragging && styles.dragging]} onPress={() => onEdit?.(lead)} {...(dragHandlers || {})}>

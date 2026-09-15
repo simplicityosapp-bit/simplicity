@@ -10,6 +10,7 @@ import { pushUndo } from '../lib/undo'
 import { useLeadPageLabels } from '../hooks/useLeadPageLabels'
 import PendingLeadsSection from './leads/PendingLeadsSection'
 import LeadFollowupSheet from './leads/LeadFollowupSheet'
+import { useWhatsAppMessage } from '../hooks/useWhatsAppMessage'
 import Select from '../components/Select'
 import { useConfigTaxonomy } from '../hooks/useConfigTaxonomy'
 import i18n from '../lib/i18n'
@@ -156,7 +157,8 @@ export default function LeadsScreen() {
     const ymd = todayYmd()
     return official.filter((l) => l.status_meta === 'in_process' && l.follow_up_date && String(l.follow_up_date).slice(0, 10) <= ymd)
   }, [official])
-  const waLead = (l) => Linking.openURL(waLink(l.phone))
+  const waMsg = useWhatsAppMessage()
+  const waLead = (l) => Linking.openURL(waLink(l.phone, waMsg('lead', { name: l.name })))
 
   // Commit a column move (+ optional sub-status). status_id is set to a
   // sub-status that BELONGS to the target column (or null); moving OUT of

@@ -6,6 +6,7 @@ import { Text } from '../../components/Text'
 import { Pressable } from '../../components/Pressable'
 import Card from '../../components/Card'
 import i18n from '../../lib/i18n'
+import { useWhatsAppMessage } from '../../hooks/useWhatsAppMessage'
 import { colors } from '../../theme/theme'
 import { themed } from '../../theme/themed'
 
@@ -41,6 +42,7 @@ export function pendingRows(lead, page) {
 
 export default function PendingLeadsSection({ pending = [], pages = [], onApprove, onReject }) {
   const pageById = useMemo(() => Object.fromEntries((pages || []).map((p) => [p.id, p])), [pages])
+  const waMsg = useWhatsAppMessage()
   if (!pending.length) return null
 
   const confirmReject = (lead) => {
@@ -73,7 +75,7 @@ export default function PendingLeadsSection({ pending = [], pages = [], onApprov
               </View>
             ))}
             <View style={styles.actions}>
-              <Pressable style={styles.wa} onPress={() => Linking.openURL(waLink(lead.phone || '')).catch(() => {})} accessibilityLabel="WhatsApp" hitSlop={6}>
+              <Pressable style={styles.wa} onPress={() => Linking.openURL(waLink(lead.phone || '', waMsg('lead', { name: lead.name }))).catch(() => {})} accessibilityLabel="WhatsApp" hitSlop={6}>
                 <MessageCircle size={16} strokeWidth={1.7} color={colors.positive} />
               </Pressable>
               <View style={{ flex: 1 }} />

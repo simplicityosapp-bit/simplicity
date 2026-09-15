@@ -18,6 +18,7 @@ import {
   confirmScheduledMeeting,
   skipScheduledMeeting,
   billPerSessionMeeting,
+  rescheduleScheduledMeeting,
 } from '../src/lib/scheduledMeetings'
 
 const clientMeeting = { id: 'm1', subject_type: 'client', subject_id: 'c1', scheduled_at: '2026-09-08T09:00:00.000Z' }
@@ -162,5 +163,63 @@ describe('skipping a meeting', () => {
     await skipScheduledMeeting({ meeting: {}, updateMeeting, removeSession })
     expect(updateMeeting).not.toHaveBeenCalled()
     expect(removeSession).not.toHaveBeenCalled()
+  })
+
+  /* Cancelling next week's meeting, or deleting a confirmed one by mistake,
+     had no way back on the phone. The undo puts the session back and the
+     exact prior status and link. */
+  it('offers an undo that restores the session, status and link', async () => {
+    const updateMeeting = vi.fn(async () => {})
+    const removeSession = vi.fn(async () => {})
+    const putBackSession = vi.fn(async () => {})
+    const pushUndo = vi.fn()
+    await skipScheduledMeeting({
+      meeting: { ...clientMeeting, status: 'confirmed', session_id: 's9' },
+      updateMeeting, removeSession, putBackSession, pushUndo, label: 'בוטלה',
+    })
+    expect(pushUndo).toHaveBeenCalledTimes(1)
+    const { label, undo } = pushUndo.mock.calls[0][0]
+    expect(label).toBe('בוטלה')
+    await undo()
+    expect(putBackSession).toHaveBeenCalledWith('s9')
+    expect(updateMeeting).toHaveBeenLastCalledWith('m1', { status: 'confirmed', session_id: 's9' })
+  })
+})
+
+describe('rescheduling a meeting', () => {
+  const meeting = { ...clientMeeting, status: 'pending', duration_minutes: 90 }
+
+  /* Not a move of scheduled_at: the generator would refill the old slot. The
+     new time is a fresh row, and the original holds its key as skipped. */
+  it('inserts the new time first, keeps the length, then skips the original', async () => {
+    const calls = []
+    const addMeeting = vi.fn(async (row) => { calls.push('add'); return { id: 'new', ...row } })
+    const updateMeeting = vi.fn(async () => { calls.push('skip') })
+    const created = await rescheduleScheduledMeeting({ meeting, at: '2026-09-10T10:00:00.000Z', addMeeting, updateMeeting })
+    expect(calls).toEqual(['add', 'skip'])
+    expect(addMeeting).toHaveBeenCalledWith({ subject_type: 'client', subject_id: 'c1', scheduled_at: '2026-09-10T10:00:00.000Z', status: 'pending', duration_minutes: 90 })
+    expect(updateMeeting).toHaveBeenCalledWith('m1', { status: 'skipped', session_id: null })
+    expect(created.id).toBe('new')
+  })
+
+  /* A move onto a slot the subject already holds is rejected by the unique
+     index. The original must be left as it was, and the error must reach the
+     form so it stays open. */
+  it('leaves the original untouched and throws when the new slot is taken', async () => {
+    const addMeeting = vi.fn(async () => { throw new Error('duplicate key') })
+    const updateMeeting = vi.fn()
+    await expect(rescheduleScheduledMeeting({ meeting, at: 'x', addMeeting, updateMeeting })).rejects.toThrow('duplicate key')
+    expect(updateMeeting).not.toHaveBeenCalled()
+  })
+
+  it('undo removes the new row and puts the original back', async () => {
+    const addMeeting = vi.fn(async () => ({ id: 'new' }))
+    const updateMeeting = vi.fn(async () => {})
+    const removeMeeting = vi.fn(async () => {})
+    const pushUndo = vi.fn()
+    await rescheduleScheduledMeeting({ meeting, at: 'x', addMeeting, updateMeeting, removeMeeting, pushUndo, label: 'moved' })
+    await pushUndo.mock.calls[0][0].undo()
+    expect(removeMeeting).toHaveBeenCalledWith('new')
+    expect(updateMeeting).toHaveBeenLastCalledWith('m1', { status: 'pending' })
   })
 })

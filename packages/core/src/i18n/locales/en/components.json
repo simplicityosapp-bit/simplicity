@@ -51,6 +51,7 @@
       "session": "Session deleted",
       "sitePage": "Page deleted",
       "task": "Task deleted",
+      "reminder": "Reminder deleted",
       "transaction": "Transaction deleted",
       "answer": "Answer deleted",
       "adjustment": "Adjustment removed"

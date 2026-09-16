@@ -110,5 +110,6 @@
   },
   "tagline": "Les chiffres racontent l’histoire.",
   "exportLabel": "Exporter",
+  "exportHeaders": { "metric": "Indicateur", "change": "Variation par rapport au mois précédent" },
   "exportAria": "Exporter le rapport dans un fichier"
 }

@@ -118,5 +118,6 @@
   },
   "tagline": "המספרים מספרים את הסיפור.",
   "exportLabel": "ייצוא",
+  "exportHeaders": { "metric": "מדד", "change": "שינוי מהחודש הקודם" },
   "exportAria": "ייצוא הדוח לקובץ"
 }

@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef } from 'react'
-import { REPORT_METRICS } from '@simplicity/core'
+import {
+  migrateReportsConfig, defaultReportsConfig, toggleReportMetric, reorderReportMetric, resetReportMetrics,
+} from '@simplicity/core'
 import { useUserPreferences } from './useUserPreferences'
 
 /* ════════════════════════════════════════════════════════════════
@@ -21,34 +23,10 @@ import { useUserPreferences } from './useUserPreferences'
 
 const LEGACY_KEY = 'mg-reports-config'
 
-function defaults() {
-  return {
-    view: 'list',
-    range: 3,
-    visibleMetrics: REPORT_METRICS.map((m) => m.id),
-    metricOrder: REPORT_METRICS.map((m) => m.id),
-  }
-}
-
-export function migrateReportsConfig(cfg) {
-  const out = { ...defaults(), ...(cfg || {}) }
-  if (!['list', 'table'].includes(out.view)) out.view = 'list'
-  if (![3, 6, 12].includes(out.range)) out.range = 3
-  if (!Array.isArray(out.visibleMetrics)) out.visibleMetrics = REPORT_METRICS.map((m) => m.id)
-  if (!Array.isArray(out.metricOrder)) out.metricOrder = REPORT_METRICS.map((m) => m.id)
-  /* Drop unknowns + auto-extend with new metrics. */
-  const known = new Set(REPORT_METRICS.map((m) => m.id))
-  out.metricOrder = out.metricOrder.filter((id) => known.has(id))
-  out.visibleMetrics = out.visibleMetrics.filter((id) => known.has(id))
-  const orderSet = new Set(out.metricOrder)
-  REPORT_METRICS.forEach((m) => {
-    if (!orderSet.has(m.id)) {
-      out.metricOrder.push(m.id)
-      if (!out.visibleMetrics.includes(m.id)) out.visibleMetrics.push(m.id)
-    }
-  })
-  return out
-}
+/* The config shape, its migration and the metric edits live in core
+   (reportsConfig), shared with the phone; re-exported for this module's callers. */
+export { migrateReportsConfig }
+const defaults = defaultReportsConfig
 
 /* Read any legacy localStorage blob (pre-Supabase) so we can lift it
    over to user_preferences on first load. */
@@ -105,39 +83,16 @@ export function useReportsConfig() {
   }, [writeReports])
 
   const toggleMetric = useCallback((id) => {
-    writeReports((c) => {
-      const has = c.visibleMetrics.includes(id)
-      const visibleMetrics = has
-        ? c.visibleMetrics.filter((x) => x !== id)
-        : [...c.visibleMetrics, id]
-      return { ...c, visibleMetrics }
-    })
+    writeReports((c) => toggleReportMetric(c, id))
   }, [writeReports])
 
   const reorderMetric = useCallback((fromId, toId) => {
     if (!fromId || fromId === toId) return
-    writeReports((c) => {
-      const order = [...c.metricOrder]
-      const fromIdx = order.indexOf(fromId)
-      if (fromIdx < 0) return c
-      order.splice(fromIdx, 1)
-      if (toId == null) {
-        order.push(fromId)
-      } else {
-        const toIdx = order.indexOf(toId)
-        if (toIdx < 0) order.push(fromId)
-        else order.splice(toIdx, 0, fromId)
-      }
-      return { ...c, metricOrder: order }
-    })
+    writeReports((c) => reorderReportMetric(c, fromId, toId))
   }, [writeReports])
 
   const resetConfig = useCallback(() => {
-    writeReports((c) => ({
-      ...c,
-      visibleMetrics: REPORT_METRICS.map((m) => m.id),
-      metricOrder: REPORT_METRICS.map((m) => m.id),
-    }))
+    writeReports((c) => resetReportMetrics(c))
   }, [writeReports])
 
   return { config, setView, setRange, toggleMetric, reorderMetric, resetConfig }

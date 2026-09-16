@@ -37,11 +37,14 @@ const dayLabels = () => {
   const names = weekdayNamesShort()
   return Array.isArray(names) && names.length === 7 ? names : HEB_DAYS_SHORT
 }
-const fromReminder = (r) => {
+// `prefill` seeds a NEW reminder ({ title, description, date, time }) without
+// putting the sheet into edit mode.
+const fromReminder = (r, prefill = null) => {
   const now = new Date()
   if (!r) {
     return {
-      title: '', description: '', date: todayStr(), time: '09:00', recurrence: 'none', interval: '2',
+      title: prefill?.title || '', description: prefill?.description || '', date: prefill?.date || todayStr(), time: prefill?.time || '09:00',
+      recurrence: 'none', interval: '2',
       day_of_week: String(now.getDay()), day_of_month: String(now.getDate()),
       client_id: '', category_id: '', end_date: '',
     }
@@ -63,14 +66,22 @@ const fromReminder = (r) => {
   }
 }
 
-export default function AddReminderModal({ open, onClose, onSave, onDelete, reminder = null }) {
+/* `linkedTo` ({ type, id }) binds a new reminder to something other than a
+   client — the investment row passes { type: 'investment' } — and shows
+   `linkedSubjectName` in place of the client picker, as on web. A reminder
+   already linked that way keeps its link when edited here; the phone used to
+   write linked_to_type null for anything without a client. */
+export default function AddReminderModal({ open, onClose, onSave, onDelete, reminder = null, linkedTo = null, linkedSubjectName = '', prefill = null }) {
   const isEdit = !!reminder
+  const fixedLink = linkedTo || (reminder?.linked_to_type && reminder.linked_to_type !== 'client'
+    ? { type: reminder.linked_to_type, id: reminder.linked_to_id || null }
+    : null)
   const { clients = [], taskCategories = [] } = useFormOptions()
-  const [form, setForm] = useState(() => fromReminder(reminder))
+  const [form, setForm] = useState(() => fromReminder(reminder, prefill))
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }))
-  useEffect(() => { if (open) { setForm(fromReminder(reminder)); setErr(''); setBusy(false) } }, [open, reminder])
+  useEffect(() => { if (open) { setForm(fromReminder(reminder, prefill)); setErr(''); setBusy(false) } }, [open, reminder]) // eslint-disable-line react-hooks/exhaustive-deps
   const close = () => { setErr(''); setBusy(false); onClose() }
 
   const remove = async () => {
@@ -133,8 +144,8 @@ export default function AddReminderModal({ open, onClose, onSave, onDelete, remi
         description: form.description.trim() || null,
         scheduled_at: scheduledAt,
         end_date: hasEnd ? form.end_date : null,
-        linked_to_type: form.client_id ? 'client' : null,
-        linked_to_id: form.client_id || null,
+        linked_to_type: fixedLink ? fixedLink.type : (form.client_id ? 'client' : null),
+        linked_to_id: fixedLink ? fixedLink.id : (form.client_id || null),
         category_id: form.category_id || null,
         ...rec,
         recurrence_pattern: recPattern,
@@ -230,13 +241,20 @@ export default function AddReminderModal({ open, onClose, onSave, onDelete, remi
         </View>
       ) : null}
 
-      <Select
-        label={i18n.t('modalsTask:reminder.linkedClient', { defaultValue: 'לקוח מקושר (אופציונלי)' })}
-        value={form.client_id}
-        onChange={(v) => set('client_id', v)}
-        placeholder={i18n.t('modalsTask:common.none')}
-        options={[{ value: '', label: i18n.t('modalsTask:common.none') }, ...clients.map((c) => ({ value: c.id, label: c.name || '' }))]}
-      />
+      {fixedLink ? (
+        <View style={styles.field}>
+          <Text style={styles.label}>{i18n.t('modalsTask:reminder.linkedTo')}</Text>
+          <Text style={styles.linkedSubject}>{linkedSubjectName || (fixedLink.type === 'project' ? i18n.t('modalsTask:reminder.project') : fixedLink.type)}</Text>
+        </View>
+      ) : (
+        <Select
+          label={i18n.t('modalsTask:reminder.linkedClient', { defaultValue: 'לקוח מקושר (אופציונלי)' })}
+          value={form.client_id}
+          onChange={(v) => set('client_id', v)}
+          placeholder={i18n.t('modalsTask:common.none')}
+          options={[{ value: '', label: i18n.t('modalsTask:common.none') }, ...clients.map((c) => ({ value: c.id, label: c.name || '' }))]}
+        />
+      )}
       {taskCategories.length ? (
         <Select
           label={i18n.t('modalsTask:reminder.category', { defaultValue: 'קטגוריה (אופציונלי)' })}
@@ -268,6 +286,7 @@ export default function AddReminderModal({ open, onClose, onSave, onDelete, remi
 }
 
 const styles = themed((c, t) => ({
+  linkedSubject: { fontSize: 15, color: c.text, paddingVertical: 4 },
   row2: { flexDirection: 'row', gap: 12 },
   field: { gap: 6 },
   fieldFlex: { flex: 1, gap: 6 },

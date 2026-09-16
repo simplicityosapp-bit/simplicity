@@ -14,6 +14,7 @@ import Card from '../components/Card'
 import { GlassPressable } from '../components/Glass'
 import AddTransactionModal from '../modals/AddTransactionModal'
 import InvoiceImports from './finance/InvoiceImports'
+import InvestmentRow from './finance/InvestmentRow'
 import FinanceCategoriesModal from '../modals/FinanceCategoriesModal'
 import RecurringModal from '../modals/RecurringModal'
 import FinanceChart from './finance/FinanceChart'
@@ -390,6 +391,18 @@ export default function FinanceScreen() {
 
           {/* Cumulative net, with the monthly income goal marked */}
           <FinanceChart month={monthDate} transactions={transactions} goals={goals} goalCategories={goalCategories} onSetGoal={() => navigation.navigate('Goals')} />
+
+          {/* How much of this month to set aside — one line, under the numbers it is computed from. */}
+          <InvestmentRow
+            month={monthDate}
+            transactions={transactions}
+            loading={loading}
+            categories={categories}
+            addCategory={addCategory}
+            addTransaction={addTransaction}
+            deleteTransaction={deleteTransaction}
+            restoreTransaction={restoreTransaction}
+          />
 
           {/* Recurring templates */}
           <Card contentStyle={styles.rec}>

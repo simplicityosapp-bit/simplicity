@@ -7,6 +7,9 @@ import { Trash2 } from 'lucide-react-native'
 import { PAY_METHODS, payMethodLabel, clientPaymentTargets } from '@simplicity/core'
 import Sheet from '../components/Sheet'
 import Select from '../components/Select'
+import InvoiceActions from '../components/InvoiceActions'
+import IssueOnSave, { ISSUE_OFF, issueAfterSave } from '../components/IssueOnSave'
+import { useInvoiceStatus } from '../hooks/useInvoiceStatus'
 import { useFormOptions } from '../lib/formOptions'
 import { useDiscardGuard, isDirty } from '../lib/discardGuard'
 import i18n from '../lib/i18n'
@@ -15,8 +18,10 @@ import { themed } from '../theme/themed'
 
 // Add/edit a transaction (mirrors web AddTransactionModal: income/expense +
 // amount + date + description + client / "paid for" / category / payment-method
-// selects). Pass a `tx` to edit. Invoice-issuing is a later increment; onSave
-// gets a transactions-ready payload.
+// selects). Pass a `tx` to edit. onSave gets a transactions-ready payload and,
+// on create, returns the inserted row — "issue on save" needs its id. With an
+// invoice provider connected, create offers "הפק קבלה עם השמירה" and edit shows
+// the issue / credit / repair panel (components/InvoiceActions).
 const todayStr = () => {
   const d = new Date()
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
@@ -41,8 +46,9 @@ const STATUS_KEYS = ['confirmed', 'pending', 'skipped']
    was for (transactions.group_id, migration 0115; core clientBalance splits the
    money by it). Callers that know a client's memberships pass them; without
    them the field never shows, exactly as it never shows for a client with a
-   single track. */
-export default function AddTransactionModal({ open, onClose, onSave, onDelete, tx = null, clients: propClients = [], members = [], groups: propGroups, defaults = {}, onAddCategory }) {
+   single track. `transactions` lets the issue panel spot a likely duplicate
+   document; `onIssued` refetches once a document changed a row server-side. */
+export default function AddTransactionModal({ open, onClose, onSave, onDelete, tx = null, clients: propClients = [], members = [], groups: propGroups, defaults = {}, onAddCategory, transactions = [], onIssued }) {
   const isEdit = !!tx
   const { clients: optClients, categories, projects = [], groups: optGroups = [] } = useFormOptions() // categories = the FINANCE `categories` table (expense tags)
   const clients = propClients.length ? propClients : optClients
@@ -50,6 +56,8 @@ export default function AddTransactionModal({ open, onClose, onSave, onDelete, t
   const [form, setForm] = useState(() => blank(tx, defaults))
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
+  const { status: invoiceStatus } = useInvoiceStatus()
+  const [issue, setIssue] = useState(ISSUE_OFF)
   // Inline "new category" creation — only when the parent passes onAddCategory.
   const [creatingCat, setCreatingCat] = useState(false)
   const [newCatName, setNewCatName] = useState('')
@@ -62,7 +70,7 @@ export default function AddTransactionModal({ open, onClose, onSave, onDelete, t
     if ((k === 'client_id' && v !== f.client_id) || (k === 'type' && v !== 'income')) next.group_id = ''
     return next
   })
-  useEffect(() => { if (open) { setForm(blank(tx, defaults)); setErr(''); setBusy(false); setCreatingCat(false); setNewCatName(''); setCatBusy(false) } }, [open, tx]) // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { if (open) { setForm(blank(tx, defaults)); setErr(''); setBusy(false); setCreatingCat(false); setNewCatName(''); setCatBusy(false); setIssue(ISSUE_OFF) } }, [open, tx]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Creating a category selects it immediately, so the user never leaves the modal.
   const createCat = async () => {
@@ -77,7 +85,8 @@ export default function AddTransactionModal({ open, onClose, onSave, onDelete, t
   }
   const close = () => { setErr(''); setBusy(false); onClose() }
   // Compared against the seed, so a client or amount the caller pre-filled is not "the user's work".
-  const requestClose = useDiscardGuard(!busy && isDirty(form, blank(tx, defaults)), close)
+  const formDirty = isDirty(form, blank(tx, defaults))
+  const requestClose = useDiscardGuard(!busy && (formDirty || issue.on), close)
 
   const remove = async () => {
     if (busy || !onDelete) return
@@ -118,7 +127,8 @@ export default function AddTransactionModal({ open, onClose, onSave, onDelete, t
           project_id: projectId, client_id: clientId, group_id: groupId, category_id: categoryId,
           payment_method: paymentMethod, recurring_id: null, orphaned_from: null,
         }
-      await onSave(payload)
+      const row = await onSave(payload)
+      if (!isEdit) await issueAfterSave({ row, issue, form: { ...form, desc }, status: invoiceStatus, onIssued, isFuture })
       close()
     } catch (e) {
       setBusy(false)
@@ -234,6 +244,17 @@ export default function AddTransactionModal({ open, onClose, onSave, onDelete, t
           </View>
         </View>
       ) : null}
+
+      {isEdit && tx.type === 'income' ? (
+        <InvoiceActions
+          tx={tx}
+          clientName={clients.find((c) => c.id === tx.client_id)?.name}
+          transactions={transactions}
+          formDirty={formDirty}
+          onIssued={onIssued}
+        />
+      ) : null}
+      {!isEdit ? <IssueOnSave status={invoiceStatus} form={form} issue={issue} setIssue={setIssue} isFuture={form.date > todayStr()} /> : null}
 
       {err ? <Text style={styles.error}>{err}</Text> : null}
 

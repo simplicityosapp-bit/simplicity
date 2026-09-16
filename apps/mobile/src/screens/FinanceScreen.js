@@ -13,6 +13,8 @@ import ScreenHead from '../components/ScreenHead'
 import Card from '../components/Card'
 import { GlassPressable } from '../components/Glass'
 import AddTransactionModal from '../modals/AddTransactionModal'
+import InvoiceImports from './finance/InvoiceImports'
+import InvestmentRow from './finance/InvestmentRow'
 import FinanceCategoriesModal from '../modals/FinanceCategoriesModal'
 import RecurringModal from '../modals/RecurringModal'
 import FinanceChart from './finance/FinanceChart'
@@ -344,6 +346,10 @@ export default function FinanceScreen() {
             </View>
           ) : null}
 
+          {/* Documents issued in the invoicing service, waiting to be recorded
+              as income — a decision, so it sits with the pending approvals. */}
+          <InvoiceImports transactions={transactions} onImported={() => refetch(true)} />
+
           {/* Month summary */}
           <Card contentStyle={styles.summary}>
             <View style={styles.monthNav}>
@@ -385,6 +391,18 @@ export default function FinanceScreen() {
 
           {/* Cumulative net, with the monthly income goal marked */}
           <FinanceChart month={monthDate} transactions={transactions} goals={goals} goalCategories={goalCategories} onSetGoal={() => navigation.navigate('Goals')} />
+
+          {/* How much of this month to set aside — one line, under the numbers it is computed from. */}
+          <InvestmentRow
+            month={monthDate}
+            transactions={transactions}
+            loading={loading}
+            categories={categories}
+            addCategory={addCategory}
+            addTransaction={addTransaction}
+            deleteTransaction={deleteTransaction}
+            restoreTransaction={restoreTransaction}
+          />
 
           {/* Recurring templates */}
           <Card contentStyle={styles.rec}>
@@ -450,7 +468,7 @@ export default function FinanceScreen() {
         </ScrollView>
       )}
 
-      <AddTransactionModal open={adding} clients={clients} members={members} groups={groups} onClose={() => setAdding(false)} onSave={addAndGoToMonth} onAddCategory={addCategoryAndRefresh} />
+      <AddTransactionModal open={adding} clients={clients} members={members} groups={groups} transactions={transactions} onIssued={() => refetch(true)} onClose={() => setAdding(false)} onSave={addAndGoToMonth} onAddCategory={addCategoryAndRefresh} />
       <AddTransactionModal
         open={!!editing}
         tx={editing}
@@ -458,6 +476,8 @@ export default function FinanceScreen() {
         members={members}
         groups={groups}
         categories={categories}
+        transactions={transactions}
+        onIssued={() => refetch(true)}
         onClose={() => setEditing(null)}
         onSave={(patch) => updateTransaction(editing.id, patch)}
         onDelete={() => confirmDeleteTx(editing, () => setEditing(null))}

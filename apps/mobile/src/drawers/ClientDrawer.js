@@ -473,6 +473,8 @@ export default function ClientDrawer({ clientId, clients, transactions, sessions
         members={members}
         groups={groups}
         defaults={payDefaults || { client_id: clientId, type: 'income' }}
+        transactions={transactions}
+        onIssued={onDataChanged}
         onClose={() => { setPayDefaults(null); setPaying(false) }}
         onSave={addTransaction}
       />
@@ -552,6 +554,8 @@ export default function ClientDrawer({ clientId, clients, transactions, sessions
         clients={clients}
         members={members}
         groups={groups}
+        transactions={transactions}
+        onIssued={onDataChanged}
         onClose={() => setEditTx(null)}
         onSave={(payload) => updateTransaction(editTx.id, payload)}
         onDelete={() => confirmRemoveTransaction({

@@ -250,6 +250,7 @@
     "cancel": "Cancel",
     "saving": "Saving…",
     "save": "Save",
+    "saveFailed": "Couldn't save the schedule. Please try again.",
     "weekdays": {
       "0": "Sun",
       "1": "Mon",

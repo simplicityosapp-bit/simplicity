@@ -2,6 +2,7 @@ import { useCallback } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { listUserQuestions, insertUserQuestion, updateUserQuestion, removeUserQuestion as apiRemove, restoreUserQuestion } from '../lib/api/userQuestions'
 import { pushUndo } from '../lib/undo'
+import i18n from '@simplicity/core/i18n'
 import { revertWrite } from '../lib/revertWrite'
 
 /* React-Query-backed so every surface that reads daily questions shares ONE
@@ -50,7 +51,7 @@ export function useUserQuestions() {
     try {
       await apiRemove(id)
       if (row) pushUndo({
-        label: 'השאלה נמחקה',
+        label: i18n.t('components:undo.deleted.question'),
         undo: async () => {
           qc.setQueryData(KEY, (prev) => [row, ...(prev ?? []).filter((r) => r.id !== id)])
           try { await restoreUserQuestion(id) } finally { qc.invalidateQueries({ queryKey: KEY }) }

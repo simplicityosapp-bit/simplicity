@@ -9,7 +9,7 @@ import ConfirmModal from '../../modals/ConfirmModal'
 import {
   questionText, isQuestionDueToday, fmtShortDate,
   averageForWindow, deltaVsPrevWindow, trendPoints, heatmapWeeks,
-  mirrorReflections, indexAnswers, ymdKey,
+  mirrorReflections, indexAnswers, ymdKey, skippedQuestionIds,
 } from '@simplicity/core'
 import { useT } from '../../i18n/useT'
 import './InsightsScreen.css'
@@ -241,10 +241,7 @@ export default function InsightsScreen() {
   /* Per-day skip set (beta 07/06/2026). Stored as a single-day object in
      prefs JSONB ({date, ids}) so it auto-expires next day and never grows —
      no migration. Skipping writes NO answer, so streak/averages are untouched. */
-  const skippedToday = useMemo(() => {
-    const s = prefs?.insSkipped
-    return (s && s.date === todayKey && Array.isArray(s.ids)) ? s.ids : []
-  }, [prefs?.insSkipped, todayKey])
+  const skippedToday = useMemo(() => skippedQuestionIds(prefs?.insSkipped, todayKey), [prefs?.insSkipped, todayKey])
   const skippedSet = useMemo(() => new Set(skippedToday), [skippedToday])
 
   /* Skipping a question moved to the home "מה איתך היום" widget (beta

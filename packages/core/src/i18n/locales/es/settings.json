@@ -250,6 +250,7 @@
     "cancel": "Cancelar",
     "saving": "Guardando…",
     "save": "Guardar",
+    "saveFailed": "No se pudo guardar la programación. Inténtalo de nuevo.",
     "weekdays": {
       "0": "Dom",
       "1": "Lun",

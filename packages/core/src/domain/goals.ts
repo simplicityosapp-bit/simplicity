@@ -97,6 +97,26 @@ export function buildSchedulePattern(mode?: string, days?: number[], x?: string 
   return null
 }
 
+/* What a WRITE should store. user_questions.schedule_pattern is NOT NULL, so
+   "every day" is `{}` there (read as every day everywhere) — never null, which
+   the database refuses. */
+export function questionSchedulePattern(mode?: string, days?: number[], x?: string | number): SchedulePattern | Record<string, never> {
+  return buildSchedulePattern(mode, days, x) ?? {}
+}
+
+/* A stored pattern back into the editor's state (mode + weekdays + interval).
+   Anything unrecognised — null, {}, all seven days, every 1 day — is every day. */
+export function scheduleFromPattern(p: SchedulePattern | null | undefined): { mode: 'every_day' | 'days_of_week' | 'every_x_days'; days: number[]; x: number } {
+  const all = [0, 1, 2, 3, 4, 5, 6]
+  if (p && p.type === 'days_of_week' && Array.isArray(p.values) && p.values.length && p.values.length < 7) {
+    return { mode: 'days_of_week', days: p.values.slice(), x: 2 }
+  }
+  if (p && p.type === 'every_x_days' && (Number(p.x) || 1) > 1) {
+    return { mode: 'every_x_days', days: all, x: Number(p.x) }
+  }
+  return { mode: 'every_day', days: all, x: 2 }
+}
+
 /* Scored goals grouped by their category (only categories that have goals).
    `data` forwards real Supabase rows to the scoring engine; omitted → mock. */
 /* The goals screen is the RECORD, so unlike every other reader of the score

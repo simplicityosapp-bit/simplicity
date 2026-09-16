@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { questionSchedulePattern } from '@simplicity/core'
 import { useT } from '../../i18n/useT'
 import { Box, Txt, Btn, Input } from '../../components/ui'
 
@@ -39,27 +40,29 @@ export default function QuestionScheduleEditor({ question, onClose, onUpdate }) 
     return 2
   })
   const [busy, setBusy] = useState(false)
+  const [failed, setFailed] = useState(false)
 
   const toggleDay = (k) => {
     setDays((prev) => prev.includes(k) ? prev.filter((d) => d !== k) : [...prev, k])
   }
 
   const submit = async () => {
-    let nextPattern = null
-    if (mode === 'days_of_week') {
-      const v = days.slice().sort((a, b) => a - b)
-      nextPattern = v.length === 7 || v.length === 0 ? null : { type: 'days_of_week', values: v }
-    } else if (mode === 'every_x_days') {
-      /* The user explicitly chose "every X days", so floor at 2 (X=1 is
-         just "every day" and has its own mode). A blank/invalid field
-         normalises to 2 rather than silently flipping to every-day. */
-      const xi = Math.max(2, Math.min(30, parseInt(x, 10) || 2))
-      nextPattern = { type: 'every_x_days', x: xi }
-    }
+    /* The user explicitly chose "every X days", so floor at 2 (X=1 is just
+       "every day" and has its own mode). A blank/invalid field normalises to 2
+       rather than silently flipping to every-day. */
+    const xi = Math.max(2, Math.min(30, parseInt(x, 10) || 2))
+    /* "Every day" is {} — never null. schedule_pattern is NOT NULL, so the null
+       this used to send was refused: choosing "every day" for a question that
+       had specific days could not be saved, and with no catch the editor just
+       sat there. */
+    const nextPattern = questionSchedulePattern(mode, days, xi)
     setBusy(true)
+    setFailed(false)
     try {
       await onUpdate(question.id, { schedule_pattern: nextPattern })
       onClose()
+    } catch {
+      setFailed(true)
     } finally {
       setBusy(false)
     }
@@ -105,6 +108,7 @@ export default function QuestionScheduleEditor({ question, onClose, onUpdate }) 
         </Box>
       )}
 
+      {failed && <Txt as="p" className="m-error" role="alert">{t('schedule.saveFailed')}</Txt>}
       <Box className="qs-actions">
         <Btn type="button" className="qs-cancel" onClick={onClose} disabled={busy}>{t('schedule.cancel')}</Btn>
         <Btn type="button" className="qs-save" onClick={submit} disabled={busy}>{busy ? t('schedule.saving') : t('schedule.save')}</Btn>

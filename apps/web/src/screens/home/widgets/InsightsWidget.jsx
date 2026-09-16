@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Sparkles, Check, Bell, SkipForward } from 'lucide-react'
 import { ROUTES } from '../../../lib/routes'
-import { questionText, isQuestionDueToday } from '@simplicity/core'
+import { questionText, isQuestionDueToday, skippedQuestionIds, isQuestionReminderDue } from '@simplicity/core'
 import { useUserQuestions } from '../../../hooks/useUserQuestions'
 import { useDailyAnswers } from '../../../hooks/useDailyAnswers'
 import { useUserPreferences } from '../../../hooks/useUserPreferences'
@@ -48,10 +48,7 @@ export default function InsightsWidget() {
   /* Per-day skip set — shares prefs.insSkipped with the "מה איתך היום"
      screen (identical {date, ids} shape + local ymd key). A question skipped
      here is skipped there too and vice-versa; it auto-expires next day. */
-  const skippedToday = useMemo(() => {
-    const s = prefs?.insSkipped
-    return (s && s.date === today && Array.isArray(s.ids)) ? s.ids : []
-  }, [prefs?.insSkipped, today])
+  const skippedToday = useMemo(() => skippedQuestionIds(prefs?.insSkipped, today), [prefs?.insSkipped, today])
   const skippedSet = useMemo(() => new Set(skippedToday), [skippedToday])
   /* "Due today" combines `active` with the per-question
      schedule_pattern (days-of-week / every-X-days). Null pattern
@@ -69,12 +66,7 @@ export default function InsightsWidget() {
      the chosen time has passed but a question is still unanswered, show a
      gentle nudge right where they'd answer it (no push, no permissions). */
   const reminder = prefs?.insightsReminder
-  const isOverdue = useMemo(() => {
-    if (!reminder?.enabled || !q) return false
-    const [h, m] = String(reminder.time || '20:00').split(':').map((n) => parseInt(n, 10) || 0)
-    const now = new Date()
-    return now.getHours() > h || (now.getHours() === h && now.getMinutes() >= m)
-  }, [reminder, q])
+  const isOverdue = useMemo(() => !!q && isQuestionReminderDue(reminder), [reminder, q])
 
   /* The slider renders at 5 while `val` is still null (nothing touched yet).
      Saving used to be gated on `val != null`, so answering the honest value 5

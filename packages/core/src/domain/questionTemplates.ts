@@ -92,3 +92,17 @@ export function describeSchedule(question: DailyQuestion | null | undefined): st
   }
   return i18n.t('questions:schedule.everyDay')
 }
+
+/* Today's skipped questions (prefs.insSkipped = { date, ids }). A skip writes
+   no answer and lapses at midnight: a set stamped with another day is empty. */
+export function skippedQuestionIds(skipped: { date?: string; ids?: unknown } | null | undefined, todayKey: string): string[] {
+  return skipped && skipped.date === todayKey && Array.isArray(skipped.ids) ? (skipped.ids as string[]) : []
+}
+
+/* The in-app daily reminder (prefs.insightsReminder = { enabled, time }): due
+   once its time of day has passed. No push — a nudge where the question sits. */
+export function isQuestionReminderDue(reminder: { enabled?: boolean; time?: string } | null | undefined, now: Date = new Date()): boolean {
+  if (!reminder?.enabled) return false
+  const [h, m] = String(reminder.time || '20:00').split(':').map((n) => parseInt(n, 10) || 0)
+  return now.getHours() > h || (now.getHours() === h && now.getMinutes() >= m)
+}

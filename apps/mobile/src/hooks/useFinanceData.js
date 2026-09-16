@@ -7,11 +7,18 @@ import { softDeleteLinkedInvestments, restoreLinkedInvestments } from '../lib/li
 export const CATEGORY_COLORS = ['#C97B5E', '#8BA888', '#D4A574', '#5a6a8c', '#b8845e', '#7a9b8e', '#b56e8a', '#6a8caf']
 
 // Transactions for the finance screen. Core financeQuery/monthNet derive the
-// month view; RLS scopes rows to the user.
+// month view; RLS scopes rows to the user. Also the group memberships a payment
+// can be "for" (the add/edit form's "עבור מה?"), and the goals the net chart
+// marks the monthly income goal from. Those three are extras — a failed read
+// leaves them empty rather than failing the screen.
 export function useFinanceData() {
   const [transactions, setTransactions] = useState([])
   const [clients, setClients] = useState([])
   const [categories, setCategories] = useState([])
+  const [members, setMembers] = useState([])
+  const [groups, setGroups] = useState([])
+  const [goals, setGoals] = useState([])
+  const [goalCategories, setGoalCategories] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
@@ -20,11 +27,18 @@ export function useFinanceData() {
     if (!silent) setError(null)
     try {
       const fetch = (t) => selectAll(() => supabase.from(t).select('*').is('deleted_at', null))
-      const [tx, cl, cat] = await Promise.all([fetch('transactions'), fetch('clients'), fetch('categories')])
+      const [tx, cl, cat, mem, grp, gl, gcat] = await Promise.all([
+        fetch('transactions'), fetch('clients'), fetch('categories'),
+        fetch('group_members'), fetch('groups'), fetch('goals'), fetch('goal_categories'),
+      ])
       if (tx.error) throw tx.error
       setTransactions(tx.data ?? [])
       setClients(cl.data ?? [])
       setCategories(cat.data ?? [])
+      setMembers(mem.data ?? [])
+      setGroups(grp.data ?? [])
+      setGoals(gl.data ?? [])
+      setGoalCategories(gcat.data ?? [])
     } catch (e) {
       if (!silent) setError(e?.message || 'load failed')
     } finally {
@@ -97,5 +111,5 @@ export function useFinanceData() {
     return data ?? []
   }, [])
 
-  return { transactions, clients, categories, loading, error, refetch: load, addTransaction, updateTransaction, deleteTransaction, restoreTransaction, setStatus, addCategory, removeCategory, loadMeetings }
+  return { transactions, clients, categories, members, groups, goals, goalCategories, loading, error, refetch: load, addTransaction, updateTransaction, deleteTransaction, restoreTransaction, setStatus, addCategory, removeCategory, loadMeetings }
 }

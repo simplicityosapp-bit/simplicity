@@ -4,7 +4,7 @@ import { Text, TextInput } from '../components/Text'
 import DateField from '../components/DateField'
 import { Pressable } from '../components/Pressable'
 import { Trash2 } from 'lucide-react-native'
-import { PAY_METHODS, payMethodLabel } from '@simplicity/core'
+import { PAY_METHODS, payMethodLabel, clientPaymentTargets } from '@simplicity/core'
 import Sheet from '../components/Sheet'
 import Select from '../components/Select'
 import { useFormOptions } from '../lib/formOptions'
@@ -14,9 +14,9 @@ import { colors } from '../theme/theme'
 import { themed } from '../theme/themed'
 
 // Add/edit a transaction (mirrors web AddTransactionModal: income/expense +
-// amount + date + description + client/category/payment-method selects). Pass a
-// `tx` to edit. Invoice-issuing is a later increment; onSave gets a
-// transactions-ready payload.
+// amount + date + description + client / "paid for" / category / payment-method
+// selects). Pass a `tx` to edit. Invoice-issuing is a later increment; onSave
+// gets a transactions-ready payload.
 const todayStr = () => {
   const d = new Date()
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
@@ -28,6 +28,7 @@ const blank = (tx, defaults = {}) => ({
   date: tx?.date ? String(tx.date).slice(0, 10) : todayStr(),
   status: tx?.status || 'confirmed',
   client_id: tx?.client_id || defaults.client_id || '',
+  group_id: tx?.group_id || defaults.group_id || '',
   project_id: tx?.project_id || defaults.project_id || '',
   category_id: tx?.category_id || '',
   payment_method: tx?.payment_method || '',
@@ -36,10 +37,16 @@ const blank = (tx, defaults = {}) => ({
 // on create the status is derived from the date (future → pending, else confirmed).
 const STATUS_KEYS = ['confirmed', 'pending', 'skipped']
 
-export default function AddTransactionModal({ open, onClose, onSave, onDelete, tx = null, clients: propClients = [], defaults = {}, onAddCategory }) {
+/* `members` / `groups` feed "עבור מה?" — which of a client's tracks a payment
+   was for (transactions.group_id, migration 0115; core clientBalance splits the
+   money by it). Callers that know a client's memberships pass them; without
+   them the field never shows, exactly as it never shows for a client with a
+   single track. */
+export default function AddTransactionModal({ open, onClose, onSave, onDelete, tx = null, clients: propClients = [], members = [], groups: propGroups, defaults = {}, onAddCategory }) {
   const isEdit = !!tx
-  const { clients: optClients, categories, projects = [] } = useFormOptions() // categories = the FINANCE `categories` table (expense tags)
+  const { clients: optClients, categories, projects = [], groups: optGroups = [] } = useFormOptions() // categories = the FINANCE `categories` table (expense tags)
   const clients = propClients.length ? propClients : optClients
+  const groups = propGroups || optGroups
   const [form, setForm] = useState(() => blank(tx, defaults))
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
@@ -47,7 +54,14 @@ export default function AddTransactionModal({ open, onClose, onSave, onDelete, t
   const [creatingCat, setCreatingCat] = useState(false)
   const [newCatName, setNewCatName] = useState('')
   const [catBusy, setCatBusy] = useState(false)
-  const set = (k, v) => setForm((f) => ({ ...f, [k]: v }))
+  /* What a payment was for belongs to the client and to income: another client,
+     or turning it into an expense, drops the attribution — otherwise a payment
+     re-assigned elsewhere kept counting toward the old client's group dues. */
+  const set = (k, v) => setForm((f) => {
+    const next = { ...f, [k]: v }
+    if ((k === 'client_id' && v !== f.client_id) || (k === 'type' && v !== 'income')) next.group_id = ''
+    return next
+  })
   useEffect(() => { if (open) { setForm(blank(tx, defaults)); setErr(''); setBusy(false); setCreatingCat(false); setNewCatName(''); setCatBusy(false) } }, [open, tx]) // eslint-disable-line react-hooks/exhaustive-deps
 
   // Creating a category selects it immediately, so the user never leaves the modal.
@@ -71,6 +85,14 @@ export default function AddTransactionModal({ open, onClose, onSave, onDelete, t
     try { await onDelete(); close() } catch (e) { setBusy(false); setErr(i18n.t('modalsData:common.saveFailed', { error: e.message || i18n.t('modalsData:common.tryAgain') })) }
   }
 
+  /* The tracks this client's money could be going to (core clientPaymentTargets).
+     Empty — and the field never renders — for anyone with only one. */
+  const payForClient = form.client_id ? clients.find((c) => c.id === form.client_id) : null
+  const payFor = clientPaymentTargets(payForClient, members, groups)
+  const payForOptions = payFor.map((o) => (o.kind === 'personal'
+    ? { value: '', label: i18n.t('modalsData:tx.paidForPersonal') }
+    : { value: o.id, label: o.name }))
+
   const submit = async () => {
     const amount = parseFloat(form.amount)
     if (!amount || amount <= 0) { setErr(i18n.t('modalsData:common.amountPositive')); return }
@@ -86,17 +108,14 @@ export default function AddTransactionModal({ open, onClose, onSave, onDelete, t
       const categoryId = form.type === 'expense' ? (form.category_id || null) : null
       const paymentMethod = form.payment_method || null
       const projectId = form.project_id || null
-      /* This form has no "paid for" field, so it never sends group_id — and a
-         payment re-assigned to another client, or turned into an expense, kept
-         the old client's group and counted toward someone else's group dues.
-         Drop the attribution when what it attributed changed. */
-      const attributionStale = isEdit && (clientId !== (tx.client_id || null) || form.type !== 'income')
+      // Same write as web: only income is ever "for" a track.
+      const groupId = form.type === 'income' ? (form.group_id || null) : null
       const payload = isEdit
-        ? { amount, type: form.type, desc, date: form.date, status: form.status, client_id: clientId, project_id: projectId, category_id: categoryId, payment_method: paymentMethod, ...(attributionStale ? { group_id: null } : {}) }
+        ? { amount, type: form.type, desc, date: form.date, status: form.status, client_id: clientId, group_id: groupId, project_id: projectId, category_id: categoryId, payment_method: paymentMethod }
         : {
           amount, type: form.type, desc, date: form.date,
           status: isFuture ? 'pending' : 'confirmed',
-          project_id: projectId, client_id: clientId, category_id: categoryId,
+          project_id: projectId, client_id: clientId, group_id: groupId, category_id: categoryId,
           payment_method: paymentMethod, recurring_id: null, orphaned_from: null,
         }
       await onSave(payload)
@@ -130,6 +149,7 @@ export default function AddTransactionModal({ open, onClose, onSave, onDelete, t
             placeholder="0"
             placeholderTextColor={colors.textFaint}
             keyboardType="numeric"
+            accessibilityLabel={i18n.t('modalsData:common.amount')}
           />
         </View>
         <View style={styles.fieldFlex}>
@@ -151,6 +171,16 @@ export default function AddTransactionModal({ open, onClose, onSave, onDelete, t
         placeholder={i18n.t('modalsData:common.none')}
         options={[{ value: '', label: i18n.t('modalsData:common.none') }, ...clients.map((c) => ({ value: c.id, label: c.name || '' }))]}
       />
+      {/* What the payment was for — right under the client it belongs to, and
+          only when that client has more than one track to pay toward. */}
+      {payFor.length > 0 && form.type === 'income' ? (
+        <Select
+          label={i18n.t('modalsData:tx.paidFor')}
+          value={form.group_id}
+          onChange={(v) => set('group_id', v)}
+          options={payForOptions}
+        />
+      ) : null}
       {projects.length ? (
         <Select
           label={i18n.t('modalsData:common.project')}

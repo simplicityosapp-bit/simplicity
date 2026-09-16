@@ -1,10 +1,11 @@
 import { useMemo, useState, useCallback, useRef, useEffect } from 'react'
-import { View, StyleSheet, ScrollView, ActivityIndicator, RefreshControl, Share, Alert, I18nManager } from 'react-native'
-import { Text } from '../components/Text'
+import { View, StyleSheet, ScrollView, ActivityIndicator, RefreshControl, Share, Alert, I18nManager, Linking } from 'react-native'
+import { Text, TextInput } from '../components/Text'
 import { Pressable } from '../components/Pressable'
-import { useFocusEffect } from '@react-navigation/native'
-import { ChevronLeft, ChevronRight, FolderOpen, Tag, Check, SkipForward, Settings2, Repeat, Pause, Play, Pencil, Trash2, Download, ArrowUp, ArrowDown, TrendingUp, TrendingDown } from 'lucide-react-native'
-import { monthNet, describeCadence, isr, fmtShortDate, fmtMonthYear, payMethodLabel } from '@simplicity/core'
+import { useFocusEffect, useNavigation } from '@react-navigation/native'
+import { ChevronLeft, ChevronRight, FolderOpen, Tag, Check, SkipForward, Settings2, Repeat, Pause, Play, Pencil, Trash2, Download, ArrowUp, ArrowDown, TrendingUp, TrendingDown, Search, X, MessageCircle } from 'lucide-react-native'
+import { monthNet, describeCadence, isr, fmtShortDate, fmtMonthYear, payMethodLabel, searchTransactions, waLink, normalizeIsraeliPhone } from '@simplicity/core'
+import { useWhatsAppMessage } from '../hooks/useWhatsAppMessage'
 import i18n from '../lib/i18n'
 import { csvCell } from '../lib/csv'
 import Screen from '../components/Screen'
@@ -36,7 +37,9 @@ const isConfirmed = (t) => t.status === 'confirmed' && !t.invoice_credited_at
 // increment.)
 export default function FinanceScreen() {
   const bottomPad = useBottomPad()
-  const { transactions, clients, categories, loading, error, refetch, addTransaction, updateTransaction, deleteTransaction, restoreTransaction, setStatus, addCategory, removeCategory, loadMeetings } = useFinanceData()
+  const { transactions, clients, categories, members, groups, goals, goalCategories, loading, error, refetch, addTransaction, updateTransaction, deleteTransaction, restoreTransaction, setStatus, addCategory, removeCategory, loadMeetings } = useFinanceData()
+  const navigation = useNavigation()
+  const waMsg = useWhatsAppMessage()
   const { projects, refetch: refetchFormOptions } = useFormOptions()
   // Inline category creation from the add-transaction modal: create + refresh the
   // shared lookup so the new category shows in the picker (mirrors web onCreateCategory).
@@ -71,6 +74,12 @@ export default function FinanceScreen() {
   const [addRec, setAddRec] = useState(false)
   const [editRec, setEditRec] = useState(null)
   const [monthOffset, setMonthOffset] = useState(0)
+  /* Search (web TransactionSearch). Typing leaves month scope — "what has Dana
+     paid me" should not need the month guessed first; a type chip on its own
+     only narrows the month on screen. */
+  const [query, setQuery] = useState('')
+  const [txType, setTxType] = useState('all')
+  const [approvingAll, setApprovingAll] = useState(false)
   const now = new Date()
   const monthDate = useMemo(() => new Date(now.getFullYear(), now.getMonth() + monthOffset, 1), [monthOffset]) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -121,10 +130,18 @@ export default function FinanceScreen() {
   // Pending rows live in their own approval section (`pending` above) — exclude
   // them here so they aren't ALSO shown in the main list, mislabeled as confirmed
   // (mirrors web TransactionList: status !== 'pending' && (showSkipped || !skipped)).
-  const listTx = useMemo(
-    () => monthTxs.filter((t) => t.status !== 'pending' && (showSkipped || t.status !== 'skipped')).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()),
-    [monthTxs, showSkipped],
+  const searching = query.trim().length > 0
+  const searchRows = useMemo(
+    () => searchTransactions(searching ? transactions : monthTxs, { query, type: txType, clients, projects, categories }),
+    [searching, transactions, monthTxs, query, txType, clients, projects, categories],
   )
+  /* A search result is shown whatever its status — the pending section and the
+     skipped toggle belong to the month view, which a search has left. */
+  const listTx = useMemo(
+    () => (searching ? searchRows : searchRows.filter((t) => t.status !== 'pending' && (showSkipped || t.status !== 'skipped'))),
+    [searching, searchRows, showSkipped],
+  )
+  const clearSearch = () => { setQuery(''); setTxType('all') }
 
   // Income by project (confirmed income; project_id or client's project).
   const incomeRows = useMemo(() => {
@@ -173,7 +190,39 @@ export default function FinanceScreen() {
   // Bulk-approve every pending row (sequential so optimistic setStatus updates
   // don't trample each other), mirroring web PendingSection.approveAll.
   const approveAllPending = async () => {
-    for (const t of pending) { await Promise.resolve(setStatus(t.id, 'confirmed')).catch(() => {}) }
+    if (approvingAll) return
+    setApprovingAll(true)
+    try {
+      for (const t of pending) { await Promise.resolve(setStatus(t.id, 'confirmed')).catch(() => {}) }
+    } finally { setApprovingAll(false) }
+  }
+  const pendingIncome = pending.filter((t) => t.type === 'income').reduce((s, t) => s + Number(t.amount || 0), 0)
+  const pendingExpense = pending.filter((t) => t.type === 'expense').reduce((s, t) => s + Number(t.amount || 0), 0)
+  const pendingTotals = [
+    pendingIncome > 0 ? i18n.t('finance:pending.income', { amount: isr(pendingIncome) }) : null,
+    pendingExpense > 0 ? i18n.t('finance:pending.expenses', { amount: isr(pendingExpense) }) : null,
+  ].filter(Boolean).join(' · ')
+  /* "אישור הכל" confirms income and expenses alike with no bulk undo, so it
+     says what it is about to do first — the count and both totals. It used
+     to approve on one tap, a month of expenses included. */
+  const confirmApproveAll = () => Alert.alert(
+    i18n.t('finance:pending.approveAllConfirm.title'),
+    i18n.t('finance:pending.approveAllConfirm.message', { count: pending.length, totals: pendingTotals }),
+    [
+      { text: i18n.t('modalsData:common.cancel', { defaultValue: 'ביטול' }), style: 'cancel' },
+      { text: i18n.t('finance:pending.approveAllConfirm.confirm'), onPress: approveAllPending },
+    ],
+  )
+
+  /* A receipt that was issued (and not credited) can go to the client over
+     WhatsApp with its link, in the coach's receipt template (web TransactionCard). */
+  const clientRowById = useMemo(() => new Map(clients.map((c) => [c.id, c])), [clients])
+  const sendReceipt = (t) => {
+    const client = t.client_id ? clientRowById.get(t.client_id) : null
+    const name = client?.name || t.recipient_name || ''
+    const phone = client?.phone || t.recipient_phone || ''
+    const message = waMsg(name ? 'receipt' : 'receiptNoName', { name, number: t.invoice_document_number, url: t.invoice_document_url })
+    Linking.openURL(waLink(normalizeIsraeliPhone(phone) ? phone : '', message)).catch(() => {})
   }
 
   // Manual RTL flip for the LTR-engine Hebrew state (no-op on a real RTL device).
@@ -195,7 +244,14 @@ export default function FinanceScreen() {
             <Pressable accessibilityLabel={i18n.t('modalsData:editTx.delete')} style={styles.skip} onPress={() => confirmDeleteTx(t)} hitSlop={6}><Trash2 size={15} strokeWidth={1.8} color={colors.danger} /></Pressable>
           </View>
         ) : (
-          <Text style={[styles.amount, { color: income ? colors.positive : colors.textSub }, t.invoice_credited_at && styles.creditedAmount]}>{income ? '+' : '−'}{isr(t.amount)}</Text>
+          <>
+            {t.invoice_document_url && !t.invoice_credited_at ? (
+              <Pressable accessibilityLabel={i18n.t('finance:tx.sendReceipt', { defaultValue: 'WhatsApp' })} style={styles.skip} onPress={() => sendReceipt(t)} hitSlop={6}>
+                <MessageCircle size={15} strokeWidth={1.8} color={colors.positive} />
+              </Pressable>
+            ) : null}
+            <Text style={[styles.amount, { color: income ? colors.positive : colors.textSub }, t.invoice_credited_at && styles.creditedAmount]}>{income ? '+' : '−'}{isr(t.amount)}</Text>
+          </>
         )}
       </View>
     )
@@ -219,22 +275,68 @@ export default function FinanceScreen() {
           {error ? <Text style={styles.error}>{error}</Text> : null}
 
           {/* Export CSV */}
-          {monthTxs.length ? (
+          {monthTxs.length && !searching ? (
             <GlassPressable radius={999} style={styles.exportBtn} onPress={exportCsv}>
               <Download size={13} strokeWidth={1.8} color={colors.textSub} />
               <Text style={styles.exportText}>{i18n.t('finance:exportCsv', { defaultValue: 'ייצוא CSV' })}</Text>
             </GlassPressable>
           ) : null}
 
+          {/* Search + type chips. The phone had no way to find a transaction
+              outside the month on screen. */}
+          <View style={styles.searchWrap}>
+            <View style={[styles.searchRow, flip && styles.rowFlip]}>
+              <Search size={15} strokeWidth={1.8} color={colors.textFaint} />
+              <TextInput
+                style={[styles.searchInput, { textAlign: rowAlign }]}
+                value={query}
+                onChangeText={setQuery}
+                placeholder={i18n.t('finance:search.placeholder')}
+                placeholderTextColor={colors.textFaint}
+                accessibilityLabel={i18n.t('finance:search.ariaLabel')}
+                returnKeyType="search"
+              />
+              {query ? (
+                <Pressable onPress={() => setQuery('')} hitSlop={8} accessibilityLabel={i18n.t('finance:search.clearText')}>
+                  <X size={14} strokeWidth={2} color={colors.textSub} />
+                </Pressable>
+              ) : null}
+            </View>
+            <View style={[styles.chips, flip && styles.rowFlip]} accessibilityLabel={i18n.t('finance:search.typeGroupAria')}>
+              {[['all', 'typeAll'], ['income', 'typeIncome'], ['expense', 'typeExpense']].map(([k, label]) => {
+                const on = txType === k
+                return (
+                  <Pressable key={k} style={[styles.chip, on && styles.chipOn]} onPress={() => setTxType(k)} accessibilityState={{ selected: on }}>
+                    <Text style={[styles.chipText, on && styles.chipTextOn]}>{i18n.t(`finance:search.${label}`)}</Text>
+                  </Pressable>
+                )
+              })}
+            </View>
+            {/* The list stops being "this month" once a query is typed — saying
+                so, and offering the way back, is what makes that safe. */}
+            {searching ? (
+              <View style={[styles.searchNote, flip && styles.rowFlip]}>
+                <Text style={styles.searchNoteText}>{i18n.t('finance:search.resultsAcrossTime', { count: listTx.length })}</Text>
+                <Pressable onPress={clearSearch} hitSlop={6} accessibilityRole="button">
+                  <Text style={styles.searchBack}>{i18n.t('finance:search.backToMonth', { month: fmtMonthYear(monthDate) })}</Text>
+                </Pressable>
+              </View>
+            ) : null}
+          </View>
+
+          {searching ? null : (<>
           {/* Pending approval */}
           {pending.length ? (
             <View style={styles.section}>
               <View style={styles.pendingHead}>
-                <Text style={styles.sectionTitle}>{i18n.t('finance:pending.count', { count: pending.length })}</Text>
+                <View style={styles.pendingId}>
+                  <Text style={styles.sectionTitle}>{i18n.t('finance:pending.count', { count: pending.length })}</Text>
+                  {pendingTotals ? <Text style={styles.pendingSub}>{pendingTotals}</Text> : null}
+                </View>
                 {pending.length > 1 ? (
-                  <Pressable style={styles.bulkBtn} onPress={approveAllPending} hitSlop={6}>
+                  <Pressable style={styles.bulkBtn} onPress={confirmApproveAll} disabled={approvingAll} hitSlop={6} accessibilityRole="button">
                     <Check size={13} strokeWidth={2} color={colors.positive} />
-                    <Text style={styles.bulkText}>{i18n.t('finance:pending.approveAll', { defaultValue: 'אשר הכל' })}</Text>
+                    <Text style={styles.bulkText}>{approvingAll ? i18n.t('finance:pending.approving') : i18n.t('finance:pending.approveAll', { defaultValue: 'אשר הכל' })}</Text>
                   </Pressable>
                 ) : null}
               </View>
@@ -281,8 +383,8 @@ export default function FinanceScreen() {
             </View>
           </Card>
 
-          {/* Income-pace chart */}
-          <FinanceChart month={monthDate} transactions={transactions} />
+          {/* Cumulative net, with the monthly income goal marked */}
+          <FinanceChart month={monthDate} transactions={transactions} goals={goals} goalCategories={goalCategories} onSetGoal={() => navigation.navigate('Goals')} />
 
           {/* Recurring templates */}
           <Card contentStyle={styles.rec}>
@@ -333,21 +435,28 @@ export default function FinanceScreen() {
               </Text>
             </GlassPressable>
           ) : null}
+          </>)}
 
           {/* Transactions */}
           {listTx.length ? (
             <Card padded={false}>{listTx.map((t, i) => renderRow(t, i))}</Card>
           ) : (
-            <Text style={styles.empty}>{i18n.t('finance:list.empty', { defaultValue: '—' })}</Text>
+            <Text style={styles.empty}>
+              {searching
+                ? i18n.t('finance:search.noResults', { query: query.trim() })
+                : txType !== 'all' ? i18n.t('finance:search.noneOfType') : i18n.t('finance:list.empty', { defaultValue: '—' })}
+            </Text>
           )}
         </ScrollView>
       )}
 
-      <AddTransactionModal open={adding} clients={clients} onClose={() => setAdding(false)} onSave={addAndGoToMonth} onAddCategory={addCategoryAndRefresh} />
+      <AddTransactionModal open={adding} clients={clients} members={members} groups={groups} onClose={() => setAdding(false)} onSave={addAndGoToMonth} onAddCategory={addCategoryAndRefresh} />
       <AddTransactionModal
         open={!!editing}
         tx={editing}
         clients={clients}
+        members={members}
+        groups={groups}
         categories={categories}
         onClose={() => setEditing(null)}
         onSave={(patch) => updateTransaction(editing.id, patch)}
@@ -418,6 +527,19 @@ const styles = themed((c, t) => ({
   section: { gap: 8 },
   sectionTitle: { fontSize: 14, fontWeight: '600', color: c.textSub },
   pendingHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 10 },
+  pendingId: { flex: 1, gap: 2 },
+  pendingSub: { fontSize: 12, color: c.textSub },
+  searchWrap: { gap: 8 },
+  searchRow: { flexDirection: 'row', alignItems: 'center', gap: 8, minHeight: 44, paddingHorizontal: 12, borderRadius: 14, borderWidth: 1, borderColor: c.border, backgroundColor: c.card },
+  searchInput: { flex: 1, fontSize: 14, color: c.text, paddingVertical: 8 },
+  chips: { flexDirection: 'row', gap: 8 },
+  chip: { minHeight: 36, justifyContent: 'center', paddingHorizontal: 14, borderRadius: 999, borderWidth: 1, borderColor: c.border, backgroundColor: c.cardFlat },
+  chipOn: { backgroundColor: c.brand, borderColor: c.brand },
+  chipText: { fontSize: 12, color: c.textSub },
+  chipTextOn: { color: c.onBrand, fontWeight: '600' },
+  searchNote: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8, flexWrap: 'wrap' },
+  searchNoteText: { fontSize: 12, color: c.textSub },
+  searchBack: { fontSize: 12, fontWeight: '600', color: c.brand },
   bulkBtn: { minHeight: 44, flexDirection: 'row', alignItems: 'center', gap: 5, paddingVertical: 5, paddingHorizontal: 12, borderRadius: 999, borderWidth: 1, borderColor: 'rgba(139,168,136,0.4)', backgroundColor: 'rgba(139,168,136,0.10)' },
   bulkText: { fontSize: 12, fontWeight: '600', color: c.positive },
   summary: { paddingVertical: 18, paddingHorizontal: 20 },

@@ -465,8 +465,13 @@ export default function ClientDrawer({ clientId, clients, transactions, sessions
         memberships={client ? members.filter((m) => m.client_id === client.id && !m.left_at) : []}
         onUpdateMember={updateMember}
       />
+      {/* The drawer's full client rows, memberships and groups: "עבור מה?" needs
+          all three to know which of this client's tracks a payment can be for. */}
       <AddTransactionModal
         open={paying}
+        clients={clients}
+        members={members}
+        groups={groups}
         defaults={payDefaults || { client_id: clientId, type: 'income' }}
         onClose={() => { setPayDefaults(null); setPaying(false) }}
         onSave={addTransaction}
@@ -544,6 +549,9 @@ export default function ClientDrawer({ clientId, clients, transactions, sessions
       <AddTransactionModal
         open={!!editTx}
         tx={editTx}
+        clients={clients}
+        members={members}
+        groups={groups}
         onClose={() => setEditTx(null)}
         onSave={(payload) => updateTransaction(editTx.id, payload)}
         onDelete={() => confirmRemoveTransaction({

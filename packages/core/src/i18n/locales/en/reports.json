@@ -110,5 +110,6 @@
   },
   "tagline": "The numbers tell the story.",
   "exportLabel": "Export",
+  "exportHeaders": { "metric": "Metric", "change": "Change from previous month" },
   "exportAria": "Export the report to a file"
 }

@@ -250,6 +250,7 @@
     "cancel": "Annuler",
     "saving": "Enregistrement…",
     "save": "Enregistrer",
+    "saveFailed": "Impossible d'enregistrer la programmation. Réessayez.",
     "weekdays": {
       "0": "Dim",
       "1": "Lun",

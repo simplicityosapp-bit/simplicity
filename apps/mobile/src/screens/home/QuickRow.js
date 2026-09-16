@@ -11,6 +11,7 @@ import AddLeadModal from '../../modals/AddLeadModal'
 import AddProjectModal from '../../modals/AddProjectModal'
 import AddReminderModal from '../../modals/AddReminderModal'
 import AddMeetingModal from '../../modals/AddMeetingModal'
+import AddGoalModal from '../../modals/AddGoalModal'
 import i18n from '../../lib/i18n'
 import { colors } from '../../theme/theme'
 import { themed } from '../../theme/themed'
@@ -21,7 +22,7 @@ import { themed } from '../../theme/themed'
 // "עדכון יעד" used to share this row. It picked a goal CATEGORY and saved the
 // entry with no goal_id, which core counts toward every goal in the category —
 // see MoonExpansion, where logging progress now lives, per goal, as on web.
-export default function QuickRow({ clients, categories, addTask, addTransaction, addClient, addLead, addProject, addReminder, addMeeting }) {
+export default function QuickRow({ clients, categories, questions = [], addTask, addTransaction, addClient, addLead, addProject, addReminder, addMeeting, addGoal, addQuestion }) {
   const [showLauncher, setShowLauncher] = useState(false)
   const [active, setActive] = useState(null) // 'task' | 'transaction' | …
   const close = () => setActive(null)
@@ -41,6 +42,9 @@ export default function QuickRow({ clients, categories, addTask, addTransaction,
       <AddProjectModal open={active === 'project'} onClose={close} onSave={addProject} />
       <AddReminderModal open={active === 'reminder'} onClose={close} onSave={addReminder} />
       <AddMeetingModal open={active === 'meeting'} onClose={close} onSave={addMeeting} clients={clients} />
+      {addGoal ? (
+        <AddGoalModal open={active === 'goal'} onClose={close} onSave={addGoal} onAddQuestion={addQuestion ? (q) => addQuestion({ ...q, order: questions.length }) : undefined} />
+      ) : null}
     </View>
   )
 }

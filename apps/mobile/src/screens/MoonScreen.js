@@ -1,23 +1,34 @@
-import { useMemo, useState } from 'react'
-import { View, StyleSheet, ScrollView, ActivityIndicator, RefreshControl } from 'react-native'
+import { useMemo, useState, useEffect } from 'react'
+import { View, StyleSheet, ScrollView, ActivityIndicator, RefreshControl, InteractionManager } from 'react-native'
+import { BarChart3, Plus, ChevronDown, ChevronUp } from 'lucide-react-native'
 import { Text } from '../components/Text'
 import { Pressable } from '../components/Pressable'
 import { useNavigation } from '@react-navigation/native'
 import Svg, { Circle, Path, Polygon } from 'react-native-svg'
-import { moonGetData, moonGetCategories, moonTrend, moonReflection, buildOverviewCorrelations, buildOverviewTrend, OVERVIEW_METRICS, questionText } from '@simplicity/core'
+import { moonGetData, moonGetCategories, moonTrend, moonReflection, buildOverviewCorrelations, buildOverviewTrend, OVERVIEW_METRICS, questionText, mergeSnapshotTrend, moonTrendStats, readMoonOverviewKeys } from '@simplicity/core'
 import i18n from '../lib/i18n'
 import Screen from '../components/Screen'
 import ScreenHead from '../components/ScreenHead'
 import Card from '../components/Card'
 import Select from '../components/Select'
+import InfoPopover from '../components/InfoPopover'
+import AddGoalEntryModal from '../modals/AddGoalEntryModal'
+import { usePreferences } from '../hooks/usePreferences'
+import { useMoonSnapshots, useRecordMoonSnapshot } from '../hooks/useMoonSnapshots'
 import { colors } from '../theme/theme'
 import { themed } from '../theme/themed'
 import { useGoalsData } from '../hooks/useGoalsData'
 import { useBottomPad } from '../lib/bottomBar'
 
-// Moon screen ("מבט על", mirrors web moon-glance core): a confidence ring +
-// reflection, per-category pace/goal dual bars, and a 30-day trend line with
-// avg/peak/today, plus the guarded cross-module correlations (§8.2).
+// Moon screen ("מבט על", mirrors web moon-glance): a confidence ring +
+// reflection, each category with its goals' pace/goal bars (and "+" to log a
+// manual goal's progress), a 30-day trend built from the recorded daily scores
+// (moon_snapshots) over the live estimate, and — folded away until asked for —
+// the cross-module overlay and the guarded correlations.
+/* The correlations look back 120 days: their statistical gates need that many
+   to ever pass (at 30 they essentially never do). The overlay stays 30. */
+const OV_WINDOW = 30
+const CORR_WINDOW = 120
 const RING = 46
 const CIRC = 2 * Math.PI * RING
 // Metric toggles for the cross-module trend overlay (§8.1).
@@ -28,6 +39,9 @@ const OVERVIEW_PILLS = [
   { key: 'score', labelKey: 'moon:pills.score' },
   { key: 'question', labelKey: 'moon:pills.question' },
 ]
+/* Day.month for the charts' two ends — the span has to be visible for a line
+   that starts partway through to mean anything. */
+const shortDay = (d) => { const dt = d instanceof Date ? d : new Date(d); return `${dt.getDate()}.${dt.getMonth() + 1}` }
 const dayKeyOf = (d) => {
   const dt = d instanceof Date ? d : new Date(d)
   return `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, '0')}-${String(dt.getDate()).padStart(2, '0')}`
@@ -36,28 +50,37 @@ const dayKeyOf = (d) => {
 export default function MoonScreen() {
   const bottomPad = useBottomPad()
   const nav = useNavigation()
-  const { goals, categories, entries, transactions, clients, leads, answers, members, groups, sessions, questions, loading, error, refetch } = useGoalsData()
+  const { prefs, update } = usePreferences()
+  const gender = prefs?.design?.gender
+  const { goals, categories, entries, transactions, clients, leads, answers, members, groups, sessions, questions, loading, error, refetch, addEntry } = useGoalsData()
   const data = useMemo(
     () => ({ goals, categories, entries, transactions, clients, leads, answers, members, groups }),
     [goals, categories, entries, transactions, clients, leads, answers, members, groups],
   )
   const { overall } = useMemo(() => moonGetData(new Date(), data), [data])
+  // Record today's score from here too, so opening this screen alone still adds a day.
+  useRecordMoonSnapshot(overall, !loading && !error)
   const cats = useMemo(() => moonGetCategories(new Date(), data), [data])
-  const trend = useMemo(() => moonTrend(30, new Date(), data), [data])
-  // Guarded cross-module correlations (§8.2) — Spearman + permutation + FDR over a
-  // 30-day window; the common (and correct) result is an empty list.
+  const liveTrend = useMemo(() => moonTrend(30, new Date(), data), [data])
+  const snapshots = useMoonSnapshots(30)
+  /* Recorded days laid over the live estimate (core mergeSnapshotTrend) — the
+     phone drew the estimate alone, so a day's real score never showed. */
+  const trend = useMemo(() => mergeSnapshotTrend(liveTrend, snapshots), [liveTrend, snapshots])
+  const stats = moonTrendStats(trend)
+  const [entryTarget, setEntryTarget] = useState(null)
+  const [deepOpen, setDeepOpen] = useState(false)
+
   const activeQuestions = useMemo(() => (questions || []).filter((q) => q.active), [questions])
-  const correlations = useMemo(
-    () => buildOverviewCorrelations({ transactions, leads, sessions, answers }, { questions: activeQuestions, window: 30 }),
-    [transactions, leads, sessions, answers, activeQuestions],
-  )
-  // Cross-module trend overlay (§8.1) — one self-normalized (0-100) line per metric.
-  const [overviewKeys, setOverviewKeys] = useState(['income', 'score'])
-  const [questionId, setQuestionId] = useState('')
-  const toggleOverviewKey = (k) => {
-    setOverviewKeys((prev) => (prev.includes(k) ? prev.filter((x) => x !== k) : [...prev, k]))
-    if (k === 'question' && !questionId && activeQuestions.length) setQuestionId(activeQuestions[0].id)
-  }
+  /* The overlay's metrics and question ride in preferences (as on web), so a
+     coach who watches sessions doesn't re-pick them on every visit. */
+  const overviewKeys = useMemo(() => readMoonOverviewKeys(prefs), [prefs])
+  const questionId = activeQuestions.some((q) => q.id === prefs?.moonOverviewQuestion)
+    ? prefs.moonOverviewQuestion
+    : (activeQuestions[0]?.id || '')
+  const toggleOverviewKey = (k) => Promise.resolve(update((cur) => {
+    const list = readMoonOverviewKeys(cur)
+    return { moonOverviewKeys: list.includes(k) ? list.filter((x) => x !== k) : [...list, k] }
+  })).catch(() => {})
   const scoreByDay = useMemo(() => {
     const m = {}
     trend.forEach((t) => { m[dayKeyOf(t.date)] = t.score })
@@ -65,32 +88,56 @@ export default function MoonScreen() {
   }, [trend])
   const selectedQuestion = activeQuestions.find((q) => q.id === questionId)
   const overview = useMemo(
-    () => buildOverviewTrend(overviewKeys, { transactions, leads, sessions, answers, scoreByDay, questionId: questionId || null }, { window: 30, questionLabel: selectedQuestion ? questionText(selectedQuestion) : undefined }),
-    [overviewKeys, transactions, leads, sessions, answers, scoreByDay, questionId, selectedQuestion],
+    () => (deepOpen
+      ? buildOverviewTrend(overviewKeys, { transactions, leads, sessions, answers, scoreByDay, questionId: questionId || null }, { window: OV_WINDOW, questionLabel: selectedQuestion ? questionText(selectedQuestion, gender) : undefined })
+      : null),
+    [deepOpen, overviewKeys, transactions, leads, sessions, answers, scoreByDay, questionId, selectedQuestion, gender],
   )
 
-  /* Days with no live goal have no score at all (core moonTrend returns null
-     for them). They were drawn and averaged as 0%, so a goal set last week
-     dragged the month's average and line down with weeks that were never
-     measured. Web drops those days; so does this. */
-  const scoredTrend = useMemo(() => trend.filter((t) => t.score != null), [trend])
-  const scores = scoredTrend.map((t) => t.score)
-  const avg = scores.length ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : 0
-  const peak = scores.length ? Math.max(...scores) : 0
+  /* The correlation engine can take seconds when a coach's metrics really do
+     move together (web measured 1.2–6.8s on a desktop) — on a phone's JS thread
+     that freezes the screen. It never runs while the section is folded, and
+     once opened it waits until the screen has painted and settled. */
+  const [correlations, setCorrelations] = useState(null)
+  useEffect(() => {
+    setCorrelations(null)
+    if (!deepOpen) return undefined
+    let cancelled = false
+    let timer = null
+    const task = InteractionManager.runAfterInteractions(() => {
+      timer = setTimeout(() => {
+        if (cancelled) return
+        const found = buildOverviewCorrelations({ transactions, leads, sessions, answers }, { questions: activeQuestions, window: CORR_WINDOW })
+        if (!cancelled) setCorrelations(found)
+      }, 0)
+    })
+    return () => { cancelled = true; clearTimeout(timer); task?.cancel?.() }
+  }, [deepOpen, transactions, leads, sessions, answers, activeQuestions])
+
   const conf = overall?.confidence ?? 0
   const dash = (Math.min(100, Math.max(0, conf)) / 100) * CIRC
+  const pct = (v) => (v == null ? '—' : `${v}%`)
 
-  // 30-day trend line (0-100 scored).
+  /* x stays keyed to the day's place in the whole window, so a line that only
+     starts on day 18 visibly starts there; unscored days are left out, not
+     drawn at zero. The fill closes under the real points only. */
   const chart = useMemo(() => {
     const W = 300, H = 84, pad = 5
-    if (scoredTrend.length < 2) return null
-    const pts = scoredTrend.map((d, i) => [pad + (i / (scoredTrend.length - 1)) * (W - 2 * pad), H - pad - (d.score / 100) * (H - 2 * pad)])
-    const line = pts.map((p) => p.map((n) => Math.round(n * 10) / 10).join(',')).join(' ')
-    return { W, H, line, area: `${pad},${H - pad} ${line} ${W - pad},${H - pad}`, d: 'M' + pts.map((p) => p.join(',')).join(' L') }
+    if (trend.length < 2) return null
+    const pts = trend
+      .map((d, i) => (d.score == null ? null : [
+        Math.round((pad + (i / (trend.length - 1)) * (W - 2 * pad)) * 10) / 10,
+        Math.round((H - pad - (d.score / 100) * (H - 2 * pad)) * 10) / 10,
+      ]))
+      .filter(Boolean)
+    if (pts.length < 2) return null
+    const line = pts.map((pt) => pt.join(',')).join(' ')
+    return { W, H, area: `${pts[0][0]},${H - pad} ${line} ${pts[pts.length - 1][0]},${H - pad}`, d: 'M' + pts.map((pt) => pt.join(',')).join(' L') }
   }, [trend])
 
   return (
     <Screen name="moon">
+      <AddGoalEntryModal open={!!entryTarget} onClose={() => setEntryTarget(null)} category={entryTarget?.cat} goal={entryTarget?.goal} onSave={addEntry} />
       {loading && !overall ? (
         <View style={styles.center}><ActivityIndicator color={colors.brand} /></View>
       ) : error && !overall ? (
@@ -105,7 +152,7 @@ export default function MoonScreen() {
       ) : !overall ? (
         <View style={styles.center}>
           <Text style={styles.empty}>{i18n.t('moon:empty.noGoals', { action: i18n.t('moon:empty.action', { defaultValue: 'הגדר/י' }), defaultValue: 'עדיין אין יעדים.' })}</Text>
-          <Pressable style={styles.emptyBtn} onPress={() => nav.navigate('Goals')}><Text style={styles.emptyBtnText}>{i18n.t('goals:newGoal', { defaultValue: 'יעד חדש' })}</Text></Pressable>
+          <Pressable style={styles.emptyBtn} onPress={() => nav.navigate('Goals')}><Text style={styles.emptyBtnText}>{i18n.t('moon:empty.setGoal', { defaultValue: i18n.t('goals:newGoal') })}</Text></Pressable>
         </View>
       ) : (
         <ScrollView
@@ -114,6 +161,10 @@ export default function MoonScreen() {
           refreshControl={<RefreshControl refreshing={loading} onRefresh={refetch} tintColor={colors.brand} />}
         >
           <ScreenHead title={i18n.t('moon:title', { defaultValue: 'מבט על' })} />
+          <Pressable style={styles.headLink} onPress={() => nav.navigate('Reports')} accessibilityRole="link">
+            <BarChart3 size={15} strokeWidth={1.6} color={colors.brand} />
+            <Text style={styles.headLinkText}>{i18n.t('moon:reports')}</Text>
+          </Pressable>
           {error ? <Text style={styles.error}>{error}</Text> : null}
 
           {/* Hero ring + reflection */}
@@ -126,11 +177,16 @@ export default function MoonScreen() {
               <Text style={styles.ringNum}>{conf}%</Text>
               <Text style={styles.ringKicker}>{i18n.t('moon:ring.kicker', { defaultValue: 'מהקצב' })}</Text>
             </View>
-            <Text style={styles.ringSub}>{i18n.t('moon:ring.sub', { pct: overall.pure, defaultValue: `${overall.pure}% מהיעד` })}</Text>
-            <Text style={styles.reflection}>{moonReflection(conf)}</Text>
+            {/* What "pace" means — the widget explains it; the screen built around
+                that number did not. */}
+            <View style={styles.ringInfo}>
+              <Text style={styles.ringSub}>{i18n.t('moon:ring.sub', { pct: overall.pure, defaultValue: `${overall.pure}% מהיעד` })}</Text>
+              <InfoPopover label={i18n.t('moon:ring.infoLabel')} text={i18n.t('moon:ring.infoText')} />
+            </View>
+            <Text style={styles.reflection}>{moonReflection(conf, gender)}</Text>
           </Card>
 
-          {/* By category */}
+          {/* By category, then its goals by name */}
           {cats.length ? (
             <View style={styles.section}>
               <Text style={styles.sectionH}>{i18n.t('moon:section.byCategory', { defaultValue: 'פירוק לפי קטגוריה' })}</Text>
@@ -141,8 +197,33 @@ export default function MoonScreen() {
                       <View style={[styles.catDot, { backgroundColor: c.category.color || colors.moonDeep }]} />
                       <Text style={styles.catName} numberOfLines={1}>{c.category.name}</Text>
                     </View>
-                    <DualBar label={i18n.t('moon:dualBars.pace', { defaultValue: 'מהקצב' })} pct={c.confidence} color={colors.positive} />
-                    <DualBar label={i18n.t('moon:dualBars.goal', { defaultValue: 'מהיעד' })} pct={c.pure} color={colors.moonDeep} />
+                    {/* The aggregate earns a row only when it aggregates more than one goal. */}
+                    {(c.goals || []).length > 1 ? (
+                      <>
+                        <DualBar label={i18n.t('moon:dualBars.pace', { defaultValue: 'מהקצב' })} pct={c.confidence} color={colors.positive} />
+                        <DualBar label={i18n.t('moon:dualBars.goal', { defaultValue: 'מהיעד' })} pct={c.pure} color={colors.moonDeep} />
+                      </>
+                    ) : null}
+                    {(c.goals || []).map((g) => (
+                      <View key={g.goal.id} style={styles.goalRow}>
+                        <View style={styles.goalHead}>
+                          <Text style={styles.goalName} numberOfLines={1}>{g.goal.label || c.category.name}</Text>
+                          {c.category.measurement_type === 'manual' ? (
+                            <Pressable
+                              style={styles.goalAdd}
+                              onPress={() => setEntryTarget({ goal: g.goal, cat: c.category })}
+                              hitSlop={8}
+                              accessibilityRole="button"
+                              accessibilityLabel={i18n.t('moon:logEntryAria', { name: g.goal.label || c.category.name })}
+                            >
+                              <Plus size={14} strokeWidth={2} color={colors.brand} />
+                            </Pressable>
+                          ) : null}
+                        </View>
+                        <DualBar label={i18n.t('moon:dualBars.pace', { defaultValue: 'מהקצב' })} pct={Math.min(100, g.paced ?? 0)} color={colors.positive} />
+                        <DualBar label={i18n.t('moon:dualBars.goal', { defaultValue: 'מהיעד' })} pct={g.pure} color={colors.moonDeep} />
+                      </View>
+                    ))}
                   </View>
                 ))}
               </Card>
@@ -150,61 +231,99 @@ export default function MoonScreen() {
           ) : null}
 
           {/* Trend */}
-          {chart ? (
-            <View style={styles.section}>
-              <Text style={styles.sectionH}>{i18n.t('moon:section.trend', { defaultValue: 'המגמה לאורך זמן' })}</Text>
-              <Card contentStyle={styles.trendCard}>
-                <Svg viewBox={`0 0 ${chart.W} ${chart.H}`} width="100%" height={chart.H}>
-                  <Polygon points={chart.area} fill={colors.moon} fillOpacity={0.14} />
-                  <Path d={chart.d} stroke={colors.moonDeep} strokeWidth={2} fill="none" strokeLinejoin="round" strokeLinecap="round" />
-                </Svg>
-                <View style={styles.trendStats}>
-                  <TrendStat value={`${avg}%`} label={i18n.t('moon:trend.avg', { defaultValue: 'ממוצע' })} />
-                  <TrendStat value={`${peak}%`} label={i18n.t('moon:trend.peak', { defaultValue: 'שיא' })} divided />
-                  <TrendStat value={`${conf}%`} label={i18n.t('moon:trend.today', { defaultValue: 'היום' })} />
-                </View>
-              </Card>
-            </View>
-          ) : null}
-
-          {/* Cross-module trend overlay (§8.1) — self-normalized lines per metric */}
           <View style={styles.section}>
-            <Text style={styles.sectionH}>{i18n.t('moon:section.crossModule', { defaultValue: 'מגמות בין מודולים' })}</Text>
-            <View style={styles.ovPills}>
-              {OVERVIEW_PILLS.map((m) => {
-                const on = overviewKeys.includes(m.key)
-                const disabled = m.key === 'question' && activeQuestions.length === 0
-                return (
-                  <Pressable key={m.key} disabled={disabled} style={[styles.ovPill, on && styles.ovPillOn, disabled && styles.ovPillOff]} onPress={() => toggleOverviewKey(m.key)}>
-                    <View style={[styles.ovDot, { backgroundColor: OVERVIEW_METRICS[m.key].color }]} />
-                    <Text style={[styles.ovPillText, on && styles.ovPillTextOn]}>{i18n.t(m.labelKey)}</Text>
-                  </Pressable>
-                )
-              })}
-            </View>
-            {overviewKeys.includes('question') && activeQuestions.length > 0 ? (
-              <Select value={questionId} onChange={setQuestionId} options={activeQuestions.map((q) => ({ value: q.id, label: questionText(q) }))} />
-            ) : null}
-            <Card contentStyle={styles.ovCard}>
-              <MultiTrendChart days={overview.days} series={overview.series} />
+            <Text style={styles.sectionH}>{i18n.t('moon:section.trend', { defaultValue: 'המגמה לאורך זמן' })}</Text>
+            <Card contentStyle={styles.trendCard}>
+              {chart ? (
+                <>
+                  <Svg viewBox={`0 0 ${chart.W} ${chart.H}`} width="100%" height={chart.H} accessibilityLabel={i18n.t('moon:trend.aria')}>
+                    <Polygon points={chart.area} fill={colors.moon} fillOpacity={0.14} />
+                    <Path d={chart.d} stroke={colors.moonDeep} strokeWidth={2} fill="none" strokeLinejoin="round" strokeLinecap="round" />
+                  </Svg>
+                  <View style={styles.axis}>
+                    <Text style={styles.axisText}>{shortDay(trend[0].date)}</Text>
+                    <Text style={styles.axisText}>{shortDay(trend[trend.length - 1].date)}</Text>
+                  </View>
+                </>
+              ) : (
+                <Text style={styles.ovEmpty}>{i18n.t('moon:trend.tooShort')}</Text>
+              )}
+              <View style={styles.trendStats}>
+                <TrendStat value={pct(stats.avg)} label={i18n.t('moon:trend.avg', { defaultValue: 'ממוצע' })} />
+                <TrendStat value={pct(stats.peak)} label={i18n.t('moon:trend.peak', { defaultValue: 'שיא' })} divided />
+                <TrendStat value={pct(stats.today)} label={i18n.t('moon:trend.today', { defaultValue: 'היום' })} />
+              </View>
             </Card>
-            <Text style={styles.corrNote}>{i18n.t('moon:overview.note')}</Text>
           </View>
 
-          {/* Guarded correlations (§8.2) — "patterns to explore", never headlines */}
-          <View style={styles.section}>
-            <Text style={styles.sectionH}>{i18n.t('moon:section.correlations', { defaultValue: 'קשרים לבדיקה' })}</Text>
-            {correlations.length === 0 ? (
-              <Card contentStyle={styles.corrEmptyCard}>
-                <Text style={styles.corrEmpty}>{i18n.t('moon:corr.empty')}</Text>
-              </Card>
-            ) : (
-              <>
-                {correlations.map((c) => <CorrCard key={c.key} c={c} />)}
-                <Text style={styles.corrNote}>{i18n.t('moon:corr.note')}</Text>
-              </>
-            )}
-          </View>
+          {/* The two statistical sections, folded behind one lid until asked for. */}
+          <Pressable style={styles.deeperHead} onPress={() => setDeepOpen((v) => !v)} accessibilityRole="button" accessibilityState={{ expanded: deepOpen }}>
+            <View style={styles.deeperText}>
+              <Text style={styles.deeperTitle}>{i18n.t('moon:deeper.title')}</Text>
+              <Text style={styles.deeperSum} numberOfLines={1}>{i18n.t('moon:section.crossModule')} · {i18n.t('moon:section.correlations')}</Text>
+            </View>
+            {deepOpen ? <ChevronUp size={16} strokeWidth={1.8} color={colors.textSub} /> : <ChevronDown size={16} strokeWidth={1.8} color={colors.textSub} />}
+          </Pressable>
+
+          {deepOpen ? (
+            <>
+              {/* Cross-module trend overlay (§8.1) — self-normalized lines per metric */}
+              <View style={styles.section}>
+                <Text style={styles.sectionH}>{i18n.t('moon:section.crossModule', { defaultValue: 'מגמות בין מודולים' })}</Text>
+                <View style={styles.ovPills}>
+                  {OVERVIEW_PILLS.map((m) => {
+                    const on = overviewKeys.includes(m.key)
+                    const disabled = m.key === 'question' && activeQuestions.length === 0
+                    return (
+                      <Pressable key={m.key} disabled={disabled} style={[styles.ovPill, on && styles.ovPillOn, disabled && styles.ovPillOff]} onPress={() => toggleOverviewKey(m.key)} accessibilityState={{ selected: on, disabled }}>
+                        <View style={[styles.ovDot, { backgroundColor: OVERVIEW_METRICS[m.key].color }]} />
+                        <Text style={[styles.ovPillText, on && styles.ovPillTextOn]}>{i18n.t(m.labelKey)}</Text>
+                      </Pressable>
+                    )
+                  })}
+                </View>
+                {activeQuestions.length === 0 ? <Text style={styles.corrNote}>{i18n.t('moon:overview.noQuestions')}</Text> : null}
+                {overviewKeys.includes('question') && activeQuestions.length > 0 ? (
+                  <Select label={i18n.t('moon:overview.pickQuestion')} value={questionId} onChange={(id) => update({ moonOverviewQuestion: id })} options={activeQuestions.map((q) => ({ value: q.id, label: questionText(q, gender) }))} />
+                ) : null}
+                <Card contentStyle={styles.ovCard}>
+                  {overviewKeys.length === 0 ? (
+                    <Text style={styles.ovEmpty}>{i18n.t('moon:overview.noneSelected')}</Text>
+                  ) : (
+                    <>
+                      <MultiTrendChart days={overview?.days} series={overview?.series} />
+                      {(overview?.days?.length || 0) > 1 ? (
+                        <View style={styles.axis}>
+                          <Text style={styles.axisText}>{shortDay(overview.days[0])}</Text>
+                          <Text style={styles.axisText}>{shortDay(overview.days[overview.days.length - 1])}</Text>
+                        </View>
+                      ) : null}
+                    </>
+                  )}
+                </Card>
+                <Text style={styles.corrNote}>{i18n.t('moon:overview.note')}</Text>
+              </View>
+
+              {/* Guarded correlations (§8.2) — "patterns to explore", never headlines */}
+              <View style={styles.section}>
+                <Text style={styles.sectionH}>{i18n.t('moon:section.correlations', { defaultValue: 'קשרים לבדיקה' })}</Text>
+                {correlations === null ? (
+                  <Card contentStyle={styles.corrEmptyCard}>
+                    <Text style={styles.corrEmpty}>{i18n.t('moon:corr.computing')}</Text>
+                  </Card>
+                ) : correlations.length === 0 ? (
+                  <Card contentStyle={styles.corrEmptyCard}>
+                    <Text style={styles.corrEmpty}>{i18n.t('moon:corr.empty')}</Text>
+                  </Card>
+                ) : (
+                  <>
+                    {correlations.map((c) => <CorrCard key={c.key} c={c} gender={gender} />)}
+                    <Text style={styles.corrNote}>{i18n.t('moon:corr.note')}</Text>
+                  </>
+                )}
+              </View>
+            </>
+          ) : null}
 
           <Pressable style={styles.footerLink} onPress={() => nav.navigate('Goals')}>
             <Text style={styles.footerLinkText}>{i18n.t('moon:footerLink', { defaultValue: 'לניהול היעדים' })}</Text>
@@ -258,11 +377,11 @@ function Scatter({ points }) {
 }
 
 // One "pattern to explore" — symmetric co-movement phrasing (never "X drives Y").
-function CorrCard({ c }) {
-  const driver = questionText(c.driverLabel)
+function CorrCard({ c, gender }) {
+  const driver = questionText(c.driverLabel, gender)
   // The metric and the strength are ids; the card showed them raw ("קשר medium",
   // "…ו-income"). Translated as web does.
-  const outcome = c.outcomeLabel ? i18n.t(`moon:pills.${c.outcomeLabel}`) : (c.outcomeQ ? questionText(c.outcomeQ) : '')
+  const outcome = c.outcomeLabel ? i18n.t(`moon:pills.${c.outcomeLabel}`) : (c.outcomeQ ? questionText(c.outcomeQ, gender) : '')
   const raw = i18n.t(c.direction === 'pos' ? 'moon:corr.moveTogether' : 'moon:corr.moveOpposite', { driver, outcome })
   return (
     <Card contentStyle={styles.corrCard}>
@@ -335,6 +454,19 @@ const styles = themed((c, t) => ({
   ringNum: { fontSize: 28, fontWeight: '600', color: c.text, fontVariant: ['tabular-nums'] },
   ringKicker: { fontSize: 11, color: c.textSub, marginTop: 1 },
   ringSub: { fontSize: 12, color: c.textSub },
+  ringInfo: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  headLink: { minHeight: 36, flexDirection: 'row', alignItems: 'center', gap: 6, alignSelf: 'flex-start', marginTop: -8 },
+  headLinkText: { fontSize: 13, fontWeight: '500', color: c.brand },
+  goalRow: { gap: 6, paddingTop: 8 },
+  goalHead: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  goalName: { flex: 1, fontSize: 13, color: c.text },
+  goalAdd: { width: 28, height: 28, borderRadius: 14, borderWidth: 1, borderColor: c.border, alignItems: 'center', justifyContent: 'center' },
+  axis: { flexDirection: 'row', justifyContent: 'space-between', marginTop: -6 },
+  axisText: { fontSize: 10, color: c.textFaint, fontVariant: ['tabular-nums'] },
+  deeperHead: { minHeight: 52, flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 10, paddingHorizontal: 16, borderRadius: 16, borderWidth: 1, borderColor: c.border, backgroundColor: c.cardFlat },
+  deeperText: { flex: 1, gap: 2 },
+  deeperTitle: { fontSize: 14, fontWeight: '600', color: c.text },
+  deeperSum: { fontSize: 11, color: c.textSub },
   reflection: { fontSize: 13, color: c.text, textAlign: 'center', lineHeight: 19, marginTop: 4, paddingHorizontal: 6 },
 
   section: { gap: 8 },

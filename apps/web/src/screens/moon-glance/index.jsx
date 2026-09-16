@@ -7,7 +7,7 @@ import { Trans } from 'react-i18next'
    look are still מבט על's; only the glyph follows the menu. */
 import { Eye, BarChart3, CloudOff, RotateCcw, Target, ArrowLeft, Plus, ChevronDown } from 'lucide-react'
 import { ROUTES } from '../../lib/routes'
-import { moonGetData, moonGetCategories, moonTrend, moonReflection, questionText, buildOverviewTrend, buildOverviewCorrelations, OVERVIEW_METRICS } from '@simplicity/core'
+import { moonGetData, moonGetCategories, moonTrend, moonReflection, questionText, buildOverviewTrend, buildOverviewCorrelations, OVERVIEW_METRICS, mergeSnapshotTrend, moonTrendStats, readMoonOverviewKeys } from '@simplicity/core'
 import { upsertMoonSnapshot } from '../../lib/api/moonSnapshots'
 import InfoPopover from '../../components/InfoPopover'
 import MoonDualBars from '../../components/MoonDualBars'
@@ -217,28 +217,18 @@ export default function MoonGlanceScreen() {
      TODAY is exempt from the override: its snapshot was written the last time
      the app was open, so a morning visit froze the morning's score onto the
      line while the ring above it moved on. The live point is simply fresher. */
-  const trend = useMemo(() => {
-    if (!snapshots || snapshots.length === 0) return liveTrend
-    const today = dayKeyOf(new Date())
-    const byDay = Object.create(null)
-    snapshots.forEach((s) => { byDay[dayKeyOf(new Date(s.date))] = Number(s.confidence ?? s.score ?? 0) })
-    return liveTrend.map((tp) => {
-      const k = dayKeyOf(tp.date)
-      return (k !== today && k in byDay) ? { date: tp.date, score: byDay[k] } : tp
-    })
-  }, [snapshots, liveTrend])
+  /* (core mergeSnapshotTrend, shared with the phone; it reads each snapshot's
+     DATE as a local day, which `new Date(s.date)` did not west of UTC.) */
+  const trend = useMemo(() => mergeSnapshotTrend(liveTrend, snapshots), [snapshots, liveTrend])
 
   /* Gap days carry no score and must not be averaged as zeros — an average
      dragged down by the weeks before a coach had any goal describes nothing
      that happened. Null when there is nothing yet to average; the row prints
      an em dash rather than inventing a figure. */
-  const scores = trend.map((tp) => tp.score).filter((s) => s != null)
-  const avg = scores.length ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : null
-  const peak = scores.length ? Math.max(...scores) : null
+  const { avg, peak, today: todayScore } = moonTrendStats(trend)
   /* The "היום" stat reads the line's own last point rather than recomputing,
      so the figure and the place the line ends can no longer disagree. With the
      two fixes above it now equals the ring as well. */
-  const todayScore = scores.length ? scores[scores.length - 1] : null
 
   /* ── Cross-module trend overlay (§8.1) ───────────────────────── */
   const activeQuestions = useMemo(() => (questions || []).filter((q) => q.active), [questions])
@@ -250,11 +240,7 @@ export default function MoonGlanceScreen() {
      open on purpose, arriving at your own selection matters more, not less.
      Unknown keys are dropped, so a metric retired from the registry cannot
      resurrect a broken series out of a saved blob. */
-  const readKeys = (p) => {
-    const saved = p?.moonOverviewKeys
-    return Array.isArray(saved) ? saved.filter((k) => OVERVIEW_METRICS[k]) : ['income', 'score']
-  }
-  const overviewKeys = useMemo(() => readKeys(prefs), [prefs])
+  const overviewKeys = useMemo(() => readMoonOverviewKeys(prefs), [prefs])
   /* The saved question only counts while it is still active — deactivate it and
      the chart falls back to the first one rather than drawing an empty series
      for a question nobody answers any more. That fallback also replaces the old
@@ -273,7 +259,7 @@ export default function MoonGlanceScreen() {
      spread. */
   const toggleOverviewKey = (k) => {
     updatePrefs?.((cur) => {
-      const list = readKeys(cur)
+      const list = readMoonOverviewKeys(cur)
       return { ...cur, moonOverviewKeys: list.includes(k) ? list.filter((x) => x !== k) : [...list, k] }
     })
   }

@@ -20,8 +20,20 @@ const SIZE = 132
 const RADIUS = 42
 const CIRC = 2 * Math.PI * RADIUS
 
-export default function MoonWidget({ overall, expanded, onToggle }) {
+export default function MoonWidget({ overall, ended = [], expanded, onToggle }) {
   const nav = useNavigation()
+
+  /* No live goal because every goal has ENDED (a goal closes on its date, not
+     at 100%) — a different state from never having set one. "Set a goal" would
+     be false there and invites a duplicate; say how many ended instead. */
+  if (!overall && ended.length > 0) {
+    return (
+      <Pressable style={styles.wrap} onPress={() => nav.navigate('Goals')} accessibilityLabel={i18n.t('home:widgets.moon.endedAria', { count: ended.length })}>
+        <Chip><Text style={styles.num}>—</Text></Chip>
+        <Text style={styles.emptyLabel}>{i18n.t('home:widgets.moon.ended', { count: ended.length })}</Text>
+      </Pressable>
+    )
+  }
 
   if (!overall) {
     return (

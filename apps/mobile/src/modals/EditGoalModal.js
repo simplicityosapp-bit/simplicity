@@ -4,7 +4,7 @@ import { Text, TextInput } from '../components/Text'
 import DateField from '../components/DateField'
 import { Pressable } from '../components/Pressable'
 import { Trash2 } from 'lucide-react-native'
-import { questionText, scheduledOccurrences, buildSchedulePattern } from '@simplicity/core'
+import { questionText, scheduledOccurrences, buildSchedulePattern, scheduleFromPattern } from '@simplicity/core'
 import Sheet from '../components/Sheet'
 import Select from '../components/Select'
 import ScheduleDayPicker from '../components/ScheduleDayPicker'
@@ -24,11 +24,7 @@ const SCALES = [{ k: '1-10', l: 'scaleRange' }, { k: 'yes_no', l: 'scaleYesNo' }
 
 // Reverse of buildSchedulePattern → the picker's {mode,days,x} so editing a
 // question pre-fills its real cadence (null/empty = every day). Mirrors web.
-const patternToSched = (p) => {
-  if (p && p.type === 'days_of_week' && Array.isArray(p.values) && p.values.length) return { mode: 'days_of_week', days: p.values, x: 2 }
-  if (p && p.type === 'every_x_days') return { mode: 'every_x_days', days: [0, 1, 2, 3, 4, 5, 6], x: Number(p.x) || 2 }
-  return { mode: 'every_day', days: [0, 1, 2, 3, 4, 5, 6], x: 2 }
-}
+const patternToSched = scheduleFromPattern // core: a stored pattern → editor state
 
 const blank = (goal) => ({
   label: goal?.label || '',

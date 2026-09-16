@@ -7,6 +7,7 @@ import { useProjects } from '../../hooks/useProjects'
 import { useUserQuestions } from '../../hooks/useUserQuestions'
 import AddGoalModal from '../../modals/AddGoalModal'
 import { useGoals } from '../../hooks/useGoals'
+import { useAddGoal } from '../../hooks/useAddGoal'
 import { useGoalCategories } from '../../hooks/useGoalCategories'
 import { useGoalEntries } from '../../hooks/useGoalEntries'
 import { useTransactions } from '../../hooks/useTransactions'
@@ -37,7 +38,8 @@ const CIRCUMFERENCE = 2 * Math.PI * RADIUS
 export default function ProjectMoonRing({ projectId }) {
   const { t, gender } = useT('projects')
   const navigate = useNavigate()
-  const { goals, addGoal } = useGoals()
+  const { goals } = useGoals()
+  const addGoal = useAddGoal() // resolves the modal's metric to a category first
   const { projects } = useProjects()
   const { questions, addQuestion } = useUserQuestions()
   const { categories } = useGoalCategories()

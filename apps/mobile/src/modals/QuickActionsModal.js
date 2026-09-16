@@ -1,7 +1,7 @@
 import { View } from 'react-native'
 import { Text } from '../components/Text'
 import { Pressable } from '../components/Pressable'
-import { Wallet, CheckSquare, Users, UserPlus, FolderOpen, Bell, Calendar } from 'lucide-react-native'
+import { Wallet, CheckSquare, Users, UserPlus, FolderOpen, Bell, Calendar, Target } from 'lucide-react-native'
 import Sheet from '../components/Sheet'
 import i18n from '../lib/i18n'
 import { colors } from '../theme/theme'
@@ -17,6 +17,7 @@ const ACTIONS = [
   { id: 'lead', Icon: UserPlus },
   { id: 'task', Icon: CheckSquare },
   { id: 'project', Icon: FolderOpen },
+  { id: 'goal', Icon: Target },
   { id: 'reminder', Icon: Bell },
   { id: 'meeting', Icon: Calendar },
 ]

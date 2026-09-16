@@ -19,6 +19,10 @@
     "group_members": {
       "name": "Group members",
       "hint": "Counted automatically from group members (can be linked to a project)"
+    },
+    "other": {
+      "name": "Personal",
+      "hint": "You update it yourself"
     }
   }
 }

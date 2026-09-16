@@ -44,7 +44,7 @@ export default function HomeScreen() {
   const insets = useSafeAreaInsets()
   const {
     clients, transactions, meetings, calendarEvents, leads, groups,
-    tasks, goals, categories, sessions, members, reminders, entries, answers, questions, loading, refreshing, error, refetch, reload, addAnswer, addTask, addEntry, addTransaction, addClient, addLead, addProject, addReminder, addMeeting, addSession, confirmMeeting, toggleTask, completeReminder, setTransactionStatus, deleteTransaction, restoreTransaction,
+    tasks, goals, categories, sessions, members, reminders, entries, answers, questions, loading, refreshing, error, refetch, reload, addAnswer, addTask, addEntry, addTransaction, addClient, addLead, addProject, addReminder, addMeeting, addSession, addGoal, addQuestion, confirmMeeting, toggleTask, completeReminder, setTransactionStatus, deleteTransaction, restoreTransaction,
   } = useHomeData()
   const { prefs, update: updatePrefs } = usePreferences()
   const { projects, categories: financeCategories } = useFormOptions()
@@ -141,7 +141,7 @@ export default function HomeScreen() {
   const renderWidget = (id) => {
     switch (id) {
       case 'insights': return <InsightsWidget key="insights" questions={questions} answers={answers} addAnswer={addAnswer} />
-      case 'quick-row': return <QuickRow key="quick-row" clients={clients} categories={categories} addTask={addTask} addTransaction={addTransaction} addClient={addClient} addLead={addLead} addProject={addProject} addReminder={addReminder} addMeeting={addMeeting} />
+      case 'quick-row': return <QuickRow key="quick-row" clients={clients} categories={categories} questions={questions} addTask={addTask} addTransaction={addTransaction} addClient={addClient} addLead={addLead} addProject={addProject} addReminder={addReminder} addMeeting={addMeeting} addGoal={addGoal} addQuestion={addQuestion} />
       case 'attention': return (
         <AttentionWidget key="attention" data={attentionData} projects={projects} financeCategories={financeCategories}
           onApproveTx={(id2) => setTransactionStatus(id2, 'confirmed')} onSkipTx={(id2) => setTransactionStatus(id2, 'skipped')} onDeleteTx={onDeleteTx} />
@@ -181,7 +181,7 @@ export default function HomeScreen() {
         {!loading && (quoteOn || moonOn) ? (
           <View style={styles.topRow}>
             {quoteOn ? <QuoteWidget /> : null}
-            {moonOn ? <MoonWidget overall={moon.overall} expanded={moonExpanded} onToggle={() => setMoonExpanded((v) => !v)} /> : null}
+            {moonOn ? <MoonWidget overall={moon.overall} ended={moon.ended} expanded={moonExpanded} onToggle={() => setMoonExpanded((v) => !v)} /> : null}
           </View>
         ) : null}
         {!loading && moonOn && moonExpanded && moon.overall ? (

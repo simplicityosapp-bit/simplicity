@@ -1,7 +1,9 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
 import { selectAll } from '../lib/paginate'
-import { CATEGORY_PRESETS, OTHER_METRIC, OTHER_METRIC_KEY, presetToCategory } from '../lib/goalPresets'
+import { resolveGoalCategoryId } from '../lib/goalPresets'
+import { pushUndo } from '../lib/undo'
+import i18n from '../lib/i18n'
 
 const SERVER_OWNED = ['id', 'user_id', 'created_at', 'updated_at', 'deleted_at']
 
@@ -63,22 +65,11 @@ export function useGoalsData() {
     return saved
   }, [])
 
-  // Resolve a metric_key to a category id (mirrors web goals/index resolveCategoryId):
-  // reuse an existing category for that metric, else create it from the preset.
-  const resolveCategoryId = useCallback(async (metricKey, cats) => {
-    if (metricKey === OTHER_METRIC_KEY) {
-      const existing = cats.find((c) => c.key === OTHER_METRIC_KEY)
-      if (existing) return existing.id
-      const created = await insertInto('goal_categories', presetToCategory(OTHER_METRIC), 'categories')
-      return created.id
-    }
-    const preset = CATEGORY_PRESETS.find((p) => p.key === metricKey)
-    if (!preset) throw new Error('unknown metric')
-    const existing = cats.find((c) => c.data_source === preset.data_source)
-    if (existing) return existing.id
-    const created = await insertInto('goal_categories', presetToCategory(preset), 'categories')
-    return created.id
-  }, [insertInto])
+  // A metric_key → category id (find-or-create; lib/goalPresets).
+  const resolveCategoryId = useCallback(
+    (metricKey, cats) => resolveGoalCategoryId(metricKey, cats, (row) => insertInto('goal_categories', row, 'categories')),
+    [insertInto],
+  )
 
   const addGoal = useCallback(async ({ metric_key, ...rest }) => {
     const category_id = await resolveCategoryId(metric_key, state.categories)
@@ -94,11 +85,31 @@ export function useGoalsData() {
     return data
   }, [])
 
-  const deleteGoal = useCallback(async (id) => {
-    setState((prev) => ({ ...prev, goals: prev.goals.filter((g) => g.id !== id) }))
-    const { error: e } = await supabase.from('goals').update({ deleted_at: new Date().toISOString() }).eq('id', id)
-    if (e) { load(); throw e }
-  }, [load])
+  /* Soft-delete a row and offer the undo (web registerDeleteUndo): the row
+     leaves the list at once, the toast puts it back, redo takes it out again. */
+  const softDelete = useCallback(async (table, key, id, label) => {
+    const row = state[key].find((r) => r.id === id)
+    const drop = () => setState((prev) => ({ ...prev, [key]: prev[key].filter((r) => r.id !== id) }))
+    const stamp = (at) => supabase.from(table).update({ deleted_at: at }).eq('id', id)
+    drop()
+    const { error: e } = await stamp(new Date().toISOString())
+    if (e) { load(true); throw e }
+    if (!row) return
+    pushUndo({
+      label,
+      undo: async () => {
+        const { error: ue } = await stamp(null)
+        if (!ue) setState((prev) => (prev[key].some((r) => r.id === id) ? prev : { ...prev, [key]: [row, ...prev[key]] }))
+      },
+      redo: async () => { drop(); const { error: re } = await stamp(new Date().toISOString()); if (re) load(true) },
+    })
+  }, [state, load])
 
-  return { ...state, loading, error, refetch: load, addGoal, updateGoal, deleteGoal, resolveCategoryId }
+  const deleteGoal = useCallback((id) => softDelete('goals', 'goals', id, i18n.t('components:undo.deleted.goal')), [softDelete])
+
+  // A manual progress entry, for one goal (goal_id, migration 0110).
+  const addEntry = useCallback((payload) => insertInto('goal_entries', payload, 'entries'), [insertInto])
+  const removeEntry = useCallback((id) => softDelete('goal_entries', 'entries', id, i18n.t('components:undo.deleted.goalEntry')), [softDelete])
+
+  return { ...state, loading, error, refetch: load, addGoal, updateGoal, deleteGoal, addEntry, removeEntry, resolveCategoryId }
 }

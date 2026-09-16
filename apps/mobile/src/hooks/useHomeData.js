@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { isRecurring, nextScheduledAt, newMembership } from '@simplicity/core'
 import { supabase } from '../lib/supabase'
+import { resolveGoalCategoryId } from '../lib/goalPresets'
 import { confirmScheduledMeeting } from '../lib/scheduledMeetings'
 import { reconcileCompletion } from '../lib/tasks'
 import { selectAll } from '../lib/paginate'
@@ -150,6 +151,15 @@ export function useHomeData() {
   const addReminder = useCallback((payload) => insertInto('reminders', payload, 'reminders'), [insertInto])
   const addMeeting = useCallback((payload) => insertInto('scheduled_meetings', payload, 'meetings'), [insertInto])
   const addSession = useCallback((payload) => insertInto('sessions', payload, 'sessions'), [insertInto])
+  /* Quick-add "יעד": the modal returns a metric; resolve it to a goal category
+     (created on first use) before inserting, as the goals screen does. */
+  const categoriesRef = useRef(data.categories)
+  categoriesRef.current = data.categories
+  const addGoal = useCallback(async ({ metric_key, ...rest }) => {
+    const category_id = await resolveGoalCategoryId(metric_key, categoriesRef.current, (row) => insertInto('goal_categories', row, 'categories'))
+    return insertInto('goals', { category_id, ...rest }, 'goals')
+  }, [insertInto])
+  const addQuestion = useCallback((payload) => insertInto('user_questions', payload, 'questions'), [insertInto])
 
   // Mark a scheduled meeting as happened / skipped (tile-drill "מה קרה" action).
   const setMeetingStatus = useCallback(async (id, status) => {
@@ -236,5 +246,5 @@ export function useHomeData() {
   const refetch = useCallback(() => load({ mode: 'refresh' }), [load])
   const reload = useCallback(() => load(), [load])
 
-  return { ...data, loading, refreshing, error, refetch, reload, addAnswer, addTask, addEntry, addTransaction, addClient, addLead, addProject, addReminder, addMeeting, addSession, setMeetingStatus, confirmMeeting, toggleTask, completeReminder, setTransactionStatus, deleteTransaction, restoreTransaction }
+  return { ...data, loading, refreshing, error, refetch, reload, addAnswer, addTask, addEntry, addTransaction, addClient, addLead, addProject, addReminder, addMeeting, addSession, addGoal, addQuestion, setMeetingStatus, confirmMeeting, toggleTask, completeReminder, setTransactionStatus, deleteTransaction, restoreTransaction }
 }

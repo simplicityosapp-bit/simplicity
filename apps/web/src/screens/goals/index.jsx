@@ -1,9 +1,9 @@
 import { useMemo, useState } from 'react'
 import { Target, Plus } from 'lucide-react'
 import { goalsByCategory } from '@simplicity/core'
-import { CATEGORY_PRESETS, presetToCategory, resolveManualCategoryId } from '../../lib/goalPresets'
 import { useGoals } from '../../hooks/useGoals'
 import { useGoalCategories } from '../../hooks/useGoalCategories'
+import { useAddGoal } from '../../hooks/useAddGoal'
 import { useGoalEntries } from '../../hooks/useGoalEntries'
 import { useTransactions } from '../../hooks/useTransactions'
 import { useProjects } from '../../hooks/useProjects'
@@ -17,7 +17,7 @@ import { useUserPreferences } from '../../hooks/useUserPreferences'
 import { useSubscription } from '../../hooks/useSubscription'
 import { useUpgradeNav } from '../../hooks/useUpgradeNav'
 import GoalCard from './GoalCard'
-import AddGoalModal, { OTHER_METRIC_KEY } from '../../modals/AddGoalModal'
+import AddGoalModal from '../../modals/AddGoalModal'
 import AddGoalEntryModal from '../../modals/AddGoalEntryModal'
 import EditGoalModal from '../../modals/EditGoalModal'
 import ConfirmModal from '../../modals/ConfirmModal'
@@ -41,12 +41,13 @@ import './GoalsScreen.css'
 export default function GoalsScreen() {
   const { t } = useT('goals')
   const { t: ts } = useT('subscription')
-  const { goals, loading: goalsLoading, error: goalsError, addGoal, updateGoal, removeGoal } = useGoals()
+  const { goals, loading: goalsLoading, error: goalsError, updateGoal, removeGoal } = useGoals()
+  const handleAddGoal = useAddGoal()
   const { limits } = useSubscription()
   const goUpgrade = useUpgradeNav()
   /* Free-tier goal ceiling. Infinity while billing isn't enforced. */
   const atGoalLimit = (goals?.length || 0) >= limits.goals
-  const { categories, loading: catsLoading, error: catsError, addCategory } = useGoalCategories()
+  const { categories, loading: catsLoading, error: catsError } = useGoalCategories()
   const { entries, addEntry, removeEntry } = useGoalEntries()
   const { transactions } = useTransactions()
   const { projects } = useProjects()
@@ -73,26 +74,6 @@ export default function GoalsScreen() {
     [goals, categories, entries, transactions, clients, leads, answers, members, clientGroups],
   )
   const totalGoals = groups.reduce((s, g) => s + g.goals.length, 0)
-
-  /* Resolve the metric chosen in AddGoalModal to a real category id, creating
-     the category on demand. Metrics aren't managed on-screen anymore: the
-     system presets are auto-measured; "אחר" is the one shared manual bucket. */
-  const resolveCategoryId = async (metricKey) => {
-    if (metricKey === OTHER_METRIC_KEY) return resolveManualCategoryId(categories, addCategory)
-    const preset = CATEGORY_PRESETS.find((p) => p.key === metricKey)
-    /* Surfaced to the user via common.saveFailed({error}), so it cannot be a
-       Hebrew literal — every other language would read it verbatim. */
-    if (!preset) throw new Error(t('unknownMetric'))
-    const existing = categories.find((c) => c.data_source === preset.data_source)
-    if (existing) return existing.id
-    const created = await addCategory(presetToCategory(preset))
-    return created.id
-  }
-
-  const handleAddGoal = async ({ metric_key, ...rest }) => {
-    const category_id = await resolveCategoryId(metric_key)
-    return addGoal({ category_id, ...rest })
-  }
 
   return (
     <Box className="screen">

@@ -54,6 +54,8 @@
       "reminder": "Recordatorio eliminado",
       "transaction": "Transacción eliminada",
       "answer": "Respuesta eliminada",
+      "goalEntry": "Entrada eliminada",
+      "question": "Pregunta eliminada",
       "adjustment": "Ajuste eliminado"
     }
   },

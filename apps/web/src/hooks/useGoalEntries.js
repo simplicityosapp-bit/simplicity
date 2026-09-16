@@ -3,6 +3,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { listGoalEntries, insertGoalEntry, removeGoalEntry as apiRemove, restoreGoalEntry } from '../lib/api/goalEntries'
 import { pushUndo } from '../lib/undo'
 import { revertWrite } from '../lib/revertWrite'
+import i18n from '@simplicity/core/i18n'
 
 /* React-Query-backed: shared across moon + quick-update widgets. Public API unchanged. */
 const KEY = ['goalEntries']
@@ -24,7 +25,7 @@ export function useGoalEntries() {
     try {
       await apiRemove(id)
       if (row) pushUndo({
-        label: 'העדכון נמחק',
+        label: i18n.t('components:undo.deleted.goalEntry'),
         undo: async () => { try { await restoreGoalEntry(id) } finally { qc.invalidateQueries({ queryKey: KEY }) } },
         redo: async () => {
           qc.setQueryData(KEY, (prev) => (prev ?? []).filter((e) => e.id !== id))

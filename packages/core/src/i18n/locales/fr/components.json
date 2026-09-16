@@ -54,6 +54,8 @@
       "reminder": "Rappel supprimé",
       "transaction": "Transaction supprimée",
       "answer": "Réponse supprimée",
+      "goalEntry": "Saisie supprimée",
+      "question": "Question supprimée",
       "adjustment": "Ajustement supprimé"
     }
   },

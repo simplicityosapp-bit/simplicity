@@ -56,6 +56,8 @@
       "reminder": "התזכורת נמחקה",
       "transaction": "התנועה נמחקה",
       "answer": "התשובה נמחקה",
+      "goalEntry": "העדכון נמחק",
+      "question": "השאלה נמחקה",
       "adjustment": "ההתאמה בוטלה"
     }
   },

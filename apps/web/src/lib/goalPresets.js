@@ -152,3 +152,16 @@ export async function resolveManualCategoryId(categories, addCategory) {
   const created = await addCategory(presetToCategory(MANUAL_CATEGORY))
   return created.id
 }
+
+/* A metric → a category id: the shared manual bucket, or the existing
+   category for that auto metric, creating it from the preset if needed. */
+export async function resolveGoalCategoryId(metricKey, categories, addCategory) {
+  if (metricKey === MANUAL_CATEGORY_KEY) return resolveManualCategoryId(categories, addCategory)
+  const preset = CATEGORY_PRESETS.find((p) => p.key === metricKey)
+  /* Surfaced via common.saveFailed({error}), so it cannot be a Hebrew literal. */
+  if (!preset) throw new Error(i18n.t('goals:unknownMetric'))
+  const existing = (categories || []).find((c) => c.data_source === preset.data_source)
+  if (existing) return existing.id
+  const created = await addCategory(presetToCategory(preset))
+  return created.id
+}

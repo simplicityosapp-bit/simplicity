@@ -9,7 +9,7 @@ import { useLeads } from '../../../hooks/useLeads'
 import { useLeadSources } from '../../../hooks/useLeadSources'
 import { useLeadStatuses } from '../../../hooks/useLeadStatuses'
 import { useTasks } from '../../../hooks/useTasks'
-import { useGoals } from '../../../hooks/useGoals'
+import { useAddGoal } from '../../../hooks/useAddGoal'
 import { useGoalCategories } from '../../../hooks/useGoalCategories'
 import { useReminders } from '../../../hooks/useReminders'
 import { useScheduledMeetings } from '../../../hooks/useScheduledMeetings'
@@ -49,7 +49,7 @@ export default function QuickRow() {
   const { statuses: leadStatuses } = useLeadStatuses()
   const { addTask } = useTasks()
   const { categories } = useGoalCategories()
-  const { addGoal } = useGoals()
+  const addGoal = useAddGoal() // resolves the modal's metric to a category first
   const { addReminder } = useReminders()
   const { addMeeting } = useScheduledMeetings()
   const { questions, addQuestion } = useUserQuestions()

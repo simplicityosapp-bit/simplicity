@@ -54,6 +54,8 @@
       "reminder": "Reminder deleted",
       "transaction": "Transaction deleted",
       "answer": "Answer deleted",
+      "goalEntry": "Entry deleted",
+      "question": "Question deleted",
       "adjustment": "Adjustment removed"
     }
   },

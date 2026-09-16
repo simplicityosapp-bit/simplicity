@@ -1,6 +1,8 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../lib/supabase'
 import { selectAll } from '../lib/paginate'
+import { pushUndo } from '../lib/undo'
+import i18n from '../lib/i18n'
 
 const SERVER_OWNED = ['id', 'user_id', 'created_at', 'updated_at', 'deleted_at']
 
@@ -10,6 +12,9 @@ const SERVER_OWNED = ['id', 'user_id', 'created_at', 'updated_at', 'deleted_at']
 export function useInsightsData() {
   const [questions, setQuestions] = useState([])
   const [answers, setAnswers] = useState([])
+  /* Which questions a goal is tracked by (goals.tracked_by_question_id) — the
+     card says so, as web's settings list does. */
+  const [linkedQuestionIds, setLinkedQuestionIds] = useState(() => new Set())
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
@@ -17,7 +22,7 @@ export function useInsightsData() {
     setLoading(true)
     setError(null)
     try {
-      const [{ data: q, error: qe }, { data: a, error: ae }] = await Promise.all([
+      const [{ data: q, error: qe }, { data: a, error: ae }, { data: g }] = await Promise.all([
         supabase.from('user_questions').select('*').is('deleted_at', null).limit(500),
         /* Every answer, paged past the server's 1000-row cap (web
            listDailyAnswers). The old .limit(5000) was never honoured above
@@ -25,11 +30,15 @@ export function useInsightsData() {
            a coach past about a year of answers had averages, the heatmap and
            the reflections computed from a random subset. */
         selectAll(() => supabase.from('daily_answers').select('*').is('deleted_at', null).order('date', { ascending: false })),
+        // Best-effort: without it the card just doesn't mark goal-linked questions.
+        Promise.resolve().then(() => supabase.from('goals').select('tracked_by_question_id').is('deleted_at', null).not('tracked_by_question_id', 'is', null))
+          .catch(() => ({ data: [] })),
       ])
       if (qe) throw qe
       if (ae) throw ae
       setQuestions((q ?? []).slice().sort((x, y) => (x.order ?? 0) - (y.order ?? 0)))
       setAnswers(a ?? [])
+      setLinkedQuestionIds(new Set((g ?? []).map((row) => row.tracked_by_question_id).filter(Boolean)))
     } catch (e) {
       setError(e?.message || 'load failed')
     } finally {
@@ -90,11 +99,40 @@ export function useInsightsData() {
     if (e) { setError(e.message); load() }
   }, [load])
 
-  const removeQuestion = useCallback(async (id) => {
-    setQuestions((prev) => prev.filter((x) => x.id !== id))
-    const { error: e } = await supabase.from('user_questions').update({ deleted_at: new Date().toISOString() }).eq('id', id)
-    if (e) { load() }
+  /* Soft-delete with an undo (web useUserQuestions / useDailyAnswers). The
+     question went straight to the trash with no way back from the screen. */
+  const softDelete = useCallback(async ({ table, id, row, drop, restore, label }) => {
+    const stamp = (at) => supabase.from(table).update({ deleted_at: at }).eq('id', id)
+    drop()
+    const { error: e } = await stamp(new Date().toISOString())
+    if (e) { load(); return }
+    if (!row) return
+    pushUndo({
+      label,
+      undo: async () => { const { error: ue } = await stamp(null); if (ue) load(); else restore() },
+      redo: async () => { drop(); const { error: re } = await stamp(new Date().toISOString()); if (re) load() },
+    })
   }, [load])
+
+  const removeQuestion = useCallback((id) => {
+    const row = questions.find((x) => x.id === id)
+    return softDelete({
+      table: 'user_questions', id, row, label: i18n.t('components:undo.deleted.question'),
+      drop: () => setQuestions((prev) => prev.filter((x) => x.id !== id)),
+      restore: () => setQuestions((prev) => (prev.some((x) => x.id === id) ? prev : [...prev, row].sort((x, y) => (x.order ?? 0) - (y.order ?? 0)))),
+    })
+  }, [questions, softDelete])
+
+  /* One answer, from the history — re-answering only upserts TODAY, so a value
+     logged on the wrong day otherwise stayed in the averages for good. */
+  const removeAnswer = useCallback((id) => {
+    const row = answers.find((x) => x.id === id)
+    return softDelete({
+      table: 'daily_answers', id, row, label: i18n.t('components:undo.deleted.answer'),
+      drop: () => setAnswers((prev) => prev.filter((x) => x.id !== id)),
+      restore: () => setAnswers((prev) => (prev.some((x) => x.id === id) ? prev : [...prev, row])),
+    })
+  }, [answers, softDelete])
 
   const updateQuestion = useCallback(async (id, patch) => {
     setQuestions((prev) => prev.map((x) => (x.id === id ? { ...x, ...patch } : x))) // optimistic
@@ -102,5 +140,5 @@ export function useInsightsData() {
     if (e) { setError(e.message); load() }
   }, [load])
 
-  return { questions, answers, loading, error, refetch: load, addAnswer, addQuestion, toggleActive, removeQuestion, updateQuestion }
+  return { questions, answers, linkedQuestionIds, loading, error, refetch: load, addAnswer, addQuestion, toggleActive, removeQuestion, removeAnswer, updateQuestion }
 }

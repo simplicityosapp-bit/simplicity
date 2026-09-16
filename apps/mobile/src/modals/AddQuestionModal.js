@@ -2,15 +2,19 @@ import { useState, useEffect } from 'react'
 import { View } from 'react-native'
 import { Text, TextInput } from '../components/Text'
 import { Pressable } from '../components/Pressable'
-import { QUESTION_TEMPLATES, qtext } from '@simplicity/core'
+import { QUESTION_TEMPLATES, qtext, questionSchedulePattern, scheduleFromPattern } from '@simplicity/core'
 import Sheet from '../components/Sheet'
+import ScheduleDayPicker from '../components/ScheduleDayPicker'
 import i18n from '../lib/i18n'
 import { colors } from '../theme/theme'
 import { themed } from '../theme/themed'
 
-// Add a daily question — from a ready template or custom (text + scale + icon).
-// Mirrors web AddQuestionModal. Schedule defaults to every-day (no picker on
-// mobile v1); onSave gets a user_questions-ready row.
+// Add or edit a daily question — from a ready template or custom (text + scale
+// + icon), and WHEN it is asked: every day, chosen weekdays or every X days (web
+// QuestionScheduleEditor). The phone could never set a schedule: every question
+// it made was daily, and one made elsewhere couldn't be changed here. onSave
+// gets a user_questions-ready row; "every day" is written as {} because the
+// column is NOT NULL (core questionSchedulePattern).
 const ICONS = ['🫧', '⚡', '🌙', '🎯', '🏃', '📚', '🧘', '✍️', '🌱', '💡']
 const SCALES = [
   { k: '1-10', l: 'scaleRange' },
@@ -22,6 +26,7 @@ export default function AddQuestionModal({ open, onClose, onSave, nextOrder = 0,
   const [mode, setMode] = useState('template')
   const [tmplKey, setTmplKey] = useState('')
   const [form, setForm] = useState({ text: '', scale_type: '1-10', icon: ICONS[0] })
+  const [sched, setSched] = useState(() => scheduleFromPattern(null))
   const [err, setErr] = useState('')
   const [busy, setBusy] = useState(false)
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }))
@@ -34,8 +39,10 @@ export default function AddQuestionModal({ open, onClose, onSave, nextOrder = 0,
     if (editQuestion) {
       setMode('custom')
       setForm({ text: editQuestion.custom_text || qtext(editQuestion.template_key) || '', scale_type: editQuestion.scale_type || '1-10', icon: editQuestion.icon || ICONS[0] })
+      setSched(scheduleFromPattern(editQuestion.schedule_pattern))
     } else {
       setMode('template'); setTmplKey(''); setForm({ text: '', scale_type: '1-10', icon: ICONS[0] })
+      setSched(scheduleFromPattern(null))
     }
     setErr('')
   }, [open, editQuestion])
@@ -45,6 +52,8 @@ export default function AddQuestionModal({ open, onClose, onSave, nextOrder = 0,
   const effMode = onlyCustom ? 'custom' : mode
 
   const submit = async () => {
+    if (sched.mode === 'days_of_week' && !sched.days.length) { setErr(i18n.t('modalsData:addGoal.needAtLeastOneDay')); return }
+    const schedule_pattern = questionSchedulePattern(sched.mode, sched.days, sched.x)
     let row
     if (isEdit) {
       /* Text and icon only (web EditQuestionModal). The scale is not editable:
@@ -56,14 +65,14 @@ export default function AddQuestionModal({ open, onClose, onSave, nextOrder = 0,
       const v = form.text.trim()
       if (!v) { setErr(i18n.t('modalsTask:question.textRequired')); return }
       const sameAsTemplate = editQuestion.template_key && !editQuestion.custom_text && v === (qtext(editQuestion.template_key) || '')
-      row = sameAsTemplate ? { icon: form.icon } : { template_key: null, custom_text: v, icon: form.icon }
+      row = sameAsTemplate ? { icon: form.icon, schedule_pattern } : { template_key: null, custom_text: v, icon: form.icon, schedule_pattern }
     } else if (effMode === 'template') {
       const tmpl = QUESTION_TEMPLATES.find((x) => x.key === tmplKey)
       if (!tmpl) { setErr(i18n.t('modalsTask:question.questionRequired')); return }
-      row = { template_key: tmpl.key, custom_text: null, scale_type: tmpl.scale_type, icon: tmpl.icon, active: true, order: nextOrder, schedule_pattern: {} }
+      row = { template_key: tmpl.key, custom_text: null, scale_type: tmpl.scale_type, icon: tmpl.icon, active: true, order: nextOrder, schedule_pattern }
     } else {
       if (!form.text.trim()) { setErr(i18n.t('modalsTask:question.textRequired')); return }
-      row = { template_key: null, custom_text: form.text.trim(), scale_type: form.scale_type, icon: form.icon, active: true, order: nextOrder, schedule_pattern: {} }
+      row = { template_key: null, custom_text: form.text.trim(), scale_type: form.scale_type, icon: form.icon, active: true, order: nextOrder, schedule_pattern }
     }
     setBusy(true)
     setErr('')
@@ -116,7 +125,10 @@ export default function AddQuestionModal({ open, onClose, onSave, nextOrder = 0,
               placeholderTextColor={colors.textFaint}
             />
           </View>
-          {isEdit ? null : (
+          {/* The scale can't change once answers are stored against it — say why the picker isn't here. */}
+          {isEdit ? (
+            <Text style={styles.hint}>{i18n.t(editQuestion.scale_type === 'yes_no' ? 'modalsTask:question.scaleLockedYesNo' : 'modalsTask:question.scaleLockedRange')}</Text>
+          ) : (
             <View style={styles.field}>
               <Text style={styles.label}>{i18n.t('modalsTask:question.answerType')}</Text>
               <View style={styles.pills}>
@@ -146,6 +158,11 @@ export default function AddQuestionModal({ open, onClose, onSave, nextOrder = 0,
           </View>
         </>
       )}
+
+      <View style={styles.field}>
+        <Text style={styles.label}>{i18n.t('modalsData:addGoal.whenAsked')}</Text>
+        <ScheduleDayPicker mode={sched.mode} days={sched.days} x={sched.x} onChange={(next) => { setSched(next); if (err) setErr('') }} />
+      </View>
 
       {err ? <Text style={styles.error}>{err}</Text> : null}
 
@@ -180,6 +197,7 @@ const styles = themed((c, t) => ({
   iconPillOn: { borderColor: c.brand, backgroundColor: c.brandSoft },
   iconText: { fontSize: 20 },
   error: { color: c.danger, fontSize: 13 },
+  hint: { fontSize: 12, color: c.textSub, lineHeight: 17 },
   actions: { flexDirection: 'row', alignItems: 'center', gap: 12, marginTop: 4 },
   cancel: { flex: 1, paddingVertical: 13, borderRadius: 12, borderWidth: 1, borderColor: c.border, alignItems: 'center' },
   cancelText: { fontSize: 15, color: c.textSub },

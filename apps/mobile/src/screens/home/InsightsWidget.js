@@ -4,17 +4,21 @@ import { Text } from '../../components/Text'
 import { Pressable } from '../../components/Pressable'
 import { useNavigation } from '@react-navigation/native'
 import Slider from '@react-native-community/slider'
-import { Sparkles, Check } from 'lucide-react-native'
-import { questionText, isQuestionDueToday } from '@simplicity/core'
+import { Sparkles, Check, SkipForward, Bell, ChevronUp, ChevronDown } from 'lucide-react-native'
+import { questionText, isQuestionDueToday, skippedQuestionIds, isQuestionReminderDue } from '@simplicity/core'
 import i18n from '../../lib/i18n'
 import Card from '../../components/Card'
+import InfoPopover from '../../components/InfoPopover'
+import { usePreferences } from '../../hooks/usePreferences'
 import { colors } from '../../theme/theme'
 import { themed } from '../../theme/themed'
 
 // Daily-question widget (mirrors web InsightsWidget): the next unanswered active
 // question due today + a live control — a 1–10 slider (10 = best) or yes/no —
-// that persists via addAnswer and advances to the next question. Hidden when
-// the user has no active questions (no mobile Settings screen to add one yet).
+// that persists via addAnswer and advances to the next question. As on web: a
+// question can be skipped for today (prefs.insSkipped — no answer written, so
+// averages and streaks are untouched), the daily reminder nudges once its time
+// has passed, the card folds away, and with no active question it invites one.
 const dayStr = (offset = 0) => {
   const d = new Date()
   d.setDate(d.getDate() + offset)
@@ -23,8 +27,11 @@ const dayStr = (offset = 0) => {
 
 export default function InsightsWidget({ questions, answers, addAnswer }) {
   const nav = useNavigation()
+  const { prefs, update } = usePreferences()
+  const gender = prefs?.design?.gender
   const [val, setVal] = useState(null)
   const [busy, setBusy] = useState(false)
+  const [collapsed, setCollapsed] = useState(false)
 
   const today = dayStr(0)
   const todayDate = useMemo(() => new Date(), [])
@@ -32,9 +39,27 @@ export default function InsightsWidget({ questions, answers, addAnswer }) {
     () => (questions || []).filter((x) => x.active && isQuestionDueToday(x, todayDate)),
     [questions, todayDate],
   )
+  const skippedToday = useMemo(() => skippedQuestionIds(prefs?.insSkipped, today), [prefs?.insSkipped, today])
   const q = useMemo(
-    () => activeQuestions.find((x) => !(answers || []).some((a) => a.user_question_id === x.id && a.date === today)),
-    [activeQuestions, answers, today],
+    () => activeQuestions.find((x) => !skippedToday.includes(x.id) && !(answers || []).some((a) => a.user_question_id === x.id && a.date === today)),
+    [activeQuestions, answers, today, skippedToday],
+  )
+  const overdue = !!q && isQuestionReminderDue(prefs?.insightsReminder)
+
+  const skip = () => {
+    if (busy || !q) return
+    Promise.resolve(update((cur) => ({ insSkipped: { date: today, ids: [...skippedQuestionIds(cur?.insSkipped, today), q.id] } }))).catch(() => {})
+    setVal(null)
+  }
+  const collapseBtn = (
+    <Pressable
+      onPress={() => setCollapsed((v) => !v)}
+      hitSlop={8}
+      accessibilityRole="button"
+      accessibilityLabel={collapsed ? i18n.t('home:widgets.insights.expand') : i18n.t('home:widgets.insights.collapse')}
+    >
+      {collapsed ? <ChevronDown size={16} strokeWidth={1.7} color={colors.textSub} /> : <ChevronUp size={16} strokeWidth={1.7} color={colors.textSub} />}
+    </Pressable>
   )
 
   const save = async (value) => {
@@ -50,18 +75,48 @@ export default function InsightsWidget({ questions, answers, addAnswer }) {
     }
   }
 
-  if (!activeQuestions.length) return null
+  if (collapsed) {
+    return (
+      <View style={styles.wrap}>
+        <Card contentStyle={[styles.inner, styles.innerCollapsed]}>
+          <Sparkles size={16} strokeWidth={1.6} color={colors.brand} />
+          <View style={{ flex: 1 }} />
+          {collapseBtn}
+        </Card>
+      </View>
+    )
+  }
+  /* No question to ask at all — say where they come from rather than vanish. */
+  if (!activeQuestions.length) {
+    return (
+      <View style={styles.wrap}>
+        <Card contentStyle={styles.inner}>
+          <View style={styles.qRow}>
+            <Sparkles size={16} strokeWidth={1.6} color={colors.brand} />
+            <Text style={styles.q}>{i18n.t('home:widgets.insights.prompt')}</Text>
+            {collapseBtn}
+          </View>
+          <Pressable style={styles.addLink} onPress={() => nav.navigate('Insights')} accessibilityRole="button">
+            <Text style={styles.addLinkText}>{i18n.t('home:widgets.insights.addQuestion')}</Text>
+          </Pressable>
+        </Card>
+      </View>
+    )
+  }
   if (!q) {
     return (
       <View style={styles.wrap}>
         <Card contentStyle={styles.inner}>
-          <Text style={styles.empty}>{i18n.t('home:widgets.insights.done')}</Text>
+          <View style={styles.qRow}>
+            <Text style={[styles.empty, { flex: 1 }]}>{i18n.t('home:widgets.insights.done')}</Text>
+            {collapseBtn}
+          </View>
         </Card>
       </View>
     )
   }
 
-  const text = questionText(q)
+  const text = questionText(q, gender)
   const yAns = (answers || []).find((a) => a.user_question_id === q.id && a.date === dayStr(-1))
   const yVal = yAns && typeof yAns.value_num === 'number' ? Number(yAns.value_num) : null
   let compare = ''
@@ -75,10 +130,26 @@ export default function InsightsWidget({ questions, answers, addAnswer }) {
   return (
     <View style={styles.wrap}>
       <Card contentStyle={styles.inner}>
-        <Pressable style={styles.qRow} onPress={() => nav.navigate('Insights')} accessibilityRole="button">
-          <Sparkles size={16} strokeWidth={1.6} color={colors.brand} />
-          <Text style={styles.q}>{text}</Text>
-        </Pressable>
+        <View style={styles.topRow}>
+          {overdue ? (
+            <View style={styles.reminder}>
+              <Bell size={12} strokeWidth={1.8} color={colors.amberWarn} />
+              <Text style={styles.reminderText}>{i18n.t('home:widgets.insights.reminder')}</Text>
+            </View>
+          ) : <View style={{ flex: 1 }} />}
+          <Pressable style={styles.skip} onPress={skip} disabled={busy} hitSlop={6} accessibilityRole="button" accessibilityLabel={i18n.t('home:widgets.insights.skipAria')}>
+            <SkipForward size={13} strokeWidth={1.7} color={colors.textSub} />
+            <Text style={styles.skipText}>{i18n.t('home:widgets.insights.skip')}</Text>
+          </Pressable>
+          {collapseBtn}
+        </View>
+        <View style={styles.qRow}>
+          <Pressable style={styles.qPress} onPress={() => nav.navigate('Insights')} accessibilityRole="button">
+            <Sparkles size={16} strokeWidth={1.6} color={colors.brand} />
+            <Text style={styles.q}>{text}</Text>
+          </Pressable>
+          <InfoPopover label={i18n.t('home:widgets.insights.infoLabel')} text={i18n.t('home:widgets.insights.infoText')} />
+        </View>
 
         {isYesNo ? (
           <View style={styles.ynRow}>
@@ -130,6 +201,15 @@ const styles = themed((c, t) => ({
   wrap: { marginTop: 12 },
   inner: { paddingVertical: 16, paddingHorizontal: 18, gap: 12 },
   qRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  qPress: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 8 },
+  innerCollapsed: { flexDirection: 'row', alignItems: 'center', paddingVertical: 10 },
+  topRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: -4 },
+  reminder: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 5 },
+  reminderText: { flexShrink: 1, fontSize: 12, color: c.amberWarn },
+  skip: { minHeight: 32, flexDirection: 'row', alignItems: 'center', gap: 4 },
+  skipText: { fontSize: 12, color: c.textSub },
+  addLink: { minHeight: 40, alignSelf: 'flex-start', justifyContent: 'center' },
+  addLinkText: { fontSize: 14, fontWeight: '600', color: c.brand },
   q: { flex: 1, fontSize: 15, color: c.text, lineHeight: 21 },
   empty: { fontSize: 14, color: c.textSub, textAlign: 'center' },
   ynRow: { flexDirection: 'row', gap: 10 },

@@ -190,8 +190,12 @@ export function PreferencesProvider({ children }) {
      changes that must not be believed until the server has them — requesting or
      cancelling account deletion. There a failed write rolls the change back and
      throws, so the screen can say so; before, cancelling a deletion offline
-     lifted the lock on the phone while the deletion stayed scheduled. */
-  const update = useCallback(async (patch, { strict = false } = {}) => {
+     lifted the lock on the phone while the deletion stayed scheduled.
+     `patch` may be a function of the CURRENT prefs (web's function form): a
+     toggle tapped twice in one tick reads the first tap's result, not the
+     render-old list, so the second write can't erase the first. */
+  const update = useCallback(async (patchOrFn, { strict = false } = {}) => {
+    const patch = typeof patchOrFn === 'function' ? patchOrFn(ref.current) : patchOrFn
     const before = ref.current
     const next = deepMerge(ref.current, patch)
     ref.current = next

@@ -20,6 +20,7 @@ import { themed } from '../theme/themed'
 import AttentionWidget from './home/AttentionWidget'
 import NextTasksWidget from './home/NextTasksWidget'
 import MoonWidget, { MoonExpansion } from './home/MoonWidget'
+import { useRecordMoonSnapshot } from '../hooks/useMoonSnapshots'
 import QuoteWidget from './home/QuoteWidget'
 import InsightsWidget from './home/InsightsWidget'
 import QuickRow from './home/QuickRow'
@@ -136,6 +137,8 @@ export default function HomeScreen() {
   const enabledSet = new Set(enabledIds)
   const quoteOn = enabledSet.has('quote')
   const moonOn = enabledSet.has('moon')
+  // Today's score joins the Moon trend's history (as web's moon widget does) — once the read has settled.
+  useRecordMoonSnapshot(moon.overall, moonOn && !loading && !error)
   const restOrder = enabledIds.filter((id) => id !== 'quote' && id !== 'moon')
 
   const renderWidget = (id) => {

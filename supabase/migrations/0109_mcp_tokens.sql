@@ -2,6 +2,9 @@
 -- Migration 0109 — mcp_tokens (גישה אישית ל-Claude: טוקן קריאה בלבד + קטגוריות)
 -- Date: 2026-08-16, rewritten 2026-10-11 (never applied before the rewrite —
 --       verified against the live DB 2026-10-11: no table, no migration row)
+-- ✅ APPLIED to the live project 2026-10-11 — recorded in
+--    supabase_migrations.schema_migrations as `20261011070819 0109_mcp_tokens`.
+--    (This header note was added afterwards; the SQL below is what ran.)
 -- ════════════════════════════════════════════════════════════════
 -- One row per personal-access token for the Claude connector
 -- (supabase/functions/claude-mcp). Tokens are minted and managed by the

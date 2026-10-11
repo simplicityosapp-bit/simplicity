@@ -1,6 +1,12 @@
 // ════════════════════════════════════════════════════════════════
 //  mcp-tokens — manage the user's personal Claude access token.
 // ════════════════════════════════════════════════════════════════
+//  STATUS (2026-10-11): DEPLOYED AND ACTIVE on the live project — version 1,
+//  verify_jwt ON (a signed-in user's JWT is required). Writes to mcp_tokens
+//  (migration 0109, also live). Nothing in the app calls it while
+//  CLAUDE_ACCESS_ENABLED (apps/web/src/lib/claudeAccessFlag.js) is false.
+//  See apps/web/docs/claude-access.md.
+// ════════════════════════════════════════════════════════════════
 //  Called by the connections screen (web) with the user's session JWT. The
 //  user id is taken ONLY from that verified JWT, never from the request body.
 //  Every DB op uses the service-role client (store.ts) and is filtered by that

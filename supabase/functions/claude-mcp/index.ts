@@ -3,6 +3,12 @@
 //  Read-only access to the user's Simplicity data, limited to the data
 //  categories they enabled in the app (Connections → Claude).
 // ════════════════════════════════════════════════════════════════
+//  STATUS (2026-10-11): DEPLOYED AND ACTIVE on the live project — version 1,
+//  verify_jwt OFF (it authenticates its own smp_ bearer tokens against
+//  mcp_tokens, migration 0109, also live). The web UI that issues tokens is
+//  frozen behind CLAUDE_ACCESS_ENABLED (apps/web/src/lib/claudeAccessFlag.js),
+//  so no new token can be created from the app. See apps/web/docs/claude-access.md.
+// ════════════════════════════════════════════════════════════════
 //  Auth is a personal bearer token (`smp_…`) managed by the edge function
 //  mcp-tokens and stored as a SHA-256 hash in `mcp_tokens` (migration 0109).
 //  It is NOT a Supabase JWT, so the gateway JWT check must be OFF:

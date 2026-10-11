@@ -9,6 +9,7 @@ import { useUpgradeNav } from '../../hooks/useUpgradeNav'
 import { useGrowGateway } from '../../hooks/useGrowGateway'
 import { useClaudeAccess } from '../../hooks/useClaudeAccess'
 import { GROW_ENABLED } from '../../lib/grow'
+import { CLAUDE_ACCESS_ENABLED } from '../../lib/claudeAccessFlag'
 import { useT } from '../../i18n/useT'
 import './ConnectionsScreen.css'
 import { Box, Txt, Btn } from '../../components/ui'
@@ -36,7 +37,8 @@ function ConnRow({ icon: Icon, title, loading, connected, warn, statusText, onOp
 
 /* Not-yet-available integrations — shown as a disabled row with an
    Anthropic-style toggle (off) + a "בקרוב" tag. Non-interactive.
-   (WhatsApp and Claude graduated to live rows.) */
+   (WhatsApp graduated to a live row; Claude shows here while
+   CLAUDE_ACCESS_ENABLED is false.) */
 function SoonRow({ icon: Icon, title, soonLabel, ariaLabel }) {
   return (
     <Box className="conn-row conn-row-soon" aria-disabled="true">
@@ -68,6 +70,43 @@ function LockedRow({ icon: Icon, title, label, onOpen, ariaLabel }) {
   )
 }
 
+/* The live Claude row — status from mcp-tokens. Its own component so the hook
+   (and its network call) only mounts while the feature is enabled. */
+function ClaudeRow({ t, onOpen }) {
+  const claude = useClaudeAccess()
+  const on = !!claude.status?.active
+  const expired = on && !!claude.status?.expired
+  const statusText = claude.error && !claude.status
+    ? t('list.statusError')
+    : !on
+      ? t('list.notConnected')
+      : expired
+        ? t('list.expired')
+        : t('list.connected')
+  return (
+    <ConnRow
+      icon={Sparkles}
+      title="Claude"
+      loading={claude.loading}
+      connected={on}
+      warn={expired}
+      statusText={statusText}
+      loadingLabel={t('loading')}
+      ariaLabel={t('list.rowAria', { title: 'Claude', status: claude.loading ? t('loading') : statusText })}
+      onOpen={onOpen}
+    />
+  )
+}
+
+/* Claude in the list: the "בקרוב" row while CLAUDE_ACCESS_ENABLED is false
+   (exactly as before the feature), the live row once it is turned on. */
+export function ClaudeEntry({ t, onOpen }) {
+  if (!CLAUDE_ACCESS_ENABLED) {
+    return <SoonRow icon={Sparkles} title="Claude" soonLabel={t('list.soon')} ariaLabel={t('list.soonAria', { title: 'Claude' })} />
+  }
+  return <ClaudeRow t={t} onOpen={onOpen} />
+}
+
 /* Connections home — a compact list of integrations. Each row enters its own
    sub-screen. This screen also catches the Google OAuth redirect (?code), since
    the registered redirect_uri is /connections; on success it forwards into the
@@ -82,7 +121,6 @@ export default function ConnectionsScreen() {
   const gcal = useGoogleCalendar()
   const inv = useInvoiceProvider()
   const grow = useGrowGateway()
-  const claude = useClaudeAccess()
   const providerLabel = (p) => (p === 'sumit' || p === 'greeninvoice' ? t(`providers.${p}`) : '')
   const [callbackError, setCallbackError] = useState('')
   const [connecting, setConnecting] = useState(false)
@@ -128,16 +166,6 @@ export default function ConnectionsScreen() {
     : growWarn
       ? t('list.needsReconnect')
       : t('list.connected')
-  const claudeOn = !!claude.status?.active
-  const claudeExpired = claudeOn && !!claude.status?.expired
-  const claudeStatusText = claude.error && !claude.status
-    ? t('list.statusError')
-    : !claudeOn
-      ? t('list.notConnected')
-      : claudeExpired
-        ? t('list.expired')
-        : t('list.connected')
-
   return (
     <Box className="screen">
       <Box as="header" className="screen-head conn-head">
@@ -217,17 +245,7 @@ export default function ConnectionsScreen() {
           ariaLabel={t('list.rowAria', { title: 'WhatsApp', status: t('list.whatsappStatus') })}
           onOpen={() => navigate(ROUTES.CONNECTION_WHATSAPP)}
         />
-        <ConnRow
-          icon={Sparkles}
-          title="Claude"
-          loading={claude.loading}
-          connected={claudeOn}
-          warn={claudeExpired}
-          statusText={claudeStatusText}
-          loadingLabel={t('loading')}
-          ariaLabel={t('list.rowAria', { title: 'Claude', status: claude.loading ? t('loading') : claudeStatusText })}
-          onOpen={() => navigate(ROUTES.CONNECTION_CLAUDE)}
-        />
+        <ClaudeEntry t={t} onOpen={() => navigate(ROUTES.CONNECTION_CLAUDE)} />
       </Box>
     </Box>
   )

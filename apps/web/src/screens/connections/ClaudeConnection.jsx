@@ -1,7 +1,12 @@
+/* ⛔ HIDDEN behind CLAUDE_ACCESS_ENABLED (lib/claudeAccessFlag.js), currently
+   false: /connections/claude redirects back to /connections and nothing below
+   mounts. The screen itself is complete; see that file for why it is frozen. */
 import { useEffect, useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Navigate } from 'react-router-dom'
 import { ChevronRight, Sparkles, Check, CircleAlert, RefreshCw, SlidersHorizontal, Copy, ShieldAlert, KeyRound } from 'lucide-react'
 import { useClaudeAccess } from '../../hooks/useClaudeAccess'
+import { CLAUDE_ACCESS_ENABLED } from '../../lib/claudeAccessFlag'
+import { ROUTES } from '../../lib/routes'
 import { CLAUDE_CATEGORIES, categoriesNeedingConsent, claudeConnectCommand, claudeErrorKey, consentLines } from '../../lib/claudeAccess'
 import { copyText } from '../../lib/clipboard'
 import { showToast } from '../../lib/toast'
@@ -39,11 +44,18 @@ function CategoryPicker({ picked, onToggle, disabled, t }) {
   )
 }
 
+/* Route entry: locked → bounce back to the connections list before any hook
+   (and so any call to mcp-tokens) runs. Same guard as GrowConnection. */
+export default function ClaudeConnectionScreen() {
+  if (!CLAUDE_ACCESS_ENABLED) return <Navigate to={ROUTES.CONNECTIONS} replace />
+  return <ClaudeConnectionPanel />
+}
+
 /* Sub-screen for personal Claude access (read-only token over the claude-mcp
    connector). Flow when off: pick categories → consent → create → one-time
    reveal of the token + setup command. When on: switch, categories, last use,
    expiry, renew, edit categories; switching off revokes (ConfirmModal). */
-export default function ClaudeConnectionScreen() {
+export function ClaudeConnectionPanel() {
   const { t, lang } = useT('connections')
   const navigate = useNavigate()
   const ca = useClaudeAccess()

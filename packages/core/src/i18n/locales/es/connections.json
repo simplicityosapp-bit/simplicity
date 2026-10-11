@@ -26,7 +26,8 @@
     "whatsappStatus": "Envío manual · editar mensajes",
     "soon": "Próximamente",
     "soonAria": "{{title}} — próximamente",
-    "desktopSetup": "Se configura desde un ordenador"
+    "desktopSetup": "Se configura desde un ordenador",
+    "expired": "Caducado"
   },
   "calendar": {
     "back": "Atrás",
@@ -346,5 +347,125 @@
     "issueConfirm": "¿Seguro? Emitir por {{amount}}",
     "issue": "Emitir",
     "cancel": "Cancelar"
+  },
+  "claude": {
+    "title": "Acceso personal de Claude",
+    "offHint": "Desactivado: Claude no puede leer tus datos.",
+    "activeUntil": "Activo · válido hasta {{date}}",
+    "expiredOn": "Caducó el {{date}}",
+    "switchLabel": "Acceso de lectura de Claude a tus datos",
+    "intro": "Mientras el acceso esté activo, tu Claude puede leer —y solo leer— los datos que elegiste de Simplicity. No puede cambiar ni borrar nada.",
+    "clientNote": "Por ahora la conexión funciona con Claude Code. El acceso dura 90 días y puedes desactivarlo en cualquier momento.",
+    "pickTitle": "¿Qué podrá leer Claude?",
+    "editTitle": "Editar categorías",
+    "pickHint": "Marca solo lo necesario. Puedes cambiarlo cuando quieras y el cambio se aplica al instante.",
+    "pickAtLeastOne": "Elige al menos una categoría.",
+    "sensitive": "Sensible",
+    "freeText": "Incluye texto libre que escribiste",
+    "continue": "Continuar",
+    "cancel": "Cancelar",
+    "back": "Atrás",
+    "saveCategories": "Guardar categorías",
+    "saving": "Guardando…",
+    "categoriesSaved": "Categorías actualizadas. El cambio ya está en vigor.",
+    "consentTitle": "Antes de activarlo",
+    "reconsentTitle": "Elegiste categorías que no habías aceptado antes. Para guardar, acepta de nuevo el texto de consentimiento:",
+    "selectedAria": "Categorías elegidas",
+    "consent": {
+      "reads": "Claude podrá leer solo lo que elegiste: {{list}}. No puede cambiar ni borrar nada.",
+      "transfer": "Esta información, incluidos datos de tus clientes como nombres, teléfonos y notas (según lo que elegiste), se enviará a Claude, de Anthropic, y se procesará allí cada vez que le hagas una pregunta.",
+      "freeText": "Parte de lo que elegiste incluye texto libre que escribiste (por ejemplo, descripciones de tareas, transacciones o leads), y se enviará tal cual.",
+      "sensitive": "También elegiste información sensible: {{list}}.",
+      "responsibility": "Tus clientes y coachees confían en ti. Enviar su información a Claude es decisión tuya, y eres responsable de asegurarte de que encaja con lo que acordaste con ellos y con la ley que te aplica.",
+      "revoke": "Puedes desactivar el acceso en cualquier momento desde esta pantalla, y se detiene al instante. La información ya enviada a conversaciones existentes con Claude permanece en ellas, y puedes borrarlas desde Claude.",
+      "agree": "He leído y entendido esto, y acepto"
+    },
+    "agreeCreate": "Aceptar y crear token",
+    "creating": "Creando…",
+    "revealWarning": "Es la única vez que se muestra el token. Al cerrar esta pantalla no podrás volver a verlo; solo crear uno nuevo.",
+    "commandTitle": "Comando para conectar Claude Code",
+    "copy": "Copiar",
+    "copied": "Copiado",
+    "copyAria": "Copiar el comando",
+    "copyFailed": "No se pudo copiar. Selecciona el comando y cópialo a mano.",
+    "steps": {
+      "one": "Abre una terminal en el ordenador donde está instalado Claude Code.",
+      "two": "Pega el comando y ejecútalo.",
+      "three": "Hazle a Claude una pregunta sobre tus datos para comprobar la conexión."
+    },
+    "doneReveal": "He guardado el comando, listo",
+    "lastUsed": "Último uso",
+    "neverUsed": "Aún sin usar",
+    "expiresLabel": "Válido hasta",
+    "expiredLabel": "Caducó el",
+    "allowedTitle": "Qué puede leer Claude",
+    "renew": "Renovar 90 días",
+    "renewed": "Renovado hasta {{date}}.",
+    "editCategories": "Editar categorías",
+    "recreate": "Crear un token nuevo",
+    "revoked": "Se desactivó el acceso de Claude.",
+    "offTitle": "¿Desactivar el acceso de Claude?",
+    "offMessage": "El token se revocará al instante y Claude ya no podrá leer tus datos. Para volver a activarlo necesitarás un token nuevo.",
+    "offConfirm": "Desactivar acceso",
+    "errors": {
+      "unauthorized": "Tu sesión en la app caducó. Vuelve a iniciar sesión e inténtalo de nuevo.",
+      "rate_limited": "Demasiados intentos. Espera unos minutos e inténtalo de nuevo.",
+      "invalid_categories": "Elige al menos una categoría de la lista.",
+      "consent_required": "Acepta el texto de consentimiento antes de activar el acceso.",
+      "no_active_token": "No hay un acceso activo. Vuelve a activarlo.",
+      "server_error": "Algo falló de nuestro lado. Inténtalo en un momento.",
+      "network": "No se pudo conectar con el servidor. Revisa tu conexión e inténtalo de nuevo.",
+      "unknown": "No funcionó. Inténtalo de nuevo."
+    },
+    "cats": {
+      "clients": {
+        "name": "Clientes y grupos",
+        "desc": "Nombres, estado, precios y horario fijo. Sin datos de contacto ni notas."
+      },
+      "contact_details": {
+        "name": "Datos de contacto identificativos",
+        "desc": "Teléfono, email, dirección y fecha de nacimiento de clientes; contacto de leads, reservas y destinatarios de facturas."
+      },
+      "session_notes": {
+        "name": "Notas de sesiones",
+        "desc": "Las notas y resúmenes que escribiste en las sesiones."
+      },
+      "client_notes": {
+        "name": "Notas sobre clientes y leads",
+        "desc": "Las notas libres que escribiste en las fichas de clientes y leads."
+      },
+      "meetings": {
+        "name": "Reuniones y calendario",
+        "desc": "Sesiones pasadas y programadas, reservas y tipos de reunión. Los eventos de calendario externo aparecen solo como tiempo ocupado."
+      },
+      "calendar_titles": {
+        "name": "Títulos de eventos del calendario",
+        "desc": "Títulos de los eventos de tu calendario externo, que a veces incluyen nombres."
+      },
+      "leads": {
+        "name": "Leads",
+        "desc": "Nombres, estado, origen y fechas. Sin datos de contacto ni notas."
+      },
+      "finance": {
+        "name": "Finanzas",
+        "desc": "Transacciones, categorías, planes de pago, recurrentes, ajustes e inversiones. Solo id de cliente, sin nombres."
+      },
+      "tax_ids": {
+        "name": "DNI / CIF",
+        "desc": "Número de identificación de los destinatarios de facturas."
+      },
+      "tasks": {
+        "name": "Tareas y recordatorios",
+        "desc": "Tareas (con descripción) y recordatorios."
+      },
+      "projects_goals": {
+        "name": "Proyectos y metas",
+        "desc": "Proyectos, metas y progreso."
+      },
+      "journal": {
+        "name": "Diario personal",
+        "desc": "Respuestas personales, reflexiones y puntuaciones Moon."
+      }
+    }
   }
 }

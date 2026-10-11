@@ -7,6 +7,7 @@ import { useInvoiceProvider } from '../../hooks/useInvoiceProvider'
 import { useSubscription } from '../../hooks/useSubscription'
 import { useUpgradeNav } from '../../hooks/useUpgradeNav'
 import { useGrowGateway } from '../../hooks/useGrowGateway'
+import { useClaudeAccess } from '../../hooks/useClaudeAccess'
 import { GROW_ENABLED } from '../../lib/grow'
 import { useT } from '../../i18n/useT'
 import './ConnectionsScreen.css'
@@ -35,10 +36,7 @@ function ConnRow({ icon: Icon, title, loading, connected, warn, statusText, onOp
 
 /* Not-yet-available integrations — shown as a disabled row with an
    Anthropic-style toggle (off) + a "בקרוב" tag. Non-interactive.
-   (WhatsApp graduated to a live row — manual click-to-chat send.) */
-const SOON = [
-  { key: 'claude', title: 'Claude', icon: Sparkles },
-]
+   (WhatsApp and Claude graduated to live rows.) */
 function SoonRow({ icon: Icon, title, soonLabel, ariaLabel }) {
   return (
     <Box className="conn-row conn-row-soon" aria-disabled="true">
@@ -84,6 +82,7 @@ export default function ConnectionsScreen() {
   const gcal = useGoogleCalendar()
   const inv = useInvoiceProvider()
   const grow = useGrowGateway()
+  const claude = useClaudeAccess()
   const providerLabel = (p) => (p === 'sumit' || p === 'greeninvoice' ? t(`providers.${p}`) : '')
   const [callbackError, setCallbackError] = useState('')
   const [connecting, setConnecting] = useState(false)
@@ -129,6 +128,15 @@ export default function ConnectionsScreen() {
     : growWarn
       ? t('list.needsReconnect')
       : t('list.connected')
+  const claudeOn = !!claude.status?.active
+  const claudeExpired = claudeOn && !!claude.status?.expired
+  const claudeStatusText = claude.error && !claude.status
+    ? t('list.statusError')
+    : !claudeOn
+      ? t('list.notConnected')
+      : claudeExpired
+        ? t('list.expired')
+        : t('list.connected')
 
   return (
     <Box className="screen">
@@ -209,15 +217,17 @@ export default function ConnectionsScreen() {
           ariaLabel={t('list.rowAria', { title: 'WhatsApp', status: t('list.whatsappStatus') })}
           onOpen={() => navigate(ROUTES.CONNECTION_WHATSAPP)}
         />
-        {SOON.map((s) => (
-          <SoonRow
-            key={s.key}
-            icon={s.icon}
-            title={s.title}
-            soonLabel={t('list.soon')}
-            ariaLabel={t('list.soonAria', { title: s.title })}
-          />
-        ))}
+        <ConnRow
+          icon={Sparkles}
+          title="Claude"
+          loading={claude.loading}
+          connected={claudeOn}
+          warn={claudeExpired}
+          statusText={claudeStatusText}
+          loadingLabel={t('loading')}
+          ariaLabel={t('list.rowAria', { title: 'Claude', status: claude.loading ? t('loading') : claudeStatusText })}
+          onOpen={() => navigate(ROUTES.CONNECTION_CLAUDE)}
+        />
       </Box>
     </Box>
   )

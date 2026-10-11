@@ -49,6 +49,7 @@ export const ROUTES = {
   CONNECTION_INVOICES: '/connections/invoices', // sub-screen: invoices (Green Invoice / SUMIT)
   CONNECTION_GROW: '/connections/grow', // sub-screen: Grow payment gateway (סליקה)
   CONNECTION_WHATSAPP: '/connections/whatsapp', // sub-screen: WhatsApp message templates
+  CONNECTION_CLAUDE: '/connections/claude', // sub-screen: personal Claude access (read-only token)
 
   // Community. COMMUNITY_CHAT is the room and the feature's entry point — it
   // is what nav links to. COMMUNITY_PROFILE is the display-name gate in front

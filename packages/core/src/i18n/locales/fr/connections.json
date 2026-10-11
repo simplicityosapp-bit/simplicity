@@ -26,7 +26,8 @@
     "whatsappStatus": "Envoi manuel · modifier les messages",
     "soon": "Bientôt disponible",
     "soonAria": "{{title}} — bientôt disponible",
-    "desktopSetup": "Se configure depuis un ordinateur"
+    "desktopSetup": "Se configure depuis un ordinateur",
+    "expired": "Expiré"
   },
   "calendar": {
     "back": "Retour",
@@ -346,5 +347,125 @@
     "issueConfirm": "Sûr ? Émettre pour {{amount}}",
     "issue": "Émettre",
     "cancel": "Annuler"
+  },
+  "claude": {
+    "title": "Accès personnel de Claude",
+    "offHint": "Désactivé : Claude ne peut pas lire vos données.",
+    "activeUntil": "Actif · valable jusqu’au {{date}}",
+    "expiredOn": "Expiré le {{date}}",
+    "switchLabel": "Accès en lecture de Claude à vos données",
+    "intro": "Tant que l’accès est actif, votre Claude peut lire — et seulement lire — les données que vous avez choisies dans Simplicity. Il ne peut rien modifier ni supprimer.",
+    "clientNote": "Pour l’instant, la connexion fonctionne avec Claude Code. L’accès est valable 90 jours et vous pouvez le désactiver à tout moment.",
+    "pickTitle": "Que pourra lire Claude ?",
+    "editTitle": "Modifier les catégories",
+    "pickHint": "Cochez seulement le nécessaire. Vous pouvez changer cela à tout moment, avec effet immédiat.",
+    "pickAtLeastOne": "Choisissez au moins une catégorie.",
+    "sensitive": "Sensible",
+    "freeText": "Contient du texte libre que vous avez écrit",
+    "continue": "Continuer",
+    "cancel": "Annuler",
+    "back": "Retour",
+    "saveCategories": "Enregistrer les catégories",
+    "saving": "Enregistrement…",
+    "categoriesSaved": "Catégories mises à jour. Le changement est déjà actif.",
+    "consentTitle": "Avant d’activer",
+    "reconsentTitle": "Vous avez choisi des catégories que vous n’aviez pas encore acceptées. Pour enregistrer, acceptez à nouveau le texte de consentement :",
+    "selectedAria": "Catégories choisies",
+    "consent": {
+      "reads": "Claude pourra lire uniquement ce que vous avez choisi : {{list}}. Il ne peut rien modifier ni supprimer.",
+      "transfer": "Ces informations, y compris des données sur vos clients comme les noms, téléphones et notes (selon vos choix), seront envoyées à Claude, d’Anthropic, et traitées à chaque question que vous lui posez.",
+      "freeText": "Une partie de vos choix contient du texte libre que vous avez écrit (par exemple des descriptions de tâches, de transactions ou de prospects), et il sera envoyé tel quel.",
+      "sensitive": "Vous avez aussi choisi des informations sensibles : {{list}}.",
+      "responsibility": "Vos clients et coachés vous font confiance. Envoyer leurs informations à Claude est votre décision, et il vous appartient de vérifier qu’elle respecte ce que vous avez convenu avec eux et la loi qui s’applique à vous.",
+      "revoke": "Vous pouvez désactiver l’accès à tout moment depuis cet écran, et il s’arrête immédiatement. Les informations déjà envoyées dans des conversations existantes avec Claude y restent, et vous pouvez les supprimer depuis Claude.",
+      "agree": "J’ai lu et compris ce texte, et j’accepte"
+    },
+    "agreeCreate": "Accepter et créer le jeton",
+    "creating": "Création…",
+    "revealWarning": "C’est la seule fois où le jeton est affiché. Une fois cet écran fermé, impossible de le revoir — seulement d’en créer un nouveau.",
+    "commandTitle": "Commande pour connecter Claude Code",
+    "copy": "Copier",
+    "copied": "Copié",
+    "copyAria": "Copier la commande",
+    "copyFailed": "La copie a échoué. Sélectionnez la commande et copiez-la à la main.",
+    "steps": {
+      "one": "Ouvrez un terminal sur l’ordinateur où Claude Code est installé.",
+      "two": "Collez la commande et exécutez-la.",
+      "three": "Posez à Claude une question sur vos données pour vérifier la connexion."
+    },
+    "doneReveal": "J’ai enregistré la commande, terminé",
+    "lastUsed": "Dernière utilisation",
+    "neverUsed": "Pas encore utilisé",
+    "expiresLabel": "Valable jusqu’au",
+    "expiredLabel": "Expiré le",
+    "allowedTitle": "Ce que Claude peut lire",
+    "renew": "Renouveler pour 90 jours",
+    "renewed": "Renouvelé jusqu’au {{date}}.",
+    "editCategories": "Modifier les catégories",
+    "recreate": "Créer un nouveau jeton",
+    "revoked": "L’accès de Claude a été désactivé.",
+    "offTitle": "Désactiver l’accès de Claude ?",
+    "offMessage": "Le jeton sera révoqué immédiatement et Claude ne pourra plus lire vos données. Pour le réactiver, il faudra un nouveau jeton.",
+    "offConfirm": "Désactiver l’accès",
+    "errors": {
+      "unauthorized": "Votre session a expiré. Reconnectez-vous et réessayez.",
+      "rate_limited": "Trop de tentatives. Attendez quelques minutes et réessayez.",
+      "invalid_categories": "Choisissez au moins une catégorie dans la liste.",
+      "consent_required": "Acceptez le texte de consentement avant d’activer l’accès.",
+      "no_active_token": "Aucun accès actif. Réactivez-le.",
+      "server_error": "Un problème est survenu de notre côté. Réessayez dans un instant.",
+      "network": "Serveur injoignable. Vérifiez votre connexion et réessayez.",
+      "unknown": "Cela n’a pas fonctionné. Réessayez."
+    },
+    "cats": {
+      "clients": {
+        "name": "Clients et groupes",
+        "desc": "Noms, statut, tarifs et horaires fixes. Sans coordonnées ni notes."
+      },
+      "contact_details": {
+        "name": "Coordonnées identifiantes",
+        "desc": "Téléphone, e-mail, adresse et date de naissance des clients ; coordonnées des prospects, réservations et destinataires de factures."
+      },
+      "session_notes": {
+        "name": "Notes de séances",
+        "desc": "Les notes et résumés que vous avez écrits sur les séances."
+      },
+      "client_notes": {
+        "name": "Notes sur clients et prospects",
+        "desc": "Les notes libres écrites sur les fiches clients et prospects."
+      },
+      "meetings": {
+        "name": "Rendez-vous et agenda",
+        "desc": "Séances passées et prévues, réservations et types de rendez-vous. Les événements d’agenda externe apparaissent seulement comme créneaux occupés."
+      },
+      "calendar_titles": {
+        "name": "Titres des événements d’agenda",
+        "desc": "Titres des événements de votre agenda externe, qui contiennent parfois des noms."
+      },
+      "leads": {
+        "name": "Prospects",
+        "desc": "Noms, statut, source et dates. Sans coordonnées ni notes."
+      },
+      "finance": {
+        "name": "Finances",
+        "desc": "Transactions, catégories, échéanciers, récurrences, ajustements et investissements. Id client uniquement, sans noms."
+      },
+      "tax_ids": {
+        "name": "N° d’identité / SIREN",
+        "desc": "Numéro d’identité ou d’entreprise des destinataires de factures."
+      },
+      "tasks": {
+        "name": "Tâches et rappels",
+        "desc": "Tâches (avec description) et rappels."
+      },
+      "projects_goals": {
+        "name": "Projets et objectifs",
+        "desc": "Projets, objectifs et progression."
+      },
+      "journal": {
+        "name": "Journal personnel",
+        "desc": "Réponses personnelles, réflexions et scores Moon."
+      }
+    }
   }
 }

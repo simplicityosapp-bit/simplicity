@@ -26,7 +26,8 @@
     "whatsappStatus": "Manual send · edit messages",
     "soon": "Coming soon",
     "soonAria": "{{title}} — coming soon",
-    "desktopSetup": "Set up from a computer"
+    "desktopSetup": "Set up from a computer",
+    "expired": "Expired"
   },
   "calendar": {
     "back": "Back",
@@ -346,5 +347,125 @@
     "issueConfirm": "Sure? Issue for {{amount}}",
     "issue": "Issue",
     "cancel": "Cancel"
+  },
+  "claude": {
+    "title": "Personal Claude access",
+    "offHint": "Off — Claude cannot read your data.",
+    "activeUntil": "Active · valid until {{date}}",
+    "expiredOn": "Expired on {{date}}",
+    "switchLabel": "Claude's read access to your data",
+    "intro": "While access is on, your Claude can read — and only read — the data you chose from Simplicity. It cannot change or delete anything.",
+    "clientNote": "For now the connection works with Claude Code. Access is valid for 90 days and you can switch it off at any time.",
+    "pickTitle": "What can Claude read?",
+    "editTitle": "Edit categories",
+    "pickHint": "Tick only what you need. You can change this at any time and it takes effect immediately.",
+    "pickAtLeastOne": "Choose at least one category.",
+    "sensitive": "Sensitive",
+    "freeText": "Includes free text you wrote",
+    "continue": "Continue",
+    "cancel": "Cancel",
+    "back": "Back",
+    "saveCategories": "Save categories",
+    "saving": "Saving…",
+    "categoriesSaved": "Categories updated. The change is already in effect.",
+    "consentTitle": "Before you switch it on",
+    "reconsentTitle": "You chose categories you have not agreed to before. To save, agree to the consent text again:",
+    "selectedAria": "Selected categories",
+    "consent": {
+      "reads": "Claude will be able to read only what you chose: {{list}}. It cannot change or delete anything.",
+      "transfer": "This information, including details about your clients such as names, phone numbers and notes (depending on what you chose), will be sent to Claude, by Anthropic, and processed there each time you ask it a question.",
+      "freeText": "Some of what you chose includes free text you wrote (such as task, transaction or lead descriptions), and it will be sent as is.",
+      "sensitive": "You also chose sensitive information: {{list}}.",
+      "responsibility": "Your clients and coachees trust you. Sending their information to Claude is your decision, and you are responsible for making sure it fits what you agreed with them and the law that applies to you.",
+      "revoke": "You can switch access off at any time from this screen, and it stops immediately. Information already sent to existing Claude conversations stays in those conversations, and you can delete them in Claude.",
+      "agree": "I have read and understood this, and I agree"
+    },
+    "agreeCreate": "Agree and create token",
+    "creating": "Creating…",
+    "revealWarning": "This is the only time the token is shown. Once you close this screen there is no way to see it again — only to create a new one.",
+    "commandTitle": "Command to connect Claude Code",
+    "copy": "Copy",
+    "copied": "Copied",
+    "copyAria": "Copy the command",
+    "copyFailed": "Copy failed. Select the command and copy it manually.",
+    "steps": {
+      "one": "Open a terminal on the computer where Claude Code is installed.",
+      "two": "Paste the command and run it.",
+      "three": "Ask Claude a question about your data to check the connection works."
+    },
+    "doneReveal": "I've saved the command, done",
+    "lastUsed": "Last used",
+    "neverUsed": "Not used yet",
+    "expiresLabel": "Valid until",
+    "expiredLabel": "Expired on",
+    "allowedTitle": "What Claude can read",
+    "renew": "Renew for 90 days",
+    "renewed": "Renewed until {{date}}.",
+    "editCategories": "Edit categories",
+    "recreate": "Create a new token",
+    "revoked": "Claude's access was switched off.",
+    "offTitle": "Switch off Claude's access?",
+    "offMessage": "The token will be revoked immediately and Claude will no longer be able to read your data. To switch it on again you will need a new token.",
+    "offConfirm": "Switch off access",
+    "errors": {
+      "unauthorized": "Your app session expired. Sign in again and retry.",
+      "rate_limited": "Too many attempts. Wait a few minutes and try again.",
+      "invalid_categories": "Choose at least one category from the list.",
+      "consent_required": "Please agree to the consent text before switching access on.",
+      "no_active_token": "There is no active access. Switch it on again.",
+      "server_error": "Something went wrong on our side. Try again in a moment.",
+      "network": "Could not reach the server. Check your connection and try again.",
+      "unknown": "That did not work. Try again."
+    },
+    "cats": {
+      "clients": {
+        "name": "Clients and groups",
+        "desc": "Names, status, pricing and fixed schedule. No contact details or notes."
+      },
+      "contact_details": {
+        "name": "Identifying contact details",
+        "desc": "Client phone, email, address and birth date; contact details of leads, bookings and invoice recipients."
+      },
+      "session_notes": {
+        "name": "Session notes",
+        "desc": "The notes and summaries you wrote on sessions."
+      },
+      "client_notes": {
+        "name": "Notes on clients and leads",
+        "desc": "The free-text notes you wrote on client and lead cards."
+      },
+      "meetings": {
+        "name": "Meetings and calendar",
+        "desc": "Past and scheduled meetings, bookings and meeting types. External calendar events appear as busy time only."
+      },
+      "calendar_titles": {
+        "name": "Calendar event titles",
+        "desc": "Titles of events from your external calendar, which sometimes include names."
+      },
+      "leads": {
+        "name": "Leads",
+        "desc": "Names, status, source and dates. No contact details or notes."
+      },
+      "finance": {
+        "name": "Finance",
+        "desc": "Transactions, categories, payment plans, recurring items, adjustments and investments. Client id only, no names."
+      },
+      "tax_ids": {
+        "name": "ID / company numbers",
+        "desc": "ID or company number of invoice recipients."
+      },
+      "tasks": {
+        "name": "Tasks and reminders",
+        "desc": "Tasks (including descriptions) and reminders."
+      },
+      "projects_goals": {
+        "name": "Projects and goals",
+        "desc": "Projects, goals and progress."
+      },
+      "journal": {
+        "name": "Personal journal",
+        "desc": "Personal answers, reflections and Moon scores."
+      }
+    }
   }
 }

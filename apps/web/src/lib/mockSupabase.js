@@ -21,6 +21,7 @@
 import { MOCK_DB } from '../data/mock'
 import { defaultPreferences } from './preferences'
 import { PRIVACY_VERSION, DPA_VERSION, TERMS_VERSION } from './legal'
+import { CLAUDE_CONSENT_VERSION } from './claudeAccess'
 
 const uuid = () =>
   (globalThis.crypto?.randomUUID
@@ -352,6 +353,46 @@ function adminInvoke(body) {
   return { ok: true }
 }
 
+let mockClaudeRow = null
+function mcpTokensInvoke(body) {
+  const day = 86_400_000
+  if (mockClaudeRow === null && localStorage.getItem('PREVIEW_CLAUDE') === 'expired') {
+    mockClaudeRow = { categories: ['clients', 'session_notes', 'finance'], consented_categories: ['clients', 'session_notes', 'finance'], created_at: new Date(Date.now() - 100 * day).toISOString(), expires_at: new Date(Date.now() - 10 * day).toISOString(), last_used_at: new Date(Date.now() - 12 * day).toISOString() }
+  }
+  const status = () => (mockClaudeRow
+    ? { active: true, expired: Date.parse(mockClaudeRow.expires_at) <= Date.now(), ...mockClaudeRow }
+    : { active: false, expired: false, categories: [], consented_categories: [], created_at: null, expires_at: null, last_used_at: null })
+  switch (body?.action) {
+    case 'create':
+      // Mirrors the server: no current consent version → consent_required.
+      if (body.consent_version !== CLAUDE_CONSENT_VERSION) return { error: 'consent_required' }
+      mockClaudeRow = { categories: body.categories, consented_categories: body.categories, created_at: new Date().toISOString(), expires_at: new Date(Date.now() + 90 * day).toISOString(), last_used_at: null }
+      return { token: 'smp_PREVIEW-not-a-real-token-0000000000000000000', url: 'https://example.supabase.co/functions/v1/claude-mcp', status: status() }
+    case 'update-categories': {
+      // Mirrors mcp_token_update_categories: anything outside the consent
+      // needs the current consent version.
+      if (!mockClaudeRow) return { error: 'no_active_token' }
+      const missing = body.categories.filter((c) => !mockClaudeRow.consented_categories.includes(c))
+      if (missing.length && body.consent_version !== CLAUDE_CONSENT_VERSION) return { error: 'consent_required', missing }
+      mockClaudeRow = {
+        ...mockClaudeRow,
+        categories: body.categories,
+        consented_categories: [...mockClaudeRow.consented_categories, ...missing],
+      }
+      return { status: status() }
+    }
+    case 'renew':
+      if (!mockClaudeRow) return { error: 'no_active_token' }
+      mockClaudeRow = { ...mockClaudeRow, expires_at: new Date(Date.now() + 90 * day).toISOString() }
+      return { status: status() }
+    case 'revoke':
+      mockClaudeRow = null
+      return { status: status() }
+    default:
+      return { status: status() }
+  }
+}
+
 export function makeMockClient() {
   return {
     from: (table) => makeQuery(table),
@@ -361,6 +402,10 @@ export function makeMockClient() {
         // The admin console talks to one function; synthesise its data so the
         // /admin screens render in preview. Everything else is a no-op ok.
         if (name === 'admin') return { data: adminInvoke(opts?.body), error: null }
+        // Personal Claude access in preview: an in-memory token so every state
+        // of the screen (off → pick → consent → reveal → on / expired) renders.
+        // localStorage PREVIEW_CLAUDE='expired' starts it as an expired token.
+        if (name === 'mcp-tokens') return { data: mcpTokensInvoke(opts?.body), error: null }
         // Google Calendar in preview: "connected" so the synced-events
         // accordion renders against the mock calendar_events fixtures. The
         // community push is acknowledged (real Google writes can't run here).

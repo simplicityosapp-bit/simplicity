@@ -682,3 +682,196 @@
   cursor: pointer;
 }
 .conn-back:hover { background: color-mix(in srgb, var(--terracotta) 8%, var(--mg-card-bg)); }
+
+/* ── Claude personal access (ClaudeConnection.jsx) ─────────────────── */
+/* The whole row is the switch (≥44px tap target); the track reuses
+   .conn-toggle and gains an "on" state here. */
+.conn-claude-switch {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  min-height: 44px;
+  margin-top: 14px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  text-align: start;
+  font-family: var(--mg-font);
+  font-size: calc(14px * var(--text-scale));
+  font-weight: 500;
+  color: var(--espresso);
+}
+.conn-claude-switch:disabled { opacity: 0.5; cursor: default; }
+.conn-claude-switch .conn-toggle { transition: background 160ms; }
+.conn-claude-switch .conn-toggle.on {
+  background: var(--terracotta);
+  border-color: color-mix(in srgb, var(--terracotta) 70%, transparent);
+}
+.conn-claude-switch .conn-toggle-knob { transition: inset-inline-start 160ms; }
+/* 42px track, 18px knob, 3px end gap. */
+.conn-claude-switch .conn-toggle.on .conn-toggle-knob { inset-inline-start: calc(100% - 21px); }
+
+.conn-claude-step {
+  margin: 16px 0 0;
+  font-family: var(--mg-font);
+  font-size: calc(13px * var(--text-scale));
+  font-weight: 600;
+  color: var(--espresso);
+}
+.conn-claude-hint {
+  margin: 6px 0 0;
+  font-family: var(--mg-font);
+  font-size: calc(12px * var(--text-scale));
+  line-height: 1.55;
+  color: var(--stone);
+}
+.conn-claude-expired { color: var(--clay-on-dark); }
+
+/* Category checklist */
+.conn-claude-cats { display: flex; flex-direction: column; margin-top: 12px; border-top: 1px solid var(--divider); }
+.conn-claude-cat {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  min-height: 44px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--divider);
+  cursor: pointer;
+}
+.conn-claude-cat.is-disabled { cursor: default; opacity: 0.6; }
+.conn-claude-cat input {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  margin: 2px 0 0;
+  accent-color: var(--terracotta);
+}
+.conn-claude-cat-text { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.conn-claude-cat-name {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--mg-font);
+  font-size: calc(14px * var(--text-scale));
+  font-weight: 600;
+  color: var(--espresso);
+}
+.conn-claude-cat-desc,
+.conn-claude-cat-free {
+  font-family: var(--mg-font);
+  font-size: calc(12px * var(--text-scale));
+  line-height: 1.5;
+  color: var(--stone);
+}
+.conn-claude-cat-free { font-weight: 500; color: var(--espresso); }
+/* "רגיש" — the warning colour (--clay, as .conn-row-status.warn), opaque so
+   the glass behind cannot wash it out, darkened with --ink the way
+   --amber-solid is: white on it measures 5.6:1 in light mode (plain --clay is
+   4.3:1, under AA for 11px text) and higher in dark. */
+.conn-claude-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 9px;
+  border-radius: 999px;
+  font-size: calc(11px * var(--text-scale));
+  font-weight: 700;
+  color: var(--on-accent);
+  background: color-mix(in srgb, var(--clay) 82%, var(--ink));
+  border: 1px solid color-mix(in srgb, var(--clay) 70%, var(--ink));
+}
+
+/* Selected / allowed categories */
+.conn-claude-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.conn-claude-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: var(--mg-chip-radius);
+  border: var(--mg-card-border);
+  background: var(--mg-card-bg);
+  font-family: var(--mg-font);
+  font-size: calc(11.5px * var(--text-scale));
+  color: var(--espresso);
+}
+.conn-claude-chip.sensitive { color: var(--clay-on-dark); }
+
+.conn-claude-consent {
+  margin-top: 12px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid var(--divider);
+  background: color-mix(in srgb, var(--espresso) 3%, var(--mg-card-bg));
+  font-family: var(--mg-font);
+  font-size: calc(12.5px * var(--text-scale));
+  line-height: 1.6;
+  color: var(--espresso);
+}
+.conn-claude-consent ul {
+  margin: 0;
+  padding-inline-start: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.conn-claude-agree {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  min-height: 44px;
+  margin-top: 12px;
+  cursor: pointer;
+  font-family: var(--mg-font);
+  font-size: calc(13px * var(--text-scale));
+  font-weight: 600;
+  color: var(--espresso);
+}
+.conn-claude-agree input {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  margin: 1px 0 0;
+  accent-color: var(--terracotta);
+}
+
+/* One-time reveal */
+.conn-claude-warn {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-top: 16px;
+  padding: 12px 14px;
+  border-radius: var(--mg-card-radius);
+  border: 1px solid color-mix(in srgb, var(--clay) 35%, transparent);
+  background: color-mix(in srgb, var(--clay) 10%, var(--mg-card-bg));
+  font-family: var(--mg-font);
+  font-size: calc(12.5px * var(--text-scale));
+  font-weight: 600;
+  line-height: 1.5;
+  color: var(--espresso);
+}
+.conn-claude-warn svg { flex-shrink: 0; margin-top: 1px; color: var(--clay-on-dark); }
+.conn-claude .conn-webhook-url-row { margin-top: 8px; }
+.conn-claude-steps { margin-top: 12px; }
+
+.conn-claude-meta {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 6px 14px;
+  margin: 14px 0 0;
+  font-family: var(--mg-font);
+  font-size: calc(12.5px * var(--text-scale));
+}
+.conn-claude-meta dt { color: var(--stone); }
+.conn-claude-meta dd { margin: 0; color: var(--espresso); font-weight: 500; }
+
+@media (max-width: 767px) {
+  .conn-claude .conn-webhook-url-row { flex-direction: column; }
+  .conn-claude .conn-webhook-copy { justify-content: center; min-height: 44px; }
+  .conn-claude .conn-actions .conn-btn { flex: 1 1 100%; }
+}

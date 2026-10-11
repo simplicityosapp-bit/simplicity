@@ -1,6 +1,6 @@
 -- ════════════════════════════════════════════════════════════════
 --  schema.sql — the complete public schema, introspected from the LIVE database
---  Watermark: migration 0115.  Generated: 2026-09-06
+--  Watermark: migration 0117.  Generated: 2026-10-11
 --  Regenerate with:  node supabase/dump-schema.mjs --watermark <NNNN>
 --
 --  THIS FILE RUNS. It rebuilds an empty Postgres database into this schema —
@@ -17,7 +17,7 @@
 --  WHAT IS NOT HERE: no data, no roles, no auth.* / storage.* internals beyond
 --  the one bucket and its policies, and no cron jobs — the cron commands carry
 --  CRON_SECRET and POLL_SECRET in plain text and must not enter git (see L8).
---  Migration files present in the repo: 115. Which of them are actually
+--  Migration files present in the repo: 117. Which of them are actually
 --  applied is documented in supabase/migrations/README.md — NOT in the database
 --  history table, which is incomplete and is not the source of truth.
 --
@@ -47,7 +47,7 @@ CREATE EXTENSION IF NOT EXISTS supabase_vault WITH SCHEMA vault;
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp" WITH SCHEMA extensions;
 
 -- ════════════════════════════════════════════════════════════════
---  FUNCTIONS (36, full bodies)
+--  FUNCTIONS (39, full bodies)
 -- ════════════════════════════════════════════════════════════════
 
 CREATE OR REPLACE FUNCTION public.billing_enforced()
@@ -212,6 +212,102 @@ AS $function$
     WHERE CASE r.match_mode
       WHEN 'exact' THEN public.normalize_display_name(p_name) = public.normalize_display_name(r.pattern)
       ELSE public.normalize_display_name(p_name) LIKE '%' || public.normalize_display_name(r.pattern) || '%' END) $function$;
+
+CREATE OR REPLACE FUNCTION public.mcp_token_issue(p_user uuid, p_token_hash text, p_categories text[], p_consent_version text, p_label text DEFAULT NULL::text)
+ RETURNS TABLE(id uuid, created_at timestamp with time zone, expires_at timestamp with time zone)
+ LANGUAGE plpgsql
+ SET search_path TO 'public', 'pg_temp'
+AS $function$
+#variable_conflict use_column
+BEGIN
+  PERFORM pg_advisory_xact_lock(hashtextextended('mcp_tokens:' || p_user::text, 0));
+
+  IF (SELECT count(*) FROM public.mcp_tokens t
+       WHERE t.user_id = p_user
+         AND t.created_at > now() - interval '1 hour') >= 5 THEN
+    RAISE EXCEPTION 'mcp_token_rate_limited' USING ERRCODE = 'P0001';
+  END IF;
+
+  UPDATE public.mcp_tokens t
+     SET revoked_at = now()
+   WHERE t.user_id = p_user
+     AND t.revoked_at IS NULL;
+
+  RETURN QUERY
+    INSERT INTO public.mcp_tokens AS t
+      (user_id, token_hash, categories, consent_version, consented_at, first_consented_at, consented_categories, label)
+    VALUES
+      (p_user, p_token_hash, p_categories, p_consent_version, now(), now(), p_categories, p_label)
+    RETURNING t.id, t.created_at, t.expires_at;
+END;
+$function$;
+
+CREATE OR REPLACE FUNCTION public.mcp_token_update_categories(p_user uuid, p_categories text[], p_consent_version text DEFAULT NULL::text)
+ RETURNS TABLE(result text, missing text[], categories text[], consented_categories text[], created_at timestamp with time zone, expires_at timestamp with time zone, last_used_at timestamp with time zone)
+ LANGUAGE plpgsql
+ SET search_path TO 'public', 'pg_temp'
+AS $function$
+#variable_conflict use_column
+DECLARE
+  r         public.mcp_tokens%ROWTYPE;
+  v_missing text[];
+BEGIN
+  SELECT * INTO r FROM public.mcp_tokens t
+   WHERE t.user_id = p_user AND t.revoked_at IS NULL
+   FOR UPDATE;
+  IF NOT FOUND THEN
+    RETURN QUERY SELECT 'no_active_token'::text, NULL::text[], NULL::text[], NULL::text[],
+                        NULL::timestamptz, NULL::timestamptz, NULL::timestamptz;
+    RETURN;
+  END IF;
+
+  v_missing := ARRAY(
+    SELECT DISTINCT c FROM unnest(p_categories) AS c
+     WHERE NOT (c = ANY (r.consented_categories))
+     ORDER BY 1
+  );
+
+  IF cardinality(v_missing) > 0 AND p_consent_version IS NULL THEN
+    RETURN QUERY SELECT 'consent_required'::text, v_missing, r.categories, r.consented_categories,
+                        r.created_at, r.expires_at, r.last_used_at;
+    RETURN;
+  END IF;
+
+  IF cardinality(v_missing) > 0 THEN
+    UPDATE public.mcp_tokens t
+       SET categories = p_categories,
+           consented_categories = r.consented_categories || v_missing,
+           consent_version = p_consent_version,
+           consented_at = now()
+     WHERE t.id = r.id
+     RETURNING * INTO r;
+  ELSE
+    UPDATE public.mcp_tokens t
+       SET categories = p_categories
+     WHERE t.id = r.id
+     RETURNING * INTO r;
+  END IF;
+
+  RETURN QUERY SELECT 'ok'::text, ARRAY[]::text[], r.categories, r.consented_categories,
+                      r.created_at, r.expires_at, r.last_used_at;
+END;
+$function$;
+
+CREATE OR REPLACE FUNCTION public.mcp_tokens_consent_guard()
+ RETURNS trigger
+ LANGUAGE plpgsql
+ SET search_path TO ''
+AS $function$
+BEGIN
+  IF NEW.first_consented_at IS DISTINCT FROM OLD.first_consented_at THEN
+    RAISE EXCEPTION 'mcp_tokens_first_consented_at_immutable' USING ERRCODE = 'P0001';
+  END IF;
+  IF NOT (OLD.consented_categories <@ NEW.consented_categories) THEN
+    RAISE EXCEPTION 'mcp_tokens_consented_categories_shrink' USING ERRCODE = 'P0001';
+  END IF;
+  RETURN NEW;
+END;
+$function$;
 
 CREATE OR REPLACE FUNCTION public.normalize_display_name(p text)
  RETURNS text
@@ -665,7 +761,7 @@ END;
 $function$;
 
 -- ════════════════════════════════════════════════════════════════
---  TABLES (56) — columns, primary keys, unique and check constraints
+--  TABLES (58) — columns, primary keys, unique and check constraints
 -- ════════════════════════════════════════════════════════════════
 
 -- ══ app_sessions ══════════════════════════════════════════
@@ -759,7 +855,8 @@ CREATE TABLE public.categories (
   color text NOT NULL,
   created_at timestamp with time zone NOT NULL DEFAULT now(),
   updated_at timestamp with time zone NOT NULL DEFAULT now(),
-  deleted_at timestamp with time zone
+  deleted_at timestamp with time zone,
+  import_batch_id uuid
 );
 ALTER TABLE public.categories ADD CONSTRAINT categories_pkey PRIMARY KEY (id);
 
@@ -807,7 +904,8 @@ CREATE TABLE public.client_statuses (
   is_default boolean NOT NULL DEFAULT false,
   created_at timestamp with time zone NOT NULL DEFAULT now(),
   updated_at timestamp with time zone NOT NULL DEFAULT now(),
-  deleted_at timestamp with time zone
+  deleted_at timestamp with time zone,
+  import_batch_id uuid
 );
 ALTER TABLE public.client_statuses ADD CONSTRAINT client_statuses_pkey PRIMARY KEY (id);
 ALTER TABLE public.client_statuses ADD CONSTRAINT client_statuses_meta_category_check CHECK ((meta_category = ANY (ARRAY['active'::text, 'wandering'::text, 'past'::text, 'no_status'::text])));
@@ -849,7 +947,8 @@ CREATE TABLE public.clients (
   address text,
   birth_date date,
   attention_snoozed_at timestamp with time zone,
-  last_status_changed_at timestamp with time zone
+  last_status_changed_at timestamp with time zone,
+  import_batch_id uuid
 );
 ALTER TABLE public.clients ADD CONSTRAINT clients_pkey PRIMARY KEY (id);
 ALTER TABLE public.clients ADD CONSTRAINT clients_billing_mode_check CHECK ((billing_mode = ANY (ARRAY['package'::text, 'per_session'::text])));
@@ -858,6 +957,7 @@ ALTER TABLE public.clients ADD CONSTRAINT clients_status_check CHECK ((status = 
 ALTER TABLE public.clients ADD CONSTRAINT clients_status_meta_check CHECK ((status_meta = ANY (ARRAY['active'::text, 'wandering'::text, 'past'::text, 'no_status'::text])));
 COMMENT ON COLUMN public.clients.attention_snoozed_at IS 'When the coach last pressed "התעלם" on this client in the home attention widget. Read by clientsNeedingAttention() as a session-equivalent timestamp: the client resurfaces once this is older than the 45-day window. NULL = never dismissed.';
 COMMENT ON COLUMN public.clients.last_status_changed_at IS 'When status_meta last changed. Mirrors leads.last_status_changed_at, which reports.ts already assumed existed here. Deliberately NULL for rows predating migration 0101: the real dates are unknown, so churn counts personal clients from that migration forward rather than inventing history.';
+COMMENT ON COLUMN public.clients.import_batch_id IS 'The spreadsheet import that created this row, or NULL for anything entered by hand. Undo deletes by this and nothing else.';
 
 -- ══ community_events ══════════════════════════════════════
 CREATE TABLE public.community_events (
@@ -972,6 +1072,19 @@ ALTER TABLE public.community_reserved_names ADD CONSTRAINT community_reserved_na
 ALTER TABLE public.community_reserved_names ADD CONSTRAINT community_reserved_names_pattern_uniq UNIQUE (pattern);
 ALTER TABLE public.community_reserved_names ADD CONSTRAINT community_reserved_names_mode_chk CHECK ((match_mode = ANY (ARRAY['contains'::text, 'exact'::text])));
 ALTER TABLE public.community_reserved_names ADD CONSTRAINT community_reserved_names_pattern_chk CHECK ((normalize_display_name(pattern) <> ''::text));
+
+-- ══ csp_violations ════════════════════════════════════════
+CREATE TABLE public.csp_violations (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  directive text,
+  blocked_uri text,
+  document_uri text,
+  source_file text,
+  line_number integer,
+  script_sample text,
+  created_at timestamp with time zone NOT NULL DEFAULT now()
+);
+ALTER TABLE public.csp_violations ADD CONSTRAINT csp_violations_pkey PRIMARY KEY (id);
 
 -- ══ daily_answers ═════════════════════════════════════════
 CREATE TABLE public.daily_answers (
@@ -1208,7 +1321,8 @@ CREATE TABLE public.lead_statuses (
   created_at timestamp with time zone NOT NULL DEFAULT now(),
   updated_at timestamp with time zone NOT NULL DEFAULT now(),
   deleted_at timestamp with time zone,
-  sort_order integer NOT NULL DEFAULT 0
+  sort_order integer NOT NULL DEFAULT 0,
+  import_batch_id uuid
 );
 ALTER TABLE public.lead_statuses ADD CONSTRAINT lead_statuses_pkey PRIMARY KEY (id);
 ALTER TABLE public.lead_statuses ADD CONSTRAINT lead_statuses_meta_category_check CHECK ((meta_category = ANY (ARRAY['in_process'::text, 'converted'::text, 'not_relevant'::text])));
@@ -1238,11 +1352,37 @@ CREATE TABLE public.leads (
   page_id uuid,
   email text,
   data jsonb NOT NULL DEFAULT '{}'::jsonb,
-  pending_review boolean NOT NULL DEFAULT false
+  pending_review boolean NOT NULL DEFAULT false,
+  import_batch_id uuid
 );
 ALTER TABLE public.leads ADD CONSTRAINT leads_pkey PRIMARY KEY (id);
 ALTER TABLE public.leads ADD CONSTRAINT leads_status_check CHECK ((status = ANY (ARRAY['new'::text, 'in_contact'::text, 'intro_call'::text, 'pending_decision'::text, 'closed'::text])));
 ALTER TABLE public.leads ADD CONSTRAINT leads_status_meta_check CHECK ((status_meta = ANY (ARRAY['in_process'::text, 'converted'::text, 'not_relevant'::text])));
+
+-- ══ mcp_tokens ════════════════════════════════════════════
+CREATE TABLE public.mcp_tokens (
+  id uuid NOT NULL DEFAULT gen_random_uuid(),
+  user_id uuid NOT NULL,
+  token_hash text NOT NULL,
+  label text,
+  categories text[] NOT NULL,
+  created_at timestamp with time zone NOT NULL DEFAULT now(),
+  expires_at timestamp with time zone NOT NULL DEFAULT (now() + '90 days'::interval),
+  consent_version text NOT NULL,
+  consented_at timestamp with time zone NOT NULL DEFAULT now(),
+  first_consented_at timestamp with time zone NOT NULL DEFAULT now(),
+  consented_categories text[] NOT NULL,
+  last_used_at timestamp with time zone,
+  revoked_at timestamp with time zone
+);
+ALTER TABLE public.mcp_tokens ADD CONSTRAINT mcp_tokens_pkey PRIMARY KEY (id);
+ALTER TABLE public.mcp_tokens ADD CONSTRAINT mcp_tokens_token_hash_key UNIQUE (token_hash);
+ALTER TABLE public.mcp_tokens ADD CONSTRAINT mcp_tokens_categories_check CHECK (((cardinality(categories) >= 1) AND (categories <@ ARRAY['clients'::text, 'contact_details'::text, 'session_notes'::text, 'client_notes'::text, 'meetings'::text, 'calendar_titles'::text, 'leads'::text, 'finance'::text, 'tax_ids'::text, 'tasks'::text, 'projects_goals'::text, 'journal'::text])));
+ALTER TABLE public.mcp_tokens ADD CONSTRAINT mcp_tokens_categories_consented CHECK ((categories <@ consented_categories));
+ALTER TABLE public.mcp_tokens ADD CONSTRAINT mcp_tokens_consent_version_check CHECK (((length(consent_version) >= 1) AND (length(consent_version) <= 32)));
+ALTER TABLE public.mcp_tokens ADD CONSTRAINT mcp_tokens_expiry_after_creation CHECK ((expires_at > created_at));
+ALTER TABLE public.mcp_tokens ADD CONSTRAINT mcp_tokens_token_hash_format CHECK ((token_hash ~ '^[0-9a-f]{64}$'::text));
+COMMENT ON TABLE public.mcp_tokens IS 'Personal read-only access tokens for the Claude MCP connector (edge function claude-mcp), managed by edge function mcp-tokens. Stores the SHA-256 hex of each token, never the token. categories = opt-in data categories, read on every request. One active token per user. RLS on with no policies: service role only. Created by migration 0109.';
 
 -- ══ meeting_types ═════════════════════════════════════════
 CREATE TABLE public.meeting_types (
@@ -1289,7 +1429,8 @@ CREATE TABLE public.payment_installments (
   transaction_id uuid,
   created_at timestamp with time zone NOT NULL DEFAULT now(),
   updated_at timestamp with time zone NOT NULL DEFAULT now(),
-  deleted_at timestamp with time zone
+  deleted_at timestamp with time zone,
+  import_batch_id uuid
 );
 ALTER TABLE public.payment_installments ADD CONSTRAINT payment_installments_pkey PRIMARY KEY (id);
 ALTER TABLE public.payment_installments ADD CONSTRAINT payment_installments_method_chk CHECK (((payment_method IS NULL) OR (payment_method = ANY (ARRAY['bank_transfer'::text, 'cash'::text, 'credit_card'::text, 'app'::text, 'other'::text]))));
@@ -1305,7 +1446,8 @@ CREATE TABLE public.payment_plans (
   notes text,
   created_at timestamp with time zone NOT NULL DEFAULT now(),
   updated_at timestamp with time zone NOT NULL DEFAULT now(),
-  deleted_at timestamp with time zone
+  deleted_at timestamp with time zone,
+  import_batch_id uuid
 );
 ALTER TABLE public.payment_plans ADD CONSTRAINT payment_plans_pkey PRIMARY KEY (id);
 
@@ -1387,7 +1529,8 @@ CREATE TABLE public.projects (
   created_at timestamp with time zone NOT NULL DEFAULT now(),
   updated_at timestamp with time zone NOT NULL DEFAULT now(),
   deleted_at timestamp with time zone,
-  status text NOT NULL DEFAULT 'active'::text
+  status text NOT NULL DEFAULT 'active'::text,
+  import_batch_id uuid
 );
 ALTER TABLE public.projects ADD CONSTRAINT projects_pkey PRIMARY KEY (id);
 ALTER TABLE public.projects ADD CONSTRAINT projects_status_check CHECK ((status = ANY (ARRAY['active'::text, 'ended'::text])));
@@ -1424,7 +1567,8 @@ CREATE TABLE public.recurring_templates (
   created_at timestamp with time zone NOT NULL DEFAULT now(),
   updated_at timestamp with time zone NOT NULL DEFAULT now(),
   deleted_at timestamp with time zone,
-  trigger_type text NOT NULL DEFAULT 'schedule'::text
+  trigger_type text NOT NULL DEFAULT 'schedule'::text,
+  import_batch_id uuid
 );
 ALTER TABLE public.recurring_templates ADD CONSTRAINT recurring_templates_pkey PRIMARY KEY (id);
 ALTER TABLE public.recurring_templates ADD CONSTRAINT recurring_templates_cadence_type_check CHECK ((cadence_type = ANY (ARRAY['monthly_date'::text, 'weekly'::text])));
@@ -1501,7 +1645,8 @@ CREATE TABLE public.sessions (
   num integer NOT NULL,
   created_at timestamp with time zone NOT NULL DEFAULT now(),
   updated_at timestamp with time zone NOT NULL DEFAULT now(),
-  deleted_at timestamp with time zone
+  deleted_at timestamp with time zone,
+  import_batch_id uuid
 );
 ALTER TABLE public.sessions ADD CONSTRAINT sessions_pkey PRIMARY KEY (id);
 ALTER TABLE public.sessions ADD CONSTRAINT sessions_subject_type_check CHECK ((subject_type = ANY (ARRAY['client'::text, 'group'::text])));
@@ -1613,7 +1758,8 @@ CREATE TABLE public.transactions (
   recipient_tax_id text,
   grow_transaction_id text,
   scheduled_meeting_id uuid,
-  group_id uuid
+  group_id uuid,
+  import_batch_id uuid
 );
 ALTER TABLE public.transactions ADD CONSTRAINT transactions_pkey PRIMARY KEY (id);
 ALTER TABLE public.transactions ADD CONSTRAINT transactions_amount_valid CHECK (((amount >= (0)::numeric) AND (amount <= '1000000000000'::numeric)));
@@ -1809,6 +1955,7 @@ ALTER TABLE public.leads ADD CONSTRAINT leads_project_id_fkey FOREIGN KEY (proje
 ALTER TABLE public.leads ADD CONSTRAINT leads_source_id_fkey FOREIGN KEY (source_id) REFERENCES lead_sources(id) ON DELETE SET NULL;
 ALTER TABLE public.leads ADD CONSTRAINT leads_status_id_fkey FOREIGN KEY (status_id) REFERENCES lead_statuses(id) ON DELETE SET NULL;
 ALTER TABLE public.leads ADD CONSTRAINT leads_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
+ALTER TABLE public.mcp_tokens ADD CONSTRAINT mcp_tokens_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 ALTER TABLE public.meeting_types ADD CONSTRAINT meeting_types_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 ALTER TABLE public.moon_snapshots ADD CONSTRAINT moon_snapshots_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 ALTER TABLE public.payment_installments ADD CONSTRAINT payment_installments_plan_id_fkey FOREIGN KEY (plan_id) REFERENCES payment_plans(id) ON DELETE CASCADE;
@@ -1863,7 +2010,7 @@ ALTER TABLE public.user_quotes ADD CONSTRAINT user_quotes_user_id_fkey FOREIGN K
 ALTER TABLE public.user_subscriptions ADD CONSTRAINT user_subscriptions_user_id_fkey FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE;
 
 -- ════════════════════════════════════════════════════════════════
---  INDEXES (173; constraint-backed indexes are created above)
+--  INDEXES (188; constraint-backed indexes are created above)
 -- ════════════════════════════════════════════════════════════════
 CREATE INDEX app_sessions_created_at_idx ON public.app_sessions USING btree (created_at);
 CREATE INDEX app_sessions_user_id_idx ON public.app_sessions USING btree (user_id);
@@ -1884,15 +2031,18 @@ CREATE INDEX idx_calendar_events_lead ON public.calendar_events USING btree (lea
 CREATE INDEX idx_calendar_events_project ON public.calendar_events USING btree (project_id);
 CREATE INDEX idx_calendar_events_start ON public.calendar_events USING btree (start_time);
 CREATE INDEX idx_calendar_events_user ON public.calendar_events USING btree (user_id);
+CREATE INDEX idx_categories_import_batch ON public.categories USING btree (import_batch_id) WHERE (import_batch_id IS NOT NULL);
 CREATE INDEX idx_categories_user ON public.categories USING btree (user_id);
 CREATE INDEX idx_client_adjustments_client ON public.client_adjustments USING btree (client_id);
 CREATE INDEX idx_client_adjustments_user ON public.client_adjustments USING btree (user_id);
 CREATE INDEX idx_client_status_log_client ON public.client_status_log USING btree (client_id);
 CREATE INDEX idx_client_status_log_user ON public.client_status_log USING btree (user_id);
 CREATE INDEX idx_client_status_log_user_changed ON public.client_status_log USING btree (user_id, changed_at);
+CREATE INDEX idx_client_statuses_import_batch ON public.client_statuses USING btree (import_batch_id) WHERE (import_batch_id IS NOT NULL);
 CREATE INDEX idx_client_statuses_user ON public.client_statuses USING btree (user_id);
 CREATE INDEX clients_attention_snoozed_at_idx ON public.clients USING btree (user_id, attention_snoozed_at) WHERE (attention_snoozed_at IS NOT NULL);
 CREATE INDEX idx_clients_group ON public.clients USING btree (group_id);
+CREATE INDEX idx_clients_import_batch ON public.clients USING btree (import_batch_id) WHERE (import_batch_id IS NOT NULL);
 CREATE INDEX idx_clients_meeting_type_id ON public.clients USING btree (meeting_type_id);
 CREATE INDEX idx_clients_project ON public.clients USING btree (project_id);
 CREATE INDEX idx_clients_status ON public.clients USING btree (status);
@@ -1911,6 +2061,8 @@ CREATE INDEX idx_community_messages_user ON public.community_messages USING btre
 CREATE INDEX idx_community_notifications_actor ON public.community_notifications USING btree (actor_id);
 CREATE INDEX idx_community_notifications_message ON public.community_notifications USING btree (message_id);
 CREATE INDEX idx_community_notifications_recipient ON public.community_notifications USING btree (recipient_id, created_at DESC);
+CREATE INDEX idx_csp_violations_created ON public.csp_violations USING btree (created_at);
+CREATE INDEX idx_csp_violations_directive ON public.csp_violations USING btree (directive, created_at);
 CREATE INDEX idx_daily_answers_date ON public.daily_answers USING btree (date);
 CREATE INDEX idx_daily_answers_question ON public.daily_answers USING btree (user_question_id);
 CREATE UNIQUE INDEX idx_daily_answers_uniq ON public.daily_answers USING btree (user_question_id, date) WHERE (deleted_at IS NULL);
@@ -1951,9 +2103,11 @@ CREATE INDEX idx_lead_status_log_lead ON public.lead_status_log USING btree (lea
 CREATE INDEX idx_lead_status_log_to ON public.lead_status_log USING btree (to_status_id);
 CREATE INDEX idx_lead_status_log_user ON public.lead_status_log USING btree (user_id);
 CREATE INDEX idx_lead_status_log_user_changed ON public.lead_status_log USING btree (user_id, changed_at);
+CREATE INDEX idx_lead_statuses_import_batch ON public.lead_statuses USING btree (import_batch_id) WHERE (import_batch_id IS NOT NULL);
 CREATE INDEX idx_lead_statuses_user ON public.lead_statuses USING btree (user_id);
 CREATE INDEX idx_leads_converted ON public.leads USING btree (converted_to_client_id);
 CREATE INDEX idx_leads_group ON public.leads USING btree (group_id);
+CREATE INDEX idx_leads_import_batch ON public.leads USING btree (import_batch_id) WHERE (import_batch_id IS NOT NULL);
 CREATE INDEX idx_leads_page ON public.leads USING btree (page_id);
 CREATE INDEX idx_leads_pending_review ON public.leads USING btree (user_id) WHERE pending_review;
 CREATE INDEX idx_leads_project ON public.leads USING btree (project_id);
@@ -1962,14 +2116,18 @@ CREATE INDEX idx_leads_status ON public.leads USING btree (status);
 CREATE INDEX idx_leads_status_id ON public.leads USING btree (status_id);
 CREATE INDEX idx_leads_status_meta ON public.leads USING btree (status_meta);
 CREATE INDEX idx_leads_user ON public.leads USING btree (user_id);
+CREATE INDEX idx_mcp_tokens_user ON public.mcp_tokens USING btree (user_id);
+CREATE UNIQUE INDEX mcp_tokens_one_active_per_user ON public.mcp_tokens USING btree (user_id) WHERE (revoked_at IS NULL);
 CREATE INDEX idx_meeting_types_user ON public.meeting_types USING btree (user_id);
 CREATE INDEX idx_moon_snapshots_date ON public.moon_snapshots USING btree (date);
 CREATE INDEX idx_moon_snapshots_user ON public.moon_snapshots USING btree (user_id);
+CREATE INDEX idx_payment_installments_import_batch ON public.payment_installments USING btree (import_batch_id) WHERE (import_batch_id IS NOT NULL);
 CREATE INDEX idx_payment_installments_plan ON public.payment_installments USING btree (plan_id);
 CREATE UNIQUE INDEX idx_payment_installments_plan_num ON public.payment_installments USING btree (plan_id, num) WHERE (deleted_at IS NULL);
 CREATE INDEX idx_payment_installments_transaction ON public.payment_installments USING btree (transaction_id);
 CREATE INDEX idx_payment_installments_user ON public.payment_installments USING btree (user_id);
 CREATE INDEX idx_payment_plans_client ON public.payment_plans USING btree (client_id);
+CREATE INDEX idx_payment_plans_import_batch ON public.payment_plans USING btree (import_batch_id) WHERE (import_batch_id IS NOT NULL);
 CREATE INDEX idx_payment_plans_project ON public.payment_plans USING btree (project_id);
 CREATE INDEX idx_payment_plans_user ON public.payment_plans USING btree (user_id);
 CREATE INDEX idx_payment_requests_client ON public.payment_requests USING btree (client_id);
@@ -1986,11 +2144,13 @@ CREATE INDEX idx_pending_invoice_imports_client ON public.pending_invoice_import
 CREATE INDEX idx_pending_invoice_imports_created_tx ON public.pending_invoice_imports USING btree (created_transaction_id);
 CREATE INDEX idx_pending_invoice_imports_status ON public.pending_invoice_imports USING btree (status);
 CREATE INDEX idx_pending_invoice_imports_user ON public.pending_invoice_imports USING btree (user_id);
+CREATE INDEX idx_projects_import_batch ON public.projects USING btree (import_batch_id) WHERE (import_batch_id IS NOT NULL);
 CREATE INDEX idx_projects_user ON public.projects USING btree (user_id);
 CREATE INDEX projects_user_status_idx ON public.projects USING btree (user_id, status) WHERE (deleted_at IS NULL);
 CREATE UNIQUE INDEX idx_quotes_text_uniq ON public.quotes USING btree (text);
 CREATE INDEX idx_recurring_templates_category ON public.recurring_templates USING btree (category_id);
 CREATE INDEX idx_recurring_templates_client ON public.recurring_templates USING btree (client_id);
+CREATE INDEX idx_recurring_templates_import_batch ON public.recurring_templates USING btree (import_batch_id) WHERE (import_batch_id IS NOT NULL);
 CREATE INDEX idx_recurring_templates_project ON public.recurring_templates USING btree (project_id);
 CREATE INDEX idx_recurring_templates_user ON public.recurring_templates USING btree (user_id);
 CREATE INDEX idx_reminders_category ON public.reminders USING btree (category_id);
@@ -2006,6 +2166,7 @@ CREATE UNIQUE INDEX scheduled_meetings_no_dup ON public.scheduled_meetings USING
 CREATE INDEX idx_sessions_client ON public.sessions USING btree (client_id);
 CREATE INDEX idx_sessions_date ON public.sessions USING btree (date);
 CREATE INDEX idx_sessions_group ON public.sessions USING btree (group_id);
+CREATE INDEX idx_sessions_import_batch ON public.sessions USING btree (import_batch_id) WHERE (import_batch_id IS NOT NULL);
 CREATE INDEX idx_sessions_user ON public.sessions USING btree (user_id);
 CREATE UNIQUE INDEX idx_site_pages_kind_slug_unique ON public.site_pages USING btree (kind, lower(slug)) WHERE ((slug IS NOT NULL) AND (deleted_at IS NULL));
 CREATE INDEX idx_site_pages_project ON public.site_pages USING btree (project_id);
@@ -2022,6 +2183,7 @@ CREATE INDEX idx_tasks_user_due ON public.tasks USING btree (user_id, due_at) WH
 CREATE INDEX idx_transactions_category ON public.transactions USING btree (category_id);
 CREATE INDEX idx_transactions_client ON public.transactions USING btree (client_id);
 CREATE INDEX idx_transactions_date ON public.transactions USING btree (date);
+CREATE INDEX idx_transactions_import_batch ON public.transactions USING btree (import_batch_id) WHERE (import_batch_id IS NOT NULL);
 CREATE UNIQUE INDEX idx_transactions_invoice_doc_uniq ON public.transactions USING btree (user_id, invoice_provider, invoice_document_id) WHERE ((invoice_document_id IS NOT NULL) AND (deleted_at IS NULL));
 CREATE INDEX idx_transactions_project ON public.transactions USING btree (project_id);
 CREATE INDEX idx_transactions_recurring ON public.transactions USING btree (recurring_id);
@@ -2040,7 +2202,7 @@ CREATE INDEX idx_user_quotes_user ON public.user_quotes USING btree (user_id);
 CREATE INDEX idx_user_subscriptions_user ON public.user_subscriptions USING btree (user_id);
 
 -- ════════════════════════════════════════════════════════════════
---  TRIGGERS (50)
+--  TRIGGERS (51)
 -- ════════════════════════════════════════════════════════════════
 CREATE TRIGGER trg_booking_pages_updated BEFORE UPDATE ON public.booking_pages FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 CREATE TRIGGER trg_bookings_updated BEFORE UPDATE ON public.bookings FOR EACH ROW EXECUTE FUNCTION set_updated_at();
@@ -2067,6 +2229,7 @@ CREATE TRIGGER trg_lead_sources_updated BEFORE UPDATE ON public.lead_sources FOR
 CREATE TRIGGER trg_lead_statuses_updated BEFORE UPDATE ON public.lead_statuses FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 CREATE TRIGGER trg_leads_updated BEFORE UPDATE ON public.leads FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 CREATE TRIGGER trg_report_sync_lead AFTER INSERT OR UPDATE ON public.leads FOR EACH ROW EXECUTE FUNCTION report_sync_lead();
+CREATE TRIGGER trg_mcp_tokens_consent_guard BEFORE UPDATE ON public.mcp_tokens FOR EACH ROW EXECUTE FUNCTION mcp_tokens_consent_guard();
 CREATE TRIGGER trg_meeting_types_updated BEFORE UPDATE ON public.meeting_types FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 CREATE TRIGGER trg_moon_snapshots_updated BEFORE UPDATE ON public.moon_snapshots FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 CREATE TRIGGER trg_payment_installments_updated BEFORE UPDATE ON public.payment_installments FOR EACH ROW EXECUTE FUNCTION set_updated_at();
@@ -2238,6 +2401,9 @@ CREATE POLICY community_profiles_update_own ON public.community_profiles FOR UPD
 -- ══ community_reserved_names ══════════════════════════════
 ALTER TABLE public.community_reserved_names ENABLE ROW LEVEL SECURITY;
 
+-- ══ csp_violations ════════════════════════════════════════
+ALTER TABLE public.csp_violations ENABLE ROW LEVEL SECURITY;
+
 -- ══ daily_answers ═════════════════════════════════════════
 ALTER TABLE public.daily_answers ENABLE ROW LEVEL SECURITY;
 CREATE POLICY daily_answers_own ON public.daily_answers FOR ALL TO authenticated
@@ -2322,6 +2488,9 @@ ALTER TABLE public.leads ENABLE ROW LEVEL SECURITY;
 CREATE POLICY leads_own ON public.leads FOR ALL TO authenticated
   USING ((user_id = ( SELECT auth.uid() AS uid)))
   WITH CHECK ((user_id = ( SELECT auth.uid() AS uid)));
+
+-- ══ mcp_tokens ════════════════════════════════════════════
+ALTER TABLE public.mcp_tokens ENABLE ROW LEVEL SECURITY;
 
 -- ══ meeting_types ═════════════════════════════════════════
 ALTER TABLE public.meeting_types ENABLE ROW LEVEL SECURITY;
@@ -2474,6 +2643,7 @@ CREATE POLICY user_subscriptions_select_own ON public.user_subscriptions FOR SEL
 -- ════════════════════════════════════════════════════════════════
 
 GRANT DELETE, INSERT, REFERENCES, SELECT, TRIGGER, TRUNCATE, UPDATE ON ALL TABLES IN SCHEMA public TO anon;
+REVOKE DELETE, INSERT, REFERENCES, SELECT, TRIGGER, TRUNCATE, UPDATE ON public.mcp_tokens FROM anon;
 
 GRANT DELETE, INSERT, REFERENCES, SELECT, TRIGGER, TRUNCATE, UPDATE ON ALL TABLES IN SCHEMA public TO authenticated;
 REVOKE INSERT, UPDATE ON public.community_events FROM authenticated;
@@ -2483,6 +2653,7 @@ REVOKE INSERT ON public.community_message_reports FROM authenticated;
 REVOKE INSERT ON public.community_messages FROM authenticated;
 REVOKE UPDATE ON public.community_notifications FROM authenticated;
 REVOKE INSERT, UPDATE ON public.community_profiles FROM authenticated;
+REVOKE DELETE, INSERT, REFERENCES, SELECT, TRIGGER, TRUNCATE, UPDATE ON public.mcp_tokens FROM authenticated;
 
 GRANT DELETE, INSERT, REFERENCES, SELECT, TRIGGER, TRUNCATE, UPDATE ON ALL TABLES IN SCHEMA public TO service_role;
 
@@ -2512,6 +2683,12 @@ REVOKE ALL ON FUNCTION public.is_community_admin() FROM PUBLIC, anon, authentica
 GRANT EXECUTE ON FUNCTION public.is_community_admin() TO anon, authenticated, service_role;
 REVOKE ALL ON FUNCTION public.is_reserved_display_name(p_name text) FROM PUBLIC, anon, authenticated;
 GRANT EXECUTE ON FUNCTION public.is_reserved_display_name(p_name text) TO authenticated, service_role;
+REVOKE ALL ON FUNCTION public.mcp_token_issue(p_user uuid, p_token_hash text, p_categories text[], p_consent_version text, p_label text) FROM PUBLIC, anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.mcp_token_issue(p_user uuid, p_token_hash text, p_categories text[], p_consent_version text, p_label text) TO service_role;
+REVOKE ALL ON FUNCTION public.mcp_token_update_categories(p_user uuid, p_categories text[], p_consent_version text) FROM PUBLIC, anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.mcp_token_update_categories(p_user uuid, p_categories text[], p_consent_version text) TO service_role;
+REVOKE ALL ON FUNCTION public.mcp_tokens_consent_guard() FROM PUBLIC, anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.mcp_tokens_consent_guard() TO service_role;
 REVOKE ALL ON FUNCTION public.normalize_display_name(p text) FROM PUBLIC, anon, authenticated;
 GRANT EXECUTE ON FUNCTION public.normalize_display_name(p text) TO anon, authenticated, service_role;
 REVOKE ALL ON FUNCTION public.onboarding_completed() FROM PUBLIC, anon, authenticated;

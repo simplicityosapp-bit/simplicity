@@ -78,3 +78,21 @@ export async function callGrow(action, params = {}) {
   if (data && data.error) throw fnError(data)
   return data
 }
+
+/* Thin client over the `mcp-tokens` edge function (personal Claude access).
+   Thrown errors carry the function's short code as message ('rate_limited',
+   'invalid_categories', …; 'network' when the call never got a response),
+   which the UI maps to an i18n sentence. The token itself only ever appears in
+   the resolved value of action 'create'. */
+export async function callMcpTokens(action, params = {}) {
+  const { data, error } = await supabase.functions.invoke('mcp-tokens', {
+    body: { action, ...params },
+  })
+  if (error) {
+    const body = await readFnErrorBody(error)
+    if (body && body.error) throw new Error(body.error)
+    throw new Error(error.name === 'FunctionsFetchError' ? 'network' : 'unknown')
+  }
+  if (data && data.error) throw new Error(data.error)
+  return data
+}

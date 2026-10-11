@@ -37,13 +37,14 @@ keep in sync without buying anything.
 | Migrations | Status |
 | --- | --- |
 | `0001` – `0108` | **applied** |
-| `0109_mcp_tokens` | **NOT applied — deliberately.** See below. |
+| `0109_mcp_tokens` | **applied** 2026-10-11 (rewritten before its first run; recorded as `20261011070819 0109_mcp_tokens`) — the personal Claude access feature: one new table `mcp_tokens` (per-user read-only token stored as a SHA-256 hash, opt-in data categories, 90-day expiry, consent record: `consent_version`, `consented_at`, `first_consented_at`, `consented_categories`), its consent-guard trigger, and the service-role-only functions `mcp_token_issue` / `mcp_token_update_categories`. Purely additive: no existing table, column or row touched. Verified after the run: all 13 columns / 8 constraints / 4 indexes / trigger present; RLS on with 0 policies; no table privilege for `anon` / `authenticated` / `PUBLIC`, EXECUTE on the three functions for `service_role` only; 0 rows; security advisor's only new line is the expected `rls_enabled_no_policy` on `mcp_tokens`; both functions executed without column ambiguity (rolled-back probe, then both `update_categories` branches on test users); live isolation tests of `claude-mcp` against two throw-away test users all passed and every row they created was removed |
 | `0110`, `0111` | **applied** |
 | `0112_retire_lead_pages` | **applied** 2026-08-27 — unpublished the one legacy lead page (1 row, slug `bnaya`); the row itself is untouched |
 | `0113_rls_initplan_fk_indexes` | **applied** 2026-08-27 — wrapped `auth.uid()` in 64 policies, added the `app_sessions` FK, added 20 FK indexes. Verified: 79 policies and 8 RESTRICTIVE both unchanged, 424 `app_sessions` rows preserved, advisor clean of `auth_rls_initplan` and `unindexed_foreign_keys` |
 | `0114_landing_signup_complete` | **applied** — `landing_events_type_check` carries `signup_complete` |
 | `0115_transactions_group_id` | **applied** 2026-09-06 — added the nullable `transactions.group_id` + its partial index. Verified before and after: 148 rows (143 live) unchanged, column `is_nullable = YES`, 0 rows attributed (no backfill, by design), the table's single RLS policy untouched. The advisor's only new line is `unused_index` on the new index, which is what a brand-new index says |
 | `0116_import_batch_id` | **applied** 2026-09-07 — added the nullable `import_batch_id` + its partial index to the eleven tables a spreadsheet import writes to (`clients`, `projects`, `leads`, `transactions`, `sessions`, `payment_plans`, `payment_installments`, `client_statuses`, `lead_statuses`, `categories`, `recurring_templates`), so "undo the import" is one indexed predicate per table instead of a hunt. Verified before and after: every row count identical (clients 49, projects 43, leads 46, transactions 149, sessions 195, recurring_templates 25, lead_statuses 11, categories 6, client_statuses 4, payment_plans 1, payment_installments 1), all eleven `is_nullable = YES` with `column_default = null`, all eleven indexes present, and `count(import_batch_id) = 0` on every table — nothing that pre-dates this migration can ever be matched by an undo. No backfill, by design: the imports that already happened were never grouped, so there is nothing truthful to attribute them to. Security advisor clean of anything new |
+| `0117_csp_violations` | **applied** — recorded live as `20260909135808 csp_violations`; the `csp_violations` table exists |
 
 Verified against the live database on 2026-08-27 by object presence: `0107`'s
 five count RPCs exist, `0108`'s `scheduled_meetings.duration_minutes` and its
@@ -52,20 +53,9 @@ check constraint exist, `0110`'s `goal_entries.goal_id` exists, `0111`'s
 below `0107` is additionally covered by `../schema.sql`, which was regenerated
 from the live database at that watermark and matches it.
 
-### `0109` is not applied, and that is intentional
-
-`0109_mcp_tokens.sql` was merged but never run. How the Claude connector's token
-should work is still an open decision — the open points are listed at the top of
-`../functions/claude-mcp/index.ts`. Running it early is harmless (an empty,
-unreachable table) but pointless, since the matching edge function is not
-deployed and the feature is hidden behind a disabled "בקרוב" row.
-
-Leave it alone unless the owner says otherwise. **After it is ever run,
-regenerate `../schema.sql`.**
-
 ## How to add a migration
 
-Next free number is **`0117`**.
+Next free number is **`0118`**.
 
 Both commands below need the CLI linked to the project. That is a one-time step,
 and the password it asks for is stored by the CLI rather than in any file here:

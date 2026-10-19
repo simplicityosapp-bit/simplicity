@@ -42,7 +42,6 @@ export const READABLE_TABLES = {
   recurring_templates:  { softDelete: true },
   payment_plans:        { softDelete: true },
   payment_installments: { softDelete: true },
-  payment_requests:     { softDelete: false },
   client_adjustments:   { softDelete: true },
   investments:          { softDelete: true },
   tasks:                { softDelete: true },

@@ -15,8 +15,7 @@ export async function callGoogleCalendar(action, params = {}) {
   return data
 }
 
-/* Thin clients over the `invoices` (Green Invoice / SUMIT) and `grow` (Grow /
-   Meshulam payment gateway) edge functions. Credentials are entered by the user
+/* Thin client over the `invoices` (Green Invoice / SUMIT) edge function. Credentials are entered by the user
    and travel straight to the service-role function — the browser never reads
    them back. Thrown errors carry the function's coarse code (e.g.
    'invalid_credentials') as message, which the UI maps to a sentence. */
@@ -53,21 +52,6 @@ async function readFnErrorBody(error) {
 
 export async function callInvoices(action, params = {}) {
   const { data, error } = await supabase.functions.invoke('invoices', {
-    body: { action, ...params },
-  })
-  if (error) {
-    const body = await readFnErrorBody(error)
-    if (body && body.error) throw fnError(body)
-    throw error
-  }
-  if (data && data.error) throw fnError(data)
-  return data
-}
-
-/* Thin client over the `grow` edge function (Grow / Meshulam payment gateway).
-   Same error-shape handling as callInvoices. */
-export async function callGrow(action, params = {}) {
-  const { data, error } = await supabase.functions.invoke('grow', {
     body: { action, ...params },
   })
   if (error) {

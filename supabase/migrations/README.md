@@ -46,6 +46,7 @@ keep in sync without buying anything.
 | `0116_import_batch_id` | **applied** 2026-09-07 — added the nullable `import_batch_id` + its partial index to the eleven tables a spreadsheet import writes to (`clients`, `projects`, `leads`, `transactions`, `sessions`, `payment_plans`, `payment_installments`, `client_statuses`, `lead_statuses`, `categories`, `recurring_templates`), so "undo the import" is one indexed predicate per table instead of a hunt. Verified before and after: every row count identical (clients 49, projects 43, leads 46, transactions 149, sessions 195, recurring_templates 25, lead_statuses 11, categories 6, client_statuses 4, payment_plans 1, payment_installments 1), all eleven `is_nullable = YES` with `column_default = null`, all eleven indexes present, and `count(import_batch_id) = 0` on every table — nothing that pre-dates this migration can ever be matched by an undo. No backfill, by design: the imports that already happened were never grouped, so there is nothing truthful to attribute them to. Security advisor clean of anything new |
 | `0117_csp_violations` | **applied** — recorded live as `20260909135808 csp_violations`; the `csp_violations` table exists |
 | `0118_free_for_all` | **applied** 2026-10-19 — dropped the five inert plan-limit policies from `0075` and the eight helper functions only they used (dependencies checked live first: nothing else referenced them). Applied after the `invoices` function was redeployed without its `billing_enforced()` call (v36). Verified after the run: public policies 79 → 74, RESTRICTIVE 8 → 3, 0 tier policies and 0 of the eight functions left, every `*_own` policy on the five tables intact, row counts unchanged (clients 54, goals 27, projects 46, site_pages 8, booking_pages 4); security advisor shows nothing new. `user_subscriptions` untouched (0 rows) |
+| `0119_remove_grow` | **not applied yet** — drops the Grow payment-gateway objects: tables `payment_requests` and `pending_grow_imports`, and the columns `user_integrations.page_code` / `grow_auto_receipt` / `grow_import_enabled`, `transactions.grow_transaction_id`, `booking_pages.require_payment`, `bookings.payment_status` / `payment_deadline` (with their index and check). All empty and unreferenced, checked live 2026-10-19. Apply only after `booking-intake` and `claude-mcp` are redeployed |
 
 Verified against the live database on 2026-08-27 by object presence: `0107`'s
 five count RPCs exist, `0108`'s `scheduled_meetings.duration_minutes` and its
@@ -56,7 +57,7 @@ from the live database at that watermark and matches it.
 
 ## How to add a migration
 
-Next free number is **`0119`**.
+Next free number is **`0120`**.
 
 Both commands below need the CLI linked to the project. That is a one-time step,
 and the password it asks for is stored by the CLI rather than in any file here:

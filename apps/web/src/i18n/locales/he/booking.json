@@ -37,8 +37,6 @@
     "publishHint": "כשכבוי — טיוטה, לא נגיש לציבור.",
     "autoConfirmTitle": "אישור אוטומטי",
     "autoConfirmHint": "כשכבוי — תורים ממתינים לאישור ידני.",
-    "requirePaymentTitle": "דרוש תשלום לאישור (Grow)",
-    "requirePaymentHint": "התור נתפס זמנית ומאושר רק לאחר תשלום מקוון, לפי מחיר סוג הפגישה.",
     "googleCalendar": "יומן Google",
     "writeToGoogleTitle": "כתיבת תורים מאושרים ליומן Google שלי",
     "writeToGoogleHintConnected": "כל תור מאושר מהדף (ידני או אוטומטי) ייכתב כאירוע ביומן שלך.",
@@ -151,12 +149,6 @@
     "errGeneric": "אירעה שגיאה בקביעת הפגישה. נסו שוב בעוד רגע.",
     "submitting": "קובע…",
     "submit": "קביעת הפגישה",
-    "submitPay": "המשך לתשלום",
-    "payNote": "תשלום מקוון נדרש לאישור הפגישה — ₪{{amount}}. תועברו לעמוד תשלום מאובטח של Grow.",
-    "paidThankYou": "התשלום התקבל — הפגישה נקבעה! נתראה.",
-    "cancelledTitle": "התשלום בוטל",
-    "cancelledBody": "התשלום לא הושלם, כך שהפגישה לא נקבעה. הסלוט ישוחרר אוטומטית בקרוב — אפשר לנסות שוב.",
-    "cancelledRetry": "חזרה לקביעת פגישה",
     "consentLink": "לפרטים"
   },
   "toolbox": {

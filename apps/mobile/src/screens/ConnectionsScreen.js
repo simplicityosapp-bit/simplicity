@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { View, ScrollView } from 'react-native'
 import { Text, TextInput } from '../components/Text'
 import { Pressable } from '../components/Pressable'
-import { MessageCircle, FileText, CreditCard, Check } from 'lucide-react-native'
+import { MessageCircle, FileText, Check } from 'lucide-react-native'
 import i18n from '../lib/i18n'
 import Screen from '../components/Screen'
 import GoogleCalendarCard from '../components/GoogleCalendarCard'
@@ -31,12 +31,8 @@ const WA_FIELDS = [
   { key: 'lead', tokens: ['name'] },
   { key: 'payment', tokens: ['name', 'balance'] },
 ]
-/* Grow is not offered on web yet (GROW_ENABLED is off), so "set it up on the
-   desktop" sent coaches looking for a screen that is not there. It says what
-   web says: soon. */
 const STATUS = [
   { key: 'invoicing', Icon: FileText, label: () => T('list.invoices', 'חשבוניות'), note: () => T('list.desktopSetup', 'מוגדר באפליקציית המחשב') },
-  { key: 'grow', Icon: CreditCard, label: () => T('list.grow', 'סליקה · Grow'), note: () => T('list.soon', 'בקרוב') },
 ]
 
 export default function ConnectionsScreen() {

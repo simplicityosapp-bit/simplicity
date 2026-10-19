@@ -56,12 +56,7 @@ const ALL_ROWS = (q) => q.not('id', 'is', null)
    `invoices` drops the provider key + secret.
 
    Failures are collected rather than thrown so one unreachable provider cannot
-   stop the data wipe — the caller reports everything that did not clear.
-
-   NOT included: the Grow payment connection. It is the one integration this
-   session is not authorised to touch, and there are zero Grow rows in the
-   database today, so nothing is left behind in practice. It must be added here
-   when the Grow work is picked up — the shape is one more entry in this list. */
+   stop the data wipe — the caller reports everything that did not clear. */
 const CALLERS = { 'google-calendar': callGoogleCalendar, invoices: callInvoices }
 const INTEGRATION_DISCONNECTS = ACCOUNT_RESET_DISCONNECTS.map(({ fn, label }) => [
   label,

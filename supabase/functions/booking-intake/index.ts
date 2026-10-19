@@ -36,7 +36,6 @@
 //  the app's confirm flow — kept out of the public surface on purpose.
 // ════════════════════════════════════════════════════════════════
 import { createClient } from 'jsr:@supabase/supabase-js@2'
-import { allowedReturnOrigins, returnOrigin } from './returnOrigin.ts'
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
 const SERVICE_ROLE = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
@@ -55,11 +54,6 @@ function json(body: unknown, status = 200) {
 }
 
 const str = (v: unknown) => (v == null ? '' : String(v)).trim()
-
-/* Where the payment page may send the visitor back to — the rules, and the
-   reasoning behind them, live in ./returnOrigin.ts so they can be tested.
-   Only the environment lookup belongs here. */
-const ALLOWED_RETURN_ORIGINS = allowedReturnOrigins(Deno.env.get('BOOKING_RETURN_ORIGINS'))
 
 const MAX_ANSWER_LEN = 2000
 /* Cap on how many declared fields one submission may write, mirroring
@@ -157,7 +151,6 @@ function publicConfig(page: any, types: any[]) {
     id: page.id,
     content: page.content ?? {},
     meetingTypes: types,
-    requirePayment: !!page.require_payment, // chosen type's default_price is the amount
     availability: {
       timezone: a.timezone || 'Asia/Jerusalem',
       slotMinutes: Number(a.slotMinutes) || 30,
@@ -270,66 +263,6 @@ async function busyIntervals(userId: string, rangeStartIso: string, rangeEndIso:
   return busy
 }
 
-// ── Grow pay-at-booking (Phase 3) ───────────────────────────────────────────
-const GROW_BASE: Record<string, string> = {
-  sandbox: 'https://sandbox.meshulam.co.il/api/light/server/1.0',
-  production: 'https://secure.meshulam.co.il/api/light/server/1.0',
-}
-const PAYMENT_HOLD_MIN = 20 // minutes a slot is held awaiting payment
-
-/* Lazily release expired awaiting-payment holds for a coach so the slot frees.
-   The bookings_no_overlap EXCLUDE covers ALL pending rows, so an expired hold
-   must be cancelled before a new booking can take the slot. No cron — runs on
-   every slots-read / booking POST. */
-async function releaseExpiredHolds(userId: string) {
-  try {
-    await admin.from('bookings')
-      .update({ status: 'cancelled' })
-      .eq('user_id', userId).eq('status', 'pending').eq('payment_status', 'awaiting')
-      .lt('payment_deadline', new Date().toISOString())
-  } catch (e) { console.error('booking-intake releaseExpiredHolds', e) }
-}
-
-/* The coach's Grow connection (service-role; never exposed to the page). */
-async function loadGrow(userId: string) {
-  const { data } = await admin.from('user_integrations')
-    .select('*').eq('user_id', userId).eq('provider', 'grow').maybeSingle()
-  return data
-}
-
-/* Create a Grow hosted-payment link for a booking. Inlined (booking-intake
-   can't import the grow function's gateway). ⚠️ UNVERIFIED — mirrors
-   grow/gateway.ts createPaymentLink; calibrate against a live account. Returns
-   { url, processId, processToken } or null on any failure. */
-async function createGrowLink(integ: any, o: {
-  amount: number; description: string; name: string; phone?: string | null; email?: string | null;
-  notifyUrl: string; successUrl: string; cancelUrl: string; correlationId: string;
-}) {
-  const env = integ.environment === 'sandbox' ? 'sandbox' : 'production'
-  const form = new FormData()
-  form.append('pageCode', integ.page_code ?? '')
-  form.append('userId', integ.api_key ?? '')          // column api_key = Grow userId
-  if (integ.api_secret) form.append('apiKey', integ.api_secret)
-  form.append('sum', String(o.amount))
-  form.append('description', o.description || 'תשלום עבור פגישה')
-  form.append('pageField[fullName]', o.name || 'לקוח')
-  if (o.phone) form.append('pageField[phone]', o.phone)
-  if (o.email) form.append('pageField[email]', o.email)
-  form.append('successUrl', o.successUrl)
-  form.append('cancelUrl', o.cancelUrl)
-  form.append('notifyUrl', o.notifyUrl)
-  form.append('cField1', o.correlationId)
-  let res: Response
-  try { res = await fetch(`${GROW_BASE[env]}/createPaymentProcess`, { method: 'POST', body: form }) }
-  catch (e) { console.error('booking grow link unreachable', e); return null }
-  if (!res.ok) { console.error('booking grow link http', res.status); return null }
-  const data = (await res.json().catch(() => ({}))) as any
-  const d = data?.data ?? {}
-  const url = d.url ?? d.paymentUrl ?? (typeof data?.url === 'string' ? data.url : null)
-  if (data?.status !== 1 || !url) { console.error('booking grow link failed'); return null }
-  return { url: String(url), processId: d.processId != null ? String(d.processId) : null, processToken: d.processToken ?? d.token ?? null }
-}
-
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors })
   const ip = (req.headers.get('x-forwarded-for') ?? '').split(',')[0].trim() || 'unknown'
@@ -368,8 +301,6 @@ Deno.serve(async (req) => {
       const to = str(url.searchParams.get('to'))
       if (!from || !to) return json({ error: 'bad_range' }, 400)
 
-      // Free any expired awaiting-payment holds first so their slots reappear.
-      await releaseExpiredHolds(page.user_id)
       // Pull busy once for the whole queried range (+1 day margin).
       const rangeStartIso = new Date(now).toISOString()
       const rangeEndIso = new Date(horizon + 86_400_000).toISOString()
@@ -404,8 +335,6 @@ Deno.serve(async (req) => {
     const body = await req.json().catch(() => ({}))
     const page = await loadPublishedPage(str(body?.page))
     if (!page) return json({ error: 'not_found' }, 404)
-    // Free expired awaiting-payment holds so a lapsed slot can be re-booked.
-    await releaseExpiredHolds(page.user_id)
 
     const answers = (body?.answers && typeof body.answers === 'object') ? body.answers : {}
     // Honeypot: silently pretend success.
@@ -483,13 +412,6 @@ Deno.serve(async (req) => {
     const phoneVal = cols.phone
     const emailVal = cols.email
 
-    // Online payment? The page must opt in AND the chosen type must have a price
-    // AND the coach must have Grow connected. If Grow isn't connected (misconfig)
-    // we fall back to a normal booking rather than blocking the visitor.
-    const price = Number(chosen?.default_price)
-    const grow = (page.require_payment && price > 0) ? await loadGrow(page.user_id) : null
-    const needsPayment = !!grow && price > 0
-
     const row: Record<string, unknown> = {
       page_id: page.id,
       user_id: page.user_id,
@@ -501,14 +423,10 @@ Deno.serve(async (req) => {
       data: extra,
       starts_at: new Date(startMs).toISOString(),
       ends_at: new Date(endMs).toISOString(),
-      // Payment-required → hold as pending+awaiting (must pay first; ignore
-      // auto_confirm). Otherwise the normal pending / auto-confirm behaviour.
-      status: needsPayment ? 'pending' : (page.auto_confirm ? 'confirmed' : 'pending'),
-      payment_status: needsPayment ? 'awaiting' : 'none',
-      payment_deadline: needsPayment ? new Date(Date.now() + PAYMENT_HOLD_MIN * 60_000).toISOString() : null,
+      status: page.auto_confirm ? 'confirmed' : 'pending',
     }
 
-    const { data: inserted, error } = await admin.from('bookings').insert(row).select('id').single()
+    const { error } = await admin.from('bookings').insert(row)
     if (error) {
       // 23P01 = exclusion_violation → the slot was grabbed in the race.
       if ((error as any).code === '23P01') return json({ error: 'slot_taken' }, 409)
@@ -516,42 +434,7 @@ Deno.serve(async (req) => {
       return json({ error: 'insert_failed' }, 500)
     }
 
-    // No payment required → done (existing behaviour).
-    if (!needsPayment) return json({ ok: true, thankYou: page.content?.thankYou ?? null })
-
-    // Payment required → mint a Grow link tied to this booking; the page
-    // redirects the visitor to it. grow-webhook confirms payment + records income.
-    let token = grow.webhook_token
-    if (!token) {
-      const { data: upd } = await admin.from('user_integrations').update({ webhook_token: crypto.randomUUID() }).eq('id', grow.id).select('webhook_token').maybeSingle()
-      token = upd?.webhook_token
-    }
-    const desc = `${chosen?.name ?? 'פגישה'} — ${name}`.slice(0, 200)
-    const { data: pr } = await admin.from('payment_requests').insert({
-      user_id: page.user_id, booking_id: inserted.id, source: 'booking',
-      amount: price, description: desc, status: 'pending',
-    }).select('id').single()
-    const base = returnOrigin(body?.origin, ALLOWED_RETURN_ORIGINS)
-    const slugOrId = page.slug || page.id
-    const link = pr ? await createGrowLink(grow, {
-      amount: price, description: desc, name, phone: phoneVal, email: emailVal,
-      notifyUrl: `${SUPABASE_URL}/functions/v1/grow-webhook?t=${token}`,
-      successUrl: `${base}/book/${slugOrId}?paid=1`,
-      cancelUrl: `${base}/book/${slugOrId}?cancelled=1`,
-      correlationId: pr.id,
-    }) : null
-
-    if (!link) {
-      // Couldn't mint the link → don't hold a dead slot: cancel the booking and
-      // tell the page (a paid page must not silently accept an unpaid booking).
-      await admin.from('bookings').update({ status: 'cancelled', payment_status: 'none' }).eq('id', inserted.id)
-      if (pr) await admin.from('payment_requests').update({ status: 'failed' }).eq('id', pr.id)
-      return json({ error: 'payment_unavailable' }, 502)
-    }
-    await admin.from('payment_requests').update({
-      payment_url: link.url, grow_process_id: link.processId, grow_process_token: link.processToken,
-    }).eq('id', pr.id)
-    return json({ ok: true, payment: { url: link.url } })
+    return json({ ok: true, thankYou: page.content?.thankYou ?? null })
   } catch (e) {
     console.error('booking-intake error:', e)
     return json({ error: 'internal_error' }, 500)

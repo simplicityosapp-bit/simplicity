@@ -47,10 +47,7 @@ export const ACCOUNT_RESET_UNPUBLISH_TABLES = ['lead_pages', 'booking_pages', 's
    the connections screen uses. google-calendar revokes the refresh token AT
    GOOGLE before deleting our copy (deleting the row alone would leave
    Simplicity in the user's authorised apps); invoices drops the provider key
-   and secret. `label` names the failure when one cannot be reached.
-
-   Not listed: Grow. There are no Grow connections yet; add it here when
-   that work is picked up, and both apps pick it up with it. */
+   and secret. `label` names the failure when one cannot be reached. */
 export const ACCOUNT_RESET_DISCONNECTS = [
   { fn: 'google-calendar', label: 'Google Calendar' },
   { fn: 'invoices', label: 'שירות החשבוניות' },

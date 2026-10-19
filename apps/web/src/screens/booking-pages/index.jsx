@@ -23,7 +23,6 @@ import {
   publishBlocker, publishMessage, draftFromPage, pausedAtStep,
   sanitizeAvailability, findInvalidWindow,
 } from '../../lib/bookingPageSchema'
-import { GROW_ENABLED } from '../../lib/grow'
 import DesignToolbox from '../../components/DesignToolbox'
 import { ROUTES } from '../../lib/routes'
 import { copyText } from '../../lib/clipboard'
@@ -340,7 +339,6 @@ function BookingPageBuilder({ page, onUpdate, onBack }) {
       title: draft.title.trim(),
       published: willPublish,
       auto_confirm: draft.auto_confirm,
-      require_payment: !!draft.require_payment,
       write_to_google: draft.write_to_google,
       invite_client: draft.write_to_google && draft.invite_client, // invite only meaningful when writing
       project_id: draft.project_id || null,
@@ -467,14 +465,6 @@ function BookingPageBuilder({ page, onUpdate, onBack }) {
               <Input type="checkbox" checked={draft.auto_confirm} onChange={(e) => set({ auto_confirm: e.target.checked })} />
               <Txt><strong>{t('pages.autoConfirmTitle')}</strong><em>{t('pages.autoConfirmHint')}</em></Txt>
             </Box>
-            {/* Pay-at-booking — only shown when the Grow gateway is enabled
-                (hidden while GROW_ENABLED is false, so no page can require it). */}
-            {GROW_ENABLED && (
-              <Box as="label" className="lpb-toggle">
-                <Input type="checkbox" checked={!!draft.require_payment} onChange={(e) => set({ require_payment: e.target.checked })} />
-                <Txt><strong>{t('pages.requirePaymentTitle')}</strong><em>{t('pages.requirePaymentHint')}</em></Txt>
-              </Box>
-            )}
           </Box>
 
           <Box className="m-field">

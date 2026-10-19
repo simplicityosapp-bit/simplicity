@@ -1,12 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
-import { Plug, Calendar, FileText, Check, CircleAlert, ChevronLeft, MessageCircle, Sparkles, CreditCard } from 'lucide-react'
+import { Plug, Calendar, FileText, Check, CircleAlert, ChevronLeft, MessageCircle, Sparkles } from 'lucide-react'
 import { ROUTES } from '../../lib/routes'
 import { useGoogleCalendar } from '../../hooks/useGoogleCalendar'
 import { useInvoiceProvider } from '../../hooks/useInvoiceProvider'
-import { useGrowGateway } from '../../hooks/useGrowGateway'
 import { useClaudeAccess } from '../../hooks/useClaudeAccess'
-import { GROW_ENABLED } from '../../lib/grow'
 import { useT } from '../../i18n/useT'
 import './ConnectionsScreen.css'
 import { Box, Txt, Btn } from '../../components/ui'
@@ -32,24 +30,6 @@ function ConnRow({ icon: Icon, title, loading, connected, warn, statusText, onOp
   )
 }
 
-/* Not-yet-available integrations — shown as a disabled row with an
-   Anthropic-style toggle (off) + a "בקרוב" tag. Non-interactive.
-   (WhatsApp and Claude graduated to live rows.) */
-function SoonRow({ icon: Icon, title, soonLabel, ariaLabel }) {
-  return (
-    <Box className="conn-row conn-row-soon" aria-disabled="true">
-      <Txt className="conn-row-icon"><Icon size={20} strokeWidth={1.6} aria-hidden="true" /></Txt>
-      <Txt className="conn-row-body">
-        <Txt className="conn-row-title">{title}</Txt>
-        <Txt className="conn-row-status soon">{soonLabel}</Txt>
-      </Txt>
-      <Txt className="conn-toggle" role="switch" aria-checked="false" aria-disabled="true" aria-label={ariaLabel}>
-        <Txt className="conn-toggle-knob" aria-hidden="true" />
-      </Txt>
-    </Box>
-  )
-}
-
 /* Connections home — a compact list of integrations. Each row enters its own
    sub-screen. This screen also catches the Google OAuth redirect (?code), since
    the registered redirect_uri is /connections; on success it forwards into the
@@ -60,7 +40,6 @@ export default function ConnectionsScreen() {
   const [params] = useSearchParams()
   const gcal = useGoogleCalendar()
   const inv = useInvoiceProvider()
-  const grow = useGrowGateway()
   const claude = useClaudeAccess()
   const providerLabel = (p) => (p === 'sumit' || p === 'greeninvoice' ? t(`providers.${p}`) : '')
   const [callbackError, setCallbackError] = useState('')
@@ -100,13 +79,6 @@ export default function ConnectionsScreen() {
         ? t('list.needsReconnect')
         : t('list.connectedTo', { provider: providerLabel(inv.status?.provider) })
   const calStatusText = calConnected ? t('list.connected') : t('list.notConnected')
-  const growConnected = !!grow.status?.connected
-  const growWarn = growConnected && !!grow.status?.credentials_invalid
-  const growStatusText = !growConnected
-    ? t('list.notConnected')
-    : growWarn
-      ? t('list.needsReconnect')
-      : t('list.connected')
   const claudeOn = !!claude.status?.active
   const claudeExpired = claudeOn && !!claude.status?.expired
   const claudeStatusText = claude.error && !claude.status
@@ -153,28 +125,6 @@ export default function ConnectionsScreen() {
           ariaLabel={t('list.rowAria', { title: t('list.invoices'), status: inv.loading ? t('loading') : invStatusText })}
           onOpen={() => navigate(ROUTES.CONNECTION_INVOICES)}
         />
-        {GROW_ENABLED ? (
-          <ConnRow
-            icon={CreditCard}
-            title={t('list.grow')}
-            loading={grow.loading}
-            connected={growConnected}
-            warn={growWarn}
-            statusText={growStatusText}
-            loadingLabel={t('loading')}
-            ariaLabel={t('list.rowAria', { title: t('list.grow'), status: grow.loading ? t('loading') : growStatusText })}
-            onOpen={() => navigate(ROUTES.CONNECTION_GROW)}
-          />
-        ) : (
-          /* Locked until a real Grow account verifies the flow — shown as a
-             disabled "בקרוב" row (the full feature is built behind GROW_ENABLED). */
-          <SoonRow
-            icon={CreditCard}
-            title={t('list.grow')}
-            soonLabel={t('list.soon')}
-            ariaLabel={t('list.soonAria', { title: t('list.grow') })}
-          />
-        )}
         <ConnRow
           icon={MessageCircle}
           iconClass="wa"

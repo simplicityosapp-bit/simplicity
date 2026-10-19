@@ -54,7 +54,6 @@ async function makeTables(): Promise<Record<string, Row[]>> {
       row(20, USER_A, { amount: 100, type: 'income', status: 'confirmed', date: '2026-09-01', client_id: id(1), recipient_tax_id: '123', recipient_phone: '050' }),
       row(21, USER_B, { amount: 999, type: 'income', status: 'confirmed', date: '2026-09-01', client_id: id(3), recipient_tax_id: '999' }),
     ],
-    payment_requests: [row(30, USER_A, { amount: 50, status: 'pending', client_id: id(1) })],
     calendar_events: [row(40, USER_B, { title: 'Therapy with Bob', start_time: '2099-01-01T10:00:00Z', end_time: '2099-01-01T11:00:00Z', client_id: id(3) })],
     leads: [row(50, USER_B, { name: 'Lead B', phone: '052', notes: 'lead note', data: { q: 'a' }, inquiry_date: '2026-09-01' })],
     bookings: [row(60, USER_B, { name: 'Booker', phone: '053', starts_at: '2099-01-02T10:00:00Z', status: 'confirmed' })],

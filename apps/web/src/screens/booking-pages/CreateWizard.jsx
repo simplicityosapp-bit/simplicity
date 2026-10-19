@@ -91,9 +91,6 @@ export default function BookingCreateWizard({ resumePage, takenTitles, onAdd, on
     title,
     published: !!publish,
     auto_confirm: d.auto_confirm,
-    /* Carried through rather than dropped: a resumed page may already hold it,
-       and rebuilding the payload without it would quietly switch it off. */
-    require_payment: !!d.require_payment,
     write_to_google: d.write_to_google,
     invite_client: d.write_to_google && d.invite_client,
     project_id: d.project_id || null,

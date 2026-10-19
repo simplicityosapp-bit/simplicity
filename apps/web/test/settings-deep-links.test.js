@@ -282,7 +282,7 @@ describe('link rows', () => {
   })
 
   it('offers the neighbouring screens settings used to dead-end on', () => {
-    expect(linksOf('account').map((l) => l.key)).toEqual(['connections', 'trash', 'subscription'])
+    expect(linksOf('account').map((l) => l.key)).toEqual(['connections', 'trash'])
   })
 
   it('gives every link a destination and an icon', () => {

@@ -27,7 +27,6 @@ export function screenKeyFromPath(pathname) {
   if (pathname.startsWith('/reports')) return 'reports'
   if (pathname.startsWith('/settings')) return 'settings'
   if (pathname.startsWith('/help')) return 'help'
-  if (pathname.startsWith('/subscription')) return 'subscription'
   if (pathname.startsWith('/projects')) return 'projects'
   if (pathname.startsWith('/trash')) return 'trash'
   if (pathname.startsWith('/insights')) return 'insights'
@@ -53,7 +52,6 @@ export function screenKeyFromPath(pathname) {
    the wrong screen. Silence is better, and the guide's coverage test uses
    this set to tell "deliberately silent" from "nobody wrote it yet". */
 export const NO_HELP_SCREENS = new Set([
-  'subscription',
   'help',        // the guide itself — a "?" would summarise the page you're on
   'onboarding',  // runs without app chrome, so no "?" is drawn anyway
   'leadPages',   // retired route; App redirects it to the /pages hub

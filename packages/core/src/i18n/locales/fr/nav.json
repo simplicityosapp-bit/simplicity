@@ -16,7 +16,6 @@
     "insights": "Comment allez-vous aujourd'hui ?",
     "trash": "Corbeille",
     "community": "Communauté",
-    "subscription": "Abonnement",
     "help": "Aide et guide"
   },
   "feedback": "Contactez-nous",
@@ -57,7 +56,6 @@
     "leadPagesSub": "Formulaires publics de capture de prospects",
     "bookingPagesSub": "Page publique de réservation de rendez-vous, synchronisée avec votre calendrier",
     "communitySub": "Le salon partagé",
-    "subscriptionSub": "Votre formule et ce qu'elle comprend",
     "helpSub": "Le guide complet et les questions fréquentes"
   },
   "signOut": "Se déconnecter",

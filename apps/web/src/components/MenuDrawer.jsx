@@ -3,13 +3,12 @@ import { useNavigate } from 'react-router-dom'
 import {
   Home, Users, Magnet, Wallet, Folder, ClipboardList, Target, Calendar, Settings,
   Moon, Eye, Activity, BarChart3, Trash2, Sun, X, Pencil, LogOut, MessageSquarePlus, Shield, Plug, LayoutTemplate,
-  MessagesSquare, Gem, BookOpen,
+  MessagesSquare, BookOpen,
 } from 'lucide-react'
 import { DRAWER_NAV } from '../lib/nav'
 import { confirmLeave } from '../lib/leaveGuard'
 import { ROUTES } from '../lib/routes'
 import { COMMUNITY_ENABLED } from '../lib/community'
-import { SUBSCRIPTION_NAV_ENABLED } from '../lib/subscriptionNav'
 import { isAdminUser } from '../lib/admin'
 import { roleLabel } from '../lib/preferences'
 import { useUserPreferences } from '../hooks/useUserPreferences'
@@ -148,19 +147,6 @@ export default function MenuDrawer({ open, onClose, screen, isDark, onToggleThem
                 {t('extras.community')}<Txt as="span" className="mg-nav-beta">beta</Txt>
               </Txt>
               <Txt className="drawer-link-text-sub">{t('items.communitySub')}</Txt>
-            </Txt>
-          </Btn>
-        )}
-
-        {/* המנוי של המשתמש — מסלול Simplicity שלו (הועבר מ"הגדרות").
-            מוסתר כל עוד SUBSCRIPTION_NAV_ENABLED כבוי — במסך יש כפתור רכישה
-            אמיתי, ולכן גם המסלול עצמו מפנה הביתה ולא רק מוסתר מהתפריט. */}
-        {SUBSCRIPTION_NAV_ENABLED && (
-          <Btn className="drawer-link" onClick={() => goTo(ROUTES.SUBSCRIPTION)}>
-            <Txt className="drawer-link-icon"><Gem size={18} strokeWidth={1.5} /></Txt>
-            <Txt className="drawer-link-text">
-              {t('extras.subscription')}
-              <Txt className="drawer-link-text-sub">{t('items.subscriptionSub')}</Txt>
             </Txt>
           </Btn>
         )}

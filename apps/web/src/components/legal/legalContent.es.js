@@ -2,7 +2,7 @@
 import { PRIVACY_VERSION, DPA_VERSION, TERMS_VERSION } from '../../lib/legal'
 
 export const PRIVACY_META = `Simplicity · Versión ${PRIVACY_VERSION} · Actualizado: agosto de 2026`
-export const TERMS_META = `Simplicity · Versión ${TERMS_VERSION} · Actualizado: agosto de 2026`
+export const TERMS_META = `Simplicity · Versión ${TERMS_VERSION} · Actualizado: octubre de 2026`
 export const DPA_META = `Acuerdo de Procesamiento de Datos · Versión ${DPA_VERSION} · junio de 2026`
 
 export const PRIVACY_BLOCKS = [
@@ -130,7 +130,7 @@ export const TERMS_BLOCKS = [
 
   { h: "2. Definición del Servicio" },
   { t: "Simplicity es un Practice OS (sistema de gestión de práctica) destinado a coaches, mentores y terapeutas. El Servicio permite la gestión de clientes, sesiones, finanzas, objetivos y sincronización de calendario." },
-  { t: "El Servicio se proporciona “tal cual” (AS IS) durante el período beta, sin compromiso de disponibilidad total ni de funcionalidades específicas." },
+  { t: "El Servicio se proporciona “tal cual” (AS IS), sin compromiso de disponibilidad total ni de funcionalidades específicas." },
 
   { h: "3. Registro y cuenta" },
   { t: "Debes tener 18 años o más para utilizar el Servicio." },
@@ -151,14 +151,8 @@ export const TERMS_BLOCKS = [
   { t: "Uso comercial del Servicio más allá de la gestión de tu propia práctica personal, sin un acuerdo separado." },
   { t: "Transferir la cuenta a un tercero." },
 
-  { h: "5. Pago y suscripción" },
-  { t: "En esta etapa, el Servicio se proporciona sin costo a todos los usuarios." },
-  { t: "Con el lanzamiento de una versión comercial:" },
-  { t: "La tarificación se publicará por anticipado en la Aplicación." },
-  { t: "Se dará un aviso de al menos 30 días antes de la entrada en vigor de los cargos." },
-  { t: "El impago podrá conllevar la suspensión del acceso al Servicio. Los datos se conservarán durante 60 días desde la fecha de la suspensión." },
-  { t: "Cancelaciones y reembolsos: toda solicitud de cancelación de una transacción se tramitará de conformidad con las disposiciones de la ley, incluida la Ley de Protección del Consumidor, 5741-1981 y sus reglamentos. No hay reembolsos por períodos de uso ya facturados, salvo en casos de una falla sustancial por parte del Operador o según lo exija la ley." },
-  { t: "Al momento de la facturación se emitirá un recibo digital y un documento electrónico conforme a la ley para documentar la transacción, de conformidad con la Enmienda 73 de la Ley de Protección del Consumidor." },
+  { h: "5. Sin costo" },
+  { t: "El Servicio se proporciona sin costo, como un regalo al público. No se cobra a los usuarios por el uso del Servicio, y no tiene planes de pago." },
 
   { h: "6. Propiedad intelectual" },
   { t: "Todo el código, el diseño, el logotipo y el contenido de Simplicity son propiedad del Operador." },
@@ -168,13 +162,14 @@ export const TERMS_BLOCKS = [
 
   { h: "7. Limitación de responsabilidad e indemnización" },
   { t: "El Servicio, las interfaces y las integraciones se proporcionan “tal cual” (AS IS / AS AVAILABLE), sin compromiso de disponibilidad continua ni de integridad de los datos. El Operador realiza esfuerzos razonables para un funcionamiento correcto, pero no garantiza que el Servicio esté libre de fallas." },
+  { t: "El uso del Servicio y de todo lo que produce es responsabilidad exclusiva del Usuario, con sujeción a lo dispuesto en esta sección." },
   { t: "El Usuario es consciente de los riesgos propios de un servicio de este tipo:" },
   { t: "Interrupciones (Downtime) planificadas y no planificadas; no hay garantía de disponibilidad total." },
   { t: "Pérdida de datos o menoscabo de su integridad como consecuencia de fallas técnicas; es responsabilidad del Usuario realizar copias de seguridad periódicas." },
   { t: "Cambios en las interfaces de API, en las funcionalidades o en las integraciones, que pueden realizarse sin aviso previo." },
   { t: "Fallas en servicios de terceros sobre los que se basa el Servicio (proveedores de infraestructura, Google, etc.)." },
   { t: "A pesar de medidas de seguridad razonables, no hay garantía absoluta frente a intrusiones cibernéticas o accesos no autorizados." },
-  { t: "Límite de responsabilidad: la responsabilidad total del Operador frente al Usuario por daños directos probados no excederá el importe pagado por el Usuario en los 12 meses anteriores al incidente, o ₪2,000, el que sea mayor de ambos." },
+  { t: "Límite de responsabilidad: la responsabilidad total del Operador frente al Usuario por daños directos probados no excederá ₪2,000." },
   { t: "Esta limitación no se aplicará a los daños corporales o la muerte derivados de negligencia, a la vulneración del deber de privacidad por parte del Operador, a un acto doloso o negligencia grave, ni a otros daños cuya responsabilidad la ley no permite limitar." },
   { t: "Indemnización: el Usuario se compromete a indemnizar al Operador por todo daño o gasto razonable (incluidos honorarios razonables de abogado) que se le ocasionen como consecuencia de un incumplimiento esencial de estos términos por parte del Usuario o de un uso ilícito del Servicio." },
 

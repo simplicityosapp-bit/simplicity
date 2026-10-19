@@ -13,7 +13,6 @@ import AttentionWidget from './widgets/AttentionWidget'
 import NextTasksWidget from './widgets/NextTasksWidget'
 import ChipsWidget from './widgets/ChipsWidget'
 import FeedbackCard from '../../components/FeedbackCard'
-import BetaExpiryBanner from '../../components/BetaExpiryBanner'
 import DataLoadError from '../../components/DataLoadError'
 import HomeGenerators from './HomeGenerators'
 import HiddenWidgetsModal from './HiddenWidgetsModal'
@@ -137,7 +136,6 @@ export default function HomeScreen({ onOpenFeedback }) {
       <HomeGenerators />
       <Box className="home-stack" ref={stackRef} onClickCapture={edit.onClickCapture}>
         {showWelcome && <HomeWelcome onDismiss={() => updatePrefs({ homeWelcomeDismissed: true })} />}
-        <BetaExpiryBanner />
         {/* Home is the one screen where a failed fetch is indistinguishable from
             a new account: every widget draws its own empty state and the result
             reads as "you have nothing". */}

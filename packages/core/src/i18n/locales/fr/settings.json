@@ -315,10 +315,6 @@
     "trash": {
       "title": "Corbeille",
       "sub": "Restaurez ce que vous avez supprimé"
-    },
-    "subscription": {
-      "title": "Mon abonnement",
-      "sub": "Votre formule Simplicity"
     }
   },
   "help": {
@@ -371,8 +367,7 @@
       "clients": "clients statut statuts sous-statut catégorie actif en pause ancien",
       "leads": "prospects prospect étape étapes source sources pipeline demande libellé libellés motif motifs",
       "connections": "connexions agenda google facture factures whatsapp paiements intégration synchronisation",
-      "trash": "corbeille restaurer supprimés récupérer",
-      "subscription": "abonnement formule facturation mise à niveau premium forfait"
+      "trash": "corbeille restaurer supprimés récupérer"
     }
   }
 }

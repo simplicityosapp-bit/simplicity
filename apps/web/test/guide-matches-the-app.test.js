@@ -79,9 +79,6 @@ describe('the guide and the app agree', () => {
           })
         }
         ;(group.links || []).forEach((key) => {
-          /* Subscription is behind a flag and not drawn, so the guide is
-             right not to describe a row nobody can see. */
-          if (key === 'subscription') return
           expect(guide, `link "${key}" is undocumented`).toContain(fold(s.links[key].title))
         })
       })

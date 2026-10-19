@@ -14,7 +14,7 @@
     "toDay": "Cambiar a modo día",
     "toNight": "Cambiar a modo noche",
     "login": "Iniciar sesión",
-    "startFree": "Empezar gratis"
+    "startFree": "Empezar ahora"
   },
   "hero": {
     "eyebrow": "Un sistema operativo para tu práctica",
@@ -22,9 +22,9 @@
     "title2": "en un solo lugar tranquilo.",
     "subAddress": "Para {{therapist}}, {{advisor}}, {{teacher}} y {{facilitator}}:",
     "subBody": "Proyectos, finanzas, clientes, sesiones, objetivos — todo en un lugar claro y acogedor. Una única vista de conjunto que te muestra exactamente qué necesita este mes.",
-    "ctaPrimary": "Empezar gratis",
+    "ctaPrimary": "Empezar ahora",
     "ctaSecondary": "Ya tengo una cuenta",
-    "trust": "Registro gratuito · Puedes irte cuando quieras · Importa y exporta todos tus datos"
+    "trust": "Totalmente gratis, para siempre · Puedes irte cuando quieras · Importa y exporta todos tus datos"
   },
   "demo": {
     "eyebrow": "La pantalla de inicio",
@@ -140,7 +140,7 @@
     },
     "price": {
       "q": "¿Cuánto cuesta?",
-      "a": "Puedes empezar gratis y crear una cuenta sin tarjeta de crédito, para conocer Simplicity a tu propio ritmo."
+      "a": "Nada. Simplicity es un regalo: sin pagos, sin planes de pago, sin tarjeta de crédito y sin límites."
     },
     "install": {
       "q": "¿Necesito instalar algo?",
@@ -150,12 +150,12 @@
   "cta": {
     "title": "Todo empieza aquí.",
     "sub": "Únete a los {{roles}} que quieren llevar su práctica con calma — todo en un solo lugar.",
-    "ctaPrimary": "Empezar gratis",
+    "ctaPrimary": "Empezar ahora",
     "ctaSecondary": "Ya tengo una cuenta",
-    "micro": "Registro gratuito · Puedes irte cuando quieras · Importa y exporta todos tus datos"
+    "micro": "Totalmente gratis, para siempre · Puedes irte cuando quieras · Importa y exporta todos tus datos"
   },
   "footer": {
-    "tagline": "Un sistema operativo para tu práctica — para {{roles}}. Hecho con amor, para ayudar a crear un poco más de bien en el mundo.",
+    "tagline": "Un sistema operativo para tu práctica — para {{roles}}. Hecho con amor y ofrecido como regalo, para ayudar a crear un poco más de bien en el mundo.",
     "colProduct": "Servicio",
     "signup": "Registrarse",
     "login": "Iniciar sesión",

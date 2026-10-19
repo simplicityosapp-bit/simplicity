@@ -16,7 +16,6 @@
     "insights": "¿Cómo estás hoy?",
     "trash": "Papelera",
     "community": "Comunidad",
-    "subscription": "Suscripción",
     "help": "Ayuda y guía"
   },
   "feedback": "Habla con nosotros",
@@ -57,7 +56,6 @@
     "leadPagesSub": "Formularios públicos de captación de prospectos",
     "bookingPagesSub": "Página pública de reserva de citas, sincronizada con tu calendario",
     "communitySub": "La sala compartida",
-    "subscriptionSub": "Tu plan y lo que incluye",
     "helpSub": "La guía completa y las preguntas frecuentes"
   },
   "signOut": "Cerrar sesión",

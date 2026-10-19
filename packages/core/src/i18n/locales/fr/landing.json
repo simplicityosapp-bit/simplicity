@@ -14,7 +14,7 @@
     "toDay": "Passer en mode jour",
     "toNight": "Passer en mode nuit",
     "login": "Se connecter",
-    "startFree": "Commencer gratuitement"
+    "startFree": "Commencer"
   },
   "hero": {
     "eyebrow": "Un système d'exploitation pour votre activité",
@@ -22,9 +22,9 @@
     "title2": "dans un seul espace serein.",
     "subAddress": "Pour les {{therapist}}, {{advisor}}, {{teacher}} et {{facilitator}} :",
     "subBody": "Projets, finances, clients, séances, objectifs — tout dans un espace clair et accueillant. Une seule vue d'ensemble qui vous montre exactement ce dont ce mois-ci a besoin.",
-    "ctaPrimary": "Commencer gratuitement",
+    "ctaPrimary": "Commencer",
     "ctaSecondary": "J'ai déjà un compte",
-    "trust": "Inscription gratuite · Partez quand vous voulez · Importez et exportez toutes vos données"
+    "trust": "Entièrement gratuit, pour toujours · Partez quand vous voulez · Importez et exportez toutes vos données"
   },
   "demo": {
     "eyebrow": "L'écran d'accueil",
@@ -140,7 +140,7 @@
     },
     "price": {
       "q": "Combien ça coûte ?",
-      "a": "Vous pouvez commencer gratuitement et créer un compte sans carte de crédit, pour découvrir Simplicity à votre rythme."
+      "a": "Rien. Simplicity est un cadeau : pas de paiement, pas de formule payante, pas de carte de crédit et pas de limites."
     },
     "install": {
       "q": "Dois-je installer quelque chose ?",
@@ -150,12 +150,12 @@
   "cta": {
     "title": "Tout commence ici.",
     "sub": "Rejoignez les {{roles}} qui veulent gérer leur activité avec sérénité — le tout au même endroit.",
-    "ctaPrimary": "Commencer gratuitement",
+    "ctaPrimary": "Commencer",
     "ctaSecondary": "J'ai déjà un compte",
-    "micro": "Inscription gratuite · Partez quand vous voulez · Importez et exportez toutes vos données"
+    "micro": "Entièrement gratuit, pour toujours · Partez quand vous voulez · Importez et exportez toutes vos données"
   },
   "footer": {
-    "tagline": "Un système d'exploitation pour votre activité — pour les {{roles}}. Conçu avec amour, pour aider à créer un peu plus de bien dans le monde.",
+    "tagline": "Un système d'exploitation pour votre activité — pour les {{roles}}. Conçu avec amour et offert en cadeau, pour aider à créer un peu plus de bien dans le monde.",
     "colProduct": "Service",
     "signup": "S'inscrire",
     "login": "Se connecter",

@@ -40,7 +40,6 @@ export const ROUTES = {
      four disclosures deep; the floating ? button on every screen points
      here now, and so does a row in the settings account group. */
   HELP: '/help',
-  SUBSCRIPTION: '/subscription', // the user's own Simplicity plan (promoted out of Settings)
   PROJECTS: '/projects',
   TRASH: '/trash',
   INSIGHTS: '/insights',

@@ -2,7 +2,7 @@
 import { PRIVACY_VERSION, DPA_VERSION, TERMS_VERSION } from '../../lib/legal'
 
 export const PRIVACY_META = `Simplicity · Version ${PRIVACY_VERSION} · Updated: August 2026`
-export const TERMS_META = `Simplicity · Version ${TERMS_VERSION} · Updated: August 2026`
+export const TERMS_META = `Simplicity · Version ${TERMS_VERSION} · Updated: October 2026`
 export const DPA_META = `Data Processing Agreement · Version ${DPA_VERSION} · June 2026`
 
 export const PRIVACY_BLOCKS = [
@@ -130,7 +130,7 @@ export const TERMS_BLOCKS = [
 
   { h: "2. Definition of the Service" },
   { t: "Simplicity is a Practice OS (practice-management system) intended for coaches, mentors, and therapists. The Service enables the management of clients, sessions, finances, goals, and calendar sync." },
-  { t: "The Service is provided \"as is\" (AS IS) during the beta period, with no commitment to full availability or to specific features." },
+  { t: "The Service is provided \"as is\" (AS IS), with no commitment to full availability or to specific features." },
 
   { h: "3. Registration and Account" },
   { t: "You must be 18 or older to use the Service." },
@@ -151,14 +151,8 @@ export const TERMS_BLOCKS = [
   { t: "Commercial use of the Service beyond managing your personal practice — without a separate agreement." },
   { t: "Transferring the account to a third party." },
 
-  { h: "5. Payment and Subscription" },
-  { t: "At this stage the Service is provided free of charge to all users." },
-  { t: "Upon the launch of a commercial version:" },
-  { t: "Pricing will be published in advance in the Application." },
-  { t: "At least 30 days' notice will be given before any charge takes effect." },
-  { t: "Non-payment may result in suspension of access to the Service. Data will be retained for 60 days from the date of suspension." },
-  { t: "Cancellations and refunds — any request to cancel a transaction will be handled in accordance with the provisions of the law, including the Consumer Protection Law, 5741-1981 and the regulations thereunder. There are no refunds for usage periods that have already been charged, except in cases of a material fault on the part of the Operator or as required by law." },
-  { t: "Upon charging, a digital receipt and a duly issued electronic document will be issued to document the transaction, in accordance with Amendment 73 to the Consumer Protection Law." },
+  { h: "5. Free of Charge" },
+  { t: "The Service is provided free of charge, as a gift to the public. No payment is collected from users for using the Service, and it has no paid plans." },
 
   { h: "6. Intellectual Property" },
   { t: "All of Simplicity's code, design, logo, and content are the property of the Operator." },
@@ -168,13 +162,14 @@ export const TERMS_BLOCKS = [
 
   { h: "7. Limitation of Liability and Indemnification" },
   { t: "The Service, the interfaces, and the integrations are provided \"as is\" (AS IS / AS AVAILABLE), with no commitment to continuous availability or to data integrity. The Operator makes reasonable efforts toward proper operation but does not warrant that the Service will be free from faults." },
+  { t: "Use of the Service and of anything it produces is at the User's sole responsibility, subject to the provisions of this section." },
   { t: "The User is aware of the risks inherent to a service of this kind:" },
   { t: "Planned and unplanned downtime; there is no guarantee of full availability." },
   { t: "Loss of data or impairment of its integrity as a result of technical faults; it is the User's responsibility to perform periodic backups." },
   { t: "Changes to API interfaces, features, or integrations, which may be made without prior notice." },
   { t: "Failures in third-party services on which the Service relies (infrastructure providers, Google, etc.)." },
   { t: "Despite reasonable security measures, there is no absolute guarantee against cyber intrusions or unauthorized access." },
-  { t: "Liability cap — the Operator's total liability to the User for proven direct damages shall not exceed the amount paid by the User in the 12 months preceding the event, or ₪2,000, whichever is higher." },
+  { t: "Liability cap — the Operator's total liability to the User for proven direct damages shall not exceed ₪2,000." },
   { t: "This limitation shall not apply to bodily injury or death arising from negligence, to a breach of the duty of privacy on the part of the Operator, to a willful act or gross negligence, or to other damages for which the law does not permit liability to be limited." },
   { t: "Indemnification — the User undertakes to indemnify the Operator for any damage or reasonable expense (including reasonable attorney's fees) incurred by it as a result of a fundamental breach of these terms by the User or as a result of unlawful use of the Service." },
 

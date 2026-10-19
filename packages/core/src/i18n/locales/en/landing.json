@@ -14,7 +14,7 @@
     "toDay": "Switch to day mode",
     "toNight": "Switch to night mode",
     "login": "Log in",
-    "startFree": "Start free"
+    "startFree": "Get started"
   },
   "hero": {
     "eyebrow": "An operating system for your practice",
@@ -22,9 +22,9 @@
     "title2": "in one calm place.",
     "subAddress": "For {{therapist}}, {{advisor}}, {{teacher}} and {{facilitator}}:",
     "subBody": "Projects, finances, clients, sessions, goals — all in one clear, welcoming place. A single big-picture view that shows you exactly what this month needs.",
-    "ctaPrimary": "Start free",
+    "ctaPrimary": "Get started",
     "ctaSecondary": "I already have an account",
-    "trust": "Free to sign up · Leave anytime · Import and export all your data"
+    "trust": "Completely free, for good · Leave anytime · Import and export all your data"
   },
   "demo": {
     "eyebrow": "The home screen",
@@ -140,7 +140,7 @@
     },
     "price": {
       "q": "How much does it cost?",
-      "a": "You can start for free and create an account with no credit card, to get to know Simplicity at your own pace."
+      "a": "Nothing. Simplicity is a gift — no payment, no paid plans, no credit card and no limits."
     },
     "install": {
       "q": "Do I need to install anything?",
@@ -150,12 +150,12 @@
   "cta": {
     "title": "It all starts here.",
     "sub": "Join the {{roles}} who want to run their practice with calm — all in one place.",
-    "ctaPrimary": "Start free",
+    "ctaPrimary": "Get started",
     "ctaSecondary": "I already have an account",
-    "micro": "Free to sign up · Leave anytime · Import and export all your data"
+    "micro": "Completely free, for good · Leave anytime · Import and export all your data"
   },
   "footer": {
-    "tagline": "An operating system for your practice — for {{roles}}. Built with love, to help create a little more good in the world.",
+    "tagline": "An operating system for your practice — for {{roles}}. Built with love and given as a gift, to help create a little more good in the world.",
     "colProduct": "Service",
     "signup": "Sign up",
     "login": "Log in",

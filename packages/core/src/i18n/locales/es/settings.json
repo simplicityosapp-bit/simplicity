@@ -315,10 +315,6 @@
     "trash": {
       "title": "Papelera",
       "sub": "Recupera lo que hayas eliminado"
-    },
-    "subscription": {
-      "title": "Mi plan",
-      "sub": "Tu suscripción a Simplicity"
     }
   },
   "help": {
@@ -371,8 +367,7 @@
       "clients": "clientes estado estados subestado categoría activo en pausa antiguo",
       "leads": "prospectos prospecto etapa etapas origen orígenes fuente embudo consulta etiqueta etiquetas motivo motivos",
       "connections": "conexiones calendario google factura facturas whatsapp cobros pagos integración sincronizar",
-      "trash": "papelera reciclaje restaurar eliminados recuperar",
-      "subscription": "suscripción plan facturación mejora premium paquete"
+      "trash": "papelera reciclaje restaurar eliminados recuperar"
     }
   }
 }

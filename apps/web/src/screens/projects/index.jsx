@@ -6,8 +6,6 @@ import { useClients } from '../../hooks/useClients'
 import { useGroups } from '../../hooks/useGroups'
 import { useTransactions } from '../../hooks/useTransactions'
 import { useTasks } from '../../hooks/useTasks'
-import { useSubscription } from '../../hooks/useSubscription'
-import { useUpgradeNav } from '../../hooks/useUpgradeNav'
 import ProjectCard from './ProjectCard'
 import AddProjectModal from '../../modals/AddProjectModal'
 import EditProjectModal from '../../modals/EditProjectModal'
@@ -25,12 +23,7 @@ const TOOLBAR_FROM = 6
 
 export default function ProjectsScreen() {
   const { t, gender } = useT('projects')
-  const { t: ts } = useT('subscription')
   const { projects, loading, unreachable, refetching, error, refetch, addProject, updateProject, removeProject } = useProjects()
-  const { limits } = useSubscription()
-  const goUpgrade = useUpgradeNav()
-  /* Free-tier project ceiling. Infinity while billing isn't enforced. */
-  const atProjectLimit = (projects?.length || 0) >= limits.projects
   const { clients, loading: clientsLoading, unreachable: clientsDown } = useClients()
   const { groups, loading: groupsLoading, unreachable: groupsDown } = useGroups()
   const { transactions, loading: txLoading, unreachable: txDown } = useTransactions()
@@ -108,12 +101,9 @@ export default function ProjectsScreen() {
           </Txt>
         </Box>
         <Coachmark id="add-project" radius="50%" satisfied={projects.length > 0}>
-          <Btn className="cta-add" aria-label={t('newAria')} onClick={() => (atProjectLimit ? goUpgrade() : setShowAdd(true))}>{t('new')}</Btn>
+          <Btn className="cta-add" aria-label={t('newAria')} onClick={() => setShowAdd(true)}>{t('new')}</Btn>
         </Coachmark>
       </Box>
-      {atProjectLimit && (
-        <Btn className="sub-limit-note" onClick={goUpgrade}>{ts('limit.projects')} · {ts('limit.upgrade')}</Btn>
-      )}
 
       <Box as="section" className="p-hero">
         <Box className="s-hero">

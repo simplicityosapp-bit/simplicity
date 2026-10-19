@@ -14,8 +14,6 @@ import { useLeads } from '../../hooks/useLeads'
 import { useUserQuestions } from '../../hooks/useUserQuestions'
 import { useDailyAnswers } from '../../hooks/useDailyAnswers'
 import { useUserPreferences } from '../../hooks/useUserPreferences'
-import { useSubscription } from '../../hooks/useSubscription'
-import { useUpgradeNav } from '../../hooks/useUpgradeNav'
 import GoalCard from './GoalCard'
 import AddGoalModal from '../../modals/AddGoalModal'
 import AddGoalEntryModal from '../../modals/AddGoalEntryModal'
@@ -40,13 +38,8 @@ import './GoalsScreen.css'
 
 export default function GoalsScreen() {
   const { t } = useT('goals')
-  const { t: ts } = useT('subscription')
   const { goals, loading: goalsLoading, error: goalsError, updateGoal, removeGoal } = useGoals()
   const handleAddGoal = useAddGoal()
-  const { limits } = useSubscription()
-  const goUpgrade = useUpgradeNav()
-  /* Free-tier goal ceiling. Infinity while billing isn't enforced. */
-  const atGoalLimit = (goals?.length || 0) >= limits.goals
   const { categories, loading: catsLoading, error: catsError } = useGoalCategories()
   const { entries, addEntry, removeEntry } = useGoalEntries()
   const { transactions } = useTransactions()
@@ -85,14 +78,11 @@ export default function GoalsScreen() {
           </Txt>
         </Box>
         <Coachmark id="add-goal" radius="50%" satisfied={goals.length > 0}>
-          <Btn className="cta-add" aria-label={t('newGoalAria')} onClick={() => (atGoalLimit ? goUpgrade() : setShowAddGoal(true))}>
+          <Btn className="cta-add" aria-label={t('newGoalAria')} onClick={() => setShowAddGoal(true)}>
             {t('newGoal')}
           </Btn>
         </Coachmark>
       </Box>
-      {atGoalLimit && (
-        <Btn className="sub-limit-note" onClick={goUpgrade}>{ts('limit.goals')} · {ts('limit.upgrade')}</Btn>
-      )}
 
       {loading ? (
         <Box className="empty"><Txt as="p" className="empty-text">{t('loading')}</Txt></Box>

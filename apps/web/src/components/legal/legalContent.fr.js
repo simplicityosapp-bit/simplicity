@@ -2,7 +2,7 @@
 import { PRIVACY_VERSION, DPA_VERSION, TERMS_VERSION } from '../../lib/legal'
 
 export const PRIVACY_META = `Simplicity · Version ${PRIVACY_VERSION} · Mis à jour : août 2026`
-export const TERMS_META = `Simplicity · Version ${TERMS_VERSION} · Mis à jour : août 2026`
+export const TERMS_META = `Simplicity · Version ${TERMS_VERSION} · Mis à jour : octobre 2026`
 export const DPA_META = `Accord de traitement des données · Version ${DPA_VERSION} · juin 2026`
 
 export const PRIVACY_BLOCKS = [
@@ -130,7 +130,7 @@ export const TERMS_BLOCKS = [
 
   { h: `2. Définition du Service` },
   { t: `Simplicity est un Practice OS (système de gestion de cabinet) destiné aux coachs, mentors et thérapeutes. Le Service permet la gestion des clients, des séances, des finances, des objectifs et la synchronisation de l'agenda.` },
-  { t: `Le Service est fourni « tel quel » (AS IS) pendant la période de bêta, sans engagement de disponibilité totale ni de fonctionnalités spécifiques.` },
+  { t: `Le Service est fourni « tel quel » (AS IS), sans engagement de disponibilité totale ni de fonctionnalités spécifiques.` },
 
   { h: `3. Inscription et compte` },
   { t: `Vous devez être âgé de 18 ans ou plus pour utiliser le Service.` },
@@ -151,14 +151,8 @@ export const TERMS_BLOCKS = [
   { t: `Faire un usage commercial du Service au-delà de la gestion de votre cabinet personnel — sans accord distinct.` },
   { t: `Transférer le compte à un tiers.` },
 
-  { h: `5. Paiement et abonnement` },
-  { t: `À ce stade, le Service est fourni gratuitement à tous les Utilisateurs.` },
-  { t: `Lors du lancement d'une version commerciale :` },
-  { t: `La tarification sera publiée à l'avance dans l'Application.` },
-  { t: `Un préavis d'au moins 30 jours sera donné avant l'entrée en vigueur de toute facturation.` },
-  { t: `Le non-paiement peut entraîner la suspension de l'accès au Service. Les données seront conservées pendant 60 jours à compter de la date de suspension.` },
-  { t: `Annulations et remboursements — toute demande d'annulation d'une opération sera traitée conformément aux dispositions de la loi, y compris la loi sur la protection du consommateur, 5741-1981 et ses règlements. Aucun remboursement n'est accordé pour des périodes d'utilisation déjà facturées, sauf en cas de défaillance substantielle de la part de l'exploitant ou tel que requis par la loi.` },
-  { t: `Lors de la facturation, un reçu numérique et un document électronique conforme à la loi seront émis pour documenter l'opération, conformément à l'amendement 73 de la loi sur la protection du consommateur.` },
+  { h: `5. Gratuité` },
+  { t: `Le Service est fourni gratuitement, en cadeau au public. Aucun paiement n'est perçu auprès des Utilisateurs pour l'utilisation du Service, et il ne comporte aucune formule payante.` },
 
   { h: `6. Propriété intellectuelle` },
   { t: `L'ensemble du code, du design, du logo et du contenu de Simplicity sont la propriété de l'exploitant.` },
@@ -168,13 +162,14 @@ export const TERMS_BLOCKS = [
 
   { h: `7. Limitation de responsabilité et indemnisation` },
   { t: `Le Service, les interfaces et les intégrations sont fournis « tels quels » (AS IS / AS AVAILABLE), sans engagement de disponibilité continue ni d'intégrité des données. L'exploitant déploie des efforts raisonnables pour un fonctionnement correct mais ne garantit pas que le Service sera exempt de défaillances.` },
+  { t: `L'utilisation du Service et de tout ce qu'il produit relève de la seule responsabilité de l'Utilisateur, sous réserve des dispositions du présent article.` },
   { t: `L'Utilisateur a conscience des risques propres à un Service de ce type :` },
   { t: `Interruptions (Downtime) planifiées et non planifiées ; aucune garantie de disponibilité totale.` },
   { t: `Perte de données ou atteinte à leur intégrité à la suite de défaillances techniques ; il incombe à l'Utilisateur d'effectuer des sauvegardes périodiques.` },
   { t: `Modifications des interfaces API, des fonctionnalités ou des intégrations, qui peuvent être effectuées sans préavis.` },
   { t: `Défaillances des services tiers sur lesquels repose le Service (fournisseurs d'infrastructure, Google, etc.).` },
   { t: `Malgré des mesures de sécurité raisonnables, il n'existe aucune garantie absolue contre les intrusions cybernétiques ou les accès non autorisés.` },
-  { t: `Plafond de responsabilité — la responsabilité globale de l'exploitant envers l'Utilisateur au titre de dommages directs prouvés n'excédera pas le montant payé par l'Utilisateur au cours des 12 mois ayant précédé l'événement, ou ₪2,000, selon le montant le plus élevé.` },
+  { t: `Plafond de responsabilité — la responsabilité globale de l'exploitant envers l'Utilisateur au titre de dommages directs prouvés n'excédera pas ₪2,000.` },
   { t: `Cette limitation ne s'appliquera pas aux dommages corporels ou au décès résultant d'une négligence, à la violation d'une obligation de confidentialité de la part de l'exploitant, à un acte intentionnel ou à une négligence grave, ou à d'autres dommages dont la loi n'autorise pas la limitation de responsabilité.` },
   { t: `Indemnisation — l'Utilisateur s'engage à indemniser l'exploitant pour tout dommage ou dépense raisonnable (y compris des honoraires d'avocat raisonnables) qui lui seraient causés en raison d'une violation fondamentale des présentes conditions par l'Utilisateur ou en raison d'un usage illégal du Service.` },
 

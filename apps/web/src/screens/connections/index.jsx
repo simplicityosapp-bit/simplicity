@@ -1,11 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
-import { Plug, Calendar, FileText, Check, CircleAlert, ChevronLeft, MessageCircle, Sparkles, Lock, CreditCard } from 'lucide-react'
+import { Plug, Calendar, FileText, Check, CircleAlert, ChevronLeft, MessageCircle, Sparkles, CreditCard } from 'lucide-react'
 import { ROUTES } from '../../lib/routes'
 import { useGoogleCalendar } from '../../hooks/useGoogleCalendar'
 import { useInvoiceProvider } from '../../hooks/useInvoiceProvider'
-import { useSubscription } from '../../hooks/useSubscription'
-import { useUpgradeNav } from '../../hooks/useUpgradeNav'
 import { useGrowGateway } from '../../hooks/useGrowGateway'
 import { useClaudeAccess } from '../../hooks/useClaudeAccess'
 import { GROW_ENABLED } from '../../lib/grow'
@@ -52,32 +50,13 @@ function SoonRow({ icon: Icon, title, soonLabel, ariaLabel }) {
   )
 }
 
-/* Locked integration — available only on a paid plan. Tapping routes to the
-   subscription screen (the upgrade surface). While billing isn't enforced
-   (BILLING_ENABLED=false) this never renders — can.* is all true. */
-function LockedRow({ icon: Icon, title, label, onOpen, ariaLabel }) {
-  return (
-    <Btn type="button" className="conn-row conn-row-locked" onClick={onOpen} aria-label={ariaLabel}>
-      <Txt className="conn-row-icon"><Icon size={20} strokeWidth={1.6} aria-hidden="true" /></Txt>
-      <Txt className="conn-row-body">
-        <Txt className="conn-row-title">{title}</Txt>
-        <Txt className="conn-row-status locked"><Lock size={11} strokeWidth={2} aria-hidden="true" /> {label}</Txt>
-      </Txt>
-      <ChevronLeft size={18} strokeWidth={1.7} aria-hidden="true" className="conn-row-chevron" />
-    </Btn>
-  )
-}
-
 /* Connections home — a compact list of integrations. Each row enters its own
    sub-screen. This screen also catches the Google OAuth redirect (?code), since
    the registered redirect_uri is /connections; on success it forwards into the
    calendar sub-screen. */
 export default function ConnectionsScreen() {
   const { t } = useT('connections')
-  const { t: ts } = useT('subscription')
-  const { can } = useSubscription()
   const navigate = useNavigate()
-  const goUpgrade = useUpgradeNav()
   const [params] = useSearchParams()
   const gcal = useGoogleCalendar()
   const inv = useInvoiceProvider()
@@ -163,27 +142,17 @@ export default function ConnectionsScreen() {
           ariaLabel={t('list.rowAria', { title: 'Google Calendar', status: gcal.loading ? t('loading') : calStatusText })}
           onOpen={() => navigate(ROUTES.CONNECTION_CALENDAR)}
         />
-        {can.connectInvoicing ? (
-          <ConnRow
-            icon={FileText}
-            title={t('list.invoices')}
-            loading={inv.loading}
-            connected={invConnected}
-            warn={invWarn}
-            statusText={invStatusText}
-            loadingLabel={t('loading')}
-            ariaLabel={t('list.rowAria', { title: t('list.invoices'), status: inv.loading ? t('loading') : invStatusText })}
-            onOpen={() => navigate(ROUTES.CONNECTION_INVOICES)}
-          />
-        ) : (
-          <LockedRow
-            icon={FileText}
-            title={t('list.invoices')}
-            label={ts('locked')}
-            onOpen={goUpgrade}
-            ariaLabel={t('list.rowAria', { title: t('list.invoices'), status: ts('locked') })}
-          />
-        )}
+        <ConnRow
+          icon={FileText}
+          title={t('list.invoices')}
+          loading={inv.loading}
+          connected={invConnected}
+          warn={invWarn}
+          statusText={invStatusText}
+          loadingLabel={t('loading')}
+          ariaLabel={t('list.rowAria', { title: t('list.invoices'), status: inv.loading ? t('loading') : invStatusText })}
+          onOpen={() => navigate(ROUTES.CONNECTION_INVOICES)}
+        />
         {GROW_ENABLED ? (
           <ConnRow
             icon={CreditCard}

@@ -7,7 +7,6 @@ export {
   zonedParts, zonedTimeToInstant, DEFAULT_TIME_ZONE,
 } from './scheduledMeetings'
 export * from './paymentPlans'
-export * from './subscription'
 export * from './recurring'
 export * from './calendar'
 export * from './dates'

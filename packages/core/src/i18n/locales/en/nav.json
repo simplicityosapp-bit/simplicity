@@ -16,7 +16,6 @@
     "insights": "How are you today?",
     "trash": "Recycle bin",
     "community": "Community",
-    "subscription": "Subscription",
     "help": "Help and guide"
   },
   "feedback": "Talk to us",
@@ -57,7 +56,6 @@
     "leadPagesSub": "Public lead-capture forms",
     "bookingPagesSub": "Public appointment-booking page, synced to your calendar",
     "communitySub": "The shared room",
-    "subscriptionSub": "Your plan and what it includes",
     "helpSub": "The full guide and the FAQ"
   },
   "signOut": "Sign out",

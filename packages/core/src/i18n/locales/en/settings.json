@@ -315,10 +315,6 @@
     "trash": {
       "title": "Trash",
       "sub": "Restore anything you deleted"
-    },
-    "subscription": {
-      "title": "My plan",
-      "sub": "Your Simplicity subscription"
     }
   },
   "help": {
@@ -371,8 +367,7 @@
       "clients": "clients status statuses sub-status category active on a break past",
       "leads": "leads lead stage stages source sources pipeline enquiry label labels reason reasons",
       "connections": "connections calendar google invoice invoices whatsapp payments integration sync",
-      "trash": "trash bin recycle restore deleted items recover",
-      "subscription": "subscription plan billing upgrade premium package"
+      "trash": "trash bin recycle restore deleted items recover"
     }
   }
 }

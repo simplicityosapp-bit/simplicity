@@ -14,11 +14,10 @@
 
 import {
   User, Palette, LayoutGrid, Wallet, CalendarClock, Sparkles, Users, Leaf,
-  Database, Trash2, Info, Eye, Briefcase, Settings2, Plug, Gem,
+  Database, Trash2, Info, Eye, Briefcase, Settings2, Plug,
 } from 'lucide-react'
 import { SETTINGS_TREE, groupOfSection, soleSectionKeyOf } from '@simplicity/core'
 import { ROUTES } from '../../lib/routes'
-import { SUBSCRIPTION_NAV_ENABLED } from '../../lib/subscriptionNav'
 
 /* Section identity. Titles + subtitles are translated at render time via
    t(`sections.${key}.title` / `.sub`); only the icon is decided here. */
@@ -57,7 +56,6 @@ const LINK_DEFS = {
   leads: { icon: Leaf, to: ROUTES.LEADS },
   connections: { icon: Plug, to: ROUTES.CONNECTIONS },
   trash: { icon: Trash2, to: ROUTES.TRASH },
-  subscription: { icon: Gem, to: ROUTES.SUBSCRIPTION, enabled: () => SUBSCRIPTION_NAV_ENABLED },
 }
 
 export const SECTION_GROUPS = SETTINGS_TREE.map((group) => ({

@@ -5,8 +5,6 @@ import {
   Clock, CalendarClock,
 } from 'lucide-react'
 import { useBookingPages } from '../../hooks/useBookingPages'
-import { useSubscription } from '../../hooks/useSubscription'
-import { useUpgradeNav } from '../../hooks/useUpgradeNav'
 import { useMeetingTypes } from '../../hooks/useMeetingTypes'
 import { useProjects } from '../../hooks/useProjects'
 import { useGoogleCalendar } from '../../hooks/useGoogleCalendar'
@@ -50,20 +48,13 @@ export default function BookingPagesScreen() {
   const navigate = useNavigate()
   const location = useLocation()
   const { t } = useT('booking')
-  const { t: ts } = useT('subscription')
   const { pages, loading, error, addPage, updatePage, removePage } = useBookingPages()
-  const { limits } = useSubscription()
-  const goUpgrade = useUpgradeNav()
   const [editingId, setEditingId] = useState(() => location.state?.editPageId ?? null)
 
   const editing = useMemo(() => {
     if (editingId === 'new') return null
     return pages.find((p) => p.id === editingId) || null
   }, [editingId, pages])
-
-  /* Free tier gets ONE booking page — manage it freely, but creating a second
-     is gated. Infinity while billing isn't enforced → never blocks. */
-  const atLimit = (pages?.length || 0) >= limits.bookingPages
 
   /* Creating and editing are different jobs. Creating is one pass through
      decisions nobody has made yet — that gets the wizard. Editing is almost
@@ -114,12 +105,9 @@ export default function BookingPagesScreen() {
               This one was the exception, leaving its accessible name resting on
               zero-sized text. The label carries no "+" to strip, so it doubles as
               the aria string — no separate key needed. */}
-          <Btn className="cta-add" type="button" aria-label={t('pages.newPage')} onClick={() => (atLimit ? goUpgrade() : setEditingId('new'))}>{t('pages.newPage')}</Btn>
+          <Btn className="cta-add" type="button" aria-label={t('pages.newPage')} onClick={() => setEditingId('new')}>{t('pages.newPage')}</Btn>
         </Coachmark>
       </Box>
-      {atLimit && (
-        <Btn type="button" className="sub-limit-note" onClick={goUpgrade}>{ts('limit.pages')} · {ts('limit.upgrade')}</Btn>
-      )}
 
       {/* This screen has two doors: the calendar and the public-pages hub. The
           link used to be hard-wired to the calendar, so arriving from the hub

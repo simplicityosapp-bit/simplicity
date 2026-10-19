@@ -45,6 +45,7 @@ keep in sync without buying anything.
 | `0115_transactions_group_id` | **applied** 2026-09-06 — added the nullable `transactions.group_id` + its partial index. Verified before and after: 148 rows (143 live) unchanged, column `is_nullable = YES`, 0 rows attributed (no backfill, by design), the table's single RLS policy untouched. The advisor's only new line is `unused_index` on the new index, which is what a brand-new index says |
 | `0116_import_batch_id` | **applied** 2026-09-07 — added the nullable `import_batch_id` + its partial index to the eleven tables a spreadsheet import writes to (`clients`, `projects`, `leads`, `transactions`, `sessions`, `payment_plans`, `payment_installments`, `client_statuses`, `lead_statuses`, `categories`, `recurring_templates`), so "undo the import" is one indexed predicate per table instead of a hunt. Verified before and after: every row count identical (clients 49, projects 43, leads 46, transactions 149, sessions 195, recurring_templates 25, lead_statuses 11, categories 6, client_statuses 4, payment_plans 1, payment_installments 1), all eleven `is_nullable = YES` with `column_default = null`, all eleven indexes present, and `count(import_batch_id) = 0` on every table — nothing that pre-dates this migration can ever be matched by an undo. No backfill, by design: the imports that already happened were never grouped, so there is nothing truthful to attribute them to. Security advisor clean of anything new |
 | `0117_csp_violations` | **applied** — recorded live as `20260909135808 csp_violations`; the `csp_violations` table exists |
+| `0118_free_for_all` | **not applied yet** — drops the five inert plan-limit policies from `0075` and the eight helper functions only they used (dependencies checked live 2026-10-19). `user_subscriptions` untouched |
 
 Verified against the live database on 2026-08-27 by object presence: `0107`'s
 five count RPCs exist, `0108`'s `scheduled_meetings.duration_minutes` and its
@@ -55,7 +56,7 @@ from the live database at that watermark and matches it.
 
 ## How to add a migration
 
-Next free number is **`0118`**.
+Next free number is **`0119`**.
 
 Both commands below need the CLI linked to the project. That is a one-time step,
 and the password it asks for is stored by the CLI rather than in any file here:

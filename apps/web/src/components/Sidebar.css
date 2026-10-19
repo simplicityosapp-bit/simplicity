@@ -143,7 +143,6 @@
   .mg-sidebar-link[data-screen="sitePages"]    { --nav-accent: var(--blush); }
   .mg-sidebar-link[data-screen="community"]    { --nav-accent: var(--blush); }
   .mg-sidebar-link[data-screen="connections"]  { --nav-accent: var(--sage); }
-  .mg-sidebar-link[data-screen="subscription"] { --nav-accent: var(--amber-warn); }
 
   .mg-sidebar-link {
     display: flex;

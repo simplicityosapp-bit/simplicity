@@ -5,10 +5,8 @@ import { getMyCommunityProfile, insertCommunityProfile, updateCommunityProfile }
 /* ════════════════════════════════════════════════════════════════
    useCommunityProfile — "does this user have a community profile yet?"
    ════════════════════════════════════════════════════════════════
-   The repo's existing answer to the one-row-per-user question is
-   useSubscription, and this mirrors it: a single React Query fetch shared by
-   every mount, and a MISSING row treated as a normal state rather than an
-   error. Here that missing row is the whole point — it is what the profile
+   A single React Query fetch shared by every mount, and a MISSING row
+   treated as a normal state rather than an error. Here that missing row is the whole point — it is what the profile
    gate keys off, and what the community_messages FK (0086) enforces.
 
    ⚠️  `hasProfile` is only meaningful once `loading` is false. Before the

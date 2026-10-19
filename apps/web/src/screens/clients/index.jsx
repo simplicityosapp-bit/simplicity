@@ -18,8 +18,6 @@ import { useGroupMembers } from '../../hooks/useGroupMembers'
 import { useClientStatuses } from '../../hooks/useClientStatuses'
 import { useCategories } from '../../hooks/useCategories'
 import { useUserPreferences } from '../../hooks/useUserPreferences'
-import { useSubscription } from '../../hooks/useSubscription'
-import { useUpgradeNav } from '../../hooks/useUpgradeNav'
 import { useT } from '../../i18n/useT'
 import ClientTabs from './ClientTabs'
 import ClientCard from './ClientCard'
@@ -168,9 +166,6 @@ export default function ClientsScreen() {
     return result
   }
   const { statuses: clientStatuses } = useClientStatuses()
-  const { limits } = useSubscription()
-  const { t: ts } = useT('subscription')
-  const goUpgrade = useUpgradeNav()
   const { categories } = useCategories()
   const { prefs, update: updatePrefs } = useUserPreferences()
   const [tab, setTab] = useState('active')
@@ -243,10 +238,6 @@ export default function ClientsScreen() {
     no_status: byMeta.no_status.length,
   }
   const total = counts.active + counts.wandering + counts.past + counts.no_status
-  /* Free-tier ceiling on TOTAL clients in the system (all non-deleted, any
-     status — matches client_count() in the RLS). Infinity while billing isn't
-     enforced → never blocks. */
-  const atClientLimit = total >= limits.clients
 
   const tabClients = useMemo(() => byMeta[tab] || [], [byMeta, tab])
   /* Source list — when grouping by project, all live clients participate
@@ -437,11 +428,8 @@ export default function ClientsScreen() {
             {t('title')}
           </Txt>
         </Box>
-        <Btn className="cta-add" type="button" aria-label={t('addClientAria')} onClick={() => (atClientLimit ? goUpgrade() : setShowAdd(true))}>+ <MG word="client_new" /></Btn>
+        <Btn className="cta-add" type="button" aria-label={t('addClientAria')} onClick={() => setShowAdd(true)}>+ <MG word="client_new" /></Btn>
       </Box>
-      {atClientLimit && (
-        <Btn type="button" className="sub-limit-note" onClick={goUpgrade}>{ts('limit.clients')} · {ts('limit.upgrade')}</Btn>
-      )}
       <Box className="c-top-actions">
           <Box className="c-sort-wrap" ref={viewAnchorRef}>
             <Btn

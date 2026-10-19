@@ -65,7 +65,7 @@ export const SETTINGS_TREE: SettingsGroup[] = [
     items: ['data', 'reset', 'about'],
     /* Settings was a dead end: the neighbouring screens a user looks for
        here ("where do I connect my calendar?") live only in the side menu. */
-    links: ['connections', 'trash', 'subscription'],
+    links: ['connections', 'trash'],
   },
 ]
 

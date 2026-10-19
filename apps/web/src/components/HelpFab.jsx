@@ -26,8 +26,7 @@ const TABS = [
 ]
 
 /* Screens that deliberately show no help sheet — the "?" FAB is hidden for
-   them entirely (e.g. subscription: a short, self-explanatory plan screen
-   where generic help would just be noise). */
+   them entirely (see NO_HELP_SCREENS in lib/nav). */
 
 /* Finds the current screen's header card so the "?" button can be portaled
    INTO it (and thus scroll with it) instead of floating over the viewport.

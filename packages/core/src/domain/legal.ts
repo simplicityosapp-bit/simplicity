@@ -69,10 +69,21 @@
    what the clause covers, not to how it reads, and one for a lawyer to make.
    Privacy 2.2→2.3 by the rule above: its text changed, so its version moves.
    Both bumps ride the same re-acceptance prompt, so this costs the user one
-   dialog, not two. */
+   dialog, not two.
+   2026-10-19: Simplicity is free for good, as a gift — no paid plans, ever.
+   Terms §5 ("תשלום ומנוי": future pricing, 30 days' notice, suspension for
+   non-payment, refunds, receipts) is now "ללא תשלום" — one line saying the
+   service is free and has no paid plans. §2 drops "בתקופת הבטא" from the AS IS
+   line (owner decision: use is at the user's responsibility for all time, not
+   only during a beta). §7 gains "השימוש בשירות ובכל תוצריו הוא באחריות המשתמש
+   בלבד, בכפוף לאמור בסעיף זה", and its cap loses "the amount paid in the last
+   12 months" (always 0 now), leaving ₪2,000; the carve-outs line after it is
+   unchanged. Same edit in en/es/fr; "updated" moved to October 2026. Privacy
+   and DPA never mentioned payment and are untouched. Terms 2.1→2.2 (forces
+   re-acceptance). */
 export const PRIVACY_VERSION = '2.3'
 export const DPA_VERSION = '2.0'
-export const TERMS_VERSION = '2.1'
+export const TERMS_VERSION = '2.2'
 
 export interface ConsentMetadata {
   privacy_accepted_at?: string | null

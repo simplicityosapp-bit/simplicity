@@ -66,7 +66,6 @@ const InsightsScreen = lazyWithRetry(() => import('./screens/insights'))
 const ConnectionsScreen = lazyWithRetry(() => import('./screens/connections'))
 const CalendarConnectionScreen = lazyWithRetry(() => import('./screens/connections/CalendarConnection'))
 const InvoiceConnectionScreen = lazyWithRetry(() => import('./screens/connections/InvoiceConnection'))
-const GrowConnectionScreen = lazyWithRetry(() => import('./screens/connections/GrowConnection'))
 const WhatsAppConnectionScreen = lazyWithRetry(() => import('./screens/connections/WhatsAppConnection'))
 const ClaudeConnectionScreen = lazyWithRetry(() => import('./screens/connections/ClaudeConnection'))
 const CommunityProfileSetupScreen = lazyWithRetry(() => import('./screens/community/ProfileSetupScreen'))
@@ -294,7 +293,6 @@ function AppShell() {
             <Route path={ROUTES.CONNECTIONS} element={<ConnectionsScreen />} />
             <Route path={ROUTES.CONNECTION_CALENDAR} element={<CalendarConnectionScreen />} />
             <Route path={ROUTES.CONNECTION_INVOICES} element={<InvoiceConnectionScreen />} />
-            <Route path={ROUTES.CONNECTION_GROW} element={<GrowConnectionScreen />} />
             <Route path={ROUTES.CONNECTION_WHATSAPP} element={<WhatsAppConnectionScreen />} />
             <Route path={ROUTES.CONNECTION_CLAUDE} element={<ClaudeConnectionScreen />} />
             <Route path={ROUTES.COMMUNITY_CHAT} element={<CommunityChatScreen />} />

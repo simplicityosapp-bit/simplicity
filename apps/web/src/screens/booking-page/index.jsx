@@ -52,7 +52,6 @@ export default function BookingPage() {
   const [submitError, setSubmitError] = useState(null)
   const [thankYou, setThankYou] = useState(null)
   const [refreshKey, setRefreshKey] = useState(0) // bumped to re-fetch slots after a 409 race
-  const [paymentResult, setPaymentResult] = useState(null) // 'paid' | 'cancelled' — set on return from Grow
   const hp = useRef('')
 
   const content = config?.content ?? {}
@@ -63,7 +62,6 @@ export default function BookingPage() {
   const types = useMemo(() => (Array.isArray(config?.meetingTypes) ? config.meetingTypes : []), [config])
   const chosenType = useMemo(() => types.find((t) => (t.id ?? '__d') === typeId) || null, [types, typeId])
   // Payment is required when the page opted in AND the chosen type has a price.
-  const needsPay = !!config?.requirePayment && Number(chosenType?.default_price) > 0
 
   useEffect(() => {
     let active = true
@@ -96,17 +94,6 @@ export default function BookingPage() {
     })()
     return () => { active = false }
   }, [pageId])
-
-  /* Returning from a Grow payment lands back here as ?paid=1 or ?cancelled=1
-     (the successUrl/cancelUrl we passed). Read once on mount. */
-  useEffect(() => {
-    try {
-      const p = new URLSearchParams(window.location.search)
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- read the Grow return flag once on mount and reflect it in state.
-      if (p.get('paid')) setPaymentResult('paid')
-      else if (p.get('cancelled')) setPaymentResult('cancelled')
-    } catch { /* ignore */ }
-  }, [])
 
   /* Load slots whenever a meeting type is chosen. */
   useEffect(() => {
@@ -192,12 +179,7 @@ export default function BookingPage() {
         meetingTypeId: chosenType?.id || undefined,
         start: slot.start,
         answers,
-        origin: typeof window !== 'undefined' ? window.location.origin : undefined,
       })
-      // Payment-required booking → Grow returns a hosted-payment URL; send the
-      // visitor there to pay (their slot is held meanwhile). On return they land
-      // back here with ?paid=1 / ?cancelled=1 (handled on mount).
-      if (res?.payment?.url) { window.location.href = res.payment.url; return }
       const ty = res?.thankYou || content.thankYou || null
       const redirect = ty?.mode === 'redirect' ? safeRedirectUrl(ty.url) : null
       if (redirect) { window.location.href = redirect; return }
@@ -220,32 +202,6 @@ export default function BookingPage() {
 
   const { style: rootStyle, cls: surfaceCls } = leadPageSurface(content)
   const rootClass = `lp-root lp-surface bk2-page${surfaceCls ? ` ${surfaceCls}` : ''}`
-
-  /* Returned from Grow paid → confirm; cancelled → let them try again. These
-     short-circuit the normal flow regardless of the config-load status. */
-  if (paymentResult === 'paid') {
-    return (
-      <Box className={rootClass} dir="rtl" style={rootStyle}>
-        <Box className="lp-card lp-state">
-          {content.logoText ? <Box className="lp-logo">{content.logoText}</Box> : null}
-          <Box className="lp-check" aria-hidden="true">✓</Box>
-          <Txt as="p" className="lp-thankyou">{t('publicPage.paidThankYou')}</Txt>
-        </Box>
-      </Box>
-    )
-  }
-  if (paymentResult === 'cancelled') {
-    return (
-      <Box className={rootClass} dir="rtl" style={rootStyle}>
-        <Box className="lp-card lp-state">
-          {content.logoText ? <Box className="lp-logo">{content.logoText}</Box> : null}
-          <Txt as="h1" className="lp-heading">{t('publicPage.cancelledTitle')}</Txt>
-          <Txt as="p" className="lp-muted">{t('publicPage.cancelledBody')}</Txt>
-          <Lnk className="lp-submit" href={typeof window !== 'undefined' ? window.location.pathname : '#'}>{t('publicPage.cancelledRetry')}</Lnk>
-        </Box>
-      </Box>
-    )
-  }
 
   if (status === 'loading') {
     return <Box className={rootClass} dir="rtl" style={rootStyle}><Box className="lp-card lp-state"><Txt as="p" className="lp-muted">{t('publicPage.loading')}</Txt></Box></Box>
@@ -348,7 +304,6 @@ export default function BookingPage() {
             <Txt as="p" className="bk2-chosen">
               {chosenType?.name ? `${chosenType.name} · ` : ''}{fmtDayLabel(slot.start, tz)} · {fmtTime(slot.start, tz)}
             </Txt>
-            {needsPay ? <Txt as="p" className="bk2-pay-note">{t('publicPage.payNote', { amount: chosenType.default_price })}</Txt> : null}
             {/* Driven by the page's own field list, so the coach can drop the
                 ones a booking doesn't need and require the ones it does. The
                 four builtins keep their labels and keys; free fields ride along
@@ -416,7 +371,7 @@ export default function BookingPage() {
             <Input type="text" tabIndex={-1} autoComplete="off" className="lp-hp" aria-hidden="true" onChange={(e) => { hp.current = e.target.value }} />
             {submitError ? <Txt as="p" className="lp-submit-error">{submitError}</Txt> : null}
             <Btn type="submit" className="lp-submit" disabled={submitting}>
-              {submitting ? t('publicPage.submitting') : (needsPay ? t('publicPage.submitPay') : t('publicPage.submit'))}
+              {submitting ? t('publicPage.submitting') : t('publicPage.submit')}
             </Btn>
           </Box>
         )}

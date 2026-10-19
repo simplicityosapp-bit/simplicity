@@ -5,7 +5,6 @@ import SelectMenu from '../components/SelectMenu'
 import Modal from './Modal'
 import ConfirmModal from './ConfirmModal'
 import InvoiceActions from '../components/InvoiceActions'
-import GrowPayButton from '../components/GrowPayButton'
 import { PAY_METHODS, payMethodLabel, toLocalDate, isr, clientPaymentTargets } from '@simplicity/core'
 import { useT } from '../i18n/useT'
 import { useGroups } from '../hooks/useGroups'
@@ -260,21 +259,6 @@ export default function EditTransactionModal({ open, onClose, onSave, onIssued, 
           when an invoice provider is connected; based on the SAVED transaction. */}
       {tx.type === 'income' && (
         <InvoiceActions tx={tx} clientName={clientName} onIssued={onIssued} formDirty={formDirty} />
-      )}
-
-      {/* Online payment via Grow for this income — renders only when the gateway
-          is enabled + connected (hidden while locked), and only for income still
-          PENDING (not yet received), so we never offer a pay link for money
-          already collected. On payment the webhook confirms THIS transaction. */}
-      {tx.type === 'income' && tx.status === 'pending' && (
-        <GrowPayButton
-          source="transaction"
-          transactionId={tx.id}
-          clientId={tx.client_id}
-          amount={Number(tx.amount)}
-          description={tx.desc || clientName}
-          clientName={clientName}
-        />
       )}
 
       {err && <Txt as="p" className="m-error">{err}</Txt>}

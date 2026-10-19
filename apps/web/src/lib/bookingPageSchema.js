@@ -115,7 +115,6 @@ export function draftFromPage(page) {
     title: page.title ?? '',
     published: !!page.published,
     auto_confirm: !!page.auto_confirm,
-    require_payment: !!page.require_payment,
     write_to_google: !!page.write_to_google,
     invite_client: !!page.invite_client,
     project_id: page.project_id ?? '',

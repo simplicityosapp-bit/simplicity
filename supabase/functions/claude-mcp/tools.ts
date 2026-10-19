@@ -133,7 +133,7 @@ export const COLUMNS = {
   sessions: ['id', 'client_id', 'group_id', 'subject_type', 'subject_id', 'date', 'num'],
   scheduled_meetings: ['id', 'subject_type', 'subject_id', 'scheduled_at', 'duration_minutes', 'status', 'session_id'],
   calendar_busy: ['id', 'start_time', 'end_time', 'all_day', 'client_id'],
-  bookings: ['id', 'meeting_type_id', 'starts_at', 'ends_at', 'status', 'payment_status'],
+  bookings: ['id', 'meeting_type_id', 'starts_at', 'ends_at', 'status'],
   meeting_types: ['id', 'name', 'default_price', 'duration_minutes'],
 
   calendar_titles: ['id', 'title', 'start_time'],
@@ -152,8 +152,6 @@ export const COLUMNS = {
   payment_plans: ['id', 'client_id', 'project_id', 'total_amount', 'num_installments', 'notes', 'created_at'],
   payment_installments: ['id', 'plan_id', 'num', 'due_date', 'amount', 'received', 'received_date',
     'payment_method', 'transaction_id'],
-  payment_requests: ['id', 'client_id', 'transaction_id', 'installment_id', 'booking_id', 'source', 'amount',
-    'description', 'status', 'paid_at', 'created_at'],
   recurring_templates: ['id', 'amount', 'type', 'desc', 'project_id', 'client_id', 'category_id', 'cadence_type',
     'day_of_month', 'day_of_week', 'until_date', 'active', 'trigger_type'],
   client_adjustments: ['id', 'client_id', 'kind', 'reason', 'amount', 'note', 'occurred_on'],
@@ -510,7 +508,7 @@ export const TOOLS: Tool[] = [
   {
     name: 'list_payment_plans',
     category: 'finance',
-    description: 'Payment plans with their installments and payment requests. Client ids, not names.',
+    description: 'Payment plans with their installments. Client ids, not names.',
     inputSchema: schema({ client_id: P.id('client'), limit: P.limit }),
     run: async ({ args, read }) => {
       const limit = limitArg(args)
@@ -520,8 +518,7 @@ export const TOOLS: Tool[] = [
       const installments = planIds.length
         ? await read({ table: 'payment_installments', columns: COLUMNS.payment_installments, filters: inList('plan_id', planIds), limit: MAX_ROWS, order: { col: 'due_date', ascending: true } })
         : []
-      const requests = await read({ table: 'payment_requests', columns: COLUMNS.payment_requests, limit, filters: eq('client_id', client_id), order: { col: 'created_at', ascending: false } })
-      return { plans, installments, payment_requests: requests, truncated: truncated(plans, limit) || installments.length >= MAX_ROWS }
+      return { plans, installments, truncated: truncated(plans, limit) || installments.length >= MAX_ROWS }
     },
   },
   {

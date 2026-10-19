@@ -3,7 +3,6 @@ import { ChevronDown, Plus, Check, RotateCcw, Trash2, CreditCard } from 'lucide-
 import DateField from '../../components/DateField'
 import { usePaymentPlans } from '../../hooks/usePaymentPlans'
 import { planInstallments, planBalance, firstOfNextMonth, generateInstallments, fmtShortDate, isr, PAY_METHODS, payMethodLabel } from '@simplicity/core'
-import GrowPayButton from '../../components/GrowPayButton'
 import { useT } from '../../i18n/useT'
 import './PaymentPlanSection.css'
 import { Box, Txt, Btn, Input } from '../../components/ui'
@@ -126,19 +125,6 @@ export default function PaymentPlanSection({ client }) {
                       </Btn>
                     )}
                     </Box>
-                    {/* Online payment for this installment — hidden while Grow is
-                        locked/disconnected; on payment the webhook marks it received. */}
-                    {!inst.received && (
-                      <GrowPayButton
-                        source="installment"
-                        installmentId={inst.id}
-                        clientId={client.id}
-                        amount={inst.amount}
-                        description={t('plan.title')}
-                        clientName={client.name}
-                        clientPhone={client.phone}
-                      />
-                    )}
                   </Box>
                 ))}
               </Box>

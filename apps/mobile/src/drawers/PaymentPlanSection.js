@@ -17,8 +17,7 @@ const T = (k, o) => i18n.t(`clients:plan.${k}`, o)
 // Payment plan (פריסת תשלומים) section inside the client drawer — mirrors web's
 // PaymentPlanSection. Splits a client's total into installments and tracks which
 // were received (each received installment = a linked income transaction, via
-// usePaymentPlans). Self-contained: one active plan per client in v1. The web
-// per-installment Grow online-pay button is omitted (Grow is disabled).
+// usePaymentPlans). Self-contained: one active plan per client in v1.
 /* `onChanged` runs after every write that moves money or the client's total —
    creating a plan (sets total_override), marking an installment received or
    not (adds or removes an income transaction), removing a plan. This section
